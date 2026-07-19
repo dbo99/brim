@@ -1,0 +1,24 @@
+﻿expected_id,expected_name,match_regex,expected_project_division,expected_project_unit,expected_level,evidence_url,expected_project_family,expected_project_name
+CVP001,Delta Cross Channel,\bDelta Cross Channel\b,Delta Division,,major,https://www.usbr.gov/projects/index.php?id=477,CVP,Central Valley Project
+CVP002,Contra Costa Canal,\bContra Costa Canal\b,Delta Division,Contra Costa Canal,major,https://www.usbr.gov/projects/index.php?id=477,CVP,Central Valley Project
+CVP003,Delta-Mendota Canal,\bDelta[- ]Mendota Canal\b,Delta Division,Delta-Mendota Canal,major,https://www.usbr.gov/projects/index.php?id=477,CVP,Central Valley Project
+CVP004,Tracy/Jones Pumping Plant conveyance,Tracy (Pumping Plant|PP).*(Inlet|Discharge),Delta Division,,important,https://www.usbr.gov/projects/index.php?id=477,CVP,Central Valley Project
+CVP005,Folsom South Canal,\bFolsom South Canal\b,American River Division,Folsom Unit,major,https://www.usbr.gov/projects/index.php?id=505,CVP,Central Valley Project
+CVP006,Camp Creek Tunnel,\bCamp Creek Tunnel\b,American River Division,Sly Park Unit,important,https://www.usbr.gov/projects/index.php?id=505,CVP,Central Valley Project
+CVP007,Camino Conduit/Tunnel,\bCamino (Conduit|Tunnel)\b,American River Division,Sly Park Unit,supplemental_expected,https://www.usbr.gov/projects/index.php?id=505,CVP,Central Valley Project
+CVP008,Friant-Kern Canal,\bFriant[- ]Kern Canal\b,Friant Division,Friant-Kern Canal,major,https://www.usbr.gov/projects/index.php?id=341,CVP,Central Valley Project
+CVP009,Madera Canal,\bMadera Canal\b,Friant Division,Madera Canal,major,https://www.usbr.gov/projects/index.php?id=341,CVP,Central Valley Project
+CVP010,Tehama-Colusa Canal,\bTehama[- ]Colusa Canal\b,Sacramento River Division,Sacramento Canals Unit,major,https://www.usbr.gov/projects/index.php?id=509,CVP,Central Valley Project
+CVP011,Corning Canal,\bCorning Canal\b,Sacramento River Division,Sacramento Canals Unit,major,https://www.usbr.gov/projects/index.php?id=509,CVP,Central Valley Project
+CVP012,Pacheco Tunnel,\bPacheco Tunnel\b,San Felipe Division,,major,https://www.usbr.gov/projects/index.php?id=392,CVP,Central Valley Project
+CVP013,Pacheco Conduit,\bPacheco Conduit\b,San Felipe Division,,major,https://www.usbr.gov/projects/index.php?id=392,CVP,Central Valley Project
+CVP014,Santa Clara Conduit,\bSanta Clara Conduit\b,San Felipe Division,,important,https://www.usbr.gov/projects/index.php?id=392,CVP,Central Valley Project
+CVP015,Hollister Conduit,\bHollister Conduit\b,San Felipe Division,,important,https://www.usbr.gov/projects/index.php?id=392,CVP,Central Valley Project
+CVP016,San Luis Canal,San Luis Canal \(California Aqueduct joint-use reach\)|California Aqueduct[- –]San Luis,West San Joaquin Division,San Luis Unit,major_joint,https://www.usbr.gov/projects/index.php?id=427,CVP,Central Valley Project
+CVP017,O'Neill intake channel,O[’'`]?Neill.*(Inlet|Intake) Channel|Oneill Forbay Inlet Channel,West San Joaquin Division,San Luis Unit,important,https://www.usbr.gov/projects/index.php?id=427,CVP,Central Valley Project
+CVP018,Coalinga Canal,\bCoalinga Canal\b,West San Joaquin Division,San Luis Unit,major,https://www.usbr.gov/projects/index.php?id=427,CVP,Central Valley Project
+CVP019,San Luis Drain,\bSan Luis Drain\b,West San Joaquin Division,San Luis Unit,major,https://www.usbr.gov/projects/index.php?id=427,CVP,Central Valley Project
+CVP020,Volta Wasteway,\bVolta.*Wasteway\b,West San Joaquin Division,San Luis Unit,important,https://www.usbr.gov/projects/index.php?id=427,CVP,Central Valley Project
+CVP021,Clear Creek Tunnel/Carr penstocks,Clear Creek Tunnel|Judge Francis Carr,Trinity River Division,,major_component,https://www.usbr.gov/projects/index.php?id=342,CVP,Central Valley Project
+CVP022,Spring Creek power conveyance,Spring Creek (Power Conduit|Penstocks|Powerplant Tailrace)|Spring Creek Power,Trinity River Division,,major_component,https://www.usbr.gov/projects/index.php?id=342,CVP,Central Valley Project
+CVP023,DMC–California Aqueduct Intertie,Delta[- ]Mendota.*California Aqueduct.*Intertie|DMC.*(CA|California Aqueduct).*Intertie,Delta Division,,supplemental_required,https://www.usbr.gov/mp/intertie/,CVP,Central Valley Project

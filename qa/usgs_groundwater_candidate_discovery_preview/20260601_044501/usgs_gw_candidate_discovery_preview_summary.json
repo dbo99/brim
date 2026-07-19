@@ -1,0 +1,48 @@
+{
+  "run_time_utc": "2026-06-01T04:45:01Z",
+  "output_dir": "qa/usgs_groundwater_candidate_discovery_preview/20260601_044501",
+  "summary": [
+    {
+      "run_time_utc": "2026-06-01T04:45:01Z",
+      "lookback_days": 800,
+      "parameter_code": "72019",
+      "bbox": "-124.6,32.3,-113.8,42.2",
+      "query_start_date": "2024-03-22",
+      "query_end_date": "2026-06-01",
+      "raw_field_measurement_rows": 11869,
+      "discovered_sites": 2312,
+      "current_candidate_sites": 0,
+      "additions_vs_current": 2312,
+      "current_missing_from_preview": 0,
+      "latest_30d_count": 273,
+      "latest_90d_count": 1264,
+      "latest_1y_count": 1733,
+      "latest_2y_count": 2205,
+      "latest_3y_count": 2312,
+      "known_sites_found": "362402116280901",
+      "known_sites_missing": "",
+      "notes": "Preview only; no production candidate files were modified. Bbox is the BRIM discovery envelope and may include border-context wells."
+    },
+    {
+      "run_time_utc": "2026-06-01T04:45:01Z",
+      "lookback_days": 1826,
+      "parameter_code": "72019",
+      "bbox": "-124.6,32.3,-113.8,42.2",
+      "query_start_date": "2021-05-31",
+      "query_end_date": "2026-06-01",
+      "raw_field_measurement_rows": 30252,
+      "discovered_sites": 3168,
+      "current_candidate_sites": 0,
+      "additions_vs_current": 3168,
+      "current_missing_from_preview": 0,
+      "latest_30d_count": 273,
+      "latest_90d_count": 1264,
+      "latest_1y_count": 1733,
+      "latest_2y_count": 2205,
+      "latest_3y_count": 2499,
+      "known_sites_found": "362402116280901",
+      "known_sites_missing": "",
+      "notes": "Preview only; no production candidate files were modified. Bbox is the BRIM discovery envelope and may include border-context wells."
+    }
+  ]
+}

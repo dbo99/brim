@@ -1,0 +1,36 @@
+{
+  "rows": 83,
+  "agencies": {
+    "DWR / CNRA": 48,
+    "SWRCB / Water Boards": 5,
+    "CDFW": 16,
+    "BLM AIM": 4,
+    "BLM GBP": 1,
+    "USFWS": 2,
+    "FEMA": 1,
+    "NOAA": 5,
+    "CNRA": 1
+  },
+  "themes_top": {
+    "Groundwater models / C2VSim": 8,
+    "Groundwater levels": 7,
+    "Sea level rise / coastal flooding": 6,
+    "Groundwater / SGMA": 5,
+    "Planning / water management": 3,
+    "Delta / Bay-Delta": 3,
+    "Flood management": 3,
+    "Drought / water shortage vulnerability": 3,
+    "ACE / aquatic biodiversity": 3,
+    "ACE / wetlands and riparian": 3,
+    "Water agencies / districts": 2,
+    "Groundwater monitoring": 2,
+    "Water quality / monitoring": 2,
+    "Wells / well completion reports": 2,
+    "ACE / vegetation and habitat": 2,
+    "Monitoring / terrestrial": 2,
+    "Groundwater": 1,
+    "Hydrologic boundaries": 1,
+    "Water infrastructure / regulation": 1,
+    "Groundwater basins": 1
+  }
+}

@@ -1,0 +1,13 @@
+RF042 static USGS groundwater hover cleanup
+
+Changed:
+- 05_map_build/02_cache_blocks/03_cache_stream_usgs_points.r
+
+Scope:
+- Static USGS Wells hover text only.
+- Removes active/inactive status from hover because active status is already encoded by the bright green ring.
+- Removes Ops Live membership from hover.
+- Keeps co-located/nested count on its own hover line.
+- No data/feed changes.
+- No symbology changes.
+- Requires rebuild_core_cache_and_map() because hover_text is cached in usgs_wells_map.rds.

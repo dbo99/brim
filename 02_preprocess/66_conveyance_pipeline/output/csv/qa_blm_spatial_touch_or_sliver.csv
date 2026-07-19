@@ -1,0 +1,2 @@
+segment_id,facility_id,canonical_name,calculated_length_mi,blm_crosses,blm_length_mi,blm_nearest_mi,blm_touches_only,small_piece_count,small_piece_total_m,small_piece_max_m
+CVY_5C2E8955_S001,CVY_5C2E8955,'B' Canal,5.816362715184769,FALSE,0,0,TRUE,1,4.358884307327982,4.358884307327982

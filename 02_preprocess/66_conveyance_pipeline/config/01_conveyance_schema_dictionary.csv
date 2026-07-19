@@ -1,0 +1,96 @@
+table_name,field_name,field_type,description
+conveyance_segments,segment_id,text,Stable segment identifier; one facility may have multiple segments.
+conveyance_segments,facility_id,text,Stable link to the logical named facility.
+conveyance_segments,canonical_name,text,Full canonical facility/component name used in popups and queries.
+conveyance_segments,lbl,text,Compact precomputed map label.
+conveyance_segments,parent_system,text,"Parent aqueduct, project, or regional conveyance system."
+conveyance_segments,aliases,text,Semicolon-separated aliases retained for search and provenance.
+conveyance_segments,facility_group,text,"Broad display/filter class: open, closed, power, drainage, distribution, flood, or other."
+conveyance_segments,facility_type,text,"Specific type such as canal, aqueduct, pipeline, tunnel, penstock, drain, or wasteway."
+conveyance_segments,network_role,text,"Mainline, branch, lateral, intake, drainage, power delivery, return flow, or unknown."
+conveyance_segments,ownership_class,text,"Federal, California state, local/regional public, private, joint, or unknown."
+conveyance_segments,owner_agency,text,Best available owner attribution.
+conveyance_segments,operator_agency,text,Best available operator attribution.
+conveyance_segments,project_family,text,"Semicolon-separated high-level memberships such as CVP, SWP, Other Reclamation, or Local/regional public."
+conveyance_segments,project_name,text,Semicolon-separated project/system memberships.
+conveyance_segments,project_unit,text,Semicolon-separated unit/division/branch memberships.
+conveyance_segments,display_rank,text,"statewide_major, regional_major, medium, or local_supporting."
+conveyance_segments,status,text,Operating status; initialized as unknown unless supported.
+conveyance_segments,length_mi,real,Segment length in miles calculated in California Albers.
+conveyance_segments,geometry_source,text,"Major Conveyance, DeltaMAPP, or derived extension."
+conveyance_segments,geometry_decision,text,Decision rule used to construct the segment.
+conveyance_segments,geometry_confidence,text,"High, medium, or low."
+conveyance_segments,source_major_rows,text,Major Conveyance source row lineage.
+conveyance_segments,source_delta_rows,text,DeltaMAPP source row lineage.
+conveyance_segments,blm_crosses,integer/logical,Reserved for BLM polygon preprocessing.
+conveyance_segments,blm_length_mi,real,Reserved length of segment on BLM-administered land.
+conveyance_segments,blm_pct_length,real,Reserved percent of segment length on BLM-administered land.
+conveyance_segments,blm_nearest_mi,real,Reserved nearest distance to BLM-administered land.
+conveyance_segments,blm_crossing_count,integer,Reserved count of entries/exits or intersections with BLM polygons.
+conveyance_segments,blm_field_offices,text,Reserved semicolon-separated BLM field-office names.
+facilities,facility_id,text,Stable facility identifier.
+facilities,canonical_name,text,Full canonical facility name.
+facilities,lbl,text,Compact map label shared by the facility.
+facilities,lbl_full,text,Full label text.
+facilities,aliases,text,Searchable aliases.
+facilities,parent_system,text,Parent system or project.
+facilities,project_family,text,High-level project family memberships.
+facilities,project_name,text,Project/system memberships.
+facilities,project_unit,text,Unit/division/branch memberships.
+facilities,ownership_class,text,High-level ownership filter.
+facilities,facility_group,text,Broad facility-type filter.
+facilities,facility_type,text,Dominant/summarized type.
+facilities,display_rank,text,Highest display rank among its segments.
+facilities,length_mi,real,Total segment length.
+facilities,segment_count,integer,Number of canonical segments.
+facilities,facility_crosses_blm,integer/logical,Reserved facility-level BLM intersection flag.
+facilities,facility_length_on_blm_mi,real,Reserved facility total on BLM.
+facilities,facility_min_blm_distance_mi,real,Reserved minimum BLM distance.
+facilities,facility_blm_field_offices,text,Reserved BLM field offices.
+conveyance_labels,label_id,text,Stable label-point identifier.
+conveyance_labels,facility_id,text,Facility link.
+conveyance_labels,segment_id,text,Segment used to locate the anchor.
+conveyance_labels,lbl,text,Compact label shown when lbl is enabled.
+conveyance_labels,lbl_full,text,Full formal label.
+conveyance_labels,lbl_priority,integer,Higher values receive precedence.
+conveyance_labels,lbl_min_zoom,integer,Minimum zoom at which the label is eligible.
+conveyance_labels,lbl_max_zoom,integer,Maximum zoom at which the label is eligible.
+conveyance_labels,label_class,text,"statewide_major, regional_major, medium, or local_supporting."
+conveyance_labels,show_default,integer/logical,Whether eligible when the global lbl checkbox is first enabled.
+facility_aliases,facility_id,text,Facility link.
+facility_aliases,alias,text,One alias per row.
+facility_aliases,alias_type,text,"source_name, abbreviation, historical, parent_name, geographic, or other."
+facility_projects,facility_id,text,Facility link.
+facility_projects,project_id,text,Project link.
+facility_projects,membership_role,text,"facility, component, joint_use, branch, unit, or unassigned."
+projects,project_id,text,Stable project/system ID.
+projects,project_family,text,"CVP, SWP, Other Reclamation, Other state, Local/regional public, Private, or Unknown."
+projects,project_name,text,Named project/system.
+projects,project_unit,text,Optional unit/division/branch.
+projects,parent_project_id,text,Optional hierarchy link.
+source_crosswalk,source_id,text,Major or Delta source-row ID.
+source_crosswalk,facility_id,text,Canonical facility link when used.
+source_crosswalk,segment_id,text,Canonical segment link when used.
+source_crosswalk,source_action,text,"used, duplicate_suppressed, unresolved_omitted, or provisional_included."
+source_crosswalk,decision_id,text,Review/automatic decision responsible for the action.
+source_crosswalk,qa_notes,text,Lineage and QA notes.
+qa_unresolved,decision_id,text,Unresolved review or omitted local-network decision.
+qa_unresolved,source_rows,text,Affected source rows.
+qa_unresolved,issue,text,Reason it was omitted or needs manual surgery.
+conveyance_segments,project_division,text,"Semicolon-separated project divisions, such as Friant Division or Delta Division."
+conveyance_segments,project_subunit,text,"Semicolon-separated branches, systems, or named project components below project_unit."
+facilities,project_division,text,Project division memberships aggregated from facility_projects.
+facilities,project_subunit,text,Project subunit/component memberships aggregated from facility_projects.
+facility_projects,project_division,text,Normalized project division.
+facility_projects,project_unit,text,Normalized project unit.
+facility_projects,project_subunit,text,"Normalized subunit, branch, or named system component."
+facility_projects,evidence_rule_id,text,Project crosswalk or reviewed seed rule supporting the assignment.
+facility_projects,evidence_url,text,Authoritative source URL supporting the assignment.
+project_membership_crosswalk,rule_id,text,Stable project-classification rule identifier.
+qa_expected_cvp_facilities,audit_status,text,"present_and_assigned, present_but_misassigned, or missing_geometry."
+qa_reclamation_unassigned,facility_id,text,Reclamation-attributed facility still lacking a named project assignment.
+supplemental_geometry_registry,status,text,"pending, ready, source_needed, or optional status for supplemental geometry."
+conveyance_segments,display_rank_source,text,automatic or reviewed_override provenance for display hierarchy.
+conveyance_segments,display_rank_reason,text,Reason the facility received its public line-width rank.
+facilities,display_rank_source,text,Facility-level provenance for display hierarchy.
+facilities,display_rank_reason,text,Facility-level reason for the public line-width rank.

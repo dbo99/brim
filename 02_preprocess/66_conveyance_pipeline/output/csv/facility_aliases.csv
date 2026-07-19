@@ -1,0 +1,97 @@
+facility_id,alias,alias_type
+CVY_01F93789,California Aqueduct – West Branch,parent_or_system_name
+CVY_01F93789,West Branch,alternate_name
+CVY_03DDB527,WWD Lateral 4-5.5,abbreviation_or_source_name
+CVY_03EECDC1,SFPUC Bay Division Pipelines,abbreviation_or_source_name
+CVY_03EECDC1,Hetch Hetchy Regional Water System pipeline,parent_or_system_name
+CVY_048110EF,Main District Canal,alternate_name
+CVY_04CF4069,Shafter Wasco ID Lateral,abbreviation_or_source_name
+CVY_06200379,California Aqueduct – San Luis,parent_or_system_name
+CVY_06200379,San Luis Canal,alternate_name
+CVY_0AD82066,GCID Lateral 26-2a,abbreviation_or_source_name
+CVY_0F572C69,South Main Canal,alternate_name
+CVY_0F999C94,BWGID Traynor Lateral,abbreviation_or_source_name
+CVY_0F999C94,Traynor Lateral,alternate_name
+CVY_10C7D7BE,Lateral 35-1c,alternate_name
+CVY_10C7D7BE,GCID Lateral 35-1C,abbreviation_or_source_name
+CVY_12A7DC15,GCID Lateral 41-1,abbreviation_or_source_name
+CVY_12D4EC64,Spring Creek Power Conduit,alternate_name
+CVY_142F5CC1,South Bay Aqueduct,parent_or_system_name
+CVY_151746FD,San Diego Aqueducts,parent_or_system_name
+CVY_151746FD,San Diego Canal,alternate_name
+CVY_160FEA31,Tulare Canal,alternate_name
+CVY_160FEA31,Main Canal,alternate_name
+CVY_16EE1FAF,Camp Creek Diversion Tunnel,alternate_name
+CVY_1C188A61,South Canal,alternate_name
+CVY_1C188A61,Stony Creek Irrigation Canal,alternate_name
+CVY_1FB79D3D,GCID Lateral 62-2a,abbreviation_or_source_name
+CVY_1FB79D3D,GCID Lateral 64-2a,abbreviation_or_source_name
+CVY_214E402D,Cross Canal,alternate_name
+CVY_25BBB6F6,California Aqueduct,parent_or_system_name
+CVY_25BBB6F6,East Branch,alternate_name
+CVY_26ACDA9D,Colusa Basin Drainage Canal,alternate_name
+CVY_2B163A2C,Spring Creek Power Conduit,alternate_name
+CVY_2B163A2D,Spring Creek Power Conduit,alternate_name
+CVY_2F51B829,San Diego Aqueducts,parent_or_system_name
+CVY_2F51B829,Rainbow Creek (geographic/source name only),source_or_qa_name
+CVY_2F615CFA,Colusa Drain,alternate_name
+CVY_304A39C0,Main Canal,alternate_name
+CVY_321EACDF,Gates Canal,alternate_name
+CVY_321EACDF,Stine Canal Extension,alternate_name
+CVY_354C9340,Spring Creek Power Conduit,alternate_name
+CVY_354C9340,Spring Creek Powerplant system,parent_or_system_name
+CVY_364F15B3,Auburn-Folsom South Canal,alternate_name
+CVY_3966F9CE,Clear Creek South Main Aqueduct,parent_or_system_name
+CVY_3A443561,Madera Irrigation District Lateral 24.2,alternate_name
+CVY_3AF544D9,WWD Lateral 4,abbreviation_or_source_name
+CVY_3AF544DB,WWD Lateral 6,abbreviation_or_source_name
+CVY_3AF544DC,WWD Lateral 7,abbreviation_or_source_name
+CVY_3B2725AB,Levee #1 Canal,alternate_name
+CVY_3B2725AB,Levee Number One Canal,alternate_name
+CVY_3EB4894E,Main Canal,alternate_name
+CVY_3EB4894E,source placeholder ??Pipeline??,source_or_qa_name
+CVY_41818638,Central Branch,alternate_name
+CVY_42E3050F,Ygnacio Canal,alternate_name
+CVY_42E3050F,Ygnatio Loop Canal,alternate_name
+CVY_4725E671,East Park Feeder Canal,alternate_name
+CVY_48C15B33,Farington Lateral,alternate_name
+CVY_4A033C0F,Sutter Co. Extension Canal,alternate_name
+CVY_4A033C0F,Sutter Butte Extension Canal,alternate_name
+CVY_4DFF44A0,GCID Lateral 25-1,abbreviation_or_source_name
+CVY_4F49801F,Lafayette Tunnel,alternate_name
+CVY_52F8F200,Main Drainage Levee Canal,alternate_name
+CVY_53EB0ABB,Clear Creek Power Conduit,alternate_name
+CVY_53EB0ABB,Clear Creek conveyance system,parent_or_system_name
+CVY_5440957E,Coastal Branch,alternate_name
+CVY_559EDE52,Oroville (source project label),source_or_qa_name
+CVY_5600C33F,Volta Wasteway,alternate_name
+CVY_572DF6A1,Main Canal,alternate_name
+CVY_579C31AB,West Side Canal (source name not accepted for this reach),source_or_qa_name
+CVY_5CDC2202,Clear Creek Power Conduit,alternate_name
+CVY_5CDC2202,Clear Creek conveyance system,parent_or_system_name
+CVY_5DCDD2B1,East Branch California Aqueduct Extension,parent_or_system_name
+CVY_5DE34CF8,Spring Creek Power Conduit,alternate_name
+CVY_5DE34CF8,Spring Creek Powerplant system,parent_or_system_name
+CVY_631325DA,Madera I.D. Lateral 6-2,alternate_name
+CVY_631325DA,Madera Irrigation District Lateral 6.2,alternate_name
+CVY_64282347,California Aqueduct,parent_or_system_name
+CVY_64282347,East Branch,alternate_name
+CVY_65F6DC6F,O'Neill Intake Channel,alternate_name
+CVY_65F6DC6F,Delta-Mendota Canal (parent source name),parent_or_system_name
+CVY_66112E5D,GCID Lateral 26-2,abbreviation_or_source_name
+CVY_695653F5,North Canal,alternate_name
+CVY_69D2E0E3,BWGID Jakey Ditch,abbreviation_or_source_name
+CVY_69D2E0E3,Jakey Ditch,alternate_name
+CVY_6A69B881,Hunters Creek #2 Diversion Canal,alternate_name
+CVY_6A69B881,Hunters Creek 2 Diversion Canal,alternate_name
+CVY_6C314E55,BWGID Belding Lateral,abbreviation_or_source_name
+CVY_6C314E55,Belding Lateral,alternate_name
+CVY_6EED3106,Sante Fe Canal,alternate_name
+CVY_716F83B3,GCID H-1 Canal,abbreviation_or_source_name
+CVY_716F83B3,H1 Canal,alternate_name
+CVY_7DA99B21,Richvale ID Butler Canal,abbreviation_or_source_name
+CVY_7EF18798,North Side Canal,alternate_name
+CVY_7EFF563B,South San Joaquin Main Canal,alternate_name
+CVY_7EFF563B,North Main Canal,alternate_name
+CVY_7F8E6488,"""I"" Drains",alternate_name
+CVY_7F8E6488,"""J"" Drains",alternate_name

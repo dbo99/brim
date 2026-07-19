@@ -1,0 +1,16 @@
+nickname,geom_type,filename,namecolumn,colorbycolumn,popup,mb,folder,simplify_keep,label_field
+trails,polyline,blmca_natlscenhisttrails.shp,NLCS_NAME,NLCS_NAME,NLCS_NAME,3,conservation_lands,1,
+monuments,polygon,blmca_natlmnmnt.shp,NLCS_NAME,AGENCY_COD,NLCS_NAME,3.7,conservation_lands,1,
+cadesert_ncl,polygon,blmca_cadsrt_ncl.shp,NLCS_NAME,none,NLCS_NAME,1.3,conservation_lands,1,
+wildernessstudyarea,polygon,blmca_wsa.shp,NLCS_NAME,none,NLCS_NAME,1.4,conservation_lands,1,
+fedwilderness,polygon,blmca_fedwldrnss.shp,NLCS_NAME,ManagingAg,NLCS_NAME,12,conservation_lands,0.5,NLCS_NAME
+drecp,polygon,drecp.shp,none,none,none,0.25,misc_reference,1,
+acec,polygon,acec.shp,ACEC_NAME,ACEC_NAME,ACEC_NAME\nLUP_NAME,0.3,misc_reference,1,ACEC_NAME
+allotments,polygon,allotments.shp,ALLOT_NAME,ALLOT_NAME,ALLOT_NAME\nALLOT_NO,0.7,misc_reference,1,ALLOT_NAME
+wsr_blm_lines,polyline,blmca_wsr.shp,NLCS_NAME,CATEGORY_c,NLCS_NAME\nCATEGORY_c\nSMA_ID,2,wild_and_scenic,0.06,NLCS_NAME
+wsr_segments,polyline,S_USA.BdyDesg_WildScenicRiverSegment_LN.shp,WSR_RIVER1,CLASSIFICA,WSR_RIVER_\nWSR_RIVER1\nGNIS_NAME\nCLASSIFICA\nSEGMENT_MI\nTOTAL_MILE\nAGENCY\nADMINISTRA\nSTATE\nCOUNTY\nBEGINNING_\nENDING_POI\nORV_LIST\nORV_CULTUR\nORV_FISH\nORV_GEOLOG\nORV_HISTOR\nORV_RECREA\nORV_SCENIC\nORV_WILDLI\nORV_OTHER\nRIVER_ID\nSEGMENT_ID,6,wild_and_scenic,0.06,WSR_RIVER1
+wsr_corridor_blm,polygon,WSR_Cali_corridor.shp,NLCS_NAME,WSR_CTGY,NLCS_NAME\nWSR_CTGY\nADMIN_ST\nSMA_ID\nComments_c\nTmp_Date_c,3,wild_and_scenic,0.06,NLCS_NAME
+wsr_corridor_lsrs_area,polygon,S_USA.BdyDesg_LSRS_WildScenicRiver.shp,RIVER,CLASSIFICA,DESIGNATED\nRIVER\nBOUNDARYST\nCLASSIFICA\nWILDSCENIC\nAREAID,8,wild_and_scenic,0.06,RIVER
+wsr_corridor_lsrs_status,polygon,S_USA.BdyDesg_LSRS_WildScenicRiverStatus.shp,AREANAME,AREATYPE,CASENAME\nLOCALCASEI\nAREATYPE\nAREANAME\nAREAID\nBOUNDARYST\nACTIONDATE\nOFFICIALAC\nBLM_SERIAL\nCOMMENTS\nWILDSCENIC\nWILDSCEN_1\nREGION,8,wild_and_scenic,0.06,AREANAME
+gsps,polygon,i03_Groundwater_Sustainability_Plan_Areas.shp,Basin_Su_1,none,Basin_Su_1\nBasin_Subb,5,groundwater,1,
+gwbasins_adjd,polygon,DWRAdjudicatedBasins.shp,Label,none,Label,1,groundwater,1,

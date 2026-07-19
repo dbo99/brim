@@ -1,0 +1,33 @@
+facility_id,canonical_name,display_rank_override,display_rank_reason,evidence_url,review_status
+CVY_20C08296,California Aqueduct,statewide_major,Principal State Water Project conveyance backbone.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities,reviewed_2026_07
+CVY_64282347,California Aqueduct – East Branch,statewide_major,Major California Aqueduct branch serving Southern California.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities,reviewed_2026_07
+CVY_5440957E,Coastal Branch Aqueduct,statewide_major,Major State Water Project branch serving the Central Coast.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities,reviewed_2026_07
+CVY_6E2DE938,Coastal Branch,statewide_major,Alternate mapped Coastal Branch facility retained at the same public display rank.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities,reviewed_2026_07
+CVY_06200379,San Luis Canal (California Aqueduct joint-use reach),statewide_major,Major CVP–SWP joint-use conveyance reach.,https://www.usbr.gov/mp/cvp/about-cvp.html,reviewed_2026_07
+CVY_64B6E6C2,San Luis Canal,statewide_major,Major CVP–SWP joint-use conveyance reach.,https://www.usbr.gov/mp/cvp/about-cvp.html,reviewed_2026_07
+CVY_6793BD2A,DELTA-MENDOTA CANAL,statewide_major,Major Central Valley Project canal and Delta Division backbone.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_4049F88E,FRIANT-KERN CANAL,statewide_major,Major Central Valley Project canal and Friant Division backbone.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_488FFDB7,All American Canal,statewide_major,Principal Boulder Canyon Project conveyance for Imperial Valley.,https://www.usbr.gov/projects/index.php?id=514,reviewed_2026_07
+CVY_1C19DBB4,Coachella Canal,statewide_major,Major All-American Canal system branch serving Coachella Valley.,https://www.usbr.gov/projects/index.php?id=514,reviewed_2026_07
+CVY_7B1C542C,Colorado River Aqueduct,statewide_major,Interregional imported-water backbone for Metropolitan Water District.,https://www.mwdh2o.com/colorado-river-aqueduct-map,reviewed_2026_07
+CVY_0EBAA903,Los Angeles Aqueduct,statewide_major,Long-distance imported-water backbone for Los Angeles.,https://www.ladwp.com/who-we-are/our-history/water-system-past-and-present,reviewed_2026_07
+CVY_0CAFF254,Hetch-hetchy Aqueduct,statewide_major,Regional Hetch Hetchy water-supply backbone serving the Bay Area.,https://www.sfpuc.gov/node/151,reviewed_2026_07
+CVY_7DB20E6A,Mokelumne Aqueduct,statewide_major,Primary EBMUD regional supply conveyance from Pardee Reservoir.,https://www.ebmud.com/about-us/construction-and-maintenance/construction-my-neighborhood/mokelumne-aqueducts-resiliency-project-marp,reviewed_2026_07
+CVY_151746FD,San Diego Aqueduct,statewide_major,Interregional imported-water backbone serving San Diego County.,,reviewed_2026_07
+CVY_4BEBA6E1,Tehama Colusa Canal,statewide_major,Major Central Valley Project Sacramento Canals Unit facility.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_01F93789,West Branch California Aqueduct,statewide_major,Principal California Aqueduct branch after the Southern California bifurcation.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities/Southern,reviewed_2026_07
+CVY_42D76C39,South Bay Aqueduct,regional_major,Major State Water Project regional delivery system.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities/Delta,reviewed_2026_07
+CVY_6860DB5D,North Bay Aqueduct,regional_major,Major State Water Project regional delivery system.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities,reviewed_2026_07
+CVY_364F15B3,Folsom South Canal,regional_major,Major Central Valley Project American River Division facility.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_1F67F1CE,Folsom South Canal Connection,regional_major,Mapped connection associated with the Folsom South Canal system.,https://www.usbr.gov/projects/index.php?id=505,reviewed_2026_07
+CVY_3AE343CD,MADERA CANAL,regional_major,Major Central Valley Project Friant Division facility.,https://www.usbr.gov/projects/index.php?id=341,reviewed_2026_07
+CVY_0875DDAA,Contra Costa Canal,regional_major,Major Central Valley Project Delta Division facility.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_70F0B9EE,CORNING CANAL,regional_major,Major Central Valley Project Sacramento Canals Unit facility.,https://www.usbr.gov/mp/mpr-news/docs/factsheets/cvp.pdf,reviewed_2026_07
+CVY_2CE484C8,Putah South Canal,regional_major,Principal Solano Project conveyance facility.,,reviewed_2026_07
+CVY_0F89C562,Glenn Colusa Canal,regional_major,Large regional irrigation conveyance backbone.,,reviewed_2026_07
+CVY_30CEEF8A,San Diego Aqueducts,regional_major,Additional mapped San Diego County aqueduct-system facility.,,reviewed_2026_07
+CVY_2F51B829,Second San Diego Aqueduct,regional_major,Major component of the San Diego County aqueduct system.,,reviewed_2026_07
+CVY_622E1BC5,Los Angeles Aqueduct-Lee Vining Tunnel,regional_major,Named component of the Los Angeles Aqueduct system.,https://www.ladwp.com/who-we-are/our-history/water-system-past-and-present,reviewed_2026_07
+CVY_25BBB6F6,East Branch,statewide_major,Principal California Aqueduct branch after the Southern California bifurcation.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities/Southern,reviewed_2026_07
+CVY_5DCDD2B1,East Branch Extension,statewide_major,Continuation of the California Aqueduct East Branch delivery system.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities/Southern,reviewed_2026_07
+CVY_7CE8FDE1,West Branch,statewide_major,Principal California Aqueduct branch after the Southern California bifurcation.,https://water.ca.gov/Programs/State-Water-Project/SWP-Facilities/Southern,reviewed_2026_07

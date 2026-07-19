@@ -1,0 +1,122 @@
+BRIM CONVEYANCE PIPELINE — HANDOFF TO MAIN BRIM DEVELOPMENT CHAT
+================================================================
+
+PURPOSE
+-------
+This ZIP transfers the complete, reproducible California conveyance-building workflow developed as a sandbox before integration into BRIM. Do not treat the RDS files as unexplained final products. The durable record is the raw source data + configuration/decision tables + staged R pipeline + QA outputs + canonical GeoPackage. Every derived BRIM export must remain rebuildable from those inputs.
+
+WORKING LOCATION USED DURING DEVELOPMENT
+----------------------------------------
+C:/Users/doconnor/OneDrive - DOI/Documents/brim_conveyance_redo_july
+
+RECOMMENDED LOCATION IN THE MAIN BRIM PROJECT
+---------------------------------------------
+preprocessors/66_build_conveyance_pipeline.R
+preprocessors/66_conveyance_pipeline/
+
+SINGLE BUILD ENTRY POINT
+------------------------
+source("preprocessors/66_build_conveyance_pipeline.R")
+
+ARCHITECTURE
+------------
+The model deliberately separates logical facilities from meaningful physical segments and label anchors:
+
+1. facilities: one logical named facility, with canonical name, aliases, parent system, ownership/operation, project hierarchy, status, and display rank;
+2. conveyance_segments: line geometry, allowing multiple segments per facility and preserving meaningful canal/tunnel/pipeline/penstock/tailrace/siphon or ownership/project transitions;
+3. conveyance_labels: dedicated label points with lbl, lbl_full, priority and zoom thresholds so labels are not duplicated for every line segment.
+
+Do not dissolve all pieces of a named canal into a single geometry when that would erase meaningful component or type transitions. Contiguous same-facility, same-type source pieces may be combined when defensible.
+
+RAW INPUTS
+----------
+The pipeline includes complete copies of:
+- Major Conveyance: input/raw/majorconveyance.*
+- DeltaMAPP canals: input/raw/WW_Canals.*
+
+Do not edit these raw files. Geometry choices and corrections belong in the decision ledger, override tables, supplemental registry, or staged surgery code.
+
+IMPORTANT DATA-MODEL PRINCIPLES
+-------------------------------
+- canonical_name is the preferred public name;
+- aliases and parent-system names are retained unless clearly wrong;
+- ownership, operation, project membership, and program affiliation are separate;
+- project membership is many-to-many and supports project_family, project_name, project_division, project_unit and project_subunit;
+- CVP/SWP joint-use membership does not automatically imply identical ownership;
+- specifically named facilities should not split merely because source operator or capitalization differs;
+- generic names such as Main Canal require additional system/spatial disambiguation;
+- source row IDs and internal IDs stay in QA/crosswalk tables, not ordinary public popups.
+
+MAJOR COMPLETED WORK
+--------------------
+- audited Major Conveyance and DeltaMAPP source geometry and names;
+- reviewed or rule-resolved all strong different-name overlap clusters;
+- preserved aliases and parent/component relationships;
+- implemented selected Major, selected DeltaMAPP, trimmed combination, split-component, separate-facility and omitted-unresolved decisions;
+- separated Clear Creek Tunnel from Judge Francis Carr penstocks;
+- separated Spring Creek penstocks and powerplant tailrace;
+- kept San Luis Drain separate from San Luis Canal;
+- split Old River Pipeline from the Los Vaqueros Intake Pipeline continuation;
+- added authoritative CVP/SWP and other Reclamation project hierarchy rules;
+- added expected-CVP and unassigned-Reclamation QA reports;
+- stabilized named-facility identity so capitalization/operator variants such as South Coast Conduit do not create separate logical facilities;
+- implemented public labels with dedicated tooltip anchors and zoom thresholds;
+- cleaned the public popup so source rows/internal IDs appear only in QA artifacts;
+- produced a canonical multi-table GeoPackage plus BRIM-ready RDS exports.
+
+CURRENT OUTPUTS
+---------------
+output/canonical/brim_conveyance_master.gpkg
+output/brim_exports/conveyance_segments_brim.rds
+output/brim_exports/conveyance_labels_brim.rds
+output/brim_exports/conveyance_facilities_brim.rds
+output/csv/*.csv
+output/html/brim_conveyance_pilot.html
+
+PUBLIC-PILOT EXPECTATIONS
+-------------------------
+The public pilot should support search, ownership class, project family, named project/system, facility group, display rank, low-confidence toggle and lbl checkbox. Labels should be driven by conveyance_labels and should report the number shown at the current zoom. The user-facing popup should end with only a concise QA/QC note.
+
+KNOWN PENDING ITEMS
+-------------------
+1. Delta-Mendota Canal / California Aqueduct Intertie: supplemental registry entry SUP001 is prepared. The preferred source may be the CalSim3 layer once the model ID, source layer and ID field/value are identified. It must receive both CVP and SWP project memberships and be modeled as a bidirectional pipeline intertie.
+2. Sly Park/Jenkinson Lake completeness: Camino Conduit is expected but may require authoritative supplemental geometry. El Dorado Main and related distribution mains are optional/local-supporting rather than required for the first major/medium layer.
+3. BLM-land preprocessing is still a substantive, untested data stage—not merely a BRIM UI task. The current handoff reserves the intended fields and integration concept, but the on/off-BLM classification, crossing calculations, minimum/maximum distance-to-BLM values, field-office attribution and facility-level aggregation have not yet been implemented and validated end to end. Desired segment fields include blm_crosses, blm_length_mi, blm_pct_length, blm_nearest_mi, blm_crossing_count and blm_field_offices, plus facility aggregates. This stage may expose additional geometry, identity, segmentation, CRS, performance or aggregation issues that require data-side corrections before BRIM visualization is finalized.
+4. Review qa_same_name_multiple_facilities.csv, qa_expected_cvp_facilities.csv, qa_reclamation_unassigned.csv and qa_supplemental_geometry_registry.csv after every build.
+5. Preserve the case-35 split-or-omit rule: use defensible West Interception Canal and Live Oak Canal features where supported; do not force East Interception Canal onto those reaches; omit residual unresolved local pieces from the curated layer while retaining them in the raw sources.
+
+NEXT DEVELOPMENT ORDER
+----------------------
+1. Run the complete pipeline unchanged and inspect the included pilot HTML and QA CSVs.
+2. Correct only demonstrated identity, label, project or geometry defects through the appropriate config or staged module—not by manually editing a final RDS.
+3. Add the DMC–California Aqueduct Intertie through the supplemental registry and a reproducible supplemental-geometry ingestion stage.
+4. Resolve any remaining expected-CVP or Reclamation-project QA gaps.
+5. Build and test the BLM-land preprocessing stage against the accepted canonical segments. Validate on/off-BLM flags, crossing lengths and counts, nearest-distance calculations, field-office attribution, facility aggregation, edge cases and performance. Treat any resulting segmentation or identity defects as data-pipeline work, not merely display issues.
+6. Only after that data stage passes QA, integrate the resulting segment and label RDS files into BRIM while preserving the full preprocessor as the rebuild source of truth.
+
+BRIM INTEGRATION INTENT
+-----------------------
+The eventual BRIM layer should expose a robust, filterable hierarchy including:
+- ownership class: federal, California state, local/regional public, private, joint/multiple, unknown;
+- project family: CVP, SWP, other Reclamation, other state, other public systems;
+- named projects/systems and CVP/SWP divisions, units, branches and subunits;
+- facility groups/types: canals/aqueducts, pipelines/tunnels, drains/wasteways, power conveyance, interties, laterals/supporting facilities;
+- display rank and status;
+- canonical-name/alias/parent-system/owner/operator search;
+- label checkbox using the dedicated lbl field and label-point layer;
+- after a separately validated data-preprocessing stage, BLM-crossing and custom minimum/maximum distance-to-BLM filtering. These controls must not be wired to placeholder or untested values.
+
+READINESS STATUS
+----------------
+The current conveyance geometry, naming, project hierarchy, labels and pilot interface have received useful review, but the complete dataset is not yet declared production-ready. The receiving chat should expect some remaining data engineering and QA work, especially for supplemental facilities and BLM-land preprocessing. Do not assume that all remaining tasks are styling, legend organization or UI wiring.
+
+NON-NEGOTIABLE HANDOFF RULE
+---------------------------
+Do not replace this source-to-output workflow with an unexplained edited shapefile or RDS. Maintain source lineage, stable facility/segment IDs, decision evidence, QA reports and a clean rebuild path from the two raw shapefiles.
+
+PACKAGE BUILD INFORMATION
+-------------------------
+Packager version: CONVEYANCE_HANDOFF_PACKAGER_20260715_04
+Package created: 2026-07-15 13:09:15 PDT
+Source project root: C:/Users/doconnor/OneDrive - DOI/Documents/brim_conveyance_redo_july
+

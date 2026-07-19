@@ -1,0 +1,2 @@
+﻿override_id,canonical_name_regex,parent_system_regex,operator_regex,source_ids_regex,facility_key_override,canonical_name_override,notes
+FID001,^South Coast Conduit$,,,,South Coast Conduit,South Coast Conduit,Merge capitalization/operator variants into one logical facility; operator is not part of the identity.

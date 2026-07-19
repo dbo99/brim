@@ -1,0 +1,17 @@
+BRIM Codex Stage 6 — shipping copy complete
+Completed: 2026-07-19 00:02:18 PDT
+
+Source reproducibility folder: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_work
+Target shipping folder: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship
+Active full folder, unchanged: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38
+
+Source size: 3.05 GiB
+Externalized: 1.62 GiB
+Shipping size before new HTML build: 1.43 GiB
+Retained R files parsed: 201
+R parse failures: 0
+Copy validation problems: 0
+
+NEXT TEST
+Set the working directory to the shipping folder, source run_build_map.r,
+and run rebuild_everything_from_cache_and_map().

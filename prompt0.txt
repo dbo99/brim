@@ -1,0 +1,427 @@
+# PROMPT 0 — BRIM Master Skeleton / Baseline Prompt
+
+
+
+I’m continuing work on BRIM / PortaTreasure2.
+
+
+
+BRIM currently means “BLM-California Resources Information Mapper,” though the name is not final. It is a browser-based Leaflet/R map for BLM-California water-resource screening and situational awareness. It helps users review BLM lands alongside water-resource datasets, live conditions, agency services, local layers, and external reference layers without requiring ArcGIS Pro, VPN, or many separate agency websites.
+
+
+
+Project root is usually:
+  
+  
+  
+  ```r
+
+C:/Users/doconnor/OneDrive - DOI/Documents/PortaTreasure2
+
+```
+
+
+
+The project is built mostly in R. Internal/project spatial processing is generally EPSG:3310 California Albers. Leaflet/browser output is WGS84/EPSG:4326.
+
+
+
+I have attached a BRIM skeleton ZIP. Treat this ZIP as the current code baseline.
+
+
+
+The skeleton ZIP should contain important scripts/configs/catalogs/docs only. It should usually include:
+  
+  
+  
+  ```text
+
+00_config/
+  
+  config_paths.r
+
+config_source_files.r
+
+config_map_display.r
+
+config_run_flags.r
+
+config_labels.r, if present
+
+reference_layers_manifest.csv
+
+external_service_catalog.csv
+
+external_service_field_overrides.csv
+
+
+
+02_preprocess/
+  
+  key preprocessors only
+
+
+
+03_functions/
+  
+  key Leaflet/helper scripts
+
+ops live helpers
+
+local layer helpers
+
+external layer helpers
+
+legend helpers
+
+upload/add-data helpers
+
+popup/hover helpers
+
+
+
+05_map_build/
+  
+  core map build scripts
+
+cache block scripts
+
+
+
+brim-live-data-feeds/
+  
+  scripts/*.R
+
+data/input/*.csv only if small and important
+
+
+
+08_docs/
+  
+  current guide docs and QA notes
+
+
+
+root/
+  
+  run_build_map.r
+
+```
+
+
+
+Do not assume access to raw spatial files, large processed `.rds` files, `.gpkg` files, generated HTML, cache archives, raw shapefiles, or rasters unless I explicitly upload them. If you need one of those files, ask for only the specific file needed.
+
+
+
+Preferred patch style:
+  
+  
+  
+  ```text
+
+-  Surgical patch ZIPs that find a nice balance of progress and safe patching.   
+
+- Patch ZIPs should mirror the project folder structure.
+
+
+
+- Avoid broad refactors unless necessary.  But bring up as possibility if add considerable strength to BRIM 
+
+- Avoid touching unrelated panels/workstreams.
+
+- Do not use browseURL(); I open HTML manually.
+
+- Prefer reusable helpers and config/catalog-driven logic over one-off code blocks.
+
+- Avoid code bloat. BRIM needs reasonable long-term O&M.
+
+```
+
+
+
+For final map QA I usually run:
+  
+  
+  
+  ```r
+
+local({
+  
+  old_wd <- getwd(); on.exit(setwd(old_wd), add = TRUE)
+  
+  setwd("C:/Users/doconnor/OneDrive - DOI/Documents/PortaTreasure2")
+  
+  
+  
+  source("run_build_map.r")
+  
+  build_final_map_only()
+  
+})
+
+```
+
+
+
+For preprocessors I usually run from project root:
+  
+  
+  
+  ```r
+
+local({
+  
+  old_wd <- getwd(); on.exit(setwd(old_wd), add = TRUE)
+  
+  setwd("C:/Users/doconnor/OneDrive - DOI/Documents/PortaTreasure2")
+  
+  
+  
+  source("02_preprocess/<script_name>.R")
+  
+})
+
+```
+
+
+
+Important current BRIM structure:
+  
+  
+  
+  ```text
+
+Ops Live panel:
+  
+  live conditions, reservoirs, USGS streamflow, multi-agency streamflow,
+
+USGS groundwater, snow pillows, SCAN soil moisture, drought, weather,
+
+satellite, cameras, fire/weather outlooks
+
+
+
+External Layers panel:
+  
+  catalog-driven external agency/reference layers
+
+
+
+Local Layers panel:
+  
+  built-in local/reference layers such as BLM-CA Managed, HUCs,
+
+groundwater basins / Bulletin 118, counties, offices, etc.
+
+
+
+Upload/Add Data panel:
+  
+  user-added local data
+
+
+
+Measure/Clear/Basemaps controls:
+  
+  map utility controls
+
+```
+
+
+
+Current USGS groundwater Ops Live status:
+  
+  
+  
+  ```text
+
+The USGS groundwater Ops Live layer is mostly complete and should be treated as the current pattern for future live-layer filters.
+
+
+
+Main files:
+  
+  02_preprocess/30_export_usgs_groundwater_live_inputs.R
+
+02_preprocess/48_update_usgs_gw_blm_distance_fields.R
+
+brim-live-data-feeds/scripts/build_usgs_groundwater_latest_ca.R
+
+03_functions/leaflet_ops_live_usgs_groundwater_helpers.r
+
+03_functions/leaflet_ops_live_legend_helpers.r
+
+08_docs/usgs_groundwater_ops_live_guide.md
+
+
+
+Pipeline:
+  
+  30_export_usgs_groundwater_live_inputs.R
+
+= refresh USGS GW candidate/index list; heavier; may call USGS APIs
+
+
+
+48_update_usgs_gw_blm_distance_fields.R
+
+= update BLM distance fields on existing candidate CSV; no USGS calls
+
+
+
+GitHub groundwater Action
+
+= refresh hosted GeoJSON/summary
+
+
+
+build_final_map_only()
+
+= rebuild BRIM shell/UI after helper/UI code changes
+
+```
+
+
+
+USGS groundwater BLM-distance source:
+  
+  
+  
+  ```text
+
+Use:
+  
+  04_processed_data/rds/blm_managed_core_3310.rds
+
+
+
+This is the canonical dissolved projected BLM-CA managed lands layer for distance math:
+  
+  one MULTIPOLYGON
+
+EPSG:3310
+
+not WGS84
+
+
+
+The visible BLM-CA Managed map layer uses the WGS84/cache family, such as:
+  
+  04_processed_data/cache/latest/blm_core_map.rds
+
+
+
+Distance wording should be:
+  
+  Approx. distance to BLM-CA managed lands
+
+
+
+Reason: distance is projected CA Albers, but still screening-level because it depends on source geometry, well-coordinate precision, and source-date details.
+
+```
+
+
+
+Recent USGS GW BLM-distance QA:
+  
+  
+  
+  ```text
+
+2263 groundwater candidates
+
+2263 rows with usable coordinates
+
+85 on BLM-CA managed lands
+
+406 within 1 mile
+
+1047 within 5 miles
+
+1415 within 10 miles
+
+0 missing BLM distance
+
+source: 04_processed_data/rds/blm_managed_core_3310.rds
+
+EPSG: 3310
+
+geometry: single MULTIPOLYGON
+
+```
+
+
+
+USGS GW filter panel should be clearly labeled as Ops Live, not as the full static groundwater layer. Suggested title/subtitle:
+  
+  
+  
+  ```text
+
+USGS GW Ops Live filters
+
+Filters current Ops Live subset (≤800 days).
+
+```
+
+
+
+USGS GW circles should have fixed radius. Fill color encodes latest depth to water. Dark/heavier outline indicates older/stale measurement. Nested/co-located wells use a distinct square/multiwell marker.
+
+
+
+Known issue to investigate next:
+  
+  The Local Layers GW Bulletin / groundwater basin enriched popup sometimes stops working after map use or layer toggling. On fresh load, the cursor changes and popups open with acreage and percent BLM ownership. Later, the cursor no longer changes and popups do not open, even after other layers are turned off. This may be a Leaflet pane, z-index, pointer-events, stale layer object, or popup-binding problem.
+
+
+
+General O&M principles:
+  
+  
+  
+  ```text
+
+1. One implementation chat owns the codebase at a time.
+
+2. Finish a workstream, apply patches, QA, then checkpoint before starting another.
+
+3. Prefer source config → preprocessor → latest processed product → map helper → QA output → short ops guide.
+
+4. Keep heavy preprocessors separate from lightweight field updaters.
+
+5. Avoid browser-side agency API calls when a static hosted feed can mediate.
+
+6. Prefer catalog/config-driven layer definitions over hardcoded repeated JS.
+
+7. Avoid duplicating popup/filter/legend logic across panels where shared helpers make sense.
+
+8. Each major layer family should have QA outputs and, eventually, a short maintenance guide.
+
+```
+
+
+
+At the end of this chat/workstream, please produce a checkpoint:
+  
+  
+  
+  ```text
+
+Current baseline:
+  
+  - latest patch applied:
+  
+  - files changed:
+  
+  - scripts run:
+  
+  - QA passed:
+  
+  - remaining TODOs:
+  
+  - recommended next chat/prompt number:
+  
+  ``` Once you've read I'll attach the skeleton .zip 

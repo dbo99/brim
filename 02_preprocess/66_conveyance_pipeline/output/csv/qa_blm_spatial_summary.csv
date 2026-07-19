@@ -1,0 +1,14 @@
+metric,value
+blm_attribution_version,CONVEYANCE_BLM_ATTRIBUTION_20260715_01
+blm_source,C:/Users/doconnor/OneDrive - DOI/Documents/BRIM_v0.37/04_processed_data/rds/blm_managed_core_3310.rds
+minimum_counted_component_m,10
+segment_rows,1811
+facility_rows,623
+segments_intersect_or_touch_blm,146
+segments_crossing_blm,145
+segments_touching_boundary_only,1
+facilities_crossing_blm,40
+total_conveyance_length_mi,9031.54217243893
+total_conveyance_length_on_blm_mi,167.177800520587
+small_intersection_piece_count,1
+small_intersection_piece_length_m,4.35888430732798

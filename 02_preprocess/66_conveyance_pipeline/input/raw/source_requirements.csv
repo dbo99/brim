@@ -1,0 +1,3 @@
+﻿source_basename,preferred_location,bootstrap_location,required
+majorconveyance,input/raw/majorconveyance.*,<BRIM project root>/majorconveyance.*,yes
+WW_Canals,input/raw/WW_Canals.*,<BRIM project root>/WW_Canals.*,yes

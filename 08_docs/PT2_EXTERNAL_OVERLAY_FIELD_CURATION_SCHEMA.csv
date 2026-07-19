@@ -1,0 +1,10 @@
+column,purpose
+popup_fields,Semicolon-separated field names to show in PT2 popups
+hover_fields,Field(s) that make good hover labels/tooltips
+default_label_field,Best single label/name/ID field
+out_fields,Fields PT2 should request from FeatureServer current-view queries
+style_field_candidates,Numeric fields worth offering for future color/radius styling
+default_style_field,"Preferred first styling field, if any"
+style_units,"Units to show in legends/popups, e.g., ft, acres, score"
+best_use,"Plain-English summary such as station inventory, habitat context, value visualization"
+useful_for_visualization,"yes, limited, service-rendered, or no"

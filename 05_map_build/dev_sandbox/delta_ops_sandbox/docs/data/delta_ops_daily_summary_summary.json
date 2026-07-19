@@ -1,0 +1,13 @@
+{
+  "source_name": "DWR Delta Operations Daily Summary",
+  "source_url": "https://water.ca.gov/-/media/DWR-Website/Web-Pages/Programs/State-Water-Project/Operations-And-Maintenance/Files/Operations-Control-Office/Delta-Status-And-Operations/Delta-Operations-Daily-Summary.pdf",
+  "report_date": "2026-06-22",
+  "feed_build_time_utc": "2026-06-23T03:45:22Z",
+  "feed_build_time_local": "2026-06-22 20:45:22 PDT",
+  "feature_count": 13,
+  "static_location_count": 12,
+  "x2_position_km": 79,
+  "x2_lookup_added": true,
+  "preliminary_notice": "PRELIMINARY DATA; SUBJECT TO REVISION WITHOUT NOTICE",
+  "parser_note": "Sandbox parser. Promote to live feed only after repeated QA against DWR PDF formatting."
+}

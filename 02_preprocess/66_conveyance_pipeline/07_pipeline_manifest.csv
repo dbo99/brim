@@ -1,0 +1,11 @@
+﻿path,role,execution_order,generated_output
+preprocessors/66_build_conveyance_pipeline.R,Single numbered BRIM entry point,0,no
+preprocessors/66_conveyance_pipeline/input/raw/,Immutable copies of Major Conveyance and DeltaMAPP shapefile bundles,0,no
+preprocessors/66_conveyance_pipeline/config/,"Decision ledgers, project rules, identity rules, labels, and supplemental registry",0,no
+preprocessors/66_conveyance_pipeline/R/00_setup.R,"Packages, paths, helpers, and configuration ingestion",1,no
+preprocessors/66_conveyance_pipeline/R/01_ingest_and_build_geometry.R,Raw source normalization and canonical GIS surgery,2,no
+preprocessors/66_conveyance_pipeline/R/02_build_facilities_and_projects.R,"Facility identity, aliases, ownership, and project hierarchy",3,no
+preprocessors/66_conveyance_pipeline/R/03_build_labels_and_qa.R,"Label anchors, source crosswalk, and QA tables",4,no
+preprocessors/66_conveyance_pipeline/R/04_write_canonical_outputs.R,"GeoPackage, CSV, and BRIM-ready RDS exports",5,yes
+preprocessors/66_conveyance_pipeline/R/05_build_public_pilot_html.R,Public-style pilot with clean popups and functional labels,6,yes
+preprocessors/66_conveyance_pipeline/R/06_write_build_summary.R,"Build summary, final checks, and browser launch",7,yes

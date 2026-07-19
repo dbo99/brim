@@ -1,0 +1,1101 @@
+"layer_id","display_name","cache_file","source_kind","column_name","column_class","object_size_mb","text_bytes","text_mb","blank_fraction"
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","popup_html","character",39.995,39281968,37.462,0
+"huc12","HUC12","huc_all_map.rds","registry_row","popup_html","character",6.333,6334067,6.041,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","popup_html","character",6.333,6334067,6.041,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","popup_html","character",2.477,2385444,2.275,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","popup_html","character",2.477,2385444,2.275,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","popup_html","character",2.477,2385444,2.275,0
+"springs","Springs","springs_map.rds","registry_row","popup_html","character",1.095,2058951,1.964,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","popup_html","character",1.688,1625502,1.55,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","hover_text","character",3.404,1439458,1.373,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","measurements","character",1.274,1316150,1.255,0
+"huc10","HUC10","huc_all_map.rds","registry_row","popup_html","character",1.289,1283283,1.224,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","popup_html","character",1.289,1283283,1.224,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","popup_html","character",1.269,1207465,1.152,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","popup_html","character",1.285,1158847,1.105,0
+"springs","Springs","springs_map.rds","registry_row","hover_text","character",0.425,808669,0.771,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","popup_html","character",0.862,697933,0.666,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","site_no","character",3.032,662385,0.632,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","param_list","character",0.629,620761,0.592,0
+"springs","Springs","springs_map.rds","registry_row","spring_name_display","character",0.384,478363,0.456,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","blm_relevance_note","character",0.028,467981,0.446,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","blm_relevance_note","character",0.028,467981,0.446,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","blm_relevance_note","character",0.028,467981,0.446,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","popup_html","character",0.49,421779,0.402,0
+"springs","Springs","springs_map.rds","registry_row","spring_id","character",1.873,354614,0.338,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","hover_text","character",0.599,352349,0.336,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","hover_text","character",0.599,352349,0.336,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","hover_text","character",0.599,352349,0.336,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","well_fill_col","character",0.337,309113,0.295,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","well_stroke_col","character",0.337,309113,0.295,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","popup_html","character",0.23,228198,0.218,0
+"x2_km","CVP/SWP X2 km points","x2_km_map.rds","registry_row","popup_html","character",0.219,218830,0.209,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","popup_html","character",0.216,207633,0.198,0
+"springs","Springs","springs_map.rds","registry_row","spring_fill_col","character",0.208,190946,0.182,0
+"springs","Springs","springs_map.rds","registry_row","spring_stroke_col","character",0.208,190946,0.182,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","popup_html","character",0.38,187128,0.178,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","hover_text","character",0.283,183490,0.175,0
+"huc8","HUC8","huc_all_map.rds","registry_row","popup_html","character",0.157,155939,0.149,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","popup_html","character",0.157,155939,0.149,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","popup_html","character",0.171,148426,0.142,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","hover_text","character",0.33,146701,0.14,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","hover_text","character",0.289,128714,0.123,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","popup_html","character",0.13,115072,0.11,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc4_name","character",0.04,109979,0.105,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc4_name","character",0.04,109979,0.105,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc10_name","character",0.118,106396,0.101,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc10_name","character",0.118,106396,0.101,0
+"huc12","HUC12","huc_all_map.rds","registry_row","name","character",0.384,104778,0.1,0
+"huc12","HUC12","huc_all_map.rds","registry_row","huc12_name","character",0.384,104778,0.1,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","name","character",0.384,104778,0.1,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","huc12_name","character",0.384,104778,0.1,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","AGENCYNAME","character",0.311,101158,0.096,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","agency_display","character",0.311,101158,0.096,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","hover_text","character",0.311,101158,0.096,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","holder_display","character",0.064,95140,0.091,0.0153846153846154
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","holder_display","character",0.064,95140,0.091,0.0153846153846154
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","holder_display","character",0.064,95140,0.091,0.0153846153846154
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_screening_source_display","character",0.027,88980,0.085,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_screening_source_display","character",0.027,88980,0.085,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_screening_source_display","character",0.027,88980,0.085,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc2_name","character",0.039,88216,0.084,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc2_name","character",0.039,88216,0.084,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc6_name","character",0.04,86639,0.083,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc6_name","character",0.04,86639,0.083,0
+"springs","Springs","springs_map.rds","registry_row","spring_source","character",0.208,84804,0.081,0
+"springs","Springs","springs_map.rds","registry_row","spring_symbol_group","character",0.208,84804,0.081,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc8_name","character",0.048,76874,0.073,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc8_name","character",0.048,76874,0.073,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","name","character",0.218,75990,0.072,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","popup_html","character",0.067,68037,0.065,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_status_group","character",0.027,66086,0.063,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","wr_type_display","character",0.028,66186,0.063,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_status_group","character",0.027,66086,0.063,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","wr_type_display","character",0.028,66186,0.063,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_status_group","character",0.027,66086,0.063,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","wr_type_display","character",0.028,66186,0.063,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","nickname","character",0.184,65257,0.062,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","water_district_id","character",0.292,65070,0.062,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","source","character",0.024,62740,0.06,0
+"huc12","HUC12","huc_all_map.rds","registry_row","huc12","character",0.348,60780,0.058,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","blm_include_reason_display","character",0.027,61225,0.058,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","blm_include_reason_display","character",0.027,61225,0.058,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","blm_include_reason_display","character",0.027,61225,0.058,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","huc12","character",0.348,60780,0.058,0
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0.039,51258,0.049,0
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","popup_html","character",0.078,51525,0.049,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0.039,51258,0.049,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc10_code","character",0.108,50650,0.048,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc10_code","character",0.108,50650,0.048,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","comment_display","character",0.118,47891,0.046,0.174675324675325
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","Comment","character",0.118,47891,0.046,0.174675324675325
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","hover_text","character",0.062,47724,0.046,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_in_fill_label","character",0.039,47636,0.045,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","station","character",0.223,46689,0.045,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0.039,47636,0.045,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cnrfc_point_role_display","character",0.016,46372,0.044,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc8_code","character",0.047,40520,0.039,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc8_code","character",0.047,40520,0.039,0
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0.039,35455,0.034,0
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0.039,35455,0.034,0
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0.039,35455,0.034,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_in_fill_col","character",0.039,35455,0.034,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0.039,35455,0.034,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","source","character",0.018,35805,0.034,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0.039,35455,0.034,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0.039,35455,0.034,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0.039,35455,0.034,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0.039,35455,0.034,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0.039,35455,0.034,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","source","character",0.016,34799,0.033,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","node_description","character",0.013,35071,0.033,0.00519480519480519
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","NodeDescri","character",0.013,35071,0.033,0.00519480519480519
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.068,31935,0.03,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc6_code","character",0.04,30390,0.029,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","channel","character",0.08,29999,0.029,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc6_code","character",0.04,30390,0.029,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","loc","character",0.131,29117,0.028,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0.039,28218,0.027,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","source_display","character",0.086,28046,0.027,0.0125356125356125
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","source_display","character",0.086,28046,0.027,0.0125356125356125
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","source_display","character",0.086,28046,0.027,0.0125356125356125
+"springs","Springs","springs_map.rds","registry_row","gnis_id","character",0.41,28792,0.027,0.868062174646235
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0.039,28218,0.027,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","Name","character",0.042,26893,0.026,0.264081255771006
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","gage_type","character",0.016,26689,0.025,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","wr_status_display","character",0.027,26711,0.025,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","wr_status_display","character",0.027,26711,0.025,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","wr_status_display","character",0.027,26711,0.025,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","source","character",0.017,25992,0.025,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_station_url","character",0.058,24721,0.024,0.795310210063508
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","water_right_id_display","character",0.21,24835,0.024,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_wr_id_norm","character",0.21,24835,0.024,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","water_right_id_display","character",0.21,24835,0.024,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_wr_id_norm","character",0.21,24835,0.024,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","water_right_id_display","character",0.21,24835,0.024,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_wr_id_norm","character",0.21,24835,0.024,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc4_name","character",0.01,24309,0.023,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","start_date","character",0.064,23870,0.023,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","end_date","character",0.05,23870,0.023,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_fill_col","character",0.027,24570,0.023,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_stroke_col","character",0.027,24570,0.023,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_fill_col","character",0.027,24570,0.023,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_stroke_col","character",0.027,24570,0.023,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_fill_col","character",0.027,24570,0.023,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_stroke_col","character",0.027,24570,0.023,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","fill_col","character",0.028,24381,0.023,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","line_col","character",0.028,24381,0.023,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc4_name","character",0.01,24309,0.023,0
+"huc6","HUC6","huc_all_map.rds","registry_row","popup_html","character",0.024,23262,0.022,0
+"huc10","HUC10","huc_all_map.rds","registry_row","huc10_name","character",0.088,23267,0.022,0
+"huc10","HUC10","huc_all_map.rds","registry_row","name","character",0.088,23267,0.022,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_sensor15_hourly_url","character",0.038,23544,0.022,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_sensor15_daily_url","character",0.038,23544,0.022,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","hover_text","character",0.053,23306,0.022,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","Arc_ID","character",0.148,22598,0.022,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","popup_html","character",0.024,23262,0.022,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","huc10_name","character",0.088,23267,0.022,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","name","character",0.088,23267,0.022,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","fill_col","character",0.024,21959,0.021,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","stroke_col","character",0.024,21959,0.021,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","pod_status_display","character",0.027,21730,0.021,0.000284900284900285
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","county_display","character",0.029,21601,0.021,0.00341880341880342
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","pod_status_display","character",0.027,21730,0.021,0.000284900284900285
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","county_display","character",0.029,21601,0.021,0.00341880341880342
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","pod_status_display","character",0.027,21730,0.021,0.000284900284900285
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","county_display","character",0.029,21601,0.021,0.00341880341880342
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","pod_feature_id_display","character",0.214,21060,0.02,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","pod_feature_id_display","character",0.214,21060,0.02,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","pod_feature_id_display","character",0.214,21060,0.02,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc2_name","character",0.009,19584,0.019,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc6_name","character",0.01,19408,0.019,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc4_code","character",0.04,20260,0.019,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","face_value_display","character",0.042,19842,0.019,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","face_value_display","character",0.042,19842,0.019,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","face_value_display","character",0.042,19842,0.019,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","source","character",0.012,20020,0.019,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc2_name","character",0.009,19584,0.019,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc6_name","character",0.01,19408,0.019,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc4_code","character",0.04,20260,0.019,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","hover_text","character",0.038,18523,0.018,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","site_no","character",0.164,19269,0.018,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","riv_name_display","character",0.033,19186,0.018,0.254545454545455
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","Riv_Name","character",0.033,19186,0.018,0.254545454545455
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc8_name","character",0.018,17306,0.017,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","status","character",0.018,17596,0.017,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc8_name","character",0.018,17306,0.017,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","fill_col","character",0.018,16709,0.016,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","stroke_col","character",0.018,16709,0.016,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","pod_id_display","character",0.209,16857,0.016,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","pod_id_display","character",0.209,16857,0.016,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","pod_id_display","character",0.209,16857,0.016,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","popup_html","character",0.018,17119,0.016,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","calsim3_node_group","character",0.012,16384,0.016,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","popup_html","character",0.038,17074,0.016,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.038,17074,0.016,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_sensor15_hourly_url","character",0.037,15660,0.015,0.929164631167562
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_sensor15_daily_url","character",0.037,15552,0.015,0.929653150952614
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","nwsid","character",0.191,15313,0.015,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","Type","character",0.017,15767,0.015,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","label","character",0.046,14624,0.014,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","fill_col","character",0.016,14329,0.014,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","stroke_col","character",0.016,14329,0.014,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","data_quality_note","character",0.002,15133,0.014,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","line_col","character",0.017,15162,0.014,0
+"huc4","HUC4","huc_all_map.rds","registry_row","popup_html","character",0.014,13570,0.013,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","coord_qa_note","character",0.002,13516,0.013,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","popup_html","character",0.014,13570,0.013,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.005,13880,0.013,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_station_url","character",0.025,12862,0.012,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","ToNode","character",0.095,12714,0.012,0.00461680517082179
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.005,12492,0.012,0
+"huc10","HUC10","huc_all_map.rds","registry_row","huc10","character",0.077,11280,0.011,0
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0.009,11732,0.011,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","gage_class1","character",0.016,11157,0.011,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","gage_class2","character",0.016,11438,0.011,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_cnrfc_match_method","character",0.016,11734,0.011,0.795310210063508
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_latest_storage_table_url","character",0.002,11990,0.011,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","FromNode","character",0.093,11528,0.011,0.0946445060018467
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","Operator","character",0.008,11740,0.011,0.0334645669291339
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","operator_lc","character",0.008,11740,0.011,0.0334645669291339
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","huc10","character",0.077,11280,0.011,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0.009,11732,0.011,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","basin_name","character",0.04,10141,0.01,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","subbasin_name","character",0.04,10141,0.01,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_in_fill_label","character",0.009,10606,0.01,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc2_code","character",0.039,10130,0.01,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","nwsid","character",0.125,10235,0.01,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_station_name","character",0.046,9996,0.01,0.795310210063508
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","spatial_blm_match_display","character",0.027,10343,0.01,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","spatial_blm_match_display","character",0.027,10343,0.01,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","spatial_blm_match_display","character",0.027,10343,0.01,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","node_fill_col","character",0.012,10780,0.01,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","node_stroke_col","character",0.012,10780,0.01,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0.009,10606,0.01,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc2_code","character",0.039,10130,0.01,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","source","character",0.005,10410,0.01,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc8_code","character",0.017,9024,0.009,0
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0.009,9508,0.009,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list_display","character",0.027,9360,0.009,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list_display","character",0.027,9360,0.009,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list_display","character",0.027,9360,0.009,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","node_id_display","character",0.094,9080,0.009,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","CalSim3_ID","character",0.094,9080,0.009,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","Name","character",0.024,9244,0.009,0.00196850393700787
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc8_code","character",0.017,9024,0.009,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0.009,9508,0.009,0
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0.009,7896,0.008,0
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0.009,7896,0.008,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_in_fill_col","character",0.009,7896,0.008,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0.009,7896,0.008,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","deltamapr_operator_group","character",0.004,8578,0.008,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0.009,7896,0.008,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0.009,7896,0.008,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0.009,7896,0.008,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0.009,7896,0.008,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","ALLOT_NAME","character",0.045,8339,0.008,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.004,7998,0.008,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.014,7951,0.008,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","Descript","character",0.029,7853,0.007,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0.009,6929,0.007,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","coord_source","character",0.002,7848,0.007,0
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","Pname","character",0.033,7025,0.007,0.00675675675675676
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","source","character",0.004,7104,0.007,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0.009,6929,0.007,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.005,6940,0.007,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.005,6940,0.007,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.005,6940,0.007,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.005,6940,0.007,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc6_code","character",0.01,6768,0.006,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","state","character",0.024,6274,0.006,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","operator_agency","character",0.007,6474,0.006,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","lat_lon_display","character",0.026,6688,0.006,0
+"county","Counties","county_map.rds","registry_row","popup_html","character",0.01,6651,0.006,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","LUP_NAME","character",0.004,6313,0.006,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc6_code","character",0.01,6768,0.006,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.014,5892,0.006,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","LUP_NAME","character",0.004,6313,0.006,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.002,6094,0.006,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","popup_html","character",0.005,4805,0.005,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","site_type","character",0.019,4936,0.005,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_uid","character",0.024,5255,0.005,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","provider_display","character",0.003,5030,0.005,0
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","operator_group","character",0.004,4722,0.005,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.005,4858,0.005,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.006,4858,0.005,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.006,4858,0.005,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","ForecastGr","character",0.004,4064,0.004,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","source","character",0.003,4140,0.004,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc4_code","character",0.01,4512,0.004,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","state","character",0.016,4082,0.004,0.00293111871030777
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","alias_names","character",0.017,4101,0.004,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_link_match_method","character",0.002,4010,0.004,0.41743119266055
+"springs","Springs","springs_map.rds","registry_row","elevation_display","character",0.235,3908,0.004,0.981963487059169
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_name_display","character",0.022,3926,0.004,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_period_record_display","character",0.005,4256,0.004,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","ACEC_NAME","character",0.018,3859,0.004,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_popup_spec","character",0.002,4522,0.004,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc4_code","character",0.01,4512,0.004,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.013,4548,0.004,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.002,3840,0.004,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","ACEC_NAME","character",0.018,3859,0.004,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.002,4522,0.004,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","source","character",0.002,4155,0.004,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.002,3837,0.004,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.001,4477,0.004,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","popup_html","character",0.004,3427,0.003,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","subbasin_num","character",0.032,2938,0.003,0
+"huc2","HUC2","huc_all_map.rds","registry_row","popup_html","character",0.003,2958,0.003,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc4_name","character",0.002,2960,0.003,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_cnrfc_point_role","character",0.016,2691,0.003,0.795310210063508
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","datatransmission","character",0.024,3137,0.003,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","reservoir_name","character",0.016,3478,0.003,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_station_name","character",0.016,3478,0.003,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","river_basin_cdec","character",0.006,2976,0.003,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_metadata_source","character",0.002,2625,0.003,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","index_build_timestamp","character",0.002,3270,0.003,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_type","character",0.002,3114,0.003,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_type_display","character",0.002,3114,0.003,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","Conv_Sub","character",0.007,3578,0.003,0.576771653543307
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","line_col","character",0.004,3556,0.003,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","source","character",0.002,3570,0.003,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","popup_html","character",0.003,2958,0.003,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc4_name","character",0.002,2960,0.003,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.006,2654,0.003,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","source","character",0.002,2880,0.003,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","source","character",0.002,3570,0.003,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","ALLOT_NO","character",0.04,3470,0.003,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.002,2770,0.003,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","Basin_Su_1","character",0.008,3316,0.003,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.001,2662,0.003,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","basin_num","character",0.027,2575,0.002,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","Basin","character",0.021,1725,0.002,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","fill_col","character",0.003,2415,0.002,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","stroke_col","character",0.003,2415,0.002,0
+"huc6","HUC6","huc_all_map.rds","registry_row","bcmv8_recharge_note","character",0,1708,0.002,0.416666666666667
+"huc8","HUC8","huc_all_map.rds","registry_row","huc8_name","character",0.01,2065,0.002,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc2_name","character",0.001,2433,0.002,0
+"huc8","HUC8","huc_all_map.rds","registry_row","name","character",0.01,2065,0.002,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc6_name","character",0.003,2455,0.002,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0.002,1600,0.002,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc2_code","character",0.009,2256,0.002,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","datatransmission","character",0.016,2047,0.002,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_cnrfc_match_confidence","character",0.016,1716,0.002,0.795310210063508
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","county","character",0.004,1671,0.002,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_report_display","character",0.002,1813,0.002,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","elevation_display","character",0.015,2444,0.002,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","context_display","character",0.005,2040,0.002,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","status_display","character",0.002,1824,0.002,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_fill_col","character",0.002,2128,0.002,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_stroke_col","character",0.002,2128,0.002,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","Conv_Type","character",0.004,2535,0.002,0.356299212598425
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_geom_type","character",0.002,1666,0.002,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_namecolumn","character",0.002,2142,0.002,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_colorbycolumn","character",0.002,2142,0.002,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_label_field","character",0.002,2142,0.002,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","line_col","character",0.003,1666,0.002,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","fill_col","character",0.003,1666,0.002,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","bcmv8_recharge_note","character",0,1708,0.002,0.416666666666667
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","huc8_name","character",0.01,2065,0.002,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc2_name","character",0.001,2433,0.002,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","name","character",0.01,2065,0.002,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc6_name","character",0.003,2455,0.002,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0.002,1600,0.002,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc2_code","character",0.009,2256,0.002,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.006,2213,0.002,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.002,2496,0.002,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.002,1728,0.002,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.002,1728,0.002,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.002,1920,0.002,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.002,1728,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.002,1666,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.002,2142,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.002,2142,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.002,2142,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.003,1666,0.002,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.003,1666,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","CATEGORY_c","character",0.002,1898,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.002,2216,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.002,2493,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.002,1662,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.002,1939,0.002,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.002,1939,0.002,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","source","character",0.001,1815,0.002,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","GlobalID","character",0.001,532,0.001,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","popup_html","character",0.003,1517,0.001,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","hover_text","character",0.002,740,0.001,0
+"huc4","HUC4","huc_all_map.rds","registry_row","bcmv8_recharge_note","character",0,732,0.001,0.625
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc4_name","character",0.001,526,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc4_code","character",0.002,560,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","huc8","character",0.01,1120,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc6_code","character",0.002,840,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0.001,980,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0.002,1460,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0.001,980,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_in_fill_col","character",0.001,980,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_in_fill_label","character",0.002,1320,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0.001,980,0.001,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0.002,1140,0.001,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_id","character",0.037,1257,0.001,0.795310210063508
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_id","character",0.013,654,0.001,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","nws_id","character",0.008,635,0.001,0.41743119266055
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_fill_col","character",0.002,1526,0.001,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_stroke_col","character",0.002,1526,0.001,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_nws_id","character",0.008,635,0.001,0.41743119266055
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_link_match_confidence","character",0.002,540,0.001,0.41743119266055
+"x2_km","CVP/SWP X2 km points","x2_km_map.rds","registry_row","hover_text","character",0.011,958,0.001,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","lat_lon_display","character",0.002,616,0.001,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","hover_text","character",0.003,1282,0.001,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_id_display","character",0.019,962,0.001,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_start_year_display","character",0.005,1216,0.001,0
+"county","Counties","county_map.rds","registry_row","label","character",0.004,839,0.001,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_nickname","character",0.002,952,0.001,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_display_name","character",0.002,1190,0.001,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","popup_html","character",0.002,1136,0.001,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","bcmv8_recharge_note","character",0,732,0.001,0.625
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc4_name","character",0.001,526,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc4_code","character",0.002,560,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","huc8","character",0.01,1120,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc6_code","character",0.002,840,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0.001,980,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0.002,1460,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0.001,980,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0.001,980,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0.002,1320,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0.001,980,0.001,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0.002,1140,0.001,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.001,680,0.001,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.001,813,0.001,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.001,1197,0.001,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.001,1512,0.001,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.001,567,0.001,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0.001,567,0.001,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","source","character",0.001,945,0.001,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.002,1344,0.001,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","agency_group","character",0.002,655,0.001,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.002,1344,0.001,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.002,1344,0.001,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.002,952,0.001,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0.002,1190,0.001,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.002,831,0.001,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","Basin_Subb","character",0.006,884,0.001,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.001,847,0.001,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0.001,1210,0.001,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.001,847,0.001,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.001,847,0.001,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","Label","character",0.004,1150,0.001,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0,611,0.001,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0,1410,0.001,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","source","character",0,705,0.001,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.004,1479,0.001,0
+"project_areas","Project area(s)","project_areas_map.rds","registry_row","project_id","character",0,0,0,
+"project_areas","Project area(s)","project_areas_map.rds","registry_row","project_name","character",0,0,0,
+"project_areas","Project area(s)","project_areas_map.rds","registry_row","project_type","character",0,0,0,
+"project_areas","Project area(s)","project_areas_map.rds","registry_row","source","character",0,0,0,
+"project_areas","Project area(s)","project_areas_map.rds","registry_row","popup_html","character",0,0,0,
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","offce_name","character",0.002,463,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","offce_abrv","character",0.001,81,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","offce_type","character",0,40,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","lat","numeric",0,0,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","lon","numeric",0,0,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","source","character",0,190,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","office_type_label","character",0,248,0,0
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","parent_district","character",0,405,0,0.210526315789474
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","fo_fill_col","character",0,105,0,0.210526315789474
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","district_fill_col","character",0,21,0,0.842105263157895
+"blm_offices","BLM Offices","blm_offices_map.rds","registry_row","fill_col","character",0,133,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","Tmp_Float_","numeric",0,0,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","ADMIN_ST","character",0,28,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","Tmp_Long_c","numeric",0,0,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","Comments_c","character",0,74,0,0.928571428571429
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","EFF_DT","Date",0,140,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","PARENT_NAM","character",0,377,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","Tmp_Text_c","character",0.001,179,0,0.357142857142857
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","ADMU_ST_UR","character",0,420,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","APPRV_DT","Date",0,140,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","ADMU_NAME","character",0.001,314,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","created_da","Date",0,0,0,1
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","PARENT_CD","character",0,112,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","BLM_ORG_TY","character",0,70,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","ADM_UNIT_C","character",0.001,112,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","Tmp_Date_c","Date",0,0,0,1
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","created_us","character",0,0,0,1
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","last_edite","character",0,0,0,1
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","source","character",0,434,0,0
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","last_edi_1","Date",0,0,0,1
+"field_office_outer","BLM Field Office (outer)","field_office_outer_map.rds","registry_row","line_col","character",0,98,0,0
+"blm_core","BLM-CA Managed (core)","blm_core_map.rds","registry_row","category","character",0,34,0,0
+"blm_core","BLM-CA Managed (core)","blm_core_map.rds","registry_row","popup_html","character",0,41,0,0
+"blm_diffs","BLM Held/Managed Differences","blm_diffs_map.rds","registry_row","category","character",0,63,0,0
+"blm_diffs","BLM Held/Managed Differences","blm_diffs_map.rds","registry_row","category_base","character",0,38,0,0
+"blm_diffs","BLM Held/Managed Differences","blm_diffs_map.rds","registry_row","fill_col","character",0,14,0,0
+"blm_diffs","BLM Held/Managed Differences","blm_diffs_map.rds","registry_row","stroke_col","character",0,14,0,0
+"blm_diffs","BLM Held/Managed Differences","blm_diffs_map.rds","registry_row","popup_html","character",0.001,375,0,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","blm_area_sqmi","numeric",0.004,0,0,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","total_area_sqmi","numeric",0.004,0,0,0
+"gw_bull118","GW – Bull. 118","gw_bull118_map.rds","registry_row","percentBLMland","numeric",0.004,0,0,0
+"cnrfc_basins","CNRFC Basins","cnrfc_basins_map.rds","registry_row","sq_miles","numeric",0.003,0,0,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","River","character",0.001,119,0,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","nws5id","character",0.001,75,0,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","res","character",0.001,126,0,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","line_col","character",0,105,0,0
+"cnrfc_fnf_delta","CNRFC FNF Delta Basins","cnrfc_fnf_delta_map.rds","registry_row","line_weight","numeric",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","huc2","character",0,8,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","name","character",0,80,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","huc2_name","character",0,80,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","percentBLMland","numeric",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","map_in","numeric",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_kaf","numeric",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_in","numeric",0,0,0,0.75
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_kaf","numeric",0,0,0,0.75
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0,0,0,0.75
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","bcmv8_recharge_note","character",0,244,0,0.5
+"huc2","HUC2","huc_all_map.rds","registry_row","pt_is_huc","logical",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","pt_huc_level","integer",0,0,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0,28,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0,37,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_in_bin","integer",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0,28,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0,54,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0,0,0,0.25
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_in_fill_col","character",0,28,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_in_fill_label","character",0,24,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_in_bin","integer",0,0,0,0.75
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0,28,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0,27,0,0
+"huc2","HUC2","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0,0,0,0.75
+"huc4","HUC4","huc_all_map.rds","registry_row","huc4","character",0.001,64,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","prnt_huc2_tot","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","name","character",0.001,344,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","prnt_huc2_name","character",0,293,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","prnt_huc2_pctBLM","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","prnt_huc2_blm","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","huc4_name","character",0.001,344,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","percentBLMland","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","prnt_huc2_code","character",0,32,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","map_in","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_kaf","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_in","numeric",0,0,0,0.375
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_kaf","numeric",0,0,0,0.375
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0,0,0,0.375
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","pt_is_huc","logical",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","pt_huc_level","integer",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0.001,112,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0.001,170,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_in_bin","integer",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0.001,112,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0.001,229,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0,0,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_in_fill_col","character",0.001,112,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_in_fill_label","character",0.001,132,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_in_bin","integer",0,0,0,0.375
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0.001,112,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0.001,156,0,0
+"huc4","HUC4","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0,0,0,0.375
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc2_tot","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc2_code","character",0,48,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","percentBLMland","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","huc6","character",0.002,144,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","huc6_name","character",0.002,395,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc4_code","character",0.001,96,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc2_blm","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc2_pctBLM","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc2_name","character",0.001,431,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","name","character",0.002,395,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc4_pctBLM","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc4_tot","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","prnt_huc4_blm","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","map_in","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_kaf","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_in","numeric",0,0,0,0.583333333333333
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_kaf","numeric",0,0,0,0.583333333333333
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0,0,0,0.583333333333333
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","pt_is_huc","logical",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","pt_huc_level","integer",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_in_fill_col","character",0.001,168,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_in_fill_label","character",0.001,254,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_in_bin","integer",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_kaf_fill_col","character",0.001,168,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_kaf_fill_label","character",0.001,329,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0,0,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_in_fill_col","character",0.001,168,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_in_fill_label","character",0.001,188,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_in_bin","integer",0,0,0,0.583333333333333
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_kaf_fill_col","character",0.001,168,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_kaf_fill_label","character",0.001,207,0,0
+"huc6","HUC6","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0,0,0,0.583333333333333
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc2_tot","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc2_code","character",0.001,280,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","percentBLMland","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc6_pctBLM","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc2_pctBLM","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc2_blm","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc6_blm","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc4_pctBLM","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc4_tot","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc4_blm","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","prnt_huc6_tot","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","map_in","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_kaf","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_in","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_kaf","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","pt_is_huc","logical",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","pt_huc_level","integer",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_in_bin","integer",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_in_bin","integer",0.001,0,0,0
+"huc8","HUC8","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0.001,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","percentBLMland","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc6_pctBLM","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc2_tot","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc2_pctBLM","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc2_blm","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc6_blm","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc4_pctBLM","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc4_tot","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc4_blm","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc6_tot","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc8_pctBLM","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc8_blm","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","prnt_huc8_tot","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","map_in","numeric",0.009,0,0,0.00797872340425532
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_kaf","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_in","numeric",0.009,0,0,0.0106382978723404
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_kaf","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0.009,0,0,0.00797872340425532
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0.009,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","pt_is_huc","logical",0.004,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","pt_huc_level","integer",0.004,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_in_bin","integer",0.004,0,0,0.00797872340425532
+"huc10","HUC10","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0.004,0,0,0
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_in_bin","integer",0.004,0,0,0.0106382978723404
+"huc10","HUC10","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0.004,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc8_tot","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc2_tot","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc8_blm","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc4_tot","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc8_pctBLM","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc6_tot","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc10_blm","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc4_blm","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc4_pctBLM","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc6_blm","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc2_blm","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc2_pctBLM","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","total_area_sqmi","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","blm_area_sqmi","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc6_pctBLM","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","percentBLMland","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc10_pctBLM","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","prnt_huc10_tot","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","map_in","numeric",0.039,0,0,0.00730503455083909
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_kaf","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_in","numeric",0.039,0,0,0.00967423494570582
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_kaf","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_eff_pct","numeric",0.039,0,0,0.00730503455083909
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_valid_frac","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_valid_frac","numeric",0.039,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","pt_is_huc","logical",0.019,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","pt_huc_level","integer",0.019,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_in_bin","integer",0.019,0,0,0.00730503455083909
+"huc12","HUC12","huc_all_map.rds","registry_row","ppt_kaf_bin","integer",0.019,0,0,0
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_in_bin","integer",0.019,0,0,0.00967423494570582
+"huc12","HUC12","huc_all_map.rds","registry_row","rech_kaf_bin","integer",0.019,0,0,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","lat","numeric",0.016,0,0,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","lon","numeric",0.016,0,0,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","elev_ft","numeric",0.016,0,0,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","is_cnrfc_reservoir","logical",0.008,0,0,0
+"cnrfc_stream","CNRFC River & Reservoir","cnrfc_stream_map.rds","registry_row","cdec_cnrfc_match_distance_m","numeric",0.016,0,0,0.930141670737665
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","lat","numeric",0.024,0,0,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","lon","numeric",0.024,0,0,0
+"cnrfc_precip","CNRFC Precip Gages","cnrfc_precip_map.rds","registry_row","elev_ft","numeric",0.024,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","elevation_ft","numeric",0.002,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","latitude","numeric",0.002,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","longitude","numeric",0.002,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","has_hourly_reservoir_report","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","has_daily_reservoir_report","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_reservoir_name_mid_xy","character",0.005,482,0,0.784403669724771
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_midres_lat","numeric",0.002,0,0,0.784403669724771
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_midres_lon","numeric",0.002,0,0,0.784403669724771
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_nws_ids","character",0.002,10,0,0.990825688073395
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_cdec_names_from_nws_key","character",0.002,51,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_nws_ids_from_crosswalk","character",0.002,10,0,0.990825688073395
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_usgs_ids","character",0.002,0,0,1
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_cdec_names_from_crosswalk","character",0.002,51,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_usgs_names","character",0.002,0,0,1
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_basin_cdec","character",0.002,29,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_group_cdec","character",0.002,46,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_gage_operator","character",0.002,46,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_county_cdec","character",0.002,24,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_station_lat","numeric",0.002,0,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_station_lon","numeric",0.002,0,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_name_cdec","character",0.002,51,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_basin_cdec","character",0.002,29,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_group_cdec","character",0.002,46,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_operator","character",0.002,46,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_county","character",0.002,24,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_lat","numeric",0.002,0,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_lon","numeric",0.002,0,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","legacy_meta_elev_ft","numeric",0.002,0,0,0.986238532110092
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","usgs_id","character",0.002,0,0,1
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","has_legacy_midres_xy","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","has_legacy_nws_crosswalk","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","has_legacy_usgs_crosswalk","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_reservoir_inflow_url","character",0.002,98,0,0.990825688073395
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_reservoir_outflow_url","character",0.002,112,0,0.990825688073395
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","usgs_site_url","character",0.002,0,0,1
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","is_cdec_summary_record","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","coord_valid_wgs84","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","coord_valid_brim_region","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","map_geometry_ok","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_has_hourly","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_has_daily","logical",0.001,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cdec_radius","numeric",0.002,0,0,0
+"cdec_reservoir_stations","CDEC Reservoir Stations","cdec_reservoir_stations_map.rds","registry_row","cnrfc_link_match_distance_m","numeric",0.002,0,0,0.426605504587156
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","latitude","numeric",0.018,0,0,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","longitude","numeric",0.018,0,0,0
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","elev_ft","numeric",0.018,0,0,0.443234185169669
+"usgs_streamgages","USGS Streamgages","usgs_streamgages_map.rds","registry_row","count_nu","numeric",0.018,0,0,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","well_radius","numeric",0.337,0,0,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","well_recent_feed_ring","logical",0.169,0,0,0
+"usgs_wells","USGS Wells","usgs_wells_map.rds","registry_row","well_is_nested","logical",0.169,0,0,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","face_afy","numeric",0.027,0,0,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list","logical",0.013,0,0,0
+"swrcb_wr_list_official","SWRCB 2026 BLM WR list records","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_radius","numeric",0.027,0,0,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","face_afy","numeric",0.027,0,0,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list","logical",0.013,0,0,0
+"swrcb_pod_spatial_matches","SWRCB additional PODs spatially matched to BLM","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_radius","numeric",0.027,0,0,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","face_afy","numeric",0.027,0,0,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_2026_blm_wr_list","logical",0.013,0,0,0
+"swrcb_name_text_candidates","SWRCB additional BLM name/text-match candidates","swrcb_pod_wr_blm_map.rds","registry_row","swrcb_radius","numeric",0.027,0,0,0
+"x2_km","CVP/SWP X2 km points","x2_km_map.rds","registry_row","RKI","numeric",0.001,0,0,0
+"x2_km","CVP/SWP X2 km points","x2_km_map.rds","registry_row","x2_km_num","numeric",0.001,0,0,0
+"x2_km","CVP/SWP X2 km points","x2_km_map.rds","registry_row","x2_km_display","character",0.011,424,0,0
+"springs","Springs","springs_map.rds","registry_row","spring_radius","numeric",0.208,0,0,0
+"springs","Springs","springs_map.rds","registry_row","spring_fill_opacity","numeric",0.208,0,0,0
+"springs","Springs","springs_map.rds","registry_row","spring_stroke_weight","numeric",0.208,0,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_uid","character",0.002,392,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_name_display","character",0.002,302,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_type","character",0,112,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_type_display","character",0,112,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","provider_display","character",0,392,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_id_display","character",0.002,112,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_start_year_display","character",0.001,112,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_period_record_display","character",0.001,392,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","elevation_display","character",0.002,218,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","context_display","character",0.001,303,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","status_display","character",0,168,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","scan_selected_soil_moisture_pct","numeric",0,0,0,1
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","scan_selected_soil_moisture_depth_in","numeric",0,0,0,1
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","scan_selected_soil_moisture_date","character",0,0,0,1
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","scan_soil_moisture_depth_summary","character",0,0,0,1
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_radius","numeric",0,0,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_fill_col","character",0,196,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_stroke_col","character",0,196,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_fill_opacity","numeric",0,0,0,0
+"scan_stations","SCAN Stations","scan_stations_map.rds","registry_row","station_stroke_weight","numeric",0,0,0,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_radius","numeric",0.002,0,0,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_fill_opacity","numeric",0.002,0,0,0
+"snow_pillows","Snow Pillows","snow_pillows_map.rds","registry_row","station_stroke_weight","numeric",0.002,0,0,0
+"calsim3_nodes","CalSim3 Nodes","calsim3_nodes_map.rds","registry_row","node_radius","numeric",0.012,0,0,0
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","Operator","character",0.004,358,0,0.864864864864865
+"major_conveyance","Major Conveyance","major_conveyance_map.rds","registry_row","segment_count","integer",0.002,0,0,0
+"calsim3_arcs","CalSim3 Arcs","calsim3_arcs_map.rds","registry_row","line_weight","numeric",0.017,0,0,0
+"deltamapr_canals","Deltamapr Conveyance","deltamapr_canals_map.rds","registry_row","line_weight","numeric",0.004,0,0,0
+"county","Counties","county_map.rds","registry_row","county_name","character",0.004,433,0,0
+"county","Counties","county_map.rds","registry_row","total_area_sqmi","numeric",0,0,0,0
+"county","Counties","county_map.rds","registry_row","blm_area_sqmi","numeric",0,0,0,0
+"county","Counties","county_map.rds","registry_row","percentBLMland","numeric",0,0,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","NLCS_NAME","character",0.001,250,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_nickname","character",0,132,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_display_name","character",0,407,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_geom_type","character",0,77,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_namecolumn","character",0,99,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_colorbycolumn","character",0,0,0,1
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_popup_spec","character",0,99,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_label_field","character",0,0,0,1
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","pt_simplify_keep","numeric",0,0,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","source","character",0,165,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","popup_html","character",0.001,327,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","line_col","character",0,77,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","fill_col","character",0,77,0,0
+"ca_desert_ncl","CA Desert National Conservation Lands","reference_layers_all_map.rds","registry_row","line_weight","numeric",0,0,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_nickname","character",0,5,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_display_name","character",0,5,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_geom_type","character",0,7,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_namecolumn","character",0,0,0,1
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_colorbycolumn","character",0,0,0,1
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_popup_spec","character",0,0,0,1
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_label_field","character",0,0,0,1
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","pt_simplify_keep","numeric",0,0,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","source","character",0,15,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","popup_html","character",0,12,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","line_col","character",0,7,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","fill_col","character",0,7,0,0
+"drecp","DRECP","reference_layers_all_map.rds","registry_row","line_weight","numeric",0,0,0,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","pt_simplify_keep","numeric",0.002,0,0,0
+"acec","ACECs","reference_layers_all_map.rds","registry_row","line_weight","numeric",0.002,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","OBJECTID","integer",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","Shape__Area","numeric",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","Shape__Length","numeric",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","RB","integer",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","RB_NAME","character",0.001,106,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_region_num","integer",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_region_name","character",0.001,112,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_url","character",0.001,385,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_fill_col","character",0.001,63,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_stroke_col","character",0.001,63,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_hover_text","character",0.001,229,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_label_text","character",0.001,175,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_fill_opacity","numeric",0,0,0,0
+"rwqcb_regions","RWQCB Regions","rwqcb_regions_map.rds","registry_row","rwqcb_stroke_weight","numeric",0,0,0,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","pt_source_row","integer",0.013,0,0,0
+"water_districts","Water Districts","water_districts_map.rds","registry_row","pt_area_sqmi","numeric",0.027,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","huc2","character",0,8,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","name","character",0,80,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","huc2_name","character",0,80,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0,0,0,0.75
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0,0,0,0.75
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0,0,0,0.75
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","bcmv8_recharge_note","character",0,244,0,0.5
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0,0,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0,28,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0,37,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0,28,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0,54,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0,0,0,0.25
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0,28,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0,24,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0,0,0,0.75
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0,28,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0,27,0,0
+"huc_all_map::huc2","huc2 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0,0,0,0.75
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","huc4","character",0.001,64,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","prnt_huc2_tot","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","name","character",0.001,344,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","prnt_huc2_name","character",0,293,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","prnt_huc2_pctBLM","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","prnt_huc2_blm","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","huc4_name","character",0.001,344,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","prnt_huc2_code","character",0,32,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0,0,0,0.375
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0,0,0,0.375
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0,0,0,0.375
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0.001,112,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0.001,170,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0.001,112,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0.001,229,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0,0,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0.001,112,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0.001,132,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0,0,0,0.375
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0.001,112,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0.001,156,0,0
+"huc_all_map::huc4","huc4 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0,0,0,0.375
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc2_tot","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc2_code","character",0,48,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","huc6","character",0.002,144,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","huc6_name","character",0.002,395,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc4_code","character",0.001,96,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc2_blm","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc2_pctBLM","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc2_name","character",0.001,431,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","name","character",0.002,395,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc4_pctBLM","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc4_tot","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","prnt_huc4_blm","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0,0,0,0.583333333333333
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0,0,0,0.583333333333333
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0,0,0,0.583333333333333
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_col","character",0.001,168,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_in_fill_label","character",0.001,254,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_col","character",0.001,168,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_kaf_fill_label","character",0.001,329,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0,0,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_in_fill_col","character",0.001,168,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_in_fill_label","character",0.001,188,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0,0,0,0.583333333333333
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_col","character",0.001,168,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_kaf_fill_label","character",0.001,207,0,0
+"huc_all_map::huc6","huc6 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0,0,0,0.583333333333333
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc2_tot","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc2_code","character",0.001,280,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc6_pctBLM","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc2_pctBLM","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc2_blm","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc6_blm","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc4_pctBLM","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc4_tot","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc4_blm","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","prnt_huc6_tot","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0.001,0,0,0
+"huc_all_map::huc8","huc8 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0.001,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc6_pctBLM","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc2_tot","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc2_pctBLM","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc2_blm","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc6_blm","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc4_pctBLM","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc4_tot","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc4_blm","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc6_tot","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc8_pctBLM","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc8_blm","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","prnt_huc8_tot","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0.009,0,0,0.00797872340425532
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0.009,0,0,0.0106382978723404
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0.009,0,0,0.00797872340425532
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0.009,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0.004,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0.004,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0.004,0,0,0.00797872340425532
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0.004,0,0,0
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0.004,0,0,0.0106382978723404
+"huc_all_map::huc10","huc10 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0.004,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc8_tot","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc2_tot","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc8_blm","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc4_tot","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc8_pctBLM","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc6_tot","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc10_blm","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc4_blm","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc4_pctBLM","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc6_blm","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc2_blm","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc2_pctBLM","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","total_area_sqmi","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","blm_area_sqmi","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc6_pctBLM","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","percentBLMland","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc10_pctBLM","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","prnt_huc10_tot","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","map_in","numeric",0.039,0,0,0.00730503455083909
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_kaf","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_in","numeric",0.039,0,0,0.00967423494570582
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_kaf","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_eff_pct","numeric",0.039,0,0,0.00730503455083909
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_valid_frac","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_valid_frac","numeric",0.039,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","pt_is_huc","logical",0.019,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","pt_huc_level","integer",0.019,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_in_bin","integer",0.019,0,0,0.00730503455083909
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","ppt_kaf_bin","integer",0.019,0,0,0
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_in_bin","integer",0.019,0,0,0.00967423494570582
+"huc_all_map::huc12","huc12 [cache child]","huc_all_map.rds","list_child","rech_kaf_bin","integer",0.019,0,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.001,150,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0,36,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0,198,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0,48,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0,54,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0,54,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0,54,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0,0,0,1
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0,0,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","source","character",0,90,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.001,192,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0,42,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0,42,0,0
+"reference_layers_all_map::trails","trails [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0,0,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","AGENCY_COD","character",0,60,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0,171,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0,380,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0,133,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0,171,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0,190,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0,171,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0,0,0,1
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0,0,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","source","character",0,285,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","agency_group","character",0,60,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0,133,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0,133,0,0
+"reference_layers_all_map::monuments","monuments [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0,0,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","NLCS_NAME","character",0.001,250,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0,132,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0,407,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0,77,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0,99,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0,0,0,1
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0,99,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0,0,0,1
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0,0,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","source","character",0,165,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0.001,327,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0,77,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0,77,0,0
+"reference_layers_all_map::cadesert_ncl","cadesert_ncl [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0,0,0,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0.001,441,0,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.001,0,0,1
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.001,0,0,1
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.001,0,0,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0.001,441,0,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0.001,441,0,0
+"reference_layers_all_map::wildernessstudyarea","wildernessstudyarea [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.001,0,0,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","ManagingAg","integer",0.001,0,0,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.002,0,0,0
+"reference_layers_all_map::fedwilderness","fedwilderness [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.002,0,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0,5,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_display_name","character",0,5,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0,7,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0,0,0,1
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0,0,0,1
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0,0,0,1
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0,0,0,1
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0,0,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","source","character",0,15,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","popup_html","character",0,12,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0,7,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0,7,0,0
+"reference_layers_all_map::drecp","drecp [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0,0,0,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.002,0,0,0
+"reference_layers_all_map::acec","acec [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.002,0,0,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.005,0,0,0
+"reference_layers_all_map::allotments","allotments [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.005,0,0,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","SMA_ID","numeric",0.002,0,0,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.002,0,0,1
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.002,0,0,0
+"reference_layers_all_map::wsr","wsr [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.002,0,0,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_nickname","character",0.001,484,0,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0.001,0,0,1
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0.001,0,0,1
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0.001,0,0,0
+"reference_layers_all_map::gsps","gsps [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0.001,0,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_geom_type","character",0,329,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_namecolumn","character",0,235,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_colorbycolumn","character",0,0,0,1
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_popup_spec","character",0,235,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_label_field","character",0,0,0,1
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","pt_simplify_keep","numeric",0,0,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","line_col","character",0,329,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","fill_col","character",0,329,0,0
+"reference_layers_all_map::gwbasins_adjd","gwbasins_adjd [cache child]","reference_layers_all_map.rds","list_child","line_weight","numeric",0,0,0,0

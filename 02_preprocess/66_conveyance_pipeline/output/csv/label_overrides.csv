@@ -1,0 +1,3 @@
+override_id,canonical_name_regex,lbl_override,lbl_min_zoom,lbl_max_zoom,show_default,notes
+LBL001,^California Aqueduct – East Branch$,East Branch,6,20,TRUE,Use compact branch label while retaining full canonical name in popup/search.
+LBL002,^Delta-Mendota Canal / California Aqueduct Intertie$,DMC–CA Intertie,8,20,TRUE,Reserved for the supplemental intertie geometry.

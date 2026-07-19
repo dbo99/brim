@@ -1,0 +1,52 @@
+# R and operating-system state
+.Rproj.user/
+.Rhistory
+.RData
+.DS_Store
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+secrets/
+
+# Production raw data; only explicit curated exceptions are tracked
+01_raw_data/**
+!01_raw_data/swrcb_water_rights/
+!01_raw_data/swrcb_water_rights/All_your_water_right_7_1_2026_8_56_30.csv
+!01_raw_data/swrcb_water_rights/All_your_water_right_7_1_2026_8_56_30.csv.xlsx
+data_raw/
+
+# Production processed data and caches
+04_processed_data/
+
+# Generated build products
+06_output/
+
+# Separate public live-feed repository
+brim-live-data-feeds/
+
+# Historical/sandbox/patch material
+99_archive/
+99_sandbox/
+99_manual_patches/
+
+# Generated conveyance outputs retained outside normal Git history
+02_preprocess/66_conveyance_pipeline/output/html/
+02_preprocess/66_conveyance_pipeline/output/canonical/
+02_preprocess/66_conveyance_pipeline/output/brim_exports/
+
+# Generic temporary and backup files
+*~
+*.tmp
+*.bak
+*.swp
+
+# Large generated archives
+*.zip
+
+*.bak_*
+*.old

@@ -1,0 +1,17 @@
+BRIM Codex Stage 7 — private-GitHub-ready source repository
+Completed: 2026-07-19 00:35:55 PDT
+
+Validated shipping source, unchanged: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship
+Source repository: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38_source_repo
+Portable handoff ZIP target: /Users/davidoconnor_mbp22/Documents/BRIM_v0.38_source_handoff_20260719.zip
+
+Repository files before final manifest: 579
+Repository size before final manifest: 37.8 MiB
+Retained R files parsed: 172
+R parse failures: 0
+High-confidence credential hits: 0
+Files at or above 50 MiB: 0
+
+The directory is ready for review before private Git initialization.
+Review ABSOLUTE_PATH_SCAN_REPORT.csv and the curated-input policy before
+the first push.

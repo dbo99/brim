@@ -1,0 +1,5 @@
+"sample","source","status","detail"
+"conveyance_facilities_sample.csv","/Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship/02_preprocess/66_conveyance_pipeline/output/csv/facilities.csv","created","30 rows"
+"conveyance_segments_sample.csv","/Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship/02_preprocess/66_conveyance_pipeline/output/csv/conveyance_segments.csv","created","50 rows"
+"external_service_catalog_sample.csv","/Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship/00_config/external_service_catalog.csv","created","30 rows"
+"conveyance_lines_sample.geojson","/Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship/02_preprocess/66_conveyance_pipeline/output/brim_exports/conveyance_segments_brim_map.rds","created","15 or fewer facility-level line features"

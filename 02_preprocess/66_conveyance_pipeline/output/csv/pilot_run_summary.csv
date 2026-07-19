@@ -1,0 +1,16 @@
+metric,value
+script_version,CONVEYANCE_PIPELINE_66_QUERY_PANEL_RANKS_20260716_01
+source_major_features,1377
+source_deltamapp_features,509
+canonical_facilities,623
+canonical_segments,1811
+label_points,623
+auto_exact_pairs,102
+unresolved_decisions_omitted,4
+expected_cvp_facilities_missing,1
+reclamation_facilities_project_unassigned,14
+supplements_ready_for_ingest,0
+segments_crosses_blm_calculated,Yes — using BRIM BLM-CA Managed
+segments_crossing_blm,145
+facilities_crossing_blm,40
+conveyance_length_on_blm_mi,167.177801

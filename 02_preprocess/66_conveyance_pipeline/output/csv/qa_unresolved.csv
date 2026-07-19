@@ -1,0 +1,5 @@
+decision_id,source_rows,canonical_or_candidate_name,issue,recommended_next_action
+35,Major: 904|908 | Delta: 415,West Interception Canal | Live Oak Canal,Omit unresolved short/local pieces from curated pilot; raw source layers retain them.,Split into West Interception Canal and Live Oak Canal where independently supported; otherwise retain omission.
+36,Major: 914 | Delta: 459,East Interception Canal | Sutter Butte Canal,Unresolved; omit from curated pilot pending split.,Manual visual/authoritative review before inclusion.
+37,Major: 38 | Delta: 489,Lerdo Canal | Beardsley Canal,Unresolved; omit from curated pilot pending split.,Manual visual/authoritative review before inclusion.
+38,Major: 51 | Delta: 455,Tulare Irrigation District Canal | Liberty Ditch,Unresolved; omit from curated pilot pending component decision.,Manual visual/authoritative review before inclusion.

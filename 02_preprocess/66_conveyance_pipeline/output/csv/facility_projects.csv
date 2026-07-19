@@ -1,0 +1,630 @@
+facility_id,project_family,project_name,project_division,project_unit,project_subunit,project_path,membership_role,assignment_confidence,evidence_rule_id,evidence_url,project_key,project_id
+CVY_00049B8E,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_001F8FA8,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_004C73AE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0092AF31,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0167BFA9,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,San Luis Drain,West San Joaquin Division > San Luis Unit > San Luis Drain,facility,authoritative_crosswalk,CVP_SAN_LUIS_DRAIN,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|San Luis Drain,PRJ_1F6339EE
+CVY_01A703CC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_01E6DCF2,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_01F93789,SWP,State Water Project,California Aqueduct,West Branch,,California Aqueduct > West Branch,facility,authoritative_crosswalk,SWP_WEST_BRANCH,,SWP|State Water Project|California Aqueduct|West Branch|,PRJ_6A61062F
+CVY_023742FB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_02BE0F98,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_02C0B6D8,Other Reclamation,Solano Project,,Putah South Canal system,,Putah South Canal system,facility,authoritative_crosswalk,BOR_SOLANO,https://www.usbr.gov/projects/index.php?id=421,Other Reclamation|Solano Project||Putah South Canal system|,PRJ_055E9D4D
+CVY_031FE24C,Other Reclamation,Boulder Canyon Project,,All-American Canal system,,All-American Canal system,facility,authoritative_crosswalk,BOR_BOULDER,https://www.usbr.gov/lc/region/programs/bcp.html,Other Reclamation|Boulder Canyon Project||All-American Canal system|,PRJ_05ED4047
+CVY_03678E60,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_039DD70F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_03A29A2E,Local/regional public,Anderson-Cottonwood Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Anderson-Cottonwood Irrigation District|||,PRJ_1A67BE18
+CVY_03AE5904,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_03DDB527,Local/regional public,Westlands Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Westlands Water District conveyance system|||,PRJ_66301D9A
+CVY_03E6A686,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_03EECDC1,Local/regional public,Hetch Hetchy Regional Water System,,Bay Division Pipelines,,Bay Division Pipelines,facility,reviewed,LOCAL_HETCH_HETCHY,,Local/regional public|Hetch Hetchy Regional Water System||Bay Division Pipelines|,PRJ_2549EC30
+CVY_03EF0B1D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_040635D8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0438E8F2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_043B4F94,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_048110EF,Local/regional public,South San Joaquin Irrigation District system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|South San Joaquin Irrigation District system|||,PRJ_215CCADB
+CVY_04CF4069,Local/regional public,Shafter-Wasco Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Shafter-Wasco Irrigation District conveyance system|||,PRJ_131FA1D1
+CVY_04D47F32,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_04E8ED29,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_05028EEA,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_053D77D4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0555A924,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_0559E8DD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0586FC82,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_060E9824,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_060E9825,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_060E9826,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_060E9827,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_060E9829,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_06200379,CVP,Central Valley Project,,San Luis Unit,,San Luis Unit,joint_use,reviewed,DECISION_LEDGER_SEED,,CVP|Central Valley Project||San Luis Unit|,PRJ_4061188B
+CVY_06200379,SWP,State Water Project,,California Aqueduct,,California Aqueduct,joint_use,reviewed,DECISION_LEDGER_SEED,,SWP|State Water Project||California Aqueduct|,PRJ_2A4546F2
+CVY_06200379,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,San Luis Canal,West San Joaquin Division > San Luis Unit > San Luis Canal,joint_use,authoritative_crosswalk,CVP_SAN_LUIS_CANAL,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|San Luis Canal,PRJ_3FD82257
+CVY_06200379,SWP,State Water Project,California Aqueduct,San Luis Field Division,San Luis Canal,California Aqueduct > San Luis Field Division > San Luis Canal,joint_use,authoritative_crosswalk,SWP_SAN_LUIS_CANAL,https://www.usbr.gov/projects/index.php?id=427,SWP|State Water Project|California Aqueduct|San Luis Field Division|San Luis Canal,PRJ_3A6088A2
+CVY_0691119C,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,Coalinga Canal,West San Joaquin Division > San Luis Unit > Coalinga Canal,facility,authoritative_crosswalk,CVP_SAN_LUIS_COALINGA,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|Coalinga Canal,PRJ_1F30458B
+CVY_06BDB468,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_06F08357,Local/regional public,Contra Costa Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Contra Costa Water District|||,PRJ_5194B935
+CVY_072D51A1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_075A73D5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_07920BA7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_079295DA,Local/regional public,Local/regional public system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local/regional public system|||,PRJ_33C45DD5
+CVY_07B16018,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_081FEFDF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_085CA587,SWP,State Water Project,Oroville Division,Oroville-Thermalito Complex,,Oroville Division > Oroville-Thermalito Complex,facility,authoritative_crosswalk,SWP_OROVILLE,,SWP|State Water Project|Oroville Division|Oroville-Thermalito Complex|,PRJ_4E166C49
+CVY_0875DDAA,CVP,Central Valley Project,Delta Division,Contra Costa Canal,,Delta Division > Contra Costa Canal,facility,authoritative_crosswalk,CVP_DELTA_CCC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|Contra Costa Canal|,PRJ_61C7C8A7
+CVY_089467F7,Other Reclamation,Cachuma Project,,South Coast conveyance system,,South Coast conveyance system,facility,authoritative_crosswalk,BOR_CACHUMA,https://www.usbr.gov/projects/index.php?id=336,Other Reclamation|Cachuma Project||South Coast conveyance system|,PRJ_10852A82
+CVY_090F0857,Local/regional public,Metropolitan Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Metropolitan Water District|||,PRJ_3DFDEE1C
+CVY_093335EA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_09CE51FD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0A1DC592,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0AA55CAA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0AD82066,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_0B1B6B1E,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_0B6045ED,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_0B91E68B,Local/regional public,Merced Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Merced Irrigation District|||,PRJ_68D0A222
+CVY_0BBBC458,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0BBE0266,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0BDD000D,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_0C5215FD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0CAFF254,Local/regional public,Local; City of San Francisco,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local; City of San Francisco|||,PRJ_2DBDCCA8
+CVY_0D2CEDFF,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_0D2EC9C0,Local/regional public,Turlock Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Turlock Irrigation District|||,PRJ_7EFEE2C1
+CVY_0D472519,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0D608CD5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0D8860BF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0DBA473B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0E0EE5E3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0E2A3849,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_0E80956D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0EBAA903,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0ED1C9C7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0F33614D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0F572C69,Local/regional public,Oakdale Irrigation District system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Oakdale Irrigation District system|||,PRJ_53890A31
+CVY_0F870F5F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_0F89C562,Local/regional public,Local; Glenn Colusa Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local; Glenn Colusa Irrigation District|||,PRJ_77510FC0
+CVY_0F999C94,Local/regional public,Briggs-West Gridley Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Briggs-West Gridley Irrigation District conveyance system|||,PRJ_5A08500E
+CVY_0FFAA7B8,CVP,Central Valley Project,Delta Division,Contra Costa Canal,,Delta Division > Contra Costa Canal,facility,authoritative_crosswalk,CVP_DELTA_CCC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|Contra Costa Canal|,PRJ_61C7C8A7
+CVY_100B882F,Local/regional public,Metropolitan Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Metropolitan Water District|||,PRJ_3DFDEE1C
+CVY_10153E24,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1057970D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_10696E33,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_10C7D7BE,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_112C28D1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1134B8EA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1161019B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_11C85584,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_11CAE1A7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_123EF1D7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_124D2019,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_12A7DC15,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_12D4EC64,CVP,Central Valley Project,Trinity River Division,Spring Creek power conveyance system,,Trinity River Division > Spring Creek power conveyance system,facility,authoritative_crosswalk,CVP_TRINITY_SPRING,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Spring Creek power conveyance system|,PRJ_295C9563
+CVY_12E19D47,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_12F68D16,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_130BD136,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1381F741,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_13B2200D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_13EC3B05,CVP,Central Valley Project,Delta Division,C.W. Bill Jones (Tracy) Pumping Plant conveyance,,Delta Division > C.W. Bill Jones (Tracy) Pumping Plant conveyance,facility,authoritative_crosswalk,CVP_DELTA_TRACY,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|C.W. Bill Jones (Tracy) Pumping Plant conveyance|,PRJ_419B8CB8
+CVY_142DBCC2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_142F5CC1,SWP,State Water Project,South Bay Aqueduct,,,South Bay Aqueduct,facility,authoritative_crosswalk,SWP_SOUTH_BAY,,SWP|State Water Project|South Bay Aqueduct||,PRJ_10EF823F
+CVY_149C37AE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_14C53E2A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_14CF1D1A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_151746FD,Local/regional public,San Diego County Water Authority aqueduct system,,,,,facility,reviewed,LOCAL_SAN_DIEGO,,Local/regional public|San Diego County Water Authority aqueduct system|||,PRJ_75165373
+CVY_152C7D73,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_15341EF8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_156161B7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1567D878,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1567D880,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1569E066,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_157BCF8E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_15B4E91F,Local/regional public,US Bureau of Reclamation; Chowchilla Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|US Bureau of Reclamation; Chowchilla Water District|||,PRJ_3BDFD41D
+CVY_15ECBA34,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_160FEA31,Local/regional public,Tulare Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Tulare Irrigation District conveyance system|||,PRJ_2B211A0E
+CVY_1645F40B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1663FD36,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_16CC8F65,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_16E1072B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_16EE1FAF,CVP,Central Valley Project,American River Division,Sly Park Unit,Camp Creek diversion system,American River Division > Sly Park Unit > Camp Creek diversion system,facility,authoritative_crosswalk,CVP_AMERICAN_SLY_CAMP,https://www.usbr.gov/projects/index.php?id=505,CVP|Central Valley Project|American River Division|Sly Park Unit|Camp Creek diversion system,PRJ_29026276
+CVY_1702A583,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1741DCE4,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_17CF3E77,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_182675AB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_18E8D448,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_19010B47,CVP,Central Valley Project,Delta Division,Contra Costa Canal,,Delta Division > Contra Costa Canal,facility,authoritative_crosswalk,CVP_DELTA_CCC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|Contra Costa Canal|,PRJ_61C7C8A7
+CVY_1A1A3B2C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1A2995C2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1A9AE67E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1AE7EE36,Local/regional public,Turlock  Irrigation District; Kings River Water Association,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Turlock  Irrigation District; Kings River Water Association|||,PRJ_50450703
+CVY_1B502D10,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1C188A61,Other Reclamation,Orland Project,,Orland Project conveyance,,Orland Project conveyance,facility,authoritative_crosswalk,BOR_ORLAND,https://www.usbr.gov/projects/index.php?id=373,Other Reclamation|Orland Project||Orland Project conveyance|,PRJ_2D64A265
+CVY_1C19DBB4,Other Reclamation,Boulder Canyon Project,,All-American Canal system,,All-American Canal system,facility,authoritative_crosswalk,BOR_BOULDER,https://www.usbr.gov/lc/region/programs/bcp.html,Other Reclamation|Boulder Canyon Project||All-American Canal system|,PRJ_05ED4047
+CVY_1CADAC8B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1D2E30AB,Local/regional public,Metropolitan Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Metropolitan Water District|||,PRJ_3DFDEE1C
+CVY_1D3B4F53,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1D8CFE4E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1D8F6527,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1DF12A29,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_1E43B652,Local/regional public,Merced Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Merced Irrigation District|||,PRJ_68D0A222
+CVY_1E540262,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1E72A5B4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1EA553B0,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1F516766,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_1F67F1CE,CVP,Central Valley Project,American River Division,Folsom Unit,Folsom South Canal,American River Division > Folsom Unit > Folsom South Canal,facility,authoritative_crosswalk,CVP_AMERICAN_FOLSOM_SOUTH,https://www.usbr.gov/projects/index.php?id=505,CVP|Central Valley Project|American River Division|Folsom Unit|Folsom South Canal,PRJ_2ECF1EFC
+CVY_1FB79D3D,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_20C08296,SWP,State Water Project,California Aqueduct,,,California Aqueduct,facility,authoritative_crosswalk,SWP_CALIF_AQUEDUCT,,SWP|State Water Project|California Aqueduct||,PRJ_2438E759
+CVY_210152EC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_210DF3BA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_211C3D77,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_211E6081,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2127F60D,Local/regional public,Consolidated Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Consolidated Irrigation District|||,PRJ_6C69776A
+CVY_214E402D,Local/regional public,Natomas conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Natomas conveyance system|||,PRJ_0C2B8A54
+CVY_217E14F1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_21846CEA,Local/regional public,Central Coast Water Authority,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central Coast Water Authority|||,PRJ_51D358A8
+CVY_21CDAFA6,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_21CEB63E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2223C3DF,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_2256A365,Local/regional public,Sutter-area conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Sutter-area conveyance system|||,PRJ_43221E17
+CVY_23062076,CVP,Central Valley Project,San Felipe Division,Pacheco conveyance,,San Felipe Division > Pacheco conveyance,facility,authoritative_crosswalk,CVP_SAN_FELIPE_PACHECO,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Pacheco conveyance|,PRJ_17BBEC92
+CVY_23062078,CVP,Central Valley Project,San Felipe Division,Pacheco conveyance,,San Felipe Division > Pacheco conveyance,facility,authoritative_crosswalk,CVP_SAN_FELIPE_PACHECO,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Pacheco conveyance|,PRJ_17BBEC92
+CVY_237D5E68,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_240A1128,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_24434C78,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_24F9C6E7,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_25039264,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2530212C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_25725366,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_258CA200,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_25A76ECB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_25BBB6F6,SWP,State Water Project,California Aqueduct,East Branch,,California Aqueduct > East Branch,facility,authoritative_crosswalk,SWP_EAST_BRANCH,,SWP|State Water Project|California Aqueduct|East Branch|,PRJ_647CA77E
+CVY_25BE0540,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_26074D11,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_262C08B2,CVP,Central Valley Project,Friant Division,Friant-Kern Canal,,Friant Division > Friant-Kern Canal,facility,authoritative_crosswalk,CVP_FRIANT_FKC,https://www.usbr.gov/projects/index.php?id=341,CVP|Central Valley Project|Friant Division|Friant-Kern Canal|,PRJ_13D9E3CA
+CVY_26511F23,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_267582B2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_26ACDA9D,Local/regional public,Glenn-Colusa Irrigation District drainage system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District drainage system|||,PRJ_2598C9AE
+CVY_26D146DD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_26D73479,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_27302BDB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_27E04401,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_27E36C82,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_2821EE69,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_289F8CAA,Local/regional public,Lakeside Irrigation Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Lakeside Irrigation Water District|||,PRJ_31610497
+CVY_28DB252B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_290398B3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_29BB115F,Other Reclamation,Boulder Canyon Project,,All-American Canal system,,All-American Canal system,facility,authoritative_crosswalk,BOR_BOULDER,https://www.usbr.gov/lc/region/programs/bcp.html,Other Reclamation|Boulder Canyon Project||All-American Canal system|,PRJ_05ED4047
+CVY_29F38927,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_29FAB178,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2A628349,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,,West San Joaquin Division > San Luis Unit,facility,authoritative_crosswalk,CVP_SAN_LUIS_PLEASANT,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|,PRJ_41BBA244
+CVY_2A9EF6DC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2B059AFC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2B163A2C,CVP,Central Valley Project,Trinity River Division,Spring Creek power conveyance system,,Trinity River Division > Spring Creek power conveyance system,facility,authoritative_crosswalk,CVP_TRINITY_SPRING,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Spring Creek power conveyance system|,PRJ_295C9563
+CVY_2B163A2D,CVP,Central Valley Project,Trinity River Division,Spring Creek power conveyance system,,Trinity River Division > Spring Creek power conveyance system,facility,authoritative_crosswalk,CVP_TRINITY_SPRING,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Spring Creek power conveyance system|,PRJ_295C9563
+CVY_2B1E7029,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2B395332,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2B6949DA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2BA4DDCE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2C059CBD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2C119D8C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2C929235,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2CB8C914,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2CE484C8,Other Reclamation,Solano Project,,Putah South Canal system,,Putah South Canal system,facility,authoritative_crosswalk,BOR_SOLANO,https://www.usbr.gov/projects/index.php?id=421,Other Reclamation|Solano Project||Putah South Canal system|,PRJ_055E9D4D
+CVY_2D040EBB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2D059E50,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2D059E52,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2D0D2F76,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2DBCCB52,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E059FE3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E066790,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E0ABB8C,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_2E1A2F48,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E2B8A7D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E7C8EEC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2E9AF04D,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_2EE310A8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2F05A176,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2F16F672,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2F315C17,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_2F51B829,Local/regional public,San Diego County Water Authority aqueduct system,,,,,facility,reviewed,LOCAL_SAN_DIEGO,,Local/regional public|San Diego County Water Authority aqueduct system|||,PRJ_75165373
+CVY_2F615CFA,Local/regional public,Glenn-Colusa Irrigation District drainage system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District drainage system|||,PRJ_2598C9AE
+CVY_2F6F8FF9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_2F8DAE48,Local/regional public,Modesto Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Modesto Irrigation District|||,PRJ_1DA992E8
+CVY_2FC324C2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_30424E73,CVP,Central Valley Project,San Felipe Division,Santa Clara Conduit,,San Felipe Division > Santa Clara Conduit,facility,authoritative_crosswalk,CVP_SAN_FELIPE_SANTA_CLARA,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Santa Clara Conduit|,PRJ_037B3A46
+CVY_304A39C0,Local/regional public,Kern Water Bank conveyance system,,,,,facility,reviewed,LOCAL_KERN_WATER_BANK,,Local/regional public|Kern Water Bank conveyance system|||,PRJ_0A2B3865
+CVY_30819352,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_30B28CAF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_30CEEF8A,Local/regional public,San Diego County Water Authority aqueduct system,,,,,facility,reviewed,LOCAL_SAN_DIEGO,,Local/regional public|San Diego County Water Authority aqueduct system|||,PRJ_75165373
+CVY_3112BFCA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3152E0CB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_316AF089,Local/regional public,Henry Miller Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Henry Miller Water District|||,PRJ_33C60215
+CVY_321EACDF,Local/regional public,Kern County Water Agency Improvement District 1 conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern County Water Agency Improvement District 1 conveyance system|||,PRJ_03224A01
+CVY_322F022D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_323FB5B9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_32AA7F1D,Local/regional public,San Diego County Water Authority conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|San Diego County Water Authority conveyance system|||,PRJ_5332ED6B
+CVY_33124B9C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3346FF2E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_336E7D4B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_33926656,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_34324778,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_346C39A1,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_34936039,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_34DAF3F5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_34DFB137,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_34EFFC78,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_350DAD95,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_354C9340,CVP,Central Valley Project,Trinity River Division,Spring Creek power conveyance system,,Trinity River Division > Spring Creek power conveyance system,facility,authoritative_crosswalk,CVP_TRINITY_SPRING,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Spring Creek power conveyance system|,PRJ_295C9563
+CVY_356E778D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_35BE4034,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_35F7F339,CVP,Central Valley Project,San Felipe Division,Santa Clara Conduit,,San Felipe Division > Santa Clara Conduit,facility,authoritative_crosswalk,CVP_SAN_FELIPE_SANTA_CLARA,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Santa Clara Conduit|,PRJ_037B3A46
+CVY_362906D1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_362906D3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_364F15B3,CVP,Central Valley Project,American River Division,Folsom Unit,Folsom South Canal,American River Division > Folsom Unit > Folsom South Canal,facility,authoritative_crosswalk,CVP_AMERICAN_FOLSOM_SOUTH,https://www.usbr.gov/projects/index.php?id=505,CVP|Central Valley Project|American River Division|Folsom Unit|Folsom South Canal,PRJ_2ECF1EFC
+CVY_369196E5,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_373042AF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3751439F,SWP,State Water Project,Oroville Division,Oroville-Thermalito Complex,,Oroville Division > Oroville-Thermalito Complex,facility,authoritative_crosswalk,SWP_OROVILLE,,SWP|State Water Project|Oroville Division|Oroville-Thermalito Complex|,PRJ_4E166C49
+CVY_375F2D7E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_37614472,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_37C1D784,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_383E2479,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_386EA939,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_38B27ED1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_38B2C597,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_38B8BA24,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_38D5EEC4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_38E25FD5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_39202792,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_393D2478,Local/regional public,Alta Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Alta Irrigation District|||,PRJ_6C774515
+CVY_3966F9CE,CVP,Central Valley Project,Trinity River Division,,,Trinity River Division,facility,authoritative_crosswalk,CVP_TRINITY_MULE,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division||,PRJ_47C3BDD2
+CVY_39C6B0FF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_39D7F2A8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3A443561,Local/regional public,Madera Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Madera Irrigation District conveyance system|||,PRJ_1E95510E
+CVY_3A8B2E37,Local/regional public,Lakeside Irrigation Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Lakeside Irrigation Water District|||,PRJ_31610497
+CVY_3AE343CD,CVP,Central Valley Project,Friant Division,Madera Canal,,Friant Division > Madera Canal,facility,authoritative_crosswalk,CVP_FRIANT_MADERA,https://www.usbr.gov/projects/index.php?id=341,CVP|Central Valley Project|Friant Division|Madera Canal|,PRJ_1336EEDE
+CVY_3AF544D9,Local/regional public,Westlands Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Westlands Water District conveyance system|||,PRJ_66301D9A
+CVY_3AF544DB,Local/regional public,Westlands Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Westlands Water District conveyance system|||,PRJ_66301D9A
+CVY_3AF544DC,Local/regional public,Westlands Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Westlands Water District conveyance system|||,PRJ_66301D9A
+CVY_3B2725AB,Local/regional public,North Kern Water Storage District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|North Kern Water Storage District conveyance system|||,PRJ_747C6F00
+CVY_3B472662,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,San Luis Joint-Use Complex,West San Joaquin Division > San Luis Unit > San Luis Joint-Use Complex,joint_use,authoritative_crosswalk,CVP_SAN_LUIS_GIANELLI,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|San Luis Joint-Use Complex,PRJ_24E84691
+CVY_3B472662,SWP,State Water Project,California Aqueduct,San Luis Field Division,San Luis Joint-Use Complex,California Aqueduct > San Luis Field Division > San Luis Joint-Use Complex,joint_use,authoritative_crosswalk,SWP_SAN_LUIS_GIANELLI,https://www.usbr.gov/projects/index.php?id=427,SWP|State Water Project|California Aqueduct|San Luis Field Division|San Luis Joint-Use Complex,PRJ_25E373A5
+CVY_3B80E590,Local/regional public,Madera Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Madera Irrigation District|||,PRJ_2A2D7CAB
+CVY_3C1D7962,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3C23E202,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3C2D08BD,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_3C5AA59F,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_3CF25EEF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3CFBCBB0,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3D674F0F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3D739561,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3D7C60ED,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3DA13E7F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3DA258B3,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_3DA6221A,Other Reclamation,Solano Project,,Putah South Canal system,,Putah South Canal system,facility,authoritative_crosswalk,BOR_SOLANO,https://www.usbr.gov/projects/index.php?id=421,Other Reclamation|Solano Project||Putah South Canal system|,PRJ_055E9D4D
+CVY_3DCF1DB5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3DE21587,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3E2DA98A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3E43F53C,Local/regional public,Semitropic-area conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Semitropic-area conveyance system|||,PRJ_2090F9AA
+CVY_3E51FCA2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3E599097,Local/regional public,Sacramento County Water Authority,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Sacramento County Water Authority|||,PRJ_6D2849BC
+CVY_3EB114FA,Local/regional public,Fresno Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Fresno Irrigation District|||,PRJ_3338F459
+CVY_3EB4894E,Local/regional public,Semitropic Water Storage District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Semitropic Water Storage District conveyance system|||,PRJ_3F76722E
+CVY_3EE6A28B,Local/regional public,Sacramento County Water Authority,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Sacramento County Water Authority|||,PRJ_6D2849BC
+CVY_3F0B8C40,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,Coalinga Canal,West San Joaquin Division > San Luis Unit > Coalinga Canal,facility,authoritative_crosswalk,CVP_SAN_LUIS_COALINGA,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|Coalinga Canal,PRJ_1F30458B
+CVY_3F241D62,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3F755382,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3F7AC072,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3F7F9E0C,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_3F86BADC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_3FFCAAC1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_40110DE1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4049F88E,CVP,Central Valley Project,Friant Division,Friant-Kern Canal,,Friant Division > Friant-Kern Canal,facility,authoritative_crosswalk,CVP_FRIANT_FKC,https://www.usbr.gov/projects/index.php?id=341,CVP|Central Valley Project|Friant Division|Friant-Kern Canal|,PRJ_13D9E3CA
+CVY_404FCC23,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_40889062,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_40912DAD,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_40E33824,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_40EB026B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_40F1265A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_410E6608,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_411D6E98,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_41818638,Local/regional public,Kern Island Canal system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Island Canal system|||,PRJ_3EAC9501
+CVY_41C6A04D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_41C73366,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_41D76488,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_420134B6,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_42BE5888,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_42D76C39,SWP,State Water Project,South Bay Aqueduct,,,South Bay Aqueduct,facility,authoritative_crosswalk,SWP_SOUTH_BAY,,SWP|State Water Project|South Bay Aqueduct||,PRJ_10EF823F
+CVY_42DAEC68,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_42E3050F,Local/regional public,Reclamation conveyance system; project assignment to be verified,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Reclamation conveyance system; project assignment to be verified|||,PRJ_0900764E
+CVY_4331AD2E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_43BE520A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4401D35D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4408DCAE,Local/regional public,Local/regional public system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local/regional public system|||,PRJ_33C45DD5
+CVY_44177ED2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_441A19AF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_443A21AF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4519420B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4558314C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_45B36FD3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_45DAD276,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_461382AF,Other Reclamation,Boulder Canyon Project,,All-American Canal system,,All-American Canal system,facility,authoritative_crosswalk,BOR_BOULDER,https://www.usbr.gov/lc/region/programs/bcp.html,Other Reclamation|Boulder Canyon Project||All-American Canal system|,PRJ_05ED4047
+CVY_4641D08E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_467A65E2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_46B837F8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_46BE5E84,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_46E18745,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_46E34E7F,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_46EBB93E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4725E671,Other Reclamation,Orland Project,,Orland Project conveyance,,Orland Project conveyance,facility,authoritative_crosswalk,BOR_ORLAND,https://www.usbr.gov/projects/index.php?id=373,Other Reclamation|Orland Project||Orland Project conveyance|,PRJ_2D64A265
+CVY_47BC8F0A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_47C0C85F,CVP,Central Valley Project,Sacramento River Division,Sacramento Canals Unit,Corning Canal,Sacramento River Division > Sacramento Canals Unit > Corning Canal,facility,authoritative_crosswalk,CVP_SAC_CANALS_CORNING,https://www.usbr.gov/projects/index.php?id=509,CVP|Central Valley Project|Sacramento River Division|Sacramento Canals Unit|Corning Canal,PRJ_474A8ED9
+CVY_47DCE403,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_47E0997D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_47E40DBD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_47E8E247,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_48448967,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_488FFDB7,Other Reclamation,Boulder Canyon Project,,All-American Canal system,,All-American Canal system,facility,authoritative_crosswalk,BOR_BOULDER,https://www.usbr.gov/lc/region/programs/bcp.html,Other Reclamation|Boulder Canyon Project||All-American Canal system|,PRJ_05ED4047
+CVY_48C15B33,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_48C532B7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_48F8CB00,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_48FC2D9D,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_49033036,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_490AA1D2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4A033C0F,Local/regional public,Sutter Extension Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Sutter Extension Water District conveyance system|||,PRJ_1CC3AE8E
+CVY_4A821268,CVP,Central Valley Project,San Felipe Division,Pacheco conveyance,,San Felipe Division > Pacheco conveyance,facility,authoritative_crosswalk,CVP_SAN_FELIPE_PACHECO,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Pacheco conveyance|,PRJ_17BBEC92
+CVY_4B596558,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_4B60E31F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4BD604DB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4BEBA6E1,CVP,Central Valley Project,Sacramento River Division,Sacramento Canals Unit,Tehama-Colusa Canal,Sacramento River Division > Sacramento Canals Unit > Tehama-Colusa Canal,facility,authoritative_crosswalk,CVP_SAC_CANALS_TEHAMA,https://www.usbr.gov/projects/index.php?id=509,CVP|Central Valley Project|Sacramento River Division|Sacramento Canals Unit|Tehama-Colusa Canal,PRJ_67C8C0AB
+CVY_4C0C48A2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4C1A93EF,Other Reclamation,Ventura River Project,,Robles-Casitas conveyance,,Robles-Casitas conveyance,facility,authoritative_crosswalk,BOR_VENTURA,https://www.usbr.gov/projects/index.php?id=409,Other Reclamation|Ventura River Project||Robles-Casitas conveyance|,PRJ_03AF1290
+CVY_4C2C96B2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4D0D9C53,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4D13CE60,Local/regional public,Westlands Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Westlands Water District|||,PRJ_6F113FD0
+CVY_4D385098,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4D9DA079,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4DFF44A0,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_4E093136,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4EB7EA3A,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_4F1A41C9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4F1B0F42,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_4F49801F,Local/regional public,Mokelumne Aqueduct system,,,,,facility,reviewed,LOCAL_MOKELUMNE,,Local/regional public|Mokelumne Aqueduct system|||,PRJ_283DBF7B
+CVY_4F74AAC5,Local/regional public,Tulare Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Tulare Irrigation District|||,PRJ_24C2C7FD
+CVY_4FD4B126,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_501E685C,Other Reclamation,Cachuma Project,,South Coast conveyance system,,South Coast conveyance system,facility,authoritative_crosswalk,BOR_CACHUMA,https://www.usbr.gov/projects/index.php?id=336,Other Reclamation|Cachuma Project||South Coast conveyance system|,PRJ_10852A82
+CVY_503365F9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_506A9B63,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_50986E65,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_50B84CD5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5106DD0B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_514E9F3F,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_51583E5B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_51AB1A18,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_51C15C7F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_51D6E35F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5224C408,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5228ABB7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5265DDD5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5286FA68,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_52870B8D,CVP,Central Valley Project,American River Division,Sly Park Unit,Camino Conduit,American River Division > Sly Park Unit > Camino Conduit,facility,authoritative_crosswalk,CVP_AMERICAN_SLY_CAMINO,https://www.usbr.gov/projects/index.php?id=505,CVP|Central Valley Project|American River Division|Sly Park Unit|Camino Conduit,PRJ_6E858812
+CVY_5289D764,CVP,Central Valley Project,Delta Division,,,Delta Division,facility,authoritative_crosswalk,CVP_DELTA_DXC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division||,PRJ_72E436A1
+CVY_52BD9D6B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_52C545BF,Local/regional public,Local; Kern County Water Agency,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local; Kern County Water Agency|||,PRJ_79DB9F6E
+CVY_52F8F200,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_52F936A9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_52FA9416,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_53277ED6,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_537BD83A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_53A4CB56,Local/regional public,Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Central California Irrigation District|||,PRJ_293FE57F
+CVY_53A4CD01,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_53C96E75,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_53EB0ABB,CVP,Central Valley Project,Trinity River Division,Clear Creek conveyance and power system,,Trinity River Division > Clear Creek conveyance and power system,facility,authoritative_crosswalk,CVP_TRINITY_CLEAR,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Clear Creek conveyance and power system|,PRJ_657E25D1
+CVY_53FA06CE,Other Reclamation,Ventura River Project,,Robles-Casitas conveyance,,Robles-Casitas conveyance,facility,authoritative_crosswalk,BOR_VENTURA,https://www.usbr.gov/projects/index.php?id=409,Other Reclamation|Ventura River Project||Robles-Casitas conveyance|,PRJ_03AF1290
+CVY_541BF7F4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_54365085,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5440957E,SWP,State Water Project,California Aqueduct,Coastal Branch,,California Aqueduct > Coastal Branch,facility,authoritative_crosswalk,SWP_COASTAL_BRANCH,,SWP|State Water Project|California Aqueduct|Coastal Branch|,PRJ_05313A5D
+CVY_548060EB,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_550F000B,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_5541C883,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_555C5B57,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_559EDE52,SWP,State Water Project,Oroville Division,Oroville-Thermalito Complex,,Oroville Division > Oroville-Thermalito Complex,facility,authoritative_crosswalk,SWP_OROVILLE,,SWP|State Water Project|Oroville Division|Oroville-Thermalito Complex|,PRJ_4E166C49
+CVY_55C97194,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5600C33F,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,,West San Joaquin Division > San Luis Unit,facility,authoritative_crosswalk,CVP_SAN_LUIS_VOLTA,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|,PRJ_41BBA244
+CVY_560954EC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_56FA9A5E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_56FA9A5F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_572DF6A1,Local/regional public,Turlock Irrigation District system; Turlock Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Turlock Irrigation District system; Turlock Irrigation District conveyance system|||,PRJ_6A3C2524
+CVY_5791AFFD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_579C31AB,Local/regional public,Kern-area flood and conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern-area flood and conveyance system|||,PRJ_0F28669A
+CVY_57B8EFBC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_57CCE768,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_57DDEBBE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_586F6CF2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_587AA2E7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_59BE77A0,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_59ED601C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5A9D760E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5B0FD6D5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5B21AB78,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_5B326C8A,Local/regional public,US Bureau of Reclamation; Central California Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|US Bureau of Reclamation; Central California Irrigation District|||,PRJ_16A7BDC6
+CVY_5B5DC547,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5B6BE911,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_5BAD56FA,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5BBA1FCE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5BBD6872,Local/regional public,Delano Earlimart Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Delano Earlimart Irrigation District|||,PRJ_23414893
+CVY_5C1961C8,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_5C2E8955,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5C48721A,CVP,Central Valley Project,San Felipe Division,Pacheco conveyance,,San Felipe Division > Pacheco conveyance,facility,authoritative_crosswalk,CVP_SAN_FELIPE_PACHECO,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Pacheco conveyance|,PRJ_17BBEC92
+CVY_5C6644B4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5C664CD8,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5CDC2202,CVP,Central Valley Project,Trinity River Division,Clear Creek conveyance and power system,,Trinity River Division > Clear Creek conveyance and power system,facility,authoritative_crosswalk,CVP_TRINITY_CLEAR,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Clear Creek conveyance and power system|,PRJ_657E25D1
+CVY_5D2F568C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5DCDD2B1,SWP,State Water Project,California Aqueduct,East Branch,,California Aqueduct > East Branch,facility,authoritative_crosswalk,SWP_EAST_BRANCH,,SWP|State Water Project|California Aqueduct|East Branch|,PRJ_647CA77E
+CVY_5DCFA60A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5DE34CF8,CVP,Central Valley Project,Trinity River Division,Spring Creek power conveyance system,,Trinity River Division > Spring Creek power conveyance system,facility,authoritative_crosswalk,CVP_TRINITY_SPRING,https://www.usbr.gov/projects/index.php?id=342,CVP|Central Valley Project|Trinity River Division|Spring Creek power conveyance system|,PRJ_295C9563
+CVY_5E008568,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5E134B1D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5E51BD14,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5E69C926,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_5E7477E3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5EE77FD1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5F2B5E79,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5F551917,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5F555874,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5F5ABAF2,Local/regional public,Modesto Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Modesto Irrigation District|||,PRJ_1DA992E8
+CVY_5F5B275A,CVP,Central Valley Project,Delta Division,C.W. Bill Jones (Tracy) Pumping Plant conveyance,,Delta Division > C.W. Bill Jones (Tracy) Pumping Plant conveyance,facility,authoritative_crosswalk,CVP_DELTA_TRACY,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|C.W. Bill Jones (Tracy) Pumping Plant conveyance|,PRJ_419B8CB8
+CVY_5FB06432,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_5FB25A97,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_5FF1C922,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_603958DC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6070F424,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_60A7A4EE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_60C45A04,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6105F02D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_61134E1F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6205F18F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_620854C3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_622E1BC5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_62491292,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_62EAE372,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_631325DA,Local/regional public,Madera Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Madera Irrigation District conveyance system|||,PRJ_1E95510E
+CVY_63441F20,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_638743F1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_63CDDCE4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_63E2E1C7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_64158799,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6423B4DD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6426A906,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_64282347,SWP,State Water Project,California Aqueduct,East Branch,,California Aqueduct > East Branch,facility,authoritative_crosswalk,SWP_EAST_BRANCH,,SWP|State Water Project|California Aqueduct|East Branch|,PRJ_647CA77E
+CVY_644BF1CD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_644E3603,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_64664DDE,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_64B6E6C2,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,San Luis Canal,West San Joaquin Division > San Luis Unit > San Luis Canal,joint_use,authoritative_crosswalk,CVP_SAN_LUIS_CANAL,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|San Luis Canal,PRJ_3FD82257
+CVY_64B6E6C2,SWP,State Water Project,California Aqueduct,San Luis Field Division,San Luis Canal,California Aqueduct > San Luis Field Division > San Luis Canal,joint_use,authoritative_crosswalk,SWP_SAN_LUIS_CANAL,https://www.usbr.gov/projects/index.php?id=427,SWP|State Water Project|California Aqueduct|San Luis Field Division|San Luis Canal,PRJ_3A6088A2
+CVY_64B7CBE3,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_64C1504E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_65448D6C,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_65671991,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_65671993,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_65CF1E8A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_65F6DC6F,CVP,Central Valley Project,Delta Division,Delta-Mendota Canal,,Delta Division > Delta-Mendota Canal,facility,authoritative_crosswalk,CVP_DELTA_DMC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|Delta-Mendota Canal|,PRJ_6F129A27
+CVY_65F6DC6F,CVP,Central Valley Project,West San Joaquin Division,San Luis Unit,O'Neill Pumping Plant and Intake Canal,West San Joaquin Division > San Luis Unit > O'Neill Pumping Plant and Intake Canal,facility,authoritative_crosswalk,CVP_SAN_LUIS_ONEILL,https://www.usbr.gov/projects/index.php?id=427,CVP|Central Valley Project|West San Joaquin Division|San Luis Unit|O'Neill Pumping Plant and Intake Canal,PRJ_4A339E69
+CVY_660F3B30,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_66112E5D,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_663CE1E2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_66B2632B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_66F4AB92,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6708CC90,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6736AD08,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6793BD2A,CVP,Central Valley Project,Delta Division,Delta-Mendota Canal,,Delta Division > Delta-Mendota Canal,facility,authoritative_crosswalk,CVP_DELTA_DMC,https://www.usbr.gov/projects/index.php?id=477,CVP|Central Valley Project|Delta Division|Delta-Mendota Canal|,PRJ_6F129A27
+CVY_67E38AF2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_67E98BE0,Local/regional public,Turlock Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Turlock Irrigation District|||,PRJ_7EFEE2C1
+CVY_68340503,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6843A40F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_684A50A7,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6854AE68,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6860DB5D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_687AE54D,Local/regional public,Los Vaqueros water-supply system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Los Vaqueros water-supply system|||,PRJ_3F2C967F
+CVY_688E49F0,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_68ADFDDC,Local/regional public,Alta Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Alta Irrigation District|||,PRJ_6C774515
+CVY_68DFDBBC,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_68F5D382,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_692A4E5E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_695653F5,Other Reclamation,Orland Project,,Orland Project conveyance,,Orland Project conveyance,facility,authoritative_crosswalk,BOR_ORLAND,https://www.usbr.gov/projects/index.php?id=373,Other Reclamation|Orland Project||Orland Project conveyance|,PRJ_2D64A265
+CVY_69CAA938,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_69CC3D53,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_69D2E0E3,Local/regional public,Briggs-West Gridley Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Briggs-West Gridley Irrigation District conveyance system|||,PRJ_5A08500E
+CVY_69E42599,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_69E5692F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_69E8681A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A1B2449,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A3546A4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A4FFB38,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A69B881,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_6A848799,CVP,Central Valley Project,San Felipe Division,Hollister Conduit,,San Felipe Division > Hollister Conduit,facility,authoritative_crosswalk,CVP_SAN_FELIPE_HOLLISTER,https://www.usbr.gov/projects/index.php?id=392,CVP|Central Valley Project|San Felipe Division|Hollister Conduit|,PRJ_26715A47
+CVY_6A8E4D15,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A8E4D16,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6A90F013,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6B0DD6F4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6B6083D9,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6BDB5A06,Other Reclamation,Cachuma Project,,South Coast conveyance system,,South Coast conveyance system,facility,authoritative_crosswalk,BOR_CACHUMA,https://www.usbr.gov/projects/index.php?id=336,Other Reclamation|Cachuma Project||South Coast conveyance system|,PRJ_10852A82
+CVY_6C314E55,Local/regional public,Briggs-West Gridley Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Briggs-West Gridley Irrigation District conveyance system|||,PRJ_5A08500E
+CVY_6C680827,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6D627D57,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6E2A5525,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_6E2DE938,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6ECD2484,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6EDA9E76,Other Reclamation,Rogue River Basin Project,,Talent Division,,Talent Division,facility,authoritative_crosswalk,BOR_ROGUE,https://www.usbr.gov/projects/index.php?id=430,Other Reclamation|Rogue River Basin Project||Talent Division|,PRJ_42080C31
+CVY_6EED3106,Local/regional public,Grasslands Water District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Grasslands Water District conveyance system|||,PRJ_37C0CF47
+CVY_6F343214,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6F980727,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6FA4A611,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6FB24F7D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6FB24F80,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_6FB24F85,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_70540BB5,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_70675110,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_70C74644,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_70DF9FF2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_70F0B9EE,CVP,Central Valley Project,Sacramento River Division,Sacramento Canals Unit,Corning Canal,Sacramento River Division > Sacramento Canals Unit > Corning Canal,facility,authoritative_crosswalk,CVP_SAC_CANALS_CORNING,https://www.usbr.gov/projects/index.php?id=509,CVP|Central Valley Project|Sacramento River Division|Sacramento Canals Unit|Corning Canal,PRJ_474A8ED9
+CVY_71131C37,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_71136E82,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7139F00F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_714CDA53,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_715C2E0B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_716F83B3,Local/regional public,Glenn-Colusa Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Glenn-Colusa Irrigation District conveyance system|||,PRJ_116F9B5B
+CVY_71841F8B,Local/regional public,City of Redding,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|City of Redding|||,PRJ_03DC9E6D
+CVY_71E5246B,Other Reclamation,Solano Project,,Putah South Canal system,,Putah South Canal system,facility,authoritative_crosswalk,BOR_SOLANO,https://www.usbr.gov/projects/index.php?id=421,Other Reclamation|Solano Project||Putah South Canal system|,PRJ_055E9D4D
+CVY_72D57BBF,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_72F94214,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_734E3829,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_73E462C2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7427F83D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_743BD4C4,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_74560277,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_74783308,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_74D9971D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_74FEDB53,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7526BD08,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_754C0713,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_755B517B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_760DF4A2,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_765E0702,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_76634C0F,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_76A44332,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_770BD49D,Other Reclamation,Cachuma Project,,South Coast conveyance system,,South Coast conveyance system,facility,authoritative_crosswalk,BOR_CACHUMA,https://www.usbr.gov/projects/index.php?id=336,Other Reclamation|Cachuma Project||South Coast conveyance system|,PRJ_10852A82
+CVY_7826AED1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_789F528C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_78E9F626,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7909632D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_79CE4828,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_79F9AA10,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7A0B1A5D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7A262331,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7A33C51E,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7AA4497B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7AE6FDB7,Local/regional public,Kern Delta Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Kern Delta Water District|||,PRJ_321610D6
+CVY_7AEED43B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7AF7E65A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7B1C542C,Local/regional public,Local; Metropolitan Water District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Local; Metropolitan Water District|||,PRJ_1D39ED85
+CVY_7B342281,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7B5DBCFD,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7B9A1CC1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7B9EA45D,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7C44C372,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7C71CE99,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7CAE711B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7CE8FDE1,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7CF4C76F,Local/regional public,Merced Irrigation District,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Merced Irrigation District|||,PRJ_68D0A222
+CVY_7D89199A,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7DA99B21,Local/regional public,Richvale Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Richvale Irrigation District conveyance system|||,PRJ_56A34207
+CVY_7DB20E6A,Local/regional public,Mokelumne Aqueduct system,,,,,facility,reviewed,LOCAL_MOKELUMNE,,Local/regional public|Mokelumne Aqueduct system|||,PRJ_283DBF7B
+CVY_7DF89D20,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7E194B41,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7E4B2427,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7E68183C,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7EAFBEC0,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7ECAE569,Other Reclamation,Reclamation project (unit unassigned),,,,,facility,needs_project_crosswalk,RECLAMATION_UNASSIGNED_FALLBACK,,Other Reclamation|Reclamation project (unit unassigned)|||,PRJ_03E91FED
+CVY_7EF18798,Local/regional public,Merced Irrigation District conveyance system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|Merced Irrigation District conveyance system|||,PRJ_0A905B09
+CVY_7EF7280B,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7EFF563B,Local/regional public,South San Joaquin Irrigation District system,,,,,facility,provisional,LOCAL_FALLBACK,,Local/regional public|South San Joaquin Irrigation District system|||,PRJ_215CCADB
+CVY_7F8E6488,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
+CVY_7FAFDA84,Other Reclamation,Klamath Project,,,,,facility,authoritative_crosswalk,BOR_KLAMATH,https://www.usbr.gov/projects/index.php?id=470,Other Reclamation|Klamath Project|||,PRJ_79BDE48C
+CVY_7FEADF60,Unknown/unassigned,Unassigned,,,,,facility,unassigned,UNASSIGNED_FALLBACK,,Unknown/unassigned|Unassigned|||,PRJ_070B8008
