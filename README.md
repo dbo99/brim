@@ -1,8 +1,8 @@
-# BRIM — BLM-California Resources Information Mapper
+# BRIM
 
 BRIM is a standalone Leaflet web map built primarily in R for
-BLM-California water-resource screening, reference-data review,
-External Layers, and Ops Live situational-awareness feeds.
+water-resource screening, reference-data review, external web layers,
+and operational situational-awareness feeds.
 
 This directory is the **private-GitHub-ready source edition** of BRIM v0.38.
 It preserves the complete source code and preprocessing logic while keeping
