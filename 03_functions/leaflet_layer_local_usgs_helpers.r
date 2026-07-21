@@ -442,8 +442,7 @@ function(el, x) {
   function buildHtml() {
     refreshStatsFromBrowserLayer();
     var html = '';
-    html += '<button type="button" class="pt-usgs-gw-local-close" title="Hide legend">&times;</button>';
-    html += '<div class="pt-usgs-gw-local-title">USGS monitoring wells catalog</div>';
+    html += '<div class="pt-usgs-gw-local-head pt-map-card-handle"><div class="pt-usgs-gw-local-title">USGS monitoring wells catalog</div><span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-usgs-gw-local-dock" aria-label="Undock USGS groundwater catalog legend" title="Undock USGS groundwater catalog legend">&#x2197;</button><button type="button" class="pt-usgs-gw-local-close" aria-label="Hide USGS groundwater catalog legend" title="Hide USGS groundwater catalog legend">&times;</button></span></div>';
     html += '<div class="pt-usgs-gw-local-sub">Static Local catalog. Color = most recent cached groundwater level (MR WL). Use Ops Live for current values.</div>';
     var statObj = (window.BRIM_USGS_GW_LOCAL && window.BRIM_USGS_GW_LOCAL.stats) ? window.BRIM_USGS_GW_LOCAL.stats() : null;
     var statusText = statObj && statObj.status ? String(statObj.status) : '';
@@ -472,6 +471,9 @@ function(el, x) {
   }
 
   function attachEvents(div) {
+    if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.makeDetachable) {
+      window.BRIM.legendCloseout.makeDetachable({card: div, map: map, handleSelector: '.pt-usgs-gw-local-head', dockSelector: '.pt-usgs-gw-local-dock', label: 'USGS groundwater catalog legend'});
+    }
     if (window.BRIM && window.BRIM.legendCloseout) {
       window.BRIM.legendCloseout.wire(div, '.pt-usgs-gw-local-close', function(){
         legendUserHidden = true;
@@ -548,9 +550,12 @@ function(el, x) {
     style.id = 'pt-usgs-gw-local-legend-style';
     style.textContent =
       '.pt-usgs-gw-local-legend{background:rgba(246,239,222,0.96);border:1px solid rgba(112,103,83,0.55);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,0.25);padding:6px 8px 7px 8px;max-width:380px;width:365px;font-family:Arial,sans-serif;font-size:10.4px;line-height:1.14;color:#222;margin-bottom:74px;position:relative;}' +
-      '.pt-usgs-gw-local-close{position:absolute;top:3px;right:5px;border:0;background:transparent;color:#776f61;font-weight:700;font-size:14px;line-height:1;padding:0 2px;cursor:pointer;}' +
+      '.pt-usgs-gw-local-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}' +
+      '.pt-usgs-gw-local-legend.pt-map-card-undocked .pt-usgs-gw-local-head{cursor:move;}' +
+      '.pt-usgs-gw-local-close,.pt-usgs-gw-local-dock{border:0;background:transparent;color:#776f61;font-weight:700;font-size:14px;line-height:1;padding:0 2px;cursor:pointer;}' +
       '.pt-usgs-gw-local-close:hover{color:#222;background:rgba(112,103,83,0.12);border-radius:3px;}' +
-      '.pt-usgs-gw-local-title{font-weight:700;font-size:12.4px;margin:0 0 2px 0;padding-right:18px;}' +
+      '.pt-usgs-gw-local-dock:hover{color:#222;background:rgba(112,103,83,0.12);border-radius:3px;}' +
+      '.pt-usgs-gw-local-title{font-weight:700;font-size:12.4px;margin:0 0 2px 0;}' +
       '.pt-usgs-gw-local-sub{font-size:10.2px;color:#4d4d4d;margin:0 0 3px 0;}' +
       '.pt-usgs-gw-local-minihead{font-weight:700;font-size:10.6px;margin:4px 0 1px 0;color:#333;}' +
       '.pt-usgs-gw-local-bin-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;}' +
@@ -586,7 +591,12 @@ function(el, x) {
     if (evt && !eventMatches(evt) && evt.type !== 'zoomend' && evt.type !== 'pt:usgsgwlocalstatus') return;
     var div = document.querySelector('.pt-usgs-gw-local-legend');
     if (!div) return;
-    if (!controlChecked()) { div.style.display = 'none'; legendUserHidden = false; return; }
+    if (!controlChecked()) {
+      if (div.__brimDetachableState && div.__brimDetachableState.destroy) div.__brimDetachableState.destroy(false);
+      div.style.display = 'none';
+      legendUserHidden = false;
+      return;
+    }
     div.innerHTML = buildHtml();
     div.style.display = legendUserHidden ? 'none' : 'block';
     setInputValues(div);
@@ -2950,4 +2960,3 @@ pt_add_usgs_layers <- function(m, usgs_sw, usgs_gw, map_display) {
   
   m
 }
-

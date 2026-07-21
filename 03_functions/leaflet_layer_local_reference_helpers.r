@@ -1457,7 +1457,47 @@ pt_add_calsim3_network_legend <- function(m,
 
   js <- sprintf("\nfunction(el, x) {\n  var map = this;\n  var targetGroup = %s;\n\n  function esc(s) {\n    return String(s == null ? '' : s)\n      .replace(/&/g, '&amp;')\n      .replace(/</g, '&lt;')\n      .replace(/>/g, '&gt;')\n      .replace(/\\\"/g, '&quot;')\n      .replace(/'/g, '&#39;');\n  }\n\n  function lineRow(color, label, dash) {\n    var borderStyle = dash ? 'dashed' : 'solid';\n    return '<div class=\\\"pt-cs3-row\\\">' +\n      '<span class=\\\"pt-cs3-line-swatch\\\" style=\\\"border-top:3px ' + borderStyle + ' ' + color + ';\\\"></span>' +\n      '<span>' + esc(label) + '</span>' +\n      '</div>';\n  }\n\n  function dotRow(fill, stroke, label) {\n    return '<div class=\\\"pt-cs3-row\\\">' +\n      '<span class=\\\"pt-cs3-dot-swatch\\\" style=\\\"background:' + fill + ';border-color:' + stroke + ';\\\"></span>' +\n      '<span>' + esc(label) + '</span>' +\n      '</div>';\n  }\n\n  function isTargetLayer(layer) {\n    return layer && layer.options && layer.options.group === targetGroup;\n  }\n\n  function isVisible() {\n    var visible = false;\n    map.eachLayer(function(layer) {\n      if (isTargetLayer(layer) && map.hasLayer(layer)) {\n        visible = true;\n      }\n    });\n    return visible;\n  }\n\n  var legend = L.control({position: 'bottomleft'});\n\n  legend.onAdd = function(map) {\n    var div = L.DomUtil.create('div', 'leaflet-control pt-calsim3-network-legend');\n    div.style.display = 'none';\n    div.style.background = 'rgba(246, 239, 222, 0.96)';\n    div.style.border = '1px solid rgba(112, 103, 83, 0.55)';\n    div.style.borderRadius = '6px';\n    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.25)';\n    div.style.padding = '7px 9px 8px 9px';\n    div.style.maxWidth = '260px';\n    div.style.fontFamily = 'Arial, sans-serif';\n    div.style.fontSize = '11.5px';\n    div.style.lineHeight = '1.25';\n    div.style.color = '#222';\n    div.style.marginBottom = '74px';\n\n    var html = '';\n    html += '<div style=\\\"font-weight:700;font-size:12.5px;margin-bottom:4px;\\\">CalSim3.0</div>';\n    html += '<div style=\\\"font-weight:700;margin-top:2px;margin-bottom:2px;\\\">Arcs</div>';\n    html += lineRow('#1F78B4', 'Channel', false);\n    html += lineRow('#E31A1C', 'Diversion / delivery / conveyance', false);\n    html += lineRow('#33A02C', 'Return flow', false);\n    html += lineRow('#A6CEE3', 'Local inflow', false);\n    html += lineRow('#777777', 'Other / unknown', true);\n\n    html += '<div style=\\\"font-weight:700;margin-top:6px;margin-bottom:2px;\\\">Nodes</div>';\n    html += dotRow('#D95F02', '#7F3B08', 'Project (CVP/SWP) demand');\n    html += dotRow('#8C510A', '#7F3B08', 'Non-project demand');\n    html += dotRow('#FDB863', '#7F3B08', 'Settlement demand');\n    html += dotRow('#7570B3', '#7F3B08', 'Refuge demand');\n    html += dotRow('#00A6D6', '#006D8F', 'Treatment / wastewater');\n    html += dotRow('#6A3D9A', '#3F007D', 'Storage / reservoir');\n    html += dotRow('#33A02C', '#1B7837', 'Return flow');\n    html += dotRow('#1F78B4', '#08519C', 'Conveyance / junction');\n    html += dotRow('#E31A1C', '#99000D', 'Major feature');\n    html += dotRow('#BDBDBD', '#737373', 'External / other');\n\n    html += '<div style=\\\"font-size:10.5px;color:#4d4d4d;margin-top:6px;\\\">Hover or click features for IDs, names, and exact type.</div>';\n    div.innerHTML = html;\n\n    var style = document.createElement('style');\n    style.textContent =\n      '.pt-calsim3-network-legend .pt-cs3-row{display:flex;align-items:center;gap:6px;margin:2px 0;}' +\n      '.pt-calsim3-network-legend .pt-cs3-line-swatch{display:inline-block;width:26px;height:0;flex:0 0 26px;}' +\n      '.pt-calsim3-network-legend .pt-cs3-dot-swatch{display:inline-block;width:10px;height:10px;border:1.4px solid #666;border-radius:50%%;box-sizing:border-box;flex:0 0 10px;}';\n    div.appendChild(style);\n\n    L.DomEvent.disableClickPropagation(div);\n    L.DomEvent.disableScrollPropagation(div);\n    return div;\n  };\n\n  legend.addTo(map);\n\n  function updateLegend() {\n    var div = el.querySelector('.pt-calsim3-network-legend');\n    if (!div) return;\n    div.style.display = isVisible() ? 'block' : 'none';\n  }\n\n  map.on('overlayadd overlayremove layeradd layerremove', updateLegend);\n  setTimeout(updateLegend, 0);\n  setTimeout(updateLegend, 300);\n  setTimeout(updateLegend, 1000);\n}\n", group_js)
 
-  htmlwidgets::onRender(m, js)
+  m <- htmlwidgets::onRender(m, js)
+  close_js <- sprintf(r"---(
+function(el, x) {
+  var map = this;
+  var targetGroup = %s;
+  var div = el.querySelector('.pt-calsim3-network-legend');
+  if (!div) return;
+  var hidden = false;
+  var title = div.firstElementChild;
+  if (title) {
+    title.style.display = 'flex';
+    title.style.justifyContent = 'space-between';
+    title.style.alignItems = 'flex-start';
+    title.innerHTML = '<span>CalSim3.0</span><button type="button" class="pt-calsim3-close" aria-label="Hide CalSim3 legend" title="Hide CalSim3 legend">&times;</button>';
+  }
+  function targetVisible() {
+    var visible = false;
+    map.eachLayer(function(layer) {
+      if (layer && layer.options && layer.options.group === targetGroup && map.hasLayer(layer)) visible = true;
+    });
+    return visible;
+  }
+  var close = div.querySelector('.pt-calsim3-close');
+  if (close) close.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    hidden = true;
+    div.style.display = 'none';
+  });
+  function sync() {
+    var active = targetVisible();
+    if (!active) hidden = false;
+    div.style.display = active && !hidden ? 'block' : 'none';
+  }
+  map.on('overlayadd overlayremove layeradd layerremove', sync);
+  setTimeout(sync, 0);
+  setTimeout(sync, 300);
+  setTimeout(sync, 1000);
+}
+)---", group_js)
+  htmlwidgets::onRender(m, close_js)
 }
 
 # ==== 8. Generic reference/admin/conservation layers =========================
@@ -4067,7 +4107,7 @@ function(el, x, data) {
       '.pt-conv-head{display:flex;justify-content:space-between;align-items:center;gap:7px;font-weight:700;font-size:12.5px;margin-bottom:1px;}' +
       '.pt-conv-head-actions{display:inline-flex;align-items:center;gap:1px;flex:0 0 auto;}' +
       '.pt-conv-float,.pt-conv-close{border:0!important;background:transparent!important;color:#777!important;line-height:1!important;padding:0 2px!important;cursor:pointer!important;}' +
-      '.pt-conv-float{font-size:15px!important;cursor:move!important;touch-action:none;}' +
+      '.pt-conv-float{font-size:15px!important;cursor:pointer!important;touch-action:none;}' +
       '.pt-conv-close{font-size:18px!important;}' +
       '.pt-conv-float:hover,.pt-conv-close:hover{color:#222!important;background:rgba(112,103,83,.12)!important;}' +
       '.pt-conv-status{display:flex;align-items:center;gap:4px;font-size:10.2px;color:#444;min-height:13px;margin-bottom:2px;}' +
@@ -4118,7 +4158,7 @@ function(el, x, data) {
       div.style.display = 'none';
       var listId = 'pt-conv-find-list-' + Math.random().toString(36).slice(2);
       var html = '';
-      html += '<div class="pt-conv-head"><span>Water conveyance | BRIM mapped</span><span class="pt-conv-head-actions"><button type="button" class="pt-conv-float" title="Drag panel; double-click to dock" aria-label="Drag conveyance panel">⠿</button><button type="button" class="pt-conv-close" title="Hide panel">×</button></span></div>';
+      html += '<div class="pt-conv-head"><span>Water conveyance | BRIM mapped</span><span class="pt-conv-head-actions"><button type="button" class="pt-conv-float pt-map-card-dock" title="Undock Water Conveyance legend" aria-label="Undock Water Conveyance legend">&#x2197;</button><button type="button" class="pt-conv-close" title="Hide panel">×</button></span></div>';
       html += '<div class="pt-conv-status"><span class="pt-conv-spinner"></span><span class="pt-conv-status-text">Ready</span></div>';
       html += '<div class="pt-conv-toolbar"><select class="pt-conv-quick"><option value="">Quick view…</option><option value="all">All conveyance</option><option value="cvp">CVP</option><option value="swp">SWP</option><option value="local">Local/regional systems</option><option value="blm-cross">Crosses BLM</option><option value="blm-5">Within 5 mi of BLM</option><option value="major">Statewide/regional major</option></select><label class="pt-conv-check" title="Apply filter changes automatically"><input class="pt-conv-live" type="checkbox"> Auto</label><button type="button" data-action="apply-filters">Apply filters</button><button type="button" data-action="clear-filters">Clear</button></div>';
       html += '<div class="pt-conv-findrow"><input class="pt-conv-find" type="search" list="' + listId + '" placeholder="Find facility…"><datalist id="' + listId + '"></datalist><button type="button" data-action="find">Find</button><button type="button" data-action="clear-focus">Clear focus</button><label class="pt-conv-check" title="Show facility labels"><input class="pt-conv-lbl" type="checkbox"> lbl</label></div>';
@@ -4135,7 +4175,6 @@ function(el, x, data) {
     };
     ctl.addTo(map);
     panel = el.querySelector('.pt-conv-panel');
-    enablePanelFloating();
     var dataList = panel.querySelector('datalist');
     if (dataList) {
       dataList.innerHTML = facilityRows.slice().sort(function(a,b){return String(a.n||'').localeCompare(String(b.n||''));}).map(function(rec){return '<option value="' + esc(rec.n || '') + '"></option>';}).join('');

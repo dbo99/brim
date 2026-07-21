@@ -968,6 +968,15 @@ m <- pt_add_calsim3_node_layer(
   map_display = MAP_DISPLAY
 )
 
+legend_control_js_path <- file.path("03_functions", "js", "brim_legend_closeout_helpers.js")
+if (!file.exists(legend_control_js_path)) {
+  stop("Missing shared legend-control JavaScript helper: ", legend_control_js_path)
+}
+m <- htmlwidgets::onRender(
+  m,
+  paste(readLines(legend_control_js_path, warn = FALSE), collapse = "\n")
+)
+
 m <- pt_add_calsim3_network_legend(m)
 
 m <- pt_add_brim_mapped_conveyance_layer(
