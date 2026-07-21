@@ -45,6 +45,11 @@ pt_add_blm_layers <- function(m, blm_core, blm_diffs) {
 }
 
 pt_add_county_gw_layers <- function(m, county, gw) {
+
+  gw$pt_gw_hover_html <- lapply(
+    pt_make_gw_hover_tooltips(gw),
+    htmltools::HTML
+  )
   
   m |>
     leaflet::addPolygons(
@@ -76,6 +81,14 @@ pt_add_county_gw_layers <- function(m, county, gw) {
       weight = 1,
       opacity = 0.9,
       popup = ~popup_html,
+      label = ~pt_gw_hover_html,
+      labelOptions = leaflet::labelOptions(
+        direction = "auto",
+        opacity = 0.95,
+        textsize = "11px",
+        sticky = TRUE,
+        className = "pt-gw-hover-summary"
+      ),
       options = leaflet::pathOptions(
         pane = "pane_gw",
         interactive = TRUE

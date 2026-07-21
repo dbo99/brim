@@ -152,7 +152,6 @@ MAP_DISPLAY <- list(
   ops_snow_pillow_monthly_context_url = brim_live_feed_url("data/snow_pillow_swe_monthly_context.csv"),
   ops_snow_pillow_prior_wy_fallback_traces_url = brim_live_feed_url("data/snow_pillow_swe_prior_wy_fallback_traces.csv"),
 
-  add_cgs_geology = TRUE,
   default_base_group = "USGS Hydrography",
   
   # ---- Zoom behavior --------------------------------------------------------
@@ -234,8 +233,6 @@ MAP_DISPLAY <- list(
   add_calsim3_nodes = TRUE,
   add_reference_layers = TRUE,
   
-  add_x2_km = TRUE,
-
   ## Consolidated curated conveyance layer produced by the reproducible 66_
   ## pipeline. The two legacy source layers remain fully retained in BRIM, but
   ## are not read or embedded in the normal HTML while their switches are FALSE.

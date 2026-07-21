@@ -214,7 +214,6 @@ layers <- list(
     ),
     label = "CNRFC precip/weather station catalog local layer"
   ),
-  x2_km               = readRDS(file.path(DIR$cache_last, "x2_km_map.rds")),
 
   deltamapr_canals = if (isTRUE(MAP_DISPLAY$add_deltamapr_canals)) {
     readRDS(file.path(DIR$cache_last, "deltamapr_canals_map.rds"))
@@ -730,6 +729,20 @@ REFERENCE_OVERLAY_GROUPS_NON_WSR <- setdiff(
   WSR_CHANNEL_GROUPS
 )
 
+REFERENCE_LAYER_FEATURE_COUNT_KEYS <- c(
+  "Reference – National Scenic/Historic Trails",
+  "Reference – National Monuments",
+  "Reference – CA Desert National Conservation Lands",
+  "Reference – Wilderness Study Areas",
+  "Reference – Federal Wilderness",
+  "Reference – DRECP",
+  "Reference – ACECs",
+  "Reference – Grazing Allotments",
+  "Reference – Counties",
+  "Reference – RWQCB Regions",
+  "Reference – Water Districts"
+)
+
 pt_register_local_layer_feature_counts(c(
   "Basins – GW Basins, Bulletin 118" = pt_count_sf_rows(layers$gw),
   ## Keep the older CNRFC basin geography layer and add product availability as
@@ -763,8 +776,19 @@ pt_register_local_layer_feature_counts(c(
   "Channels – Water conveyance | BRIM mapped" = pt_count_unique_sf_field(
     layers$brim_mapped_conveyance,
     "facility_id"
-  )
-))
+  ),
+  "Reference – National Scenic/Historic Trails" = pt_count_reference_layer_rows(layers$reference_layers, "trails"),
+  "Reference – National Monuments" = pt_count_reference_layer_rows(layers$reference_layers, "monuments"),
+  "Reference – CA Desert National Conservation Lands" = pt_count_reference_layer_rows(layers$reference_layers, "cadesert_ncl"),
+  "Reference – Wilderness Study Areas" = pt_count_reference_layer_rows(layers$reference_layers, "wildernessstudyarea"),
+  "Reference – Federal Wilderness" = pt_count_reference_layer_rows(layers$reference_layers, "fedwilderness"),
+  "Reference – DRECP" = pt_count_reference_layer_rows(layers$reference_layers, "drecp"),
+  "Reference – ACECs" = pt_count_reference_layer_rows(layers$reference_layers, "acec"),
+  "Reference – Grazing Allotments" = pt_count_reference_layer_rows(layers$reference_layers, "allotments"),
+  "Reference – Counties" = pt_count_sf_rows(layers$county),
+  "Reference – RWQCB Regions" = pt_count_sf_rows(layers$rwqcb_regions),
+  "Reference – Water Districts" = pt_count_sf_rows(layers$water_districts)
+), exact_names = REFERENCE_LAYER_FEATURE_COUNT_KEYS)
 
 # ==== 6. Build overlay group list ===========================================
 ##
@@ -799,7 +823,6 @@ CORE_OVERLAY_GROUPS <- c(
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | SWRCB 2026 BLM list",
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | BRIM spatial BLM match",
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | BRIM name/text BLM candidate",
-  if (MAP_DISPLAY$add_x2_km) "CVP/SWP X2 km points",
   if (MAP_DISPLAY$add_springs) "Springs",
   if (MAP_DISPLAY$add_scan_stations) "SCAN Stations",
   if (MAP_DISPLAY$add_snow_pillows) "Snow Pillows",
@@ -815,8 +838,7 @@ CORE_OVERLAY_GROUPS <- c(
   
   "Counties",
   if (MAP_DISPLAY$add_rwqcb_regions) "RWQCB Regions",
-  if (MAP_DISPLAY$add_water_districts) "Water Districts",
-  if (MAP_DISPLAY$add_cgs_geology) "CA Geology (visual only)"
+  if (MAP_DISPLAY$add_water_districts) "Water Districts"
 )
 
 LABEL_OVERLAY_GROUPS <- if (isTRUE(MAP_DISPLAY$add_labels)) {
@@ -888,7 +910,6 @@ m <- pt_add_startup_loading_overlay(m)
 
 m <- pt_add_panes(m)
 m <- pt_add_basemaps(m)
-m <- pt_add_cgs_geology(m, MAP_DISPLAY)
 
 m <- pt_startup_loading_mark(
   m = m,
@@ -1072,12 +1093,6 @@ m <- pt_add_swrcb_pod_wr_layer(
 m <- pt_add_swrcb_pod_wr_shared_legend(
   m = m,
   swrcb_pod_wr_blm = layers$swrcb_pod_wr_blm,
-  map_display = MAP_DISPLAY
-)
-
-m <- pt_add_x2_km_layer(
-  m = m,
-  x2_km = layers$x2_km,
   map_display = MAP_DISPLAY
 )
 

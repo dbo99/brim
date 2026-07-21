@@ -234,6 +234,30 @@ pt_make_huc_popups <- function(sfobj, lvl) {
 }
 # ==== 3. Groundwater / county popups =========================================
 
+pt_make_gw_hover_tooltips <- function(x) {
+  hover_value <- function(value) {
+    value <- value[1]
+    if (length(value) == 0 || is.na(value)) {
+      return("\u2014")
+    }
+    value <- as.character(value)
+    if (!nzchar(trimws(value))) return("\u2014")
+    value
+  }
+
+  vapply(seq_len(nrow(x)), function(i) {
+    basin_name <- hover_value(x$subbasin_name[i])
+    basin_id <- hover_value(x$subbasin_num[i])
+
+    paste0(
+      "<div style='line-height:1.1; white-space:nowrap;'>",
+      "<div style='margin:0;'><strong>", pt_esc(basin_name), "</strong></div>",
+      "<div style='margin:0;'>ID: ", pt_esc(basin_id), "</div>",
+      "</div>"
+    )
+  }, character(1))
+}
+
 pt_make_gw_popups <- function(x) {
   sprintf(
     "<b>%s</b><br/>

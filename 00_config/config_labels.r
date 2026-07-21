@@ -85,7 +85,6 @@ LABEL_ZOOM <- tibble::tribble(
   "wilderness",           "Wilderness",            "Labels: Wilderness",             8.0,       Inf,
   "wild_scenic_corridor", "Wild & Scenic Rivers",  "Labels: Wild & Scenic Rivers",   8.5,       Inf,
   "wild_scenic_reaches",  "W&S River Reaches",     "Labels: W&S River Reaches",     10.0,       Inf,
-  "major_conveyance",     "Major Conveyance",       "Labels: Major Conveyance",       9.0,       Inf,
   
   # Water districts are numerous, so labels should only appear at close zooms.
   # They are still added through clustered label-only markers for browser performance.
@@ -133,7 +132,6 @@ LABEL_INCLUDE <- list(
   wilderness = TRUE,
   wild_scenic_corridor = TRUE,
   wild_scenic_reaches = TRUE,
-  major_conveyance = TRUE,
   
   ## Water-district labels are intentionally optional and high-zoom only.
   ## They help users identify districts where overlapping polygons make
@@ -178,11 +176,6 @@ LABEL_FIELDS <- list(
   fedwilderness = "NLCS_NAME",
   acec          = "ACEC_NAME",
   allotments    = "ALLOT_NAME",
-  
-  # ---- Major conveyance labels ----------------------------------------------
-  ##
-  ## Major conveyance is a line layer dissolved by Pname + Operator.
-  major_conveyance = "Pname",
   
   ## Water districts are cached with a cleaned display field created during
   ## core-cache building. This avoids labeling blanks/NA values and keeps the
@@ -251,7 +244,6 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "ACECs",
-    "Major Conveyance",
     "Water Districts",
     "RWQCB Regions"
   ),
@@ -279,7 +271,6 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "ACECs",
-    "Major Conveyance",
     "Water Districts",
     "RWQCB Regions"
   ),

@@ -31,8 +31,10 @@ function(el, x) {
       '.leaflet-control-container>.pt-map-legend-corner-overflow{max-height:calc(100% - 8px)!important;overflow-y:auto!important;overscroll-behavior:contain;pointer-events:auto!important;touch-action:pan-y}' +
       '.leaflet-control-container>.leaflet-top.pt-map-legend-corner-overflow{top:4px!important}' +
       '.leaflet-control-container>.leaflet-bottom.pt-map-legend-corner-overflow{bottom:4px!important}' +
-      '.pt-map-card-actions{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto}.pt-map-card-handle>.pt-map-card-actions{margin-left:auto}' +
-      '.pt-map-card-actions>button{position:static!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;margin:0!important;transform:none!important;float:none!important}' +
+      '.pt-map-card-actions{display:inline-flex;align-items:center;gap:2px;flex:0 0 auto}.pt-map-legend-card .pt-map-card-actions{display:inline-flex!important;align-items:center!important;gap:2px!important;flex:0 0 auto!important}.pt-map-legend-card .pt-map-card-handle>.pt-map-card-actions{margin-left:auto!important}' +
+      '.pt-map-legend-card .pt-map-card-actions>button{appearance:none!important;-webkit-appearance:none!important;position:static!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0!important;transform:none!important;float:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;color:#777!important;font:700 16px/1 Arial,Helvetica,sans-serif!important;padding:3px 4px!important;cursor:pointer!important}' +
+      '.pt-map-legend-card .pt-map-card-actions>button:hover{border:0!important;box-shadow:none!important;background:transparent!important;color:#333!important}' +
+      '.pt-map-legend-card .pt-map-card-actions>button:focus-visible{outline:2px solid #2b6cb0!important;outline-offset:1px!important}' +
       '.pt-map-card-auto-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:0 0 4px 0}.pt-map-card-auto-title{font-weight:700}.pt-map-card-auto-header button{position:static!important;top:auto!important;right:auto!important;margin:0!important}' +
       '.pt-map-card-dock{border:0;background:transparent;color:#777;font:bold 15px/1 Arial,Helvetica,sans-serif;padding:0 2px;cursor:pointer}' +
       '.pt-map-card-dock:hover{color:#222}' +
@@ -86,6 +88,7 @@ function(el, x) {
     var card = options.card;
     var map = options.map;
     if (!card || !map || !map.getContainer) return null;
+    if (card.classList) card.classList.add('pt-map-legend-card');
     var dockMembers = options.dockMembers && options.dockMembers.length ? Array.prototype.slice.call(options.dockMembers) : [card];
     var coordinated = dockMembers.length !== 1 || dockMembers[0] !== card;
     var state = card.__brimDetachableState;
@@ -395,6 +398,8 @@ function(el, x) {
 
   function compactHeaderActions(handle, dockButton, closeButton) {
     if (!handle || !dockButton || !closeButton) return;
+    dockButton.classList.add('pt-map-card-action');
+    closeButton.classList.add('pt-map-card-action');
     var actions = closeButton.closest ? closeButton.closest('.pt-map-card-actions') : null;
     if (!actions || !handle.contains(actions)) {
       var parent = closeButton.parentNode;
