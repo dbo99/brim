@@ -96,6 +96,12 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
   
   huc_sf <- huc_all[[nm]]
   code_col <- nm
+  huc_level <- as.integer(sub("^huc", "", nm))
+
+  huc_sf$pt_huc_hover_html <- lapply(
+    pt_make_huc_hover_tooltips(huc_sf, huc_level),
+    htmltools::HTML
+  )
   
   if (code_col %in% names(huc_sf)) {
     huc_sf$pt_huc_layer_id <- paste0(nm, "_", as.character(huc_sf[[code_col]]))
@@ -124,6 +130,14 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
       weight = PT_HUC_WEIGHTS[[nm]],
       opacity = 0.95,
       popup = ~popup_html,
+      label = ~pt_huc_hover_html,
+      labelOptions = leaflet::labelOptions(
+        direction = "auto",
+        opacity = 0.95,
+        textsize = "11px",
+        sticky = TRUE,
+        className = "pt-huc-hover-summary"
+      ),
       options = leaflet::pathOptions(
         pane = "pane_huc",
         className = "pt-huc-feature"
@@ -151,4 +165,3 @@ pt_add_huc_layers <- function(m, huc_all, map_display) {
   
   m
 }
-
