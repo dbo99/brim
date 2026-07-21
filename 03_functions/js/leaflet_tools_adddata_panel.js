@@ -3113,6 +3113,8 @@ function(el, x, toolsData) {
     return ptExternalPanelLayerRecords().length;
   }
 
+  var ptWcrCompletedDepthMapLegendClosed = false;
+
   function ptEnsureWcrCompletedDepthMapLegend() {
     var mapContainer = map && map.getContainer ? map.getContainer() : null;
     if (!mapContainer) return null;
@@ -3152,12 +3154,27 @@ function(el, x, toolsData) {
     });
 
     if (!active) {
+      ptWcrCompletedDepthMapLegendClosed = false;
+      if (div.__brimDetachableState && div.__brimDetachableState.destroy) {
+        div.__brimDetachableState.destroy(true);
+      }
       div.style.display = 'none';
       div.innerHTML = '';
       return;
     }
 
-    div.innerHTML = ptWcrCompletedDepthMapLegendHtml();
+    if (ptWcrCompletedDepthMapLegendClosed) {
+      div.style.display = 'none';
+      return;
+    }
+
+    div.innerHTML = '<div class="pt-wcr-completed-depth-map-legend-head pt-map-card-handle"><span style="font-weight:700;">Well Completion Reports | completed depth</span><span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-wcr-completed-depth-map-legend-dock" aria-label="Undock WCR completed-depth legend" title="Undock WCR completed-depth legend">&#x2197;</button><button type="button" class="pt-map-legend-close pt-wcr-completed-depth-map-legend-close" aria-label="Hide WCR completed-depth legend" title="Hide WCR completed-depth legend">&times;</button></span></div>' + ptWcrCompletedDepthMapLegendHtml();
+    ptWireMapLegendCloseButton(div, '.pt-wcr-completed-depth-map-legend-close', function() {
+      ptWcrCompletedDepthMapLegendClosed = true;
+    });
+    if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.makeDetachable) {
+      window.BRIM.legendCloseout.makeDetachable({card: div, map: map, handleSelector: '.pt-wcr-completed-depth-map-legend-head', dockSelector: '.pt-wcr-completed-depth-map-legend-dock', label: 'WCR completed-depth legend'});
+    }
     div.style.display = 'block';
   }
 

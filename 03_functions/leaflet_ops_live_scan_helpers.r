@@ -196,6 +196,12 @@ pt_ops_live_scan_js <- function() {
       .pt-ops-scan-legend-titlebar .pt-ops-scan-control-title { margin-bottom:0; }
       .pt-ops-scan-legend-close { border:0; background:transparent; color:#777; font:bold 16px/1 Arial, Helvetica, sans-serif; padding:0 1px; cursor:pointer; }
       .pt-ops-scan-legend-close:hover { color:#222; }
+      .pt-ops-scan-paired-card { background:transparent; box-shadow:none; border:0; }
+      .pt-ops-scan-paired-card.pt-map-card-undocked > .leaflet-control { position:relative !important; left:auto !important; top:auto !important; margin:0 0 8px 0 !important; float:none; clear:both; }
+      .pt-ops-scan-paired-card.pt-map-card-undocked > .leaflet-control:last-child { margin-bottom:0 !important; }
+      .pt-map-card-actions { display:inline-flex; align-items:center; gap:1px; }
+      .pt-map-card-dock { border:0; background:transparent; color:#777; font:bold 15px/1 Arial,Helvetica,sans-serif; padding:0 2px; cursor:pointer; }
+      .pt-map-card-dock:hover { color:#222; }
       .pt-ops-scan-depth-button-row { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
 
       .pt-ops-scan-map-depth-btn {
@@ -1437,7 +1443,7 @@ pt_ops_live_scan_js <- function() {
       this._ptScanDepthCtl = L.control({position: 'topleft'});
       this._ptScanDepthCtl.onAdd = function() {
         var div = L.DomUtil.create('div', 'pt-ops-scan-depth-control leaflet-control');
-        var html = '<div class="pt-ops-scan-control-title">SCAN depth</div><div class="pt-ops-scan-depth-button-row">';
+        var html = '<div class="pt-ops-scan-legend-titlebar"><div class="pt-ops-scan-control-title">SCAN depth</div><button type="button" class="pt-ops-scan-legend-close" data-pt-scan-depth-close="1" aria-label="Hide SCAN depth selector" title="Hide SCAN depth selector">&times;</button></div><div class="pt-ops-scan-depth-button-row">';
         depths.forEach(function(d) {
           var active = d === self._ptScanSelectedDepth ? ' active' : '';
           html += '<button type="button" class="pt-ops-scan-map-depth-btn' + active + '" data-depth="' + d + '">' + d + '</button>';
@@ -1447,6 +1453,12 @@ pt_ops_live_scan_js <- function() {
         L.DomEvent.disableClickPropagation(div);
         L.DomEvent.disableScrollPropagation(div);
         div.addEventListener('click', function(e) {
+          var close = e.target.closest ? e.target.closest('[data-pt-scan-depth-close="1"]') : null;
+          if (close) {
+            if (typeof L !== 'undefined' && L.DomEvent) L.DomEvent.stop(e);
+            div.style.display = 'none';
+            return;
+          }
           var btn = e.target.closest ? e.target.closest('.pt-ops-scan-map-depth-btn') : null;
           if (!btn) return;
           self._ptScanApplyDepth(btn.getAttribute('data-depth'));
@@ -1458,7 +1470,7 @@ pt_ops_live_scan_js <- function() {
       this._ptScanLegendCtl = L.control({position: 'topleft'});
       this._ptScanLegendCtl.onAdd = function() {
         var div = L.DomUtil.create('div', 'pt-ops-scan-legend-control leaflet-control');
-        div.innerHTML = '<div class="pt-ops-scan-legend-titlebar"><div class="pt-ops-scan-control-title">SCAN context</div><button type="button" class="pt-ops-scan-legend-close" data-pt-scan-legend-close="1" title="Hide this legend">&times;</button></div>' +
+        div.innerHTML = '<div class="pt-ops-scan-legend-titlebar pt-ops-scan-context-titlebar"><div class="pt-ops-scan-control-title">SCAN context</div><span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-ops-scan-paired-dock" aria-label="Undock Soil Moisture / SCAN controls" title="Undock Soil Moisture / SCAN controls">&#x2197;</button><button type="button" class="pt-ops-scan-legend-close pt-ops-scan-paired-close" data-pt-scan-legend-close="1" aria-label="Hide Soil Moisture / SCAN controls" title="Hide Soil Moisture / SCAN controls">&times;</button></span></div>' +
           '<div class="pt-ops-scan-map-legend-title">Latest <span class="pt-ops-scan-selected-depth-label">' + self._ptScanSelectedDepth + '</span>-in context</div>' +
           '<div class="pt-ops-scan-legend-grid">' +
           '<div class="pt-ops-scan-legend-row"><span style="background:#8C510A"></span>Much below</div>' +
@@ -1475,11 +1487,33 @@ pt_ops_live_scan_js <- function() {
           if (!btn) return;
           if (typeof L !== 'undefined' && L.DomEvent) L.DomEvent.stop(e);
           else if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+          if (self._ptScanDetachable && self._ptScanDetachable.floating && self._ptScanDetachable.dock) self._ptScanDetachable.dock();
+          var depthContainer = self._ptScanDepthCtl && self._ptScanDepthCtl.getContainer ? self._ptScanDepthCtl.getContainer() : null;
+          if (depthContainer) depthContainer.style.display = 'none';
           div.style.display = 'none';
         });
         return div;
       };
       this._ptScanLegendCtl.addTo(mapObj);
+
+      var depthDiv = this._ptScanDepthCtl.getContainer ? this._ptScanDepthCtl.getContainer() : null;
+      var legendDiv = this._ptScanLegendCtl.getContainer ? this._ptScanLegendCtl.getContainer() : null;
+      if (depthDiv && legendDiv && depthDiv.parentNode) {
+        var wrapper = L.DomUtil.create('div', 'pt-ops-scan-paired-card pt-map-legend-card');
+        L.DomEvent.disableClickPropagation(wrapper);
+        L.DomEvent.disableScrollPropagation(wrapper);
+        this._ptScanPairedCard = wrapper;
+        if (window.BRIM && window.BRIM.legendCloseout) {
+          this._ptScanDetachable = window.BRIM.legendCloseout.makeDetachable({
+            card: wrapper,
+            map: mapObj,
+            dockMembers: [depthDiv, legendDiv],
+            dockButton: legendDiv.querySelector('.pt-ops-scan-paired-dock'),
+            handle: legendDiv.querySelector('.pt-ops-scan-context-titlebar'),
+            label: 'Soil Moisture / SCAN controls'
+          });
+        }
+      }
 
       mapObj.on('popupopen', function(e) {
         var root = e.popup && e.popup.getElement ? e.popup.getElement() : null;
@@ -1555,6 +1589,11 @@ pt_ops_live_scan_js <- function() {
     layer.onRemove = function(mapObj) {
       this._ptScanIsRemoved = true;
       try { this.clearLayers(); } catch(e) {}
+      if (this._ptScanDetachable && this._ptScanDetachable.destroy) {
+        try { this._ptScanDetachable.destroy(true, true); } catch(e) {}
+      } else if (this._ptScanPairedCard && this._ptScanPairedCard.parentNode) {
+        this._ptScanPairedCard.parentNode.removeChild(this._ptScanPairedCard);
+      }
       if (this._ptScanDepthCtl && this._ptScanMap) {
         try { this._ptScanMap.removeControl(this._ptScanDepthCtl); } catch(e) {}
       }
@@ -1563,6 +1602,8 @@ pt_ops_live_scan_js <- function() {
       }
       this._ptScanDepthCtl = null;
       this._ptScanLegendCtl = null;
+      this._ptScanPairedCard = null;
+      this._ptScanDetachable = null;
       this._ptScanMarkers = [];
       this._ptScanMarkerLookup = {};
       this._ptScanDepthLookup = {};

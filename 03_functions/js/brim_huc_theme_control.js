@@ -3,6 +3,7 @@ function(el, x, hucThemeData) {
   var map = this;
   var hucTheme = 'none';
   var visibleHucLayers = {};
+  var hucLegendUserHidden = false;
 
   console.log('PT2 HUC theme control loading');
 
@@ -352,9 +353,17 @@ console.log('PT2 HUC theme legend levels:', Object.keys(hucThemeLegends));
     if (!div) return;
 
     var hasVisibleHuc = Object.keys(visibleHucLayers || {}).length > 0;
+    if (!hasVisibleHuc || hucTheme === 'none') hucLegendUserHidden = false;
     var html = legendHtml(hucTheme);
-    div.style.display = (!hasVisibleHuc || hucTheme === 'none' || html === '') ? 'none' : 'block';
-    div.innerHTML = html;
+    div.style.display = (!hasVisibleHuc || hucTheme === 'none' || html === '' || hucLegendUserHidden) ? 'none' : 'block';
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;"><span style="font-weight:700;">HUC thematic fill</span><button type="button" class="pt-huc-theme-legend-close" aria-label="Hide HUC thematic-fill legend" title="Hide HUC thematic-fill legend" style="border:0;background:transparent;color:#666;font-size:17px;line-height:1;cursor:pointer;padding:0 2px;">&times;</button></div>' + html;
+    var close = div.querySelector('.pt-huc-theme-legend-close');
+    if (close) close.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      hucLegendUserHidden = true;
+      div.style.display = 'none';
+    }, false);
   }
 
   var hucThemeStatusTimer = null;
