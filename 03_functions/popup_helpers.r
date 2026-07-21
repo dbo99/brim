@@ -28,9 +28,49 @@ pt_fmt_area <- function(x) {
   )
 }
 
+
 pt_fmt_pct <- function(x) {
   v <- as.numeric(x)
   ifelse(is.na(v), "NA", sprintf("%.2f%%", v))
+}
+
+# ==== 1A. HUC hover helper ===================================================
+
+pt_fmt_huc_hover_inches <- function(x) {
+  value <- suppressWarnings(as.numeric(as.character(x)[1]))
+
+  if (length(value) == 0 || !is.finite(value)) {
+    return("\u2014")
+  }
+
+  sprintf("%.1f in", value)
+}
+
+pt_make_huc_hover_tooltips <- function(sfobj, lvl) {
+  df <- sf::st_drop_geometry(sfobj)
+  name_col <- paste0("huc", lvl, "_name")
+
+  if (!name_col %in% names(df)) {
+    stop("HUC", lvl, " hover tooltip is missing expected name field: ", name_col)
+  }
+
+  map_values <- if ("map_in" %in% names(df)) df$map_in else rep(NA_real_, nrow(df))
+  recharge_values <- if ("rech_in" %in% names(df)) df$rech_in else rep(NA_real_, nrow(df))
+
+  vapply(seq_len(nrow(df)), function(i) {
+    watershed_name <- as.character(df[[name_col]][i])
+    if (is.na(watershed_name) || !nzchar(trimws(watershed_name))) {
+      watershed_name <- "\u2014"
+    }
+
+    paste0(
+      "<div style='line-height:1.1; white-space:nowrap;'>",
+      "<div style='margin:0;'><strong>", pt_esc(watershed_name), "</strong></div>",
+      "<div style='margin:0;'>MAP: ", pt_fmt_huc_hover_inches(map_values[i]), "</div>",
+      "<div style='margin:0;'>Recharge: ", pt_fmt_huc_hover_inches(recharge_values[i]), "</div>",
+      "</div>"
+    )
+  }, character(1))
 }
 
 # ==== 2. HUC popup helper ====================================================
@@ -1615,4 +1655,3 @@ pt_make_rwqcb_region_popups <- function(x) {
     "' target='_blank'>Open RWQCB page</a>"
   )
 }
-
