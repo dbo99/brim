@@ -2346,6 +2346,9 @@ function(el, x, toolsData) {
   var ptMeasurePoints = [];
   var ptMeasureShape = null;
   var ptMeasureTempShape = null;
+  var ptMeasureInteractionActive = false;
+  var ptMeasureSuspendedPanes = [];
+  var ptMeasurePaneObserver = null;
 
   // --------------------------------------------------------------------------
   // Teaching Markup / Annotate tools
@@ -2358,8 +2361,8 @@ function(el, x, toolsData) {
   var ptTeachingMarkupCurrentStroke = null;
   var ptTeachingMarkupStrokes = [];
   var ptTeachingMarkupSuppressClickUntil = 0;
-  var ptTeachingMarkupColor = '#FFD84D';
-  var ptTeachingMarkupWeight = 18;
+  var ptTeachingMarkupColor = '#3388ff';
+  var ptTeachingMarkupWeight = 9;
   var ptTeachingMarkupOpacity = 0.45;
   var ptTeachingMarkupTempPanActive = false;
   var ptTeachingMarkupSpacePanReady = false;
@@ -2367,11 +2370,128 @@ function(el, x, toolsData) {
   var ptTeachingMarkupPanPointerId = null;
   var ptTeachingMarkupCursorEl = null;
 
-  function ptSetMeasureCursorActive(active) {
-    var container = map && map.getContainer ? map.getContainer() : null;
-    if (container) {
-      container.classList.toggle('pt-measure-active', !!active);
+  function ptCloseTransientFeatureUi() {
+    try { map.closePopup(); } catch (popupErr) {}
+
+    var transientTooltips = [];
+    try {
+      map.eachLayer(function(layer) {
+        if (
+          window.L &&
+          L.Tooltip &&
+          layer instanceof L.Tooltip &&
+          !(layer.options && layer.options.permanent)
+        ) {
+          transientTooltips.push(layer);
+        }
+      });
+    } catch (tooltipScanErr) {}
+
+    transientTooltips.forEach(function(tooltip) {
+      try { map.closeTooltip(tooltip); } catch (tooltipCloseErr) {}
+    });
+
+    if (typeof ptHideVisualIdentifyTooltip === 'function') {
+      try { ptHideVisualIdentifyTooltip(); } catch (identifyTooltipErr) {}
     }
+  }
+
+  function ptClearCurrentFeatureHover() {
+    var container = map && map.getContainer ? map.getContainer() : null;
+    if (!container || !container.querySelectorAll) return;
+
+    var interactiveNodes = container.querySelectorAll('.leaflet-interactive');
+    Array.prototype.forEach.call(interactiveNodes, function(node) {
+      try {
+        if (!node.matches || !node.matches(':hover')) return;
+        node.dispatchEvent(new MouseEvent('mouseout', {
+          bubbles: true,
+          cancelable: true,
+          relatedTarget: container
+        }));
+      } catch (hoverErr) {}
+    });
+  }
+
+  function ptMeasurePaneIsExempt(pane) {
+    if (!pane) return true;
+    return pane === map.getPane('mapPane') ||
+      pane === map.getPane('tilePane') ||
+      pane === map.getPane('pane_pt_measure');
+  }
+
+  function ptSuspendMeasurePane(pane) {
+    if (ptMeasurePaneIsExempt(pane)) return;
+    if (pane.getAttribute('data-pt-measure-suspended') === 'true') return;
+
+    ptMeasureSuspendedPanes.push({
+      pane: pane,
+      pointerEvents: pane.style.pointerEvents
+    });
+    pane.setAttribute('data-pt-measure-suspended', 'true');
+    pane.classList.add('pt-measure-pane-suspended');
+    pane.style.pointerEvents = 'none';
+  }
+
+  function ptSuspendFeaturePanes() {
+    var panes = map && map.getPanes ? map.getPanes() : null;
+    if (panes) {
+      Object.keys(panes).forEach(function(name) {
+        ptSuspendMeasurePane(panes[name]);
+      });
+    }
+
+    if (!ptMeasurePaneObserver && window.MutationObserver) {
+      var mapPane = map.getPane('mapPane');
+      if (mapPane) {
+        ptMeasurePaneObserver = new MutationObserver(function(records) {
+          if (!ptMeasureInteractionActive) return;
+          records.forEach(function(record) {
+            Array.prototype.forEach.call(record.addedNodes || [], function(node) {
+              if (node && node.nodeType === 1 && node.classList.contains('leaflet-pane')) {
+                ptSuspendMeasurePane(node);
+              }
+            });
+          });
+        });
+        ptMeasurePaneObserver.observe(mapPane, { childList: true });
+      }
+    }
+  }
+
+  function ptRestoreFeaturePanes() {
+    ptMeasureSuspendedPanes.forEach(function(state) {
+      if (!state || !state.pane) return;
+      state.pane.style.pointerEvents = state.pointerEvents;
+      state.pane.classList.remove('pt-measure-pane-suspended');
+      state.pane.removeAttribute('data-pt-measure-suspended');
+    });
+    ptMeasureSuspendedPanes = [];
+  }
+
+  function ptSetMeasureInteractionActive(active) {
+    active = !!active;
+    var container = map && map.getContainer ? map.getContainer() : null;
+
+    if (active === ptMeasureInteractionActive) {
+      if (container) container.classList.toggle('pt-measure-active', active);
+      return;
+    }
+
+    if (active) {
+      ptCloseTransientFeatureUi();
+      ptClearCurrentFeatureHover();
+      ptMeasureInteractionActive = true;
+      map._ptMeasureInteractionActive = true;
+      ptSuspendFeaturePanes();
+    } else {
+      ptCloseTransientFeatureUi();
+      ptRestoreFeaturePanes();
+      ptMeasureInteractionActive = false;
+      map._ptMeasureInteractionActive = false;
+    }
+
+    if (container) container.classList.toggle('pt-measure-active', active);
   }
 
   function ptTeachingSetStatus(msg, isError) {
@@ -2411,13 +2531,13 @@ function(el, x, toolsData) {
     var cursor = ptTeachingEnsureBrushCursor();
     if (!cursor) return;
 
-    var diameter = Math.max(3, Number(ptTeachingMarkupWeight) || 18);
+    var diameter = Math.max(3, Number(ptTeachingMarkupWeight) || 9);
     var previewOpacity = Math.max(0.18, Math.min(0.55, (Number(ptTeachingMarkupOpacity) || 0.45) * 0.80));
 
     cursor.style.width = diameter + 'px';
     cursor.style.height = diameter + 'px';
-    cursor.style.borderColor = ptTeachingMarkupColor || '#FFD84D';
-    cursor.style.backgroundColor = ptTeachingMarkupColor || '#FFD84D';
+    cursor.style.borderColor = ptTeachingMarkupColor || '#3388ff';
+    cursor.style.backgroundColor = ptTeachingMarkupColor || '#3388ff';
     cursor.style.opacity = previewOpacity;
     cursor.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.25)';
   }
@@ -2454,7 +2574,7 @@ function(el, x, toolsData) {
 
     ptTeachingUpdateBrushCursorStyle();
 
-    var diameter = Math.max(3, Number(ptTeachingMarkupWeight) || 18);
+    var diameter = Math.max(3, Number(ptTeachingMarkupWeight) || 9);
     cursor.style.display = 'block';
     cursor.style.transform = 'translate(' + Math.round(x - diameter / 2) + 'px, ' + Math.round(y - diameter / 2) + 'px)';
   }
@@ -2625,7 +2745,7 @@ function(el, x, toolsData) {
       ptMeasureMode = null;
       ptResetMeasureShapeOnly();
       ptUpdateMeasureButtons();
-      ptSetMeasureCursorActive(false);
+      ptSetMeasureInteractionActive(false);
 
       if (map.dragging && map.dragging.disable) map.dragging.disable();
       if (map.doubleClickZoom && map.doubleClickZoom.disable) map.doubleClickZoom.disable();
@@ -2647,7 +2767,7 @@ function(el, x, toolsData) {
     var opacity0 = document.getElementById('pt-teaching-markup-opacity');
 
     if (color0 && color0.value) ptTeachingMarkupColor = color0.value;
-    if (size0 && size0.value) ptTeachingMarkupWeight = Number(size0.value) || 18;
+    if (size0 && size0.value) ptTeachingMarkupWeight = Number(size0.value) || 9;
     if (opacity0 && opacity0.value) ptTeachingMarkupOpacity = Number(opacity0.value) || 0.45;
 
     ptTeachingUpdateBrushCursorStyle();
@@ -2809,7 +2929,7 @@ function(el, x, toolsData) {
     ptResetMeasureShapeOnly();
     ptSetMeasureStatus('Measurements cleared.', false);
     ptUpdateMeasureButtons();
-    ptSetMeasureCursorActive(false);
+    ptSetMeasureInteractionActive(false);
   }
 
   function ptDistanceMeters(points) {
@@ -2887,7 +3007,7 @@ function(el, x, toolsData) {
     ptMeasureMode = mode;
     ptResetMeasureShapeOnly();
     ptUpdateMeasureButtons();
-    ptSetMeasureCursorActive(true);
+    ptSetMeasureInteractionActive(true);
 
     if (mode === 'distance') {
       ptSetMeasureStatus('Distance mode: click map points. Click Finish to stop.', false);
@@ -2902,14 +3022,16 @@ function(el, x, toolsData) {
       return;
     }
 
+    var resultShape = null;
+    var resultPopup = '';
+
     if (ptMeasureMode === 'area' && ptMeasurePoints.length >= 3) {
       var area = ptGeodesicArea(ptMeasurePoints);
 
       if (ptMeasureShape) {
-        ptMeasureShape.bindPopup(
-          '<b>Measured area:</b> ' + ptFormatArea(area) +
-          '<br/><span style="font-size:11px;color:#555;">Screening-level estimate.</span>'
-        ).openPopup();
+        resultShape = ptMeasureShape;
+        resultPopup = '<b>Measured area:</b> ' + ptFormatArea(area) +
+          '<br/><span style="font-size:11px;color:#555;">Screening-level estimate.</span>';
       }
 
       ptSetMeasureStatus('Area: ' + ptFormatArea(area), false);
@@ -2917,10 +3039,9 @@ function(el, x, toolsData) {
       var dist = ptDistanceMeters(ptMeasurePoints);
 
       if (ptMeasureShape) {
-        ptMeasureShape.bindPopup(
-          '<b>Measured distance:</b> ' + ptFormatDistance(dist) +
-          '<br/><span style="font-size:11px;color:#555;">Screening-level estimate.</span>'
-        ).openPopup();
+        resultShape = ptMeasureShape;
+        resultPopup = '<b>Measured distance:</b> ' + ptFormatDistance(dist) +
+          '<br/><span style="font-size:11px;color:#555;">Screening-level estimate.</span>';
       }
 
       ptSetMeasureStatus('Distance: ' + ptFormatDistance(dist), false);
@@ -2931,7 +3052,11 @@ function(el, x, toolsData) {
     ptMeasureMode = null;
     ptResetMeasureShapeOnly();
     ptUpdateMeasureButtons();
-    ptSetMeasureCursorActive(false);
+    ptSetMeasureInteractionActive(false);
+
+    if (resultShape && resultPopup) {
+      resultShape.bindPopup(resultPopup).openPopup();
+    }
   }
 
   function ptDrawMeasure() {
@@ -2988,12 +3113,32 @@ function(el, x, toolsData) {
     }).addTo(ptMeasureLayer);
   }
 
-  map.on('click', function(e) {
+  function ptCaptureMeasureClick(evt) {
     if (!ptMeasureMode) return;
+    if (ptTeachingIsControlTarget(evt.target)) return;
 
-    ptMeasurePoints.push(e.latlng);
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
+
+    if (map.dragging && map.dragging.moved && map.dragging.moved()) return;
+
+    var latlng = null;
+    try { latlng = map.mouseEventToLatLng(evt); } catch (latlngErr) {}
+    if (!latlng) return;
+
+    ptMeasurePoints.push(latlng);
     ptDrawMeasure();
-  });
+  }
+
+  function ptInstallMeasureClickHandler() {
+    var container = map && map.getContainer ? map.getContainer() : null;
+    if (!container || container._ptMeasureClickHandlerInstalled) return;
+    container._ptMeasureClickHandlerInstalled = true;
+    container.addEventListener('click', ptCaptureMeasureClick, true);
+  }
+
+  ptInstallMeasureClickHandler();
 
   // --------------------------------------------------------------------------
   // Built-in BLM CA SMA context overlay
@@ -7841,6 +7986,12 @@ function(el, x, toolsData) {
 
   function ptHandleVisualIdentifyHover(latlng) {
     var seq = ++ptVisualIdentifySeq;
+
+    if (ptMeasureInteractionActive) {
+      ptHideVisualIdentifyTooltip();
+      return;
+    }
+
     var records = ptVisualIdentifyRecords(true);
 
     if (!records.length) {
@@ -7852,7 +8003,7 @@ function(el, x, toolsData) {
       if (!ok || !L.esri) return;
 
       ptIdentifyVisualRecordsAtLatLng(records, latlng, 0, function(error, rec, feature) {
-        if (seq !== ptVisualIdentifySeq) return;
+        if (seq !== ptVisualIdentifySeq || ptMeasureInteractionActive) return;
 
         if (error || !rec || !feature) {
           ptHideVisualIdentifyTooltip();
@@ -7899,6 +8050,8 @@ function(el, x, toolsData) {
   }
 
   function ptHandleVisualIdentifyClick(latlng) {
+    if (ptMeasureInteractionActive) return;
+
     var records = ptVisualIdentifyRecords(false).filter(function(rec) {
       return rec.clickable || rec.popupFields || rec.popupLinkTemplate;
     });
@@ -7926,6 +8079,15 @@ function(el, x, toolsData) {
   }
 
   map.on('mousemove', function(e) {
+    if (ptMeasureInteractionActive) {
+      if (ptVisualIdentifyHoverTimer) {
+        window.clearTimeout(ptVisualIdentifyHoverTimer);
+        ptVisualIdentifyHoverTimer = null;
+      }
+      ptHideVisualIdentifyTooltip();
+      return;
+    }
+
     if (ptVisualIdentifyHoverTimer) {
       window.clearTimeout(ptVisualIdentifyHoverTimer);
     }
@@ -10160,17 +10322,17 @@ function(el, x, toolsData) {
       '</div>' +
       '<div class="pt-teaching-markup-grid">' +
         '<label>C<br/><select id="pt-teaching-markup-color" class="pt-teaching-markup-select" title="Color">' +
-          '<option value="#FFD84D" selected>yellow</option>' +
+          '<option value="#FFD84D">yellow</option>' +
           '<option value="#E53E3E">red</option>' +
-          '<option value="#2B6CB0">blue</option>' +
+          '<option value="#3388ff" selected>blue</option>' +
           '<option value="#2F855A">green</option>' +
           '<option value="#333333">gray</option>' +
         '</select></label>' +
         '<label>B<br/><select id="pt-teaching-markup-size" class="pt-teaching-markup-select" title="Brush size">' +
           '<option value="3">micro</option>' +
           '<option value="5">tiny</option>' +
-          '<option value="9">small</option>' +
-          '<option value="18" selected>medium</option>' +
+          '<option value="9" selected>small</option>' +
+          '<option value="18">medium</option>' +
           '<option value="30">large</option>' +
           '<option value="46">huge</option>' +
           '<option value="64">max</option>' +
@@ -10477,13 +10639,23 @@ function(el, x, toolsData) {
         cursor: crosshair !important;
       }
 
+      .leaflet-container.pt-measure-active .leaflet-popup,
+      .leaflet-container.pt-measure-active .leaflet-tooltip:not(.pt-label) {
+        display: none !important;
+      }
+
+      .leaflet-container.pt-measure-active .leaflet-pane.pt-measure-pane-suspended,
+      .leaflet-container.pt-measure-active .leaflet-pane.pt-measure-pane-suspended * {
+        pointer-events: none !important;
+      }
+
       .pt-teaching-markup-brush-cursor {
         position: absolute;
         left: 0;
         top: 0;
         display: none;
         box-sizing: border-box;
-        border: 1.5px solid #FFD84D;
+        border: 1.5px solid #3388ff;
         border-radius: 999px;
         pointer-events: none;
         z-index: 10055;

@@ -356,6 +356,14 @@ LOCAL_LAYER_REGISTRY <- data.frame(
   stringsAsFactors = FALSE
 )
 
+## These sources remain available to their preprocessors and non-Local BRIM
+## implementations, but they are no longer registered in the Local panel.
+LOCAL_LAYER_REGISTRY <- LOCAL_LAYER_REGISTRY[
+  !LOCAL_LAYER_REGISTRY$layer_id %in% c("x2_km", "cgs_geology"),
+  ,
+  drop = FALSE
+]
+
 # ---- Consolidated BRIM conveyance layer -------------------------------------
 ##
 ## Append this row after the conservative first-pass registry is constructed.
@@ -552,6 +560,20 @@ pt_format_local_layer_count <- function(n) {
   paste0("(", format(as.integer(round(n)), big.mark = ",", scientific = FALSE), ")")
 }
 
+pt_format_local_layer_count_exact <- function(n) {
+
+  n <- suppressWarnings(as.numeric(n))
+  if (length(n) == 0 || is.na(n) || n < 0) {
+    return(NA_character_)
+  }
+
+  paste0(
+    "(",
+    format(as.integer(round(n)), big.mark = ",", scientific = FALSE),
+    ")"
+  )
+}
+
 pt_normalize_local_layer_count_key <- function(group_name) {
 
   group_name <- as.character(group_name)
@@ -571,7 +593,7 @@ pt_normalize_local_layer_count_key <- function(group_name) {
   group_name
 }
 
-pt_register_local_layer_feature_counts <- function(counts) {
+pt_register_local_layer_feature_counts <- function(counts, exact_names = character(0)) {
 
   if (is.null(counts) || length(counts) == 0) {
     LOCAL_LAYER_FEATURE_COUNT_LABELS <<- character(0)
@@ -579,7 +601,15 @@ pt_register_local_layer_feature_counts <- function(counts) {
   }
 
   counts <- counts[!is.na(names(counts)) & names(counts) != ""]
-  suffix <- vapply(counts, pt_format_local_layer_count, character(1))
+  count_names <- names(counts)
+  suffix <- vapply(seq_along(counts), function(i) {
+    if (count_names[i] %in% exact_names) {
+      pt_format_local_layer_count_exact(counts[i])
+    } else {
+      pt_format_local_layer_count(counts[i])
+    }
+  }, character(1))
+  names(suffix) <- count_names
   suffix <- suffix[!is.na(suffix) & suffix != ""]
 
   ## Store both the original keys and normalized keys so older build scripts

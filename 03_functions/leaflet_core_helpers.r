@@ -96,6 +96,18 @@ pt_add_panes <- function(m) {
           background: #ffffff !important;
           background-color: #ffffff !important;
         }
+
+        /*
+         * USGS Hydrography is a mostly transparent cached overlay rather than
+         * an opaque land basemap. Use a subtle warm-neutral underlay only while
+         * that base layer is active.
+         */
+        .leaflet-container.pt-usgs-hydro-active,
+        .leaflet-container.pt-usgs-hydro-active .leaflet-map-pane,
+        .leaflet-container.pt-usgs-hydro-active .leaflet-tile-pane {
+          background: #fbf7ee !important;
+          background-color: #fbf7ee !important;
+        }
       " )
     )
   )
@@ -147,7 +159,7 @@ function(el, x) {
 
 pt_add_basemaps <- function(m) {
   
-  m |>
+  m <- m |>
     leaflet::addTiles(
       urlTemplate = "https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}",
       group       = "USGS Hydrography",
@@ -178,6 +190,66 @@ pt_add_basemaps <- function(m) {
     leaflet::addProviderTiles("Esri.WorldImagery",  group = "Esri World Imagery") |>
     leaflet::addProviderTiles("CartoDB.Positron",   group = "CartoDB.Positron") |>
     leaflet::addProviderTiles("OpenStreetMap",      group = "OpenStreetMap")
+
+  htmlwidgets::onRender(
+    m,
+    r"---(
+function(el, x) {
+  var map = this;
+  var container = map && map.getContainer ? map.getContainer() : null;
+  var baseEventSeen = false;
+
+  if (!container) return;
+
+  function isHydroLayer(layer) {
+    if (
+      layer &&
+      layer.options &&
+      layer.options.group === 'USGS Hydrography'
+    ) {
+      return true;
+    }
+
+    var groupTable = map && map.layerManager && map.layerManager._byGroup
+      ? map.layerManager._byGroup['USGS Hydrography']
+      : null;
+    if (!groupTable || !window.L || !L.Util || !layer) return false;
+
+    return Object.prototype.hasOwnProperty.call(
+      groupTable,
+      String(L.Util.stamp(layer))
+    );
+  }
+
+  function setHydroUnderlay(active) {
+    container.classList.toggle('pt-usgs-hydro-active', !!active);
+  }
+
+  function syncFromActiveLayers() {
+    if (baseEventSeen) return;
+
+    var active = false;
+    map.eachLayer(function(layer) {
+      if (!active && isHydroLayer(layer) && map.hasLayer(layer)) {
+        active = true;
+      }
+    });
+    setHydroUnderlay(active);
+  }
+
+  map.on('baselayerchange', function(evt) {
+    baseEventSeen = true;
+    setHydroUnderlay(
+      !!(evt && (evt.name === 'USGS Hydrography' || isHydroLayer(evt.layer)))
+    );
+  });
+
+  setTimeout(syncFromActiveLayers, 0);
+  setTimeout(syncFromActiveLayers, 250);
+  setTimeout(syncFromActiveLayers, 1000);
+}
+)---"
+  )
 }
 
 pt_base_groups <- function() {
@@ -705,31 +777,11 @@ function(el, x) {
       return null;
     }
 
-    function refreshLabelsHeaderVisibility(container) {
-      var headers = Array.prototype.slice.call(container.querySelectorAll('.pt-layer-section-header'));
-      headers.forEach(function(header) {
-        if ((header.textContent || '').replace(/\s+/g, ' ').trim() !== 'Labels') return;
-        var node = header.nextSibling;
-        var anyVisibleLabel = false;
-        while (node) {
-          if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('pt-layer-section-header')) break;
-          if (node.nodeType === Node.ELEMENT_NODE && node.tagName && node.tagName.toLowerCase() === 'label') {
-            if (!node.classList.contains('pt-label-companion-hidden')) {
-              anyVisibleLabel = true;
-              break;
-            }
-          }
-          node = node.nextSibling;
-        }
-        header.style.display = anyVisibleLabel ? '' : 'none';
-      });
-    }
-
     function installInlineLabelToggles(container, rowLabels) {
       // Keep this registry deliberately tied to the actual companion rows
       // that exist in the current Labels group.  Do not add future/config-only
       // label candidates here until they are real visible label overlay rows.
-      // Current expected count: 25 companion label rows.
+      // Keep current companion rows hidden behind their source-layer lbl toggle.
       var pairs = [
         {main: 'BLM Field Office Boundaries', label: 'BLM Field Office (outer)'},
         {main: 'GW Basins, Bulletin 118', label: 'GW – Bull. 118'},
@@ -754,7 +806,6 @@ function(el, x) {
         {main: 'Groundwater Sustainability Plan Areas', label: 'Groundwater Sustainability Plan Areas'},
         {main: 'Adjudicated Groundwater Basins', label: 'Adjudicated Groundwater Basins'},
         {main: 'ACECs', label: 'ACECs'},
-        {main: 'Major Conveyance', label: 'Major Conveyance'},
         {main: 'Water conveyance | BRIM mapped', label: 'Water conveyance | BRIM mapped'},
         {main: 'Water Districts', label: 'Water Districts'},
         {main: 'RWQCB Regions', label: 'RWQCB Regions'}
@@ -824,8 +875,6 @@ function(el, x) {
 
         setTimeout(syncInlineState, 0);
       });
-
-      refreshLabelsHeaderVisibility(container);
     }
 
     var labels = Array.prototype.slice.call(
@@ -846,14 +895,23 @@ function(el, x) {
       
       label.setAttribute('data-pt-layer-full-name', fullName);
       label.setAttribute('data-pt-layer-short-name', parsed.shortName);
+
+      // Label layers remain registered as hidden companions for the inline
+      // lbl checkboxes, but the obsolete standalone Labels section is no
+      // longer rendered in the Local panel.
+      if (parsed.category === 'Labels') {
+        label.classList.add('pt-label-companion-hidden');
+        label.setAttribute('data-pt-inline-companion-label', 'true');
+      }
       
       if (parsed.category !== currentCategory) {
-        
-        var header = document.createElement('div');
-        header.className = 'pt-layer-section-header';
-        header.textContent = parsed.category;
-        
-        overlayContainer.insertBefore(header, label);
+        if (parsed.category !== 'Labels') {
+          var header = document.createElement('div');
+          header.className = 'pt-layer-section-header';
+          header.textContent = parsed.category;
+
+          overlayContainer.insertBefore(header, label);
+        }
         currentCategory = parsed.category;
       }
       

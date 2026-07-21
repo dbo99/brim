@@ -214,11 +214,6 @@ reference_layers <- read_rds_checked(
   "cached reference layers"
 )
 
-major_conveyance <- read_rds_checked(
-  file.path(DIR$cache_last, "major_conveyance_map.rds"),
-  "cached major conveyance"
-)
-
 water_districts <- read_optional_cached_layer(
   file.path(DIR$cache_last, "water_districts_map.rds"),
   "water districts"
@@ -323,30 +318,16 @@ for (nm in c("fedwilderness", "acec", "allotments")) {
   )
 }
 
-# ---- 8B. Build major conveyance labels -------------------------------------
-##
-## Major conveyance is a line layer, but label anchors are generated using the
-## same centroid-style polygon-label helper. This should place labels near the
-## center of each dissolved conveyance feature.
-
-if (isTRUE(LABEL_INCLUDE$major_conveyance)) {
-  label_layers <- add_polygon_label_layer(
-    label_layers = label_layers,
-    layer_id = "major_conveyance",
-    x = major_conveyance
-  )
-}
-
-# ---- 8C. Build water district labels ---------------------------------------
+# ---- 8B. Build water district labels ---------------------------------------
 ##
 ## Water districts can be difficult to identify by polygon hover/click alone
 ## because many districts overlap or contain smaller interior districts. A
 ## separate high-zoom label layer gives users a practical identification tool
 ## without requiring geometry surgery on the polygon layer.
 ##
-## The layer remains toggleable in the Labels section of the main TOC. It is
-## clustered with visually hidden cluster icons, so labels do not appear until
-## the configured high zoom threshold is reached.
+## The layer remains toggleable through the Water Districts row's inline lbl
+## control. It is clustered with visually hidden cluster icons, so labels do
+## not appear until the configured high zoom threshold is reached.
 
 if (isTRUE(LABEL_INCLUDE$water_districts)) {
   

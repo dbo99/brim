@@ -187,6 +187,17 @@ pt_add_single_label_layer <- function(m, label_sf) {
 
 # ==== 4. Add all label layers ================================================
 
+pt_is_retired_label_layer <- function(label_sf, cache_name = "") {
+  label_id <- if (inherits(label_sf, "sf") && "label_id" %in% names(label_sf) && nrow(label_sf) > 0) {
+    as.character(label_sf$label_id[1])
+  } else {
+    ""
+  }
+
+  identical(as.character(cache_name), "major_conveyance") ||
+    identical(label_id, "major_conveyance")
+}
+
 pt_add_label_layers <- function(m, labels_all) {
   
   if (!is.list(labels_all) || length(labels_all) == 0) {
@@ -195,6 +206,7 @@ pt_add_label_layers <- function(m, labels_all) {
   }
   
   for (nm in names(labels_all)) {
+    if (pt_is_retired_label_layer(labels_all[[nm]], nm)) next
     m <- pt_add_single_label_layer(m, labels_all[[nm]])
   }
   
@@ -212,7 +224,10 @@ pt_label_overlay_groups <- function(labels_all) {
     return(character(0))
   }
   
-  groups <- purrr::map_chr(labels_all, function(x) {
+  groups <- purrr::imap_chr(labels_all, function(x, nm) {
+    if (pt_is_retired_label_layer(x, nm)) {
+      return(NA_character_)
+    }
     
     if (!inherits(x, "sf") || nrow(x) == 0) {
       return(NA_character_)
