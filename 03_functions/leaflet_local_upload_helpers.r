@@ -22,6 +22,8 @@
 ##   - The shapefile ZIP reader requires browser access to shpjs from the CDN
 ##     URL below unless the script is later embedded locally.
 ##   - This is a viewing/screening tool, not a data-validation workflow.
+##   - Display simplification is not topology-preserving; strong reductions can
+##     create visible gaps, overlaps, or seams along shared boundaries.
 ## ============================================================================
 
 pt_add_local_upload_panel <- function(m, map_display = NULL) {
@@ -34,25 +36,35 @@ pt_add_local_upload_panel <- function(m, map_display = NULL) {
     return(m)
   }
 
-  attribute_helper_js_path <- file.path(
-    "03_functions", "js", "brim_local_upload_attribute_helpers.js"
+  local_upload_helper_paths <- c(
+    file.path("03_functions", "js", "brim_local_upload_attribute_helpers.js"),
+    file.path("03_functions", "js", "brim_local_upload_geometry_helpers.js")
   )
-  if (!file.exists(attribute_helper_js_path)) {
-    stop("Missing local-upload attribute helper: ", attribute_helper_js_path)
+  missing_local_upload_helpers <- local_upload_helper_paths[
+    !file.exists(local_upload_helper_paths)
+  ]
+  if (length(missing_local_upload_helpers)) {
+    stop(
+      "Missing local-upload browser helper(s): ",
+      paste(missing_local_upload_helpers, collapse = ", ")
+    )
   }
-  m <- htmlwidgets::onRender(
-    m,
-    paste(readLines(attribute_helper_js_path, warn = FALSE), collapse = "\n")
-  )
+  for (helper_path in local_upload_helper_paths) {
+    m <- htmlwidgets::onRender(
+      m,
+      paste(readLines(helper_path, warn = FALSE), collapse = "\n")
+    )
+  }
   
   js <- r"---(
 function(el, x) {
 
   var map = this;
   var ptAttr = window.BRIM && window.BRIM.localUploadAttribute;
+  var ptGeom = window.BRIM && window.BRIM.localUploadGeometry;
 
-  if (!ptAttr) {
-    console.error('BRIM local-upload attribute helper was not initialized.');
+  if (!ptAttr || !ptGeom) {
+    console.error('BRIM local-upload browser helpers were not initialized.');
     return;
   }
 
@@ -62,7 +74,6 @@ function(el, x) {
 
   var PT2_LOCAL_MAX_LAYERS = 3;
   var PT2_LOCAL_MAX_FILE_MB = 50;
-  var PT2_LOCAL_WARN_FEATURES = 5000;
   var PT2_LOCAL_MAX_FEATURES = 25000;
 
   // Browser-side shapefile reader.  This is loaded only when a zipped
@@ -130,31 +141,7 @@ function(el, x) {
   }
 
   function ptBaseGeomType(type) {
-    type = String(type || '');
-
-    if (type.indexOf('Point') >= 0) return 'Point';
-    if (type.indexOf('LineString') >= 0) return 'Line';
-    if (type.indexOf('Polygon') >= 0) return 'Polygon';
-    if (type === 'GeometryCollection') return 'Mixed';
-
-    return type || 'Unknown';
-  }
-
-  function ptGeomTypeLabel(featureCollection) {
-    var features = featureCollection && Array.isArray(featureCollection.features) ?
-      featureCollection.features : [];
-    var seen = Object.create(null);
-
-    features.forEach(function(f) {
-      var g = f && f.geometry ? f.geometry : null;
-      if (!g) return;
-      seen[ptBaseGeomType(g.type)] = true;
-    });
-
-    var keys = Object.keys(seen);
-    if (keys.length === 0) return 'Unknown';
-    if (keys.length === 1) return keys[0];
-    return 'Mixed';
+    return ptGeom.baseGeometryType(type) || 'Unknown';
   }
 
   function ptCollectFields(featureCollection) {
@@ -210,37 +197,18 @@ function(el, x) {
   // Coordinate sanity checks
   // ------------------------------------------------------------------------
 
-  function ptWalkCoords(coords, callback) {
-    if (!Array.isArray(coords)) return;
-
-    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-      callback(coords[0], coords[1]);
-      return;
-    }
-
-    coords.forEach(function(child) {
-      ptWalkCoords(child, callback);
-    });
-  }
-
   function ptCoordinateWarning(featureCollection) {
-    var features = featureCollection && Array.isArray(featureCollection.features) ?
-      featureCollection.features : [];
     var checked = 0;
     var bad = 0;
 
-    features.slice(0, 500).forEach(function(f) {
-      var g = f && f.geometry ? f.geometry : null;
-      if (!g) return;
+    ptGeom.forEachCoordinate(featureCollection, function(position) {
+      if (checked >= 2000) return false;
+      checked += 1;
 
-      ptWalkCoords(g.coordinates, function(x, y) {
-        if (checked >= 2000) return;
-        checked += 1;
-
-        if (Math.abs(x) > 180 || Math.abs(y) > 90) {
-          bad += 1;
-        }
-      });
+      if (Math.abs(position[0]) > 180 || Math.abs(position[1]) > 90) {
+        bad += 1;
+      }
+      return true;
     });
 
     if (checked === 0) return 'No coordinates were found.';
@@ -693,19 +661,38 @@ function(el, x) {
   function ptAsFeatureCollection(obj, sourceName) {
     var features = [];
 
+    function copyFeature(feature, sourceLayerName) {
+      if (!feature || typeof feature !== 'object') return null;
+
+      var copy = {};
+      Object.keys(feature).forEach(function(key) {
+        copy[key] = feature[key];
+      });
+      copy.type = 'Feature';
+      copy.geometry = Object.prototype.hasOwnProperty.call(feature, 'geometry') ?
+        feature.geometry : null;
+
+      if (sourceLayerName) {
+        var properties = feature.properties && typeof feature.properties === 'object' ?
+          feature.properties : {};
+        copy.properties = {};
+        Object.keys(properties).forEach(function(key) {
+          copy.properties[key] = properties[key];
+        });
+        if (!Object.prototype.hasOwnProperty.call(copy.properties, '_pt2_source_layer')) {
+          copy.properties._pt2_source_layer = sourceLayerName;
+        }
+      }
+
+      return copy;
+    }
+
     function addFeatureCollection(fc, sourceLayerName) {
       if (!fc || !Array.isArray(fc.features)) return;
 
       fc.features.forEach(function(f) {
-        if (!f || !f.geometry) return;
-
-        f.properties = f.properties || {};
-
-        if (sourceLayerName && !Object.prototype.hasOwnProperty.call(f.properties, '_pt2_source_layer')) {
-          f.properties._pt2_source_layer = sourceLayerName;
-        }
-
-        features.push(f);
+        var copy = copyFeature(f, sourceLayerName);
+        if (copy) features.push(copy);
       });
     }
 
@@ -716,13 +703,13 @@ function(el, x) {
     if (obj.type === 'FeatureCollection') {
       addFeatureCollection(obj, '');
     } else if (obj.type === 'Feature') {
-      features.push(obj);
+      features.push(copyFeature(obj, ''));
     } else if (Array.isArray(obj)) {
       obj.forEach(function(item, idx) {
         if (item && item.type === 'FeatureCollection') {
           addFeatureCollection(item, sourceName + '_' + (idx + 1));
         } else if (item && item.type === 'Feature') {
-          features.push(item);
+          features.push(copyFeature(item, ''));
         }
       });
     } else if (typeof obj === 'object') {
@@ -731,11 +718,7 @@ function(el, x) {
         if (item && item.type === 'FeatureCollection') {
           addFeatureCollection(item, key);
         } else if (item && item.type === 'Feature') {
-          item.properties = item.properties || {};
-          if (!Object.prototype.hasOwnProperty.call(item.properties, '_pt2_source_layer')) {
-            item.properties._pt2_source_layer = key;
-          }
-          features.push(item);
+          features.push(copyFeature(item, key));
         }
       });
     }
@@ -750,7 +733,434 @@ function(el, x) {
   // Layer add/remove/toggle/zoom
   // ------------------------------------------------------------------------
 
+  function ptLocalGeometryIssue(metrics) {
+    metrics = metrics || {};
+    var parts = [];
+    var nullCount = Number(metrics.nullGeometryCount || 0);
+    var emptyCount = Number(metrics.emptyGeometryCount || 0);
+
+    if (nullCount > 0) {
+      parts.push(nullCount.toLocaleString() + ' null geometr' + (nullCount === 1 ? 'y' : 'ies'));
+    }
+    if (emptyCount > 0) {
+      parts.push(emptyCount.toLocaleString() + ' empty geometr' + (emptyCount === 1 ? 'y' : 'ies'));
+    }
+    if (!parts.length) return '';
+
+    return 'Geometry note: ' + parts.join(' and ') + ' retained; these features may not draw.';
+  }
+
+  // ------------------------------------------------------------------------
+  // Phase 3: displayed-geometry replacement and simplification lifecycle
+  // ------------------------------------------------------------------------
+
+  function ptDisposeLocalLeafletLayer(layer) {
+    if (!layer) return;
+    if (layer.eachLayer) {
+      layer.eachLayer(function(child) {
+        ptDisposeLocalLeafletLayer(child);
+      });
+    }
+    if (layer.unbindTooltip) layer.unbindTooltip();
+    if (layer.unbindPopup) layer.unbindPopup();
+    if (layer.off) layer.off();
+  }
+
+  function ptCopyLocalBounds(layer) {
+    if (!layer || !layer.getBounds) return null;
+    try {
+      var bounds = layer.getBounds();
+      if (!bounds || !bounds.isValid || !bounds.isValid()) return null;
+      return L.latLngBounds(bounds.getSouthWest(), bounds.getNorthEast());
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function ptBringLocalLayerToFront(layer) {
+    if (!layer) return;
+    if (typeof layer.bringToFront === 'function') {
+      layer.bringToFront();
+      return;
+    }
+    if (layer.eachLayer) {
+      layer.eachLayer(function(child) {
+        ptBringLocalLayerToFront(child);
+      });
+    }
+  }
+
+  function ptRestoreLocalLayerOrder() {
+    ptLocalLayers.forEach(function(rec) {
+      if (rec && rec.visible && rec.layer && map.hasLayer(rec.layer)) {
+        ptBringLocalLayerToFront(rec.layer);
+      }
+    });
+  }
+
+  function ptCancelLocalSimplification(rec, preserveRequestedReduction) {
+    if (!rec) return;
+    rec.simplificationToken = Number(rec.simplificationToken || 0) + 1;
+    if (rec.reductionDebounceTimer !== null && rec.reductionDebounceTimer !== undefined) {
+      window.clearTimeout(rec.reductionDebounceTimer);
+    }
+    rec.reductionDebounceTimer = null;
+    if (rec.simplificationJob) {
+      rec.simplificationJob.cancelled = true;
+      if (rec.simplificationJob.timer !== null && rec.simplificationJob.timer !== undefined) {
+        window.clearTimeout(rec.simplificationJob.timer);
+      }
+    }
+    rec.simplificationJob = null;
+    rec.simplificationBusy = false;
+    if (!preserveRequestedReduction) {
+      rec.requestedReduction = Number(rec.displayReduction || 0);
+    }
+  }
+
+  function ptSimplificationJobIsActive(rec, job) {
+    return !!(
+      rec && job && !job.cancelled &&
+      ptLocalLayerById(rec.id) === rec &&
+      rec.simplificationJob === job &&
+      rec.simplificationToken === job.token
+    );
+  }
+
+  function ptReplaceLocalDisplayedGeometry(rec, featureCollection, targetReduction, fallbackCount, searchInfo) {
+    if (!rec) throw new Error('Upload record is unavailable.');
+
+    var nextLayer = ptCreateLeafletLayer(featureCollection, rec);
+    ptBindLocalInteractions(nextLayer, rec, null);
+    var previousLayer = rec.layer;
+
+    if (previousLayer && map.hasLayer(previousLayer)) {
+      map.removeLayer(previousLayer);
+    }
+
+    rec.layer = nextLayer;
+    rec.displayFeatureCollection = featureCollection;
+    rec.displayReduction = ptGeom.normalizeReductionTarget(targetReduction);
+    rec.requestedReduction = rec.displayReduction;
+    rec.simplificationFallbackCount = Number(fallbackCount || 0);
+    rec.displayMetrics = ptGeom.featureCollectionMetrics(featureCollection);
+    rec.displayedVertexCount = rec.displayMetrics.vertexCount;
+    rec.simplificationToleranceDegrees = searchInfo ? Number(searchInfo.toleranceDegrees || 0) : 0;
+    rec.simplificationSearchInfo = searchInfo || null;
+
+    if (rec.visible) nextLayer.addTo(map);
+    ptDisposeLocalLeafletLayer(previousLayer);
+    ptRestoreLocalLayerOrder();
+    ptUpdateLocalLegend(rec);
+  }
+
+  function ptFailLocalSimplification(rec, job, error) {
+    if (!ptSimplificationJobIsActive(rec, job)) return;
+    console.error('BRIM local-upload display simplification failed:', error);
+
+    var restoreError = null;
+    try {
+      ptReplaceLocalDisplayedGeometry(rec, rec.sourceFeatureCollection, 0, 0, null);
+    } catch (err) {
+      restoreError = err;
+      console.error('BRIM could not restore Original upload geometry:', err);
+    }
+
+    rec.simplificationBusy = false;
+    rec.simplificationJob = null;
+    rec.simplificationMessage = restoreError ?
+      'Display simplification failed; the previous display was retained.' :
+      'Display simplification failed; Original geometry was restored.';
+    ptRenderLocalLayerList();
+    ptRenderLocalStylePanel(rec.id);
+    ptSetLocalStatus(rec.simplificationMessage, true);
+  }
+
+  function ptCachedLocalReduction(rec, targetReduction) {
+    if (!rec || !rec.reductionCache) return null;
+    return rec.reductionCache[String(targetReduction)] || null;
+  }
+
+  function ptStoreLocalReductionCache(rec, targetReduction, candidate) {
+    if (!rec || !candidate || targetReduction <= 0) return;
+    var key = String(targetReduction);
+    rec.reductionCache = rec.reductionCache || Object.create(null);
+    rec.reductionCacheOrder = Array.isArray(rec.reductionCacheOrder) ? rec.reductionCacheOrder : [];
+    rec.reductionCache[key] = candidate;
+    rec.reductionCacheOrder = rec.reductionCacheOrder.filter(function(existing) {
+      return existing !== key;
+    });
+    rec.reductionCacheOrder.push(key);
+    while (rec.reductionCacheOrder.length > 2) {
+      var expired = rec.reductionCacheOrder.shift();
+      delete rec.reductionCache[expired];
+    }
+  }
+
+  function ptCompleteLocalSimplification(rec, job) {
+    if (!ptSimplificationJobIsActive(rec, job)) return;
+
+    var candidate = job.bestCandidate;
+    if (!candidate) {
+      ptFailLocalSimplification(rec, job, new Error('No safe display geometry was produced.'));
+      return;
+    }
+    candidate.fallbackCount = Math.max(
+      Number(candidate.fallbackCount || 0),
+      Number(job.searchFallbackCount || 0)
+    );
+
+    try {
+      ptReplaceLocalDisplayedGeometry(
+        rec,
+        candidate.featureCollection,
+        job.targetReduction,
+        candidate.fallbackCount,
+        {
+          toleranceDegrees: candidate.toleranceDegrees,
+          evaluationCount: job.search ? job.search.evaluationCount : 0,
+          binaryIterations: job.search ? job.search.binaryIterations : 0,
+          termination: job.search ? job.search.termination : 'original'
+        }
+      );
+    } catch (err) {
+      ptFailLocalSimplification(rec, job, err);
+      return;
+    }
+
+    rec.simplificationBusy = false;
+    rec.simplificationJob = null;
+    rec.simplificationMessage = candidate.fallbackCount > 0 ?
+      candidate.fallbackCount.toLocaleString() + ' feature(s) kept at Original geometry for display safety.' : '';
+    ptStoreLocalReductionCache(rec, job.targetReduction, candidate);
+    ptRenderLocalLayerList();
+    ptRenderLocalStylePanel(rec.id);
+    ptSetLocalStatus(
+      'Vertex reduction target set to ' + job.targetReduction + '% for ' + rec.name + '.',
+      false
+    );
+  }
+
+  function ptProcessLocalSimplificationChunk(rec, job) {
+    if (!ptSimplificationJobIsActive(rec, job)) return;
+
+    try {
+      var tolerance = ptGeom.nextAdaptiveTolerance(job.search);
+      if (tolerance === null) {
+        ptCompleteLocalSimplification(rec, job);
+        return;
+      }
+
+      if (!job.evaluation || job.evaluation.toleranceDegrees !== tolerance) {
+        job.evaluation = {
+          toleranceDegrees: tolerance,
+          outputFeatures: [],
+          index: 0,
+          fallbackCount: 0,
+          eligibleVertexCount: 0
+        };
+      }
+
+      var started = Date.now();
+      var processed = 0;
+      while (
+        job.evaluation.index < job.sourceFeatures.length &&
+        processed < 50 &&
+        Date.now() - started < 12
+      ) {
+        var result = ptGeom.simplifyFeature(
+          job.sourceFeatures[job.evaluation.index],
+          tolerance
+        );
+        job.evaluation.outputFeatures.push(result.feature);
+        if (result.fallback) job.evaluation.fallbackCount += 1;
+        job.evaluation.eligibleVertexCount += ptGeom.geometryVertexCounts(
+          result.feature ? result.feature.geometry : null
+        ).eligibleVertexCount;
+        job.evaluation.index += 1;
+        processed += 1;
+      }
+
+      if (job.evaluation.index < job.sourceFeatures.length) {
+        job.timer = window.setTimeout(function() {
+          ptProcessLocalSimplificationChunk(rec, job);
+        }, 0);
+        return;
+      }
+
+      var output = {};
+      Object.keys(rec.sourceFeatureCollection || {}).forEach(function(key) {
+        output[key] = rec.sourceFeatureCollection[key];
+      });
+      output.type = 'FeatureCollection';
+      output.features = job.evaluation.outputFeatures;
+
+      var becameBest = ptGeom.recordAdaptiveToleranceEvaluation(
+        job.search,
+        tolerance,
+        job.evaluation.eligibleVertexCount
+      );
+      if (becameBest) {
+        job.bestCandidate = {
+          featureCollection: output,
+          fallbackCount: job.evaluation.fallbackCount,
+          toleranceDegrees: tolerance
+        };
+      }
+      job.searchFallbackCount = Math.max(
+        Number(job.searchFallbackCount || 0),
+        Number(job.evaluation.fallbackCount || 0)
+      );
+      job.evaluation = null;
+      job.timer = window.setTimeout(function() {
+        ptProcessLocalSimplificationChunk(rec, job);
+      }, 0);
+    } catch (err) {
+      ptFailLocalSimplification(rec, job, err);
+    }
+  }
+
+  function ptSetLocalVertexReduction(id, rawTarget) {
+    var rec = ptLocalLayerById(id);
+    if (!rec || !rec.geometryMetrics.hasSimplifiableGeometry) return;
+    var targetReduction = ptGeom.normalizeReductionTarget(rawTarget);
+    rec.requestedReduction = targetReduction;
+
+    if (rec.simplificationBusy) ptCancelLocalSimplification(rec, true);
+    if (targetReduction === rec.displayReduction) {
+      rec.simplificationMessage = '';
+      ptRenderLocalLayerList();
+      return;
+    }
+
+    var cached = targetReduction > 0 ? ptCachedLocalReduction(rec, targetReduction) : null;
+    if (targetReduction === 0 || cached) {
+      var restored = cached || {
+        featureCollection: rec.sourceFeatureCollection,
+        fallbackCount: 0,
+        toleranceDegrees: 0
+      };
+      try {
+        ptReplaceLocalDisplayedGeometry(
+          rec,
+          restored.featureCollection,
+          targetReduction,
+          restored.fallbackCount,
+          cached ? {toleranceDegrees: cached.toleranceDegrees, termination: 'recent-cache'} : null
+        );
+        rec.simplificationMessage = restored.fallbackCount > 0 ?
+          restored.fallbackCount.toLocaleString() + ' feature(s) kept at Original geometry for display safety.' : '';
+        ptRenderLocalLayerList();
+        ptRenderLocalStylePanel(rec.id);
+        ptSetLocalStatus(
+          targetReduction === 0 ? 'Original geometry restored for ' + rec.name + '.' :
+            'Reused the recent ' + targetReduction + '% vertex-reduction result for ' + rec.name + '.',
+          false
+        );
+      } catch (err) {
+        console.error('BRIM local-upload cached geometry replacement failed:', err);
+        ptSetLocalStatus('Could not replace the displayed upload geometry.', true);
+      }
+      return;
+    }
+
+    rec.simplificationToken = Number(rec.simplificationToken || 0) + 1;
+    var search = ptGeom.createAdaptiveToleranceSearch(
+      rec.geometryMetrics.eligibleVertexCount,
+      targetReduction
+    );
+    var job = {
+      token: rec.simplificationToken,
+      targetReduction: targetReduction,
+      sourceFeatures: rec.sourceFeatureCollection.features || [],
+      search: search,
+      evaluation: null,
+      bestCandidate: {
+        featureCollection: rec.sourceFeatureCollection,
+        fallbackCount: 0,
+        toleranceDegrees: 0
+      },
+      searchFallbackCount: 0,
+      timer: null,
+      cancelled: false
+    };
+    rec.simplificationJob = job;
+    rec.simplificationBusy = true;
+    rec.requestedReduction = targetReduction;
+    rec.simplificationMessage = 'Simplifying to target ' + targetReduction + '%…';
+    ptRenderLocalLayerList();
+    ptSetLocalStatus(rec.simplificationMessage + ' ' + rec.name, false);
+
+    job.timer = window.setTimeout(function() {
+      if (!window.L || !L.LineUtil || typeof L.LineUtil.simplify !== 'function') {
+        ptFailLocalSimplification(rec, job, new Error('Leaflet line simplification is unavailable.'));
+        return;
+      }
+      ptProcessLocalSimplificationChunk(rec, job);
+    }, 0);
+  }
+
+  function ptUpdateLocalReductionPreview(rec) {
+    if (!rec) return;
+    var output = document.querySelector('[data-pt-local-reduction-output="' + rec.id + '"]');
+    if (output) output.textContent = 'Target: ' + rec.requestedReduction + '%';
+    var warning = document.querySelector('[data-pt-local-strong-warning="' + rec.id + '"]');
+    if (warning) warning.hidden = rec.requestedReduction < 90;
+    var reset = document.querySelector('[data-pt-local-reset-reduction="' + rec.id + '"]');
+    if (reset) reset.disabled = rec.requestedReduction === 0 && rec.displayReduction === 0;
+    var state = document.querySelector('[data-pt-local-reduction-state="' + rec.id + '"]');
+    if (state && !rec.simplificationBusy) state.textContent = 'Waiting to apply…';
+  }
+
+  function ptQueueLocalVertexReduction(id, rawTarget, applyImmediately) {
+    var rec = ptLocalLayerById(id);
+    if (!rec || !rec.geometryMetrics.hasSimplifiableGeometry) return;
+    var targetReduction = ptGeom.normalizeReductionTarget(rawTarget);
+    if (rec.simplificationBusy && rec.simplificationJob &&
+        rec.simplificationJob.targetReduction !== targetReduction) {
+      ptCancelLocalSimplification(rec, true);
+    }
+    rec.requestedReduction = targetReduction;
+    if (rec.reductionDebounceTimer !== null && rec.reductionDebounceTimer !== undefined) {
+      window.clearTimeout(rec.reductionDebounceTimer);
+    }
+    rec.reductionDebounceTimer = null;
+    ptUpdateLocalReductionPreview(rec);
+
+    if (applyImmediately) {
+      ptSetLocalVertexReduction(id, targetReduction);
+      return;
+    }
+    rec.reductionDebounceTimer = window.setTimeout(function() {
+      rec.reductionDebounceTimer = null;
+      ptSetLocalVertexReduction(id, targetReduction);
+    }, 250);
+  }
+
+  function ptReleaseLocalRecord(rec) {
+    if (!rec) return;
+    ptCancelLocalSimplification(rec);
+    ptDestroyLocalLegend(rec);
+    if (rec.layer && map.hasLayer(rec.layer)) map.removeLayer(rec.layer);
+    ptDisposeLocalLeafletLayer(rec.layer);
+    rec.layer = null;
+    rec.parsedSourceGeoJson = null;
+    rec.sourceFeatureCollection = null;
+    rec.displayFeatureCollection = null;
+    rec.featureCollection = null;
+    rec.geometryMetrics = null;
+    rec.displayMetrics = null;
+    rec.reductionCache = null;
+    rec.reductionCacheOrder = null;
+    rec.simplificationSearchInfo = null;
+    rec.sourceBounds = null;
+    rec.performanceWarning = '';
+    rec.geometryIssue = '';
+    rec.simplificationMessage = '';
+  }
+
   function ptAddLocalFeatureCollection(featureCollection, file, sourceType) {
+    var parsedSourceGeoJson = featureCollection;
     featureCollection = ptAsFeatureCollection(featureCollection, file ? file.name : 'local_upload');
 
     var features = featureCollection.features || [];
@@ -779,16 +1189,28 @@ function(el, x) {
 
     var fields = ptCollectFields(featureCollection);
     var numericFields = ptAttr.detectNumericFields(features, fields);
-    var geomType = ptGeomTypeLabel(featureCollection);
+    var sourceMetrics = ptGeom.featureCollectionMetrics(featureCollection);
+    var geomType = sourceMetrics.geometryLabel;
     var rec = {
       id: ptAttr.uploadId(ptLocalSeq),
       name: file && file.name ? file.name : ('Local layer ' + ptLocalSeq),
       sourceType: sourceType,
-      fileSize: file && file.size ? file.size : 0,
-      featureCount: features.length,
+      fileSize: file && typeof file.size === 'number' ? file.size : 0,
+      fileSizeAvailable: !!(file && typeof file.size === 'number'),
+      featureCount: sourceMetrics.featureCount,
       geomType: geomType,
+      sourceFeatureCount: sourceMetrics.featureCount,
+      sourceVertexCount: sourceMetrics.vertexCount,
+      displayedVertexCount: sourceMetrics.vertexCount,
+      geometryMetrics: sourceMetrics,
+      displayMetrics: sourceMetrics,
+      performanceWarning: ptGeom.performanceWarning(sourceMetrics),
+      geometryIssue: ptLocalGeometryIssue(sourceMetrics),
       fields: fields,
       numericFields: numericFields,
+      parsedSourceGeoJson: parsedSourceGeoJson,
+      sourceFeatureCollection: featureCollection,
+      displayFeatureCollection: featureCollection,
       featureCollection: featureCollection,
       hoverEnabled: false,
       hoverField: '',
@@ -808,10 +1230,24 @@ function(el, x) {
       legendHidden: false,
       legendControl: null,
       legendDiv: null,
+      displayReduction: 0,
+      requestedReduction: 0,
+      simplificationBusy: false,
+      simplificationJob: null,
+      simplificationToken: 0,
+      simplificationFallbackCount: 0,
+      simplificationToleranceDegrees: 0,
+      simplificationSearchInfo: null,
+      simplificationMessage: '',
+      reductionDebounceTimer: null,
+      reductionCache: Object.create(null),
+      reductionCacheOrder: [],
+      sourceBounds: null,
       layer: null
     };
 
     rec.layer = ptCreateLeafletLayer(featureCollection, rec);
+    rec.sourceBounds = ptCopyLocalBounds(rec.layer);
     ptLocalLayers.push(rec);
     ptRefreshLocalInteractions(rec);
     rec.layer.addTo(map);
@@ -820,10 +1256,6 @@ function(el, x) {
 
     var warning = ptCoordinateWarning(featureCollection);
     var msg = 'Loaded ' + features.length.toLocaleString() + ' feature(s) from ' + rec.name + '.';
-
-    if (features.length >= PT2_LOCAL_WARN_FEATURES) {
-      msg += ' Large layer: browser performance may be slower.';
-    }
 
     if (warning) {
       msg += ' Warning: ' + warning;
@@ -837,17 +1269,7 @@ function(el, x) {
 
     ptLocalLayers.forEach(function(rec) {
       if (rec.id === id) {
-        ptDestroyLocalLegend(rec);
-        if (rec.layer && map.hasLayer(rec.layer)) {
-          map.removeLayer(rec.layer);
-        }
-        if (rec.layer && rec.layer.eachLayer) {
-          rec.layer.eachLayer(function(layer) {
-            if (layer.unbindTooltip) layer.unbindTooltip();
-            if (layer.unbindPopup) layer.unbindPopup();
-            if (layer.off) layer.off();
-          });
-        }
+        ptReleaseLocalRecord(rec);
       } else {
         keep.push(rec);
       }
@@ -879,12 +1301,12 @@ function(el, x) {
 
   function ptZoomToLocalLayer(id) {
     var rec = ptLocalLayerById(id);
-    if (!rec || !rec.layer || !rec.layer.getBounds) {
+    if (!rec || !rec.sourceBounds) {
       ptSetLocalStatus('Could not zoom to this layer. No valid geometry is available.', true);
       return;
     }
 
-    var bounds = rec.layer.getBounds();
+    var bounds = rec.sourceBounds;
 
     if (bounds && bounds.isValid && bounds.isValid()) {
       var northEast = bounds.getNorthEast();
@@ -913,17 +1335,7 @@ function(el, x) {
 
   function ptClearLocalLayers() {
     ptLocalLayers.forEach(function(rec) {
-      ptDestroyLocalLegend(rec);
-      if (rec.layer && map.hasLayer(rec.layer)) {
-        map.removeLayer(rec.layer);
-      }
-      if (rec.layer && rec.layer.eachLayer) {
-        rec.layer.eachLayer(function(layer) {
-          if (layer.unbindTooltip) layer.unbindTooltip();
-          if (layer.unbindPopup) layer.unbindPopup();
-          if (layer.off) layer.off();
-        });
-      }
+      ptReleaseLocalRecord(rec);
     });
 
     ptLocalLayers = [];
@@ -1301,10 +1713,10 @@ function(el, x) {
   // ------------------------------------------------------------------------
 
   function ptLocalLayerHasValidBounds(rec) {
-    if (!rec || !rec.layer || !rec.layer.getBounds) return false;
+    if (!rec || !rec.sourceBounds) return false;
 
     try {
-      var bounds = rec.layer.getBounds();
+      var bounds = rec.sourceBounds;
       return !!(bounds && bounds.isValid && bounds.isValid());
     } catch (err) {
       return false;
@@ -1331,6 +1743,8 @@ function(el, x) {
       var hoverToggleId = 'pt-local-hover-' + safeId;
       var popupToggleId = 'pt-local-popup-' + safeId;
       var hoverFieldId = 'pt-local-hover-field-' + safeId;
+      var detailControlId = 'pt-local-detail-' + safeId;
+      var detailMarksId = 'pt-local-detail-marks-' + safeId;
       var hoverOptions = '<option value="">Choose attribute...</option>';
       rec.fields.forEach(function(field) {
         hoverOptions += '<option value="' + ptEscapeHtml(field) + '" ' +
@@ -1338,6 +1752,28 @@ function(el, x) {
       });
       if (!rec.fields.length) hoverOptions = '<option value="">No attribute fields</option>';
       var hasValidBounds = ptLocalLayerHasValidBounds(rec);
+      var featureLabel = rec.sourceFeatureCount === 1 ? 'feature' : 'features';
+      var geometrySummary = rec.sourceFeatureCount.toLocaleString() + ' ' + featureLabel +
+        ' · ' + rec.sourceVertexCount.toLocaleString() + ' vertices · ' + ptEscapeHtml(rec.geomType);
+      if (rec.fileSizeAvailable) {
+        geometrySummary += ' · ' + ptEscapeHtml(ptFormatBytes(rec.fileSize));
+      }
+      var detailState = rec.geometryMetrics.pointOnly ? 'Not applicable to points' :
+        (!rec.geometryMetrics.hasSimplifiableGeometry ? 'Not applicable to this geometry' :
+          (rec.simplificationMessage ||
+            (rec.geometryMetrics.pointVertexCount > 0 ?
+              'Target applies to line and polygon vertices; points remain exact.' : '')));
+      var displayedSummary = '';
+      if (rec.geometryMetrics.hasSimplifiableGeometry) {
+        var actualReduction = ptGeom.actualReductionPercent(
+          rec.sourceVertexCount,
+          rec.displayedVertexCount,
+          rec.geometryMetrics.eligibleVertexCount
+        );
+        displayedSummary = 'Displayed: ' + rec.displayedVertexCount.toLocaleString() +
+          ' of ' + rec.sourceVertexCount.toLocaleString() + ' vertices' +
+          (actualReduction === null ? '' : ' · ' + actualReduction.toFixed(1) + '% reduction');
+      }
 
       html +=
         '<div class="pt-local-layer-row">' +
@@ -1357,11 +1793,39 @@ function(el, x) {
               '<button type="button" class="pt-local-icon-btn pt-local-remove-icon" data-pt-local-remove="' + safeId + '" aria-label="Remove layer" title="Remove layer">&times;</button>' +
             '</div>' +
           '</div>' +
-          '<div class="pt-local-muted">' +
-            ptEscapeHtml(rec.geomType) + ' | ' +
-            rec.featureCount.toLocaleString() + ' feature(s) | ' +
-            ptEscapeHtml(ptFormatBytes(rec.fileSize)) + '<br/>' +
-            ptEscapeHtml(styleSummary) +
+          '<div class="pt-local-muted pt-local-geometry-summary">' + geometrySummary + '</div>' +
+          (displayedSummary ? '<div class="pt-local-muted pt-local-displayed-summary" aria-live="polite">' +
+            ptEscapeHtml(displayedSummary) + '</div>' : '') +
+          '<div class="pt-local-muted pt-local-style-summary">' + ptEscapeHtml(styleSummary) + '</div>' +
+          (rec.geometryIssue ? '<div class="pt-local-muted pt-local-geometry-note">' +
+            ptEscapeHtml(rec.geometryIssue) + '</div>' : '') +
+          (rec.performanceWarning ? '<div class="pt-local-muted pt-local-performance-warning">' +
+            ptEscapeHtml(rec.performanceWarning) + '</div>' : '') +
+          '<div class="pt-local-detail-row" ' + (rec.simplificationBusy ? 'aria-busy="true"' : '') + '>' +
+            '<div class="pt-local-detail-head">' +
+              '<label for="' + detailControlId + '">Vertex reduction</label>' +
+              '<output data-pt-local-reduction-output="' + safeId + '" for="' + detailControlId + '" aria-live="polite">Target: ' +
+                rec.requestedReduction.toLocaleString() + '%</output>' +
+              '<button type="button" class="pt-local-reset-detail" data-pt-local-reset-reduction="' + safeId + '" ' +
+                (rec.requestedReduction === 0 && rec.displayReduction === 0 ? 'disabled' : '') + '>Reset to Original</button>' +
+            '</div>' +
+            '<input type="range" id="' + detailControlId + '" data-pt-local-reduction="' + safeId + '" ' +
+              'min="0" max="98" step="1" value="' + rec.requestedReduction + '" list="' + detailMarksId + '" ' +
+              'aria-describedby="' + detailMarksId + '-labels" ' +
+              (!rec.geometryMetrics.hasSimplifiableGeometry ? 'disabled' : '') + '/>' +
+            '<datalist id="' + detailMarksId + '">' +
+              '<option value="0"></option><option value="50"></option><option value="75"></option>' +
+              '<option value="90"></option><option value="95"></option><option value="98"></option>' +
+            '</datalist>' +
+            '<div class="pt-local-reduction-marks" id="' + detailMarksId + '-labels">' +
+              '<span>0</span><span>50</span><span>75</span><span>90</span><span>95</span><span>98%</span>' +
+            '</div>' +
+            '<span class="pt-local-detail-state" data-pt-local-reduction-state="' + safeId + '">' +
+              ptEscapeHtml(detailState) + '</span>' +
+            '<div class="pt-local-strong-reduction-warning" data-pt-local-strong-warning="' + safeId + '" ' +
+              (rec.requestedReduction >= 90 ? '' : 'hidden') + '>' +
+              'Strong reduction may visibly shift boundaries or create seams between adjacent polygons.' +
+            '</div>' +
           '</div>' +
           '<div class="pt-local-interaction-row" aria-label="Layer interactions">' +
             '<label class="pt-local-switch" for="' + hoverToggleId + '">' +
@@ -1652,6 +2116,161 @@ function(el, x) {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .pt-local-geometry-summary,
+        .pt-local-displayed-summary,
+        .pt-local-style-summary,
+        .pt-local-geometry-note,
+        .pt-local-performance-warning {
+          overflow-wrap: anywhere;
+          white-space: normal;
+          line-height: 1.25;
+        }
+
+        .pt-local-geometry-summary {
+          margin-top: 3px;
+          font-size: 10.5px;
+          color: #555;
+        }
+
+        .pt-local-style-summary {
+          margin-top: 1px;
+          font-size: 10px;
+          color: #666;
+        }
+
+        .pt-local-displayed-summary {
+          margin-top: 1px;
+          color: #3F6035;
+          font-size: 10.5px;
+        }
+
+        .pt-local-geometry-note,
+        .pt-local-performance-warning {
+          margin-top: 3px;
+          padding-left: 5px;
+          border-left: 2px solid rgba(139, 62, 0, 0.48);
+          font-size: 10.5px;
+        }
+
+        .pt-local-geometry-note {
+          color: #666;
+          border-left-color: rgba(90, 90, 90, 0.35);
+        }
+
+        .pt-local-performance-warning {
+          color: #7A3F00;
+        }
+
+        .pt-local-detail-row {
+          display: block;
+          margin-top: 5px;
+          font-size: 10.5px;
+        }
+
+        .pt-local-detail-head {
+          display: grid;
+          grid-template-columns: auto auto minmax(0, 1fr);
+          align-items: center;
+          gap: 4px 6px;
+        }
+
+        .pt-local-detail-head label {
+          font-weight: 700;
+        }
+
+        .pt-local-detail-head output {
+          color: #3F6035;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .pt-local-reset-detail {
+          justify-self: end;
+          border: 0;
+          padding: 0;
+          background: transparent;
+          color: #315D27;
+          cursor: pointer;
+          font: 10px Arial, Helvetica, sans-serif;
+          text-decoration: underline;
+        }
+
+        .pt-local-reset-detail:hover,
+        .pt-local-reset-detail:focus-visible {
+          color: #173F70;
+          outline: 2px solid #255E9B;
+          outline-offset: 2px;
+        }
+
+        .pt-local-reset-detail:disabled {
+          color: #888;
+          cursor: default;
+          text-decoration: none;
+          outline: none;
+        }
+
+        .pt-local-detail-row input[type="range"] {
+          width: 100%;
+          box-sizing: border-box;
+          height: 18px;
+          margin: 1px 0 0;
+          accent-color: #4D7A3B;
+        }
+
+        .pt-local-detail-row input[type="range"]:focus-visible {
+          outline: 2px solid #255E9B;
+          outline-offset: 2px;
+          border-radius: 3px;
+        }
+
+        .pt-local-detail-row input[type="range"]:disabled {
+          cursor: not-allowed;
+          opacity: 0.48;
+        }
+
+        .pt-local-reduction-marks {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          margin-top: -2px;
+          color: #777;
+          font-size: 8.5px;
+          line-height: 1;
+        }
+
+        .pt-local-reduction-marks span {
+          text-align: center;
+        }
+
+        .pt-local-reduction-marks span:first-child {
+          text-align: left;
+        }
+
+        .pt-local-reduction-marks span:last-child {
+          text-align: right;
+        }
+
+        .pt-local-detail-state {
+          display: block;
+          min-height: 12px;
+          margin-top: 2px;
+          color: #666;
+          font-size: 10px;
+          overflow-wrap: anywhere;
+        }
+
+        .pt-local-strong-reduction-warning {
+          margin-top: 2px;
+          padding-left: 5px;
+          border-left: 2px solid rgba(139, 62, 0, 0.48);
+          color: #7A3F00;
+          font-size: 10px;
+          line-height: 1.2;
+        }
+
+        .pt-local-strong-reduction-warning[hidden] {
+          display: none;
         }
 
         .pt-local-visibility {
@@ -2082,6 +2701,12 @@ function(el, x) {
       var target = e.target;
       if (!target) return;
 
+      var detailId = target.getAttribute('data-pt-local-reduction');
+      if (detailId) {
+        ptQueueLocalVertexReduction(detailId, target.value, true);
+        return;
+      }
+
       var hoverId = target.getAttribute('data-pt-local-hover');
       if (hoverId) {
         ptSetLocalHover(hoverId, target.checked);
@@ -2104,6 +2729,12 @@ function(el, x) {
       var target = e.target;
       if (!target) return;
 
+      var reductionId = target.getAttribute('data-pt-local-reduction');
+      if (reductionId) {
+        ptQueueLocalVertexReduction(reductionId, target.value, false);
+        return;
+      }
+
       var hoverFieldId = target.getAttribute('data-pt-local-hover-field');
       if (hoverFieldId) {
         ptSetLocalHoverField(hoverFieldId, target.value);
@@ -2113,6 +2744,12 @@ function(el, x) {
     wrap.addEventListener('click', function(e) {
       var target = e.target;
       if (!target) return;
+
+      var resetReductionId = target.getAttribute('data-pt-local-reset-reduction');
+      if (resetReductionId) {
+        ptQueueLocalVertexReduction(resetReductionId, 0, true);
+        return;
+      }
 
       var toggleId = target.getAttribute('data-pt-local-toggle');
       if (toggleId) {
