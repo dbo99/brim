@@ -33,11 +33,28 @@ pt_add_local_upload_panel <- function(m, map_display = NULL) {
       !isTRUE(map_display$add_local_upload_panel)) {
     return(m)
   }
+
+  attribute_helper_js_path <- file.path(
+    "03_functions", "js", "brim_local_upload_attribute_helpers.js"
+  )
+  if (!file.exists(attribute_helper_js_path)) {
+    stop("Missing local-upload attribute helper: ", attribute_helper_js_path)
+  }
+  m <- htmlwidgets::onRender(
+    m,
+    paste(readLines(attribute_helper_js_path, warn = FALSE), collapse = "\n")
+  )
   
   js <- r"---(
 function(el, x) {
 
   var map = this;
+  var ptAttr = window.BRIM && window.BRIM.localUploadAttribute;
+
+  if (!ptAttr) {
+    console.error('BRIM local-upload attribute helper was not initialized.');
+    return;
+  }
 
   // ------------------------------------------------------------------------
   // Configuration
@@ -86,6 +103,10 @@ function(el, x) {
       String(value).toLowerCase() !== 'nan';
   }
 
+  function ptDisplayValue(value) {
+    return ptAttr.displayValue(value);
+  }
+
   function ptShortName(value, maxLen) {
     value = String(value || '');
     maxLen = maxLen || 36;
@@ -122,7 +143,7 @@ function(el, x) {
   function ptGeomTypeLabel(featureCollection) {
     var features = featureCollection && Array.isArray(featureCollection.features) ?
       featureCollection.features : [];
-    var seen = {};
+    var seen = Object.create(null);
 
     features.forEach(function(f) {
       var g = f && f.geometry ? f.geometry : null;
@@ -139,13 +160,20 @@ function(el, x) {
   function ptCollectFields(featureCollection) {
     var features = featureCollection && Array.isArray(featureCollection.features) ?
       featureCollection.features : [];
-    var seen = {};
+    var seen = Object.create(null);
     var out = [];
 
-    features.slice(0, 500).forEach(function(f) {
+    function usefulField(name) {
+      var clean = ptCleanText(name);
+      var lower = clean.toLowerCase();
+      if (!clean || lower.indexOf('_pt2_') === 0) return false;
+      return ['geometry', 'geom', 'the_geom', 'wkt'].indexOf(lower) < 0;
+    }
+
+    features.forEach(function(f) {
       var props = f && f.properties ? f.properties : {};
       Object.keys(props).forEach(function(k) {
-        if (!seen[k]) {
+        if (usefulField(k) && !seen[k]) {
           seen[k] = true;
           out.push(k);
         }
@@ -176,20 +204,6 @@ function(el, x) {
     }
 
     return '';
-  }
-
-  function ptAutoLabelField(fields) {
-    var preferred = [
-      'name', 'Name', 'NAME',
-      'site_name', 'SITE_NAME', 'station_nm', 'STATION_NM',
-      'id', 'ID', 'objectid', 'OBJECTID', 'fid', 'FID'
-    ];
-
-    for (var i = 0; i < preferred.length; i++) {
-      if (fields.indexOf(preferred[i]) >= 0) return preferred[i];
-    }
-
-    return fields.length ? fields[0] : '';
   }
 
   // ------------------------------------------------------------------------
@@ -288,6 +302,69 @@ function(el, x) {
     };
   }
 
+  function ptActiveStyleField(rec) {
+    if (!rec || !rec.symbology) return '';
+    if (rec.symbology.mode === 'numeric') return rec.symbology.numericField || '';
+    if (rec.symbology.mode === 'categories') return rec.symbology.categoryField || '';
+    return '';
+  }
+
+  function ptRebuildSymbology(rec) {
+    if (!rec || !rec.symbology) return;
+    var features = rec.featureCollection && Array.isArray(rec.featureCollection.features) ?
+      rec.featureCollection.features : [];
+    var mode = rec.symbology.mode;
+    var field = ptActiveStyleField(rec);
+
+    rec.symbology.result = null;
+    if (!field || mode === 'single') return;
+
+    if (mode === 'numeric') {
+      var numericField = rec.numericFields.some(function(info) {
+        return info.field === field && info.numeric;
+      });
+      if (!numericField) return;
+      rec.symbology.result = ptAttr.numericClassification(features, field, {
+        classCount: rec.symbology.classCount,
+        method: rec.symbology.method,
+        palette: rec.symbology.palette,
+        reverse: rec.symbology.reverse
+      });
+    } else if (mode === 'categories') {
+      rec.symbology.result = ptAttr.categoryClassification(features, field);
+    }
+  }
+
+  function ptFeatureClassColor(rec, feature) {
+    var symbology = rec && rec.symbology ? rec.symbology : null;
+    var result = symbology ? symbology.result : null;
+    var field = ptActiveStyleField(rec);
+    if (!result || !field || symbology.mode === 'single') return '';
+
+    var props = feature && feature.properties ? feature.properties : {};
+    var raw = Object.prototype.hasOwnProperty.call(props, field) ? props[field] : undefined;
+    var index = result.classIndex(raw);
+    if (index < 0) return result.noDataColor || ptAttr.noDataColor;
+    if (symbology.mode === 'numeric') {
+      return result.bins[index] ? result.bins[index].color : result.noDataColor;
+    }
+    return result.categories[index] ? result.categories[index].color : result.noDataColor;
+  }
+
+  function ptLayerSwatchColor(rec) {
+    var result = rec && rec.symbology ? rec.symbology.result : null;
+    if (result && rec.symbology.mode === 'numeric' && result.bins.length) {
+      return result.bins[Math.floor(result.bins.length / 2)].color;
+    }
+    if (result && rec.symbology.mode === 'categories' && result.categories.length) {
+      return result.categories[0].color;
+    }
+    if (result && result.noDataCount > 0 && result.noDataColor) {
+      return result.noDataColor;
+    }
+    return rec.style.fillColor;
+  }
+
   function ptPathStyleForFeature(rec, feature) {
     rec = rec || {};
     var style = rec.style || ptDefaultStyle();
@@ -296,28 +373,33 @@ function(el, x) {
     var pane = 'pane_pt_local_polygon';
     if (geomType === 'Line') pane = 'pane_pt_local_line';
 
+    var classColor = ptFeatureClassColor(rec, feature);
+    var attributeMode = !!classColor;
+
     return {
       pane: pane,
-      color: style.strokeColor,
+      color: attributeMode ? classColor : style.strokeColor,
       weight: Number(style.weight) || 2,
       opacity: Number(style.strokeOpacity),
-      fillColor: style.fillColor,
+      fillColor: attributeMode ? classColor : style.fillColor,
       fillOpacity: geomType === 'Polygon' ? Number(style.fillOpacity) : 0,
       interactive: true
     };
   }
 
-  function ptPointStyle(rec) {
+  function ptPointStyle(rec, feature) {
     rec = rec || {};
     var style = rec.style || ptDefaultStyle();
+    var classColor = ptFeatureClassColor(rec, feature);
+    var attributeMode = !!classColor;
 
     return {
       pane: 'pane_pt_local_point',
       radius: Number(style.pointRadius) || 5,
-      color: style.strokeColor,
+      color: attributeMode ? classColor : style.strokeColor,
       weight: Number(style.weight) || 2,
       opacity: Number(style.strokeOpacity),
-      fillColor: style.fillColor,
+      fillColor: attributeMode ? classColor : style.fillColor,
       fillOpacity: Math.max(0.25, Number(style.fillOpacity)),
       interactive: true
     };
@@ -325,17 +407,12 @@ function(el, x) {
 
   function ptFeatureTooltipHtml(feature, rec) {
     var props = feature && feature.properties ? feature.properties : {};
-    var labelField = ptCleanText(rec.labelField);
-    var labelValue = labelField ? ptValueForField(props, labelField) : '';
+    var hoverField = ptCleanText(rec.hoverField);
+    var hoverValue = hoverField ? ptValueForField(props, hoverField) : null;
 
-    var html = '<div class="pt-local-upload-tooltip"><b>' + ptEscapeHtml(rec.name) + '</b>';
-
-    if (labelField && ptHasValue(labelValue)) {
-      html += '<br/><span>' + ptEscapeHtml(labelField) + ':</span> ' + ptEscapeHtml(labelValue);
-    }
-
-    html += '</div>';
-    return html;
+    return '<div class="pt-local-upload-tooltip"><span>' +
+      ptEscapeHtml(hoverField) + ':</span> ' +
+      ptEscapeHtml(ptDisplayValue(hoverValue)) + '</div>';
   }
 
   function ptFeaturePopupHtml(feature, rec) {
@@ -383,7 +460,7 @@ function(el, x) {
     layer.unbindTooltip && layer.unbindTooltip();
     layer.unbindPopup && layer.unbindPopup();
 
-    if (!rec || rec.hoverEnabled !== false) {
+    if (rec && rec.hoverEnabled === true && ptCleanText(rec.hoverField)) {
       layer.bindTooltip(ptFeatureTooltipHtml(feature, rec), {
         sticky: true,
         direction: 'auto',
@@ -405,22 +482,50 @@ function(el, x) {
     });
   }
 
+  function ptRestyleFeatureLayer(layer, inheritedFeature, rec) {
+    if (!layer) return;
+    var feature = layer.feature || inheritedFeature || null;
+    var isFeatureGroup = layer.getLayers && layer.eachLayer &&
+      !layer.getLatLng && !layer.getLatLngs;
+
+    if (isFeatureGroup) {
+      layer.eachLayer(function(child) {
+        ptRestyleFeatureLayer(child, feature, rec);
+      });
+      return;
+    }
+
+    var geomType = feature && feature.geometry ? ptBaseGeomType(feature.geometry.type) : 'Unknown';
+    if (layer.setRadius) geomType = 'Point';
+    else if (window.L && L.Polygon && layer instanceof L.Polygon) geomType = 'Polygon';
+    else if (window.L && L.Polyline && layer instanceof L.Polyline) geomType = 'Line';
+
+    var styleFeature = feature;
+    if (!styleFeature || !styleFeature.geometry || ptBaseGeomType(styleFeature.geometry.type) !== geomType) {
+      styleFeature = {
+        type: 'Feature',
+        properties: feature && feature.properties ? feature.properties : {},
+        geometry: {type: geomType}
+      };
+    }
+
+    if (geomType === 'Point' && layer.setRadius) {
+      layer.setRadius(Number(rec.style.pointRadius) || 5);
+      layer.setStyle(ptPointStyle(rec, styleFeature));
+    } else if (layer.setStyle) {
+      layer.setStyle(ptPathStyleForFeature(rec, styleFeature));
+    }
+  }
+
   function ptRestyleLocalLayer(rec) {
     if (!rec || !rec.layer || !rec.layer.eachLayer) return;
 
     rec.layer.eachLayer(function(layer) {
-      var feature = layer.feature || null;
-      var geomType = feature && feature.geometry ? ptBaseGeomType(feature.geometry.type) : 'Unknown';
-
-      if (geomType === 'Point' && layer.setRadius) {
-        layer.setRadius(Number(rec.style.pointRadius) || 5);
-        layer.setStyle(ptPointStyle(rec));
-      } else if (layer.setStyle) {
-        layer.setStyle(ptPathStyleForFeature(rec, feature));
-      }
+      ptRestyleFeatureLayer(layer, null, rec);
     });
 
     ptRenderLocalLayerList();
+    ptUpdateLocalLegend(rec);
   }
 
   function ptCreateLeafletLayer(featureCollection, rec) {
@@ -429,12 +534,150 @@ function(el, x) {
         return ptPathStyleForFeature(rec, feature);
       },
       pointToLayer: function(feature, latlng) {
-        return L.circleMarker(latlng, ptPointStyle(rec));
+        return L.circleMarker(latlng, ptPointStyle(rec, feature));
       },
       onEachFeature: function(feature, layer) {
         ptBindLocalInteractions(layer, rec);
       }
     });
+  }
+
+  // ------------------------------------------------------------------------
+  // Per-upload attribute legends
+  // ------------------------------------------------------------------------
+
+  function ptLegendActionsHtml() {
+    if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.actionsHtml) {
+      return window.BRIM.legendCloseout.actionsHtml(
+        'pt-local-upload-legend-dock',
+        'pt-local-upload-legend-close',
+        'upload attribute legend'
+      );
+    }
+    return '<span class="pt-map-card-actions">' +
+      '<button type="button" class="pt-map-card-dock pt-local-upload-legend-dock" aria-label="Undock upload attribute legend" title="Undock upload attribute legend">&#x2197;</button>' +
+      '<button type="button" class="pt-map-legend-close pt-local-upload-legend-close" aria-label="Hide upload attribute legend" title="Hide upload attribute legend">&times;</button>' +
+      '</span>';
+  }
+
+  function ptEnsureLocalLegend(rec) {
+    if (!rec || rec.legendControl) return;
+
+    var control = L.control({position: 'topright'});
+    control.onAdd = function() {
+      var div = L.DomUtil.create('div', 'pt-local-upload-legend leaflet-control pt-map-legend-card');
+      div.id = 'pt-local-upload-legend-' + rec.id;
+      div.innerHTML =
+        '<div class="pt-local-upload-legend-head pt-map-card-handle">' +
+          '<span class="pt-local-upload-legend-title"></span>' +
+          ptLegendActionsHtml() +
+        '</div>' +
+        '<div class="pt-local-upload-legend-field"></div>' +
+        '<div class="pt-local-upload-legend-body"></div>';
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
+    };
+    control.addTo(map);
+
+    rec.legendControl = control;
+    rec.legendDiv = control.getContainer ? control.getContainer() : null;
+    if (!rec.legendDiv) return;
+
+    if (window.BRIM && window.BRIM.legendCloseout) {
+      window.BRIM.legendCloseout.wire(
+        rec.legendDiv,
+        '.pt-local-upload-legend-close',
+        function() { rec.legendHidden = true; }
+      );
+      window.BRIM.legendCloseout.makeDetachable({
+        card: rec.legendDiv,
+        map: map,
+        handleSelector: '.pt-local-upload-legend-head',
+        dockSelector: '.pt-local-upload-legend-dock',
+        label: 'upload attribute legend'
+      });
+    }
+  }
+
+  function ptDestroyLocalLegend(rec) {
+    if (!rec) return;
+    var div = rec.legendDiv;
+    if (div && div.__brimDetachableState && div.__brimDetachableState.destroy) {
+      div.__brimDetachableState.destroy(false);
+    }
+    if (rec.legendControl) {
+      try { map.removeControl(rec.legendControl); } catch (err) {}
+    } else if (div && div.parentNode) {
+      div.parentNode.removeChild(div);
+    }
+    rec.legendControl = null;
+    rec.legendDiv = null;
+    rec.legendHidden = false;
+  }
+
+  function ptLegendRow(color, label, count) {
+    return '<div class="pt-local-upload-legend-row">' +
+      '<span class="pt-local-upload-legend-swatch" style="background:' + ptEscapeHtml(color) + ';"></span>' +
+      '<span class="pt-local-upload-legend-label">' + ptEscapeHtml(label) + '</span>' +
+      '<span class="pt-local-upload-legend-count">' + Number(count || 0).toLocaleString() + '</span>' +
+      '</div>';
+  }
+
+  function ptUpdateLocalLegend(rec) {
+    if (!rec || !rec.symbology) return;
+    var mode = rec.symbology.mode;
+    var result = rec.symbology.result;
+    var field = ptActiveStyleField(rec);
+    var hasClasses = result && (
+      (mode === 'numeric' && result.bins && result.bins.length) ||
+      (mode === 'categories' && (
+        (result.categories && result.categories.length) || result.noDataCount > 0
+      ))
+    );
+
+    if (mode === 'single' || !field || !hasClasses) {
+      ptDestroyLocalLegend(rec);
+      return;
+    }
+
+    ptEnsureLocalLegend(rec);
+    var div = rec.legendDiv;
+    if (!div) return;
+
+    var title = div.querySelector('.pt-local-upload-legend-title');
+    var fieldDiv = div.querySelector('.pt-local-upload-legend-field');
+    var body = div.querySelector('.pt-local-upload-legend-body');
+    if (title) title.textContent = ptShortName(rec.name, 38);
+    if (fieldDiv) fieldDiv.textContent = field;
+
+    var html = '';
+    if (mode === 'numeric') {
+      result.bins.forEach(function(bin) {
+        html += ptLegendRow(bin.color, bin.label, bin.count);
+      });
+      if (result.noDataCount > 0) {
+        html += ptLegendRow(result.noDataColor, 'No data', result.noDataCount);
+      }
+      html += '<div class="pt-local-upload-legend-note">' +
+        (rec.symbology.method === 'equal' ? 'Equal interval' : 'Quantile') +
+        '; ' + result.effectiveCount + ' effective class' + (result.effectiveCount === 1 ? '' : 'es') +
+        (result.effectiveCount < result.requestedCount ? ' (target ' + result.requestedCount + ')' : '') +
+        '.</div>';
+    } else {
+      result.categories.forEach(function(category) {
+        html += ptLegendRow(category.color, category.label, category.count);
+      });
+      if (result.noDataCount > 0) {
+        html += ptLegendRow(result.noDataColor, 'No data', result.noDataCount);
+      }
+      if (result.highCardinality) {
+        html += '<div class="pt-local-upload-legend-warning">High cardinality: ' +
+          result.categories.length.toLocaleString() + ' categories.</div>';
+      }
+    }
+    if (body) body.innerHTML = html;
+    div.style.display = rec.visible && !rec.legendHidden ? 'block' : 'none';
   }
 
   // ------------------------------------------------------------------------
@@ -529,19 +772,35 @@ function(el, x) {
     ptLocalSeq += 1;
 
     var fields = ptCollectFields(featureCollection);
+    var numericFields = ptAttr.detectNumericFields(features, fields);
     var geomType = ptGeomTypeLabel(featureCollection);
     var rec = {
-      id: 'pt_local_' + ptLocalSeq,
+      id: ptAttr.uploadId(ptLocalSeq),
       name: file && file.name ? file.name : ('Local layer ' + ptLocalSeq),
       sourceType: sourceType,
       fileSize: file && file.size ? file.size : 0,
       featureCount: features.length,
       geomType: geomType,
       fields: fields,
-      labelField: ptAutoLabelField(fields),
-      hoverEnabled: true,
+      numericFields: numericFields,
+      featureCollection: featureCollection,
+      hoverEnabled: false,
+      hoverField: '',
       visible: true,
       style: ptDefaultStyle(),
+      symbology: {
+        mode: 'single',
+        numericField: numericFields.length ? numericFields[0].field : '',
+        categoryField: fields.length ? fields[0] : '',
+        classCount: 7,
+        method: 'quantile',
+        palette: 'Viridis',
+        reverse: false,
+        result: null
+      },
+      legendHidden: false,
+      legendControl: null,
+      legendDiv: null,
       layer: null
     };
 
@@ -571,8 +830,16 @@ function(el, x) {
 
     ptLocalLayers.forEach(function(rec) {
       if (rec.id === id) {
+        ptDestroyLocalLegend(rec);
         if (rec.layer && map.hasLayer(rec.layer)) {
           map.removeLayer(rec.layer);
+        }
+        if (rec.layer && rec.layer.eachLayer) {
+          rec.layer.eachLayer(function(layer) {
+            if (layer.unbindTooltip) layer.unbindTooltip();
+            if (layer.unbindPopup) layer.unbindPopup();
+            if (layer.off) layer.off();
+          });
         }
       } else {
         keep.push(rec);
@@ -600,6 +867,7 @@ function(el, x) {
         map.removeLayer(rec.layer);
       }
     }
+    ptUpdateLocalLegend(rec);
   }
 
   function ptZoomToLocalLayer(id) {
@@ -617,8 +885,16 @@ function(el, x) {
 
   function ptClearLocalLayers() {
     ptLocalLayers.forEach(function(rec) {
+      ptDestroyLocalLegend(rec);
       if (rec.layer && map.hasLayer(rec.layer)) {
         map.removeLayer(rec.layer);
+      }
+      if (rec.layer && rec.layer.eachLayer) {
+        rec.layer.eachLayer(function(layer) {
+          if (layer.unbindTooltip) layer.unbindTooltip();
+          if (layer.unbindPopup) layer.unbindPopup();
+          if (layer.off) layer.off();
+        });
       }
     });
 
@@ -774,14 +1050,21 @@ function(el, x) {
 
   function ptRenderLocalStylePanel(selectedId) {
     var targetSelect = document.getElementById('pt-local-style-target');
-    var labelFieldSelect = document.getElementById('pt-local-label-field');
     var styleBlock = document.getElementById('pt-local-style-controls');
 
-    if (!targetSelect || !labelFieldSelect || !styleBlock) return;
+    if (!targetSelect || !styleBlock) return;
 
     var html = '<option value="">Choose active layer...</option>';
+    var nameTotals = Object.create(null);
+    var nameSeen = Object.create(null);
     ptLocalLayers.forEach(function(rec) {
-      html += '<option value="' + ptEscapeHtml(rec.id) + '">' + ptEscapeHtml(ptShortName(rec.name, 44)) + '</option>';
+      nameTotals[rec.name] = (nameTotals[rec.name] || 0) + 1;
+    });
+    ptLocalLayers.forEach(function(rec) {
+      nameSeen[rec.name] = (nameSeen[rec.name] || 0) + 1;
+      var duplicateSuffix = nameTotals[rec.name] > 1 ? ' [' + nameSeen[rec.name] + ']' : '';
+      html += '<option value="' + ptEscapeHtml(rec.id) + '">' +
+        ptEscapeHtml(ptShortName(rec.name, 40) + duplicateSuffix) + '</option>';
     });
 
     targetSelect.innerHTML = html;
@@ -794,26 +1077,102 @@ function(el, x) {
 
     if (!rec) {
       styleBlock.style.display = 'none';
-      labelFieldSelect.innerHTML = '<option value="">No active layer</option>';
       return;
     }
 
     styleBlock.style.display = 'block';
-
-    var fieldHtml = '<option value="">Layer name only</option>';
-    rec.fields.forEach(function(field) {
-      fieldHtml += '<option value="' + ptEscapeHtml(field) + '">' + ptEscapeHtml(field) + '</option>';
-    });
-    labelFieldSelect.innerHTML = fieldHtml;
-    labelFieldSelect.value = rec.labelField || '';
-
+    var styleMode = document.getElementById('pt-local-style-mode');
+    var styleField = document.getElementById('pt-local-style-field');
+    var attributeBlock = document.getElementById('pt-local-attribute-controls');
+    var numericBlock = document.getElementById('pt-local-numeric-controls');
+    var singleColorBlock = document.getElementById('pt-local-single-color-controls');
+    var classCount = document.getElementById('pt-local-class-count');
+    var classMethod = document.getElementById('pt-local-class-method');
+    var palette = document.getElementById('pt-local-palette');
+    var reverse = document.getElementById('pt-local-reverse-palette');
+    var styleNote = document.getElementById('pt-local-style-note');
+    var hoverMode = document.getElementById('pt-local-hover-mode');
+    var hoverField = document.getElementById('pt-local-hover-field');
+    var hoverFieldBlock = document.getElementById('pt-local-hover-field-block');
     var strokeColor = document.getElementById('pt-local-stroke-color');
     var fillColor = document.getElementById('pt-local-fill-color');
     var fillOpacity = document.getElementById('pt-local-fill-opacity');
     var strokeOpacity = document.getElementById('pt-local-stroke-opacity');
     var weight = document.getElementById('pt-local-weight');
     var radius = document.getElementById('pt-local-point-radius');
-    var hoverEnabled = document.getElementById('pt-local-hover-enabled');
+
+    if (styleMode) styleMode.value = rec.symbology.mode;
+    if (singleColorBlock) singleColorBlock.style.display = rec.symbology.mode === 'single' ? 'grid' : 'none';
+    if (attributeBlock) attributeBlock.style.display = rec.symbology.mode === 'single' ? 'none' : 'block';
+    if (numericBlock) numericBlock.style.display = rec.symbology.mode === 'numeric' ? 'block' : 'none';
+
+    if (styleField) {
+      var styleFieldHtml = '<option value="">Choose attribute...</option>';
+      if (rec.symbology.mode === 'numeric') {
+        rec.numericFields.forEach(function(info) {
+          styleFieldHtml += '<option value="' + ptEscapeHtml(info.field) + '">' +
+            ptEscapeHtml(info.field + (info.convertedText ? ' (numeric text)' : '')) + '</option>';
+        });
+        if (!rec.numericFields.length) styleFieldHtml = '<option value="">No validated numeric fields</option>';
+      } else {
+        rec.fields.forEach(function(field) {
+          styleFieldHtml += '<option value="' + ptEscapeHtml(field) + '">' + ptEscapeHtml(field) + '</option>';
+        });
+        if (!rec.fields.length) styleFieldHtml = '<option value="">No attribute fields</option>';
+      }
+      styleField.innerHTML = styleFieldHtml;
+      styleField.value = ptActiveStyleField(rec);
+      styleField.disabled = rec.symbology.mode === 'numeric' ? !rec.numericFields.length : !rec.fields.length;
+    }
+
+    if (classCount) classCount.value = String(rec.symbology.classCount);
+    if (classMethod) classMethod.value = rec.symbology.method;
+    if (palette) {
+      palette.innerHTML = ptAttr.paletteNames.map(function(name) {
+        return '<option value="' + ptEscapeHtml(name) + '">' + ptEscapeHtml(name) + '</option>';
+      }).join('');
+      palette.value = rec.symbology.palette;
+    }
+    if (reverse) reverse.checked = !!rec.symbology.reverse;
+
+    var note = '';
+    var result = rec.symbology.result;
+    if (rec.symbology.mode === 'numeric') {
+      var selectedNumeric = rec.numericFields.filter(function(info) {
+        return info.field === rec.symbology.numericField;
+      })[0];
+      if (!rec.numericFields.length) {
+        note = 'No field passed strict numeric validation.';
+      } else if (selectedNumeric && selectedNumeric.convertedText) {
+        note = 'Validated numeric text is converted for styling only; source values are unchanged.';
+      }
+      if (result && result.effectiveCount < result.requestedCount) {
+        note += (note ? ' ' : '') + 'Using ' + result.effectiveCount +
+          ' nonempty class' + (result.effectiveCount === 1 ? '' : 'es') +
+          ' for the requested ' + result.requestedCount + '.';
+      }
+    } else if (rec.symbology.mode === 'categories' && result && result.highCardinality) {
+      note = 'High cardinality: ' + result.categories.length.toLocaleString() +
+        ' categories may make the legend and rendering difficult to use.';
+    }
+    if (styleNote) {
+      styleNote.textContent = note;
+      styleNote.className = 'pt-local-muted' +
+        (rec.symbology.mode === 'categories' && result && result.highCardinality ? ' pt-local-warning' : '');
+    }
+
+    if (hoverMode) hoverMode.value = rec.hoverEnabled ? 'on' : 'off';
+    if (hoverFieldBlock) hoverFieldBlock.style.display = rec.hoverEnabled ? 'block' : 'none';
+    if (hoverField) {
+      var hoverHtml = '<option value="">Choose attribute...</option>';
+      rec.fields.forEach(function(field) {
+        hoverHtml += '<option value="' + ptEscapeHtml(field) + '">' + ptEscapeHtml(field) + '</option>';
+      });
+      if (!rec.fields.length) hoverHtml = '<option value="">No attribute fields</option>';
+      hoverField.innerHTML = hoverHtml;
+      hoverField.value = rec.hoverField || '';
+      hoverField.disabled = !rec.fields.length;
+    }
 
     if (strokeColor) strokeColor.value = rec.style.strokeColor;
     if (fillColor) fillColor.value = rec.style.fillColor;
@@ -821,24 +1180,46 @@ function(el, x) {
     if (strokeOpacity) strokeOpacity.value = rec.style.strokeOpacity;
     if (weight) weight.value = rec.style.weight;
     if (radius) radius.value = rec.style.pointRadius;
-    if (hoverEnabled) hoverEnabled.checked = rec.hoverEnabled !== false;
   }
 
-  function ptApplyLocalStyleFromControls() {
+  function ptApplyLocalStyleFromControls(event) {
     var targetSelect = document.getElementById('pt-local-style-target');
     if (!targetSelect || !targetSelect.value) return;
 
     var rec = ptLocalLayerById(targetSelect.value);
     if (!rec) return;
 
+    var styleMode = document.getElementById('pt-local-style-mode');
+    var styleField = document.getElementById('pt-local-style-field');
+    var classCount = document.getElementById('pt-local-class-count');
+    var classMethod = document.getElementById('pt-local-class-method');
+    var palette = document.getElementById('pt-local-palette');
+    var reverse = document.getElementById('pt-local-reverse-palette');
+    var hoverMode = document.getElementById('pt-local-hover-mode');
+    var hoverField = document.getElementById('pt-local-hover-field');
     var strokeColor = document.getElementById('pt-local-stroke-color');
     var fillColor = document.getElementById('pt-local-fill-color');
     var fillOpacity = document.getElementById('pt-local-fill-opacity');
     var strokeOpacity = document.getElementById('pt-local-stroke-opacity');
     var weight = document.getElementById('pt-local-weight');
     var radius = document.getElementById('pt-local-point-radius');
-    var labelField = document.getElementById('pt-local-label-field');
-    var hoverEnabled = document.getElementById('pt-local-hover-enabled');
+
+    var previousMode = rec.symbology.mode;
+    if (styleMode) rec.symbology.mode = styleMode.value;
+
+    if (previousMode !== rec.symbology.mode) {
+      rec.legendHidden = false;
+    } else if (styleField) {
+      if (rec.symbology.mode === 'numeric') rec.symbology.numericField = styleField.value;
+      if (rec.symbology.mode === 'categories') rec.symbology.categoryField = styleField.value;
+    }
+
+    if (classCount) rec.symbology.classCount = Number(classCount.value) || 7;
+    if (classMethod) rec.symbology.method = classMethod.value;
+    if (palette) rec.symbology.palette = palette.value;
+    if (reverse) rec.symbology.reverse = !!reverse.checked;
+    if (hoverMode) rec.hoverEnabled = hoverMode.value === 'on';
+    if (hoverField) rec.hoverField = hoverField.value;
 
     if (strokeColor) rec.style.strokeColor = strokeColor.value;
     if (fillColor) rec.style.fillColor = fillColor.value;
@@ -846,11 +1227,15 @@ function(el, x) {
     if (strokeOpacity) rec.style.strokeOpacity = Number(strokeOpacity.value);
     if (weight) rec.style.weight = Number(weight.value);
     if (radius) rec.style.pointRadius = Number(radius.value);
-    if (labelField) rec.labelField = labelField.value;
-    if (hoverEnabled) rec.hoverEnabled = !!hoverEnabled.checked;
 
+    ptRebuildSymbology(rec);
     ptRestyleLocalLayer(rec);
     ptRefreshLocalInteractions(rec);
+    ptRenderLocalStylePanel(rec.id);
+
+    if (rec.hoverEnabled && !rec.hoverField && event && event.target && event.target.id === 'pt-local-hover-mode') {
+      ptSetLocalStatus('Hover is On. Choose a Hover field to display feature values.', false);
+    }
   }
 
   // ------------------------------------------------------------------------
@@ -869,19 +1254,25 @@ function(el, x) {
     var html = '';
 
     ptLocalLayers.forEach(function(rec) {
+      var swatchColor = ptLayerSwatchColor(rec);
+      var styleSummary = rec.symbology.mode === 'single' ? 'single color' :
+        (rec.symbology.mode === 'numeric' ? 'numeric: ' : 'categories: ') +
+        (ptActiveStyleField(rec) || 'choose field');
+      var hoverSummary = rec.hoverEnabled ?
+        ('hover: ' + (rec.hoverField || 'choose field')) : 'hover off';
       html +=
         '<div class="pt-local-layer-row">' +
           '<label title="' + ptEscapeHtml(rec.name) + '">' +
             '<input type="checkbox" data-pt-local-toggle="' + rec.id + '" ' +
               (rec.visible ? 'checked' : '') + '/> ' +
-            '<span class="pt-local-swatch" style="background:' + ptEscapeHtml(rec.style.fillColor) + ';border-color:' + ptEscapeHtml(rec.style.strokeColor) + ';"></span>' +
+            '<span class="pt-local-swatch" style="background:' + ptEscapeHtml(swatchColor) + ';border-color:' + ptEscapeHtml(rec.style.strokeColor) + ';"></span>' +
             '<b>' + ptEscapeHtml(ptShortName(rec.name, 34)) + '</b>' +
           '</label>' +
           '<div class="pt-local-muted">' +
             ptEscapeHtml(rec.geomType) + ' | ' +
             rec.featureCount.toLocaleString() + ' feature(s) | ' +
-            ptEscapeHtml(ptFormatBytes(rec.fileSize)) +
-            (rec.hoverEnabled === false ? ' | hover off' : '') +
+            ptEscapeHtml(ptFormatBytes(rec.fileSize)) + '<br/>' +
+            ptEscapeHtml(styleSummary) + ' | ' + ptEscapeHtml(hoverSummary) +
           '</div>' +
           '<div class="pt-local-row">' +
             '<button type="button" class="pt-local-mini-btn" data-pt-local-style="' + rec.id + '">Style</button>' +
@@ -910,6 +1301,11 @@ function(el, x) {
       var style = document.createElement('style');
       style.id = 'pt-local-upload-style';
       style.innerHTML = `
+        .pt-local-upload-wrap,
+        .pt-local-upload-legend {
+          --pt-local-upload-background: rgba(255, 248, 218, 0.97);
+        }
+
         .pt-local-upload-wrap {
           position: absolute;
           left: 8px;
@@ -927,7 +1323,7 @@ function(el, x) {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 248, 218, 0.97);
+          background: var(--pt-local-upload-background);
           border: 1px solid rgba(151, 126, 58, 0.72);
           border-radius: 6px;
           box-shadow: 0 1px 5px rgba(0,0,0,0.30);
@@ -975,7 +1371,7 @@ function(el, x) {
 
         .pt-local-upload-body {
           margin-top: 5px;
-          background: rgba(255, 248, 218, 0.97);
+          background: var(--pt-local-upload-background);
           border: 1px solid rgba(151, 126, 58, 0.72);
           border-radius: 7px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.30);
@@ -1001,6 +1397,12 @@ function(el, x) {
           padding-top: 0;
         }
 
+        .pt-local-subsection {
+          border-top: 1px solid rgba(151, 126, 58, 0.24);
+          padding-top: 6px;
+          margin-top: 6px;
+        }
+
         .pt-local-heading {
           font-weight: 700;
           margin-bottom: 5px;
@@ -1017,6 +1419,19 @@ function(el, x) {
           line-height: 1.25;
           min-height: 14px;
           margin-top: 5px;
+        }
+
+        .pt-local-guidance {
+          margin-top: 4px;
+          font-size: 10.5px;
+          line-height: 1.25;
+        }
+
+        .pt-local-guidance-rule {
+          margin-top: 2px;
+          color: #666;
+          font-size: 10px;
+          line-height: 1.2;
         }
 
         .pt-local-row {
@@ -1051,6 +1466,16 @@ function(el, x) {
           border-radius: 3px;
           padding: 4px;
           font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .pt-local-compact-select {
+          margin-bottom: 2px;
+        }
+
+        .pt-local-warning,
+        .pt-local-upload-legend-warning {
+          color: #8B3E00;
+          font-weight: 700;
         }
 
         .pt-local-range {
@@ -1130,6 +1555,81 @@ function(el, x) {
           color: #555;
         }
 
+        .pt-local-upload-legend {
+          width: 280px;
+          max-width: calc(100vw - 24px);
+          box-sizing: border-box;
+          padding: 7px 8px;
+          background: var(--pt-local-upload-background);
+          border: 1px solid rgba(0,0,0,0.28);
+          border-radius: 5px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.24);
+          color: #222;
+          font: 11px/1.25 Arial, Helvetica, sans-serif;
+          pointer-events: auto;
+        }
+
+        .pt-local-upload-legend-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 7px;
+          margin-bottom: 2px;
+        }
+
+        .pt-local-upload-legend-title {
+          min-width: 0;
+          overflow-wrap: anywhere;
+          font-weight: 700;
+        }
+
+        .pt-local-upload-legend-field {
+          color: #444;
+          font-weight: 700;
+          overflow-wrap: anywhere;
+          margin-bottom: 4px;
+        }
+
+        .pt-local-upload-legend-body {
+          max-height: 42vh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding-right: 2px;
+        }
+
+        .pt-local-upload-legend-row {
+          display: grid;
+          grid-template-columns: 13px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 5px;
+          margin: 2px 0;
+        }
+
+        .pt-local-upload-legend-swatch {
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          border: 1px solid rgba(0,0,0,0.38);
+          box-sizing: border-box;
+        }
+
+        .pt-local-upload-legend-label {
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+
+        .pt-local-upload-legend-count {
+          color: #666;
+          padding-left: 3px;
+        }
+
+        .pt-local-upload-legend-note,
+        .pt-local-upload-legend-warning {
+          border-top: 1px solid #ddd;
+          margin-top: 4px;
+          padding-top: 4px;
+        }
+
         @media (max-width: 900px) {
           .pt-local-upload-wrap {
             bottom: 56px;
@@ -1153,7 +1653,9 @@ function(el, x) {
         '<div class="pt-local-section">' +
           '<div class="pt-local-heading">Upload local GIS file</div>' +
           '<input type="file" id="pt-local-file-input" class="pt-local-input" accept=".zip,.geojson,.json"/>' +
-          '<div class="pt-local-muted">Supports zipped shapefiles and GeoJSON. Use WGS84 / EPSG:4326 lon/lat coordinates. Local uploads are temporary and are not saved into PT2.</div>' +
+          '<div class="pt-local-muted">Supports zipped shapefiles and GeoJSON. Local uploads are temporary and are not saved into PT2.</div>' +
+          '<div class="pt-local-muted pt-local-guidance"><b>Upload guidance:</b> Use WGS 84 (EPSG:4326); shapefile ZIPs should include a valid .prj. Missing or incorrect CRS information may produce plausible-looking but misaligned data. Large or highly detailed layers may slow the map.</div>' +
+          '<div class="pt-local-guidance-rule">NAD83–WGS84 differences are commonly about 1–2 m; NAD27 shifts are often 10–100 m or more. Always verify alignment against known features.</div>' +
           '<div class="pt-local-muted">Limit: up to 3 active local layers; current file-size limit ' + PT2_LOCAL_MAX_FILE_MB + ' MB.</div>' +
           '<div id="pt-local-upload-status" class="pt-local-status"></div>' +
         '</div>' +
@@ -1169,18 +1671,52 @@ function(el, x) {
           '<label class="pt-local-small-label">Layer</label>' +
           '<select id="pt-local-style-target" class="pt-local-select"></select>' +
           '<div id="pt-local-style-controls" style="display:none;">' +
-            '<label class="pt-local-small-label">Hover label field</label>' +
-            '<select id="pt-local-label-field" class="pt-local-select"></select>' +
-            '<label class="pt-local-check"><input type="checkbox" id="pt-local-hover-enabled" checked/> enable hover tooltip</label>' +
-            '<div class="pt-local-grid-2">' +
+            '<label class="pt-local-small-label" for="pt-local-style-mode">Style by</label>' +
+            '<select id="pt-local-style-mode" class="pt-local-select">' +
+              '<option value="single">Single color</option>' +
+              '<option value="numeric">Numeric bins</option>' +
+              '<option value="categories">Categories</option>' +
+            '</select>' +
+            '<div id="pt-local-attribute-controls" style="display:none;">' +
+              '<label class="pt-local-small-label" for="pt-local-style-field">Style field</label>' +
+              '<select id="pt-local-style-field" class="pt-local-select"></select>' +
+              '<div id="pt-local-numeric-controls" style="display:none;">' +
+                '<div class="pt-local-grid-2">' +
+                  '<label>Classes<select id="pt-local-class-count" class="pt-local-select pt-local-compact-select">' +
+                    '<option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>' +
+                    '<option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>' +
+                  '</select></label>' +
+                  '<label>Method<select id="pt-local-class-method" class="pt-local-select pt-local-compact-select">' +
+                    '<option value="quantile">Quantile</option>' +
+                    '<option value="equal">Equal interval</option>' +
+                  '</select></label>' +
+                '</div>' +
+                '<label class="pt-local-small-label" for="pt-local-palette">Color ramp</label>' +
+                '<select id="pt-local-palette" class="pt-local-select"></select>' +
+                '<label class="pt-local-check"><input type="checkbox" id="pt-local-reverse-palette"/> reverse ramp</label>' +
+              '</div>' +
+              '<div id="pt-local-style-note" class="pt-local-muted"></div>' +
+            '</div>' +
+            '<div id="pt-local-single-color-controls" class="pt-local-grid-2">' +
               '<label>Outline<br/><input type="color" id="pt-local-stroke-color" value="#7B3294"/></label>' +
               '<label>Fill<br/><input type="color" id="pt-local-fill-color" value="#7B3294"/></label>' +
+            '</div>' +
+            '<div class="pt-local-grid-2">' +
               '<label>Fill alpha<br/><input type="range" id="pt-local-fill-opacity" class="pt-local-range" min="0" max="0.9" step="0.05" value="0.18"/></label>' +
               '<label>Line alpha<br/><input type="range" id="pt-local-stroke-opacity" class="pt-local-range" min="0.1" max="1" step="0.05" value="0.95"/></label>' +
               '<label>Line width<br/><input type="range" id="pt-local-weight" class="pt-local-range" min="1" max="8" step="0.5" value="2"/></label>' +
               '<label>Point size<br/><input type="range" id="pt-local-point-radius" class="pt-local-range" min="2" max="12" step="1" value="5"/></label>' +
             '</div>' +
-            '<div class="pt-local-muted">This first version uses constant layer styling. Attribute-based ramps/bins can be added next.</div>' +
+            '<div class="pt-local-subsection">' +
+              '<label class="pt-local-small-label" for="pt-local-hover-mode">Hover</label>' +
+              '<select id="pt-local-hover-mode" class="pt-local-select">' +
+                '<option value="off">Off</option><option value="on">On</option>' +
+              '</select>' +
+              '<div id="pt-local-hover-field-block" style="display:none;">' +
+                '<label class="pt-local-small-label" for="pt-local-hover-field">Hover field</label>' +
+                '<select id="pt-local-hover-field" class="pt-local-select"></select>' +
+              '</div>' +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1234,9 +1770,11 @@ function(el, x) {
       });
     }
 
-    ['pt-local-stroke-color', 'pt-local-fill-color', 'pt-local-fill-opacity',
+    ['pt-local-style-mode', 'pt-local-style-field', 'pt-local-class-count',
+     'pt-local-class-method', 'pt-local-palette', 'pt-local-reverse-palette',
+     'pt-local-stroke-color', 'pt-local-fill-color', 'pt-local-fill-opacity',
      'pt-local-stroke-opacity', 'pt-local-weight', 'pt-local-point-radius',
-     'pt-local-label-field', 'pt-local-hover-enabled'].forEach(function(id) {
+     'pt-local-hover-mode', 'pt-local-hover-field'].forEach(function(id) {
       var input = document.getElementById(id);
       if (input) {
         input.addEventListener('input', ptApplyLocalStyleFromControls);
