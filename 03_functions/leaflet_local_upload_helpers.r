@@ -410,8 +410,7 @@ function(el, x) {
     var hoverField = ptCleanText(rec.hoverField);
     var hoverValue = hoverField ? ptValueForField(props, hoverField) : null;
 
-    return '<div class="pt-local-upload-tooltip"><span>' +
-      ptEscapeHtml(hoverField) + ':</span> ' +
+    return '<div class="pt-local-upload-tooltip">' +
       ptEscapeHtml(ptDisplayValue(hoverValue)) + '</div>';
   }
 
@@ -452,13 +451,24 @@ function(el, x) {
     return html;
   }
 
-  function ptBindLocalInteractions(layer, rec) {
-    var feature = layer && layer.feature ? layer.feature : null;
+  function ptBindLocalInteractions(layer, rec, inheritedFeature) {
+    if (!layer) return;
 
-    if (!feature) return;
+    var feature = layer.feature || inheritedFeature || null;
+    var isFeatureGroup = layer.getLayers && layer.eachLayer &&
+      !layer.getLatLng && !layer.getLatLngs;
 
     layer.unbindTooltip && layer.unbindTooltip();
     layer.unbindPopup && layer.unbindPopup();
+
+    if (isFeatureGroup) {
+      layer.eachLayer(function(child) {
+        ptBindLocalInteractions(child, rec, feature);
+      });
+      return;
+    }
+
+    if (!feature) return;
 
     if (rec && rec.hoverEnabled === true && ptCleanText(rec.hoverField)) {
       layer.bindTooltip(ptFeatureTooltipHtml(feature, rec), {
@@ -469,17 +479,16 @@ function(el, x) {
       });
     }
 
-    layer.bindPopup(ptFeaturePopupHtml(feature, rec), {
-      maxWidth: 360
-    });
+    if (rec && rec.popupEnabled !== false) {
+      layer.bindPopup(ptFeaturePopupHtml(feature, rec), {
+        maxWidth: 360
+      });
+    }
   }
 
   function ptRefreshLocalInteractions(rec) {
-    if (!rec || !rec.layer || !rec.layer.eachLayer) return;
-
-    rec.layer.eachLayer(function(layer) {
-      ptBindLocalInteractions(layer, rec);
-    });
+    if (!rec || !rec.layer) return;
+    ptBindLocalInteractions(rec.layer, rec, null);
   }
 
   function ptRestyleFeatureLayer(layer, inheritedFeature, rec) {
@@ -535,9 +544,6 @@ function(el, x) {
       },
       pointToLayer: function(feature, latlng) {
         return L.circleMarker(latlng, ptPointStyle(rec, feature));
-      },
-      onEachFeature: function(feature, layer) {
-        ptBindLocalInteractions(layer, rec);
       }
     });
   }
@@ -786,6 +792,7 @@ function(el, x) {
       featureCollection: featureCollection,
       hoverEnabled: false,
       hoverField: '',
+      popupEnabled: true,
       visible: true,
       style: ptDefaultStyle(),
       symbology: {
@@ -805,9 +812,9 @@ function(el, x) {
     };
 
     rec.layer = ptCreateLeafletLayer(featureCollection, rec);
-    rec.layer.addTo(map);
-
     ptLocalLayers.push(rec);
+    ptRefreshLocalInteractions(rec);
+    rec.layer.addTo(map);
     ptRenderLocalLayerList();
     ptRenderLocalStylePanel(rec.id);
 
@@ -872,12 +879,33 @@ function(el, x) {
 
   function ptZoomToLocalLayer(id) {
     var rec = ptLocalLayerById(id);
-    if (!rec || !rec.layer || !rec.layer.getBounds) return;
+    if (!rec || !rec.layer || !rec.layer.getBounds) {
+      ptSetLocalStatus('Could not zoom to this layer. No valid geometry is available.', true);
+      return;
+    }
 
     var bounds = rec.layer.getBounds();
 
     if (bounds && bounds.isValid && bounds.isValid()) {
-      map.fitBounds(bounds.pad(0.06));
+      var northEast = bounds.getNorthEast();
+      var southWest = bounds.getSouthWest();
+      var isSingleLocation = northEast && southWest &&
+        northEast.lat === southWest.lat && northEast.lng === southWest.lng;
+
+      if (isSingleLocation) {
+        var maxZoom = map.getMaxZoom ? map.getMaxZoom() : 18;
+        if (!isFinite(maxZoom)) maxZoom = 18;
+        map.setView(bounds.getCenter(), Math.min(maxZoom, 16));
+      } else {
+        var mapSize = map.getSize ? map.getSize() : null;
+        var leftPadding = mapSize && mapSize.x >= 850 ? 375 : 28;
+        map.fitBounds(bounds.pad(0.06), {
+          paddingTopLeft: L.point(leftPadding, 42),
+          paddingBottomRight: L.point(32, 64),
+          maxZoom: 16
+        });
+      }
+      ptSetLocalStatus('Zoomed to ' + rec.name + '.', false);
     } else {
       ptSetLocalStatus('Could not zoom to this layer. The layer may not have valid bounds.', true);
     }
@@ -1091,9 +1119,6 @@ function(el, x) {
     var palette = document.getElementById('pt-local-palette');
     var reverse = document.getElementById('pt-local-reverse-palette');
     var styleNote = document.getElementById('pt-local-style-note');
-    var hoverMode = document.getElementById('pt-local-hover-mode');
-    var hoverField = document.getElementById('pt-local-hover-field');
-    var hoverFieldBlock = document.getElementById('pt-local-hover-field-block');
     var strokeColor = document.getElementById('pt-local-stroke-color');
     var fillColor = document.getElementById('pt-local-fill-color');
     var fillOpacity = document.getElementById('pt-local-fill-opacity');
@@ -1161,19 +1186,6 @@ function(el, x) {
         (rec.symbology.mode === 'categories' && result && result.highCardinality ? ' pt-local-warning' : '');
     }
 
-    if (hoverMode) hoverMode.value = rec.hoverEnabled ? 'on' : 'off';
-    if (hoverFieldBlock) hoverFieldBlock.style.display = rec.hoverEnabled ? 'block' : 'none';
-    if (hoverField) {
-      var hoverHtml = '<option value="">Choose attribute...</option>';
-      rec.fields.forEach(function(field) {
-        hoverHtml += '<option value="' + ptEscapeHtml(field) + '">' + ptEscapeHtml(field) + '</option>';
-      });
-      if (!rec.fields.length) hoverHtml = '<option value="">No attribute fields</option>';
-      hoverField.innerHTML = hoverHtml;
-      hoverField.value = rec.hoverField || '';
-      hoverField.disabled = !rec.fields.length;
-    }
-
     if (strokeColor) strokeColor.value = rec.style.strokeColor;
     if (fillColor) fillColor.value = rec.style.fillColor;
     if (fillOpacity) fillOpacity.value = rec.style.fillOpacity;
@@ -1195,8 +1207,6 @@ function(el, x) {
     var classMethod = document.getElementById('pt-local-class-method');
     var palette = document.getElementById('pt-local-palette');
     var reverse = document.getElementById('pt-local-reverse-palette');
-    var hoverMode = document.getElementById('pt-local-hover-mode');
-    var hoverField = document.getElementById('pt-local-hover-field');
     var strokeColor = document.getElementById('pt-local-stroke-color');
     var fillColor = document.getElementById('pt-local-fill-color');
     var fillOpacity = document.getElementById('pt-local-fill-opacity');
@@ -1218,9 +1228,6 @@ function(el, x) {
     if (classMethod) rec.symbology.method = classMethod.value;
     if (palette) rec.symbology.palette = palette.value;
     if (reverse) rec.symbology.reverse = !!reverse.checked;
-    if (hoverMode) rec.hoverEnabled = hoverMode.value === 'on';
-    if (hoverField) rec.hoverField = hoverField.value;
-
     if (strokeColor) rec.style.strokeColor = strokeColor.value;
     if (fillColor) rec.style.fillColor = fillColor.value;
     if (fillOpacity) rec.style.fillOpacity = Number(fillOpacity.value);
@@ -1233,14 +1240,76 @@ function(el, x) {
     ptRefreshLocalInteractions(rec);
     ptRenderLocalStylePanel(rec.id);
 
-    if (rec.hoverEnabled && !rec.hoverField && event && event.target && event.target.id === 'pt-local-hover-mode') {
-      ptSetLocalStatus('Hover is On. Choose a Hover field to display feature values.', false);
+  }
+
+  function ptSyncLocalInteractionControls(rec) {
+    var list = document.getElementById('pt-local-layer-list');
+    if (!list || !rec) return;
+
+    var hoverToggle = list.querySelector('[data-pt-local-hover="' + rec.id + '"]');
+    var popupToggle = list.querySelector('[data-pt-local-popup="' + rec.id + '"]');
+    var hoverState = list.querySelector('[data-pt-local-hover-state="' + rec.id + '"]');
+    var popupState = list.querySelector('[data-pt-local-popup-state="' + rec.id + '"]');
+    var hoverFieldBlock = list.querySelector('[data-pt-local-hover-field-block="' + rec.id + '"]');
+    var hoverField = list.querySelector('[data-pt-local-hover-field="' + rec.id + '"]');
+
+    if (hoverToggle) hoverToggle.checked = !!rec.hoverEnabled;
+    if (popupToggle) popupToggle.checked = rec.popupEnabled !== false;
+    if (hoverState) hoverState.textContent = rec.hoverEnabled ? 'On' : 'Off';
+    if (popupState) popupState.textContent = rec.popupEnabled !== false ? 'On' : 'Off';
+    if (hoverFieldBlock) hoverFieldBlock.hidden = !rec.hoverEnabled;
+    if (hoverField) {
+      hoverField.value = rec.hoverField || '';
+      hoverField.disabled = !rec.hoverEnabled || !rec.fields.length;
     }
+  }
+
+  function ptSetLocalHover(id, enabled) {
+    var rec = ptLocalLayerById(id);
+    if (!rec) return;
+
+    rec.hoverEnabled = !!enabled;
+    ptRefreshLocalInteractions(rec);
+    ptSyncLocalInteractionControls(rec);
+
+    if (rec.hoverEnabled && !rec.hoverField) {
+      ptSetLocalStatus('Hover is On for ' + rec.name + '. Choose a Hover field.', false);
+    }
+  }
+
+  function ptSetLocalHoverField(id, fieldName) {
+    var rec = ptLocalLayerById(id);
+    if (!rec) return;
+
+    var nextField = fieldName || '';
+    if (rec.hoverField === nextField) return;
+    rec.hoverField = nextField;
+    ptRefreshLocalInteractions(rec);
+  }
+
+  function ptSetLocalPopup(id, enabled) {
+    var rec = ptLocalLayerById(id);
+    if (!rec) return;
+
+    rec.popupEnabled = !!enabled;
+    ptRefreshLocalInteractions(rec);
+    ptSyncLocalInteractionControls(rec);
   }
 
   // ------------------------------------------------------------------------
   // Render active local layer list
   // ------------------------------------------------------------------------
+
+  function ptLocalLayerHasValidBounds(rec) {
+    if (!rec || !rec.layer || !rec.layer.getBounds) return false;
+
+    try {
+      var bounds = rec.layer.getBounds();
+      return !!(bounds && bounds.isValid && bounds.isValid());
+    } catch (err) {
+      return false;
+    }
+  }
 
   function ptRenderLocalLayerList() {
     var list = document.getElementById('pt-local-layer-list');
@@ -1258,26 +1327,65 @@ function(el, x) {
       var styleSummary = rec.symbology.mode === 'single' ? 'single color' :
         (rec.symbology.mode === 'numeric' ? 'numeric: ' : 'categories: ') +
         (ptActiveStyleField(rec) || 'choose field');
-      var hoverSummary = rec.hoverEnabled ?
-        ('hover: ' + (rec.hoverField || 'choose field')) : 'hover off';
+      var safeId = ptEscapeHtml(rec.id);
+      var hoverToggleId = 'pt-local-hover-' + safeId;
+      var popupToggleId = 'pt-local-popup-' + safeId;
+      var hoverFieldId = 'pt-local-hover-field-' + safeId;
+      var hoverOptions = '<option value="">Choose attribute...</option>';
+      rec.fields.forEach(function(field) {
+        hoverOptions += '<option value="' + ptEscapeHtml(field) + '" ' +
+          (field === rec.hoverField ? 'selected' : '') + '>' + ptEscapeHtml(field) + '</option>';
+      });
+      if (!rec.fields.length) hoverOptions = '<option value="">No attribute fields</option>';
+      var hasValidBounds = ptLocalLayerHasValidBounds(rec);
+
       html +=
         '<div class="pt-local-layer-row">' +
-          '<label title="' + ptEscapeHtml(rec.name) + '">' +
-            '<input type="checkbox" data-pt-local-toggle="' + rec.id + '" ' +
-              (rec.visible ? 'checked' : '') + '/> ' +
-            '<span class="pt-local-swatch" style="background:' + ptEscapeHtml(swatchColor) + ';border-color:' + ptEscapeHtml(rec.style.strokeColor) + ';"></span>' +
-            '<b>' + ptEscapeHtml(ptShortName(rec.name, 34)) + '</b>' +
-          '</label>' +
+          '<div class="pt-local-layer-head">' +
+            '<label class="pt-local-visibility" title="Show or hide ' + ptEscapeHtml(rec.name) + '">' +
+              '<input type="checkbox" data-pt-local-toggle="' + safeId + '" aria-label="Show or hide ' + ptEscapeHtml(rec.name) + '" ' +
+                (rec.visible ? 'checked' : '') + '/>' +
+              '<span class="pt-local-swatch" aria-hidden="true" style="background:' + ptEscapeHtml(swatchColor) + ';border-color:' + ptEscapeHtml(rec.style.strokeColor) + ';"></span>' +
+            '</label>' +
+            '<b class="pt-local-layer-name" title="' + ptEscapeHtml(rec.name) + '">' +
+              ptEscapeHtml(ptShortName(rec.name, 30)) +
+            '</b>' +
+            '<div class="pt-local-layer-actions">' +
+              '<button type="button" class="pt-local-icon-btn pt-local-style-icon" data-pt-local-style="' + safeId + '" aria-label="Style layer" title="Style layer">&#9881;&#65038;</button>' +
+              '<button type="button" class="pt-local-icon-btn" data-pt-local-zoom="' + safeId + '" aria-label="Zoom to layer" title="' +
+                (hasValidBounds ? 'Zoom to layer' : 'No valid geometry to zoom to') + '" ' + (hasValidBounds ? '' : 'disabled') + '>&#8982;</button>' +
+              '<button type="button" class="pt-local-icon-btn pt-local-remove-icon" data-pt-local-remove="' + safeId + '" aria-label="Remove layer" title="Remove layer">&times;</button>' +
+            '</div>' +
+          '</div>' +
           '<div class="pt-local-muted">' +
             ptEscapeHtml(rec.geomType) + ' | ' +
             rec.featureCount.toLocaleString() + ' feature(s) | ' +
             ptEscapeHtml(ptFormatBytes(rec.fileSize)) + '<br/>' +
-            ptEscapeHtml(styleSummary) + ' | ' + ptEscapeHtml(hoverSummary) +
+            ptEscapeHtml(styleSummary) +
           '</div>' +
-          '<div class="pt-local-row">' +
-            '<button type="button" class="pt-local-mini-btn" data-pt-local-style="' + rec.id + '">Style</button>' +
-            '<button type="button" class="pt-local-mini-btn" data-pt-local-zoom="' + rec.id + '">Zoom</button>' +
-            '<button type="button" class="pt-local-mini-btn" data-pt-local-remove="' + rec.id + '">Remove</button>' +
+          '<div class="pt-local-interaction-row" aria-label="Layer interactions">' +
+            '<label class="pt-local-switch" for="' + hoverToggleId + '">' +
+              '<span>Hover</span>' +
+              '<input type="checkbox" role="switch" id="' + hoverToggleId + '" data-pt-local-hover="' + safeId + '" ' +
+                (rec.hoverEnabled ? 'checked' : '') + '/>' +
+              '<span class="pt-local-switch-track" aria-hidden="true"></span>' +
+              '<span class="pt-local-switch-state" data-pt-local-hover-state="' + safeId + '" aria-hidden="true">' +
+                (rec.hoverEnabled ? 'On' : 'Off') + '</span>' +
+            '</label>' +
+            '<label class="pt-local-switch" for="' + popupToggleId + '">' +
+              '<span>Popup</span>' +
+              '<input type="checkbox" role="switch" id="' + popupToggleId + '" data-pt-local-popup="' + safeId + '" ' +
+                (rec.popupEnabled !== false ? 'checked' : '') + '/>' +
+              '<span class="pt-local-switch-track" aria-hidden="true"></span>' +
+              '<span class="pt-local-switch-state" data-pt-local-popup-state="' + safeId + '" aria-hidden="true">' +
+                (rec.popupEnabled !== false ? 'On' : 'Off') + '</span>' +
+            '</label>' +
+            '<div class="pt-local-hover-field" data-pt-local-hover-field-block="' + safeId + '" ' +
+              (rec.hoverEnabled ? '' : 'hidden') + '>' +
+              '<label for="' + hoverFieldId + '">Field</label>' +
+              '<select id="' + hoverFieldId + '" data-pt-local-hover-field="' + safeId + '" ' +
+                (!rec.hoverEnabled || !rec.fields.length ? 'disabled' : '') + '>' + hoverOptions + '</select>' +
+            '</div>' +
           '</div>' +
         '</div>';
     });
@@ -1532,6 +1640,190 @@ function(el, x) {
           padding-top: 0;
         }
 
+        .pt-local-layer-head {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .pt-local-layer-name {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .pt-local-visibility {
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
+        }
+
+        .pt-local-visibility input {
+          margin: 0 2px 0 0;
+        }
+
+        .pt-local-layer-actions {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .pt-local-icon-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 23px;
+          padding: 0;
+          border: 1px solid rgba(98, 117, 74, 0.80);
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.92);
+          color: #222;
+          cursor: pointer;
+          font: 16px/1 Arial, Helvetica, sans-serif;
+        }
+
+        .pt-local-icon-btn:hover,
+        .pt-local-icon-btn:focus-visible {
+          background: rgba(221, 238, 204, 0.98);
+          border-color: rgba(66, 102, 47, 0.95);
+          outline: 2px solid #255E9B;
+          outline-offset: 1px;
+        }
+
+        .pt-local-icon-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.42;
+        }
+
+        .pt-local-style-icon {
+          color: #222;
+          font-weight: 700;
+          opacity: 1;
+        }
+
+        .pt-local-remove-icon {
+          color: #7A1F1F;
+          font-size: 18px;
+        }
+
+        .pt-local-upload-body .pt-local-heading,
+        .pt-local-upload-body .pt-local-muted,
+        .pt-local-upload-body .pt-local-guidance,
+        .pt-local-upload-body .pt-local-guidance-rule,
+        .pt-local-upload-body .pt-local-status,
+        .pt-local-upload-body .pt-local-layer-name {
+          cursor: text;
+          user-select: text;
+          -webkit-user-select: text;
+        }
+
+        .pt-local-interaction-row {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 4px 9px;
+          margin-top: 5px;
+        }
+
+        .pt-local-switch {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .pt-local-switch input {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          white-space: nowrap;
+        }
+
+        .pt-local-switch-track {
+          position: relative;
+          width: 26px;
+          height: 14px;
+          box-sizing: border-box;
+          border: 1px solid #777;
+          border-radius: 999px;
+          background: #ddd;
+          transition: background-color 0.12s ease, border-color 0.12s ease;
+        }
+
+        .pt-local-switch-track::after {
+          content: '';
+          position: absolute;
+          top: 1px;
+          left: 1px;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #fff;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.35);
+          transition: transform 0.12s ease;
+        }
+
+        .pt-local-switch input:checked + .pt-local-switch-track {
+          border-color: #356629;
+          background: #4D8C3D;
+        }
+
+        .pt-local-switch input:checked + .pt-local-switch-track::after {
+          transform: translateX(12px);
+        }
+
+        .pt-local-switch input:focus-visible + .pt-local-switch-track {
+          outline: 2px solid #255E9B;
+          outline-offset: 2px;
+        }
+
+        .pt-local-switch-state {
+          min-width: 18px;
+          color: #555;
+          font-size: 10px;
+          font-weight: 400;
+        }
+
+        .pt-local-hover-field {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          min-width: 0;
+          flex: 1 1 145px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+
+        .pt-local-hover-field[hidden] {
+          display: none;
+        }
+
+        .pt-local-hover-field select {
+          min-width: 0;
+          width: 100%;
+          box-sizing: border-box;
+          border: 1px solid #aaa;
+          border-radius: 3px;
+          padding: 2px 3px;
+          background: #fff;
+          font: 11px Arial, Helvetica, sans-serif;
+        }
+
+        .pt-local-hover-field select:focus-visible,
+        .pt-local-visibility input:focus-visible {
+          outline: 2px solid #255E9B;
+          outline-offset: 1px;
+        }
+
         .pt-local-swatch {
           display: inline-block;
           width: 11px;
@@ -1653,8 +1945,8 @@ function(el, x) {
         '<div class="pt-local-section">' +
           '<div class="pt-local-heading">Upload local GIS file</div>' +
           '<input type="file" id="pt-local-file-input" class="pt-local-input" accept=".zip,.geojson,.json"/>' +
-          '<div class="pt-local-muted">Supports zipped shapefiles and GeoJSON. Local uploads are temporary and are not saved into PT2.</div>' +
-          '<div class="pt-local-muted pt-local-guidance"><b>Upload guidance:</b> Use WGS 84 (EPSG:4326); shapefile ZIPs should include a valid .prj. Missing or incorrect CRS information may produce plausible-looking but misaligned data. Large or highly detailed layers may slow the map.</div>' +
+          '<div class="pt-local-muted">Supports zipped shapefiles and GeoJSON. Local uploads are temporary and are not saved into BRIM.</div>' +
+          '<div class="pt-local-muted pt-local-guidance"><b>Upload guidance:</b> Use WGS 84 (EPSG:4326); shapefile ZIPs should include a valid .prj. BRIM cannot independently guarantee source CRS correctness or alignment. Missing or incorrect CRS information may produce plausible-looking but misaligned data. Large or highly detailed layers may slow the map.</div>' +
           '<div class="pt-local-guidance-rule">NAD83–WGS84 differences are commonly about 1–2 m; NAD27 shifts are often 10–100 m or more. Always verify alignment against known features.</div>' +
           '<div class="pt-local-muted">Limit: up to 3 active local layers; current file-size limit ' + PT2_LOCAL_MAX_FILE_MB + ' MB.</div>' +
           '<div id="pt-local-upload-status" class="pt-local-status"></div>' +
@@ -1707,16 +1999,6 @@ function(el, x) {
               '<label>Line width<br/><input type="range" id="pt-local-weight" class="pt-local-range" min="1" max="8" step="0.5" value="2"/></label>' +
               '<label>Point size<br/><input type="range" id="pt-local-point-radius" class="pt-local-range" min="2" max="12" step="1" value="5"/></label>' +
             '</div>' +
-            '<div class="pt-local-subsection">' +
-              '<label class="pt-local-small-label" for="pt-local-hover-mode">Hover</label>' +
-              '<select id="pt-local-hover-mode" class="pt-local-select">' +
-                '<option value="off">Off</option><option value="on">On</option>' +
-              '</select>' +
-              '<div id="pt-local-hover-field-block" style="display:none;">' +
-                '<label class="pt-local-small-label" for="pt-local-hover-field">Hover field</label>' +
-                '<select id="pt-local-hover-field" class="pt-local-select"></select>' +
-              '</div>' +
-            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1725,6 +2007,21 @@ function(el, x) {
 
     L.DomEvent.disableClickPropagation(wrap);
     L.DomEvent.disableScrollPropagation(wrap);
+
+    var selectableTextSelector = [
+      '.pt-local-heading',
+      '.pt-local-muted',
+      '.pt-local-guidance',
+      '.pt-local-guidance-rule',
+      '.pt-local-status',
+      '.pt-local-layer-name'
+    ].join(',');
+
+    wrap.addEventListener('pointerdown', function(e) {
+      if (e.target && e.target.closest && e.target.closest(selectableTextSelector)) {
+        e.stopPropagation();
+      }
+    });
 
     var tab = document.getElementById('pt-local-upload-tab');
     var caret = document.getElementById('pt-local-upload-caret');
@@ -1773,12 +2070,43 @@ function(el, x) {
     ['pt-local-style-mode', 'pt-local-style-field', 'pt-local-class-count',
      'pt-local-class-method', 'pt-local-palette', 'pt-local-reverse-palette',
      'pt-local-stroke-color', 'pt-local-fill-color', 'pt-local-fill-opacity',
-     'pt-local-stroke-opacity', 'pt-local-weight', 'pt-local-point-radius',
-     'pt-local-hover-mode', 'pt-local-hover-field'].forEach(function(id) {
+     'pt-local-stroke-opacity', 'pt-local-weight', 'pt-local-point-radius'].forEach(function(id) {
       var input = document.getElementById(id);
       if (input) {
         input.addEventListener('input', ptApplyLocalStyleFromControls);
         input.addEventListener('change', ptApplyLocalStyleFromControls);
+      }
+    });
+
+    wrap.addEventListener('change', function(e) {
+      var target = e.target;
+      if (!target) return;
+
+      var hoverId = target.getAttribute('data-pt-local-hover');
+      if (hoverId) {
+        ptSetLocalHover(hoverId, target.checked);
+        return;
+      }
+
+      var popupId = target.getAttribute('data-pt-local-popup');
+      if (popupId) {
+        ptSetLocalPopup(popupId, target.checked);
+        return;
+      }
+
+      var hoverFieldId = target.getAttribute('data-pt-local-hover-field');
+      if (hoverFieldId) {
+        ptSetLocalHoverField(hoverFieldId, target.value);
+      }
+    });
+
+    wrap.addEventListener('input', function(e) {
+      var target = e.target;
+      if (!target) return;
+
+      var hoverFieldId = target.getAttribute('data-pt-local-hover-field');
+      if (hoverFieldId) {
+        ptSetLocalHoverField(hoverFieldId, target.value);
       }
     });
 
@@ -1795,6 +2123,14 @@ function(el, x) {
       var styleId = target.getAttribute('data-pt-local-style');
       if (styleId) {
         ptRenderLocalStylePanel(styleId);
+        var styleRec = ptLocalLayerById(styleId);
+        var styleBlock = document.getElementById('pt-local-style-controls');
+        if (styleBlock && styleBlock.scrollIntoView) {
+          styleBlock.scrollIntoView({block: 'nearest'});
+        }
+        if (styleRec) {
+          ptSetLocalStatus('Style controls shown for ' + styleRec.name + '.', false);
+        }
         return;
       }
 

@@ -2292,6 +2292,7 @@ function(el, x, toolsData) {
   ptEnsurePane('pane_pt_custom_point', 575, 'auto');
   ptEnsurePane('pane_pt_measure', 900, 'auto');
   ptEnsurePane('pane_pt_teaching_markup', 925, 'none');
+  ptEnsurePane('pane_pt_teaching_labels', 935, 'auto');
 
   function ptEnsureEsriLeaflet(callback) {
 
@@ -2355,11 +2356,19 @@ function(el, x, toolsData) {
   // --------------------------------------------------------------------------
 
   var ptTeachingMarkupLayer = L.layerGroup().addTo(map);
+  var ptTeachingLabelLayer = L.layerGroup().addTo(map);
   var ptTeachingMarkupActive = false;
   var ptTeachingMarkupDrawing = false;
   var ptTeachingMarkupPoints = [];
   var ptTeachingMarkupCurrentStroke = null;
   var ptTeachingMarkupStrokes = [];
+  var ptTeachingMarkupHistory = [];
+  var ptTeachingLabels = [];
+  var ptTeachingToolMode = 'draw';
+  var ptTeachingLabelPlacementActive = false;
+  var ptTeachingLabelStyle = 'point_text';
+  var ptTeachingLabelSize = 'small';
+  var ptTeachingLabelSeq = 0;
   var ptTeachingMarkupSuppressClickUntil = 0;
   var ptTeachingMarkupColor = '#3388ff';
   var ptTeachingMarkupWeight = 9;
@@ -2417,7 +2426,8 @@ function(el, x, toolsData) {
     if (!pane) return true;
     return pane === map.getPane('mapPane') ||
       pane === map.getPane('tilePane') ||
-      pane === map.getPane('pane_pt_measure');
+      pane === map.getPane('pane_pt_measure') ||
+      (pane === map.getPane('pane_pt_teaching_labels') && ptTeachingLabelPlacementActive);
   }
 
   function ptSuspendMeasurePane(pane) {
@@ -2496,6 +2506,153 @@ function(el, x, toolsData) {
 
   function ptTeachingSetStatus(msg, isError) {
     ptSetInlineNote('pt-teaching-markup-status', msg || '', !!isError);
+  }
+
+  function ptTeachingLabelText() {
+    var input = document.getElementById('pt-teaching-label-text');
+    return input ? ptCleanText(input.value) : '';
+  }
+
+  function ptTeachingLabelSizePx() {
+    if (ptTeachingLabelSize === 'large') return 20;
+    if (ptTeachingLabelSize === 'medium') return 16;
+    return 13;
+  }
+
+  function ptTeachingLabelIcon(text) {
+    var sizePx = ptTeachingLabelSizePx();
+    var safeText = ptEscapeHtml(text);
+    var safeColor = ptEscapeHtml(ptTeachingMarkupColor || '#3388ff');
+    var withPoint = ptTeachingLabelStyle === 'point_text';
+    var pointHtml = withPoint ?
+      '<span class="pt-teaching-label-point" style="background-color:' + safeColor + ';border-color:' + safeColor + ';"></span>' : '';
+    var html = pointHtml +
+      '<span class="pt-teaching-label-text" style="color:' + safeColor + ';font-size:' + sizePx + 'px;">' +
+        safeText +
+      '</span>';
+
+    return L.divIcon({
+      className: 'pt-teaching-label-icon ' +
+        (withPoint ? 'pt-teaching-label-point-text' : 'pt-teaching-label-text-only'),
+      html: html,
+      iconSize: [1, 1],
+      iconAnchor: withPoint ? [5, 5] : [0, Math.round(sizePx * 0.72)]
+    });
+  }
+
+  function ptTeachingPlaceLabel(latlng) {
+    var text = ptTeachingLabelText();
+    if (!text) {
+      ptTeachingSetStatus('Enter label text before clicking the map.', true);
+      return;
+    }
+
+    ptTeachingLabelSeq += 1;
+    var marker = L.marker(latlng, {
+      pane: 'pane_pt_teaching_labels',
+      icon: ptTeachingLabelIcon(text),
+      draggable: true,
+      keyboard: true,
+      riseOnHover: true,
+      bubblingMouseEvents: false,
+      title: text,
+      alt: 'Map label: ' + text
+    }).addTo(ptTeachingLabelLayer);
+
+    var rec = {
+      id: 'pt_teaching_label_' + ptTeachingLabelSeq,
+      layer: marker,
+      text: text,
+      style: ptTeachingLabelStyle,
+      size: ptTeachingLabelSize,
+      color: ptTeachingMarkupColor
+    };
+
+    ptTeachingLabels.push(rec);
+    ptTeachingMarkupHistory.push({type: 'label', layer: marker, record: rec});
+
+    var iconEl = marker.getElement ? marker.getElement() : null;
+    if (iconEl) {
+      iconEl.setAttribute('role', 'img');
+      iconEl.setAttribute('aria-label', 'Map label: ' + text + '. Drag to reposition.');
+    }
+
+    marker.on('dragstart', function() {
+      ptCloseTransientFeatureUi();
+    });
+
+    ptTeachingSetStatus('Placed label “' + text + '”. Drag it to reposition.', false);
+
+    var input = document.getElementById('pt-teaching-label-text');
+    if (input) {
+      try { input.focus({preventScroll: true}); } catch (focusErr) { input.focus(); }
+      input.select();
+    }
+  }
+
+  function ptTeachingSyncLabelControls() {
+    var style0 = document.getElementById('pt-teaching-label-style');
+    var size0 = document.getElementById('pt-teaching-label-size');
+    var color0 = document.getElementById('pt-teaching-label-color');
+
+    if (style0) style0.value = ptTeachingLabelStyle;
+    if (size0) size0.value = ptTeachingLabelSize;
+    if (color0) color0.value = ptTeachingMarkupColor;
+  }
+
+  function ptTeachingSyncToolMode() {
+    var drawTab = document.getElementById('pt-teaching-mode-draw');
+    var labelTab = document.getElementById('pt-teaching-mode-label');
+    var drawPanel = document.getElementById('pt-teaching-draw-panel');
+    var labelPanel = document.getElementById('pt-teaching-label-panel');
+    var isDraw = ptTeachingToolMode === 'draw';
+
+    if (drawTab) {
+      drawTab.setAttribute('aria-selected', isDraw ? 'true' : 'false');
+      drawTab.tabIndex = isDraw ? 0 : -1;
+    }
+    if (labelTab) {
+      labelTab.setAttribute('aria-selected', isDraw ? 'false' : 'true');
+      labelTab.tabIndex = isDraw ? -1 : 0;
+    }
+    if (drawPanel) drawPanel.hidden = !isDraw;
+    if (labelPanel) labelPanel.hidden = isDraw;
+
+    ptTeachingSyncLabelControls();
+  }
+
+  function ptSetTeachingLabelPlacementActive(active) {
+    active = !!active;
+    ptTeachingLabelPlacementActive = active;
+
+    var container = map && map.getContainer ? map.getContainer() : null;
+    if (container) container.classList.toggle('pt-teaching-label-active', active);
+
+    if (active) {
+      ptSetTeachingMarkupMode(false);
+      ptMeasureMode = null;
+      ptResetMeasureShapeOnly();
+      ptUpdateMeasureButtons();
+      if (ptMeasureInteractionActive) ptSetMeasureInteractionActive(false);
+      ptSetMeasureInteractionActive(true);
+      ptTeachingSetStatus('Enter text, then click the map to place the label.', false);
+    } else if (!ptMeasureMode) {
+      ptSetMeasureInteractionActive(false);
+    }
+  }
+
+  function ptSetTeachingToolMode(mode) {
+    mode = mode === 'label' ? 'label' : 'draw';
+    ptTeachingToolMode = mode;
+
+    if (mode === 'label') {
+      ptSetTeachingLabelPlacementActive(true);
+    } else {
+      ptSetTeachingLabelPlacementActive(false);
+      ptTeachingSetStatus('Draw mode ready. Turn On to draw.', false);
+    }
+
+    ptTeachingSyncToolMode();
   }
 
   function ptTeachingMarkupStyle() {
@@ -2719,10 +2876,14 @@ function(el, x, toolsData) {
     if (color0) color0.value = ptTeachingMarkupColor;
     if (size0) size0.value = String(ptTeachingMarkupWeight);
     if (opacity0) opacity0.value = String(ptTeachingMarkupOpacity);
+    ptTeachingSyncLabelControls();
   }
 
   function ptSetTeachingMarkupMode(active) {
     active = !!active;
+    if (active && ptTeachingLabelPlacementActive) {
+      ptSetTeachingLabelPlacementActive(false);
+    }
     ptTeachingMarkupActive = active;
     ptTeachingMarkupDrawing = false;
     ptTeachingMarkupPoints = [];
@@ -2774,6 +2935,23 @@ function(el, x, toolsData) {
     ptTeachingSyncControl();
   }
 
+  function ptTeachingSetSharedColor(color) {
+    if (color) ptTeachingMarkupColor = color;
+    ptTeachingUpdateBrushCursorStyle();
+    ptTeachingSyncControl();
+  }
+
+  function ptTeachingUpdateLabelControls() {
+    var style0 = document.getElementById('pt-teaching-label-style');
+    var size0 = document.getElementById('pt-teaching-label-size');
+    var color0 = document.getElementById('pt-teaching-label-color');
+
+    if (style0 && style0.value) ptTeachingLabelStyle = style0.value;
+    if (size0 && size0.value) ptTeachingLabelSize = size0.value;
+    if (color0 && color0.value) ptTeachingSetSharedColor(color0.value);
+    ptTeachingSyncLabelControls();
+  }
+
   function ptTeachingFinishStroke() {
     if (!ptTeachingMarkupDrawing) return;
 
@@ -2781,7 +2959,8 @@ function(el, x, toolsData) {
 
     if (ptTeachingMarkupCurrentStroke && ptTeachingMarkupPoints.length >= 2) {
       ptTeachingMarkupStrokes.push(ptTeachingMarkupCurrentStroke);
-      ptTeachingSetStatus('Stroke added. Use Undo last stroke or Clear markup as needed.', false);
+      ptTeachingMarkupHistory.push({type: 'stroke', layer: ptTeachingMarkupCurrentStroke});
+      ptTeachingSetStatus('Stroke added. Use Undo or Clear as needed.', false);
     } else if (ptTeachingMarkupCurrentStroke) {
       try { ptTeachingMarkupLayer.removeLayer(ptTeachingMarkupCurrentStroke); } catch (err) {}
     }
@@ -2791,21 +2970,35 @@ function(el, x, toolsData) {
   }
 
   function ptTeachingUndoLastStroke() {
-    var last = ptTeachingMarkupStrokes.pop();
-    if (last) {
-      try { ptTeachingMarkupLayer.removeLayer(last); } catch (err) {}
-      ptTeachingSetStatus('Removed last markup stroke.', false);
+    var last = ptTeachingMarkupHistory.pop();
+    if (last && last.layer) {
+      if (last.type === 'label') {
+        try { ptTeachingLabelLayer.removeLayer(last.layer); } catch (labelErr) {}
+        ptTeachingLabels = ptTeachingLabels.filter(function(rec) {
+          return rec.layer !== last.layer;
+        });
+        ptTeachingSetStatus('Removed last map label.', false);
+      } else {
+        try { ptTeachingMarkupLayer.removeLayer(last.layer); } catch (strokeErr) {}
+        ptTeachingMarkupStrokes = ptTeachingMarkupStrokes.filter(function(layer) {
+          return layer !== last.layer;
+        });
+        ptTeachingSetStatus('Removed last markup stroke.', false);
+      }
     } else {
-      ptTeachingSetStatus('No markup strokes to undo.', false);
+      ptTeachingSetStatus('No drawings or labels to undo.', false);
     }
   }
 
   function ptTeachingClearMarkup() {
     ptTeachingMarkupLayer.clearLayers();
+    ptTeachingLabelLayer.clearLayers();
     ptTeachingMarkupCurrentStroke = null;
     ptTeachingMarkupPoints = [];
     ptTeachingMarkupStrokes = [];
-    ptTeachingSetStatus('Markup cleared.', false);
+    ptTeachingMarkupHistory = [];
+    ptTeachingLabels = [];
+    ptTeachingSetStatus('Drawings and labels cleared.', false);
   }
 
   function ptTeachingPointerLatLng(evt) {
@@ -2929,7 +3122,9 @@ function(el, x, toolsData) {
     ptResetMeasureShapeOnly();
     ptSetMeasureStatus('Measurements cleared.', false);
     ptUpdateMeasureButtons();
-    ptSetMeasureInteractionActive(false);
+    if (!ptTeachingLabelPlacementActive) {
+      ptSetMeasureInteractionActive(false);
+    }
   }
 
   function ptDistanceMeters(points) {
@@ -3003,6 +3198,7 @@ function(el, x, toolsData) {
   }
 
   function ptStartMeasure(mode) {
+    ptSetTeachingLabelPlacementActive(false);
     ptSetTeachingMarkupMode(false);
     ptMeasureMode = mode;
     ptResetMeasureShapeOnly();
@@ -3114,7 +3310,12 @@ function(el, x, toolsData) {
   }
 
   function ptCaptureMeasureClick(evt) {
-    if (!ptMeasureMode) return;
+    if (!ptMeasureMode && !ptTeachingLabelPlacementActive) return;
+    if (
+      ptTeachingLabelPlacementActive &&
+      evt.target && evt.target.closest &&
+      evt.target.closest('.pt-teaching-label-icon')
+    ) return;
     if (ptTeachingIsControlTarget(evt.target)) return;
 
     evt.preventDefault();
@@ -3126,6 +3327,11 @@ function(el, x, toolsData) {
     var latlng = null;
     try { latlng = map.mouseEventToLatLng(evt); } catch (latlngErr) {}
     if (!latlng) return;
+
+    if (ptTeachingLabelPlacementActive) {
+      ptTeachingPlaceLabel(latlng);
+      return;
+    }
 
     ptMeasurePoints.push(latlng);
     ptDrawMeasure();
@@ -6741,12 +6947,15 @@ function(el, x, toolsData) {
     // Global UI reset for user-added/session layers and temporary map state.
     // This intentionally does not change the selected basemap or map extent.
 
-    // Stop Draw/markup mode if active.  This leaves existing markup strokes
-    // in place; use Draw > Clear to erase annotations deliberately.
+    // Stop Draw/Label placement if active. Existing drawings and labels stay
+    // in place; use Draw / Label > Clear to erase annotations deliberately.
     try {
+      ptSetTeachingLabelPlacementActive(false);
       ptSetTeachingMarkupMode(false);
       var teachingWrap0 = document.getElementById('pt-teaching-markup-wrap');
       if (teachingWrap0) teachingWrap0.classList.add('pt-teaching-markup-collapsed');
+      var teachingTab0 = document.getElementById('pt-teaching-markup-tab');
+      if (teachingTab0) teachingTab0.setAttribute('aria-expanded', 'false');
     } catch (err) {
       console.warn('PT2 Clear All: Draw mode reset failed', err);
     }
@@ -10309,39 +10518,68 @@ function(el, x, toolsData) {
   teachingWrap.id = 'pt-teaching-markup-wrap';
   teachingWrap.className = 'pt-teaching-markup-wrap pt-teaching-markup-collapsed';
   teachingWrap.innerHTML =
-    '<div class="pt-teaching-markup-tab" id="pt-teaching-markup-tab">' +
-      '<span>draw</span>' +
-    '</div>' +
+    '<button type="button" class="pt-teaching-markup-tab" id="pt-teaching-markup-tab" aria-expanded="false" aria-label="Draw / Label" title="Draw / Label">' +
+      '<span>draw/label</span>' +
+    '</button>' +
     '<div class="pt-teaching-markup-body">' +
-      '<div class="pt-teaching-markup-actions">' +
+      '<div class="pt-teaching-mode-tabs" role="tablist" aria-label="Draw or label mode">' +
+        '<button type="button" id="pt-teaching-mode-draw" class="pt-teaching-mode-tab" role="tab" aria-selected="true" aria-controls="pt-teaching-draw-panel">Draw</button>' +
+        '<button type="button" id="pt-teaching-mode-label" class="pt-teaching-mode-tab" role="tab" aria-selected="false" aria-controls="pt-teaching-label-panel" tabindex="-1">Label</button>' +
+      '</div>' +
+      '<div class="pt-teaching-common-actions">' +
+        '<button type="button" id="pt-teaching-markup-undo-btn" class="pt-tools-btn pt-teaching-mini-btn">Undo</button>' +
+        '<button type="button" id="pt-teaching-markup-clear-btn" class="pt-tools-btn pt-teaching-mini-btn">Clear</button>' +
+      '</div>' +
+      '<div id="pt-teaching-draw-panel" class="pt-teaching-tool-panel" role="tabpanel" aria-labelledby="pt-teaching-mode-draw">' +
         '<label class="pt-teaching-markup-check" title="Turn draw mode on/off">' +
           '<input type="checkbox" id="pt-teaching-markup-toggle"/> On' +
         '</label>' +
-        '<button type="button" id="pt-teaching-markup-undo-btn" class="pt-tools-btn pt-teaching-mini-btn">undo</button>' +
-        '<button type="button" id="pt-teaching-markup-clear-btn" class="pt-tools-btn pt-teaching-mini-btn">clear</button>' +
+        '<div class="pt-teaching-markup-grid">' +
+          '<label>C<br/><select id="pt-teaching-markup-color" class="pt-teaching-markup-select" title="Color">' +
+            '<option value="#FFD84D">yellow</option>' +
+            '<option value="#E53E3E">red</option>' +
+            '<option value="#3388ff" selected>blue</option>' +
+            '<option value="#2F855A">green</option>' +
+            '<option value="#333333">gray</option>' +
+          '</select></label>' +
+          '<label>B<br/><select id="pt-teaching-markup-size" class="pt-teaching-markup-select" title="Brush size">' +
+            '<option value="3">micro</option>' +
+            '<option value="5">tiny</option>' +
+            '<option value="9" selected>small</option>' +
+            '<option value="18">medium</option>' +
+            '<option value="30">large</option>' +
+            '<option value="46">huge</option>' +
+            '<option value="64">max</option>' +
+          '</select></label>' +
+          '<label>O<br/><select id="pt-teaching-markup-opacity" class="pt-teaching-markup-select" title="Opacity">' +
+            '<option value="0.25">low</option>' +
+            '<option value="0.45" selected>med</option>' +
+            '<option value="0.65">high</option>' +
+          '</select></label>' +
+        '</div>' +
       '</div>' +
-      '<div class="pt-teaching-markup-grid">' +
-        '<label>C<br/><select id="pt-teaching-markup-color" class="pt-teaching-markup-select" title="Color">' +
-          '<option value="#FFD84D">yellow</option>' +
-          '<option value="#E53E3E">red</option>' +
-          '<option value="#3388ff" selected>blue</option>' +
-          '<option value="#2F855A">green</option>' +
-          '<option value="#333333">gray</option>' +
-        '</select></label>' +
-        '<label>B<br/><select id="pt-teaching-markup-size" class="pt-teaching-markup-select" title="Brush size">' +
-          '<option value="3">micro</option>' +
-          '<option value="5">tiny</option>' +
-          '<option value="9" selected>small</option>' +
-          '<option value="18">medium</option>' +
-          '<option value="30">large</option>' +
-          '<option value="46">huge</option>' +
-          '<option value="64">max</option>' +
-        '</select></label>' +
-        '<label>O<br/><select id="pt-teaching-markup-opacity" class="pt-teaching-markup-select" title="Opacity">' +
-          '<option value="0.25">low</option>' +
-          '<option value="0.45" selected>med</option>' +
-          '<option value="0.65">high</option>' +
-        '</select></label>' +
+      '<div id="pt-teaching-label-panel" class="pt-teaching-tool-panel" role="tabpanel" aria-labelledby="pt-teaching-mode-label" hidden>' +
+        '<label class="pt-teaching-label-input-label" for="pt-teaching-label-text">Label text</label>' +
+        '<input type="text" id="pt-teaching-label-text" class="pt-teaching-label-input" autocomplete="off" placeholder="MW-3a"/>' +
+        '<div class="pt-teaching-label-grid">' +
+          '<label>Style<select id="pt-teaching-label-style" class="pt-teaching-markup-select">' +
+            '<option value="point_text" selected>Point + text</option>' +
+            '<option value="text_only">Text only</option>' +
+          '</select></label>' +
+          '<label>Size<select id="pt-teaching-label-size" class="pt-teaching-markup-select">' +
+            '<option value="small" selected>Small</option>' +
+            '<option value="medium">Medium</option>' +
+            '<option value="large">Large</option>' +
+          '</select></label>' +
+          '<label>Color<select id="pt-teaching-label-color" class="pt-teaching-markup-select">' +
+            '<option value="#FFD84D">yellow</option>' +
+            '<option value="#E53E3E">red</option>' +
+            '<option value="#3388ff" selected>blue</option>' +
+            '<option value="#2F855A">green</option>' +
+            '<option value="#333333">gray</option>' +
+          '</select></label>' +
+        '</div>' +
+        '<div class="pt-teaching-label-guidance">Enter text, then click the map to place the label.</div>' +
       '</div>' +
       '<div id="pt-teaching-markup-status" class="pt-tools-local-status pt-teaching-markup-status"></div>' +
     '</div>';
@@ -10350,7 +10588,7 @@ function(el, x, toolsData) {
   clearAllWrap.id = 'pt-clear-all-wrap';
   clearAllWrap.className = 'pt-clear-all-wrap';
   clearAllWrap.innerHTML =
-    '<button type="button" id="pt-clear-all-btn" class="pt-clear-all-btn" title="Clear local layers, external layers, uploads, Ops layers, and measurements; turn off Draw mode. Use Draw > clear to erase markup strokes.">clear all</button>';
+    '<button type="button" id="pt-clear-all-btn" class="pt-clear-all-btn" title="Clear local layers, external layers, uploads, Ops layers, and measurements; turn off Draw / Label placement. Use Draw / Label > Clear to erase annotations.">clear all</button>';
 
   var wrap = document.createElement('div');
   wrap.id = 'pt-tools-adddata-wrap';
@@ -10551,13 +10789,17 @@ function(el, x, toolsData) {
         user-select: none;
         color: #222;
         line-height: 20px;
-        text-transform: lowercase;
+        appearance: none;
+        -webkit-appearance: none;
       }
 
       .pt-teaching-markup-tab:hover,
+      .pt-teaching-markup-tab:focus-visible,
       .pt-teaching-markup-on .pt-teaching-markup-tab {
         background: rgba(232, 236, 239, 0.99);
         border-color: rgba(110, 110, 110, 0.95);
+        outline: 2px solid #255E9B;
+        outline-offset: 1px;
       }
 
       .pt-teaching-markup-body {
@@ -10565,7 +10807,7 @@ function(el, x, toolsData) {
         position: absolute;
         top: 27px;
         left: 0;
-        width: 150px;
+        width: 250px;
         box-sizing: border-box;
         margin-top: 0;
         padding: 4px;
@@ -10579,12 +10821,51 @@ function(el, x, toolsData) {
         display: none;
       }
 
-      .pt-teaching-markup-actions {
+      .pt-teaching-mode-tabs {
         display: grid;
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        padding: 2px;
+        margin-bottom: 4px;
+        border-radius: 5px;
+        background: #e4e4df;
+      }
+
+      .pt-teaching-mode-tab {
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: transparent;
+        color: #333;
+        font: 700 11px/20px Arial, Helvetica, sans-serif;
+        cursor: pointer;
+      }
+
+      .pt-teaching-mode-tab[aria-selected="true"] {
+        border-color: #8b8b82;
+        background: #fff;
+        color: #111;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.16);
+      }
+
+      .pt-teaching-mode-tab:focus-visible {
+        outline: 2px solid #255E9B;
+        outline-offset: 1px;
+      }
+
+      .pt-teaching-common-actions {
+        display: flex;
+        justify-content: flex-end;
         gap: 3px;
         align-items: center;
         margin-bottom: 4px;
+      }
+
+      .pt-teaching-tool-panel[hidden] {
+        display: none;
+      }
+
+      .pt-teaching-tool-panel {
+        min-width: 0;
       }
 
       .pt-teaching-markup-check {
@@ -10593,7 +10874,7 @@ function(el, x, toolsData) {
         gap: 3px;
         font-weight: 700;
         cursor: pointer;
-        margin: 0;
+        margin: 0 0 4px 0;
         white-space: nowrap;
       }
 
@@ -10619,6 +10900,50 @@ function(el, x, toolsData) {
         border-radius: 4px;
         border: 1px solid #aaa;
         background: #ffffff;
+      }
+
+      .pt-teaching-label-input-label {
+        display: block;
+        margin-bottom: 2px;
+        font-weight: 700;
+      }
+
+      .pt-teaching-label-input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0 0 5px 0;
+        padding: 4px 5px;
+        border: 1px solid #999;
+        border-radius: 4px;
+        font: 12px Arial, Helvetica, sans-serif;
+      }
+
+      .pt-teaching-label-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.9fr 0.85fr;
+        gap: 4px;
+        align-items: end;
+      }
+
+      .pt-teaching-label-grid label {
+        min-width: 0;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .pt-teaching-label-guidance {
+        margin-top: 5px;
+        color: #555;
+        font-size: 10px;
+        line-height: 1.2;
+      }
+
+      .pt-teaching-label-input:focus-visible,
+      .pt-teaching-markup-select:focus-visible,
+      .pt-teaching-markup-check input:focus-visible {
+        outline: 2px solid #255E9B;
+        outline-offset: 1px;
       }
 
       .pt-teaching-markup-status {
@@ -10647,6 +10972,63 @@ function(el, x, toolsData) {
       .leaflet-container.pt-measure-active .leaflet-pane.pt-measure-pane-suspended,
       .leaflet-container.pt-measure-active .leaflet-pane.pt-measure-pane-suspended * {
         pointer-events: none !important;
+      }
+
+      .pt-teaching-label-icon {
+        width: 1px !important;
+        height: 1px !important;
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        cursor: move !important;
+      }
+
+      .leaflet-container.pt-teaching-label-active .pt-teaching-label-icon,
+      .leaflet-container.pt-teaching-label-active .pt-teaching-label-icon * {
+        cursor: move !important;
+      }
+
+      .pt-teaching-label-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: max-content;
+        max-width: 280px;
+        color: #3388ff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+        text-shadow:
+          -1px -1px 0 #fff,
+          1px -1px 0 #fff,
+          -1px 1px 0 #fff,
+          1px 1px 0 #fff,
+          0 0 3px #fff,
+          0 1px 4px rgba(255,255,255,0.92);
+        user-select: none;
+        pointer-events: auto;
+        cursor: move;
+      }
+
+      .pt-teaching-label-point-text .pt-teaching-label-text {
+        left: 11px;
+        top: -2px;
+      }
+
+      .pt-teaching-label-point {
+        position: absolute;
+        left: 1px;
+        top: 1px;
+        width: 8px;
+        height: 8px;
+        box-sizing: border-box;
+        border: 2px solid #3388ff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px #fff, 0 1px 3px rgba(0,0,0,0.5);
+        pointer-events: auto;
+        cursor: move;
       }
 
       .pt-teaching-markup-brush-cursor {
@@ -12067,17 +12449,24 @@ function(el, x, toolsData) {
   });
 
   ptBind('pt-teaching-markup-tab', 'click', function(e) {
-    if (e.target && e.target.closest && e.target.closest('input, select, button')) {
+    if (
+      e.target && e.target.closest &&
+      e.target.closest('input, select, button') &&
+      !e.target.closest('#pt-teaching-markup-tab')
+    ) {
       return;
     }
     e.preventDefault();
     teachingWrap.classList.toggle('pt-teaching-markup-collapsed');
 
     var isCollapsed = teachingWrap.classList.contains('pt-teaching-markup-collapsed');
+    e.currentTarget.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
     if (isCollapsed) {
-      // Closing the Draw panel should also leave Draw mode.  Otherwise the
-      // map can remain in modal draw mode while the checkbox is hidden.
+      // Closing the shared panel should leave either active placement mode.
       ptSetTeachingMarkupMode(false);
+      ptSetTeachingLabelPlacementActive(false);
+    } else if (ptTeachingToolMode === 'label') {
+      ptSetTeachingLabelPlacementActive(true);
     }
 
     var caret = document.getElementById('pt-teaching-markup-caret');
@@ -12086,6 +12475,28 @@ function(el, x, toolsData) {
     }
   });
 
+  function ptTeachingModeTabKeydown(e) {
+    var isHorizontalArrow = e.key === 'ArrowLeft' || e.key === 'ArrowRight';
+    if (!isHorizontalArrow && e.key !== 'Home' && e.key !== 'End') return;
+
+    e.preventDefault();
+    var nextMode = e.key === 'ArrowLeft' || e.key === 'Home' ? 'draw' : 'label';
+    ptSetTeachingToolMode(nextMode);
+    var nextTab = document.getElementById('pt-teaching-mode-' + nextMode);
+    if (nextTab) nextTab.focus();
+  }
+
+  ptBind('pt-teaching-mode-draw', 'click', function() {
+    ptSetTeachingToolMode('draw');
+  });
+
+  ptBind('pt-teaching-mode-label', 'click', function() {
+    ptSetTeachingToolMode('label');
+  });
+
+  ptBind('pt-teaching-mode-draw', 'keydown', ptTeachingModeTabKeydown);
+  ptBind('pt-teaching-mode-label', 'keydown', ptTeachingModeTabKeydown);
+
   ptBind('pt-teaching-markup-toggle', 'change', function(e) {
     ptSetTeachingMarkupMode(e.target.checked);
   });
@@ -12093,6 +12504,9 @@ function(el, x, toolsData) {
   ptBind('pt-teaching-markup-color', 'change', ptTeachingUpdateStyleFromControls);
   ptBind('pt-teaching-markup-size', 'change', ptTeachingUpdateStyleFromControls);
   ptBind('pt-teaching-markup-opacity', 'change', ptTeachingUpdateStyleFromControls);
+  ptBind('pt-teaching-label-style', 'change', ptTeachingUpdateLabelControls);
+  ptBind('pt-teaching-label-size', 'change', ptTeachingUpdateLabelControls);
+  ptBind('pt-teaching-label-color', 'change', ptTeachingUpdateLabelControls);
 
   ptBind('pt-teaching-markup-undo-btn', 'click', function(e) {
     e.preventDefault();
@@ -12108,6 +12522,7 @@ function(el, x, toolsData) {
 
   ptInstallTeachingMarkupPointerHandlers();
   ptTeachingSyncControl();
+  ptTeachingSyncToolMode();
 
   ptBind('pt-clear-all-btn', 'click', function(e) {
     e.preventDefault();

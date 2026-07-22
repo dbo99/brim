@@ -1261,6 +1261,10 @@ function(el, x) {
     content.innerHTML =
       '<h1 style=\"margin-top:0;\">PortaTreasure2 map notes</h1>' +
 
+      '<p style=\"margin:-8px 0 12px 0;font-size:12px;color:#777;font-style:italic;\">' +
+      'Incomplete / in-progress notes' +
+      '</p>' +
+
       '<p style=\"font-size:13px;color:#555;max-width:900px;\">' +
       'These notes provide screening-level interpretation of map layers, data sources, and symbology.' +
       '</p>' +
