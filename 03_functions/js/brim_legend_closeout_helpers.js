@@ -28,6 +28,8 @@ function(el, x) {
       '.pt-map-legend-card.pt-sgma-prioritization-map-legend{z-index:11022!important}' +
       '.pt-map-legend-card.pt-subsidence-observation-map-legend{z-index:11023!important}' +
       '.pt-map-legend-card.pt-map-card-undocked{z-index:11100!important}' +
+      '.pt-map-legend-local{background:rgba(246,239,222,0.96)!important}' +
+      '.pt-map-legend-external{background:rgba(225,240,251,0.97)!important}' +
       '.leaflet-control-container>.pt-map-legend-corner-overflow{max-height:calc(100% - 8px)!important;overflow-y:auto!important;overscroll-behavior:contain;pointer-events:auto!important;touch-action:pan-y}' +
       '.leaflet-control-container>.leaflet-top.pt-map-legend-corner-overflow{top:4px!important}' +
       '.leaflet-control-container>.leaflet-bottom.pt-map-legend-corner-overflow{bottom:4px!important}' +
@@ -287,6 +289,7 @@ function(el, x) {
     {card: '.pt-mlrs-mineral-cases-map-legend', close: '.pt-mlrs-map-legend-close', label: 'MLRS mineral-cases legend'},
     {card: '.pt-sgma-prioritization-map-legend', close: '.pt-sgma-map-legend-close', label: 'SGMA prioritization legend'},
     {card: '.pt-subsidence-observation-map-legend', close: '.pt-subsidence-observation-map-legend-close', label: 'Subsidence-observation legend'},
+    {card: '.pt-uic-explorer', close: '.pt-uic-external-close', handle: '.pt-uic-head', dock: '.pt-uic-external-dock', label: 'External UIC Explorer'},
     {card: '.pt-ops-map-legend', close: '.pt-ops-map-legend-close', handle: '.pt-ops-map-legend-titlebar', label: 'Ops Live map legend'},
     {card: '.pt-ops-snow-legend-control', close: '.pt-ops-snow-legend-close', handle: '.pt-ops-snow-titlebar', label: 'Snow-pillow SWE legend'},
     {card: '.pt-ops-cocorahs-legend-control', close: '.pt-ops-cocorahs-legend-close', handle: '.pt-ops-cocorahs-legend-head', label: 'CoCoRaHS precipitation legend'}

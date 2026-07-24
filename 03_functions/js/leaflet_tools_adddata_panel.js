@@ -239,14 +239,25 @@ function(el, x, toolsData) {
     return (mode === 'current_view' &&
       (src.indexOf('feature') >= 0 || src.indexOf('map') >= 0)) ||
       (mode === 'visual' && (src.indexOf('image') >= 0 || src.indexOf('map') >= 0)) ||
-      (mode === 'live' && src.indexOf('geojson') >= 0);
+      (mode === 'live' && src.indexOf('geojson') >= 0) ||
+      (mode === 'live_snapshot' && src.indexOf('feature') >= 0);
   }
 
   function ptSetCatalogLoading(idx, msg) {
     idx = Number(idx);
 
     if (ptCatalogLoadingIdx !== null && Number(ptCatalogLoadingIdx) !== idx) {
+      var previousIdx = Number(ptCatalogLoadingIdx);
       ptMarkCatalogLoadingCancelled(ptCatalogLoadingIdx);
+      if (PT2_CATALOG[previousIdx] && window.BRIM && window.BRIM.uicExplorer) {
+        var previousUicId = ptCatalogField(
+          PT2_CATALOG[previousIdx],
+          'external_layer_id'
+        );
+        if (window.BRIM.uicExplorer.isUicCatalogId(previousUicId)) {
+          window.BRIM.uicExplorer.removeExternal(previousUicId);
+        }
+      }
     }
 
     // Clear any prior loading row without an intermediate render; this new
@@ -285,6 +296,12 @@ function(el, x, toolsData) {
     ptSetCatalogRowNote(idx, message, false);
     ptSetInlineNote('pt-catalog-action-note', message, false);
     ptSetStatus(message, false);
+    if (PT2_CATALOG[idx] && window.BRIM && window.BRIM.uicExplorer) {
+      var loadingUicId = ptCatalogField(PT2_CATALOG[idx], 'external_layer_id');
+      if (window.BRIM.uicExplorer.isUicCatalogId(loadingUicId)) {
+        window.BRIM.uicExplorer.setExternalLoading(loadingUicId, true, message);
+      }
+    }
 
     window.setTimeout(function() {
       if (ptCatalogLoadingIdx === idx) {
@@ -394,6 +411,11 @@ function(el, x, toolsData) {
     var activeRec = ptFindCustomLayerByCatalogIndex(idx);
     if (activeRec && activeRec.id) {
       ptRemoveCustomLayer(activeRec.id);
+    }
+    if (PT2_CATALOG[idx] && window.BRIM && window.BRIM.uicExplorer) {
+      window.BRIM.uicExplorer.removeExternal(
+        ptCatalogField(PT2_CATALOG[idx], 'external_layer_id')
+      );
     }
 
     ptClearCatalogLoading(true);
@@ -912,6 +934,15 @@ function(el, x, toolsData) {
       String(value).toLowerCase() !== 'null' &&
       String(value).toLowerCase() !== 'na' &&
       String(value).toLowerCase() !== 'nan';
+  }
+
+  function ptUicFirstValue(props, fieldNames) {
+    var names = Array.isArray(fieldNames) ? fieldNames : [fieldNames];
+    for (var i = 0; i < names.length; i += 1) {
+      var value = ptFieldValue(props, names[i]);
+      if (ptHasValue(value)) return value;
+    }
+    return '';
   }
 
   function ptIsExternalNoiseField(fieldName) {
@@ -1837,9 +1868,233 @@ function(el, x, toolsData) {
     return extraAttributeKeys.length <= 20;
   }
 
+  function ptIsUicAquiferExemptionStyle(options) {
+    options = options || {};
+    var method = ptCleanText(options.defaultStyleMethod).toLowerCase();
+    var id = ptCleanText(options.catalogExtId || options.external_layer_id).toUpperCase();
+    return method.indexOf('uic_') === 0 || id.indexOf('UIC_') === 0;
+  }
+
+  function ptIsUicReferencePointStyle(options) {
+    options = options || {};
+    var method = ptCleanText(options.defaultStyleMethod).toLowerCase();
+    var id = ptCleanText(
+      options.catalogExtId || options.external_layer_id
+    ).toUpperCase();
+    return method.indexOf('reference_point') >= 0 ||
+      id === 'UIC_EPA_REFERENCE_POINTS';
+  }
+
+  function ptSetUicPreflightError(options, message) {
+    if (!ptIsUicAquiferExemptionStyle(options) ||
+        !window.BRIM || !window.BRIM.uicExplorer ||
+        !window.BRIM.uicExplorer.setExternalError) {
+      return;
+    }
+    window.BRIM.uicExplorer.setExternalError(
+      options.catalogExtId || options.external_layer_id,
+      message
+    );
+  }
+
+  function ptUicSourceKey(options, props) {
+    options = options || {};
+    props = props || {};
+    var method = ptCleanText(options.defaultStyleMethod).toLowerCase();
+    var id = ptCleanText(options.catalogExtId).toLowerCase();
+    if (method.indexOf('epa') >= 0 || id.indexOf('epa') >= 0 ||
+        ptHasValue(ptFieldValue(props, 'ID_1'))) return 'epa';
+    if (method.indexOf('post') >= 0 || id.indexOf('post') >= 0 ||
+        ptHasValue(ptFieldValue(props, 'Field_Labe'))) return 'calgem_post';
+    return 'calgem_primacy';
+  }
+
+  function ptUicPopupRow(label, value) {
+    value = ptCleanText(value);
+    if (!value) return '';
+    return '<tr><th style="text-align:left;vertical-align:top;padding:2px 8px 2px 0;white-space:nowrap;">' +
+      ptEscapeHtml(label) + '</th><td style="vertical-align:top;padding:2px 0;">' +
+      ptEscapeHtml(value) + '</td></tr>';
+  }
+
+  function ptUicFormatDate(value) {
+    if (!ptHasValue(value)) return '';
+    var numeric = Number(value);
+    var parsed = null;
+    if (isFinite(numeric) && Math.abs(numeric) > 10000000000) {
+      parsed = new Date(numeric);
+    } else {
+      var textValue = ptCleanText(value);
+      if (/^\d{4}-\d{2}-\d{2}/.test(textValue)) return textValue.slice(0, 10);
+      var timestamp = Date.parse(textValue);
+      if (!isNaN(timestamp)) parsed = new Date(timestamp);
+    }
+    return parsed && !isNaN(parsed.getTime()) ?
+      parsed.toISOString().slice(0, 10) :
+      ptCleanText(value);
+  }
+
+  function ptUicLink(url, label) {
+    url = ptCleanText(url);
+    if (!/^(https?|ftp):\/\//i.test(url)) return '';
+    var legacy = /^ftp:\/\//i.test(url) ? ' (legacy FTP; unverified)' : '';
+    return '<a href="' + ptEscapeHtml(url) + '" target="_blank" rel="noopener">' +
+      ptEscapeHtml(label + legacy) + '</a>';
+  }
+
+  function ptUicPopupFromProperties(props, options) {
+    props = props || {};
+    options = options || {};
+    var sourceKey = ptUicSourceKey(options, props);
+    var isEpa = sourceKey === 'epa';
+    var isPost = sourceKey === 'calgem_post';
+    var isHistoric = sourceKey === 'calgem_primacy';
+    var isReferencePoint = ptIsUicReferencePointStyle(options);
+    var sourceFamily = isEpa ? 'EPA' : 'CalGEM';
+    var sourceId = isEpa ?
+      ptUicFirstValue(
+        props,
+        isReferencePoint ? ['ID', 'OBJECTID'] : ['ID_1', 'OBJECTID']
+      ) :
+      (isPost ?
+        ptUicFirstValue(props, ['ID', 'OBJECTID']) :
+        ('CalGEM_PRIMACY_' + ptUicFirstValue(props, ['OBJECTID_1', 'OBJECTID'])));
+    var field = isEpa ?
+      ptFieldValue(props, 'Injection_Well_ID') :
+      (isPost ?
+        ptUicFirstValue(props, ['Field_Labe', 'Name']) :
+        ptFieldValue(props, 'FieldName'));
+    var county = isHistoric ? ptFieldValue(props, 'AreaName') : ptFieldValue(props, 'County');
+    var formation = isPost ? ptFieldValue(props, 'Formation') : '';
+    var zone = isEpa ? ptFieldValue(props, 'Injection_Zone') :
+      (isPost ?
+        ptUicFirstValue(props, ['Zone', 'Inj_Zone', 'Zone_Label']) :
+        '');
+    var formationZones = [];
+    if (isHistoric) {
+      for (var i = 1; i <= 18; i++) {
+        var value = ptCleanText(ptFieldValue(props, 'FormZone' + i));
+        if (value) formationZones.push(value);
+      }
+      zone = formationZones.join('; ');
+    }
+    var decision = isHistoric ? '' : ptUicFormatDate(
+      isEpa ? ptFieldValue(props, 'Decision_Date') : ptFieldValue(props, 'Approve')
+    );
+    var documentUrl = isPost ? ptFieldValue(props, 'Documentat') : '';
+    var rows = '';
+    rows += ptUicPopupRow('Source record', sourceId);
+    rows += ptUicPopupRow('Field / project', field);
+    rows += ptUicPopupRow(isHistoric ? 'Area' : 'County', county);
+    rows += ptUicPopupRow('Formation', formation);
+    rows += ptUicPopupRow(isHistoric ? 'Formation / zone list' : 'Zone / member', zone);
+    rows += ptUicPopupRow('Decision / approval date', decision);
+    rows += ptUicPopupRow('Well class', ptFieldValue(props, 'Well_Class'));
+    rows += ptUicPopupRow(
+      'Injection activity',
+      ptFieldValue(props, isEpa ? 'Injection_Activity' : 'Injectate')
+    );
+    rows += ptUicPopupRow('Exemption criterion', ptFieldValue(props, 'Exemption_'));
+    rows += ptUicPopupRow('Pool', ptFieldValue(props, 'Pool'));
+    rows += ptUicPopupRow('Reported depth', [
+      ptUicFirstValue(props, ['DepthMin_Z', 'Depth']),
+      ptFieldValue(props, 'DepthMax_Z'),
+      ptFieldValue(props, 'Depth_Units')
+    ].map(ptCleanText).filter(Boolean).join(' – '));
+    rows += ptUicPopupRow('USDW values (as reported)', [
+      ptFieldValue(props, 'USDW_MinDe'), ptFieldValue(props, 'USDW_MaxDe')
+    ].map(ptCleanText).filter(Boolean).join(' – '));
+    rows += ptUicPopupRow('TDS values (as reported)', [
+      ptFieldValue(props, 'TDS_Min'), ptFieldValue(props, 'TDS_Max')
+    ].map(ptCleanText).filter(Boolean).join(' – '));
+    rows += ptUicPopupRow('Boron values (as reported)', [
+      ptFieldValue(props, 'Boron_Min'), ptFieldValue(props, 'Boron_Max')
+    ].map(ptCleanText).filter(Boolean).join(' – '));
+    rows += ptUicPopupRow('Reported acreage', [
+      ptFieldValue(
+        props, isHistoric ? 'AcresTable' : (isPost ? 'Acreage' : 'AE_Area')
+      ),
+      isEpa ? ptFieldValue(props, 'AE_Area_Units') : ''
+    ].map(ptCleanText).filter(Boolean).join(' '));
+    rows += ptUicPopupRow('Calculated acreage', ptFieldValue(props, 'AcresCalc'));
+    rows += ptUicPopupRow('Data quality', ptFieldValue(
+      props, 'Data_Quality_Category'
+    ));
+    rows += ptUicPopupRow('Source volume', ptFieldValue(props, 'Doc_Source'));
+    rows += ptUicPopupRow('Source comments', ptFieldValue(props, 'Comments'));
+    rows += ptUicPopupRow('RMS error', ptFieldValue(props, 'RMS_Error'));
+    rows += ptUicPopupRow('GIS comments', ptFieldValue(props, 'GIS_Comments'));
+    var links = [
+      ptUicLink(documentUrl, 'Open source documentation'),
+      ptUicLink(options.sourcePage, 'Source information'),
+      isEpa ? ptUicLink(
+        'https://www.epa.gov/uic/california-uic-program-oversight-arods',
+        'EPA California decisions'
+      ) : ''
+    ].filter(Boolean).join(' · ');
+    var warning = 'Aquifer-exemption polygons show mapped surface footprints only. ' +
+      'Exemptions may be limited to particular formations, zones, depths, elevations, ' +
+      'or structural boundaries. A surface intersection does not establish that all ' +
+      'underlying groundwater is exempt. Review the applicable EPA Record of Decision ' +
+      'and supporting documents for project-level interpretation.';
+    if (isHistoric) {
+      warning += ' This CalGEM layer is a partial historic shaded subset and is not a ' +
+        'complete map of all 1983 primacy exemptions.';
+    }
+    if (isReferencePoint) {
+      warning = 'This symbol is an EPA exemption-area centroid/reference locator. ' +
+        'It is not a well, injection well, or additional exemption area. Use it ' +
+        'for overview and record location only; review the mapped boundary and ' +
+        'applicable EPA Record of Decision for spatial interpretation.';
+    }
+    return '<div class="pt-uic-popup">' +
+      '<div class="pt-uic-popup-badge">' + ptEscapeHtml(sourceFamily) +
+      (isReferencePoint ? ' · Centroid / locator' : ' · Authoritative Live') +
+      ' · retrieved ' +
+      ptEscapeHtml(ptCleanText(options.retrievalUtc) || 'this session') + '</div>' +
+      '<div class="pt-uic-popup-title">' +
+      ptEscapeHtml(ptCleanText(field) || ptCleanText(sourceId) || 'UIC record') +
+      '</div><table>' + rows + '</table>' +
+      '<div class="pt-uic-popup-warning"><strong>Interpretation warning:</strong> ' +
+      ptEscapeHtml(warning) + '</div>' +
+      (links ? '<div class="pt-uic-popup-links">' + links + '</div>' : '') +
+      '</div>';
+  }
+
+  function ptUicTooltipFromProperties(props, options) {
+    props = props || {};
+    var sourceKey = ptUicSourceKey(options, props);
+    var field = sourceKey === 'epa' ?
+      ptFieldValue(props, 'Injection_Well_ID') :
+      (sourceKey === 'calgem_post' ?
+        ptUicFirstValue(props, ['Field_Labe', 'Name']) :
+        ptFieldValue(props, 'FieldName'));
+    var zone = sourceKey === 'epa' ?
+      ptFieldValue(props, 'Injection_Zone') :
+      (sourceKey === 'calgem_post' ?
+        ptUicFirstValue(props, ['Formation', 'Zone']) :
+        ptUicFirstValue(props, ['AreaName', 'FormZone1']));
+    var isReferencePoint = ptIsUicReferencePointStyle(options);
+    var id = sourceKey === 'epa' ?
+      ptFieldValue(props, isReferencePoint ? 'ID' : 'ID_1') :
+      (sourceKey === 'calgem_post' ? ptFieldValue(props, 'ID') : ptFieldValue(props, 'OBJECTID_1'));
+    return '<div class="pt-external-hover"><b>' +
+      ptEscapeHtml(ptCleanText(field) || ptCleanText(id) || 'UIC record') +
+      '</b>' + (ptCleanText(zone) ? '<div>' + ptEscapeHtml(zone) + '</div>' : '') +
+      '<div>' + ptEscapeHtml(
+        isReferencePoint ? 'EPA · centroid / locator' :
+          (sourceKey === 'epa' ? 'EPA · Live' : 'CalGEM · Live')
+      ) +
+      '</div></div>';
+  }
+
   function ptPopupFromProperties(props, options) {
     props = props || {};
     options = options || {};
+
+    if (ptIsUicAquiferExemptionStyle(options)) {
+      return ptUicPopupFromProperties(props, options);
+    }
 
     if (ptIsAlertCameraStyle(options) && !ptIsAlertCameraViewshedStyle(options)) {
       return ptAlertCameraPopupHtml([props], options);
@@ -2193,6 +2448,10 @@ function(el, x, toolsData) {
   function ptTooltipFromProperties(props, options) {
     props = props || {};
     options = options || {};
+
+    if (ptIsUicAquiferExemptionStyle(options)) {
+      return ptUicTooltipFromProperties(props, options);
+    }
 
     var hoverFields = ptSplitFieldList(options.hoverFields);
     var hoverAliasMap = ptAliasMapFromString(options.hoverAliases || options.popupAliases);
@@ -2885,6 +3144,7 @@ function(el, x, toolsData) {
       ptSetTeachingLabelPlacementActive(false);
     }
     ptTeachingMarkupActive = active;
+    map._ptDrawInteractionActive = active;
     ptTeachingMarkupDrawing = false;
     ptTeachingMarkupPoints = [];
     ptTeachingMarkupCurrentStroke = null;
@@ -6263,6 +6523,14 @@ function(el, x, toolsData) {
   function ptStyleForExternalFeature(feature, color, fillOpacity, options) {
     options = options || {};
 
+    if (ptIsUicAquiferExemptionStyle(options)) {
+      if (window.BRIM && window.BRIM.uicExplorer &&
+          window.BRIM.uicExplorer.featureStyle) {
+        return window.BRIM.uicExplorer.featureStyle(options, feature) || {};
+      }
+      return {};
+    }
+
     // For point layers whose markers are fully styled in pointToLayer(), do not
     // return a generic GeoJSON style here. Leaflet applies the GeoJSON style to
     // CircleMarkers after pointToLayer(), which would overwrite flow-bin
@@ -6456,6 +6724,13 @@ function(el, x, toolsData) {
 
     return function(feature, latlng) {
       var props = feature && feature.properties ? feature.properties : {};
+
+      if (ptIsUicReferencePointStyle(options) &&
+          window.BRIM && window.BRIM.uicExplorer &&
+          window.BRIM.uicExplorer.pointStyle) {
+        var uicPointStyle = window.BRIM.uicExplorer.pointStyle(options);
+        if (uicPointStyle) return L.circleMarker(latlng, uicPointStyle);
+      }
 
       if (ptIsAlertCameraStyle(options) && !ptIsAlertCameraViewshedStyle(options)) {
         var pan = Number(ptFieldValue(props, 'positionPan'));
@@ -6713,6 +6988,26 @@ function(el, x, toolsData) {
     return function(feature, layer) {
       var props = feature ? feature.properties : {};
 
+      if (ptIsUicAquiferExemptionStyle(options) &&
+          layer && layer.setStyle &&
+          window.BRIM && window.BRIM.uicExplorer) {
+        layer.on('mouseover', function() {
+          var style = window.BRIM.uicExplorer.hoverStyle ?
+            window.BRIM.uicExplorer.hoverStyle(options, feature) : null;
+          if (!style) return;
+          layer.setStyle(style);
+          if (style.radius && layer.setRadius) layer.setRadius(style.radius);
+          if (layer.bringToFront) layer.bringToFront();
+        });
+        layer.on('mouseout', function() {
+          var style = window.BRIM.uicExplorer.featureStyle ?
+            window.BRIM.uicExplorer.featureStyle(options, feature) : null;
+          if (!style) return;
+          layer.setStyle(style);
+          if (style.radius && layer.setRadius) layer.setRadius(style.radius);
+        });
+      }
+
       var tooltipHtml = ptTooltipFromProperties(props, options);
 
       if (tooltipHtml) {
@@ -6799,6 +7094,9 @@ function(el, x, toolsData) {
       loadP90Seconds: ptCleanText(options.loadP90Seconds),
       loadMaxSeconds: ptCleanText(options.loadMaxSeconds),
       loadFeatureCapRate: ptCleanText(options.loadFeatureCapRate),
+      retrievalUtc: ptCleanText(options.retrievalUtc),
+      sourcePage: ptCleanText(options.sourcePage),
+      sourceServiceUrl: ptCleanText(options.sourceServiceUrl || url),
       catalogKey: ptCleanText(options.catalogKey),
       catalogLoadToken: ptCleanText(options.catalogLoadToken),
       opsPromotedKey: ptCleanText(options.opsPromotedKey),
@@ -6843,6 +7141,10 @@ function(el, x, toolsData) {
     ptUpdateMlrsMineralCasesMapLegend();
     ptUpdateSgmaPrioritizationMapLegend();
     ptUpdateSubsidenceObservationMapLegend();
+    if (window.BRIM && window.BRIM.uicExplorer &&
+        window.BRIM.uicExplorer.isUicCatalogId(rec.catalogExtId)) {
+      window.BRIM.uicExplorer.upsertExternal(rec);
+    }
     return rec;
   }
 
@@ -6851,8 +7153,15 @@ function(el, x, toolsData) {
 
     ptCustomLayers.forEach(function(rec) {
       if (rec.id === id) {
+        if (ptIsRefreshableUicSnapshotRecord(rec)) {
+          rec._uicRefreshGeneration = Number(rec._uicRefreshGeneration || 0) + 1;
+          rec.refreshing = false;
+        }
         if (rec.layer && map.hasLayer(rec.layer)) {
           map.removeLayer(rec.layer);
+        }
+        if (window.BRIM && window.BRIM.uicExplorer) {
+          window.BRIM.uicExplorer.removeExternal(rec.catalogExtId || rec.id);
         }
       } else {
         keep.push(rec);
@@ -6907,8 +7216,15 @@ function(el, x, toolsData) {
         return;
       }
 
+      if (ptIsRefreshableUicSnapshotRecord(rec)) {
+        rec._uicRefreshGeneration = Number(rec._uicRefreshGeneration || 0) + 1;
+        rec.refreshing = false;
+      }
       if (rec.layer && map.hasLayer(rec.layer)) {
         map.removeLayer(rec.layer);
+      }
+      if (window.BRIM && window.BRIM.uicExplorer) {
+        window.BRIM.uicExplorer.removeExternal(rec.catalogExtId || rec.id);
       }
     });
 
@@ -6923,7 +7239,18 @@ function(el, x, toolsData) {
     // Mark any in-flight quick-add request as cancelled so a late async result
     // cannot silently re-add itself after Clear external.
     if (ptCatalogLoadingIdx !== null) {
+      var pendingCatalogIdx = Number(ptCatalogLoadingIdx);
       ptMarkCatalogLoadingCancelled(ptCatalogLoadingIdx);
+      if (PT2_CATALOG[pendingCatalogIdx] &&
+          window.BRIM && window.BRIM.uicExplorer) {
+        var pendingCatalogExtId = ptCatalogField(
+          PT2_CATALOG[pendingCatalogIdx],
+          'external_layer_id'
+        );
+        if (window.BRIM.uicExplorer.isUicCatalogId(pendingCatalogExtId)) {
+          window.BRIM.uicExplorer.removeExternal(pendingCatalogExtId);
+        }
+      }
     }
     ptClearCatalogLoading(true);
     ptClearCatalogRowNotes();
@@ -7021,6 +7348,9 @@ function(el, x, toolsData) {
           map.removeLayer(rec.layer);
         }
       }
+      if (window.BRIM && window.BRIM.uicExplorer) {
+        window.BRIM.uicExplorer.setExternalVisible(rec.catalogExtId || rec.id, visible);
+      }
     });
 
     ptUpdateWcrCompletedDepthMapLegend();
@@ -7062,6 +7392,10 @@ function(el, x, toolsData) {
       defaultLabelField: rec.defaultLabelField || '',
       fieldCurationNotes: rec.fieldCurationNotes || '',
       showNativeFieldNames: rec.showNativeFieldNames || '',
+      retrievalUtc: rec.retrievalUtc || '',
+      sourcePage: rec.sourcePage || '',
+      sourceServiceUrl: rec.sourceServiceUrl || rec.url || '',
+      catalogExtId: rec.catalogExtId || '',
       catalogIndex: rec.catalogIndex,
       catalogKey: rec.catalogKey || '',
       catalogLoadToken: rec.catalogLoadToken || '',
@@ -7313,10 +7647,16 @@ function(el, x, toolsData) {
     return src.indexOf('geojson') >= 0;
   }
 
+  function ptIsRefreshableUicSnapshotRecord(rec) {
+    if (!rec || rec.loadMode !== 'live_snapshot') return false;
+    return ptIsUicAquiferExemptionStyle(rec);
+  }
+
   function ptIsRefreshableExternalRecord(rec) {
     return ptIsRefreshableCurrentViewRecord(rec) ||
       ptIsRefreshableVisualRasterRecord(rec) ||
-      ptIsRefreshableLiveGeoJsonRecord(rec);
+      ptIsRefreshableLiveGeoJsonRecord(rec) ||
+      ptIsRefreshableUicSnapshotRecord(rec);
   }
 
   function ptFindCustomLayerById(id) {
@@ -7358,6 +7698,9 @@ function(el, x, toolsData) {
     } else if (ptIsRefreshableLiveGeoJsonRecord(rec)) {
       title = 'Reload this live GeoJSON feed';
       label = '↻ Refresh feed';
+    } else if (ptIsRefreshableUicSnapshotRecord(rec)) {
+      title = 'Retrieve a new complete authoritative snapshot; keep the current layer if retrieval fails';
+      label = '↻ Refresh live source';
     }
 
     return '<button type="button" class="pt-tools-mini-btn pt-custom-refresh-btn' + extraClass + '" data-pt-custom-refresh="' + rec.id + '" ' +
@@ -7415,6 +7758,90 @@ function(el, x, toolsData) {
     }
 
     var options = ptOptionsFromCustomRecord(rec);
+
+    if (ptIsRefreshableUicSnapshotRecord(rec)) {
+      rec.refreshing = true;
+      rec._uicRefreshGeneration = Number(rec._uicRefreshGeneration || 0) + 1;
+      var generation = rec._uicRefreshGeneration;
+      ptRenderCustomLayerList();
+      ptRenderQuickCatalog();
+      if (window.BRIM && window.BRIM.uicExplorer) {
+        window.BRIM.uicExplorer.setExternalLoading(
+          rec.catalogExtId,
+          true,
+          'Refreshing complete authoritative source…'
+        );
+      }
+      ptSetExternalStatus(
+        'Refreshing the complete authoritative UIC source. The current layer remains visible until the replacement succeeds…',
+        false,
+        options
+      );
+      ptRunArcgisAllFeatureQuery(
+        rec.url,
+        ptCleanText(rec.whereClause) || '1=1',
+        options
+      ).then(function(result) {
+        if (generation !== rec._uicRefreshGeneration) return;
+        var featureCollection = ptSortFeatureCollectionForDrawing(
+          result.featureCollection,
+          options
+        );
+        var features = featureCollection.features || [];
+        options.retrievalUtc = new Date().toISOString();
+        options.featureCount = features.length;
+        options.sourceServiceUrl = rec.url;
+        var replacement = ptExternalFeatureCollectionLayer(
+          featureCollection,
+          rec.color,
+          0.04,
+          options,
+          !!rec.clickable
+        );
+        var oldLayer = rec.layer;
+        var wasVisible = rec.visible && oldLayer && map.hasLayer(oldLayer);
+        if (wasVisible) replacement.addTo(map);
+        if (oldLayer && map.hasLayer(oldLayer)) map.removeLayer(oldLayer);
+        rec.layer = replacement;
+        rec.featureCount = features.length;
+        rec.retrievalUtc = options.retrievalUtc;
+        rec.refreshing = false;
+        if (window.BRIM && window.BRIM.uicExplorer) {
+          window.BRIM.uicExplorer.setExternalLoading(rec.catalogExtId, false, '');
+          window.BRIM.uicExplorer.upsertExternal(rec);
+        }
+        ptRenderCustomLayerList();
+        ptRenderQuickCatalog();
+        ptSetExternalStatus(
+          'UIC live source refreshed: ' + features.length.toLocaleString() +
+            ' feature(s), retrieved ' + rec.retrievalUtc + '.',
+          false,
+          options
+        );
+      }).catch(function(error) {
+        if (generation !== rec._uicRefreshGeneration) return;
+        console.error(error);
+        rec.refreshing = false;
+        if (window.BRIM && window.BRIM.uicExplorer) {
+          window.BRIM.uicExplorer.setExternalLoading(rec.catalogExtId, false, '');
+          window.BRIM.uicExplorer.upsertExternal(rec);
+          window.BRIM.uicExplorer.setExternalError(
+            rec.catalogExtId,
+            'Refresh failed; previous live snapshot retained. ' +
+              (error && error.message ? error.message : '')
+          );
+        }
+        ptRenderCustomLayerList();
+        ptRenderQuickCatalog();
+        ptSetExternalStatus(
+          'UIC live refresh failed. The previous snapshot was left unchanged. ' +
+            (error && error.message ? error.message : ''),
+          true,
+          options
+        );
+      });
+      return;
+    }
 
     if (ptIsRefreshableLiveGeoJsonRecord(rec)) {
       rec.refreshing = true;
@@ -8592,11 +9019,21 @@ function(el, x, toolsData) {
           legendHtml += '<div class="pt-tools-muted"><b>Snapshot:</b> pan/zoom, then use Refresh current view to requery.</div>';
         }
       }
+      if (rec.loadMode === 'live_snapshot') {
+        legendHtml += '<div class="pt-tools-muted"><b>Complete live snapshot:</b> ' +
+          (rec.featureCount !== null && !isNaN(rec.featureCount) ?
+            Number(rec.featureCount).toLocaleString() + ' feature(s); ' : '') +
+          'retrieved ' + ptEscapeHtml(rec.retrievalUtc || 'this session') + '.</div>';
+      }
 
       var refreshButtonHtml = ptRefreshButtonHtml(rec, 'pt-active-list-refresh-btn');
+      var uicLabelButtonHtml = ptIsUicAquiferExemptionStyle(rec) ?
+        '<button type="button" class="pt-tools-mini-btn" data-pt-uic-label-toggle="' +
+          rec.id + '" title="Show or hide compact labels for this live UIC layer">lbl</button>' : '';
       var activeActionHtml =
         '<div class="pt-active-layer-action-wrap">' +
           '<button type="button" class="pt-tools-mini-btn pt-external-remove-btn" data-pt-custom-remove="' + rec.id + '">Remove</button>' +
+          uicLabelButtonHtml +
           refreshButtonHtml +
         '</div>';
 
@@ -8914,6 +9351,209 @@ function(el, x, toolsData) {
         ptSetExternalStatus('Could not query MapServer for the current map view.', true, options);
       }
     });
+  }
+
+  function ptFetchArcgisJson(url, params) {
+    var fetchOptions = {cache: 'no-store'};
+    if (params) {
+      var body = new URLSearchParams();
+      Object.keys(params).forEach(function(key) {
+        if (params[key] !== undefined && params[key] !== null) {
+          body.append(key, String(params[key]));
+        }
+      });
+      fetchOptions.method = 'POST';
+      fetchOptions.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      };
+      fetchOptions.body = body.toString();
+    }
+    return fetch(url, fetchOptions)
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(function(json) {
+        if (json && json.error) {
+          var details = Array.isArray(json.error.details) ? json.error.details.join(' | ') : '';
+          throw new Error(
+            'ArcGIS error ' + (json.error.code || '') + ': ' +
+            (json.error.message || 'request failed') + (details ? ' | ' + details : '')
+          );
+        }
+        return json;
+      });
+  }
+
+  function ptRunArcgisAllFeatureQuery(url, whereText, options) {
+    options = options || {};
+    whereText = ptCleanText(whereText) || '1=1';
+    var metadataUrl = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'f=json';
+    var queryUrl = url.replace(/\/+$/, '') + '/query';
+    var metadata = null;
+    var objectIdField = '';
+    var objectIds = [];
+
+    return ptFetchArcgisJson(metadataUrl)
+      .then(function(meta) {
+        metadata = meta || {};
+        return ptFetchArcgisJson(queryUrl, {
+          where: whereText,
+          returnIdsOnly: 'true',
+          returnGeometry: 'false',
+          f: 'json'
+        });
+      })
+      .then(function(idResponse) {
+        objectIdField = ptCleanText(
+          metadata.objectIdField ||
+          metadata.objectIdFieldName ||
+          idResponse.objectIdFieldName
+        );
+        objectIds = (idResponse.objectIds || []).map(Number).filter(function(id) {
+          return isFinite(id);
+        }).sort(function(a, b) { return a - b; });
+        if (!objectIdField && objectIds.length) {
+          throw new Error('Service did not report its object-ID field.');
+        }
+        var maxRecordCount = Number(metadata.maxRecordCount || 1000);
+        if (!isFinite(maxRecordCount) || maxRecordCount < 1) maxRecordCount = 1000;
+        var batchSize = Math.max(1, Math.min(maxRecordCount, 400));
+        var batches = [];
+        for (var i = 0; i < objectIds.length; i += batchSize) {
+          batches.push(objectIds.slice(i, i + batchSize));
+        }
+        var outFields = ptOutFieldsArray(options);
+        var outFieldsText = outFields.length ? outFields.join(',') : '*';
+        var featureBatches = [];
+        var chain = Promise.resolve();
+        batches.forEach(function(batch) {
+          chain = chain.then(function() {
+            return ptFetchArcgisJson(queryUrl, {
+              where: objectIdField + ' IN (' + batch.join(',') + ')',
+              outFields: outFieldsText,
+              returnGeometry: 'true',
+              outSR: '4326',
+              orderByFields: objectIdField + ' ASC',
+              f: 'geojson'
+            }).then(function(featureCollection) {
+              var batchFeatures = featureCollection && Array.isArray(featureCollection.features) ?
+                featureCollection.features : [];
+              featureBatches = featureBatches.concat(batchFeatures);
+              if (window.BRIM && window.BRIM.uicExplorer &&
+                  window.BRIM.uicExplorer.setExternalLoading) {
+                window.BRIM.uicExplorer.setExternalLoading(
+                  options.catalogExtId,
+                  true,
+                  'Retrieved ' + featureBatches.length.toLocaleString() +
+                    ' of ' + objectIds.length.toLocaleString() + ' records…'
+                );
+              }
+            });
+          });
+        });
+        return chain.then(function() {
+          if (featureBatches.length !== objectIds.length) {
+            throw new Error(
+              'Service reported ' + objectIds.length + ' object IDs but returned ' +
+              featureBatches.length + ' GeoJSON features.'
+            );
+          }
+          return {
+            featureCollection: {
+              type: 'FeatureCollection',
+              features: featureBatches
+            },
+            metadata: metadata,
+            objectIdField: objectIdField,
+            objectIds: objectIds
+          };
+        });
+      });
+  }
+
+  function ptAddArcgisFeatureLayerSnapshot(name, url, clickable, color, whereClause, options) {
+    options = options || {};
+    if (window.BRIM && window.BRIM.uicExplorer &&
+        window.BRIM.uicExplorer.catalogColor) {
+      color = window.BRIM.uicExplorer.catalogColor(options.catalogExtId) || color;
+    }
+    options.loadMode = 'live_snapshot';
+    options.whereClause = ptCleanText(whereClause) || '1=1';
+    options.sourceServiceUrl = url;
+    if (window.BRIM && window.BRIM.uicExplorer &&
+        window.BRIM.uicExplorer.setExternalLoading) {
+      window.BRIM.uicExplorer.setExternalLoading(
+        options.catalogExtId,
+        true,
+        'Checking service metadata and object IDs…'
+      );
+    }
+    ptSetExternalStatus(
+      'Retrieving the complete authoritative UIC FeatureServer layer by object-ID batches…',
+      false,
+      options
+    );
+    ptRunArcgisAllFeatureQuery(url, options.whereClause, options)
+      .then(function(result) {
+        if (options.catalogIndex !== null && options.catalogIndex !== undefined &&
+            options.catalogLoadToken &&
+            ptCatalogLoadWasCancelled(options.catalogIndex, options.catalogLoadToken)) {
+          return;
+        }
+        var featureCollection = ptSortFeatureCollectionForDrawing(
+          result.featureCollection,
+          options
+        );
+        var features = featureCollection.features || [];
+        options.featureCount = features.length;
+        options.retrievalUtc = new Date().toISOString();
+        options.clickable = !!clickable;
+        var layer = ptExternalFeatureCollectionLayer(
+          featureCollection,
+          color,
+          0.04,
+          options,
+          clickable
+        );
+        var rec = ptAddCustomRecord(
+          name,
+          layer,
+          color,
+          'ArcGIS FeatureServer — complete live snapshot',
+          url,
+          options
+        );
+        if (rec && (rec.catalogLoadSkipped || rec.opsPromotedSkipped)) return;
+        if (window.BRIM && window.BRIM.uicExplorer) {
+          window.BRIM.uicExplorer.setExternalLoading(options.catalogExtId, false, '');
+        }
+        ptSetExternalStatus(
+          'Authoritative UIC live snapshot added: ' +
+            features.length.toLocaleString() +
+            ' feature(s), retrieved ' + options.retrievalUtc + '.',
+          false,
+          options
+        );
+      })
+      .catch(function(error) {
+        console.error(error);
+        if (window.BRIM && window.BRIM.uicExplorer &&
+            window.BRIM.uicExplorer.setExternalError) {
+          window.BRIM.uicExplorer.setExternalError(
+            options.catalogExtId,
+            error && error.message ? error.message : 'Live retrieval failed.'
+          );
+        }
+        ptSetExternalStatus(
+          'UIC live snapshot failed. No partial or previous layer was replaced. ' +
+            (error && error.message ? error.message : ''),
+          true,
+          options
+        );
+      });
   }
 
   function ptAddArcgisFeatureLayer(name, url, clickable, color, whereClause, options) {
@@ -9318,6 +9958,8 @@ function(el, x, toolsData) {
       loadP90Seconds: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'load_p90_seconds') : '',
       loadMaxSeconds: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'load_max_seconds') : '',
       loadFeatureCapRate: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'load_feature_cap_rate') : '',
+      sourcePage: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'source_page') : '',
+      sourceServiceUrl: url,
       catalogKey: ptPendingCatalogIdx !== null && PT2_CATALOG[ptPendingCatalogIdx] ? ptCatalogRecordKey(PT2_CATALOG[ptPendingCatalogIdx]) : '',
       catalogLoadToken: ptPendingCatalogIdx !== null ? (ptCatalogActiveLoadTokens[ptPendingCatalogIdx] || '') : ''
     };
@@ -9326,18 +9968,33 @@ function(el, x, toolsData) {
     ptPendingCatalogIdx = null;
 
     if (!url) {
-      ptSetStatus('Paste a public service URL first, or choose a catalog layer.', true);
+      var missingUrlMessage =
+        'Paste a public service URL first, or choose a catalog layer.';
+      ptSetStatus(missingUrlMessage, true);
+      ptSetUicPreflightError(layerOptions, missingUrlMessage);
       return;
     }
 
-    if (ptExternalPanelLayerCount() >= PT2_MAX_CUSTOM_LAYERS) {
-      ptSetStatus('Limit reached: remove a custom layer before adding another.', true);
+    var requestedUicLayer = ptIsUicAquiferExemptionStyle(layerOptions);
+    var activeUicLayerCount = ptCustomLayers.filter(function(record) {
+      return ptIsUicAquiferExemptionStyle(record);
+    }).length;
+    var layerLimitReached = requestedUicLayer ?
+      activeUicLayerCount >= 4 :
+      ptExternalPanelLayerCount() >= PT2_MAX_CUSTOM_LAYERS;
+    if (layerLimitReached) {
+      var limitMessage = requestedUicLayer ?
+        'All four curated UIC External sources are already active.' :
+        'Limit reached: remove a custom layer before adding another.';
+      ptSetStatus(limitMessage, true);
+      ptSetUicPreflightError(layerOptions, limitMessage);
       return;
     }
 
     var problem = ptExplainUrlProblem(url, detectedType);
     if (problem) {
       ptSetStatus(problem, true);
+      ptSetUicPreflightError(layerOptions, problem);
       return;
     }
 
@@ -9360,9 +10017,21 @@ function(el, x, toolsData) {
 
     if (detectedType === 'feature') {
       if (currentViewOnly) {
-        if (!ptZoomCheck(layerOptions.minZoomCurrentView, 'Current-view FeatureServer loading', actionNoteId)) return;
+        if (!ptZoomCheck(layerOptions.minZoomCurrentView, 'Current-view FeatureServer loading', actionNoteId)) {
+          ptSetUicPreflightError(
+            layerOptions,
+            'Load stopped at the current zoom. Zoom in and retry.'
+          );
+          return;
+        }
       } else {
-        if (!ptZoomCheck(layerOptions.minZoomLive, 'Live FeatureServer loading', actionNoteId)) return;
+        if (!ptZoomCheck(layerOptions.minZoomLive, 'Live FeatureServer loading', actionNoteId)) {
+          ptSetUicPreflightError(
+            layerOptions,
+            'Load stopped at the current zoom. Zoom in and retry.'
+          );
+          return;
+        }
       }
     } else if (detectedType === 'map') {
       if (currentViewOnly) {
@@ -9383,7 +10052,9 @@ function(el, x, toolsData) {
     if (detectedType === 'geojson') {
       ptAddGeoJsonLayer(name, url, clickable, color, layerOptions);
     } else if (detectedType === 'feature') {
-      if (currentViewOnly) {
+      if (layerOptions.loadMode === 'live_snapshot') {
+        ptAddArcgisFeatureLayerSnapshot(name, url, clickable, color, whereClause, layerOptions);
+      } else if (currentViewOnly) {
         ptAddArcgisFeatureLayerCurrentView(name, url, clickable, color, whereClause, layerOptions);
       } else {
         ptAddArcgisFeatureLayer(name, url, clickable, color, whereClause, layerOptions);
@@ -10451,6 +11122,20 @@ function(el, x, toolsData) {
         '<li><a target="_blank" href="https://reports.blm.gov/reports/mlrs">MLRS reports</a></li>' +
         '<li><a target="_blank" href="https://gis.blm.gov/nlsdb/rest/services/Mining_Claims/MiningClaims/MapServer">BLM MLRS Mining Claims REST service</a></li>' +
         '<li><a target="_blank" href="https://gis.blm.gov/nlsdb/rest/services/HUB">BLM NLSDB / MLRS HUB REST services</a></li>' +
+      '</ul>' +
+
+      '<h2>Energy / Minerals → Underground Injection Control (UIC)</h2>' +
+      '<ul>' +
+        '<li><a target="_blank" href="https://www.epa.gov/uic/aquifer-exemption-data">EPA Aquifer Exemption Data</a></li>' +
+        '<li><a target="_blank" href="https://www.epa.gov/uic/california-uic-program-oversight-arods">EPA California aquifer-exemption decisions</a></li>' +
+        '<li><a target="_blank" href="https://www.conservation.ca.gov/calgem/Pages/Aquifer-Exemptions-Status.aspx">CalGEM Aquifer Exemptions Status</a></li>' +
+        '<li><a target="_blank" href="https://services.arcgis.com/cJ9YHowT8TU7DUyn/ArcGIS/rest/services/Aquifer_Exemptions_Feature_Layer/FeatureServer">EPA Aquifer Exemptions GIS service</a></li>' +
+        '<li><a target="_blank" href="https://gis.conservation.ca.gov/server/rest/services/CalGEM/Post_Primacy_Aquifer_Exemptions/FeatureServer">CalGEM post-primacy GIS service</a></li>' +
+        '<li><a target="_blank" href="https://gis.conservation.ca.gov/server/rest/services/CalGEM/Primacy_Aquifer_Exemptions/FeatureServer">CalGEM 1983 primacy GIS service</a></li>' +
+        '<li><a target="_blank" href="https://www.epa.gov/uic">EPA Underground Injection Control program</a></li>' +
+        '<li><a target="_blank" href="https://www.epa.gov/uic/underground-injection-control-regulations-and-safe-drinking-water-act-provisions">EPA UIC regulations and Safe Drinking Water Act provisions</a></li>' +
+        '<li><a target="_blank" href="https://www.ecfr.gov/current/title-40/chapter-I/subchapter-D/part-144/section-144.7">40 CFR 144.7 — Identification of USDWs and exempted aquifers</a></li>' +
+        '<li><a target="_blank" href="https://www.ecfr.gov/current/title-40/chapter-I/subchapter-D/part-146/section-146.4">40 CFR 146.4 — Criteria for exempted aquifers</a></li>' +
       '</ul>' +
 
       '<h2>Federal lands, hazards, coastal, and operational data</h2>' +
@@ -12806,6 +13491,22 @@ function(el, x, toolsData) {
     });
 
     customLayerList.addEventListener('click', function(e) {
+      var uicLabelBtn = e.target.closest ? e.target.closest('[data-pt-uic-label-toggle]') : null;
+      if (uicLabelBtn && customLayerList.contains(uicLabelBtn)) {
+        e.preventDefault();
+        e.stopPropagation();
+        var uicLabelRec = ptFindCustomLayerById(
+          uicLabelBtn.getAttribute('data-pt-uic-label-toggle')
+        );
+        if (uicLabelRec && window.BRIM && window.BRIM.uicExplorer &&
+            window.BRIM.uicExplorer.toggleExternalLabels) {
+          window.BRIM.uicExplorer.toggleExternalLabels(
+            uicLabelRec.catalogExtId || uicLabelRec.id
+          );
+        }
+        return;
+      }
+
       var refreshBtn = e.target.closest ? e.target.closest('[data-pt-custom-refresh]') : null;
       if (refreshBtn && customLayerList.contains(refreshBtn)) {
         ptRefreshCustomLayer(refreshBtn.getAttribute('data-pt-custom-refresh'));
@@ -12818,6 +13519,36 @@ function(el, x, toolsData) {
       }
     });
   }
+
+  window.BRIM = window.BRIM || {};
+  window.BRIM.uicExternalBridge = {
+    refreshBySourceKey: function(sourceKey) {
+      var extId = {
+        uic_epa_live: 'UIC_EPA_LIVE',
+        uic_calgem_post_live: 'UIC_CALGEM_POST_LIVE',
+        uic_calgem_primacy_live: 'UIC_CALGEM_PRIMACY_LIVE',
+        uic_epa_reference_points: 'UIC_EPA_REFERENCE_POINTS'
+      }[String(sourceKey || '')] || String(sourceKey || '');
+      var rec = null;
+      ptCustomLayers.forEach(function(item) {
+        if (item && item.catalogExtId === extId) rec = item;
+      });
+      if (rec) ptRefreshCustomLayer(rec.id);
+    },
+    removeBySourceKey: function(sourceKey) {
+      var extId = {
+        uic_epa_live: 'UIC_EPA_LIVE',
+        uic_calgem_post_live: 'UIC_CALGEM_POST_LIVE',
+        uic_calgem_primacy_live: 'UIC_CALGEM_PRIMACY_LIVE',
+        uic_epa_reference_points: 'UIC_EPA_REFERENCE_POINTS'
+      }[String(sourceKey || '')] || String(sourceKey || '');
+      var rec = null;
+      ptCustomLayers.forEach(function(item) {
+        if (item && item.catalogExtId === extId) rec = item;
+      });
+      if (rec) ptRemoveCustomLayer(rec.id);
+    }
+  };
 
 
   // --------------------------------------------------------------------------

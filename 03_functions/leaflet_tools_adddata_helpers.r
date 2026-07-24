@@ -298,6 +298,22 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
       catalog_df$external_display_num <- ""
       external_visible <- tolower(trimws(as.character(catalog_df$primary_panel))) %in% c("external", "both")
       catalog_df$external_display_num[external_visible] <- as.character(seq_len(sum(external_visible)))
+      visible_display_numbers <- suppressWarnings(as.integer(
+        catalog_df$external_display_num[external_visible]
+      ))
+      expected_display_numbers <- seq_len(sum(external_visible))
+      if (
+        length(visible_display_numbers) != length(expected_display_numbers) ||
+        anyNA(visible_display_numbers) ||
+        anyDuplicated(visible_display_numbers) ||
+        !identical(visible_display_numbers, expected_display_numbers)
+      ) {
+        stop(
+          "External catalog display-number validation failed: visible map ",
+          "layers must have one continuous, registry-derived 1..N sequence.",
+          call. = FALSE
+        )
+      }
 
       catalog_records <- lapply(seq_len(nrow(catalog_df)), function(i) {
         list(
@@ -390,12 +406,29 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
     "js",
     "leaflet_tools_adddata_panel.js"
   )
+  uic_explorer_js_path <- file.path(
+    "03_functions",
+    "js",
+    "brim_uic_explorer.js"
+  )
 
   if (!file.exists(js_path)) {
     stop("Missing External Layers panel JavaScript helper: ", js_path)
   }
+  if (!file.exists(uic_explorer_js_path)) {
+    stop("Missing External-only UIC explorer JavaScript helper: ", uic_explorer_js_path)
+  }
 
   js <- paste(readLines(js_path, warn = FALSE), collapse = "\n")
+  uic_explorer_js <- paste(
+    readLines(uic_explorer_js_path, warn = FALSE),
+    collapse = "\n"
+  )
+
+  m <- htmlwidgets::onRender(
+    m,
+    uic_explorer_js
+  )
 
   htmlwidgets::onRender(
     m,

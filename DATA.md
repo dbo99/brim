@@ -11,6 +11,28 @@
 
 The complete exclusions are listed in `EXTERNAL_DATA_MANIFEST.csv`.
 
+## UIC aquifer-exemption products
+
+The controlled UIC pipeline writes generated data only to ignored tiers:
+
+- `01_raw_data/uic_aquifer_exemptions/raw_snapshots/<snapshot_id>/` —
+  timestamped immutable raw source snapshots;
+- `04_processed_data/uic_aquifer_exemptions/candidate/<candidate_id>/` —
+  full standardized, map-ready, label, metadata, comparison, and QA products;
+- `04_processed_data/uic_aquifer_exemptions/approved/` — an explicitly
+  approved comparison baseline for the controlled research workflow;
+- `04_processed_data/uic_aquifer_exemptions/archive/` — prior approved
+  products retained for rollback;
+- `04_processed_data/uic_aquifer_exemptions/checks/` and `qa/` — current
+  service status, difference reports, and standalone review maps.
+
+The repository tracks only the pipeline code and configuration. Do not commit
+downloaded UIC GeoJSON, RDS products, approval archives, or sandbox/final HTML.
+The normal BRIM build reads none of these products. Production polygons and
+EPA reference points are authoritative External rows fetched on demand in the
+browser. EPA county-location records remain retrieval/QA products only because
+their county geometry is not an aquifer-exemption boundary.
+
 ## Curated SWRCB correction input
 
 The small SWRCB BLM water-right correction CSV is tracked because the core

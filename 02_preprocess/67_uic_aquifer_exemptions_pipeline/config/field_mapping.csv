@@ -1,0 +1,26 @@
+source_key,standard_field,candidate_source_fields,rule,display_caution
+epa_2025_ca_polygons,source_id,ID_1|OBJECTID,first nonblank,
+epa_2025_ca_polygons,field_project,Injection_Well_ID,source text,
+epa_2025_ca_polygons,county_source,County,preserve exact source text,
+epa_2025_ca_polygons,county,County,validate against the 58 California counties and split documented multi-county strings with semicolons,
+epa_2025_ca_polygons,formation,,not supplied,Do not infer formation from injection zone.
+epa_2025_ca_polygons,zone_member,Injection_Zone,source text,
+epa_2025_ca_polygons,decision_approval_date,Decision_Date,parse m/d/Y while preserving raw value,
+epa_2025_ca_polygons,well_class,Well_Class,source text,
+epa_2025_ca_polygons,injection_activity,Injection_Activity,source text,
+calgem_post_primacy,source_id,ID|OBJECTID,first nonblank,
+calgem_post_primacy,field_project,Field_Labe|Name,first nonblank,
+calgem_post_primacy,oil_field,Field_Labe|Name,first nonblank,
+calgem_post_primacy,county_source,County,preserve exact source text,
+calgem_post_primacy,county,County,validate against the 58 California counties and split documented multi-county strings with semicolons,
+calgem_post_primacy,formation,Formation,source text,
+calgem_post_primacy,zone_member,Zone|Inj_Zone|Zone_Label,first nonblank,
+calgem_post_primacy,decision_approval_date,Approve,ArcGIS date or source text,
+calgem_post_primacy,exemption_criterion,Exemption_,source text,
+calgem_post_primacy,documentation_url,Documentat,source text,Legacy FTP URLs are retained and identified as legacy/unverified.
+calgem_primacy_shaded_subset,source_id,OBJECTID_1|OBJECTID,prefix with CalGEM_PRIMACY_,
+calgem_primacy_shaded_subset,field_project,FieldName,source text,
+calgem_primacy_shaded_subset,oil_field,FieldName,source text,
+calgem_primacy_shaded_subset,county,,not supplied,County unavailable; AreaName is an exemption-area attribute and must not be used as county.
+calgem_primacy_shaded_subset,area_name,AreaName,source text,Keep separate from county.
+calgem_primacy_shaded_subset,formation_zone_display,FormZone1|FormZone2|FormZone3|FormZone4|FormZone5|FormZone6|FormZone7|FormZone8|FormZone9|FormZone10|FormZone11|FormZone12|FormZone13|FormZone14|FormZone15|FormZone16|FormZone17|FormZone18,ordered nonblank values,Do not expose associated historic date fields until dedicated date QA is resolved.

@@ -43,6 +43,18 @@ Live feed production is maintained separately at:
 See `LIVE_DATA_FEEDS.md`; the public repository is intentionally not
 embedded in this private source repository.
 
+## UIC aquifer exemptions
+
+Production BRIM presents California aquifer-exemption data only as
+authoritative, on-demand External layers under
+**Energy / Minerals → Underground Injection Control (UIC)**. No UIC geometry,
+labels, filters, or cache dependency is embedded in the normal map build.
+
+The separate candidate/approval pipeline remains available for research,
+source auditing, comparisons, and standalone sandbox review. Its products are
+not production map layers. See `UIC_AQUIFER_EXEMPTIONS.md` for interpretation
+limits, sources, and QA workflow.
+
 ## First files for Codex
 
 1. `AGENTS.md`
