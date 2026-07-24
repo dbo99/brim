@@ -1,0 +1,4 @@
+source_key,layer_id,display_name,color,fill_color,weight,dash_array,fill_opacity,hover_weight,hover_fill_opacity,min_label_zoom,label_strategy
+epa_2025_ca_polygons,uic_epa_mapped,UIC Aquifer Exemptions — EPA Mapped Boundaries,#2166ac,#67a9cf,1.5,,0.035,3.0,0.10,8,Exact normalized label plus exact geometry hash dedupe
+calgem_post_primacy,uic_calgem_post,UIC Aquifer Exemptions — CalGEM Post-Primacy Approvals,#b35806,#fdb863,1.8,5 4,0.030,3.2,0.10,8,Exact normalized label plus exact geometry hash dedupe
+calgem_primacy_shaded_subset,uic_calgem_primacy,UIC Aquifer Exemptions — CalGEM 1983 Primacy Shaded Subset,#762a83,#c2a5cf,1.6,10 6 2 6,0.022,3.0,0.08,8,Exact normalized label plus exact geometry hash dedupe

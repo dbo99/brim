@@ -36,7 +36,22 @@ dependency chain for the dataset being updated.
 
 - BLM core boundary: `02_preprocess/01_blm_managed_and_held.r`
 - Consolidated conveyance: `02_preprocess/66_build_conveyance_pipeline.R`
+- UIC aquifer exemptions:
+  `02_preprocess/67_build_uic_aquifer_exemptions.R`
 - Main map assembly: `05_map_build/` via `run_build_map.r`
+
+### UIC build boundary
+
+`run_uic_pipeline("check_only")`, candidate refresh, and the standalone UIC
+sandbox map are a developer/research workflow separate from production BRIM.
+Candidate promotion requires an explicit candidate ID and confirmation phrase,
+but even promoted pipeline products are comparison baselines rather than Local
+map inputs; see `UIC_AQUIFER_EXEMPTIONS.md`.
+
+The ordinary `build_final_map_only()` path never reads UIC raw, candidate,
+approved, map-ready, or label products. Production UIC rows appear only under
+**External Layers → Energy / Minerals → Underground Injection Control (UIC)**
+and contact their authoritative services only after a user enables them.
 
 ## Source-repository limitation
 
