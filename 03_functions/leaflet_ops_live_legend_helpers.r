@@ -115,9 +115,8 @@ pt_ops_live_legend_helpers_js <- function() {
       '</div>';
   }
 
-  function opsGroundwaterLegendHtml() {
-    return '<div class="pt-ops-map-legend-section">' +
-      ptOpsMapLegendTitleHtml('USGS GW monitoring wells measured in last 800 days', 'usgs_groundwater') +
+  function opsGroundwaterLegendBodyHtml() {
+    return '' +
       '<div class="pt-ops-legend-small">Fill color = latest depth to water (ft bgs).</div>' +
       '<div class="pt-ops-legend-grid-2">' +
         '<div class="pt-ops-legend-textline"><span class="pt-ops-legend-circle" style="background:#756BB1;border-color:#4A1486;"></span>Reported artesian</div>' +
@@ -131,7 +130,13 @@ pt_ops_live_legend_helpers_js <- function() {
       '<div class="pt-ops-legend-row pt-ops-legend-footnotes">' +
         '<div class="pt-ops-legend-small"><span class="pt-ops-legend-circle pt-ops-legend-stale" style="background:#FEE391;border-color:#333333;border-style:solid;"></span>Dark outline = older/stale measurement.</div>' +
         '<div class="pt-ops-legend-small"><span class="pt-ops-legend-multipoint"></span>Multipoint symbol = nested/co-located USGS wells.</div>' +
-      '</div>' +
+      '</div>';
+  }
+
+  function opsGroundwaterLegendHtml() {
+    return '<div class="pt-ops-map-legend-section">' +
+      ptOpsMapLegendTitleHtml('USGS GW monitoring wells measured in last 800 days', 'usgs_groundwater') +
+      opsGroundwaterLegendBodyHtml() +
       '</div>';
   }
 
@@ -345,10 +350,8 @@ pt_ops_live_legend_helpers_js <- function() {
     redrawLegend();
   }
 
-  function opsUsgsStreamflowLegendHtml(def) {
-    return '<div class="pt-ops-map-legend-section">' +
-      ptOpsMapLegendTitleHtml('USGS streamflow | California | Ops Live', 'usgs_streamflow') +
-      ptOpsLegendMetricHtml(def) +
+  function opsUsgsStreamflowLegendBodyHtml() {
+    return '' +
       '<div class="pt-ops-legend-small">Circle size and fill color = latest discharge magnitude (raw cfs, not percentile/normal condition).</div>' +
       '<div class="pt-ops-legend-grid-2">' +
         opsStreamflowLegendDot('#F7F7F7', 8, '0 cfs') +
@@ -360,7 +363,14 @@ pt_ops_live_legend_helpers_js <- function() {
         opsStreamflowLegendDot('#FDAE61', 14, '10k–50k cfs') +
         opsStreamflowLegendDot('#D73027', 15, '&gt;50k cfs') +
       '</div>' +
-      '<div class="pt-ops-legend-small" style="margin-top:3px;"><span class="pt-ops-legend-circle" style="background:#D9EAF7;border-color:#3182BD;border-style:dashed;"></span>Stage-only site. This Ops layer is not a flood-stage renderer.</div>' +
+      '<div class="pt-ops-legend-small" style="margin-top:3px;"><span class="pt-ops-legend-circle" style="background:#D9EAF7;border-color:#3182BD;border-style:dashed;"></span>Stage-only site. This Ops layer is not a flood-stage renderer.</div>';
+  }
+
+  function opsUsgsStreamflowLegendHtml(def) {
+    return '<div class="pt-ops-map-legend-section">' +
+      ptOpsMapLegendTitleHtml('USGS streamflow | California | Ops Live', 'usgs_streamflow') +
+      ptOpsLegendMetricHtml(def) +
+      opsUsgsStreamflowLegendBodyHtml() +
       '</div>';
   }
 
@@ -427,6 +437,7 @@ pt_ops_live_legend_helpers_js <- function() {
     var activeTypes = {};
     keys.forEach(function(k) {
       var def = activeLegendDefs[k] || {};
+      if (def.unifiedCard === true) return;
       if (def.legendType) activeTypes[def.legendType] = true;
     });
     Object.keys(ptOpsMapLegendHiddenTypes).forEach(function(type) {
@@ -437,6 +448,7 @@ pt_ops_live_legend_helpers_js <- function() {
     var html = '';
     keys.forEach(function(k) {
       var def = activeLegendDefs[k] || {};
+      if (def.unifiedCard === true) return;
       if (def.legendType && ptOpsMapLegendHiddenTypes[def.legendType]) return;
       if (def.legendType === 'airnow_aqi' && !seen.airnow_aqi) {
         html += ptOpsMapLegendEnsureClose(opsAirNowAqiLegendHtml(), 'airnow_aqi');

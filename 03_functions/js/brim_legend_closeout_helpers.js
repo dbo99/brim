@@ -22,7 +22,7 @@ function(el, x) {
     detachableStyle.textContent =
       '.leaflet-control-container>.pt-map-legend-corner-foreground{z-index:10990!important}' +
       '.pt-map-legend-card{z-index:11000!important}' +
-      '.pt-map-legend-card.pt-huc-theme-legend,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
+      '.pt-map-legend-card.pt-huc-theme-legend,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-map-legend-card.pt-ops-usgs-streamflow-card,.pt-map-legend-card.pt-ops-usgs-groundwater-card,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
       '.pt-map-legend-card.pt-wcr-completed-depth-map-legend{z-index:11020!important}' +
       '.pt-map-legend-card.pt-mlrs-mineral-cases-map-legend{z-index:11021!important}' +
       '.pt-map-legend-card.pt-sgma-prioritization-map-legend{z-index:11022!important}' +
@@ -30,9 +30,11 @@ function(el, x) {
       '.pt-map-legend-card.pt-map-card-undocked{z-index:11100!important}' +
       '.pt-map-legend-local{background:rgba(246,239,222,0.96)!important}' +
       '.pt-map-legend-external{background:rgba(225,240,251,0.97)!important}' +
+      '.leaflet-control-container>.leaflet-bottom.leaflet-left.pt-map-legend-gap-managed{bottom:var(--pt-map-legend-bottom,4px)!important;top:auto!important;max-height:var(--pt-map-legend-max-height,calc(100% - 8px))!important}' +
+      '.leaflet-control-container>.leaflet-bottom.leaflet-left>.pt-map-legend-card:not(.pt-map-card-undocked){margin-left:8px!important;margin-bottom:8px!important}' +
       '.leaflet-control-container>.pt-map-legend-corner-overflow{max-height:calc(100% - 8px)!important;overflow-y:auto!important;overscroll-behavior:contain;pointer-events:auto!important;touch-action:pan-y}' +
       '.leaflet-control-container>.leaflet-top.pt-map-legend-corner-overflow{top:4px!important}' +
-      '.leaflet-control-container>.leaflet-bottom.pt-map-legend-corner-overflow{bottom:4px!important}' +
+      '.leaflet-control-container>.leaflet-bottom.pt-map-legend-corner-overflow{bottom:var(--pt-map-legend-bottom,4px)!important;max-height:var(--pt-map-legend-max-height,calc(100% - 8px))!important}' +
       '.pt-map-card-actions{display:inline-flex;align-items:center;gap:2px;flex:0 0 auto}.pt-map-legend-card .pt-map-card-actions{display:inline-flex!important;align-items:center!important;gap:2px!important;flex:0 0 auto!important}.pt-map-legend-card .pt-map-card-handle>.pt-map-card-actions{margin-left:auto!important}' +
       '.pt-map-legend-card .pt-map-card-actions>button{appearance:none!important;-webkit-appearance:none!important;position:static!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0!important;transform:none!important;float:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;color:#777!important;font:700 16px/1 Arial,Helvetica,sans-serif!important;padding:3px 4px!important;cursor:pointer!important}' +
       '.pt-map-legend-card .pt-map-card-actions>button:hover{border:0!important;box-shadow:none!important;background:transparent!important;color:#333!important}' +
@@ -291,6 +293,8 @@ function(el, x) {
     {card: '.pt-subsidence-observation-map-legend', close: '.pt-subsidence-observation-map-legend-close', label: 'Subsidence-observation legend'},
     {card: '.pt-uic-explorer', close: '.pt-uic-external-close', handle: '.pt-uic-head', dock: '.pt-uic-external-dock', label: 'External UIC Explorer'},
     {card: '.pt-ops-map-legend', close: '.pt-ops-map-legend-close', handle: '.pt-ops-map-legend-titlebar', label: 'Ops Live map legend'},
+    {card: '.pt-ops-usgs-streamflow-card', close: '.pt-ops-usgs-streamflow-filter-close', handle: '.pt-ops-usgs-streamflow-filter-title', dock: '.pt-ops-usgs-streamflow-card-dock', label: 'USGS streamflow Ops Live legend and filters'},
+    {card: '.pt-ops-usgs-groundwater-card', close: '.pt-ops-usgs-groundwater-filter-close', handle: '.pt-ops-usgs-groundwater-filter-title', dock: '.pt-ops-usgs-groundwater-card-dock', label: 'USGS groundwater Ops Live legend and filters'},
     {card: '.pt-ops-snow-legend-control', close: '.pt-ops-snow-legend-close', handle: '.pt-ops-snow-titlebar', label: 'Snow-pillow SWE legend'},
     {card: '.pt-ops-cocorahs-legend-control', close: '.pt-ops-cocorahs-legend-close', handle: '.pt-ops-cocorahs-legend-head', label: 'CoCoRaHS precipitation legend'}
   ];
@@ -332,10 +336,40 @@ function(el, x) {
     }
   }
 
+  function visibleObstacleRect(id, mapRect) {
+    var node = document.getElementById(id);
+    if (!node || !mapContainer.contains(node)) return null;
+    if (node.style && node.style.display === 'none') return null;
+    if (window.getComputedStyle && window.getComputedStyle(node).display === 'none') return null;
+    var rect = node.getBoundingClientRect();
+    if (!rect || !rect.width || !rect.height) return null;
+    if (rect.right <= mapRect.left || rect.left >= mapRect.right || rect.bottom <= mapRect.top || rect.top >= mapRect.bottom) return null;
+    return rect;
+  }
+
+  function lowerLeftSafeGap(mapRect) {
+    var externalRect = visibleObstacleRect('pt-tools-adddata-wrap', mapRect);
+    var uploadRect = visibleObstacleRect('pt-local-upload-wrap', mapRect);
+    var safeTop = mapRect.top + 8;
+    var safeBottom = mapRect.bottom - 8;
+    if (externalRect) safeTop = Math.max(safeTop, Math.min(mapRect.bottom, externalRect.bottom + 8));
+    if (uploadRect) safeBottom = Math.min(safeBottom, Math.max(mapRect.top, uploadRect.top - 8));
+    return {
+      top: safeTop,
+      bottom: Math.max(safeTop, safeBottom),
+      hasMeasuredObstacles: !!(externalRect || uploadRect)
+    };
+  }
+
+  function setCornerLayoutProperty(corner, name, value) {
+    if (!corner || !corner.style) return;
+    if (corner.style.getPropertyValue(name) !== value) corner.style.setProperty(name, value);
+  }
+
   function recalculateResponsiveLegendOverflow() {
     responsiveOverflowScheduled = false;
     var mapRect = mapContainer.getBoundingClientRect();
-    var availableHeight = Math.max(0, mapRect.height - 8);
+    var mapAvailableHeight = Math.max(0, mapRect.height - 8);
     var focusCard = responsiveFocusCard;
     responsiveFocusCard = null;
     var corners = mapContainer.querySelectorAll('.leaflet-control-container > .leaflet-top, .leaflet-control-container > .leaflet-bottom');
@@ -355,7 +389,12 @@ function(el, x) {
         }
         card.__brimLegendResponsiveVisible = visible;
       });
-      if (!visibleCards.length) return;
+      if (!visibleCards.length) {
+        corner.classList.remove('pt-map-legend-gap-managed');
+        setCornerLayoutProperty(corner, '--pt-map-legend-bottom', '');
+        setCornerLayoutProperty(corner, '--pt-map-legend-max-height', '');
+        return;
+      }
 
       var stackTop = Infinity;
       var stackBottom = -Infinity;
@@ -364,7 +403,41 @@ function(el, x) {
         stackTop = Math.min(stackTop, rect.top);
         stackBottom = Math.max(stackBottom, rect.bottom);
       });
-      var needsOverflow = stackTop < mapRect.top + 4 || stackBottom > mapRect.bottom - 4 || (stackBottom - stackTop) > availableHeight;
+      var stackHeight = Math.max(0, stackBottom - stackTop);
+      var availableHeight = mapAvailableHeight;
+      var targetTop = mapRect.top + 4;
+      var targetBottom = mapRect.bottom - 4;
+      var isLowerLeft = corner.classList.contains('leaflet-bottom') && corner.classList.contains('leaflet-left');
+
+      if (isLowerLeft) {
+        var safeGap = lowerLeftSafeGap(mapRect);
+        availableHeight = Math.max(0, safeGap.bottom - safeGap.top);
+        targetTop = safeGap.top;
+        targetBottom = safeGap.bottom;
+        if (safeGap.hasMeasuredObstacles) {
+          corner.classList.add('pt-map-legend-gap-managed');
+          var bottomOffset = Math.max(0, mapRect.bottom - safeGap.bottom);
+          if (stackHeight <= availableHeight) {
+            var desiredTop = safeGap.top + ((availableHeight - stackHeight) / 2);
+            var computedBottom = window.getComputedStyle ? parseFloat(window.getComputedStyle(corner).bottom) : 0;
+            if (!isFinite(computedBottom)) computedBottom = 0;
+            bottomOffset = Math.max(0, computedBottom - (desiredTop - stackTop));
+          }
+          setCornerLayoutProperty(corner, '--pt-map-legend-bottom', bottomOffset + 'px');
+          setCornerLayoutProperty(corner, '--pt-map-legend-max-height', Math.max(0, availableHeight) + 'px');
+        } else {
+          corner.classList.remove('pt-map-legend-gap-managed');
+          setCornerLayoutProperty(corner, '--pt-map-legend-bottom', '');
+          setCornerLayoutProperty(corner, '--pt-map-legend-max-height', '');
+        }
+      } else {
+        corner.classList.remove('pt-map-legend-gap-managed');
+        setCornerLayoutProperty(corner, '--pt-map-legend-bottom', '');
+        setCornerLayoutProperty(corner, '--pt-map-legend-max-height', '');
+      }
+
+      var needsOverflow = stackHeight > availableHeight ||
+        (!isLowerLeft && (stackTop < targetTop || stackBottom > targetBottom));
       if (!needsOverflow) return;
 
       corner.classList.add('pt-map-legend-corner-overflow');
@@ -381,6 +454,7 @@ function(el, x) {
     if (window.requestAnimationFrame) window.requestAnimationFrame(recalculateResponsiveLegendOverflow);
     else setTimeout(recalculateResponsiveLegendOverflow, 0);
   }
+  window.BRIM.legendCloseout.scheduleLayout = scheduleResponsiveLegendOverflow;
 
   function autoHeader(card, closeButton, label) {
     var old = card.querySelector('.pt-map-card-auto-header');
@@ -483,6 +557,22 @@ function(el, x) {
     legendCards.forEach(enhanceLegendCard);
   }
 
+  var gapResizeObserver = null;
+  if (typeof window.ResizeObserver === 'function') {
+    gapResizeObserver = new window.ResizeObserver(function() {
+      scheduleResponsiveLegendOverflow();
+    });
+  }
+
+  function observeGapLayoutNodes() {
+    if (!gapResizeObserver) return;
+    [mapContainer, document.getElementById('pt-tools-adddata-wrap'), document.getElementById('pt-local-upload-wrap')].forEach(function(node) {
+      if (!node || node.__brimLegendGapObserved) return;
+      node.__brimLegendGapObserved = true;
+      gapResizeObserver.observe(node);
+    });
+  }
+
   var legendObserver = new MutationObserver(function(records) {
     records.forEach(function(record) {
       Array.prototype.forEach.call(record.removedNodes || [], function(node) {
@@ -507,16 +597,29 @@ function(el, x) {
       }
     });
     enhanceAllLegendCards();
+    observeGapLayoutNodes();
     scheduleResponsiveLegendOverflow();
   });
-  legendObserver.observe(mapContainer, {childList: true, subtree: true, attributes: true, attributeFilter: ['style']});
+  legendObserver.observe(mapContainer, {childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['style']});
   enhanceAllLegendCards();
+  observeGapLayoutNodes();
   scheduleResponsiveLegendOverflow();
   if (map.on) map.on('resize', function() { scheduleResponsiveLegendOverflow(); });
   window.addEventListener('resize', function() { scheduleResponsiveLegendOverflow(); }, false);
+  mapContainer.addEventListener('click', function(e) {
+    var target = e && e.target && e.target.closest ? e.target.closest('#pt-tools-adddata-wrap, #pt-local-upload-wrap') : null;
+    if (!target) return;
+    [0, 60, 240].forEach(function(delay) {
+      setTimeout(function() {
+        observeGapLayoutNodes();
+        scheduleResponsiveLegendOverflow();
+      }, delay);
+    });
+  }, true);
   [0, 300, 1000].forEach(function(delay) {
     setTimeout(function() {
       enhanceAllLegendCards();
+      observeGapLayoutNodes();
       scheduleResponsiveLegendOverflow();
     }, delay);
   });

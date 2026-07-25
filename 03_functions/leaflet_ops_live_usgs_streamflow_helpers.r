@@ -58,44 +58,38 @@ pt_ops_live_usgs_streamflow_js <- function() {
         text-decoration: underline;
       }
 
-      .pt-ops-usgs-streamflow-filter {
-        position: absolute !important;
-        left: 225px !important;
-        top: 186px !important;
-        clear: none !important;
-        float: none !important;
-        z-index: 10050;
+      .pt-ops-usgs-streamflow-card {
         isolation: isolate;
         background: rgba(226, 241, 238, 0.96);
         border: 1px solid rgba(90,120,116,0.55);
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.22);
         padding: 6px 7px;
-        width: 230px;
-        margin-left: 0 !important;
-        margin-top: 0 !important;
+        width: 360px;
+        max-width: calc(100vw - 24px);
+        box-sizing: border-box;
         font: 11.5px/1.25 Arial, Helvetica, sans-serif;
         color: #222;
         pointer-events: auto;
       }
 
-      .pt-ops-usgs-streamflow-filter * {
+      .pt-ops-usgs-streamflow-card * {
         pointer-events: auto;
       }
 
-      .pt-ops-usgs-streamflow-filter,
-      .pt-ops-usgs-streamflow-filter label {
+      .pt-ops-usgs-streamflow-card,
+      .pt-ops-usgs-streamflow-card label {
         cursor: default !important;
         user-select: none;
       }
 
-      .pt-ops-usgs-streamflow-filter input[type="number"] {
+      .pt-ops-usgs-streamflow-card input[type="number"] {
         cursor: text !important;
         user-select: text;
       }
 
-      .pt-ops-usgs-streamflow-filter input[type="checkbox"],
-      .pt-ops-usgs-streamflow-filter .pt-usgsf-filter-inline {
+      .pt-ops-usgs-streamflow-card input[type="checkbox"],
+      .pt-ops-usgs-streamflow-card .pt-usgsf-filter-inline {
         cursor: pointer !important;
         position: relative;
         z-index: 10060;
@@ -108,8 +102,8 @@ pt_ops_live_usgs_streamflow_js <- function() {
         justify-content: space-between;
         gap: 8px;
         font-weight: 700;
-        font-size: 12px;
-        margin-bottom: 1px;
+        font-size: 12.5px;
+        margin-bottom: 3px;
       }
 
       .pt-ops-usgs-streamflow-filter-close {
@@ -126,12 +120,14 @@ pt_ops_live_usgs_streamflow_js <- function() {
       .pt-ops-usgs-streamflow-filter-subtitle {
         color: #555;
         font-size: 10.5px;
-        margin: 0 0 5px 0;
+        margin: 4px 0 5px 0;
+        padding-top: 4px;
+        border-top: 1px solid rgba(90,120,116,0.25);
       }
 
       .pt-ops-usgs-streamflow-filter-row {
         display: grid;
-        grid-template-columns: 70px 1fr 1fr;
+        grid-template-columns: 92px 1fr 1fr;
         column-gap: 4px;
         align-items: center;
         margin: 3px 0;
@@ -141,7 +137,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
         font-weight: 700;
       }
 
-      .pt-ops-usgs-streamflow-filter input[type="number"] {
+      .pt-ops-usgs-streamflow-card input[type="number"] {
         width: 100%;
         box-sizing: border-box;
         border: 1px solid #bfbfb6;
@@ -150,13 +146,13 @@ pt_ops_live_usgs_streamflow_js <- function() {
         font: 11px/1.1 Arial, Helvetica, sans-serif;
       }
 
-      .pt-ops-usgs-streamflow-filter .pt-usgsf-filter-hint {
+      .pt-ops-usgs-streamflow-card .pt-usgsf-filter-hint {
         color: #666;
         font-size: 10.5px;
         margin-top: 1px;
       }
 
-      .pt-ops-usgs-streamflow-filter .pt-usgsf-filter-presets {
+      .pt-ops-usgs-streamflow-card .pt-usgsf-filter-presets {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -164,7 +160,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
         margin: 5px 0 4px 0;
       }
 
-      .pt-ops-usgs-streamflow-filter .pt-usgsf-filter-inline {
+      .pt-ops-usgs-streamflow-card .pt-usgsf-filter-inline {
         display: inline-flex;
         align-items: center;
         gap: 3px;
@@ -174,12 +170,12 @@ pt_ops_live_usgs_streamflow_js <- function() {
         cursor: pointer;
       }
 
-      .pt-ops-usgs-streamflow-filter .pt-usgsf-filter-inline input {
+      .pt-ops-usgs-streamflow-card .pt-usgsf-filter-inline input {
         margin: 0;
         cursor: pointer;
       }
 
-      .pt-ops-usgs-streamflow-filter button {
+      .pt-ops-usgs-streamflow-card button {
         border: 1px solid #aaa;
         border-radius: 4px;
         background: #f7f7f2;
@@ -193,13 +189,13 @@ pt_ops_live_usgs_streamflow_js <- function() {
         touch-action: manipulation;
       }
 
-      .pt-ops-usgs-streamflow-filter button:hover {
+      .pt-ops-usgs-streamflow-card button:hover {
         background: #eef5ff;
         border-color: #6b8fbd;
       }
 
-      .pt-ops-usgs-streamflow-filter button:disabled,
-      .pt-ops-usgs-streamflow-filter input:disabled {
+      .pt-ops-usgs-streamflow-card button:disabled,
+      .pt-ops-usgs-streamflow-card input:disabled {
         opacity: 0.52;
         cursor: not-allowed !important;
       }
@@ -224,10 +220,8 @@ pt_ops_live_usgs_streamflow_js <- function() {
       }
 
       @media (max-width: 760px) {
-        .pt-ops-usgs-streamflow-filter {
-          left: 10px !important;
-          top: 186px !important;
-          width: 218px;
+        .pt-ops-usgs-streamflow-card {
+          width: min(360px, calc(100vw - 20px));
         }
       }
     `;
@@ -724,9 +718,9 @@ pt_ops_live_usgs_streamflow_js <- function() {
     el.textContent = txt;
   }
 
-  function ptUsgsCreateFilterControl(onApply, onReset) {
+  function ptUsgsCreateUnifiedCard(onApply, onReset) {
     var root = null;
-    var mapRef = null;
+    var control = L.control({position: 'bottomleft'});
 
     function stopMapPropagation(e) {
       if (!e) return;
@@ -744,22 +738,20 @@ pt_ops_live_usgs_streamflow_js <- function() {
     }
 
     function buildRoot() {
-      root = L.DomUtil.create('div', 'pt-ops-usgs-streamflow-filter');
-      // Match the USGS groundwater filter pattern: append the filter directly
-      // to the map container, not inside Leaflet's top-left control stack.
-      // The normal control stack can leave transparent overlap over the upper
-      // preset buttons, which makes only the lower strip of some buttons click.
-      root.style.position = 'absolute';
-      root.style.left = '225px';
-      root.style.top = '186px';
-      root.style.marginLeft = '0';
-      root.style.marginTop = '0';
-      root.style.zIndex = '10050';
-      root.style.pointerEvents = 'auto';
-      root.style.background = 'rgba(226, 241, 238, 0.96)';
-      root.style.width = '230px';
+      root = L.DomUtil.create('div', 'leaflet-control pt-ops-usgs-streamflow-card pt-map-legend-card');
+      var actions = (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.actionsHtml) ?
+        window.BRIM.legendCloseout.actionsHtml(
+          'pt-ops-usgs-streamflow-card-dock',
+          'pt-ops-usgs-streamflow-filter-close',
+          'USGS streamflow Ops Live legend and filters'
+        ) :
+        '<span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-ops-usgs-streamflow-card-dock" title="Undock USGS streamflow Ops Live legend and filters">&#x2197;</button><button type="button" class="pt-map-legend-close pt-ops-usgs-streamflow-filter-close" title="Hide USGS streamflow Ops Live legend and filters">&times;</button></span>';
+      var legendBody = typeof opsUsgsStreamflowLegendBodyHtml === 'function' ?
+        opsUsgsStreamflowLegendBodyHtml() : '';
       root.innerHTML = '' +
-        '<div class="pt-ops-usgs-streamflow-filter-title"><span>USGS streamflow Ops Live filters</span><button type="button" class="pt-ops-usgs-streamflow-filter-close" data-pt-usgsf-filter-close="1" title="Hide these filters">&times;</button></div>' +
+        '<div class="pt-ops-usgs-streamflow-filter-title pt-map-card-handle"><span>USGS streamflow | California | Ops Live</span>' + actions + '</div>' +
+        '<div class="pt-ops-legend-small pt-ops-usgs-streamflow-card-metric">Loading feed site records…</div>' +
+        '<div class="pt-ops-usgs-streamflow-card-legend">' + legendBody + '</div>' +
         '<div class="pt-ops-usgs-streamflow-filter-subtitle">Filters current CA Ops Live subset.</div>' +
         '<div class="pt-ops-usgs-streamflow-filter-row"><label>Flow</label><input type="number" min="0" step="1" placeholder="min cfs" data-pt-usgsf-filter="flowMin"><input type="number" min="0" step="1" placeholder="max cfs" data-pt-usgsf-filter="flowMax"></div>' +
         '<div class="pt-ops-usgs-streamflow-filter-row"><label>BLM</label><label class="pt-usgsf-filter-inline" data-pt-usgsf-onblm-label="1"><input type="checkbox" data-pt-usgsf-filter="onBlmOnly" data-pt-usgsf-blm-control="1"> on BLM</label><input type="number" min="0" step="0.1" placeholder="max mi" data-pt-usgsf-filter="blmDistMax" data-pt-usgsf-blm-control="1"></div>' +
@@ -798,12 +790,18 @@ pt_ops_live_usgs_streamflow_js <- function() {
         if (typeof onReset === 'function') onReset(state, root);
       });
 
-      var closeButton = root.querySelector('[data-pt-usgsf-filter-close="1"]');
+      var closeButton = root.querySelector('.pt-ops-usgs-streamflow-filter-close');
       if (closeButton) {
         closeButton.addEventListener('click', function(e) {
           if (typeof L !== 'undefined' && L.DomEvent) L.DomEvent.stop(e);
           else if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+          if (root && root.__brimDetachableState && root.__brimDetachableState.floating) {
+            root.__brimDetachableState.dock();
+          }
           if (root) root.style.display = 'none';
+          if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+            window.BRIM.legendCloseout.scheduleLayout();
+          }
         });
       }
 
@@ -879,23 +877,19 @@ pt_ops_live_usgs_streamflow_js <- function() {
       return root;
     }
 
-    return {
-      addTo: function(map) {
-        mapRef = map;
-        if (!root) root = buildRoot();
-        var container = map && map.getContainer ? map.getContainer() : null;
-        if (container && root.parentNode !== container) container.appendChild(root);
-        return this;
-      },
-      remove: function() {
-        if (root && root.parentNode) root.parentNode.removeChild(root);
-        root = null;
-        mapRef = null;
-      },
-      ptUsgsRoot: function() {
-        return root;
-      }
+    control.onAdd = function() {
+      if (!root) root = buildRoot();
+      return root;
     };
+    control.ptUsgsRoot = function() { return root; };
+    control.ptUsgsDestroy = function() {
+      if (root && root.__brimDetachableState) {
+        root.__brimDetachableState.destroy(false, false);
+      }
+      control.remove();
+      root = null;
+    };
+    return control;
   }
 
   function ptUsgsBuildLayer(markers, features) {
@@ -976,11 +970,15 @@ pt_ops_live_usgs_streamflow_js <- function() {
     var lastStats = null;
     var blmFieldsAvailable = false;
     var blmFieldStatus = {featureCount: 0, keysPresent: false, populated: false, sparse: false, distMiCount: 0, distFtCount: 0, onBlmCount: 0, coveragePct: 0};
+    var layerIsActive = false;
+    var activationGeneration = 0;
 
     function removeFilterControl() {
       if (filterControl) {
         try {
-          if (typeof filterControl.remove === 'function') {
+          if (typeof filterControl.ptUsgsDestroy === 'function') {
+            filterControl.ptUsgsDestroy();
+          } else if (typeof filterControl.remove === 'function') {
             filterControl.remove();
           } else if (layerGroup._map && typeof layerGroup._map.removeControl === 'function') {
             layerGroup._map.removeControl(filterControl);
@@ -993,10 +991,13 @@ pt_ops_live_usgs_streamflow_js <- function() {
 
     function ensureFilterControl() {
       if (filterControl || !layerGroup._map) return;
-      filterControl = ptUsgsCreateFilterControl(applyStreamflowFilter, resetStreamflowFilter);
+      filterControl = ptUsgsCreateUnifiedCard(applyStreamflowFilter, resetStreamflowFilter);
       filterControl.addTo(layerGroup._map);
       filterControlRoot = filterControl.ptUsgsRoot ? filterControl.ptUsgsRoot() : null;
       ptUsgsSetBlmControlsAvailable(filterControlRoot, blmFieldsAvailable, blmFieldStatus);
+      if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+        window.BRIM.legendCloseout.scheduleLayout(filterControlRoot);
+      }
     }
 
     function countFeaturesInCurrentView(features) {
@@ -1012,7 +1013,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
     }
 
     function updateStreamflowLegendMetric() {
-      if (!activeLegendDefs[name] || typeof ptOpsSetLegendMetric !== 'function') return;
+      if (!activeLegendDefs[name]) return;
       var visibleCount = countFeaturesInCurrentView(filteredFeatures);
       var filteredCount = Number((filteredFeatures || []).length || 0);
       var totalCount = Number((allFeatures || []).length || 0);
@@ -1022,9 +1023,16 @@ pt_ops_live_usgs_streamflow_js <- function() {
       } else {
         txt = 'Current view: ' + visibleCount.toLocaleString() + ' / ' + filteredCount.toLocaleString() + ' filtered site records (' + totalCount.toLocaleString() + ' feed site records).';
       }
-      ptOpsSetLegendMetric(name, txt);
+      activeLegendDefs[name].metricText = txt;
+      if (filterControlRoot) {
+        var metric = filterControlRoot.querySelector('.pt-ops-usgs-streamflow-card-metric');
+        if (metric) metric.textContent = txt;
+      }
       if (filterControlRoot) {
         ptUsgsUpdateFilterCount(filterControlRoot, filteredCount, totalCount, lastStats ? lastStats.drawnCount : filteredCount, visibleCount);
+      }
+      if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+        window.BRIM.legendCloseout.scheduleLayout(filterControlRoot);
       }
     }
 
@@ -1065,6 +1073,8 @@ pt_ops_live_usgs_streamflow_js <- function() {
     }
 
     layerGroup.on('add', function() {
+      layerIsActive = true;
+      var requestGeneration = ++activationGeneration;
       // Start each layer activation with a clean filter state.  The previous
       // state lives in this closure after a layer is turned off, but the new
       // filter control opens blank; keeping the old state made filters appear
@@ -1075,6 +1085,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
       activeLegendDefs[name] = {
         note: opts.note || 'BRIM-hosted GeoJSON of latest USGS Water Data continuous streamflow values for California. Draws only sites with recent latest discharge or stage; static/no-current gages are intentionally skipped in this Ops layer.',
         legendType: 'usgs_streamflow',
+        unifiedCard: true,
         sourceUrl: url,
         legendUrl: '',
         infoUrl: summaryUrl || url,
@@ -1082,6 +1093,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
         legendNote: 'Circle size and fill color increase with latest discharge magnitude only. Stage-only sites are small dashed blue-gray circles. This is not flood-stage, percentile, or anomaly styling.'
       };
       redrawLegend();
+      ensureFilterControl();
 
       if (!url) {
         recordStatus(name, 'USGS streamflow GeoJSON URL is not configured.', 'pt-ops-bad');
@@ -1106,6 +1118,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
 
       Promise.all([geoPromise, summaryPromise])
         .then(function(results) {
+          if (!layerIsActive || requestGeneration !== activationGeneration) return;
           var geojson = results[0] || {};
           var summary = results[1] || null;
           allFeatures = Array.isArray(geojson.features) ? geojson.features : [];
@@ -1116,7 +1129,6 @@ pt_ops_live_usgs_streamflow_js <- function() {
           }
           filteredFeatures = ptUsgsFilterFeatures(allFeatures, filterState);
 
-          ensureFilterControl();
           ptUsgsSetBlmControlsAvailable(filterControlRoot, blmFieldsAvailable, blmFieldStatus);
           var stats = renderStreamflowFeatures(filteredFeatures, 'initial');
           setOpsLayerLoading(name, false);
@@ -1159,6 +1171,7 @@ pt_ops_live_usgs_streamflow_js <- function() {
           recordStatus(name, msg, 'pt-ops-ok');
         })
         .catch(function(err) {
+          if (!layerIsActive || requestGeneration !== activationGeneration) return;
           setOpsLayerLoading(name, false);
           recordStatus(
             name,
@@ -1169,6 +1182,8 @@ pt_ops_live_usgs_streamflow_js <- function() {
     });
 
     layerGroup.on('remove', function() {
+      layerIsActive = false;
+      activationGeneration += 1;
       try {
         if (layerGroup._map && typeof layerGroup._map.off === 'function') {
           layerGroup._map.off('moveend zoomend', updateStreamflowLegendMetric);

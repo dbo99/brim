@@ -333,27 +333,21 @@ pt_ops_live_usgs_groundwater_js <- function() {
         text-decoration: underline;
       }
 
-      .pt-ops-usgs-groundwater-filter {
-        position: absolute !important;
-        left: 225px !important;
-        top: 172px !important;
-        clear: none !important;
-        float: none !important;
-        z-index: 10000;
+      .pt-ops-usgs-groundwater-card {
         background: rgba(226, 241, 238, 0.96);
         border: 1px solid rgba(90,120,116,0.55);
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.22);
         padding: 6px 7px;
-        width: 230px;
-        margin-left: 0 !important;
-        margin-top: 0 !important;
+        width: 360px;
+        max-width: calc(100vw - 24px);
+        box-sizing: border-box;
         font: 11.5px/1.25 Arial, Helvetica, sans-serif;
         color: #222;
         pointer-events: auto;
       }
 
-      .pt-ops-usgs-groundwater-filter * {
+      .pt-ops-usgs-groundwater-card * {
         pointer-events: auto;
       }
 
@@ -369,8 +363,8 @@ pt_ops_live_usgs_groundwater_js <- function() {
         justify-content: space-between;
         gap: 8px;
         font-weight: 700;
-        font-size: 12px;
-        margin-bottom: 1px;
+        font-size: 12.5px;
+        margin-bottom: 3px;
       }
 
       .pt-ops-usgs-groundwater-filter-close {
@@ -387,12 +381,14 @@ pt_ops_live_usgs_groundwater_js <- function() {
       .pt-ops-usgs-groundwater-filter-subtitle {
         color: #555;
         font-size: 10.5px;
-        margin: 0 0 5px 0;
+        margin: 4px 0 5px 0;
+        padding-top: 4px;
+        border-top: 1px solid rgba(90,120,116,0.25);
       }
 
       .pt-ops-usgs-groundwater-filter-row {
         display: grid;
-        grid-template-columns: 70px 1fr 1fr;
+        grid-template-columns: 92px 1fr 1fr;
         column-gap: 4px;
         align-items: center;
         margin: 3px 0;
@@ -402,7 +398,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
         font-weight: 700;
       }
 
-      .pt-ops-usgs-groundwater-filter input[type="number"] {
+      .pt-ops-usgs-groundwater-card input[type="number"] {
         width: 100%;
         box-sizing: border-box;
         border: 1px solid #bfbfb6;
@@ -411,13 +407,13 @@ pt_ops_live_usgs_groundwater_js <- function() {
         font: 11px/1.1 Arial, Helvetica, sans-serif;
       }
 
-      .pt-ops-usgs-groundwater-filter .pt-usgw-filter-hint {
+      .pt-ops-usgs-groundwater-card .pt-usgw-filter-hint {
         color: #666;
         font-size: 10.5px;
         margin-top: 1px;
       }
 
-      .pt-ops-usgs-groundwater-filter .pt-usgw-filter-presets {
+      .pt-ops-usgs-groundwater-card .pt-usgw-filter-presets {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -425,7 +421,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
         margin: 5px 0 4px 0;
       }
 
-      .pt-ops-usgs-groundwater-filter .pt-usgw-filter-nested-inline {
+      .pt-ops-usgs-groundwater-card .pt-usgw-filter-nested-inline {
         display: inline-flex;
         align-items: center;
         gap: 3px;
@@ -435,12 +431,12 @@ pt_ops_live_usgs_groundwater_js <- function() {
         cursor: pointer;
       }
 
-      .pt-ops-usgs-groundwater-filter .pt-usgw-filter-nested-inline input {
+      .pt-ops-usgs-groundwater-card .pt-usgw-filter-nested-inline input {
         margin: 0;
         cursor: pointer;
       }
 
-      .pt-ops-usgs-groundwater-filter button {
+      .pt-ops-usgs-groundwater-card button {
         border: 1px solid #aaa;
         border-radius: 4px;
         background: #f7f7f2;
@@ -451,7 +447,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
         z-index: 10002;
       }
 
-      .pt-ops-usgs-groundwater-filter button:hover {
+      .pt-ops-usgs-groundwater-card button:hover {
         background: #eef5ff;
         border-color: #6b8fbd;
       }
@@ -476,10 +472,8 @@ pt_ops_live_usgs_groundwater_js <- function() {
       }
 
       @media (max-width: 760px) {
-        .pt-ops-usgs-groundwater-filter {
-          left: 10px !important;
-          top: 172px !important;
-          width: 218px;
+        .pt-ops-usgs-groundwater-card {
+          width: min(360px, calc(100vw - 20px));
         }
       }
 
@@ -1723,20 +1717,20 @@ pt_ops_live_usgs_groundwater_js <- function() {
     return parts.length ? parts.join('; ') : 'none';
   }
 
-  function ptUsgwUpdateFilterCount(root, filteredCount, totalCount, markerCount) {
+  function ptUsgwUpdateFilterCount(root, filteredCount, totalCount, markerCount, visibleCount) {
     if (!root) return;
     var el = root.querySelector('.pt-ops-usgs-groundwater-filter-count');
     if (!el) return;
     var txt = 'Showing ' + Number(filteredCount || 0).toLocaleString() + ' of ' + Number(totalCount || 0).toLocaleString() + ' groundwater site records';
     if (markerCount !== undefined && markerCount !== null) {
-      txt += ' (' + Number(markerCount || 0).toLocaleString() + ' map markers before low-zoom clustering)';
+      txt += ' (' + Number(markerCount || 0).toLocaleString() + ' map markers before low-zoom clustering; ' + Number(visibleCount || 0).toLocaleString() + ' records in current view)';
     }
     el.textContent = txt;
   }
 
-  function ptUsgwCreateFilterControl(onApply, onReset) {
+  function ptUsgwCreateUnifiedCard(onApply, onReset) {
     var root = null;
-    var mapRef = null;
+    var control = L.control({position: 'bottomleft'});
 
     function stopMapEvent(e) {
       if (!e) return;
@@ -1747,21 +1741,20 @@ pt_ops_live_usgs_groundwater_js <- function() {
     }
 
     function buildRoot() {
-      root = L.DomUtil.create('div', 'pt-ops-usgs-groundwater-filter');
-      // Append directly to the map container instead of the normal Leaflet
-      // top-left control stack. This keeps the filter clear of Notes / HUC /
-      // Measure controls and avoids hidden overlap that can steal clicks.
-      root.style.position = 'absolute';
-      root.style.left = '225px';
-      root.style.top = '172px';
-      root.style.marginLeft = '0';
-      root.style.marginTop = '0';
-      root.style.zIndex = '10000';
-      root.style.pointerEvents = 'auto';
-      root.style.background = 'rgba(226, 241, 238, 0.96)';
-      root.style.width = '230px';
+      root = L.DomUtil.create('div', 'leaflet-control pt-ops-usgs-groundwater-card pt-map-legend-card');
+      var actions = (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.actionsHtml) ?
+        window.BRIM.legendCloseout.actionsHtml(
+          'pt-ops-usgs-groundwater-card-dock',
+          'pt-ops-usgs-groundwater-filter-close',
+          'USGS groundwater Ops Live legend and filters'
+        ) :
+        '<span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-ops-usgs-groundwater-card-dock" title="Undock USGS groundwater Ops Live legend and filters">&#x2197;</button><button type="button" class="pt-map-legend-close pt-ops-usgs-groundwater-filter-close" title="Hide USGS groundwater Ops Live legend and filters">&times;</button></span>';
+      var legendBody = typeof opsGroundwaterLegendBodyHtml === 'function' ?
+        opsGroundwaterLegendBodyHtml() : '';
       root.innerHTML = '' +
-        '<div class="pt-ops-usgs-groundwater-filter-title"><span>USGS GW Ops Live filters</span><button type="button" class="pt-ops-usgs-groundwater-filter-close" data-pt-usgw-filter-close="1" title="Hide these filters">&times;</button></div>' +
+        '<div class="pt-ops-usgs-groundwater-filter-title pt-map-card-handle"><span>USGS GW monitoring wells measured in last 800 days</span>' + actions + '</div>' +
+        '<div class="pt-ops-legend-small pt-ops-usgs-groundwater-card-metric">Loading groundwater site records…</div>' +
+        '<div class="pt-ops-usgs-groundwater-card-legend">' + legendBody + '</div>' +
         '<div class="pt-ops-usgs-groundwater-filter-subtitle">Filters current Ops Live subset (≤800 days).</div>' +
         '<div class="pt-ops-usgs-groundwater-filter-row"><label>Age</label><input type="number" min="0" step="1" placeholder="min days" data-pt-usgw-filter="ageMin"><input type="number" min="0" step="1" placeholder="max days" data-pt-usgw-filter="ageMax"></div>' +
         '<div class="pt-ops-usgs-groundwater-filter-row"><label>DTW</label><input type="number" step="1" placeholder="min ft" data-pt-usgw-filter="depthMin"><input type="number" step="1" placeholder="max ft" data-pt-usgw-filter="depthMax"></div>' +
@@ -1786,12 +1779,18 @@ pt_ops_live_usgs_groundwater_js <- function() {
         root.addEventListener(evt, stopMapEvent, false);
       });
 
-      var closeButton = root.querySelector('[data-pt-usgw-filter-close="1"]');
+      var closeButton = root.querySelector('.pt-ops-usgs-groundwater-filter-close');
       if (closeButton) {
         closeButton.addEventListener('click', function(e) {
           if (typeof L !== 'undefined' && L.DomEvent) L.DomEvent.stop(e);
           else if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+          if (root && root.__brimDetachableState && root.__brimDetachableState.floating) {
+            root.__brimDetachableState.dock();
+          }
           if (root) root.style.display = 'none';
+          if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+            window.BRIM.legendCloseout.scheduleLayout();
+          }
         });
       }
 
@@ -1865,21 +1864,19 @@ pt_ops_live_usgs_groundwater_js <- function() {
       return root;
     }
 
-    return {
-      addTo: function(map) {
-        mapRef = map;
-        if (!root) root = buildRoot();
-        var container = map && map.getContainer ? map.getContainer() : null;
-        if (container && root.parentNode !== container) container.appendChild(root);
-        return this;
-      },
-      remove: function() {
-        if (root && root.parentNode) root.parentNode.removeChild(root);
-        root = null;
-        mapRef = null;
-      },
-      ptUsgwRoot: function() { return root; }
+    control.onAdd = function() {
+      if (!root) root = buildRoot();
+      return root;
     };
+    control.ptUsgwRoot = function() { return root; };
+    control.ptUsgwDestroy = function() {
+      if (root && root.__brimDetachableState) {
+        root.__brimDetachableState.destroy(false, false);
+      }
+      control.remove();
+      root = null;
+    };
+    return control;
   }
 
   function ptUsgwBuildLayer(markers, features) {
@@ -1991,16 +1988,21 @@ pt_ops_live_usgs_groundwater_js <- function() {
     var url = opts.url || '';
     var summaryUrl = opts.summaryUrl || '';
     var allFeatures = [];
+    var filteredFeatures = [];
     var currentSummary = null;
     var filterState = ptUsgwDefaultFilterState();
     var filterControl = null;
     var filterControlRoot = null;
+    var lastStats = null;
     var layerIsActive = false;
+    var activationGeneration = 0;
 
     function removeFilterControl() {
       if (filterControl) {
         try {
-          if (typeof filterControl.remove === 'function') {
+          if (typeof filterControl.ptUsgwDestroy === 'function') {
+            filterControl.ptUsgwDestroy();
+          } else if (typeof filterControl.remove === 'function') {
             filterControl.remove();
           } else if (layerGroup._map && typeof layerGroup._map.removeControl === 'function') {
             layerGroup._map.removeControl(filterControl);
@@ -2013,18 +2015,57 @@ pt_ops_live_usgs_groundwater_js <- function() {
 
     function ensureFilterControl() {
       if (filterControl || !layerGroup._map) return;
-      filterControl = ptUsgwCreateFilterControl(applyGroundwaterFilter, resetGroundwaterFilter);
+      filterControl = ptUsgwCreateUnifiedCard(applyGroundwaterFilter, resetGroundwaterFilter);
       filterControl.addTo(layerGroup._map);
       filterControlRoot = filterControl.ptUsgwRoot ? filterControl.ptUsgwRoot() : null;
+      if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+        window.BRIM.legendCloseout.scheduleLayout(filterControlRoot);
+      }
+    }
+
+    function countFeaturesInCurrentView(features) {
+      if (!layerGroup._map || !layerGroup._map.getBounds) return Number((features || []).length || 0);
+      var bounds = layerGroup._map.getBounds();
+      var n = 0;
+      (features || []).forEach(function(feature) {
+        var coords = ptUsgwFeatureCoords(feature);
+        if (!coords) return;
+        if (bounds.contains(L.latLng(coords[0], coords[1]))) n += 1;
+      });
+      return n;
+    }
+
+    function updateGroundwaterCardMetric() {
+      if (!activeLegendDefs[name]) return;
+      var visibleCount = countFeaturesInCurrentView(filteredFeatures);
+      var filteredCount = Number((filteredFeatures || []).length || 0);
+      var totalCount = Number((allFeatures || []).length || 0);
+      var txt = filteredCount === totalCount ?
+        ('Current view: ' + visibleCount.toLocaleString() + ' / ' + totalCount.toLocaleString() + ' feed site records.') :
+        ('Current view: ' + visibleCount.toLocaleString() + ' / ' + filteredCount.toLocaleString() + ' filtered site records (' + totalCount.toLocaleString() + ' feed site records).');
+      activeLegendDefs[name].metricText = txt;
+      if (filterControlRoot) {
+        var metric = filterControlRoot.querySelector('.pt-ops-usgs-groundwater-card-metric');
+        if (metric) metric.textContent = txt;
+        ptUsgwUpdateFilterCount(
+          filterControlRoot,
+          filteredCount,
+          totalCount,
+          lastStats ? lastStats.drawnCount : filteredCount,
+          visibleCount
+        );
+      }
+      if (window.BRIM && window.BRIM.legendCloseout && window.BRIM.legendCloseout.scheduleLayout) {
+        window.BRIM.legendCloseout.scheduleLayout(filterControlRoot);
+      }
     }
 
     function renderGroundwaterFeatures(features, reason) {
-      var stats = ptUsgwBuildLayer(markers, features || []);
+      filteredFeatures = features || [];
+      var stats = ptUsgwBuildLayer(markers, filteredFeatures);
+      lastStats = stats;
       if (!layerGroup.hasLayer(markers)) markers.addTo(layerGroup);
-
-      if (filterControlRoot) {
-        ptUsgwUpdateFilterCount(filterControlRoot, (features || []).length, allFeatures.length, stats.drawnCount);
-      }
+      updateGroundwaterCardMetric();
 
       if (!stats.drawnCount) {
         recordStatus(name, 'USGS groundwater filter returned no mappable points. Active filters: ' + ptUsgwDescribeFilterState(filterState) + '.', 'pt-ops-warn');
@@ -2058,6 +2099,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
 
     layerGroup.on('add', function() {
       layerIsActive = true;
+      var requestGeneration = ++activationGeneration;
       // Start each layer activation with a clean filter state.  Otherwise a
       // previously applied filter remains active after layer toggle even though
       // the rebuilt filter panel appears blank.
@@ -2067,6 +2109,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
       activeLegendDefs[name] = {
         note: opts.note || 'BRIM-hosted GeoJSON of latest USGS groundwater field measurements for active/recent candidate wells in the California-centered query area, including nearby border-basin context where present. Values are depth to water in feet below ground/land surface from parameter 72019 where available; RF029 history fields are shown in popups when present.',
         legendType: 'usgs_groundwater',
+        unifiedCard: true,
         sourceUrl: url,
         legendUrl: '',
         infoUrl: summaryUrl || url,
@@ -2074,6 +2117,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
         legendNote: 'Circle fill color reflects latest depth to water. Dark outline marks older/stale measurements. Popup history percentiles and mini plots are historical context, not a groundwater-storage calculation.'
       };
       redrawLegend();
+      ensureFilterControl();
 
       if (!url) {
         recordStatus(name, 'USGS groundwater GeoJSON URL is not configured.', 'pt-ops-bad');
@@ -2098,7 +2142,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
 
       Promise.all([geoPromise, summaryPromise])
         .then(function(results) {
-          if (!layerIsActive) return;
+          if (!layerIsActive || requestGeneration !== activationGeneration) return;
 
           var geojson = results[0] || {};
           var summary = results[1] || null;
@@ -2106,10 +2150,12 @@ pt_ops_live_usgs_groundwater_js <- function() {
           allFeatures = features;
           currentSummary = summary;
           ptUsgwAnnotateCoLocatedCounts(allFeatures);
-          ensureFilterControl();
 
           var stats = renderGroundwaterFeatures(ptUsgwFilterFeatures(allFeatures, filterState), 'initial');
           setOpsLayerLoading(name, false);
+          if (layerGroup._map && typeof layerGroup._map.on === 'function') {
+            layerGroup._map.on('moveend zoomend', updateGroundwaterCardMetric);
+          }
 
           if (!stats.drawnCount) {
             recordStatus(name, 'USGS groundwater feed loaded, but no latest groundwater-level points were mappable.', 'pt-ops-warn');
@@ -2159,6 +2205,7 @@ pt_ops_live_usgs_groundwater_js <- function() {
           recordStatus(name, msg, 'pt-ops-ok');
         })
         .catch(function(err) {
+          if (!layerIsActive || requestGeneration !== activationGeneration) return;
           setOpsLayerLoading(name, false);
           recordStatus(
             name,
@@ -2170,11 +2217,19 @@ pt_ops_live_usgs_groundwater_js <- function() {
 
     layerGroup.on('remove', function() {
       layerIsActive = false;
+      activationGeneration += 1;
+      try {
+        if (layerGroup._map && typeof layerGroup._map.off === 'function') {
+          layerGroup._map.off('moveend zoomend', updateGroundwaterCardMetric);
+        }
+      } catch(e) {}
       try { markers.clearLayers(); } catch(e) {}
       try { layerGroup.removeLayer(markers); } catch(e) {}
       removeFilterControl();
       filterState = ptUsgwDefaultFilterState();
       allFeatures = [];
+      filteredFeatures = [];
+      lastStats = null;
       currentSummary = null;
       delete activeLegendDefs[name];
       setOpsLayerLoading(name, false);
