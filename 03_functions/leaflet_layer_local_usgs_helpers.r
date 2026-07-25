@@ -448,7 +448,7 @@ function(el, x) {
     var statusText = statObj && statObj.status ? String(statObj.status) : '';
     var statusBusy = !!(statObj && statObj.loading);
     if (statusBusy && !statusText) statusText = 'Rendering groundwater wells…';
-    html += '<div class="pt-usgs-gw-local-showing">Showing ' + fmt(lastShown) + ' / ' + fmt(counts.total) + ' well records' + (lastDrawn != null ? ' (' + fmt(lastDrawn) + ' markers before clustering)' : '') + '</div>';
+    html += '<div class="pt-usgs-gw-local-showing">Showing ' + fmt(lastShown) + ' / ' + fmt(counts.total) + ' well records' + (lastDrawn != null ? ' (' + fmt(lastDrawn) + ' display objects in current view)' : '') + '</div>';
     if (statusText) html += '<div class="pt-usgs-gw-local-status' + (statusBusy ? ' busy' : '') + '"><span class="pt-usgs-gw-local-spinner"></span><span>' + esc(statusText) + '</span></div>';
     html += '<div class="pt-usgs-gw-local-filter-summary">Filters: ' + esc(filterSummaryText()) + '</div>';
     html += '<div class="pt-usgs-gw-local-minihead">Most recent cached groundwater level</div>';
@@ -2473,6 +2473,161 @@ function(el, x, data) {
 }
 
 
+# ==== 2E. Viewport-virtualized USGS groundwater Local layer ==================
+##
+## PURPOSE:
+##   Preserve every Local USGS groundwater site record in the standalone HTML
+##   while bounding live Leaflet objects to the current viewport. Low and
+##   intermediate zooms use deterministic screen-grid aggregates; zoom 11+
+##   uses exact mapped locations rendered through a dedicated Canvas renderer.
+##
+## DATA INTEGRITY:
+##   - Site rows are never sampled or deduplicated.
+##   - Exact point coordinates remain in the browser record table.
+##   - The separate location table only indexes contiguous site-row ranges.
+##   - Co-located/nested groups follow the existing seven-decimal coordinate
+##     grouping used by the browser layer this replaces.
+##
+## IMPLEMENTATION:
+##   JavaScript is kept in a separately syntax-checkable source file and is
+##   embedded by htmlwidgets, so the generated BRIM product remains one HTML.
+
+pt_add_usgs_well_virtualized_browser_layer <- function(
+  m,
+  usgs_gw = NULL,
+  group_name = pt_layer_group_name("USGS monitoring wells")
+) {
+
+  if (!inherits(usgs_gw, "sf") && !is.data.frame(usgs_gw)) return(m)
+  if (nrow(usgs_gw) == 0 || !"site_no" %in% names(usgs_gw)) return(m)
+
+  x <- usgs_gw
+  coords <- NULL
+
+  if (inherits(x, "sf")) {
+    x_ll <- try({
+      crs <- sf::st_crs(x)
+      if (!is.na(crs)) sf::st_transform(x, 4326) else x
+    }, silent = TRUE)
+    if (inherits(x_ll, "try-error")) x_ll <- x
+    coords <- suppressWarnings(sf::st_coordinates(sf::st_geometry(x_ll)))
+  }
+
+  if (is.null(coords) || nrow(coords) != nrow(x)) {
+    warning("USGS Wells virtualized browser layer skipped: could not extract point coordinates.")
+    return(m)
+  }
+
+  gx <- if (inherits(x, "sf")) {
+    sf::st_drop_geometry(x)
+  } else {
+    as.data.frame(x, stringsAsFactors = FALSE)
+  }
+
+  gx$pt_lng <- as.numeric(coords[, "X"])
+  gx$pt_lat <- as.numeric(coords[, "Y"])
+
+  keep <- c(
+    "site_no", "pt_lat", "pt_lng",
+    "well_radius", "well_fill_col", "well_stroke_col",
+    "well_stroke_col_display", "well_stroke_weight_display",
+    "well_recent_feed_ring", "well_is_nested", "hover_text",
+    names(gx)[grepl("^gwpop_", names(gx))],
+    "on_blm_ca", "on_blm", "dist_to_blm_mi", "distance_to_blm_mi",
+    "dist_to_blm_ft", "gw_on_blm_ca", "gw_dist_to_blm_mi",
+    "gw_dist_to_blm_ft"
+  )
+
+  rec <- gx[, intersect(unique(keep), names(gx)), drop = FALSE]
+  rec$site_no <- as.character(rec$site_no)
+  rec <- rec[
+    !is.na(rec$site_no) &
+      rec$site_no != "" &
+      is.finite(rec$pt_lat) &
+      is.finite(rec$pt_lng),
+    ,
+    drop = FALSE
+  ]
+  if (nrow(rec) == 0) return(m)
+
+  if ("hover_text" %in% names(rec)) {
+    rec$hover_text <- sub("^MR WL:\\s*", "", as.character(rec$hover_text))
+    rec$hover_text <- gsub(
+      "No cached MR WL",
+      "No cached water level",
+      rec$hover_text,
+      fixed = TRUE
+    )
+  }
+
+  ## Keep the prior browser layer's nested-location interpretation exactly:
+  ## coordinates matching after seven decimal places share one display
+  ## location. Sorting makes each location's full site records contiguous.
+  coord_key <- paste0(
+    sprintf("%.7f", rec$pt_lng),
+    "_",
+    sprintf("%.7f", rec$pt_lat)
+  )
+  ord <- order(coord_key, rec$site_no, na.last = TRUE)
+  rec <- rec[ord, , drop = FALSE]
+  coord_key <- coord_key[ord]
+
+  coord_runs <- rle(coord_key)
+  loc_start_one <- cumsum(c(1L, head(coord_runs$lengths, -1L)))
+  loc_count <- as.integer(coord_runs$lengths)
+
+  locations <- data.frame(
+    site_start = as.integer(loc_start_one - 1L),
+    site_count = loc_count,
+    stringsAsFactors = FALSE
+  )
+
+  nested_sizes <- loc_count[loc_count > 1L]
+  metadata <- list(
+    schemaVersion = 2L,
+    siteCount = nrow(rec),
+    uniqueCoordinateCount = nrow(locations),
+    nestedLocationCount = length(nested_sizes),
+    nestedSiteRecordCount = sum(nested_sizes),
+    maxNestedLocationSize = if (length(nested_sizes) > 0) max(nested_sizes) else 1L,
+    exactCoordinatePrecision = "source coordinates retained; display grouping matches prior 7-decimal key",
+    clusterToExactZoom = 11L
+  )
+
+  js_path <- file.path(
+    "03_functions",
+    "js",
+    "leaflet_usgs_groundwater_local_virtualized.js"
+  )
+  if (!file.exists(js_path)) {
+    stop("Missing virtualized USGS groundwater browser helper: ", js_path)
+  }
+
+  js <- paste(readLines(js_path, warn = FALSE), collapse = "\n")
+
+  message(
+    "USGS monitoring wells virtualized payload: ",
+    format(metadata$siteCount, big.mark = ","),
+    " individual sites; ",
+    format(metadata$uniqueCoordinateCount, big.mark = ","),
+    " mapped locations; ",
+    format(metadata$nestedLocationCount, big.mark = ","),
+    " nested/co-located locations."
+  )
+
+  htmlwidgets::onRender(
+    m,
+    js,
+    data = list(
+      groupName = group_name,
+      records = rec,
+      locations = locations,
+      metadata = metadata
+    )
+  )
+}
+
+
 # ==== 3A. CDEC reservoir-station local layer =================================
 ##
 ## PURPOSE:
@@ -2751,191 +2906,10 @@ pt_add_usgs_layers <- function(m, usgs_sw, usgs_gw, map_display) {
         well_dash_array_display = NA_character_
       )
 
-    ## Leaflet/htmlwidgets can become very large when dense point layers carry
-    ## prebuilt popup_html for every feature.  For rebuilt caches, USGS Wells
-    ## now carries compact gwpop_* fields and browser-side JavaScript attaches
-    ## a shared popup template.  Older caches without gwpop_* fields fall back
-    ## to the legacy popup_html path so build_final_map_only() remains safe.
-    usgs_gw_sf_col <- attr(usgs_gw, "sf_column")
-    if (
-      is.null(usgs_gw_sf_col) ||
-      length(usgs_gw_sf_col) != 1 ||
-      is.na(usgs_gw_sf_col) ||
-      !usgs_gw_sf_col %in% names(usgs_gw)
-    ) {
-      usgs_gw_geom_cols <- names(usgs_gw)[
-        vapply(usgs_gw, inherits, logical(1), what = "sfc")
-      ]
-      usgs_gw_sf_col <- if (length(usgs_gw_geom_cols) > 0) {
-        usgs_gw_geom_cols[1]
-      } else {
-        "geometry"
-      }
-    }
-
-    usgs_gw_has_template_popups <- any(grepl("^gwpop_", names(usgs_gw))) &&
-      "site_no" %in% names(usgs_gw)
-
-    pt_usgs_gw_bool <- function(v) {
-      if (is.logical(v)) return(dplyr::coalesce(v, FALSE))
-      raw <- tolower(trimws(as.character(v)))
-      raw %in% c("true", "t", "1", "yes", "y")
-    }
-
-    pt_usgs_gw_nested_flag <- function(x) {
-      if ("well_is_nested" %in% names(x)) {
-        out <- pt_usgs_gw_bool(x$well_is_nested)
-      } else if ("gwpop_nested_n" %in% names(x)) {
-        out <- suppressWarnings(as.integer(x$gwpop_nested_n)) > 1L
-      } else {
-        out <- rep(FALSE, nrow(x))
-      }
-      out[is.na(out)] <- FALSE
-      out
-    }
-
-    pt_usgs_gw_html_escape <- function(v) {
-      v <- as.character(v)
-      v[is.na(v)] <- ""
-      v <- gsub("&", "&amp;", v, fixed = TRUE)
-      v <- gsub("<", "&lt;", v, fixed = TRUE)
-      v <- gsub(">", "&gt;", v, fixed = TRUE)
-      v <- gsub('"', "&quot;", v, fixed = TRUE)
-      v
-    }
-
-    pt_usgs_gw_has_text <- function(v) {
-      !is.na(v) & nzchar(trimws(as.character(v))) & !trimws(as.character(v)) %in% c("NA", "NaN", "null")
-    }
-
-    pt_usgs_gw_fmt_num <- function(v, digits = 1) {
-      n <- suppressWarnings(as.numeric(v))
-      ifelse(
-        is.na(n),
-        "NA",
-        format(round(n, digits), nsmall = digits, trim = TRUE, big.mark = ",")
-      )
-    }
-
-    pt_usgs_gw_nested_icon_url <- function(n) {
-      n <- suppressWarnings(as.integer(n))
-      n[is.na(n)] <- 2L
-      n <- pmax(2L, pmin(99L, n))
-      vapply(n, function(k) {
-        svg <- sprintf(
-          paste0(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">',
-            '<rect x="4" y="6" width="19" height="19" rx="5" fill="rgba(246,190,103,0.94)" stroke="#7B241C" stroke-width="1.5"/>',
-            '<circle cx="10" cy="12" r="2" fill="#111" opacity="0.82"/>',
-            '<circle cx="17" cy="12" r="2" fill="#111" opacity="0.82"/>',
-            '<circle cx="10" cy="19" r="2" fill="#111" opacity="0.82"/>',
-            '<circle cx="17" cy="19" r="2" fill="#111" opacity="0.82"/>',
-            '<circle cx="21" cy="7" r="6" fill="#7B241C" stroke="#ffffff" stroke-width="1"/>',
-            '<text x="21" y="10.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#ffffff">%s</text>',
-            '</svg>'
-          ),
-          k
-        )
-        paste0("data:image/svg+xml;charset=UTF-8,", utils::URLencode(svg, reserved = TRUE))
-      }, character(1))
-    }
-
-    pt_usgs_gw_build_nested_groups <- function(x) {
-      nested_flag <- pt_usgs_gw_nested_flag(x)
-      if (!any(nested_flag, na.rm = TRUE)) return(data.frame())
-
-      nx <- x[nested_flag, , drop = FALSE]
-      coords <- sf::st_coordinates(sf::st_geometry(nx))
-      if (nrow(coords) == 0) return(data.frame())
-
-      df <- sf::st_drop_geometry(nx)
-      df$pt_lng <- coords[, 1]
-      df$pt_lat <- coords[, 2]
-      df$pt_key <- paste0(round(df$pt_lng, 7), "_", round(df$pt_lat, 7))
-
-      pieces <- split(df, df$pt_key)
-
-      out <- lapply(seq_along(pieces), function(i) {
-        g <- pieces[[i]]
-        well_depth <- if ("gwpop_well_depth" %in% names(g)) suppressWarnings(as.numeric(g$gwpop_well_depth)) else rep(NA_real_, nrow(g))
-        ord <- order(is.na(well_depth), well_depth, as.character(g$site_no))
-        g <- g[ord, , drop = FALSE]
-        well_depth <- well_depth[ord]
-
-        n_count <- if ("gwpop_nested_n" %in% names(g)) suppressWarnings(max(as.integer(g$gwpop_nested_n), na.rm = TRUE)) else nrow(g)
-        if (!is.finite(n_count) || is.na(n_count)) n_count <- nrow(g)
-
-        latest <- if ("gwpop_latest_wl" %in% names(g)) suppressWarnings(as.numeric(g$gwpop_latest_wl)) else rep(NA_real_, nrow(g))
-        latest_date <- if ("gwpop_latest_date" %in% names(g)) as.character(g$gwpop_latest_date) else rep("", nrow(g))
-        sid <- if ("gwpop_site_no" %in% names(g)) as.character(g$gwpop_site_no) else as.character(g$site_no)
-        nm <- if ("gwpop_name" %in% names(g)) as.character(g$gwpop_name) else rep("USGS groundwater well", nrow(g))
-
-        row_label <- function(j) {
-          depth_txt <- if (!is.na(well_depth[j])) paste0(pt_usgs_gw_fmt_num(well_depth[j], 0), " ft well") else "well depth NA"
-          wl_txt <- if (!is.na(latest[j])) paste0(pt_usgs_gw_fmt_num(latest[j], 1), " ft bgs") else "no cached WL"
-          date_txt <- if (pt_usgs_gw_has_text(latest_date[j])) paste0(" (", latest_date[j], ")") else ""
-          paste0(depth_txt, ": ", wl_txt, date_txt)
-        }
-
-        show_n <- min(nrow(g), 5L)
-        hover_lines <- c(
-          paste0("Nested / co-located USGS wells (", n_count, ")"),
-          vapply(seq_len(show_n), row_label, character(1))
-        )
-        if (nrow(g) > show_n) hover_lines <- c(hover_lines, paste0("+", nrow(g) - show_n, " more; click for details"))
-
-        table_rows <- vapply(seq_len(nrow(g)), function(j) {
-          depth_txt <- if (!is.na(well_depth[j])) paste0(pt_usgs_gw_fmt_num(well_depth[j], 0), " ft") else "NA"
-          wl_txt <- if (!is.na(latest[j])) paste0(pt_usgs_gw_fmt_num(latest[j], 1), " ft bgs") else "NA"
-          paste0(
-            '<tr><td>', pt_usgs_gw_html_escape(sid[j]), '</td>',
-            '<td>', pt_usgs_gw_html_escape(depth_txt), '</td>',
-            '<td>', pt_usgs_gw_html_escape(wl_txt), '</td>',
-            '<td>', pt_usgs_gw_html_escape(latest_date[j]), '</td></tr>'
-          )
-        }, character(1))
-
-        popup_html <- paste0(
-          '<div style="font:12px/1.35 Arial, Helvetica, sans-serif;max-width:420px;">',
-          '<div style="font-weight:700;font-size:13px;margin-bottom:3px;">Co-located / nested USGS groundwater wells</div>',
-          '<div style="color:#555;font-size:11px;margin-bottom:5px;">', n_count, ' catalog records at this mapped coordinate.</div>',
-          '<table style="border-collapse:collapse;width:100%;font-size:11.5px;">',
-          '<thead><tr><th style="text-align:left;border-bottom:1px solid #ddd;">USGS</th><th style="text-align:left;border-bottom:1px solid #ddd;">Well depth</th><th style="text-align:left;border-bottom:1px solid #ddd;">Cached WL</th><th style="text-align:left;border-bottom:1px solid #ddd;">Date</th></tr></thead>',
-          '<tbody>', paste(table_rows, collapse = ''), '</tbody></table>',
-          '<div style="color:#555;font-size:11px;margin-top:5px;">Click individual USGS Site links from the single-well popup where needed; grouped symbol added by BRIM because multiple records share coordinates.</div>',
-          '</div>'
-        )
-
-        data.frame(
-          group_id = paste0("pt_usgs_gw_nested_", i),
-          lng = g$pt_lng[1],
-          lat = g$pt_lat[1],
-          nested_n = n_count,
-          hover_text = paste(hover_lines, collapse = "\n"),
-          popup_html = popup_html,
-          icon_url = pt_usgs_gw_nested_icon_url(n_count),
-          stringsAsFactors = FALSE
-        )
-      })
-
-      dplyr::bind_rows(out)
-    }
-
-    usgs_gw_nested_flag <- pt_usgs_gw_nested_flag(usgs_gw)
-    usgs_gw_nested_groups <- pt_usgs_gw_build_nested_groups(usgs_gw)
-    usgs_gw_single <- usgs_gw[!usgs_gw_nested_flag, , drop = FALSE]
-
-    message(
-      "USGS monitoring wells Local display: ",
-      nrow(usgs_gw_single),
-      " single-well marker records and ",
-      nrow(usgs_gw_nested_groups),
-      " grouped nested/co-located marker(s)."
-    )
-
     ## Register the overlay-group checkbox with a single invisible dummy marker.
-    ## The visible dense well catalog is created by pt_add_usgs_well_browser_layer(),
-    ## which can rebuild its MarkerClusterGroup after legend filters change.
+    ## The visible dense well catalog is created by the viewport-virtualized
+    ## browser layer. The dummy remains only to register the standard Leaflet
+    ## overlay checkbox; it is not part of the visible well count.
     dummy <- data.frame(lng = -170, lat = 10)
     m <- m |>
       leaflet::addCircleMarkers(
@@ -2951,7 +2925,7 @@ pt_add_usgs_layers <- function(m, usgs_sw, usgs_gw, map_display) {
         options = leaflet::pathOptions(pane = "pane_points", interactive = FALSE)
       )
 
-    m <- pt_add_usgs_well_browser_layer(
+    m <- pt_add_usgs_well_virtualized_browser_layer(
       m = m,
       usgs_gw = usgs_gw,
       group_name = pt_layer_group_name("USGS monitoring wells")
