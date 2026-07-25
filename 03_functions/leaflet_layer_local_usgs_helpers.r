@@ -323,7 +323,7 @@ function(el, x) {
 
   function dot(fill, stroke) { return '<span class="pt-usgs-gw-local-dot" style="background:' + fill + ';border-color:' + stroke + ';"></span>'; }
   function ring(stroke) { return '<span class="pt-usgs-gw-local-ring" style="border-color:' + stroke + ';"></span>'; }
-  function nestedSym() { return '<span class="pt-usgs-gw-local-nested"><i></i></span>'; }
+  function nestedSym() { return '<span class="pt-usgs-gw-local-nested"><i></i><i></i><i></i><i></i></span>'; }
 
   function btn(label, action, selected) {
     return '<button type="button" data-pt-gw-action="' + action + '" class="pt-usgs-gw-local-btn' + (selected ? ' active' : '') + '">' + esc(label) + '</button>';
@@ -562,8 +562,8 @@ function(el, x) {
       '.pt-usgs-gw-local-row{display:grid;grid-template-columns:13px minmax(0,1fr) auto;align-items:center;column-gap:5px;margin:1px 0;}' +
       '.pt-usgs-gw-local-dot{width:9px;height:9px;border:1.3px solid #666;border-radius:50%;box-sizing:border-box;display:inline-block;}' +
       '.pt-usgs-gw-local-ring{width:11px;height:11px;border:1.3px solid #ff00cc;border-radius:50%;box-sizing:border-box;display:inline-block;background:transparent;}' +
-      '.pt-usgs-gw-local-nested{position:relative;display:inline-block;width:12px;height:12px;border-radius:4px;border:1.3px solid #7B241C;background:rgba(246,190,103,0.72);box-sizing:border-box;}' +
-      '.pt-usgs-gw-local-nested:before{content:"";position:absolute;left:3px;top:3px;width:2.2px;height:2.2px;border-radius:50%;background:#222;box-shadow:4.5px 0 0 #222,0 4.5px 0 #222,4.5px 4.5px 0 #222;opacity:0.80;}' +
+      '.pt-usgs-gw-local-nested{display:inline-grid;grid-template-columns:repeat(2,2.2px);grid-template-rows:repeat(2,2.2px);place-content:center;gap:2.3px;width:12px;height:12px;border-radius:4px;border:1.3px solid #7B241C;background:rgba(246,190,103,0.72);box-sizing:border-box;}' +
+      '.pt-usgs-gw-local-nested i{display:block;width:2.2px;height:2.2px;border-radius:50%;background:#222;opacity:0.80;}' +
       '.pt-usgs-gw-local-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
       '.pt-usgs-gw-local-count{font-variant-numeric:tabular-nums;color:#333;font-weight:600;}' +
       '.pt-usgs-gw-local-showing,.pt-usgs-gw-local-filter-summary{font-size:10.1px;color:#4d4d4d;margin-top:2px;}' +
