@@ -1262,12 +1262,14 @@ pt_ops_live_scan_js <- function() {
     layer._ptScanLegendCtl = null;
     layer._ptScanDepthCtl = null;
     layer._ptScanIsRemoved = true;
+    layer._ptScanActivationGeneration = 0;
     layer._ptScanMap = null;
 
     layer.onAdd = function(mapObj) {
       L.LayerGroup.prototype.onAdd.call(this, mapObj);
       this._ptScanMap = mapObj;
       this._ptScanIsRemoved = false;
+      var requestGeneration = ++this._ptScanActivationGeneration;
       this.clearLayers();
       this._ptScanMarkers = [];
       this._ptScanMarkerLookup = {};
@@ -1305,9 +1307,10 @@ pt_ops_live_scan_js <- function() {
         optionalText(options.priorWyFallbackTracesUrl),
         optionalText(options.summaryUrl)
       ]).then(function(parts) {
-        if (self._ptScanIsRemoved) return;
+        if (self._ptScanIsRemoved || requestGeneration !== self._ptScanActivationGeneration) return;
         self._ptScanRender(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
       }).catch(function(err) {
+        if (self._ptScanIsRemoved || requestGeneration !== self._ptScanActivationGeneration) return;
         setOpsLayerLoading(name, false);
         recordStatus(name, 'Could not load SCAN feed: ' + err.message, 'pt-ops-warn');
       });
@@ -1405,7 +1408,9 @@ pt_ops_live_scan_js <- function() {
           color: '#222222',
           weight: 1,
           fillColor: fill,
-          fillOpacity: fillOpacity
+          fillOpacity: fillOpacity,
+          pane: 'pane_ops',
+          interactive: true
         });
         marker._ptScanSite = site;
         marker._ptScanStationName = stationName;
@@ -1588,6 +1593,7 @@ pt_ops_live_scan_js <- function() {
 
     layer.onRemove = function(mapObj) {
       this._ptScanIsRemoved = true;
+      this._ptScanActivationGeneration += 1;
       try { this.clearLayers(); } catch(e) {}
       if (this._ptScanDetachable && this._ptScanDetachable.destroy) {
         try { this._ptScanDetachable.destroy(true, true); } catch(e) {}
