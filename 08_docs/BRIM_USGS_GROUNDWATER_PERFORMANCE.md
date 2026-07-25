@@ -304,7 +304,7 @@ Large Local point families remain unchanged on this branch:
 
 | Family | Retained features | Current strategy | Follow-up |
 |---|---:|---|---|
-| Springs | 27,278 | Global `L.Marker`/`DivIcon` population in MarkerCluster; rebuilt after off/clear; labels are viewport-capped. | Highest-value next migration to the shared viewport/index pattern. |
+| Springs | 27,278 | Viewport-virtualized on `feature/springs-performance`; compact columns, exact-coordinate locations, low-zoom aggregates, Canvas exact points, bounded labels, and generation cancellation. | See `BRIM_SPRINGS_PERFORMANCE.md`; rendered validation remains a separate gate. |
 | CNRFC weather catalog | 3,797 | Global Canvas circle paths in MarkerCluster; rebuilds on activation/filter. | Moderate benefit, lower urgency. |
 | SWRCB POD records | 3,510 | Three source-specific global MarkerCluster groups; source groups are reused until filters rebuild. | Useful if filter/clear cost becomes visible. |
 | CNRFC legacy precip | 3,137 | Native clustered points; normally hidden by map configuration. | Low priority while hidden. |
@@ -318,32 +318,18 @@ aggregation, Canvas singles, generation cancellation, bounded roots, movement
 suspension, and profiler/diagnostic ideas can be factored into a shared
 dense-point utility.
 
-The recommended next step is to extract/generalize that shared
-point-virtualization engine first, then migrate Springs on a separate
-`feature/springs-performance` branch after the groundwater work is validated
-and merged. Springs still constructs its complete 27,278-row browser object
-array and global `L.Marker`/`DivIcon` MarkerCluster population on activation,
-uses `disableClusteringAtZoom:11`, and rebuilds after ordinary off/clear. It
-therefore has the same eager-object, cluster-to-exact transition, and
-synchronous-clear costs.
+The subsequent `feature/springs-performance` work adapted the proven
+viewport/index concepts without refactoring this groundwater controller. That
+choice kept groundwater outside the implementation diff because its internals
+did not yet expose a stable generic adapter boundary.
 
-Spring-specific record fields, popup/tooltip content, label behavior, and
-duplicate-coordinate semantics must remain adapter concerns. In particular,
-groundwater water-level filters/colors, aquifer/well details, Ops rings, source
-links, and nested/co-located grouping must not be copied without a separate
-Springs data-semantic audit. The retained Springs cache has 27,278 records and
-27,265 unique seven-decimal coordinates: 13 duplicate-coordinate pairs, all
-within one source family and none cross-source. The current renderer displays
-both records independently; a migration must preserve that record-level
-behavior or introduce an explicitly reviewed spring-specific overlap design,
-not inherit the groundwater nested icon automatically.
-
-The full 27,278 spring records remain embedded, so HTML size should be roughly
-neutral or increase slightly during the first shared-engine extraction, then
-decrease relative to copy-pasted implementations when a Springs adapter reuses
-the engine. The expected gain is primarily fewer live Leaflet/DOM objects,
-cheaper zoom-11 transitions, bounded pans, and immediate clear—not removal of
-source data from the standalone HTML.
+Spring-specific record fields, popup/tooltip content, label behavior,
+symbology, filters, links, and duplicate-coordinate semantics remain in the
+Springs controller. The retained Springs cache has 27,278 records and 27,265
+unique seven-decimal coordinates: 13 duplicate-coordinate pairs, all within one
+source family and none cross-source. The Springs redesign keeps every record
+and uses spring-specific multi-record-location wording and interaction rather
+than inheriting nested-well semantics.
 
 HUC10 and HUC12 also remain unchanged:
 
