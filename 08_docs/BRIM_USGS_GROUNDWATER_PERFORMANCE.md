@@ -338,12 +338,13 @@ HUC10 and HUC12 also remain unchanged:
 | HUC10 | 1,128 | 123,190 | 4,738,152 bytes | about 3.60 MiB |
 | HUC12 | 5,065 | 259,996 | 17,346,696 bytes | about 11.39 MiB |
 
-Both use the map-wide Leaflet Canvas preference in `pane_huc`. Activation still
-registers every polygon/path, and theme changes recursively scan map layers and
-call `setStyle` on every visible HUC polygon. Stable reuse is already inherent
-in normal layer toggles, but a future HUC feature could apply bounded scheduling
-to theme updates and Clear feedback. Point viewport clustering does not apply
-directly to polygon topology; geometry/simplification must remain a separately
+At this historical baseline both were configured under the map-wide Leaflet
+Canvas preference, but the bundled Leaflet custom-pane lookup selected SVG for
+`pane_huc`. Activation registered every polygon/path, and theme changes
+recursively scanned map layers and called `setStyle` on every visible HUC
+polygon. The later HUC-family correction and profiling gate are documented in
+`BRIM_HUC_PERFORMANCE_AND_POPUPS.md`. Point viewport clustering does not apply
+directly to polygon topology; geometry/simplification remains a separately
 reviewed decision.
 
 ## Limits

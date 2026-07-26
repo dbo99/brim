@@ -115,7 +115,9 @@ pt_make_huc_popups <- function(sfobj, lvl) {
     
     # ---- Parent HUC information --------------------------------------------
     
-    for (p in c(2, 4, 6, 8, 10)) {
+    # Show the nearest parent first, then walk outward to the broadest basin.
+    # The retained parent fields and scientific values are unchanged.
+    for (p in rev(c(2, 4, 6, 8, 10))) {
       
       if (p >= lvl) next
       
