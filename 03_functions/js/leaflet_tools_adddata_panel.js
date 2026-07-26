@@ -2761,6 +2761,9 @@ function(el, x, toolsData) {
     }
 
     if (container) container.classList.toggle('pt-measure-active', active);
+    if (map && typeof map.fire === 'function') {
+      map.fire('pt:measureinteractionchange', {active: active});
+    }
   }
 
   function ptTeachingSetStatus(msg, isError) {

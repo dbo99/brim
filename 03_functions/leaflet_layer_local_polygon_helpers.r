@@ -100,7 +100,7 @@ pt_add_county_gw_layers <- function(m, county, gw) {
     )
 }
 
-pt_add_huc_layer <- function(m, huc_all, nm) {
+pt_add_huc_layer <- function(m, huc_all, nm, map_display) {
   
   if (!nm %in% names(huc_all)) {
     message("Skipping missing HUC layer: ", nm)
@@ -110,6 +110,7 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
   huc_sf <- huc_all[[nm]]
   code_col <- nm
   huc_level <- as.integer(sub("^huc", "", nm))
+  group_name <- pt_huc_group_name(nm)
 
   huc_sf$pt_huc_hover_html <- lapply(
     pt_make_huc_hover_tooltips(huc_sf, huc_level),
@@ -131,11 +132,31 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
   ##   HUC theme control can reliably find and restyle R leaflet polygon
   ##   layers. R leaflet polygons do not reliably expose arbitrary sf columns
   ##   as layer.feature.properties in the browser.
+  ##
+  ##   All current HUC layers start off. Calling hideGroup() before the first
+  ##   polygon creates the Leaflet group root in its hidden state, so adding
+  ##   thousands of HUC10/HUC12 children does not mount or project them during
+  ##   widget startup. The later layer control can show the same group normally.
+  if (!group_name %in% map_display$default_visible_overlays) {
+    m <- leaflet::hideGroup(m, group_name)
+  }
+
+  huc_renderer <- htmlwidgets::JS(sprintf(
+    paste0(
+      "(function(){",
+      "var r=L.canvas({pane:'pane_huc'});",
+      "r._brimHucLevel='%s';",
+      "return r;",
+      "})()"
+    ),
+    nm
+  ))
+
   m |>
     leaflet::addPolygons(
       data = huc_sf,
       layerId = ~pt_huc_layer_id,
-      group = pt_layer_group_name(pt_note_group_name(paste0(toupper(nm), " **"))),
+      group = group_name,
       fill = TRUE,
       fillColor = "#FFFFFF",
       fillOpacity = 0,
@@ -153,7 +174,8 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
       ),
       options = leaflet::pathOptions(
         pane = "pane_huc",
-        className = "pt-huc-feature"
+        className = "pt-huc-feature",
+        renderer = huc_renderer
       ),
       highlightOptions = leaflet::highlightOptions(
         weight = PT_HUC_WEIGHTS[[nm]] + 2,
@@ -165,15 +187,15 @@ pt_add_huc_layer <- function(m, huc_all, nm) {
 pt_add_huc_layers <- function(m, huc_all, map_display) {
   
   for (nm in c("huc2", "huc4", "huc6", "huc8")) {
-    m <- pt_add_huc_layer(m, huc_all, nm)
+    m <- pt_add_huc_layer(m, huc_all, nm, map_display)
   }
   
   if (isTRUE(map_display$add_huc10)) {
-    m <- pt_add_huc_layer(m, huc_all, "huc10")
+    m <- pt_add_huc_layer(m, huc_all, "huc10", map_display)
   }
   
   if (isTRUE(map_display$add_huc12)) {
-    m <- pt_add_huc_layer(m, huc_all, "huc12")
+    m <- pt_add_huc_layer(m, huc_all, "huc12", map_display)
   }
   
   m

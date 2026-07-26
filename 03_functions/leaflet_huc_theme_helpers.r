@@ -8,6 +8,12 @@
 ##   lines of HUC-specific UI and JavaScript. This helper keeps the existing
 ##   behavior but makes the HUC theme system easier to maintain.
 
+pt_huc_group_name <- function(nm) {
+  pt_layer_group_name(
+    pt_note_group_name(paste0(toupper(nm), " **"))
+  )
+}
+
 pt_huc_theme_col <- function(df, nm, default = "#FFFFFF") {
   if (nm %in% names(df)) {
     out <- as.character(df[[nm]])
@@ -96,6 +102,14 @@ pt_build_huc_theme_data <- function(huc_all) {
     )
   })
 
+  if (anyDuplicated(huc_theme_df$layer_id)) {
+    duplicate_ids <- unique(huc_theme_df$layer_id[duplicated(huc_theme_df$layer_id)])
+    stop(
+      "HUC theme layer IDs must be unique. Duplicate examples: ",
+      paste(utils::head(duplicate_ids, 5), collapse = ", ")
+    )
+  }
+
   # Do not pass named vectors/lists directly into htmlwidgets::onRender().
   # Explicit records avoid jsonlite keep_vec_names warnings.
   huc_theme_lookup <- lapply(seq_len(nrow(huc_theme_df)), function(i) {
@@ -172,10 +186,20 @@ pt_build_huc_theme_data <- function(huc_all) {
     })
   )
 
+  huc_level_records <- purrr::imap(huc_all, function(x, nm) {
+    list(
+      huc_layer = as.character(nm),
+      huc_label = toupper(as.character(nm)),
+      group_name = pt_huc_group_name(nm),
+      expected_count = nrow(x)
+    )
+  })
+
   list(
     data = list(
       lookup = unname(huc_theme_lookup),
-      legends = unname(huc_theme_legend_records)
+      legends = unname(huc_theme_legend_records),
+      levels = unname(huc_level_records)
     ),
     lookup_count = length(huc_theme_lookup),
     legend_levels = names(huc_theme_legends_nested)
