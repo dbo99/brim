@@ -614,6 +614,7 @@ async function run() {
   );
 
   window.BRIM_SPRINGS_LOCAL.refresh();
+  checkedState.checked = false;
   window.BRIM_SPRINGS_LOCAL.clear();
   await new Promise((resolve) => setTimeout(resolve, 100));
   stats = window.BRIM_SPRINGS_LOCAL.stats();

@@ -871,6 +871,9 @@ LABEL_OVERLAY_GROUPS <- if (isTRUE(MAP_DISPLAY$add_labels)) {
     if (isTRUE(MAP_DISPLAY$add_springs) && isTRUE(MAP_DISPLAY$add_labels)) {
       "Labels: Springs"
     },
+    if (isTRUE(MAP_DISPLAY$add_calsim3_arcs) && isTRUE(MAP_DISPLAY$add_labels)) {
+      "Labels: CalSim3.0"
+    },
     if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm) && isTRUE(MAP_DISPLAY$add_labels)) {
       "Labels: Water rights POD | SWRCB 2026 BLM list"
     },
@@ -989,6 +992,18 @@ m <- pt_add_calsim3_node_layer(
   map_display = MAP_DISPLAY
 )
 
+m <- pt_add_calsim3_label_companion(
+  m = m,
+  map_display = MAP_DISPLAY
+)
+
+m <- pt_add_calsim3_cluster_controller(
+  m = m,
+  calsim3_arcs = layers$calsim3_arcs,
+  calsim3_nodes = layers$calsim3_nodes,
+  map_display = MAP_DISPLAY
+)
+
 legend_control_js_path <- file.path("03_functions", "js", "brim_legend_closeout_helpers.js")
 if (!file.exists(legend_control_js_path)) {
   stop("Missing shared legend-control JavaScript helper: ", legend_control_js_path)
@@ -997,8 +1012,6 @@ m <- htmlwidgets::onRender(
   m,
   paste(readLines(legend_control_js_path, warn = FALSE), collapse = "\n")
 )
-
-m <- pt_add_calsim3_network_legend(m)
 
 m <- pt_add_brim_mapped_conveyance_layer(
   m = m,

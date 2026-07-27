@@ -244,6 +244,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "ACECs",
+    "CalSim3.0",
     "Water Districts",
     "RWQCB Regions"
   ),
@@ -271,6 +272,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "ACECs",
+    "CalSim3.0",
     "Water Districts",
     "RWQCB Regions"
   ),
