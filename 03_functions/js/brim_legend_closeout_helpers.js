@@ -278,7 +278,7 @@ function(el, x) {
   var legendCards = [
     {card: '.pt-blm-office-legend', close: '.pt-blm-office-close', handle: '.pt-blm-office-title-row', label: 'BLM office legend'},
     {card: '.pt-conv-panel', close: '.pt-conv-close', handle: '.pt-conv-head', dock: '.pt-conv-float', label: 'Water Conveyance legend'},
-    {card: '.pt-calsim3-network-legend', close: '.pt-calsim3-close', parentHandle: true, label: 'CalSim3 legend'},
+    {card: '.pt-calsim3-explorer', close: '.pt-calsim3-close', handle: '.pt-calsim3-head', dock: '.pt-calsim3-dock', label: 'CalSim3.0 Network Explorer'},
     {card: '.pt-huc-theme-legend', close: '.pt-huc-theme-legend-close', parentHandle: true, label: 'HUC thematic-fill legend'},
     {card: '.pt-cnrfc-local-catalog-legend', close: '.pt-cnrfc-local-close', label: 'CNRFC Local catalog legend'},
     {card: '.pt-usgs-gw-local-legend', close: '.pt-usgs-gw-local-close', handle: '.pt-usgs-gw-local-head', dock: '.pt-usgs-gw-local-dock', label: 'USGS groundwater catalog legend'},

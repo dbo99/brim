@@ -1278,7 +1278,361 @@ pt_add_field_office_outer_layer <- function(m, field_office_outer, map_display) 
   m
 }
 
-# ==== 7. CalSim3 model network layer: arcs ==================================
+# ==== 7. CalSim3 model network shared helpers ================================
+
+PT_CALSIM3_DECLUSTER_ZOOM <- 9L
+PT_CALSIM3_CLUSTER_ID <- "pt_calsim3_nodes_cluster"
+PT_CALSIM3_PANE <- "pane_calsim3"
+PT_CALSIM3_CANVAS_TOLERANCE <- 6
+PT_CALSIM3_EXACT_CLUSTER_RADIUS_PX <- 0.000001
+PT_CALSIM3_LABEL_MIN_ZOOM <- 11L
+PT_CALSIM3_LABEL_CAP <- 160L
+PT_CALSIM3_LABEL_NODE_CAP <- 96L
+PT_CALSIM3_LABEL_ARC_CAP <- 64L
+PT_CALSIM3_LABEL_GRID_DEGREES <- 0.25
+PT_CALSIM3_LABEL_VIEWPORT_PAD_RATIO <- 0.15
+PT_CALSIM3_ARC_TYPE_ORDER <- c(
+  "Channel", "Diversion", "Return", "Inflow"
+)
+PT_CALSIM3_NODE_GROUP_ORDER <- c(
+  "Conveyance",
+  "Storage / Reservoir",
+  "Project demand – urban",
+  "Project demand – ag",
+  "Project demand – refuge",
+  "Non-project demand – urban",
+  "Non-project demand – ag",
+  "Non-project demand – refuge",
+  "Settlement demand – urban",
+  "Settlement demand – ag",
+  "Demand – other",
+  "Treatment plant",
+  "Return flow",
+  "External Unit",
+  "Major Feature",
+  "Unknown / Other"
+)
+
+pt_calsim3_group_name <- function() {
+  pt_layer_group_name("CalSim3.0")
+}
+
+pt_calsim3_label_group_name <- function() {
+  pt_layer_group_name("Labels: CalSim3.0")
+}
+
+pt_calsim3_hide_before_add <- function(m, map_display) {
+  group_name <- pt_calsim3_group_name()
+  default_visible <- map_display$default_visible_overlays
+  if (is.null(default_visible)) default_visible <- character(0)
+
+  ## Create the combined CalSim3 group in its hidden state before registering
+  ## either lines or clustered points. This preserves normal layer-control
+  ## behavior while avoiding startup projection and MarkerCluster indexing for
+  ## a Local layer that is off by default.
+  if (!group_name %in% default_visible) {
+    m <- leaflet::hideGroup(m, group_name)
+  }
+
+  m
+}
+
+pt_calsim3_browser_layer_ids <- function(component, n) {
+  if (!component %in% c("arc", "node")) {
+    stop("Unknown CalSim3 browser component: ", component, call. = FALSE)
+  }
+  if (!is.numeric(n) || length(n) != 1L || is.na(n) || n < 0) {
+    stop("CalSim3 browser layer-ID count must be one non-negative number.")
+  }
+  if (n == 0) return(character(0))
+  sprintf("pt_calsim3_%s_%05d", component, seq_len(as.integer(n)))
+}
+
+pt_calsim3_browser_text <- function(x) {
+  out <- trimws(as.character(x))
+  out[is.na(out)] <- ""
+  out
+}
+
+pt_calsim3_first_field <- function(x, fields, fallback = "") {
+  available <- fields[fields %in% names(x)]
+  out <- rep("", nrow(x))
+  for (field in available) {
+    candidate <- pt_calsim3_browser_text(x[[field]])
+    use <- out == "" & candidate != ""
+    out[use] <- candidate[use]
+  }
+  if (!is.null(fallback)) out[out == ""] <- fallback
+  out
+}
+
+pt_calsim3_stable_values <- function(x, preferred) {
+  values <- unique(pt_calsim3_browser_text(x))
+  values <- values[values != ""]
+  c(
+    preferred[preferred %in% values],
+    sort(setdiff(values, preferred))
+  )
+}
+
+pt_calsim3_arc_browser_records <- function(calsim3_arcs) {
+  required <- c("Arc_ID", "FromNode", "ToNode", "Name", "Type")
+  missing <- setdiff(required, names(calsim3_arcs))
+  if (length(missing)) {
+    stop(
+      "CalSim3 arc explorer is missing retained field(s): ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  attrs <- sf::st_drop_geometry(calsim3_arcs)
+  color <- if ("line_col" %in% names(attrs)) {
+    pt_calsim3_browser_text(attrs$line_col)
+  } else {
+    dplyr::case_when(
+      attrs$Type == "Channel" ~ "#1F78B4",
+      attrs$Type == "Diversion" ~ "#E31A1C",
+      TRUE ~ "#777777"
+    )
+  }
+  weight <- if ("line_weight" %in% names(attrs)) {
+    suppressWarnings(as.numeric(attrs$line_weight))
+  } else {
+    dplyr::case_when(
+      attrs$Type == "Channel" ~ 1.4,
+      attrs$Type == "Diversion" ~ 1.8,
+      TRUE ~ 1.2
+    )
+  }
+  type <- pt_calsim3_browser_text(attrs$Type)
+  if (any(type == "")) {
+    stop("CalSim3 arc explorer cannot filter blank retained Type values.")
+  }
+
+  data.frame(
+    lid = pt_calsim3_browser_layer_ids("arc", nrow(attrs)),
+    id = pt_calsim3_browser_text(attrs$Arc_ID),
+    fromNode = pt_calsim3_browser_text(attrs$FromNode),
+    toNode = pt_calsim3_browser_text(attrs$ToNode),
+    name = pt_calsim3_browser_text(attrs$Name),
+    type = type,
+    color = color,
+    weight = weight,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+pt_calsim3_node_browser_records <- function(calsim3_nodes) {
+  required <- "calsim3_node_group"
+  missing <- setdiff(required, names(calsim3_nodes))
+  if (length(missing)) {
+    stop(
+      "CalSim3 node explorer is missing retained field(s): ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  attrs <- sf::st_drop_geometry(calsim3_nodes)
+  group <- pt_calsim3_browser_text(attrs$calsim3_node_group)
+  if (any(group == "")) {
+    stop("CalSim3 node explorer cannot filter blank retained group values.")
+  }
+  fill <- if ("node_fill_col" %in% names(attrs)) {
+    pt_calsim3_browser_text(attrs$node_fill_col)
+  } else {
+    rep("#BDBDBD", nrow(attrs))
+  }
+  stroke <- if ("node_stroke_col" %in% names(attrs)) {
+    pt_calsim3_browser_text(attrs$node_stroke_col)
+  } else {
+    rep("#737373", nrow(attrs))
+  }
+  radius <- if ("node_radius" %in% names(attrs)) {
+    suppressWarnings(as.numeric(attrs$node_radius))
+  } else {
+    rep(4.7, nrow(attrs))
+  }
+  treatment <- group == "Treatment plant"
+  fill[treatment] <- "#00A6D6"
+  stroke[treatment] <- "#006D8F"
+
+  data.frame(
+    lid = pt_calsim3_browser_layer_ids("node", nrow(attrs)),
+    id = pt_calsim3_first_field(
+      attrs,
+      c("node_id_display", "CalSim3_ID"),
+      fallback = ""
+    ),
+    description = pt_calsim3_first_field(
+      attrs,
+      c("node_description", "NodeDescri"),
+      fallback = ""
+    ),
+    river = pt_calsim3_first_field(
+      attrs,
+      c("riv_name_display", "Riv_Name"),
+      fallback = ""
+    ),
+    comment = pt_calsim3_first_field(
+      attrs,
+      c("comment_display", "Comment"),
+      fallback = ""
+    ),
+    group = group,
+    fill = fill,
+    stroke = stroke,
+    radius = radius,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+pt_calsim3_node_coordinate_metrics <- function(calsim3_nodes) {
+  if (!inherits(calsim3_nodes, "sf") || nrow(calsim3_nodes) == 0) {
+    stop(
+      "CalSim3 node coordinate metrics require a non-empty sf object.",
+      call. = FALSE
+    )
+  }
+
+  geometry_types <- as.character(sf::st_geometry_type(
+    calsim3_nodes,
+    by_geometry = TRUE
+  ))
+  if (!all(geometry_types == "POINT")) {
+    stop(
+      "CalSim3 browser nodes must all be POINT geometry; found: ",
+      paste(sort(unique(geometry_types)), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  coordinates <- sf::st_coordinates(calsim3_nodes)
+  if (
+    nrow(coordinates) != nrow(calsim3_nodes) ||
+    !all(c("X", "Y") %in% colnames(coordinates))
+  ) {
+    stop(
+      "CalSim3 node coordinate extraction did not reconcile with retained rows.",
+      call. = FALSE
+    )
+  }
+
+  valid <- is.finite(coordinates[, "X"]) &
+    is.finite(coordinates[, "Y"]) &
+    abs(coordinates[, "X"]) <= 180 &
+    abs(coordinates[, "Y"]) <= 90
+  if (!all(valid)) {
+    stop(
+      "CalSim3 nodes contain ",
+      sum(!valid),
+      " invalid map coordinate(s); refusing to silently omit records.",
+      call. = FALSE
+    )
+  }
+
+  ## Exact hexadecimal keys group only identical retained numeric coordinate
+  ## pairs. Rounded keys are diagnostic only and never alter display geometry.
+  exact_key <- paste0(
+    sprintf("%a", coordinates[, "X"]),
+    "_",
+    sprintf("%a", coordinates[, "Y"])
+  )
+  coordinate_7dp_key <- paste0(
+    sprintf("%.7f", coordinates[, "X"]),
+    "_",
+    sprintf("%.7f", coordinates[, "Y"])
+  )
+  exact_counts <- table(exact_key)
+  coordinate_7dp_counts <- table(coordinate_7dp_key)
+  exact_duplicate_sizes <- as.integer(exact_counts[exact_counts > 1L])
+
+  node_id <- if ("node_id_display" %in% names(calsim3_nodes)) {
+    trimws(as.character(calsim3_nodes$node_id_display))
+  } else if ("CalSim3_ID" %in% names(calsim3_nodes)) {
+    trimws(as.character(calsim3_nodes$CalSim3_ID))
+  } else {
+    rep(NA_character_, nrow(calsim3_nodes))
+  }
+  valid_node_id <- !is.na(node_id) & node_id != ""
+  node_id_counts <- table(node_id[valid_node_id])
+
+  list(
+    analyticalRecordCount = nrow(calsim3_nodes),
+    validCoordinateCount = sum(valid),
+    uniqueExactCoordinateCount = length(exact_counts),
+    exactDuplicateLocationCount = length(exact_duplicate_sizes),
+    recordsAtExactDuplicateLocations = sum(exact_duplicate_sizes),
+    maxRecordsAtExactLocation = if (length(exact_duplicate_sizes)) {
+      max(exact_duplicate_sizes)
+    } else {
+      1L
+    },
+    uniqueCoordinateCount7dp = length(coordinate_7dp_counts),
+    duplicateLocationCount7dp = sum(coordinate_7dp_counts > 1L),
+    distinctNodeIdCount = length(node_id_counts),
+    duplicateNodeIdValueCount = sum(node_id_counts > 1L),
+    missingNodeIdCount = sum(!valid_node_id),
+    coordinateGrouping = "exact retained numeric longitude/latitude pairs"
+  )
+}
+
+pt_calsim3_marker_cluster_options <- function(coordinate_metrics) {
+  has_exact_duplicates <- coordinate_metrics$exactDuplicateLocationCount > 0L
+
+  common <- list(
+    chunkedLoading = TRUE,
+    showCoverageOnHover = FALSE,
+    removeOutsideVisibleBounds = TRUE,
+    animate = FALSE,
+    animateAddingMarkers = FALSE
+  )
+
+  if (!has_exact_duplicates) {
+    return(do.call(
+      leaflet::markerClusterOptions,
+      c(
+        common,
+        list(
+          zoomToBoundsOnClick = TRUE,
+          spiderfyOnMaxZoom = TRUE,
+          disableClusteringAtZoom = PT_CALSIM3_DECLUSTER_ZOOM,
+          maxClusterRadius = 55
+        )
+      )
+    ))
+  }
+
+  ## A future retained product may contain legitimate records at exactly one
+  ## coordinate. Below zoom 9 these remain ordinary MarkerCluster children. At
+  ## zoom 9+ the one-millionth-pixel radius is effectively zero at BRIM's
+  ## supported zooms and leaves only screen-identical coordinate children in a
+  ## bounded same-location cluster; the CalSim controller spiderfies that group
+  ## on click. No broad spatial cluster remains above the transition.
+  exact_radius_js <- htmlwidgets::JS(sprintf(
+    "function(zoom){return zoom < %d ? 55 : %.8f;}",
+    PT_CALSIM3_DECLUSTER_ZOOM,
+    PT_CALSIM3_EXACT_CLUSTER_RADIUS_PX
+  ))
+
+  do.call(
+    leaflet::markerClusterOptions,
+    c(
+      common,
+      list(
+        zoomToBoundsOnClick = FALSE,
+        spiderfyOnMaxZoom = FALSE,
+        maxClusterRadius = exact_radius_js
+      )
+    )
+  )
+}
+
+
+# ==== 7A. CalSim3 model network layer: arcs =================================
 
 pt_add_calsim3_arc_layer <- function(m, calsim3_arcs, map_display) {
   
@@ -1316,11 +1670,18 @@ pt_add_calsim3_arc_layer <- function(m, calsim3_arcs, map_display) {
       "\nType: ", dplyr::coalesce(as.character(calsim3_arcs$Type), "unknown")
     )
   }
-  
+
+  m <- pt_calsim3_hide_before_add(m, map_display)
+  calsim3_arcs$pt_calsim3_browser_id <- pt_calsim3_browser_layer_ids(
+    "arc",
+    nrow(calsim3_arcs)
+  )
+
   m |>
     leaflet::addPolylines(
       data = calsim3_arcs,
-      group = pt_layer_group_name("CalSim3.0"),
+      group = pt_calsim3_group_name(),
+      layerId = ~pt_calsim3_browser_id,
       color = ~line_col,
       weight = ~line_weight,
       opacity = 0.85,
@@ -1335,7 +1696,8 @@ pt_add_calsim3_arc_layer <- function(m, calsim3_arcs, map_display) {
         style = list("white-space" = "pre", "max-width" = "none")
       ),
       options = leaflet::pathOptions(
-        pane = "pane_lines"
+        pane = PT_CALSIM3_PANE,
+        interactive = TRUE
       ),
       highlightOptions = leaflet::highlightOptions(
         weight = 4,
@@ -1346,7 +1708,7 @@ pt_add_calsim3_arc_layer <- function(m, calsim3_arcs, map_display) {
 }
 
 
-# ==== 7A. CalSim3 model node point layer =====================================
+# ==== 7B. CalSim3 model node point layer =====================================
 ##
 ## PURPOSE:
 ##   Add CalSim3 model nodes as a clustered point layer.
@@ -1406,10 +1768,19 @@ pt_add_calsim3_node_layer <- function(m, calsim3_nodes, map_display) {
       )
   }
 
+  coordinate_metrics <- pt_calsim3_node_coordinate_metrics(calsim3_nodes)
+  cluster_options <- pt_calsim3_marker_cluster_options(coordinate_metrics)
+  m <- pt_calsim3_hide_before_add(m, map_display)
+  calsim3_nodes$pt_calsim3_browser_id <- pt_calsim3_browser_layer_ids(
+    "node",
+    nrow(calsim3_nodes)
+  )
+
   m |>
     leaflet::addCircleMarkers(
       data = calsim3_nodes,
-      group = pt_layer_group_name("CalSim3.0"),
+      group = pt_calsim3_group_name(),
+      layerId = ~pt_calsim3_browser_id,
       radius = ~node_radius,
       stroke = TRUE,
       color = ~node_stroke_col,
@@ -1426,79 +1797,124 @@ pt_add_calsim3_node_layer <- function(m, calsim3_nodes, map_display) {
         noHide = FALSE,
         style = list("white-space" = "pre", "max-width" = "none")
       ),
-      options = leaflet::pathOptions(pane = "pane_points"),
-      clusterOptions = leaflet::markerClusterOptions(
-        chunkedLoading = TRUE,
-        showCoverageOnHover = FALSE,
-        spiderfyOnMaxZoom = TRUE,
-        disableClusteringAtZoom = 12,
-        maxClusterRadius = 55,
-        removeOutsideVisibleBounds = TRUE
-      )
+      options = leaflet::pathOptions(
+        pane = PT_CALSIM3_PANE,
+        interactive = TRUE
+      ),
+      clusterOptions = cluster_options,
+      clusterId = PT_CALSIM3_CLUSTER_ID
 
     )
 }
 
-# ==== 7B. CalSim3 network legend ============================================
+# ==== 7C. CalSim3 browser-label companion ===================================
 ##
-## PURPOSE:
-##   Add a compact floating legend for the combined CalSim3.0 layer.
-##
-## DESIGN:
-##   The legend is hidden until the CalSim3.0 overlay is active.  It is a
-##   lightweight browser-side control so it adds almost no HTML payload and does
-##   not require permanent node/arc labels.  Hover/click remains the preferred
-##   way to learn individual feature IDs/names.
+## The standard Local-layer inline `lbl` control requires a registered hidden
+## Labels companion overlay.  This off-map, noninteractive marker supplies only
+## that shared checkbox/lifecycle hook.  The CalSim browser controller creates
+## the bounded viewport label objects after the companion group is enabled.
 
-pt_add_calsim3_network_legend <- function(m,
-                                          group_name = pt_layer_group_name("CalSim3.0")) {
-
-  group_js <- jsonlite::toJSON(group_name, auto_unbox = TRUE)
-
-  js <- sprintf("\nfunction(el, x) {\n  var map = this;\n  var targetGroup = %s;\n\n  function esc(s) {\n    return String(s == null ? '' : s)\n      .replace(/&/g, '&amp;')\n      .replace(/</g, '&lt;')\n      .replace(/>/g, '&gt;')\n      .replace(/\\\"/g, '&quot;')\n      .replace(/'/g, '&#39;');\n  }\n\n  function lineRow(color, label, dash) {\n    var borderStyle = dash ? 'dashed' : 'solid';\n    return '<div class=\\\"pt-cs3-row\\\">' +\n      '<span class=\\\"pt-cs3-line-swatch\\\" style=\\\"border-top:3px ' + borderStyle + ' ' + color + ';\\\"></span>' +\n      '<span>' + esc(label) + '</span>' +\n      '</div>';\n  }\n\n  function dotRow(fill, stroke, label) {\n    return '<div class=\\\"pt-cs3-row\\\">' +\n      '<span class=\\\"pt-cs3-dot-swatch\\\" style=\\\"background:' + fill + ';border-color:' + stroke + ';\\\"></span>' +\n      '<span>' + esc(label) + '</span>' +\n      '</div>';\n  }\n\n  function isTargetLayer(layer) {\n    return layer && layer.options && layer.options.group === targetGroup;\n  }\n\n  function isVisible() {\n    var visible = false;\n    map.eachLayer(function(layer) {\n      if (isTargetLayer(layer) && map.hasLayer(layer)) {\n        visible = true;\n      }\n    });\n    return visible;\n  }\n\n  var legend = L.control({position: 'bottomleft'});\n\n  legend.onAdd = function(map) {\n    var div = L.DomUtil.create('div', 'leaflet-control pt-calsim3-network-legend');\n    div.style.display = 'none';\n    div.style.background = 'rgba(246, 239, 222, 0.96)';\n    div.style.border = '1px solid rgba(112, 103, 83, 0.55)';\n    div.style.borderRadius = '6px';\n    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.25)';\n    div.style.padding = '7px 9px 8px 9px';\n    div.style.maxWidth = '260px';\n    div.style.fontFamily = 'Arial, sans-serif';\n    div.style.fontSize = '11.5px';\n    div.style.lineHeight = '1.25';\n    div.style.color = '#222';\n    div.style.marginBottom = '74px';\n\n    var html = '';\n    html += '<div style=\\\"font-weight:700;font-size:12.5px;margin-bottom:4px;\\\">CalSim3.0</div>';\n    html += '<div style=\\\"font-weight:700;margin-top:2px;margin-bottom:2px;\\\">Arcs</div>';\n    html += lineRow('#1F78B4', 'Channel', false);\n    html += lineRow('#E31A1C', 'Diversion / delivery / conveyance', false);\n    html += lineRow('#33A02C', 'Return flow', false);\n    html += lineRow('#A6CEE3', 'Local inflow', false);\n    html += lineRow('#777777', 'Other / unknown', true);\n\n    html += '<div style=\\\"font-weight:700;margin-top:6px;margin-bottom:2px;\\\">Nodes</div>';\n    html += dotRow('#D95F02', '#7F3B08', 'Project (CVP/SWP) demand');\n    html += dotRow('#8C510A', '#7F3B08', 'Non-project demand');\n    html += dotRow('#FDB863', '#7F3B08', 'Settlement demand');\n    html += dotRow('#7570B3', '#7F3B08', 'Refuge demand');\n    html += dotRow('#00A6D6', '#006D8F', 'Treatment / wastewater');\n    html += dotRow('#6A3D9A', '#3F007D', 'Storage / reservoir');\n    html += dotRow('#33A02C', '#1B7837', 'Return flow');\n    html += dotRow('#1F78B4', '#08519C', 'Conveyance / junction');\n    html += dotRow('#E31A1C', '#99000D', 'Major feature');\n    html += dotRow('#BDBDBD', '#737373', 'External / other');\n\n    html += '<div style=\\\"font-size:10.5px;color:#4d4d4d;margin-top:6px;\\\">Hover or click features for IDs, names, and exact type.</div>';\n    div.innerHTML = html;\n\n    var style = document.createElement('style');\n    style.textContent =\n      '.pt-calsim3-network-legend .pt-cs3-row{display:flex;align-items:center;gap:6px;margin:2px 0;}' +\n      '.pt-calsim3-network-legend .pt-cs3-line-swatch{display:inline-block;width:26px;height:0;flex:0 0 26px;}' +\n      '.pt-calsim3-network-legend .pt-cs3-dot-swatch{display:inline-block;width:10px;height:10px;border:1.4px solid #666;border-radius:50%%;box-sizing:border-box;flex:0 0 10px;}';\n    div.appendChild(style);\n\n    L.DomEvent.disableClickPropagation(div);\n    L.DomEvent.disableScrollPropagation(div);\n    return div;\n  };\n\n  legend.addTo(map);\n\n  function updateLegend() {\n    var div = el.querySelector('.pt-calsim3-network-legend');\n    if (!div) return;\n    div.style.display = isVisible() ? 'block' : 'none';\n  }\n\n  map.on('overlayadd overlayremove layeradd layerremove', updateLegend);\n  setTimeout(updateLegend, 0);\n  setTimeout(updateLegend, 300);\n  setTimeout(updateLegend, 1000);\n}\n", group_js)
-
-  m <- htmlwidgets::onRender(m, js)
-  close_js <- sprintf(r"---(
-function(el, x) {
-  var map = this;
-  var targetGroup = %s;
-  var div = el.querySelector('.pt-calsim3-network-legend');
-  if (!div) return;
-  var hidden = false;
-  var title = div.firstElementChild;
-  if (title) {
-    title.style.display = 'flex';
-    title.style.justifyContent = 'space-between';
-    title.style.alignItems = 'flex-start';
-    title.innerHTML = '<span>CalSim3.0</span><button type="button" class="pt-calsim3-close" aria-label="Hide CalSim3 legend" title="Hide CalSim3 legend">&times;</button>';
+pt_add_calsim3_label_companion <- function(m, map_display) {
+  if (
+    !isTRUE(map_display$add_calsim3_arcs) ||
+    !isTRUE(map_display$add_labels)
+  ) {
+    return(m)
   }
-  function targetVisible() {
-    var visible = false;
-    map.eachLayer(function(layer) {
-      if (layer && layer.options && layer.options.group === targetGroup && map.hasLayer(layer)) visible = true;
-    });
-    return visible;
-  }
-  var close = div.querySelector('.pt-calsim3-close');
-  if (close) close.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    hidden = true;
-    div.style.display = 'none';
-  });
-  function sync() {
-    var active = targetVisible();
-    if (!active) hidden = false;
-    div.style.display = active && !hidden ? 'block' : 'none';
-  }
-  map.on('overlayadd overlayremove layeradd layerremove', sync);
-  setTimeout(sync, 0);
-  setTimeout(sync, 300);
-  setTimeout(sync, 1000);
+
+  dummy <- data.frame(lng = -170, lat = 10)
+  label_group <- pt_calsim3_label_group_name()
+
+  m |>
+    leaflet::addCircleMarkers(
+      data = dummy,
+      lng = ~lng,
+      lat = ~lat,
+      group = label_group,
+      layerId = "pt_calsim3_label_dummy",
+      radius = 0.001,
+      stroke = FALSE,
+      opacity = 0,
+      fillOpacity = 0,
+      options = leaflet::pathOptions(
+        pane = "pane_labels_pts",
+        interactive = FALSE
+      )
+    ) |>
+    leaflet::hideGroup(label_group)
 }
-)---", group_js)
-  htmlwidgets::onRender(m, close_js)
+
+# ==== 7D. CalSim3 cluster interaction and diagnostics ========================
+
+pt_add_calsim3_cluster_controller <- function(
+    m,
+    calsim3_arcs,
+    calsim3_nodes,
+    map_display,
+    js_path = "03_functions/js/leaflet_calsim3_local_cluster.js") {
+
+  if (!isTRUE(map_display$add_calsim3_arcs)) {
+    return(m)
+  }
+  if (!inherits(calsim3_nodes, "sf") || nrow(calsim3_nodes) == 0) {
+    return(m)
+  }
+  if (!file.exists(js_path)) {
+    stop("Missing CalSim3 browser controller: ", js_path)
+  }
+
+  coordinate_metrics <- pt_calsim3_node_coordinate_metrics(calsim3_nodes)
+  arc_records <- pt_calsim3_arc_browser_records(calsim3_arcs)
+  node_records <- pt_calsim3_node_browser_records(calsim3_nodes)
+  controller_data <- c(
+    list(
+      groupName = pt_calsim3_group_name(),
+      labelGroupName = if (isTRUE(map_display$add_labels)) {
+        pt_calsim3_label_group_name()
+      } else {
+        ""
+      },
+      labelMinZoom = PT_CALSIM3_LABEL_MIN_ZOOM,
+      labelCap = PT_CALSIM3_LABEL_CAP,
+      labelNodeCap = PT_CALSIM3_LABEL_NODE_CAP,
+      labelArcCap = PT_CALSIM3_LABEL_ARC_CAP,
+      labelGridDegrees = PT_CALSIM3_LABEL_GRID_DEGREES,
+      labelViewportPadRatio = PT_CALSIM3_LABEL_VIEWPORT_PAD_RATIO,
+      clusterId = PT_CALSIM3_CLUSTER_ID,
+      paneName = PT_CALSIM3_PANE,
+      canvasTolerance = PT_CALSIM3_CANVAS_TOLERANCE,
+      transitionZoom = PT_CALSIM3_DECLUSTER_ZOOM,
+      exactClusterRadiusPx = PT_CALSIM3_EXACT_CLUSTER_RADIUS_PX,
+      arcRecordCount = if (inherits(calsim3_arcs, "sf")) {
+        nrow(calsim3_arcs)
+      } else {
+        0L
+      },
+      sameLocationMode = if (
+        coordinate_metrics$exactDuplicateLocationCount > 0L
+      ) {
+        "exact-coordinate-spiderfy"
+      } else {
+        "not-required-current-cache"
+      },
+      arcRecords = arc_records,
+      nodeRecords = node_records,
+      arcTypeOrder = pt_calsim3_stable_values(
+        arc_records$type,
+        PT_CALSIM3_ARC_TYPE_ORDER
+      ),
+      nodeGroupOrder = pt_calsim3_stable_values(
+        node_records$group,
+        PT_CALSIM3_NODE_GROUP_ORDER
+      )
+    ),
+    coordinate_metrics
+  )
+
+  controller_js <- paste(readLines(js_path, warn = FALSE), collapse = "\n")
+  htmlwidgets::onRender(m, controller_js, data = controller_data)
 }
+
 
 # ==== 8. Generic reference/admin/conservation layers =========================
 ##

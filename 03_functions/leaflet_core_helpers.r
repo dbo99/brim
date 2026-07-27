@@ -45,6 +45,10 @@ pt_add_panes <- function(m) {
     ## hidden during zoom/pan while basemap tiles paint.
     leaflet::addMapPane("pane_conveyance",  zIndex = 485) |>
     leaflet::addMapPane("pane_points",      zIndex = 520) |>
+    ## CalSim arcs and exact nodes deliberately share one Canvas renderer.
+    ## Its dedicated visual pane is kept out of DOM hit targeting by the
+    ## CalSim controller, which forwards only background map events.
+    leaflet::addMapPane("pane_calsim3",      zIndex = 525) |>
     ## Live operational raster/image overlays.
     ## Kept above normal polygons/points and below labels/offices.
     leaflet::addMapPane("pane_ops",         zIndex = 560) |>
@@ -806,6 +810,7 @@ function(el, x) {
         {main: 'Groundwater Sustainability Plan Areas', label: 'Groundwater Sustainability Plan Areas'},
         {main: 'Adjudicated Groundwater Basins', label: 'Adjudicated Groundwater Basins'},
         {main: 'ACECs', label: 'ACECs'},
+        {main: 'CalSim3.0', label: 'CalSim3.0'},
         {main: 'Water conveyance | BRIM mapped', label: 'Water conveyance | BRIM mapped'},
         {main: 'Water Districts', label: 'Water Districts'},
         {main: 'RWQCB Regions', label: 'RWQCB Regions'}
@@ -866,12 +871,11 @@ function(el, x) {
           toggle.classList.toggle('pt-disabled', !mainOn);
         }
 
-        mainInput.addEventListener('change', function() {
-          setTimeout(syncInlineState, 0);
-        });
-        labelInput.addEventListener('change', function() {
-          setTimeout(syncInlineState, 0);
-        });
+        // Native checkbox `change` runs after Leaflet's click transaction has
+        // finished. Reconcile here so the inline control enables on the first
+        // main-layer activation without waiting for a delayed pass.
+        mainInput.addEventListener('change', syncInlineState);
+        labelInput.addEventListener('change', syncInlineState);
 
         setTimeout(syncInlineState, 0);
       });
@@ -1303,6 +1307,11 @@ function(el, x) {
     );
   }
 
+  function isOwnZoomUtilityTarget(target) {
+    return target && target.closest &&
+      target.closest('#pt-map-zoom-utility-control');
+  }
+
   resetBtn.addEventListener('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -1319,7 +1328,11 @@ function(el, x) {
   });
 
   container.addEventListener('pointerdown', function(e) {
-    if (!active || isControlTarget(e.target)) return;
+    if (!active) return;
+    if (isControlTarget(e.target)) {
+      if (!isOwnZoomUtilityTarget(e.target)) setActive(false);
+      return;
+    }
     if (e.button !== undefined && e.button !== 0) return;
 
     e.preventDefault();
@@ -1401,6 +1414,14 @@ function(el, x) {
 
     setActive(false);
   }, true);
+
+  window.addEventListener('pointercancel', function() {
+    if (active) setActive(false);
+  }, true);
+
+  window.addEventListener('blur', function() {
+    if (active) setActive(false);
+  });
 
   window.addEventListener('keydown', function(e) {
     if (active && e.key === 'Escape') {
