@@ -205,6 +205,15 @@ SRC <- list(
     "All_your_water_right_7_1_2026_8_56_30.csv"
   ),
 
+  ## Separately reviewed decisions for authoritative duplicate-value conflicts.
+  ## This tracked table may be header-only. Raw SWRCB CSV/XLSX files remain
+  ## immutable; unresolved conflicts stop the core-cache build.
+  swrcb_2026_face_value_conflict_resolutions = file.path(
+    DIR$root,
+    "00_config",
+    "swrcb_2026_face_value_conflict_resolutions.csv"
+  ),
+
   # ---- Project areas --------------------------------------------------------
   ##
   ## This file is allowed to be missing for now.

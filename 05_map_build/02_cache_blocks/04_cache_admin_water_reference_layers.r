@@ -883,199 +883,21 @@ wr_type_display <- pt_chr_col(swrcb_pod_wr_blm_map, "wr_water_right_type")
 ##   popup, and the official/spatial/name-candidate layer split.  Do not add
 ##   separate source-precedence logic to the three Leaflet layer branches.
 ##
-## DUPLICATES:
-##   Identical duplicate values are safe to collapse.  Conflicting duplicate
-##   values are not resolved silently; the public value is retained for those
-##   few IDs and complete conflict rows are written to QA for manual review.
-
-pt_norm_swrcb_wr_id <- function(x) {
-  x <- as.character(x)
-  x <- trimws(x)
-  x <- toupper(x)
-  x <- gsub("\\s+", "", x)
-  x[x == "" | x == "NA"] <- NA_character_
-  x
-}
-
-pt_clean_swrcb_value_text <- function(x) {
-  x <- trimws(as.character(x))
-  x[x == "" | toupper(x) == "NA"] <- NA_character_
-  x
-}
-
-pt_collapse_unique_text <- function(x) {
-  x <- sort(unique(stats::na.omit(pt_clean_swrcb_value_text(x))))
-  if (!length(x)) NA_character_ else paste(x, collapse = " | ")
-}
-
-pt_read_swrcb_2026_blm_wr_lookup <- function(path) {
-
-  if (is.null(path) || is.na(path) || !file.exists(path)) {
-    stop(
-      "Required SWRCB 2026 BLM water-right correction CSV not found: ",
-      path,
-      "\nThe map build is stopped rather than silently dropping the official ",
-      "layer membership and face-value corrections."
-    )
-  }
-
-  raw_rows <- readr::read_csv(
-    path,
-    show_col_types = FALSE,
-    col_types = readr::cols(.default = readr::col_character())
-  ) |>
-    dplyr::mutate(.source_row = dplyr::row_number())
-
-  required_cols <- c("Water Right/Claim ID", "Face value")
-  missing_cols <- setdiff(required_cols, names(raw_rows))
-
-  if (length(missing_cols)) {
-    stop(
-      "Required column(s) missing from SWRCB 2026 BLM water-right CSV: ",
-      paste(missing_cols, collapse = ", "),
-      "\nAvailable columns: ",
-      paste(names(raw_rows), collapse = ", ")
-    )
-  }
-
-  raw_rows <- raw_rows |>
-    dplyr::mutate(
-      swrcb_wr_id_norm = pt_norm_swrcb_wr_id(.data[["Water Right/Claim ID"]]),
-      face_value_2026_raw = pt_clean_swrcb_value_text(.data[["Face value"]]),
-      face_afy_2026 = readr::parse_number(
-        .data$face_value_2026_raw,
-        locale = readr::locale(decimal_mark = ".", grouping_mark = ","),
-        na = c("", "NA")
-      )
-    )
-
-  invalid_id_rows <- raw_rows |>
-    dplyr::filter(is.na(.data$swrcb_wr_id_norm))
-
-  if (nrow(invalid_id_rows)) {
-    warning(
-      "SWRCB 2026 BLM export contains ", nrow(invalid_id_rows),
-      " row(s) without a usable Water Right/Claim ID; those rows are ignored."
-    )
-  }
-
-  parse_failures <- raw_rows |>
-    dplyr::filter(
-      !is.na(.data$face_value_2026_raw),
-      is.na(.data$face_afy_2026)
-    )
-
-  if (nrow(parse_failures)) {
-    stop(
-      "Could not parse ", nrow(parse_failures),
-      " nonblank SWRCB 2026 Face value(s). First affected IDs: ",
-      paste(
-        utils::head(parse_failures$swrcb_wr_id_norm, 10L),
-        collapse = ", "
-      )
-    )
-  }
-
-  lookup <- raw_rows |>
-    dplyr::filter(!is.na(.data$swrcb_wr_id_norm)) |>
-    dplyr::group_by(.data$swrcb_wr_id_norm) |>
-    dplyr::summarize(
-      spreadsheet_row_count = dplyr::n(),
-      face_value_2026_raw_values = pt_collapse_unique_text(
-        .data$face_value_2026_raw
-      ),
-      face_value_2026_distinct_count = dplyr::n_distinct(
-        .data$face_afy_2026,
-        na.rm = TRUE
-      ),
-      face_afy_2026 = {
-        vals <- sort(unique(stats::na.omit(.data$face_afy_2026)))
-        if (length(vals) == 1L) vals[[1]] else NA_real_
-      },
-      face_value_2026_raw = {
-        vals <- sort(unique(stats::na.omit(.data$face_value_2026_raw)))
-        if (length(vals) == 1L) vals[[1]] else NA_character_
-      },
-      face_value_2026_conflict = face_value_2026_distinct_count > 1L,
-      face_value_2026_resolution = dplyr::case_when(
-        face_value_2026_conflict ~ "duplicate_conflict_no_override",
-        face_value_2026_distinct_count == 0L ~ "blank_or_missing",
-        spreadsheet_row_count > 1L ~ "duplicate_rows_same_value",
-        TRUE ~ "single_row"
-      ),
-      .groups = "drop"
-    ) |>
-    dplyr::arrange(.data$swrcb_wr_id_norm)
-
-  duplicate_conflicts <- raw_rows |>
-    dplyr::semi_join(
-      lookup |>
-        dplyr::filter(.data$face_value_2026_conflict),
-      by = "swrcb_wr_id_norm"
-    ) |>
-    dplyr::select(
-      dplyr::any_of(c(
-        ".source_row",
-        "Water Right/Claim ID",
-        "swrcb_wr_id_norm",
-        "Face value",
-        "face_afy_2026",
-        "Status",
-        "Type",
-        "Primary owner",
-        "Source",
-        "County",
-        "Effective date",
-        "Use type",
-        "HUC 12",
-        "Watershed",
-        "Field Office "
-      ))
-    ) |>
-    dplyr::arrange(.data$swrcb_wr_id_norm, .data$.source_row)
-
-  if (nrow(duplicate_conflicts)) {
-    warning(
-      "SWRCB 2026 face-value overlay found conflicting duplicate values for ",
-      dplyr::n_distinct(duplicate_conflicts$swrcb_wr_id_norm),
-      " water-right ID(s). Public values will remain in use for those IDs; ",
-      "see the duplicate-conflict QA CSV when QA output is enabled."
-    )
-  }
-
-  message(
-    "SWRCB 2026 BLM correction lookup loaded: ",
-    nrow(lookup), " unique IDs; ",
-    sum(!is.na(lookup$face_afy_2026)), " unambiguous face values; ",
-    sum(lookup$face_value_2026_conflict), " conflicting IDs."
-  )
-
-  list(
-    lookup = lookup,
-    raw_rows = raw_rows,
-    duplicate_conflicts = duplicate_conflicts,
-    parse_failures = parse_failures
-  )
-}
+## DUPLICATES AND BUILD GATE:
+##   Reusable parsing, provenance, zero-truncation resolution, reviewed
+##   override validation, and unresolved-conflict blocking live in
+##   03_functions/swrcb_face_value_helpers.r. The core-cache orchestrator
+##   sources that helper before this block. Public values must never resolve an
+##   authoritative duplicate conflict.
 
 swrcb_2026_lookup_result <- pt_read_swrcb_2026_blm_wr_lookup(
-  SRC$swrcb_2026_blm_wr_csv
+  path = SRC$swrcb_2026_blm_wr_csv,
+  override_path = SRC$swrcb_2026_face_value_conflict_resolutions,
+  stop_on_unresolved = TRUE
 )
 
 swrcb_2026_blm_wr_lookup <- swrcb_2026_lookup_result$lookup
 swrcb_2026_blm_wr_ids <- swrcb_2026_blm_wr_lookup$swrcb_wr_id_norm
-swrcb_wr_id_norm <- pt_norm_swrcb_wr_id(wr_id_display)
-swrcb_2026_lookup_index <- match(
-  swrcb_wr_id_norm,
-  swrcb_2026_blm_wr_lookup$swrcb_wr_id_norm
-)
-
-swrcb_2026_blm_wr_list <- !is.na(swrcb_2026_lookup_index)
-swrcb_2026_blm_wr_list_display <- dplyr::if_else(
-  swrcb_2026_blm_wr_list,
-  "Yes",
-  "No"
-)
 
 face_afy_public <- pt_num(
   pt_chr_col(swrcb_pod_wr_blm_map, "wr_face_value_amount")
@@ -1084,54 +906,56 @@ face_units_public_raw <- pt_clean_swrcb_value_text(
   pt_chr_col(swrcb_pod_wr_blm_map, "wr_face_value_units")
 )
 
-face_afy_2026 <- swrcb_2026_blm_wr_lookup$face_afy_2026[
-  swrcb_2026_lookup_index
-]
-face_value_2026_raw <- swrcb_2026_blm_wr_lookup$face_value_2026_raw[
-  swrcb_2026_lookup_index
-]
+swrcb_face_value_reconciliation <- pt_reconcile_swrcb_face_values(
+  water_right_ids = wr_id_display,
+  public_face_afy = face_afy_public,
+  public_face_units = face_units_public_raw,
+  lookup = swrcb_2026_blm_wr_lookup,
+  stop_on_unresolved = TRUE,
+  override_path = SRC$swrcb_2026_face_value_conflict_resolutions
+)
+
+swrcb_wr_id_norm <- swrcb_face_value_reconciliation$swrcb_wr_id_norm
+swrcb_2026_blm_wr_list <-
+  swrcb_face_value_reconciliation$authoritative_2026_present
+swrcb_2026_blm_wr_list_display <- dplyr::if_else(
+  swrcb_2026_blm_wr_list,
+  "Yes",
+  "No"
+)
+face_afy_2026 <-
+  swrcb_face_value_reconciliation$authoritative_face_afy
 face_value_2026_raw_values <-
-  swrcb_2026_blm_wr_lookup$face_value_2026_raw_values[
-    swrcb_2026_lookup_index
-  ]
-face_value_2026_conflict <-
-  swrcb_2026_blm_wr_lookup$face_value_2026_conflict[
-    swrcb_2026_lookup_index
-  ]
-face_value_2026_conflict[is.na(face_value_2026_conflict)] <- FALSE
-face_value_2026_resolution <-
-  swrcb_2026_blm_wr_lookup$face_value_2026_resolution[
-    swrcb_2026_lookup_index
-  ]
+  swrcb_face_value_reconciliation$authoritative_raw_values
+face_value_2026_numeric_values <-
+  swrcb_face_value_reconciliation$authoritative_numeric_values
 face_value_2026_spreadsheet_row_count <-
-  swrcb_2026_blm_wr_lookup$spreadsheet_row_count[
-    swrcb_2026_lookup_index
-  ]
-
+  swrcb_face_value_reconciliation$authoritative_row_count
+face_value_2026_distinct_count <-
+  swrcb_face_value_reconciliation$authoritative_distinct_value_count
+face_value_2026_conflict <-
+  swrcb_face_value_reconciliation$authoritative_original_conflict
+face_value_2026_automatic_resolution <-
+  swrcb_face_value_reconciliation$authoritative_automatic_resolution
+face_value_2026_reviewed_override_used <-
+  swrcb_face_value_reconciliation$authoritative_reviewed_override_used
+face_value_2026_resolution <-
+  swrcb_face_value_reconciliation$authoritative_resolution
+face_value_2026_source_reference <-
+  swrcb_face_value_reconciliation$authoritative_source_reference
 face_value_selected_from_2026 <-
-  swrcb_2026_blm_wr_list &
-  !face_value_2026_conflict &
-  !is.na(face_afy_2026)
-
-face_afy <- dplyr::if_else(
-  face_value_selected_from_2026,
-  face_afy_2026,
-  face_afy_public
-)
-
-face_value_changed_by_2026 <- dplyr::case_when(
-  !face_value_selected_from_2026 ~ FALSE,
-  is.na(face_afy_public) ~ TRUE,
-  abs(face_afy_2026 - face_afy_public) > 0.0000005 ~ TRUE,
-  TRUE ~ FALSE
-)
-
-face_units_display <- dplyr::case_when(
-  face_value_selected_from_2026 ~ "AFY",
-  tolower(face_units_public_raw) == "acre-feet per year" ~ "AFY",
-  !is.na(face_units_public_raw) ~ face_units_public_raw,
-  TRUE ~ "AFY"
-)
+  swrcb_face_value_reconciliation$selected_from_authoritative_2026
+face_value_public_allowed <-
+  swrcb_face_value_reconciliation$public_value_allowed
+face_afy <- swrcb_face_value_reconciliation$selected_face_afy
+face_units_display <-
+  swrcb_face_value_reconciliation$selected_face_units
+face_value_changed_by_2026 <-
+  swrcb_face_value_reconciliation$changed_from_public
+face_value_numeric_equal_public <-
+  swrcb_face_value_reconciliation[[
+    "numerically_equal_to_public_with_corrected_provenance"
+  ]]
 
 face_amount_display <- pt_format_amount(face_afy)
 face_value_display <- dplyr::if_else(
@@ -1140,16 +964,8 @@ face_value_display <- dplyr::if_else(
   "Not available"
 )
 
-face_value_source_display <- dplyr::case_when(
-  face_value_selected_from_2026 ~
-    "SWRCB-provided 2026 BLM export",
-  swrcb_2026_blm_wr_list & face_value_2026_conflict ~
-    "SWRCB/CalWATRS public fallback; conflicting 2026 duplicate values",
-  swrcb_2026_blm_wr_list & is.na(face_afy_2026) ~
-    "SWRCB/CalWATRS public fallback; 2026 value unavailable",
-  TRUE ~
-    "SWRCB/CalWATRS public data"
-)
+face_value_source_display <-
+  swrcb_face_value_reconciliation$selected_face_value_source
 
 status_lc <- tolower(wr_status_display)
 
@@ -1221,61 +1037,112 @@ swrcb_face_value_overlay_qa <- tibble::tibble(
   pod_id = pod_id_display,
   official_2026_blm_list = swrcb_2026_blm_wr_list,
   public_face_afy = face_afy_public,
-  spreadsheet_face_afy = face_afy_2026,
-  spreadsheet_face_value_raw = face_value_2026_raw,
-  spreadsheet_face_value_raw_values = face_value_2026_raw_values,
-  spreadsheet_row_count = face_value_2026_spreadsheet_row_count,
-  spreadsheet_resolution = face_value_2026_resolution,
-  spreadsheet_duplicate_conflict = face_value_2026_conflict,
+  authoritative_face_afy = face_afy_2026,
+  authoritative_face_value_raw_values = face_value_2026_raw_values,
+  authoritative_face_value_numeric_values = face_value_2026_numeric_values,
+  authoritative_row_count = face_value_2026_spreadsheet_row_count,
+  authoritative_distinct_value_count = face_value_2026_distinct_count,
+  authoritative_resolution = face_value_2026_resolution,
+  authoritative_original_conflict = face_value_2026_conflict,
+  authoritative_automatic_resolution =
+    face_value_2026_automatic_resolution,
+  authoritative_reviewed_override_used =
+    face_value_2026_reviewed_override_used,
+  authoritative_source_reference = face_value_2026_source_reference,
   selected_face_afy = face_afy,
   selected_face_value = face_value_display,
   selected_face_value_source = face_value_source_display,
   selected_from_2026 = face_value_selected_from_2026,
-  changed_by_2026 = face_value_changed_by_2026
+  public_value_allowed = face_value_public_allowed,
+  changed_by_2026 = face_value_changed_by_2026,
+  numerically_equal_public_with_corrected_provenance =
+    face_value_numeric_equal_public
 )
 
-swrcb_face_value_overlay_summary <- swrcb_face_value_overlay_qa |>
+swrcb_face_value_pod_summary <- swrcb_face_value_overlay_qa |>
   dplyr::summarize(
-    pod_rows = dplyr::n(),
-    official_pod_rows = sum(.data$official_2026_blm_list, na.rm = TRUE),
-    official_rows_with_2026_override = sum(
+    retained_pod_rows = dplyr::n(),
+    authoritative_present_retained_pod_rows = sum(
+      .data$official_2026_blm_list,
+      na.rm = TRUE
+    ),
+    authoritative_selected_retained_pod_rows = sum(
       .data$official_2026_blm_list & .data$selected_from_2026,
       na.rm = TRUE
     ),
-    official_rows_changed_by_2026 = sum(
+    conflict_resolution_affected_retained_pod_rows = sum(
+      .data$authoritative_original_conflict,
+      na.rm = TRUE
+    ),
+    automatic_resolution_retained_pod_rows = sum(
+      .data$authoritative_automatic_resolution,
+      na.rm = TRUE
+    ),
+    reviewed_override_retained_pod_rows = sum(
+      .data$authoritative_reviewed_override_used,
+      na.rm = TRUE
+    ),
+    authoritative_changed_from_public_retained_pod_rows = sum(
       .data$official_2026_blm_list & .data$changed_by_2026,
       na.rm = TRUE
     ),
-    official_rows_unchanged_by_2026 = sum(
+    authoritative_numeric_equal_public_corrected_provenance_pod_rows = sum(
       .data$official_2026_blm_list &
-        .data$selected_from_2026 &
-        !.data$changed_by_2026,
+        .data$numerically_equal_public_with_corrected_provenance,
       na.rm = TRUE
     ),
-    official_rows_public_fallback_duplicate_conflict = sum(
-      .data$official_2026_blm_list &
-        .data$spreadsheet_duplicate_conflict,
+    public_fallback_absent_id_pod_rows = sum(
+      !.data$official_2026_blm_list &
+        .data$public_value_allowed,
       na.rm = TRUE
     ),
-    official_rows_public_fallback_blank_2026 = sum(
+    public_policy_present_blank_pod_rows = sum(
       .data$official_2026_blm_list &
-        !.data$spreadsheet_duplicate_conflict &
-        is.na(.data$spreadsheet_face_afy),
+        .data$public_value_allowed &
+        .data$authoritative_resolution == "blank_or_missing",
       na.rm = TRUE
     ),
-    official_unique_wr_ids = dplyr::n_distinct(
+    authoritative_unique_retained_wr_ids = dplyr::n_distinct(
       .data$swrcb_wr_id_norm[.data$official_2026_blm_list],
-      na.rm = TRUE
-    ),
-    spreadsheet_unique_wr_ids = nrow(swrcb_2026_blm_wr_lookup),
-    spreadsheet_conflicting_wr_ids = sum(
-      swrcb_2026_blm_wr_lookup$face_value_2026_conflict,
       na.rm = TRUE
     )
   )
 
+swrcb_face_value_overlay_summary <- dplyr::bind_cols(
+  tibble::as_tibble(swrcb_2026_lookup_result$summary),
+  swrcb_face_value_pod_summary
+)
+
+swrcb_face_value_conflict_resolution_qa <-
+  swrcb_face_value_overlay_qa |>
+  dplyr::filter(.data$authoritative_original_conflict) |>
+  dplyr::group_by(.data$swrcb_wr_id_norm) |>
+  dplyr::summarize(
+    authoritative_numeric_values =
+      dplyr::first(.data$authoritative_face_value_numeric_values),
+    public_face_afy_values = pt_format_swrcb_numeric_values(
+      .data$public_face_afy
+    ),
+    selected_face_afy = dplyr::first(.data$selected_face_afy),
+    resolution = dplyr::first(.data$authoritative_resolution),
+    automatic_resolution =
+      dplyr::first(.data$authoritative_automatic_resolution),
+    reviewed_override_used =
+      dplyr::first(.data$authoritative_reviewed_override_used),
+    retained_pod_rows = dplyr::n(),
+    selected_face_value_source =
+      dplyr::first(.data$selected_face_value_source),
+    authoritative_source_reference =
+      dplyr::first(.data$authoritative_source_reference),
+    .groups = "drop"
+  ) |>
+  dplyr::arrange(.data$swrcb_wr_id_norm)
+
 message("SWRCB 2026 BLM face-value correction overlay summary:")
 print(swrcb_face_value_overlay_summary, width = 1200)
+
+message("SWRCB 2026 BLM conflicting-ID resolution QA:")
+print(swrcb_face_value_conflict_resolution_qa, n = Inf, width = 1200)
 
 
 swrcb_pod_wr_blm_map <- swrcb_pod_wr_blm_map |>
@@ -1300,6 +1167,19 @@ swrcb_pod_wr_blm_map <- swrcb_pod_wr_blm_map |>
     swrcb_wr_id_norm = swrcb_wr_id_norm,
     swrcb_2026_blm_wr_list = swrcb_2026_blm_wr_list,
     swrcb_2026_blm_wr_list_display = swrcb_2026_blm_wr_list_display,
+    face_afy_2026 = face_afy_2026,
+    face_value_2026_raw_values = face_value_2026_raw_values,
+    face_value_2026_numeric_values = face_value_2026_numeric_values,
+    face_value_2026_spreadsheet_row_count =
+      face_value_2026_spreadsheet_row_count,
+    face_value_2026_distinct_count = face_value_2026_distinct_count,
+    face_value_2026_conflict = face_value_2026_conflict,
+    face_value_2026_automatic_resolution =
+      face_value_2026_automatic_resolution,
+    face_value_2026_reviewed_override_used =
+      face_value_2026_reviewed_override_used,
+    face_value_2026_resolution = face_value_2026_resolution,
+    face_value_2026_source_reference = face_value_2026_source_reference,
 
     swrcb_fill_col = dplyr::case_when(
       swrcb_status_group == "Active / recognized"   ~ "#33A02C",
@@ -1372,6 +1252,16 @@ swrcb_pod_wr_blm_map <- swrcb_pod_wr_blm_map |>
       "swrcb_wr_id_norm",
       "swrcb_2026_blm_wr_list",
       "swrcb_2026_blm_wr_list_display",
+      "face_afy_2026",
+      "face_value_2026_raw_values",
+      "face_value_2026_numeric_values",
+      "face_value_2026_spreadsheet_row_count",
+      "face_value_2026_distinct_count",
+      "face_value_2026_conflict",
+      "face_value_2026_automatic_resolution",
+      "face_value_2026_reviewed_override_used",
+      "face_value_2026_resolution",
+      "face_value_2026_source_reference",
       "wr_status_display",
       "wr_type_display",
       "pod_status_display",
@@ -1466,6 +1356,14 @@ if (exists("WRITE_QA") && isTRUE(WRITE_QA)) {
     DIR$qa,
     paste0("swrcb_2026_blm_face_value_duplicate_conflicts_", RUN_TS, ".csv")
   )
+  swrcb_face_value_conflict_resolution_path <- file.path(
+    DIR$qa,
+    paste0(
+      "swrcb_2026_blm_face_value_conflict_resolutions_",
+      RUN_TS,
+      ".csv"
+    )
+  )
 
   readr::write_csv(
     swrcb_face_value_overlay_summary,
@@ -1479,11 +1377,19 @@ if (exists("WRITE_QA") && isTRUE(WRITE_QA)) {
     swrcb_2026_lookup_result$duplicate_conflicts,
     swrcb_face_value_conflict_path
   )
+  readr::write_csv(
+    swrcb_face_value_conflict_resolution_qa,
+    swrcb_face_value_conflict_resolution_path
+  )
 
   message("Saved SWRCB 2026 BLM WR lookup QA CSV: ", swrcb_2026_qa_path)
   message("Saved SWRCB face-value overlay summary: ", swrcb_face_value_summary_path)
   message("Saved SWRCB face-value reconciliation: ", swrcb_face_value_reconciliation_path)
   message("Saved SWRCB duplicate-conflict QA: ", swrcb_face_value_conflict_path)
+  message(
+    "Saved SWRCB conflicting-ID resolution QA: ",
+    swrcb_face_value_conflict_resolution_path
+  )
 }
 
 

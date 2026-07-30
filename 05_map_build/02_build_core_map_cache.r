@@ -31,6 +31,7 @@ source("00_config/config_source_files.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
+source("03_functions/swrcb_face_value_helpers.r")
 source("03_functions/popup_helpers.r")
 
 # ==== 2. Load packages =======================================================
