@@ -5,7 +5,7 @@
 ## This test does not read or write retained production caches. It verifies:
 ##   - nearest-parent-first popup order for HUC2/4/6/8/10/12;
 ##   - preservation of popup scientific fields;
-##   - unique browser theme IDs and complete theme/legend records;
+##   - unique browser theme IDs and complete five-theme legend records;
 ##   - hidden-group-before-polygons call order; and
 ##   - explicit Canvas renderer serialization in HUC path options.
 
@@ -40,13 +40,14 @@ if (length(missing_packages)) {
   )
 }
 
+source("03_functions/blm_pct_theme_helpers.r")
 source("03_functions/leaflet_layer_local_core_helpers.r")
 source("03_functions/leaflet_huc_theme_helpers.r")
 source("03_functions/popup_helpers.r")
 source("03_functions/leaflet_layer_local_polygon_helpers.r")
 
 huc_levels <- c(2L, 4L, 6L, 8L, 10L, 12L)
-theme_names <- c("ppt_in", "ppt_kaf", "rech_in", "rech_kaf")
+theme_names <- c("blm_pct", "ppt_in", "ppt_kaf", "rech_in", "rech_kaf")
 
 fixture_polygon <- sf::st_polygon(list(matrix(
   c(
@@ -153,8 +154,36 @@ for (level in huc_levels) {
     )
   }
 
+  hover <- pt_make_huc_hover_tooltips(huc_all[[nm]], level)[[1]]
+  assert_true(
+    grepl("BLM-managed land: 12.3%", hover, fixed = TRUE) &&
+      endsWith(hover, "BLM-managed land: 12.3%</div></div>"),
+    paste("HUC hover does not end with one-decimal %BLM for", nm)
+  )
+
   huc_all[[nm]]$popup_html <- popup
 }
+
+huc_hover_missing <- huc_all$huc12
+huc_hover_missing$percentBLMland <- NA_real_
+assert_true(
+  grepl(
+    "BLM-managed land: Not available</div></div>",
+    pt_make_huc_hover_tooltips(huc_hover_missing, 12L)[[1]],
+    fixed = TRUE
+  ),
+  "HUC hover missing-%BLM fallback changed"
+)
+huc_hover_zero <- huc_all$huc12
+huc_hover_zero$percentBLMland <- 0
+assert_true(
+  grepl(
+    "BLM-managed land: 0.0%</div></div>",
+    pt_make_huc_hover_tooltips(huc_hover_zero, 12L)[[1]],
+    fixed = TRUE
+  ),
+  "HUC hover zero-%BLM formatting changed"
+)
 
 theme_data <- pt_build_huc_theme_data(huc_all)
 assert_true(
@@ -170,6 +199,17 @@ assert_true(
   "Theme level metadata is incomplete"
 )
 assert_true(
+  identical(
+    vapply(theme_data$data$themes, `[[`, character(1), "id"),
+    c("none", "blm_pct", "ppt_in", "ppt_kaf", "rech_in", "rech_kaf")
+  ),
+  "HUC theme registry order changed"
+)
+assert_true(
+  identical(theme_data$data$default_theme, "none"),
+  "Boundaries-only must be the fresh HUC default"
+)
+assert_true(
   length(theme_data$data$legends) == length(huc_levels) * length(theme_names),
   "Theme legend records are incomplete"
 )
@@ -180,6 +220,10 @@ for (record in lookup) {
       is.character(record[[theme]]) && nzchar(record[[theme]])
     }, logical(1))),
     paste("Theme colors are incomplete for", record$layer_id)
+  )
+  assert_true(
+    identical(as.numeric(record$percent_blm), 12.34),
+    paste("Theme lookup changed retained %BLM for", record$layer_id)
   )
 }
 

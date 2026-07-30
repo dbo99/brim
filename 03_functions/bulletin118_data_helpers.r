@@ -8,7 +8,7 @@
 ##   - Join only by basin/subbasin code.
 ##   - Preserve BRIM row order, geometry, and existing analytical attributes.
 ##   - Fail unless the current 515-row one-to-one contract is exact.
-##   - Keep fixed %BLM bins/colors in one place for later HUC reuse.
+##   - Use the neutral fixed %BLM classifier shared with HUC.
 
 PT_BULLETIN118_SGMA_SERVICE <- paste0(
   "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/",
@@ -49,32 +49,6 @@ PT_BULLETIN118_UNIFORM_FILL <- "#8B5A2B"
 PT_BULLETIN118_UNIFORM_FILL_OPACITY <- 0.20
 PT_BULLETIN118_BOUNDARY_COLOR <- "#5A381E"
 
-## Fixed absolute bins selected from the read-only Bulletin 118 + HUC2/4/6/8/
-## 10/12 distribution audit. The yellow-to-brown sequence is colorblind-
-## conscious, gives exact zero a neutral treatment, and stays compatible with
-## BRIM's Local brown identity.
-PT_BULLETIN118_BLM_BIN_LEVELS <- c(
-  "0%",
-  ">0\u20131%",
-  ">1\u20135%",
-  ">5\u201315%",
-  ">15\u201330%",
-  ">30\u201350%",
-  ">50%",
-  "Missing"
-)
-
-PT_BULLETIN118_BLM_COLORS <- c(
-  "0%" = "#F5F5F5",
-  ">0\u20131%" = "#FFF7BC",
-  ">1\u20135%" = "#FEE391",
-  ">5\u201315%" = "#FEC44F",
-  ">15\u201330%" = "#FE9929",
-  ">30\u201350%" = "#D95F0E",
-  ">50%" = "#993404",
-  "Missing" = "#9E9E9E"
-)
-
 pt_bulletin118_normalize_key <- function(x) {
   trimws(as.character(x))
 }
@@ -100,21 +74,6 @@ pt_bulletin118_normalize_priority <- function(x) {
   out <- rep(NA_character_, length(x))
   out[!is.na(hit)] <- unname(normalized[hit[!is.na(hit)]])
   out
-}
-
-pt_bulletin118_blm_bin <- function(x) {
-  x <- suppressWarnings(as.numeric(x))
-  out <- rep("Missing", length(x))
-
-  out[!is.na(x) & x == 0] <- "0%"
-  out[!is.na(x) & x > 0 & x <= 1] <- ">0\u20131%"
-  out[!is.na(x) & x > 1 & x <= 5] <- ">1\u20135%"
-  out[!is.na(x) & x > 5 & x <= 15] <- ">5\u201315%"
-  out[!is.na(x) & x > 15 & x <= 30] <- ">15\u201330%"
-  out[!is.na(x) & x > 30 & x <= 50] <- ">30\u201350%"
-  out[!is.na(x) & x > 50] <- ">50%"
-
-  factor(out, levels = PT_BULLETIN118_BLM_BIN_LEVELS, ordered = TRUE)
 }
 
 pt_validate_bulletin118_sgma_crosswalk <- function(x) {

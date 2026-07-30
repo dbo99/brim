@@ -15,14 +15,28 @@ function(el, x, hucThemeData) {
   }
 
   var map = this;
-  var hucTheme = 'none';
-  var hucLegendUserHidden = false;
+  var defaultHucTheme = 'none';
+  var focusedHucLevel = null;
+  var activationSequence = 0;
+  var hucCardUserHidden = false;
   var visibleHucLayers = {};
   var styleGeneration = 0;
   var scheduledStyleFrame = null;
   var activeStyleJob = null;
   var listenerRecords = [];
+  var domListenerRecords = [];
   var destroyed = false;
+  var card = null;
+  var cardControl = null;
+  var detachableState = null;
+  var select = null;
+  var minimumInput = null;
+  var minimumValue = null;
+  var visibleCount = null;
+  var legendBody = null;
+  var activeContext = null;
+  var statusNode = null;
+  var hucThemeStatusMessage = '';
   var currentHucTooltip = null;
   var currentHucTooltipLayer = null;
   var documentClearClickHandler = null;
@@ -32,6 +46,24 @@ function(el, x, hucThemeData) {
   var hucPopupReleaseTimer = null;
 
   hucThemeData = hucThemeData || {};
+
+  var hucThemeRows = Array.isArray(hucThemeData.themes) ?
+    hucThemeData.themes :
+    [];
+  var allowedThemes = {};
+  hucThemeRows = hucThemeRows.filter(function(row) {
+    if (!row || row.id === undefined || row.id === null) return false;
+    var id = String(row.id);
+    if (!id || allowedThemes[id]) return false;
+    allowedThemes[id] = true;
+    row.id = id;
+    row.label = String(row.label || id);
+    return true;
+  });
+  var requestedDefaultTheme = String(hucThemeData.default_theme || '');
+  defaultHucTheme = allowedThemes[requestedDefaultTheme] ?
+    requestedDefaultTheme :
+    (hucThemeRows.length ? hucThemeRows[0].id : 'none');
 
   /*
    * R sends JSON-safe record arrays. Rebuild browser lookups once, then use
@@ -84,6 +116,14 @@ function(el, x, hucThemeData) {
     registryBuildMs: 0,
     mapScanCount: 0,
     styleOperationCount: 0,
+    membershipOperationCount: 0,
+    membershipResetOperationCount: 0,
+    membershipResetWhileMountedCount: 0,
+    deferredMembershipResetCount: 0,
+    canceledMembershipResetCount: 0,
+    forcedInactivePathRemovalCount: 0,
+    inactiveInvariantFailureCount: 0,
+    featureOperationCount: 0,
     optionPrimeCount: 0,
     styleJobCount: 0,
     canceledStyleJobs: 0,
@@ -92,6 +132,9 @@ function(el, x, hucThemeData) {
     deactivationCount: 0,
     ignoredOverlayEvents: 0,
     sameThemeNoops: 0,
+    sameThresholdNoops: 0,
+    sameLevelNoops: 0,
+    legendUpdateCount: 0,
     tooltipOpenCount: 0,
     tooltipCloseCount: 0,
     tooltipReplacementCount: 0,
@@ -123,6 +166,25 @@ function(el, x, hucThemeData) {
     });
   }
 
+  function listenDom(target, eventName, handler) {
+    if (!target || typeof target.addEventListener !== 'function') return;
+    target.addEventListener(eventName, handler, false);
+    domListenerRecords.push({
+      target: target,
+      eventName: eventName,
+      handler: handler
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value === undefined || value === null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function getLayerId(layer) {
     if (!layer || !layer.options) return null;
 
@@ -149,6 +211,65 @@ function(el, x, hucThemeData) {
     return renderer.constructor && renderer.constructor.name ?
       renderer.constructor.name :
       'unknown';
+  }
+
+  function leafletStamp(layer) {
+    if (!layer) return null;
+    if (typeof L !== 'undefined' && typeof L.stamp === 'function') {
+      return String(L.stamp(layer));
+    }
+    return layer._leaflet_id === undefined ||
+      layer._leaflet_id === null ?
+      null :
+      String(layer._leaflet_id);
+  }
+
+  function rendererHasLayer(renderer, layer) {
+    if (!renderer || !renderer._layers || !layer) return null;
+    var stamp = leafletStamp(layer);
+    if (stamp !== null) return renderer._layers[stamp] === layer;
+
+    var rendererStamps = Object.keys(renderer._layers);
+    for (var i = 0; i < rendererStamps.length; i++) {
+      if (renderer._layers[rendererStamps[i]] === layer) return true;
+    }
+    return false;
+  }
+
+  function mountedLayerCount(levelState) {
+    return levelState.layers.reduce(function(total, layer) {
+      return total + (layer && layer._map ? 1 : 0);
+    }, 0);
+  }
+
+  function rendererPathCount(levelState) {
+    if (!levelState.renderer || !levelState.renderer._layers) return null;
+    return levelState.layers.reduce(function(total, layer) {
+      return total + (rendererHasLayer(levelState.renderer, layer) ? 1 : 0);
+    }, 0);
+  }
+
+  function layerControlChecked(levelState) {
+    var container = getMapContainerForHucControls();
+    if (
+      !container ||
+      !container.querySelectorAll ||
+      !levelState.root
+    ) {
+      return null;
+    }
+
+    var rootStamp = leafletStamp(levelState.root);
+    if (rootStamp === null) return null;
+    var selectors = container.querySelectorAll(
+      '.leaflet-control-layers-selector'
+    );
+    for (var i = 0; i < selectors.length; i++) {
+      if (String(selectors[i].layerId) === rootStamp) {
+        return !!selectors[i].checked;
+      }
+    }
+    return null;
   }
 
   function buildHucRegistry() {
@@ -237,16 +358,44 @@ function(el, x, hucThemeData) {
         }
       });
 
+      var members = layers.map(function(layer) {
+        return !root || typeof root.hasLayer !== 'function' ?
+          true :
+          root.hasLayer(layer);
+      });
+
       hucLevels[levelName] = {
         name: levelName,
         label: row.huc_label ? String(row.huc_label) : levelName.toUpperCase(),
         groupName: groupName,
         expectedCount: Number(row.expected_count) || 0,
         layers: layers,
+        members: members,
         root: root || null,
         renderer: renderer,
         active: rootIsActive,
+        selectedTheme: defaultHucTheme,
+        minimumBlmPct: 0,
+        lastActivated: rootIsActive ? ++activationSequence : 0,
         appliedTheme: 'none',
+        appliedMinimumBlm: members.every(function(member) {
+          return member;
+        }) ? 0 : null,
+        eligibleCount: members.filter(function(member) {
+          return member;
+        }).length,
+        lastMembershipResetMs: null,
+        lastMembershipResetOperations: 0,
+        lastMembershipResetDetached: null,
+        lastMembershipResetRendererPaths: null,
+        lastApplyReason: null,
+        lastResetReason: null,
+        lastResetCancelReason: null,
+        lifecycleGeneration: 0,
+        resetPending: false,
+        pendingResetReason: null,
+        pendingResetFrame: null,
+        activationPending: false,
         dirty: false
       };
       hucGroupToLevel[groupName] = levelName;
@@ -433,7 +582,11 @@ function(el, x, hucThemeData) {
       ) ? event.target.closest(
         '.pt-main-layer-clear-btn,#pt-clear-all-btn'
       ) : null;
-      if (clearButton) closeCurrentHucTooltip('clear action');
+      if (clearButton) {
+        closeCurrentHucTooltip('clear action');
+        cancelStyleWork('clear action');
+        setHucThemeStatus('', 0);
+      }
     };
     document.addEventListener('click', documentClearClickHandler, true);
 
@@ -478,86 +631,110 @@ function(el, x, hucThemeData) {
     return map.getContainer ? map.getContainer() : el.querySelector('.leaflet-container');
   }
 
-  function addFloatingHucThemeControl() {
-    var mapContainer = getMapContainerForHucControls();
-
-    if (!mapContainer) {
-      console.warn('BRIM HUC fill control: map container not found.');
-      return;
-    }
-
-    var oldControl = mapContainer.querySelector('.pt-huc-theme-control');
-    if (oldControl) oldControl.remove();
-
-    var div = document.createElement('div');
-    div.className = 'pt-huc-theme-control leaflet-control';
-    div.style.position = 'absolute';
-    div.style.top = '198px';
-    div.style.left = '8px';
-    div.style.zIndex = '10010';
-    div.style.background = 'rgba(255, 255, 255, 0.96)';
-    div.style.padding = '6px';
-    div.style.border = '1px solid #777';
-    div.style.borderRadius = '4px';
-    div.style.boxShadow = '0 1px 4px rgba(0,0,0,0.35)';
-    div.style.font = '12px Arial, sans-serif';
-    div.style.boxSizing = 'border-box';
-    div.style.display = 'none';
-    div.innerHTML =
-      "<label style='font-weight:bold;display:block;margin-bottom:3px;'>HUC fill</label>" +
-      "<select id='pt-huc-theme-select' style='font-size:12px;max-width:210px;'>" +
-        "<option value='none'>None / boundaries only</option>" +
-        "<option value='ppt_in'>PRISM precip - in/yr</option>" +
-        "<option value='ppt_kaf'>PRISM precip - kaf/yr</option>" +
-        "<option value='rech_in'>BCMv8 recharge - in/yr</option>" +
-        "<option value='rech_kaf'>BCMv8 recharge - kaf/yr</option>" +
-      "</select>" +
-      "<div id='pt-huc-theme-status' aria-live='polite' " +
-        "style='display:none;margin-top:3px;font-size:10px;line-height:1.15;color:#24527a;'>" +
-      "</div>";
-
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
-    mapContainer.appendChild(div);
+  function addCardCss() {
+    if (document.getElementById('pt-huc-theme-card-css')) return;
+    var style = document.createElement('style');
+    style.id = 'pt-huc-theme-card-css';
+    style.textContent =
+      '.pt-huc-theme-card{width:300px;max-width:calc(100vw - 24px);' +
+        'box-sizing:border-box;padding:8px;border:1px solid rgba(111,89,52,.58);' +
+        'border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.30);' +
+        'font:12px/1.25 Arial,sans-serif;color:#222;}' +
+      '.pt-huc-theme-head{display:flex;align-items:flex-start;' +
+        'justify-content:space-between;gap:8px;margin-bottom:7px;}' +
+      '.pt-huc-theme-title{font-weight:700;font-size:13px;line-height:1.2;' +
+        'color:#3f2918;}' +
+      '.pt-huc-theme-display{display:grid;grid-template-columns:auto 1fr;' +
+        'align-items:center;gap:5px;margin-bottom:5px;}' +
+      '.pt-huc-theme-display label{font-weight:700;}' +
+      '.pt-huc-theme-select{min-width:0;width:100%;font-size:12px;}' +
+      '.pt-huc-theme-filter{border-top:1px solid rgba(111,89,52,.23);' +
+        'padding-top:5px;margin-top:5px;}' +
+      '.pt-huc-theme-filter-head{display:flex;align-items:baseline;' +
+        'justify-content:space-between;gap:8px;font-weight:700;}' +
+      '.pt-huc-theme-filter-value{font-variant-numeric:tabular-nums;' +
+        'white-space:nowrap;}' +
+      '.pt-huc-theme-minimum{display:block;width:100%;margin:3px 0 1px;}' +
+      '.pt-huc-theme-visible-count{font-size:10.5px;color:#555;' +
+        'font-variant-numeric:tabular-nums;}' +
+      '.pt-huc-theme-context{border-top:1px solid rgba(111,89,52,.23);' +
+        'font-size:10.5px;color:#555;margin-top:5px;padding-top:5px;}' +
+      '.pt-huc-theme-legend-body{padding-top:4px;}' +
+      '.pt-huc-theme-legend-body[hidden]{display:none;}' +
+      '.pt-huc-theme-legend-level+.pt-huc-theme-legend-level{' +
+        'border-top:1px solid rgba(111,89,52,.23);margin-top:6px;padding-top:6px;}' +
+      '.pt-huc-theme-legend-title{font-weight:700;margin-bottom:4px;}' +
+      '.pt-huc-theme-rows.is-two-column{display:grid;' +
+        'grid-template-columns:1fr 1fr;column-gap:8px;}' +
+      '.pt-huc-theme-row{display:flex;align-items:center;gap:5px;margin:2px 0;' +
+        'min-width:0;}' +
+      '.pt-huc-theme-swatch{width:13px;height:13px;flex:0 0 13px;' +
+        'border:1px solid #777;box-sizing:border-box;}' +
+      '.pt-huc-theme-row-label{flex:1 1 auto;min-width:0;}' +
+      '.pt-huc-theme-row-count{flex:0 0 auto;color:#555;' +
+        'font-variant-numeric:tabular-nums;}' +
+      '.pt-huc-theme-status{display:none;margin-top:5px;color:#24527a;' +
+        'font-size:10.5px;line-height:12px;align-items:center;gap:4px;}' +
+      '.pt-huc-theme-status.is-loading{display:inline-flex;}' +
+      '.pt-huc-theme-spinner-slot{display:inline-flex;align-items:center;' +
+        'justify-content:center;width:12px;height:12px;flex:0 0 12px;}' +
+      '.pt-huc-theme-spinner{display:block;width:10px;height:10px;' +
+        'box-sizing:border-box;border:2px solid rgba(36,82,122,.28);' +
+        'border-top-color:#24527a;border-radius:50%;' +
+        'animation:pt-huc-theme-spin .72s linear infinite;}' +
+      '@keyframes pt-huc-theme-spin{to{transform:rotate(360deg);}}';
+    document.head.appendChild(style);
   }
 
-  function addFloatingHucLegend() {
-    var mapContainer = getMapContainerForHucControls();
-
-    if (!mapContainer) {
-      console.warn('BRIM HUC legend: map container not found.');
-      return;
+  function actionsHtml() {
+    if (
+      window.BRIM &&
+      window.BRIM.legendCloseout &&
+      typeof window.BRIM.legendCloseout.actionsHtml === 'function'
+    ) {
+      return window.BRIM.legendCloseout.actionsHtml(
+        'pt-huc-theme-dock',
+        'pt-huc-theme-close',
+        'HUC thematic card'
+      );
     }
-
-    var oldLegend = mapContainer.querySelector('.pt-huc-theme-legend');
-    if (oldLegend) oldLegend.remove();
-
-    var div = document.createElement('div');
-    div.className = 'pt-huc-theme-legend leaflet-control';
-    div.style.position = 'absolute';
-    div.style.top = '12px';
-    div.style.left = '126px';
-    div.style.zIndex = '10010';
-    div.style.background = 'rgba(255, 255, 255, 0.94)';
-    div.style.padding = '6px';
-    div.style.border = '1px solid #777';
-    div.style.borderRadius = '4px';
-    div.style.boxShadow = '0 1px 4px rgba(0,0,0,0.35)';
-    div.style.font = '12px Arial, sans-serif';
-    div.style.width = '300px';
-    div.style.maxWidth = '300px';
-    div.style.maxHeight = '220px';
-    div.style.overflowY = 'auto';
-    div.style.display = 'none';
-    div.style.boxSizing = 'border-box';
-
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
-    mapContainer.appendChild(div);
+    return '<span class="pt-map-card-actions">' +
+      '<button type="button" class="pt-map-card-dock pt-huc-theme-dock" ' +
+        'title="Undock HUC thematic card">&#x2197;</button>' +
+      '<button type="button" class="pt-map-legend-close pt-huc-theme-close" ' +
+        'title="Hide HUC thematic card">&times;</button></span>';
   }
 
-  addFloatingHucThemeControl();
-  addFloatingHucLegend();
+  function scheduleSharedLayout() {
+    if (
+      window.BRIM &&
+      window.BRIM.legendCloseout &&
+      typeof window.BRIM.legendCloseout.scheduleLayout === 'function'
+    ) {
+      window.BRIM.legendCloseout.scheduleLayout(card);
+    }
+  }
+
+  function hideCard() {
+    if (!card) return;
+    if (detachableState && detachableState.floating && detachableState.dock) {
+      detachableState.dock();
+    }
+    if (card.style.display !== 'none') card.style.display = 'none';
+    scheduleSharedLayout();
+  }
+
+  function showCard() {
+    if (
+      !card ||
+      Object.keys(visibleHucLayers).length === 0 ||
+      hucCardUserHidden
+    ) {
+      return;
+    }
+    if (card.style.display !== 'block') card.style.display = 'block';
+    scheduleSharedLayout();
+  }
 
   function layerSortValue(layerName) {
     var n = parseInt(String(layerName).replace('huc', ''), 10);
@@ -568,132 +745,275 @@ function(el, x, hucThemeData) {
     if (!legend) return '';
 
     var rows = legend.rows || [];
-    var html = '<b>' + (legend.title || 'HUC legend') + '</b><br/>';
-
-    if (rows.length === 0) {
-      html += '<div>No mapped values for this HUC level.</div>';
-    }
+    if (!rows.length) return '';
+    var html =
+      '<div class="pt-huc-theme-legend-title">' +
+      escapeHtml(legend.title || 'HUC legend') +
+      '</div>';
 
     var useTwoCols = rows.length >= 9;
-    if (useTwoCols) {
-      html += "<div style='display:grid;grid-template-columns:1fr 1fr;" +
-        "column-gap:8px;row-gap:1px;margin-top:2px;'>";
-    }
+    html += '<div class="pt-huc-theme-rows' +
+      (useTwoCols ? ' is-two-column' : '') + '">';
 
     for (var i = 0; i < rows.length; i++) {
       html +=
-        "<div style='white-space:nowrap;min-width:0;'>" +
-        "<span style='display:inline-block;width:12px;height:12px;margin-right:4px;" +
-        "border:1px solid #777;background:" + rows[i].color +
-        ";vertical-align:-1px;'></span>" +
-        "<span style='font-size:11px;'>" + rows[i].label + '</span>' +
+        '<div class="pt-huc-theme-row">' +
+        '<span class="pt-huc-theme-swatch" style="background:' +
+          escapeHtml(rows[i].color || '#9E9E9E') + ';"></span>' +
+        '<span class="pt-huc-theme-row-label">' +
+          escapeHtml(rows[i].label || '') + '</span>' +
+        '<span class="pt-huc-theme-row-count">' +
+          escapeHtml(rows[i].count === undefined ? '' : rows[i].count) +
+          '</span>' +
         '</div>';
     }
 
-    if (useTwoCols) html += '</div>';
-    if (legend.note) {
-      html += "<div style='font-size:10px;margin-top:3px;color:#444;'>" +
-        legend.note + '</div>';
-    }
-    return html;
+    return html + '</div>';
   }
 
-  function legendHtml(theme) {
-    if (theme === 'none') return '';
+  function legendHtml() {
+    var focused = focusedLevelState();
+    if (!focused || focused.selectedTheme === 'none') return '';
 
-    var levels = Object.keys(visibleHucLayers).sort(function(a, b) {
-      return layerSortValue(a) - layerSortValue(b);
+    var legend = hucThemeLegends[focused.name] ?
+      hucThemeLegends[focused.name][focused.selectedTheme] :
+      null;
+    var rowsHtml = legendRows(legend);
+    return rowsHtml ?
+      '<div class="pt-huc-theme-legend-level">' + rowsHtml + '</div>' :
+      '';
+  }
+
+  function focusedLevelState() {
+    var focused = focusedHucLevel ? hucLevels[focusedHucLevel] : null;
+    if (focused && focused.active) return focused;
+
+    var active = activeLevelNames().sort(function(a, b) {
+      return hucLevels[b].lastActivated - hucLevels[a].lastActivated;
     });
-
-    if (levels.length === 0) {
-      return '<b>HUC fill</b><br/>Turn on a HUC layer to see the legend.';
-    }
-
-    var html = '';
-    if (levels.length > 1) {
-      html += "<div style='font-size:10px;margin-bottom:4px;color:#444;'>" +
-        'Multiple HUC levels are visible. Colors are scaled separately by HUC level.' +
-        '</div>';
-    }
-
-    for (var i = 0; i < levels.length; i++) {
-      var levelName = levels[i];
-      var legend = hucThemeLegends[levelName] ?
-        hucThemeLegends[levelName][theme] :
-        null;
-      if (i > 0) {
-        html += "<hr style='border:none;border-top:1px solid #ccc;margin:6px 0;'/>";
-      }
-      html += legendRows(legend);
-    }
-    return html;
+    if (!active.length) return null;
+    focusedHucLevel = active[0];
+    return hucLevels[focusedHucLevel];
   }
 
-  function updateHucThemeControlDisplay() {
-    var control = document.querySelector('.pt-huc-theme-control');
-    if (!control) return;
-    control.style.display = Object.keys(visibleHucLayers).length > 0 ? 'block' : 'none';
+  function currentFocusedTheme() {
+    var focused = focusedHucLevel ? hucLevels[focusedHucLevel] : null;
+    return focused ? focused.selectedTheme : defaultHucTheme;
+  }
+
+  function currentFocusedMinimumBlm() {
+    var focused = focusedHucLevel ? hucLevels[focusedHucLevel] : null;
+    return focused ? focused.minimumBlmPct : 0;
+  }
+
+  function updateVisibleCount() {
+    if (!visibleCount) return;
+    var focused = focusedLevelState();
+    if (!focused) {
+      visibleCount.textContent = '';
+      return;
+    }
+
+    if (
+      focused.dirty ||
+      focused.appliedMinimumBlm !== focused.minimumBlmPct
+    ) {
+      visibleCount.textContent = 'Updating active HUC membership\u2026';
+      return;
+    }
+
+    visibleCount.textContent =
+      focused.eligibleCount.toLocaleString() + ' of ' +
+      focused.expectedCount.toLocaleString() + ' ' +
+      focused.label + ' features shown';
   }
 
   function updateLegend() {
-    var div = document.querySelector('.pt-huc-theme-legend');
-    updateHucThemeControlDisplay();
-    if (!div) return;
+    if (!card) return;
+    var levels = Object.keys(visibleHucLayers).sort(function(a, b) {
+      return layerSortValue(a) - layerSortValue(b);
+    });
+    var focused = focusedLevelState();
+    var selectedTheme = focused ?
+      focused.selectedTheme :
+      currentFocusedTheme();
+    if (select && select.value !== selectedTheme) {
+      select.value = selectedTheme;
+    }
+    var focusedMinimum = focused ? focused.minimumBlmPct : 0;
+    if (minimumInput && Number(minimumInput.value) !== focusedMinimum) {
+      minimumInput.value = String(focusedMinimum);
+    }
+    if (minimumValue) minimumValue.textContent = focusedMinimum + '%';
+    if (activeContext) {
+      var activeLabels = levels.map(function(levelName) {
+          return hucLevels[levelName].label;
+        });
+      activeContext.textContent = levels.length > 1 && focused ?
+        'Selected: ' + focused.label + '; active: ' +
+          activeLabels.join(', ') :
+        (levels.length ? 'Active: ' + activeLabels.join(', ') : '');
+    }
+    if (legendBody) {
+      var html = legendHtml();
+      legendBody.innerHTML = html;
+      legendBody.hidden = !html;
+    }
+    updateVisibleCount();
+    renderHucThemeStatus();
+    diagnostics.legendUpdateCount += 1;
+    if (levels.length) showCard();
+    else hideCard();
+    scheduleSharedLayout();
+  }
 
-    var hasVisibleHuc = Object.keys(visibleHucLayers).length > 0;
-    if (!hasVisibleHuc || hucTheme === 'none') hucLegendUserHidden = false;
-    var html = legendHtml(hucTheme);
-    div.style.display = (
-      !hasVisibleHuc ||
-      hucTheme === 'none' ||
-      html === '' ||
-      hucLegendUserHidden
-    ) ? 'none' : 'block';
-    div.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;' +
-      'gap:8px;margin-bottom:3px;"><span style="font-weight:700;">' +
-      'HUC thematic fill</span><button type="button" ' +
-      'class="pt-huc-theme-legend-close" aria-label="Hide HUC thematic-fill legend" ' +
-      'title="Hide HUC thematic-fill legend" style="border:0;background:transparent;' +
-      'color:#666;font-size:17px;line-height:1;cursor:pointer;padding:0 2px;">' +
-      '&times;</button></div>' + html;
+  function createCard() {
+    addCardCss();
+    cardControl = L.control({position: 'bottomleft'});
+    cardControl.onAdd = function() {
+      var div = L.DomUtil.create(
+        'div',
+        'leaflet-control pt-map-legend-card pt-map-legend-local ' +
+        'pt-huc-theme-card'
+      );
+      var optionHtml = hucThemeRows.map(function(row) {
+        return '<option value="' + escapeHtml(row.id) + '">' +
+          escapeHtml(row.label) + '</option>';
+      }).join('');
+      div.innerHTML =
+        '<div class="pt-huc-theme-head pt-map-card-handle">' +
+          '<span class="pt-huc-theme-title">HUC thematic display</span>' +
+          actionsHtml() +
+        '</div>' +
+        '<div class="pt-huc-theme-display">' +
+          '<label for="pt-huc-theme-select">Display</label>' +
+          '<select id="pt-huc-theme-select" class="pt-huc-theme-select">' +
+            optionHtml +
+          '</select>' +
+        '</div>' +
+        '<div class="pt-huc-theme-filter">' +
+          '<div class="pt-huc-theme-filter-head">' +
+            '<label for="pt-huc-theme-minimum">' +
+              'Minimum BLM-managed land</label>' +
+            '<span class="pt-huc-theme-filter-value">0%</span>' +
+          '</div>' +
+          '<input id="pt-huc-theme-minimum" ' +
+            'class="pt-huc-theme-minimum" type="range" ' +
+            'min="0" max="100" step="1" value="0">' +
+          '<div class="pt-huc-theme-visible-count" aria-live="polite"></div>' +
+        '</div>' +
+        '<div class="pt-huc-theme-context"></div>' +
+        '<div class="pt-huc-theme-legend-body"></div>' +
+        '<div class="pt-huc-theme-status" aria-live="polite"></div>';
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
+    };
+    cardControl.addTo(map);
+    card = getMapContainerForHucControls().querySelector('.pt-huc-theme-card');
+    if (!card) return;
 
-    var close = div.querySelector('.pt-huc-theme-legend-close');
+    select = card.querySelector('.pt-huc-theme-select');
+    minimumInput = card.querySelector('.pt-huc-theme-minimum');
+    minimumValue = card.querySelector('.pt-huc-theme-filter-value');
+    visibleCount = card.querySelector('.pt-huc-theme-visible-count');
+    legendBody = card.querySelector('.pt-huc-theme-legend-body');
+    activeContext = card.querySelector('.pt-huc-theme-context');
+    statusNode = card.querySelector('.pt-huc-theme-status');
+    if (select) {
+      select.value = currentFocusedTheme();
+      listenDom(select, 'change', function(event) {
+        setTheme(event.target.value, 'dropdown change');
+      });
+    }
+    if (minimumInput) {
+      minimumInput.value = String(currentFocusedMinimumBlm());
+      listenDom(minimumInput, 'input', function(event) {
+        setMinimumBlmPct(event.target.value, 'minimum %BLM input');
+      });
+    }
+
+    var close = card.querySelector('.pt-huc-theme-close');
     if (close) {
-      close.addEventListener('click', function(event) {
+      listenDom(close, 'click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        hucLegendUserHidden = true;
-        div.style.display = 'none';
-      }, false);
+        hucCardUserHidden = true;
+        hideCard();
+      });
     }
+
+    if (
+      window.BRIM &&
+      window.BRIM.legendCloseout &&
+      typeof window.BRIM.legendCloseout.makeDetachable === 'function'
+    ) {
+      detachableState = window.BRIM.legendCloseout.makeDetachable({
+        card: card,
+        map: map,
+        handleSelector: '.pt-huc-theme-head',
+        dockSelector: '.pt-huc-theme-dock',
+        label: 'HUC thematic card'
+      });
+    }
+
+    updateLegend();
   }
 
   var hucThemeStatusTimer = null;
 
-  function setHucThemeStatus(message, autoHideMs) {
-    var status = document.getElementById('pt-huc-theme-status');
+  function focusedLargeLevelHasPendingWork() {
+    var focused = focusedLevelState();
+    if (
+      !focused ||
+      !focused.active ||
+      (focused.name !== 'huc10' && focused.name !== 'huc12') ||
+      !activeStyleJob
+    ) {
+      return false;
+    }
+    return activeStyleJob.levels.indexOf(focused.name) >= 0;
+  }
+
+  function renderHucThemeStatus() {
+    var status = statusNode;
     if (!status) return;
 
+    if (focusedLargeLevelHasPendingWork()) {
+      status.classList.add('is-loading');
+      status.innerHTML =
+        '<span class="pt-huc-theme-spinner-slot" aria-hidden="true">' +
+          '<span class="pt-huc-theme-spinner"></span>' +
+        '</span><span>Loading\u2026</span>';
+      status.style.display = 'inline-flex';
+      return;
+    }
+
+    status.classList.remove('is-loading');
+    if (!hucThemeStatusMessage) {
+      status.innerHTML = '';
+      status.style.display = 'none';
+      return;
+    }
+
+    status.innerHTML = escapeHtml(hucThemeStatusMessage);
+    status.style.display = 'block';
+  }
+
+  function setHucThemeStatus(message, autoHideMs) {
     if (hucThemeStatusTimer !== null) {
       window.clearTimeout(hucThemeStatusTimer);
       hucThemeStatusTimer = null;
     }
 
-    if (!message) {
-      status.textContent = '';
-      status.style.display = 'none';
-      return;
-    }
-
-    status.textContent = message;
-    status.style.display = 'block';
+    hucThemeStatusMessage = message ? String(message) : '';
+    renderHucThemeStatus();
 
     if (autoHideMs && autoHideMs > 0) {
       hucThemeStatusTimer = window.setTimeout(function() {
-        status.textContent = '';
-        status.style.display = 'none';
+        hucThemeStatusMessage = '';
         hucThemeStatusTimer = null;
+        renderHucThemeStatus();
       }, autoHideMs);
     }
   }
@@ -713,6 +1033,51 @@ function(el, x, hucThemeData) {
     };
   }
 
+  function layerPercentBlm(layer) {
+    var id = getLayerId(layer);
+    var record = id === null ? null : hucThemeLookup[id];
+    if (
+      !record ||
+      record.percent_blm === undefined ||
+      record.percent_blm === null ||
+      record.percent_blm === ''
+    ) {
+      return null;
+    }
+    var value = Number(record.percent_blm);
+    return isFinite(value) ? value : null;
+  }
+
+  function layerIsEligible(layer, threshold) {
+    if (threshold === 0) return true;
+    var value = layerPercentBlm(layer);
+    return value !== null && value >= threshold;
+  }
+
+  function closeLayerInteraction(layer, reason) {
+    if (!layer) return;
+    if (currentHucTooltipLayer === layer) {
+      closeCurrentHucTooltip(reason);
+    } else {
+      try {
+        if (
+          typeof layer.isTooltipOpen === 'function' &&
+          layer.isTooltipOpen() &&
+          typeof layer.closeTooltip === 'function'
+        ) {
+          layer.closeTooltip();
+        }
+      } catch (tooltipCloseError) {}
+    }
+
+    try {
+      var popup = typeof layer.getPopup === 'function' ?
+        layer.getPopup() :
+        layer._popup;
+      if (popup && popup._map && map.closePopup) map.closePopup(popup);
+    } catch (popupCloseError) {}
+  }
+
   function cancelStyleWork(reason) {
     styleGeneration += 1;
 
@@ -730,6 +1095,7 @@ function(el, x, hucThemeData) {
       diagnostics.lastCancelReason = reason || 'unspecified';
       activeStyleJob = null;
     }
+    renderHucThemeStatus();
   }
 
   function requestFrame(callback) {
@@ -756,29 +1122,52 @@ function(el, x, hucThemeData) {
     levelState.dirty = false;
   }
 
-  function requestThemeApply(levelNames, reason) {
+  function requestHucApply(levelNames, reason) {
     cancelStyleWork('superseded by ' + reason);
 
     var generation = styleGeneration;
-    var targetTheme = hucTheme;
     var targets = [];
 
     levelNames.forEach(function(levelName) {
       var levelState = hucLevels[levelName];
+      var targetTheme = levelState ? levelState.selectedTheme : null;
+      var targetMinimumBlm = levelState ?
+        levelState.minimumBlmPct :
+        null;
       if (
         levelState &&
         levelState.active &&
-        (levelState.dirty || levelState.appliedTheme !== targetTheme)
+        (
+          levelState.activationPending ||
+          levelState.dirty ||
+          levelState.appliedTheme !== targetTheme ||
+          levelState.appliedMinimumBlm !== targetMinimumBlm
+        )
       ) {
-        levelState.dirty = true;
-        targets.push(levelState);
+        var applyStyle = (
+          levelState.dirty ||
+          levelState.appliedTheme !== targetTheme
+        );
+        var activationOnly = (
+          levelState.activationPending &&
+          !levelState.dirty &&
+          levelState.appliedTheme === targetTheme &&
+          levelState.appliedMinimumBlm === targetMinimumBlm
+        );
+        if (!activationOnly) levelState.dirty = true;
+        targets.push({
+          state: levelState,
+          theme: targetTheme,
+          minimumBlmPct: targetMinimumBlm,
+          applyStyle: applyStyle,
+          activationOnly: activationOnly
+        });
       }
     });
 
     if (targets.length === 0) {
-      diagnostics.sameThemeNoops += 1;
-      updateLegend();
       setHucThemeStatus('', 0);
+      updateVisibleCount();
       return;
     }
 
@@ -787,13 +1176,27 @@ function(el, x, hucThemeData) {
     var operations = 0;
     var targetIndex = 0;
     var layerIndex = 0;
+    var currentEligibleCount = 0;
 
     activeStyleJob = {
       generation: generation,
-      theme: targetTheme,
+      theme: targets.length === 1 ? targets[0].theme : null,
+      themes: targets.reduce(function(result, target) {
+        result[target.state.name] = target.theme;
+        return result;
+      }, {}),
+      minimumBlmPct: targets.length === 1 ?
+        targets[0].minimumBlmPct :
+        null,
+      minimumBlmPcts: targets.reduce(function(result, target) {
+        result[target.state.name] = target.minimumBlmPct;
+        return result;
+      }, {}),
       reason: reason,
-      levels: targets.map(function(levelState) { return levelState.name; })
+      levels: targets.map(function(target) { return target.state.name; })
     };
+    updateVisibleCount();
+    renderHucThemeStatus();
 
     function runStyleFrame() {
       scheduledStyleFrame = null;
@@ -807,12 +1210,24 @@ function(el, x, hucThemeData) {
       var frameOperations = 0;
 
       while (targetIndex < targets.length) {
-        var levelState = targets[targetIndex];
+        var target = targets[targetIndex];
+        var levelState = target.state;
+        var targetTheme = target.theme;
+        var targetMinimumBlm = target.minimumBlmPct;
 
         if (!levelState.active) {
+          levelState.activationPending = false;
           levelState.dirty = true;
           targetIndex += 1;
           layerIndex = 0;
+          currentEligibleCount = 0;
+          continue;
+        }
+
+        if (target.activationOnly) {
+          levelState.activationPending = false;
+          levelState.lastApplyReason = reason;
+          targetIndex += 1;
           continue;
         }
 
@@ -823,11 +1238,42 @@ function(el, x, hucThemeData) {
           }
 
           var layer = levelState.layers[layerIndex];
-          layer.setStyle(fillStyle(layer, targetTheme));
+          var eligible = layerIsEligible(layer, targetMinimumBlm);
+          var member = levelState.members[layerIndex];
+
+          if (eligible) {
+            currentEligibleCount += 1;
+            if (!member) {
+              layer.setStyle(fillStyle(layer, targetTheme));
+              diagnostics.styleOperationCount += 1;
+              if (
+                levelState.root &&
+                typeof levelState.root.addLayer === 'function'
+              ) {
+                levelState.root.addLayer(layer);
+                levelState.members[layerIndex] = true;
+                diagnostics.membershipOperationCount += 1;
+              }
+            } else if (target.applyStyle) {
+              layer.setStyle(fillStyle(layer, targetTheme));
+              diagnostics.styleOperationCount += 1;
+            }
+          } else if (member) {
+            closeLayerInteraction(layer, 'HUC minimum %BLM filter');
+            if (
+              levelState.root &&
+              typeof levelState.root.removeLayer === 'function'
+            ) {
+              levelState.root.removeLayer(layer);
+              levelState.members[layerIndex] = false;
+              diagnostics.membershipOperationCount += 1;
+            }
+          }
+
           layerIndex += 1;
           operations += 1;
           frameOperations += 1;
-          diagnostics.styleOperationCount += 1;
+          diagnostics.featureOperationCount += 1;
 
           if (frameOperations >= 100 && nowMs() >= deadline) {
             scheduledStyleFrame = requestFrame(runStyleFrame);
@@ -836,9 +1282,14 @@ function(el, x, hucThemeData) {
         }
 
         levelState.appliedTheme = targetTheme;
+        levelState.appliedMinimumBlm = targetMinimumBlm;
+        levelState.eligibleCount = currentEligibleCount;
+        levelState.activationPending = false;
+        levelState.lastApplyReason = reason;
         levelState.dirty = false;
         targetIndex += 1;
         layerIndex = 0;
+        currentEligibleCount = 0;
       }
 
       diagnostics.lastApplyMs = nowMs() - started;
@@ -846,7 +1297,7 @@ function(el, x, hucThemeData) {
       diagnostics.lastApplyOperations = operations;
       activeStyleJob = null;
       updateLegend();
-      setHucThemeStatus('HUC fill applied.', 900);
+      setHucThemeStatus('HUC display updated.', 900);
     }
 
     scheduledStyleFrame = requestFrame(runStyleFrame);
@@ -858,67 +1309,273 @@ function(el, x, hucThemeData) {
     });
   }
 
-  function resetHucThemeToBoundariesOnly() {
-    hucTheme = 'none';
-    var controlSelect = document.getElementById('pt-huc-theme-select');
-    if (controlSelect && controlSelect.value !== 'none') {
-      controlSelect.value = 'none';
-    }
-  }
-
   function setTheme(nextTheme, reason) {
-    var allowed = {
-      none: true,
-      ppt_in: true,
-      ppt_kaf: true,
-      rech_in: true,
-      rech_kaf: true
-    };
-    if (!allowed[nextTheme]) return false;
+    nextTheme = String(nextTheme || '');
+    if (!allowedThemes[nextTheme]) return false;
 
-    if (nextTheme === hucTheme) {
+    var focused = focusedLevelState();
+    if (!focused) return false;
+
+    if (nextTheme === focused.selectedTheme) {
       diagnostics.sameThemeNoops += 1;
       return false;
     }
 
-    hucTheme = nextTheme;
-    var select = document.getElementById('pt-huc-theme-select');
+    focused.selectedTheme = nextTheme;
     if (select && select.value !== nextTheme) select.value = nextTheme;
     setHucThemeStatus(
       nextTheme === 'none' ?
         'Returning to boundaries only…' :
         'Applying HUC fill…'
     );
-    requestThemeApply(activeLevelNames(), reason || 'theme change');
+    requestHucApply(activeLevelNames(), reason || 'theme change');
     return true;
   }
 
-  var select = document.getElementById('pt-huc-theme-select');
-  if (select) {
-    select.addEventListener('mousedown', function() {
-      setHucThemeStatus('Selecting HUC fill…');
-    });
-    select.addEventListener('focus', function() {
-      setHucThemeStatus('Selecting HUC fill…');
-    });
-    select.addEventListener('keydown', function(event) {
-      if (!event || event.key !== 'Escape') {
-        setHucThemeStatus('Selecting HUC fill…');
+  function focusLevel(levelName) {
+    levelName = String(levelName || '');
+    var levelState = hucLevels[levelName];
+    if (!levelState || !levelState.active) return false;
+
+    if (focusedHucLevel === levelName) {
+      diagnostics.sameLevelNoops += 1;
+      return false;
+    }
+
+    focusedHucLevel = levelName;
+    updateLegend();
+    return true;
+  }
+
+  function inactiveLevelDetached(levelState) {
+    var mapHasGroup = !!(
+      levelState.root &&
+      map.hasLayer &&
+      map.hasLayer(levelState.root)
+    );
+    var groupHasMap = !!(levelState.root && levelState.root._map);
+    var mountedCount = mountedLayerCount(levelState);
+    var pathCount = rendererPathCount(levelState);
+    return (
+      !mapHasGroup &&
+      !groupHasMap &&
+      mountedCount === 0 &&
+      (!levelState.renderer || pathCount === 0)
+    );
+  }
+
+  function cancelInactiveLevelReset(levelState, reason) {
+    levelState.lifecycleGeneration += 1;
+    if (levelState.pendingResetFrame !== null) {
+      if (window.cancelAnimationFrame) {
+        window.cancelAnimationFrame(levelState.pendingResetFrame);
+      } else {
+        window.clearTimeout(levelState.pendingResetFrame);
       }
-    });
-    select.addEventListener('blur', function() {
-      window.setTimeout(function() {
-        var status = document.getElementById('pt-huc-theme-status');
-        if (status && status.textContent === 'Selecting HUC fill…') {
-          setHucThemeStatus('', 0);
+      levelState.pendingResetFrame = null;
+    }
+    if (levelState.resetPending) {
+      diagnostics.canceledMembershipResetCount += 1;
+      levelState.lastResetCancelReason = reason || null;
+    }
+    levelState.resetPending = false;
+    levelState.pendingResetReason = null;
+  }
+
+  function removeLingeringInactivePaths(levelState) {
+    var removed = 0;
+    for (var i = 0; i < levelState.layers.length; i++) {
+      var layer = levelState.layers[i];
+      if (!layer || !layer._map) continue;
+
+      closeLayerInteraction(layer, 'inactive HUC path cleanup');
+      if (
+        levelState.root &&
+        typeof levelState.root.hasLayer === 'function' &&
+        levelState.root.hasLayer(layer) &&
+        typeof levelState.root.removeLayer === 'function'
+      ) {
+        levelState.root.removeLayer(layer);
+        levelState.members[i] = false;
+        diagnostics.membershipOperationCount += 1;
+      }
+      if (layer._map && map.removeLayer) {
+        map.removeLayer(layer);
+      }
+      removed += 1;
+    }
+    diagnostics.forcedInactivePathRemovalCount += removed;
+    return removed;
+  }
+
+  function restoreDetachedLevelMembership(
+    levelState,
+    generation,
+    reason,
+    started
+  ) {
+    if (
+      destroyed ||
+      levelState.active ||
+      generation !== levelState.lifecycleGeneration
+    ) {
+      diagnostics.staleCallbacksPrevented += 1;
+      return false;
+    }
+
+    if (!inactiveLevelDetached(levelState)) return false;
+
+    var restored = 0;
+    for (var i = 0; i < levelState.layers.length; i++) {
+      if (
+        !levelState.members[i] &&
+        levelState.root &&
+        typeof levelState.root.addLayer === 'function'
+      ) {
+        levelState.root.addLayer(levelState.layers[i]);
+        levelState.members[i] = true;
+        restored += 1;
+      }
+    }
+
+    diagnostics.membershipOperationCount += restored;
+    diagnostics.membershipResetOperationCount += restored;
+    levelState.eligibleCount = levelState.members.filter(function(member) {
+      return member;
+    }).length;
+    levelState.appliedMinimumBlm = (
+      levelState.eligibleCount === levelState.layers.length
+    ) ? 0 : null;
+    levelState.lastMembershipResetMs = nowMs() - started;
+    levelState.lastMembershipResetOperations = restored;
+    levelState.lastMembershipResetDetached = true;
+    levelState.lastMembershipResetRendererPaths =
+      rendererPathCount(levelState);
+    levelState.lastResetReason = reason;
+    levelState.resetPending = false;
+    levelState.pendingResetReason = null;
+    levelState.pendingResetFrame = null;
+    levelState.dirty = (
+      levelState.dirty ||
+      levelState.appliedTheme !== defaultHucTheme
+    );
+    return true;
+  }
+
+  function resetInactiveLevelSession(levelState, reason) {
+    cancelInactiveLevelReset(levelState, 'superseded inactive reset');
+    var generation = levelState.lifecycleGeneration;
+    var started = nowMs();
+
+    levelState.selectedTheme = defaultHucTheme;
+    levelState.minimumBlmPct = 0;
+    levelState.activationPending = false;
+    levelState.resetPending = true;
+    levelState.pendingResetReason = reason;
+    levelState.lastResetReason = reason;
+    levelState.lastMembershipResetDetached = null;
+    levelState.lastMembershipResetRendererPaths =
+      rendererPathCount(levelState);
+    levelState.dirty = (
+      levelState.dirty ||
+      levelState.appliedTheme !== defaultHucTheme
+    );
+
+    /*
+     * Some layer-control paths publish overlayremove while FeatureGroup
+     * removal is still unwinding. Wait only until the current task completes,
+     * then require the group, every retained child, and every Canvas path to
+     * be detached before restoring filtered members to the inactive group.
+     */
+    var finalizeAfterRemoval = function() {
+      if (
+        destroyed ||
+        levelState.active ||
+        generation !== levelState.lifecycleGeneration
+      ) {
+        diagnostics.staleCallbacksPrevented += 1;
+        return;
+      }
+
+      if (restoreDetachedLevelMembership(
+        levelState,
+        generation,
+        reason,
+        started
+      )) {
+        return;
+      }
+
+      diagnostics.membershipResetWhileMountedCount += 1;
+      removeLingeringInactivePaths(levelState);
+      levelState.pendingResetFrame = requestFrame(function() {
+        levelState.pendingResetFrame = null;
+        if (restoreDetachedLevelMembership(
+          levelState,
+          generation,
+          reason,
+          started
+        )) {
+          return;
         }
-      }, 250);
-    });
-    select.addEventListener('change', function(event) {
-      setTheme(event.target.value, 'dropdown change');
-    });
-  } else {
-    console.warn('BRIM HUC controller: theme select was not found.');
+        if (
+          !destroyed &&
+          !levelState.active &&
+          generation === levelState.lifecycleGeneration
+        ) {
+          diagnostics.inactiveInvariantFailureCount += 1;
+          levelState.lastMembershipResetMs = nowMs() - started;
+          levelState.lastMembershipResetOperations = 0;
+          levelState.lastMembershipResetDetached = false;
+          levelState.lastMembershipResetRendererPaths =
+            rendererPathCount(levelState);
+          levelState.resetPending = false;
+          levelState.pendingResetReason = null;
+        }
+      });
+    };
+
+    if (restoreDetachedLevelMembership(
+      levelState,
+      generation,
+      reason,
+      started
+    )) {
+      return;
+    }
+
+    diagnostics.deferredMembershipResetCount += 1;
+    if (typeof Promise !== 'undefined' && Promise.resolve) {
+      Promise.resolve().then(finalizeAfterRemoval);
+    } else {
+      window.setTimeout(finalizeAfterRemoval, 0);
+    }
+  }
+
+  function setMinimumBlmPct(nextMinimum, reason) {
+    var parsed = Math.round(Number(nextMinimum));
+    if (!isFinite(parsed)) return false;
+    parsed = Math.max(0, Math.min(100, parsed));
+
+    var focused = focusedLevelState();
+    if (!focused) return false;
+
+    if (parsed === focused.minimumBlmPct) {
+      diagnostics.sameThresholdNoops += 1;
+      return false;
+    }
+
+    focused.minimumBlmPct = parsed;
+    if (minimumInput && Number(minimumInput.value) !== parsed) {
+      minimumInput.value = String(parsed);
+    }
+    if (minimumValue) minimumValue.textContent = parsed + '%';
+    setHucThemeStatus('Updating HUC membership\u2026');
+    requestHucApply(
+      activeLevelNames(),
+      reason || 'minimum %BLM change'
+    );
+    return true;
   }
 
   function eventLevel(event) {
@@ -942,22 +1599,33 @@ function(el, x, hucThemeData) {
       return;
     }
 
-    closeCurrentHucTooltip('HUC overlay add or level switch');
     var levelState = hucLevels[levelName];
+    if (levelState.active) {
+      diagnostics.sameLevelNoops += 1;
+      return;
+    }
+    closeCurrentHucTooltip('HUC overlay add or level switch');
     var hadVisibleHuc = activeLevelNames().length > 0;
+    cancelInactiveLevelReset(levelState, 'HUC overlay add');
     cancelStyleWork('HUC overlay add');
     levelState.active = true;
+    levelState.activationPending = (
+      levelName === 'huc10' ||
+      levelName === 'huc12'
+    );
+    levelState.lastActivated = ++activationSequence;
+    focusedHucLevel = levelName;
     diagnostics.activationCount += 1;
 
     if (!hadVisibleHuc) {
-      resetHucThemeToBoundariesOnly();
+      hucCardUserHidden = false;
     }
 
     /*
      * Leaflet has queued this Canvas renderer's first draw but has not painted
      * it yet. Prime all options now so activation never shows stale fill.
      */
-    primeActivatedLevel(levelState, hucTheme);
+    primeActivatedLevel(levelState, levelState.selectedTheme);
     refreshVisibleHucLayers();
     updateLegend();
 
@@ -965,7 +1633,7 @@ function(el, x, hucThemeData) {
      * If another level was in a canceled, partial theme job, finish it with the
      * current selection. The newly activated level is already complete.
      */
-    requestThemeApply(activeLevelNames(), 'HUC overlay add reconciliation');
+    requestHucApply(activeLevelNames(), 'HUC overlay add reconciliation');
   });
 
   listen(map, 'overlayremove', function(event) {
@@ -975,16 +1643,22 @@ function(el, x, hucThemeData) {
       return;
     }
 
+    var levelState = hucLevels[levelName];
+    if (!levelState.active) {
+      diagnostics.sameLevelNoops += 1;
+      return;
+    }
     closeCurrentHucTooltip('HUC overlay remove');
     cancelStyleWork('HUC overlay remove');
-    hucLevels[levelName].active = false;
+    levelState.active = false;
+    levelState.activationPending = false;
+    resetInactiveLevelSession(levelState, 'HUC overlay remove');
     diagnostics.deactivationCount += 1;
     if (map.closePopup) map.closePopup();
     refreshVisibleHucLayers();
 
     var remaining = activeLevelNames();
     if (remaining.length === 0) {
-      resetHucThemeToBoundariesOnly();
       if (
         sharedHucRenderer &&
         map.hasLayer &&
@@ -996,7 +1670,9 @@ function(el, x, hucThemeData) {
       updateLegend();
       setHucThemeStatus('', 0);
     } else {
-      requestThemeApply(remaining, 'HUC overlay remove reconciliation');
+      if (focusedHucLevel === levelName) focusedHucLevel = null;
+      updateLegend();
+      requestHucApply(remaining, 'HUC overlay remove reconciliation');
     }
   });
 
@@ -1036,8 +1712,43 @@ function(el, x, hucThemeData) {
         groupName: state.groupName,
         registeredCount: state.layers.length,
         expectedCount: state.expectedCount,
+        checked: layerControlChecked(state),
         active: state.active,
+        focused: focusedHucLevel === levelName,
+        mapHasGroup: !!(
+          state.root &&
+          map.hasLayer &&
+          map.hasLayer(state.root)
+        ),
+        groupMapAttached: !!(state.root && state.root._map),
+        mountedCount: mountedLayerCount(state),
+        rendererPathCount: rendererPathCount(state),
+        selectedTheme: state.selectedTheme,
+        minimumBlmPct: state.minimumBlmPct,
         appliedTheme: state.appliedTheme,
+        appliedMinimumBlm: state.appliedMinimumBlm,
+        eligibleCount: state.eligibleCount,
+        memberCount: state.members.filter(function(member) {
+          return member;
+        }).length,
+        lastMembershipResetMs: state.lastMembershipResetMs,
+        lastMembershipResetOperations:
+          state.lastMembershipResetOperations,
+        lastMembershipResetDetached:
+          state.lastMembershipResetDetached,
+        lastMembershipResetRendererPaths:
+          state.lastMembershipResetRendererPaths,
+        lastApplyReason: state.lastApplyReason,
+        lastResetReason: state.lastResetReason,
+        lastResetCancelReason: state.lastResetCancelReason,
+        lifecycleGeneration: state.lifecycleGeneration,
+        resetPending: state.resetPending,
+        pendingResetReason: state.pendingResetReason,
+        activationPending: state.activationPending,
+        stylePending: !!(
+          activeStyleJob &&
+          activeStyleJob.levels.indexOf(levelName) >= 0
+        ),
         dirty: state.dirty,
         renderer: rendererName(state.renderer),
         rendererMounted: !!(
@@ -1049,28 +1760,65 @@ function(el, x, hucThemeData) {
     });
 
     return {
-      currentTheme: hucTheme,
+      currentTheme: currentFocusedTheme(),
+      focusedLevel: focusedHucLevel,
+      currentMinimumBlm: currentFocusedMinimumBlm(),
+      eligibleCount: activeLevelNames().reduce(function(total, levelName) {
+        return total + hucLevels[levelName].eligibleCount;
+      }, 0),
       activeLevels: activeLevelNames(),
       generation: styleGeneration,
       applying: activeStyleJob ? {
         theme: activeStyleJob.theme,
+        themes: activeStyleJob.themes,
+        minimumBlmPct: activeStyleJob.minimumBlmPct,
+        minimumBlmPcts: activeStyleJob.minimumBlmPcts,
         reason: activeStyleJob.reason,
         levels: activeStyleJob.levels
       } : null,
       levels: levels,
       retainedFeatureObjects: Object.keys(hucThemeLookup).length,
+      cardVisible: !!(
+        card &&
+        card.style.display !== 'none' &&
+        !hucCardUserHidden
+      ),
+      cardUserHidden: hucCardUserHidden,
+      stylePending: scheduledStyleFrame !== null,
+      loadingIndicatorVisible: focusedLargeLevelHasPendingWork(),
+      pendingResetLevels: Object.keys(hucLevels).filter(function(levelName) {
+        return hucLevels[levelName].resetPending;
+      }),
       diagnostics: {
         registryBuildMs: diagnostics.registryBuildMs,
         mapScanCount: diagnostics.mapScanCount,
         styleOperationCount: diagnostics.styleOperationCount,
+        membershipOperationCount: diagnostics.membershipOperationCount,
+        membershipResetOperationCount:
+          diagnostics.membershipResetOperationCount,
+        membershipResetWhileMountedCount:
+          diagnostics.membershipResetWhileMountedCount,
+        deferredMembershipResetCount:
+          diagnostics.deferredMembershipResetCount,
+        canceledMembershipResetCount:
+          diagnostics.canceledMembershipResetCount,
+        forcedInactivePathRemovalCount:
+          diagnostics.forcedInactivePathRemovalCount,
+        inactiveInvariantFailureCount:
+          diagnostics.inactiveInvariantFailureCount,
+        featureOperationCount: diagnostics.featureOperationCount,
         optionPrimeCount: diagnostics.optionPrimeCount,
         styleJobCount: diagnostics.styleJobCount,
+        styleFilterJobCount: diagnostics.styleJobCount,
         canceledStyleJobs: diagnostics.canceledStyleJobs,
         staleCallbacksPrevented: diagnostics.staleCallbacksPrevented,
         activationCount: diagnostics.activationCount,
         deactivationCount: diagnostics.deactivationCount,
         ignoredOverlayEvents: diagnostics.ignoredOverlayEvents,
         sameThemeNoops: diagnostics.sameThemeNoops,
+        sameThresholdNoops: diagnostics.sameThresholdNoops,
+        sameLevelNoops: diagnostics.sameLevelNoops,
+        legendUpdateCount: diagnostics.legendUpdateCount,
         tooltipOpenCount: diagnostics.tooltipOpenCount,
         tooltipCloseCount: diagnostics.tooltipCloseCount,
         tooltipReplacementCount: diagnostics.tooltipReplacementCount,
@@ -1085,6 +1833,7 @@ function(el, x, hucThemeData) {
         lastPopupSuppressionReason:
           diagnostics.lastPopupSuppressionReason,
         listenerCount: listenerRecords.length,
+        domListenerCount: domListenerRecords.length,
         destroyed: destroyed,
         lastApplyMs: diagnostics.lastApplyMs,
         lastApplyReason: diagnostics.lastApplyReason,
@@ -1200,6 +1949,15 @@ function(el, x, hucThemeData) {
     releaseHucPopupSuppression('controller destruction');
     closeCurrentHucTooltip('controller destruction');
     cancelStyleWork('controller destruction');
+    Object.keys(hucLevels).forEach(function(levelName) {
+      cancelInactiveLevelReset(
+        hucLevels[levelName],
+        'controller destruction'
+      );
+      hucLevels[levelName].activationPending = false;
+    });
+    hucThemeStatusMessage = '';
+    renderHucThemeStatus();
 
     if (hucThemeStatusTimer !== null) {
       window.clearTimeout(hucThemeStatusTimer);
@@ -1222,6 +1980,16 @@ function(el, x, hucThemeData) {
       } catch (listenerError) {}
     });
     listenerRecords = [];
+    domListenerRecords.forEach(function(record) {
+      try {
+        record.target.removeEventListener(
+          record.eventName,
+          record.handler,
+          false
+        );
+      } catch (domListenerError) {}
+    });
+    domListenerRecords = [];
 
     if (
       documentClearClickHandler &&
@@ -1259,13 +2027,45 @@ function(el, x, hucThemeData) {
       documentPopupResetHandler = null;
     }
 
-    var mapContainer = getMapContainerForHucControls();
-    if (mapContainer && mapContainer.querySelector) {
-      var control = mapContainer.querySelector('.pt-huc-theme-control');
-      var legend = mapContainer.querySelector('.pt-huc-theme-legend');
-      if (control && typeof control.remove === 'function') control.remove();
-      if (legend && typeof legend.remove === 'function') legend.remove();
+    if (detachableState && typeof detachableState.destroy === 'function') {
+      detachableState.destroy(true, true);
+      detachableState = null;
+    } else if (card && card.parentNode) {
+      card.parentNode.removeChild(card);
     }
+    if (cardControl && typeof cardControl.remove === 'function') {
+      try { cardControl.remove(); } catch (controlError) {}
+    }
+    card = null;
+    select = null;
+    minimumInput = null;
+    minimumValue = null;
+    visibleCount = null;
+    legendBody = null;
+    activeContext = null;
+    statusNode = null;
+  }
+
+  createCard();
+  var installedActiveLevels = activeLevelNames();
+  if (installedActiveLevels.length) {
+    focusedHucLevel = installedActiveLevels.sort(function(a, b) {
+      return hucLevels[b].lastActivated - hucLevels[a].lastActivated;
+    })[0];
+    installedActiveLevels.forEach(function(levelName) {
+      var levelState = hucLevels[levelName];
+      primeActivatedLevel(levelState, levelState.selectedTheme);
+      levelState.activationPending = (
+        levelName === 'huc10' ||
+        levelName === 'huc12'
+      );
+      levelState.dirty = !levelState.activationPending;
+    });
+    updateLegend();
+    requestHucApply(
+      installedActiveLevels,
+      'active controller installation'
+    );
   }
 
   listen(map, 'unload', destroy);
@@ -1274,6 +2074,10 @@ function(el, x, hucThemeData) {
     stats: stats,
     setTheme: function(theme) {
       return setTheme(theme, 'console');
+    },
+    focusLevel: focusLevel,
+    setMinimumBlmPct: function(minimum) {
+      return setMinimumBlmPct(minimum, 'console');
     },
     closeTooltip: function() {
       return closeCurrentHucTooltip('console');
@@ -1291,7 +2095,6 @@ function(el, x, hucThemeData) {
   };
 
   if (profileEnabled) enableProfile();
-  updateLegend();
   console.log(
     'BRIM HUC controller loaded:',
     Object.keys(hucThemeLookup).length,

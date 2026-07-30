@@ -4,18 +4,6 @@
 ##   Build the compact browser payload and inject the unified thematic card for
 ##   the Local Bulletin 118 groundwater-basin layer.
 
-pt_bulletin118_count_rows <- function(values, levels, colors) {
-  counts <- table(factor(values, levels = levels))
-  lapply(seq_along(levels), function(i) {
-    level <- levels[[i]]
-    list(
-      color = unname(colors[[level]]),
-      label = level,
-      count = unname(as.integer(counts[[i]]))
-    )
-  })
-}
-
 pt_build_bulletin118_theme_data <- function(gw) {
   required <- c(
     "subbasin_num",
@@ -70,11 +58,11 @@ pt_build_bulletin118_theme_data <- function(gw) {
     )
   }
 
-  percent_blm <- suppressWarnings(as.numeric(gw$percentBLMland))
-  if (any(!is.na(percent_blm) & (percent_blm < 0 | percent_blm > 100))) {
-    stop("Bulletin 118 %BLM values must be within 0 to 100.", call. = FALSE)
-  }
-  blm_bins <- as.character(pt_bulletin118_blm_bin(percent_blm))
+  percent_blm <- pt_blm_pct_values(
+    gw$percentBLMland,
+    "Bulletin 118 %BLM values"
+  )
+  blm_bins <- as.character(pt_blm_pct_bin(percent_blm))
 
   layer_ids <- pt_bulletin118_layer_id(keys)
   if (anyDuplicated(layer_ids)) {
@@ -105,7 +93,7 @@ pt_build_bulletin118_theme_data <- function(gw) {
         ]]
       ),
       blm_bin = blm_bin,
-      blm_color = unname(PT_BULLETIN118_BLM_COLORS[[
+      blm_color = unname(PT_BLM_PCT_COLORS[[
         if (is.na(blm_bin)) "Missing" else blm_bin
       ]]),
       display_label = value_or_blank("label", i),
@@ -133,11 +121,7 @@ pt_build_bulletin118_theme_data <- function(gw) {
     )
   })
 
-  blm_rows <- pt_bulletin118_count_rows(
-    values = blm_bins,
-    levels = PT_BULLETIN118_BLM_BIN_LEVELS,
-    colors = PT_BULLETIN118_BLM_COLORS
-  )
+  blm_rows <- pt_blm_pct_legend_rows(percent_blm)
 
   list(
     records = unname(records),

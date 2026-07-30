@@ -144,7 +144,7 @@ pt_add_huc_layer <- function(m, huc_all, nm, map_display) {
     huc_sf$pt_huc_layer_id <- paste0(nm, "_", seq_len(nrow(huc_sf)))
   }
   
-  ## HUC polygons start as boundary-only layers. The HUC fill dropdown added
+  ## HUC polygons start as boundary-only layers. The HUC thematic card added
   ## in 04_build_portatreasure2_core_map.r restyles these same polygons in
   ## place using precomputed fill-color fields from the cache.
   ##

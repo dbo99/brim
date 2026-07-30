@@ -892,7 +892,8 @@ pt_ops_live_shared_helpers_js <- function() {
     var cls = '';
     if (txt.indexOf('ops live layers') >= 0) {
       cls = 'pt-brim-panel-ops';
-    } else if (txt.indexOf('basemaps / local layers') >= 0 || txt.indexOf('huc fill') >= 0 ||
+    } else if (txt.indexOf('basemaps / local layers') >= 0 ||
+        txt.indexOf('huc fill') >= 0 || txt.indexOf('huc thematic') >= 0 ||
         (txt.indexOf('basemaps') >= 0 && txt.indexOf('no basemap') >= 0)) {
       cls = 'pt-brim-panel-local';
     } else if (txt.indexOf('external layers') >= 0 || txt.indexOf('external overlays') >= 0 ||
@@ -921,7 +922,7 @@ pt_ops_live_shared_helpers_js <- function() {
     var panelSelectors = [
       '.leaflet-control',
       '.leaflet-control-layers',
-      '.pt-huc-theme-control',
+      '.pt-huc-theme-card',
       '.pt-ops-live-wrap',
       '.pt-ops-live-header',
       '.pt-ops-live-body',

@@ -3,23 +3,26 @@
 ## Scope
 
 This note covers the six Local HUC polygon levels as one maintained family:
-HUC2, HUC4, HUC6, HUC8, HUC10, and HUC12. The source implementation changes
-browser rendering and theme lifecycle plus the presentation order of existing
-parent rows. It does not change HUC geometry, identifiers, hierarchy values,
-BLM percentages/areas, PRISM/BCMv8 calculations, labels, or retained analytical
-products.
+HUC2, HUC4, HUC6, HUC8, HUC10, and HUC12. The maintained implementation
+includes browser rendering, theme/card lifecycle, fixed `%BLM` visualization,
+and the presentation order of existing parent rows. It does not change HUC
+geometry, identifiers, hierarchy values, BLM percentages/areas, PRISM/BCMv8
+calculations, labels, or retained analytical products.
 
 Implementation:
 
+- `03_functions/blm_pct_theme_helpers.r`
 - `03_functions/leaflet_layer_local_polygon_helpers.r`
 - `03_functions/leaflet_huc_theme_helpers.r`
 - `03_functions/js/brim_huc_theme_control.js`
+- `03_functions/js/brim_legend_closeout_helpers.js`
 - `03_functions/js/leaflet_tools_adddata_panel.js`
 - `03_functions/popup_helpers.r`
 
 Focused validation and retained-product diagnostics:
 
 - `qa/test_huc_family.R`
+- `qa/test_huc_blm_theme.R`
 - `qa/test_huc_family_controller.js`
 - `qa/qa_huc_family_performance.R`
 
@@ -72,11 +75,54 @@ current production products require the retained products and are deliberately
 left to `qa_huc_family_performance.R`; the lean source repository does not
 contain those RDS files.
 
-The exact analytical-to-map code-set reconciliation also requires the external
-analytical and map RDS products. Current source shows no intended row-reduction
-step between the retained family and the map-facing family, but that is an
-inference until the diagnostic is run in `BRIM_v0.38_codex_ship` or full
-production.
+Exact analytical-to-map code-set reconciliation requires the external
+analytical and map RDS products. The read-only audit described below used both
+the codex-ship and production copies; the lean source fixtures remain
+non-authoritative.
+
+## Fixed BLM-managed-land theme
+
+The retained field is `percentBLMland`. It is a numeric percentage in the
+0–100 scale, calculated as `100 * blm_area_sqmi / total_area_sqmi` in
+EPSG:3310 and rounded to two decimal places by
+`02_preprocess/02_huc_gw_county_pct_blm.r`. The map cache retains the same
+field; the final-map payload classifies it without spatial recalculation or a
+core-cache rewrite.
+
+A read-only 2026-07-30 audit of the codex-ship map-facing product confirmed all
+6,377 rows, with no missing or nonfinite values:
+
+| Layer | n | 0% | >0–1% | >1–5% | >5–15% | >15–30% | >30–50% | >50–75% | >75% | Missing |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| HUC2 | 4 | 0 | 1 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+| HUC4 | 16 | 1 | 1 | 9 | 2 | 1 | 2 | 0 | 0 | 0 |
+| HUC6 | 24 | 2 | 3 | 11 | 1 | 5 | 1 | 1 | 0 | 0 |
+| HUC8 | 140 | 19 | 34 | 41 | 17 | 13 | 13 | 2 | 1 | 0 |
+| HUC10 | 1,128 | 407 | 219 | 147 | 116 | 67 | 71 | 55 | 46 | 0 |
+| HUC12 | 5,065 | 2,743 | 519 | 384 | 339 | 262 | 210 | 218 | 390 | 0 |
+| **Combined** | **6,377** | **3,172** | **777** | **594** | **476** | **348** | **297** | **276** | **437** | **0** |
+
+The shared neutral helper `03_functions/blm_pct_theme_helpers.r` owns the
+classification used by both HUC and Bulletin 118:
+
+| Bin | Color |
+|---|---:|
+| 0% | `#F2F2F2` |
+| >0–1% | `#F1E6F4` |
+| >1–5% | `#DFC7E5` |
+| >5–15% | `#C9A3D2` |
+| >15–30% | `#AA78B7` |
+| >30–50% | `#87539A` |
+| >50–75% | `#673A7B` |
+| >75% | `#452357` |
+| Missing | `#9E9E9E` |
+
+The bins are fixed and absolute. They are not recomputed by level, visible
+extent, or browser state. `pt_build_huc_theme_data()` classifies each retained
+value once while preparing the compact final-map payload and builds per-level
+counted legend rows from the same classifier. Purple keeps the percentage
+theme distinct from the yellow BLM-managed-land layer, blue precipitation, and
+green recharge.
 
 ## Previous browser architecture and bottlenecks
 
@@ -133,21 +179,108 @@ per-group index:
 - one root, layer array, expected count, and renderer reference per HUC level;
 - no `map.eachLayer()` traversal;
 - ordinary unrelated overlay events are ignored;
-- only active HUC levels are theme targets;
+- only the focused active HUC level is a theme or threshold target;
 - same-theme selection is a no-op;
-- theme work is frame-budgeted in approximately 8 ms slices;
+- same-threshold selection is a no-op;
+- repeated same-level requests are no-ops;
+- theme and membership work share one frame-budgeted scheduler with
+  approximately 8 ms slices;
 - a generation token cancels stale work after rapid selection, off, or clear;
 - an activated Canvas level is synchronously primed before its already-queued
   first draw, preventing an inactive theme from flashing;
-- when the last HUC closes, the established behavior resets the dropdown to
-  boundaries-only; and
-- legends are derived only from active-level state.
+- the first registry option and fresh-controller default are
+  `Boundaries only (no fill)`;
+- each active level owns its current-session theme and minimum-%BLM threshold;
+- ordinary off resets only that level to boundaries and 0%, then restores full
+  retained membership only after group, child, and Canvas-path detachment; and
+- the selector, slider, visible count, and legend follow focused-level state.
 
 Leaflet still retains one feature object per polygon so feature identity and
 interaction semantics remain unchanged. Activation and off still iterate the
 children of one Leaflet FeatureGroup; Canvas removes the per-feature SVG DOM
 cost, but real browser measurement must establish the remaining projection and
 group-iteration cost.
+
+### Unified thematic card
+
+One `bottomleft` Local-brown card owns the selector, minimum-%BLM filter,
+active HUC context, visible count, and dynamic legend. Its registry order is:
+
+1. `Boundaries only (no fill)`
+2. `BLM-managed land — %`
+3. `PRISM precip - in/yr`
+4. `PRISM precip - kaf/yr`
+5. `BCMv8 recharge - in/yr`
+6. `BCMv8 recharge - kaf/yr`
+
+The four prior scientific themes retain their relative order and existing
+level-specific classifications. The `%BLM` legend shows all fixed classes and
+counts only for the focused active level. The selector and slider follow that
+level and change only its current-session state. Multiple active HUC levels
+share the same card, scheduler, and fixed `%BLM` colors while retaining
+separate current-session themes, thresholds, memberships, and counts.
+
+HUC legends contain no explanatory footer or note container. Boundaries-only
+leaves the legend body absent rather than rendering a separator or placeholder.
+For focused HUC10/HUC12 work, the operational status shows a compact spinner
+and `Loading…` only while that level is present in the existing scheduler job.
+It has no independent timer or animation-frame loop. Cancellation, off, focus
+change, clear, completion, and controller destruction remove the spinner.
+
+The card uses `BRIM.legendCloseout.makeDetachable()` for the shared lower-left
+stack, undock/dock action, detached dragging, viewport clamp, redock, and
+responsive overflow. The dock action is immediately left of X. X hides only
+the card; it does not deactivate geometry or reset session state. The first HUC
+activation after an all-off state restores exactly one card, and level
+switching updates that same card. Controller destruction removes its DOM
+listeners, detachable state, and control.
+
+### Minimum `%BLM` membership
+
+The slider ranges from 0 through 100 in one-point steps and uses the retained
+predicate `percentBLMland >= selected threshold`. Zero includes every feature,
+including a future missing value; a positive threshold excludes missing or
+nonfinite values. Excluded paths are removed from the active level's existing
+FeatureGroup, so they cannot intercept hover, click, or popup events. Eligible
+paths are restyled before the same object is re-added. No geometry, popup,
+tooltip, or polygon object is reconstructed.
+
+The threshold belongs to the focused level's current active session. Ordinary
+overlay removal cancels stale work and resets only that level to 0%. Membership
+restoration now requires `map.hasLayer(root) === false`, `root._map === null`,
+zero retained children with `_map`, and zero retained paths in the shared
+Canvas registry. If `overlayremove` arrives while the FeatureGroup removal pass
+is still unwinding, one generation-guarded event-loop finalizer performs those
+checks before restoring missing retained members. A single frame verification
+uses normal Leaflet removal only if a child is still mounted.
+
+This guard matches Leaflet 1.3.1's removal order. `Map.removeLayer(root)` first
+removes the FeatureGroup children, deletes the root from the map registry, and
+fires root `layerremove` (which the layer control translates to
+`overlayremove`); only after those handlers return does it clear `root._map`.
+Therefore `map.hasLayer(root)` is already false inside `overlayremove` while
+`root._map` still points at the map. Calling `root.addLayer()` in that interval
+mounts the restored child as an independent path after the group's child
+removal pass, which is the ghost-path failure.
+
+Detached `addLayer()` calls do not project or draw Canvas paths, and work is
+bounded by the level's direct retained registry. Immediate reactivation
+invalidates the old reset generation; the normal active scheduler then owns any
+needed membership reconciliation. The synchronous activation option prime
+applies fresh boundaries before the next paint, so hidden polygons are not
+restyled merely to perform an off reset.
+
+The 2026-07-30 retained-data audit produced:
+
+| Layer | 0% | 1% | 50% | 70% | 75% | 100% |
+|---|---:|---:|---:|---:|---:|---:|
+| HUC2 | 4 | 3 | 0 | 0 | 0 | 0 |
+| HUC4 | 16 | 14 | 0 | 0 | 0 | 0 |
+| HUC6 | 24 | 19 | 1 | 0 | 0 | 0 |
+| HUC8 | 140 | 87 | 3 | 1 | 1 | 0 |
+| HUC10 | 1,128 | 502 | 101 | 59 | 46 | 0 |
+| HUC12 | 5,065 | 1,805 | 608 | 431 | 390 | 7 |
+| **Combined** | **6,377** | **2,430** | **713** | **491** | **437** | **7** |
 
 ### HUC hover-tooltip lifecycle
 
@@ -172,8 +305,10 @@ accumulate handlers.
 within a large watershed instead of being anchored at the polygon center.
 Sticky affects tooltip position, not exclusivity; the lifecycle helper now
 supplies exclusivity and deterministic closure without changing tooltip
-contents, popup behavior, thematic styling, Canvas rendering, or HUC
-interactivity.
+interaction, popup behavior, thematic styling, Canvas rendering, or HUC
+interactivity. Every level's hover now ends with
+`BLM-managed land: 12.3%`, formatted to one decimal place from retained
+`percentBLMland`, with `0.0%` and `Not available` fallbacks.
 
 ### Marquee/box-zoom popup suppression
 
@@ -236,11 +371,11 @@ markup remain in the same popup builder.
 
 Clear Local and Clear All continue to click the normal BRIM layer-control
 checkboxes. Their capture-phase HUC guard closes the current tooltip
-immediately; the HUC `overlayremove` handler then synchronously invalidates
-scheduled theme work, marks the level inactive, closes popup/tooltip state, and
-updates or removes the legend. It does not scan or restyle the level being
-removed. When another level was partially styled by a canceled job, only
-active dirty levels are reconciled.
+and cancels its current scheduler job immediately; each HUC `overlayremove`
+then marks the level inactive, closes popup/tooltip state, and updates or hides
+the unified card. It does not restyle the level being removed. When another
+level was partially styled by a canceled job, only active dirty levels are
+reconciled.
 
 HUC label groups, their declustering thresholds, and source/label checkbox
 synchronization are unchanged. Measure continues to use BRIM's existing pane
@@ -251,34 +386,23 @@ its current hover.
 
 ## Build implications
 
-The Canvas renderer, hidden-start lifecycle, controller, diagnostics, and
-legend behavior are final-map code. With a cache that already contains the
-desired popup HTML, those changes require only:
+The fixed `%BLM` lookup, registry order/default, slider, hover construction,
+unified card, controller, diagnostics, and shared-card registration are
+final-map code. HUC and Bulletin hover strings are created when their retained
+map objects are passed to `addPolygons()`; they are not stored in those map
+caches. Because both audited products already contain `percentBLMland`, this
+change requires only:
 
 ```r
 source("run_build_map.r")
 build_final_map_only()
 ```
 
-The popup order is materialized in each HUC row's `popup_html` inside
-`huc_all_map.rds`. The minimum supported runner that refreshes it is:
+No core-cache, label-cache, raw HUC, `%BLM`, PRISM, or BCMv8 preprocessing is
+required. Retained `popup_html` is unchanged; unlike the new hover rows, a
+future retained-popup-content change could require a core-cache rebuild.
 
-```r
-source("run_build_map.r")
-rebuild_core_cache_and_map()
-```
-
-That function runs `05_map_build/02_build_core_map_cache.r` and then
-`05_map_build/04_build_portatreasure2_core_map.r`. The current runner does not
-expose a supported HUC-only core-cache function, so the core-cache build
-rewrites the normal core cache outputs even though only HUC popup HTML changed.
-No raw HUC preprocessor, climate/recharge preprocessor, label-cache rebuild, or
-`rebuild_everything_from_cache_and_map()` is required. No production cache was
-regenerated during this source gate.
-
-The hover-tooltip lifecycle follow-up is browser-only. Once the popup-order
-cache is already current, it requires only `build_final_map_only()` and no core
-cache or preprocessing rebuild.
+No production cache or HTML was regenerated during this source gate.
 
 ## Source QA
 
@@ -286,24 +410,43 @@ Run from the repository root:
 
 ```sh
 Rscript qa/test_huc_family.R
+Rscript qa/test_huc_blm_theme.R
+Rscript qa/test_huc_blm_theme.R \
+  "/path/to/huc_all_map.rds" "/path/to/gw_bull118_map.rds"
 node qa/test_huc_family_controller.js
 ```
 
 The R fixture checks all six popup orders with recognizable parent labels,
-required scientific popup fields, unique theme IDs, complete four-theme legend
-records, a hidden-group call before `addPolygons`, explicit JavaScript Canvas
-serialization, the HUC pane, and retained popup/hover bindings.
+required scientific popup fields, final one-decimal `%BLM` hover rows and
+fallbacks, unique theme IDs, complete five-theme legend records, a hidden-group
+call before `addPolygons`, explicit JavaScript Canvas serialization, the HUC
+pane, and retained popup/hover bindings.
+
+The focused `%BLM` fixture checks the exact 6,377-row per-level and combined
+distribution, representative `>=` threshold counts, shared
+labels/colors/classifier, first/default registry state, one lookup row per
+feature, unique level/code keys, retained numeric filter values, fixed lookup
+colors, and active-level legend counts. With HUC and Bulletin RDS arguments it
+performs the exact audits against both retained map caches read-only.
 
 The JavaScript fixture checks direct registry counts, Canvas reporting,
-active-level-only styling, unrelated-overlay isolation, same-theme no-op,
-rapid-theme cancellation, final-theme consistency, multi-level legend state,
-last-off reset, and boundary restoration on reactivation. It also checks
+active-level-only style/membership work, true FeatureGroup removal/re-add,
+missing/zero/inclusive-threshold semantics, same-theme/threshold/level no-ops,
+rapid threshold/theme cancellation, final-state consistency, note removal,
+boundaries/0% defaults, per-level current-session theme/threshold isolation
+through same-level, cross-level, and concurrent HUC8 `%BLM` / HUC12 PRISM
+sequences, exact HUC8 140/140 and HUC12 390/5,065-to-5,065 restoration, one
+unified detachable card, X behavior, and controller replacement. It also checks
 single-tooltip A-to-B replacement, mouseout, overlay removal, movement, both
 clear actions, Measure activation, popup click-through, destruction/rebuild,
 listener stability through repeated off/on cycles, BRIM and native box-zoom
 event ordering, repeated marquee release, post-marquee deliberate clicks,
 continued hover, and unrelated-popup isolation, while asserting that the
-controller source contains no `map.eachLayer` hot path.
+controller source contains no `map.eachLayer` hot path. The renderer-aware
+fixture models early `overlayremove` ordering and asserts checked/controller/
+group agreement plus per-level `_map` and Canvas-path counts across HUC2/4/6/8/
+10/12, HUC10→HUC8, HUC8→HUC12, HUC6→HUC10, rapid three-level cancellation,
+concurrent removal, and five reuse cycles spanning `%BLM`, PRISM, and BCMv8.
 
 Run the retained-product diagnostic after the analytical and map RDS files are
 available:
@@ -334,27 +477,39 @@ BRIM_HUC_PROFILE.downloadJson()
 BRIM_HUC_LOCAL.stats()
 ```
 
-`stats()` reports active levels, retained and expected object counts, renderer
-type/mount state, current/applied/dirty theme state, style/prime operations,
-canceled jobs, prevented stale callbacks, ignored unrelated events, same-theme
-no-ops, last apply duration, Canvas/SVG/DOM snapshots, long tasks, and heap
-values when Chrome exposes `performance.memory`. Map-scan count must remain
-zero. The Long Tasks observer is created only when profiling is enabled.
+`stats()` reports layer-control checked state when accessible, controller and
+focus state, group membership and `_map` state, retained and expected counts,
+mounted-child and per-level shared-Canvas path counts, selected/applied theme
+and threshold state, active and reset generations/reasons, reset timing and
+operations, pending jobs, loading visibility, card visibility, canceled/stale
+work, listener counts, Canvas/SVG/DOM snapshots, long tasks, and heap values
+when Chrome exposes `performance.memory`. Map-scan count must remain zero. The
+Long Tasks observer is created only when profiling is enabled.
 
 Use the actual timestamped self-contained output in `BRIM_v0.38_codex_ship`.
 Before/after runs must use the same Chrome version, machine, viewport, basemap,
 cache state, and DevTools setup. Record HTML/cache sizes separately.
 
-For every HUC level test first on, repeat on, off, popup, hover, labels, Measure
-suppression/restoration, Clear Local, Clear All, reactivation, and diagnostic
-feature counts. For HUC10 and HUC12 additionally record:
+For every HUC level test the default boundaries-only state, `%BLM`, all four
+climate/recharge choices, fixed colors/counts, slider thresholds 0/1/50/70/75/
+100, first on, repeat on, off, popup, hover, labels, Measure
+suppression/restoration, Clear Local, Clear All, reactivation, unified-card
+detach/drag/clamp/redock/X, and diagnostic feature counts. For HUC10 and HUC12
+additionally record:
 
 1. Statewide first and repeated activation.
 2. Dense and sparse pan, direct zoom, and incremental zoom.
-3. First theme, two additional themes, return to the first, and None.
-4. Rapid switching, switch-then-off, and switch-then-Clear Local.
+3. Boundaries-only, `%BLM`, two climate/recharge themes, and return.
+4. Rapid theme/threshold switching, switch-then-off, and switch-then-Clear
+   Local.
 5. Basemap responsiveness, long tasks, SVG/Canvas/DOM counts, object counts,
    heap behavior, and any stale or partially colored display.
+
+After each off or level transition, verify that every unchecked level reports
+zero mounted children and zero shared-renderer paths. Include HUC12→HUC8,
+HUC10→HUC8, HUC8→HUC12, HUC6→HUC10, rapid HUC12→HUC10→HUC8, concurrent
+HUC8+HUC12 with HUC12-only removal, and repeated three-level transitions after
+`%BLM`, PRISM, and BCMv8 fills.
 
 Open one popup at every level and verify the subject first, nearest parent
 second, progression to HUC2, unchanged values, and no parent section for HUC2.
@@ -373,7 +528,8 @@ No rendered-browser timings are claimed by this source gate.
 - Previous-theme style results are not stored as duplicate Leaflet layer
   states. R-precomputed color lookups are retained, same-theme is a no-op, and
   every real active-theme transition applies each active feature once.
-- Exact current production ring/multipart counts, analytical reconciliation,
-  activation/off timing, long tasks, heap behavior, and HTML size require the
-  codex-ship retained products and rendered Chrome gate.
+- Exact current production ring/multipart counts, activation/off timing, long
+  tasks, heap behavior, card rendering, Windows fractional-layout behavior,
+  and HTML size require the codex-ship retained products and rendered Chrome
+  gate.
 - No public `brim-live-data-feeds` file or interface was changed.
