@@ -138,6 +138,8 @@ SCRIPT_PATHS <- list(
   # ---- Preprocessors --------------------------------------------------------
   preprocess_blm_main           = "02_preprocess/01_blm_managed_and_held.r",
   preprocess_huc_gw_county      = "02_preprocess/02_huc_gw_county_pct_blm.r",
+  preprocess_bulletin118_sgma_2019 =
+    "02_preprocess/68_refresh_bulletin118_sgma_2019_priority.R",
   preprocess_cnrfc_stream       = "02_preprocess/03_cnrfc_stream_gages.r",
   preprocess_cnrfc_precip       = "02_preprocess/04_cnrfc_precip_gages.r",
 
@@ -266,6 +268,26 @@ rebuild_everything_from_cache_and_map <- function() {
     "Rebuild label cache"
   )
   
+  run_step(
+    SCRIPT_PATHS$build_final_map,
+    "Build final HTML"
+  )
+}
+
+# ---- 4.5 Refresh Bulletin 118 SGMA attributes, core cache, and map ----------
+
+refresh_bulletin118_sgma_2019_and_map <- function() {
+
+  run_step(
+    SCRIPT_PATHS$preprocess_bulletin118_sgma_2019,
+    "Refresh DWR SGMA 2019 Bulletin 118 attribute crosswalk"
+  )
+
+  run_step(
+    SCRIPT_PATHS$build_core_cache,
+    "Rebuild core cache"
+  )
+
   run_step(
     SCRIPT_PATHS$build_final_map,
     "Build final HTML"

@@ -55,6 +55,29 @@ vertical scroller. Undocked cards remain draggable and are clamped to the map
 viewport; docking restores their Leaflet control position. The header is part
 of the card and is not implemented as a sticky inner header.
 
+### Windows fractional-layout stability
+
+A Windows-only idle text jiggle in the CalSim `lbl` control and one BLM office
+legend row exposed a shared layout feedback risk. The responsive-stack helper
+formerly removed overflow before every measurement and observed its own corner
+`style` writes. At fractional device-pixel ratios, scrollbar/reflow and
+fractional bottom-offset measurements could alternate and schedule another
+layout pass.
+
+The shared helper now preserves settled overflow state while measuring, reserves
+a stable scrollbar gutter, rounds clamp and lower-left offsets to CSS pixels,
+compares before writing, and ignores MutationObserver records that exactly
+match its own layout signature. A small overflow hysteresis prevents
+single-pixel boundary toggling. Dock, detach, drag, viewport clamp, redock, and
+responsive scrolling remain enabled.
+
+`qa/test_shared_card_layout_stability.js` verifies that after a docked stack
+settles, delivering its own style-mutation records leaves zero queued animation
+frames and a second explicit layout pass performs zero new style writes.
+Windows browser retesting remains required because the source environment
+cannot reproduce Windows font rasterization, scrollbar metrics, display
+scaling, or browser zoom.
+
 ## SCAN data-to-interaction path
 
 The SCAN consumer path is:

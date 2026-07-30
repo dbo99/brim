@@ -30,6 +30,7 @@ source("00_config/config_run_flags.r")
 source("00_config/config_source_files.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
+source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
 
 # ==== 2. Load packages =======================================================
@@ -136,6 +137,17 @@ huc_all <- read_rds_checked(
 gw <- read_rds_checked(
   file.path(DIR$rds, "bull118gw_full.rds"),
   "Bulletin 118 groundwater basins"
+)
+
+## Join final 2019 SGMA priority attributes by exact basin/subbasin code.
+## This fails unless the 515-to-515 contract is complete and row order,
+## geometry, and every existing analytical field are unchanged.
+gw_sgma_2019_crosswalk <- pt_read_bulletin118_sgma_crosswalk(
+  SRC$bull118_sgma_2019_priority
+)
+gw <- pt_enrich_bulletin118_sgma_2019(
+  gw = gw,
+  crosswalk = gw_sgma_2019_crosswalk
 )
 
 county <- read_rds_checked(

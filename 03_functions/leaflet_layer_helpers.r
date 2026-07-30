@@ -18,6 +18,7 @@
 # during final-map-only builds as well as full core-cache rebuilds.  Keep this
 # dependency centralized here rather than duplicating fallback helper functions
 # inside downstream layer modules.
+source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
 
 source("03_functions/leaflet_layer_local_core_helpers.r")
