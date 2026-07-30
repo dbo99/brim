@@ -35,9 +35,11 @@ source("03_functions/cache_helpers.r")
 source("03_functions/leaflet_core_helpers.r")
 source("03_functions/leaflet_loading_helpers.r")
 source("03_functions/leaflet_ops_live_helpers.r")
+source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/leaflet_layer_helpers.r")
 source("03_functions/leaflet_label_helpers.r")
 source("03_functions/leaflet_huc_theme_helpers.r")
+source("03_functions/leaflet_bulletin118_theme_helpers.r")
 source("03_functions/leaflet_tools_adddata_helpers.r")
 source("03_functions/leaflet_local_upload_helpers.r")
 
@@ -945,7 +947,8 @@ m <- pt_add_blm_office_layer(
 m <- pt_add_county_gw_layers(
   m = m,
   county = layers$county,
-  gw = layers$gw
+  gw = layers$gw,
+  map_display = MAP_DISPLAY
 )
 
 
@@ -1425,6 +1428,11 @@ MAP_DISPLAY$default_base_group
 ## HUC thematic colors are scaled separately by HUC level, and the browser-side
 ## control/legend code is maintained in 03_functions/leaflet_huc_theme_helpers.r
 ## plus 03_functions/js/brim_huc_theme_control.js.
+
+m <- pt_add_bulletin118_theme_controls(
+  m = m,
+  gw = layers$gw
+)
 
 m <- pt_add_huc_theme_controls(
   m = m,

@@ -44,13 +44,31 @@ pt_add_blm_layers <- function(m, blm_core, blm_diffs) {
     )
 }
 
-pt_add_county_gw_layers <- function(m, county, gw) {
+pt_add_county_gw_layers <- function(m, county, gw, map_display) {
 
   gw$pt_gw_hover_html <- lapply(
     pt_make_gw_hover_tooltips(gw),
     htmltools::HTML
   )
-  
+  gw$pt_gw_layer_id <- pt_bulletin118_layer_id(gw$subbasin_num)
+  gw_group <- pt_layer_group_name("GW – Bull. 118")
+
+  ## Bulletin 118 starts off. Hide its FeatureGroup before registering the
+  ## polygons so its Canvas is not mounted/projected during startup.
+  if (!gw_group %in% map_display$default_visible_overlays) {
+    m <- leaflet::hideGroup(m, gw_group)
+  }
+
+  gw_renderer <- htmlwidgets::JS(
+    paste0(
+      "(function(){",
+      "var r=L.canvas({pane:'pane_gw'});",
+      "r._brimBulletin118=true;",
+      "return r;",
+      "})()"
+    )
+  )
+
   m |>
     leaflet::addPolygons(
       data = county,
@@ -73,11 +91,12 @@ pt_add_county_gw_layers <- function(m, county, gw) {
     ) |>
     leaflet::addPolygons(
       data = gw,
+      layerId = ~pt_gw_layer_id,
       group = pt_layer_group_name("GW – Bull. 118"),
       fill = TRUE,
-      fillColor = "#8B5A2B",
-      fillOpacity = 0.20,
-      color = "#5A381E",
+      fillColor = PT_BULLETIN118_UNIFORM_FILL,
+      fillOpacity = PT_BULLETIN118_UNIFORM_FILL_OPACITY,
+      color = PT_BULLETIN118_BOUNDARY_COLOR,
       weight = 1,
       opacity = 0.9,
       popup = ~popup_html,
@@ -91,6 +110,8 @@ pt_add_county_gw_layers <- function(m, county, gw) {
       ),
       options = leaflet::pathOptions(
         pane = "pane_gw",
+        className = "pt-bulletin118-feature",
+        renderer = gw_renderer,
         interactive = TRUE
       ),
       highlightOptions = leaflet::highlightOptions(

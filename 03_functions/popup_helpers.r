@@ -261,17 +261,28 @@ pt_make_gw_hover_tooltips <- function(x) {
 }
 
 pt_make_gw_popups <- function(x) {
+  priority <- if ("sgma_2019_priority" %in% names(x)) {
+    pt_bulletin118_normalize_priority(x$sgma_2019_priority)
+  } else {
+    rep(NA_character_, nrow(x))
+  }
+  priority[is.na(priority) | priority == ""] <- "No matched value"
+
   sprintf(
     "<b>%s</b><br/>
      <b>Basin:</b> %s<br/>
+     <b>DWR SGMA 2019 priority:</b> %s<br/>
      <b>%%BLM-CA:</b> %s<br/>
      <b>BLM:</b> %s | <b>Total:</b> %s<br/>
+     <a href='%s' target='_blank'>DWR SGMA 2019 source</a> |
      <a href='https://www.google.com/search?q=California+Bulletin+118+%s' target='_blank'>Google Search</a>",
     pt_esc(x$label),
     pt_esc(x$basin_name),
+    pt_esc(priority),
     pt_fmt_pct(x$percentBLMland),
     pt_fmt_area(x$blm_area_sqmi),
     pt_fmt_area(x$total_area_sqmi),
+    PT_BULLETIN118_SGMA_SOURCE_PAGE,
     pt_esc(x$subbasin_num)
   )
 }

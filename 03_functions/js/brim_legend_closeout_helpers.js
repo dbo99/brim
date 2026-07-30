@@ -32,7 +32,7 @@ function(el, x) {
       '.pt-map-legend-external{background:rgba(225,240,251,0.97)!important}' +
       '.leaflet-control-container>.leaflet-bottom.leaflet-left.pt-map-legend-gap-managed{bottom:var(--pt-map-legend-bottom,4px)!important;top:auto!important;max-height:var(--pt-map-legend-max-height,calc(100% - 8px))!important}' +
       '.leaflet-control-container>.leaflet-bottom.leaflet-left>.pt-map-legend-card:not(.pt-map-card-undocked){margin-left:8px!important;margin-bottom:8px!important}' +
-      '.leaflet-control-container>.pt-map-legend-corner-overflow{max-height:calc(100% - 8px)!important;overflow-y:auto!important;overscroll-behavior:contain;pointer-events:auto!important;touch-action:pan-y}' +
+      '.leaflet-control-container>.pt-map-legend-corner-overflow{max-height:calc(100% - 8px)!important;overflow-y:auto!important;scrollbar-gutter:stable;overscroll-behavior:contain;pointer-events:auto!important;touch-action:pan-y}' +
       '.leaflet-control-container>.leaflet-top.pt-map-legend-corner-overflow{top:4px!important}' +
       '.leaflet-control-container>.leaflet-bottom.pt-map-legend-corner-overflow{bottom:var(--pt-map-legend-bottom,4px)!important;max-height:var(--pt-map-legend-max-height,calc(100% - 8px))!important}' +
       '.pt-map-card-actions{display:inline-flex;align-items:center;gap:2px;flex:0 0 auto}.pt-map-legend-card .pt-map-card-actions{display:inline-flex!important;align-items:center!important;gap:2px!important;flex:0 0 auto!important}.pt-map-legend-card .pt-map-card-handle>.pt-map-card-actions{margin-left:auto!important}' +
@@ -151,10 +151,26 @@ function(el, x) {
         bottom: Math.max.apply(null, rects.map(function(rect) { return rect.bottom; }))
       };
     }
+    function stableCssPixel(value) {
+      value = Number(value);
+      return isFinite(value) ? Math.round(value) : 0;
+    }
+    function setStablePosition(name, value) {
+      var next = stableCssPixel(value);
+      var current = parseFloat(card.style.getPropertyValue(name));
+      if (isFinite(current) && current === next) return false;
+      card.style.setProperty(name, next + 'px', 'important');
+      return true;
+    }
     function clamp(left, top) {
       var mapRect = map.getContainer().getBoundingClientRect();
       var cardRect = card.getBoundingClientRect();
-      return {left: Math.max(4, Math.min(left, Math.max(4, mapRect.width - cardRect.width - 4))), top: Math.max(4, Math.min(top, Math.max(4, mapRect.height - cardRect.height - 4)))};
+      var maxLeft = Math.max(4, Math.floor(mapRect.width - cardRect.width - 4));
+      var maxTop = Math.max(4, Math.floor(mapRect.height - cardRect.height - 4));
+      return {
+        left: Math.max(4, Math.min(stableCssPixel(left), maxLeft)),
+        top: Math.max(4, Math.min(stableCssPixel(top), maxTop))
+      };
     }
     function setDockButton() {
       var btn = options.dockButton || card.querySelector(options.dockSelector || '.pt-map-card-dock');
@@ -179,13 +195,11 @@ function(el, x) {
       if (coordinated) dockMembers.forEach(function(node) { card.appendChild(node); });
       card.classList.add('pt-map-card-undocked');
       card.style.setProperty('position', 'absolute', 'important');
-      card.style.setProperty('left', (rect.left - mapRect.left) + 'px', 'important');
-      card.style.setProperty('top', (rect.top - mapRect.top) + 'px', 'important');
       card.style.setProperty('margin', '0', 'important');
       card.style.setProperty('z-index', '11100', 'important');
       var pos = clamp(rect.left - mapRect.left, rect.top - mapRect.top);
-      card.style.setProperty('left', pos.left + 'px', 'important');
-      card.style.setProperty('top', pos.top + 'px', 'important');
+      setStablePosition('left', pos.left);
+      setStablePosition('top', pos.top);
       state.floating = true;
       setDockButton();
       scheduleResponsiveLegendOverflow();
@@ -211,8 +225,8 @@ function(el, x) {
       if (!state.drag) return;
       if (e && e.preventDefault) e.preventDefault();
       var pos = clamp(state.drag.left + e.clientX - state.drag.x, state.drag.top + e.clientY - state.drag.y);
-      card.style.setProperty('left', pos.left + 'px', 'important');
-      card.style.setProperty('top', pos.top + 'px', 'important');
+      setStablePosition('left', pos.left);
+      setStablePosition('top', pos.top);
     }
     function startDrag(e) {
       if (!state.floating || state.destroyed || (e.button !== undefined && e.button !== 0)) return;
@@ -231,8 +245,8 @@ function(el, x) {
       var left = parseFloat(card.style.left) || 0;
       var top = parseFloat(card.style.top) || 0;
       var pos = clamp(left, top);
-      card.style.setProperty('left', pos.left + 'px', 'important');
-      card.style.setProperty('top', pos.top + 'px', 'important');
+      setStablePosition('left', pos.left);
+      setStablePosition('top', pos.top);
     }
     var dockButton = options.dockButton || card.querySelector(options.dockSelector || '.pt-map-card-dock');
     if (dockButton && !dockButton.__brimDetachWired) {
@@ -279,6 +293,7 @@ function(el, x) {
     {card: '.pt-blm-office-legend', close: '.pt-blm-office-close', handle: '.pt-blm-office-title-row', label: 'BLM office legend'},
     {card: '.pt-conv-panel', close: '.pt-conv-close', handle: '.pt-conv-head', dock: '.pt-conv-float', label: 'Water Conveyance legend'},
     {card: '.pt-calsim3-explorer', close: '.pt-calsim3-close', handle: '.pt-calsim3-head', dock: '.pt-calsim3-dock', label: 'CalSim3.0 Network Explorer'},
+    {card: '.pt-bulletin118-theme-card', close: '.pt-bulletin118-theme-close', handle: '.pt-bulletin118-theme-head', dock: '.pt-bulletin118-theme-dock', label: 'Bulletin 118 thematic card'},
     {card: '.pt-huc-theme-legend', close: '.pt-huc-theme-legend-close', parentHandle: true, label: 'HUC thematic-fill legend'},
     {card: '.pt-cnrfc-local-catalog-legend', close: '.pt-cnrfc-local-close', label: 'CNRFC Local catalog legend'},
     {card: '.pt-usgs-gw-local-legend', close: '.pt-usgs-gw-local-close', handle: '.pt-usgs-gw-local-head', dock: '.pt-usgs-gw-local-dock', label: 'USGS groundwater catalog legend'},
@@ -301,6 +316,12 @@ function(el, x) {
 
   var responsiveOverflowScheduled = false;
   var responsiveFocusCard = null;
+  var layoutDiagnostics = {
+    scheduledFrameCount: 0,
+    completedFrameCount: 0,
+    styleWriteCount: 0,
+    ignoredSelfMutationCount: 0
+  };
 
   function isVisibleDockedLegend(card) {
     if (!card || !mapContainer.contains(card) || card.classList.contains('pt-map-card-undocked')) return false;
@@ -362,22 +383,28 @@ function(el, x) {
   }
 
   function setCornerLayoutProperty(corner, name, value) {
-    if (!corner || !corner.style) return;
-    if (corner.style.getPropertyValue(name) !== value) corner.style.setProperty(name, value);
+    if (!corner || !corner.style) return false;
+    if (corner.style.getPropertyValue(name) === value) return false;
+    corner.style.setProperty(name, value);
+    corner.__brimLegendLayoutCssText = corner.style.cssText;
+    layoutDiagnostics.styleWriteCount += 1;
+    return true;
   }
 
   function recalculateResponsiveLegendOverflow() {
     responsiveOverflowScheduled = false;
+    layoutDiagnostics.completedFrameCount += 1;
     var mapRect = mapContainer.getBoundingClientRect();
-    var mapAvailableHeight = Math.max(0, mapRect.height - 8);
+    var mapAvailableHeight = Math.max(0, Math.floor(mapRect.height - 8));
     var focusCard = responsiveFocusCard;
     responsiveFocusCard = null;
     var corners = mapContainer.querySelectorAll('.leaflet-control-container > .leaflet-top, .leaflet-control-container > .leaflet-bottom');
 
     Array.prototype.forEach.call(corners, function(corner) {
       var previousScrollTop = corner.scrollTop || 0;
-      corner.classList.remove('pt-map-legend-corner-overflow');
-      corner.scrollTop = 0;
+      var hadOverflow = corner.classList.contains(
+        'pt-map-legend-corner-overflow'
+      );
 
       var allCards = corner.querySelectorAll('.pt-map-legend-card');
       var visibleCards = [];
@@ -390,6 +417,10 @@ function(el, x) {
         card.__brimLegendResponsiveVisible = visible;
       });
       if (!visibleCards.length) {
+        if (hadOverflow) {
+          corner.classList.remove('pt-map-legend-corner-overflow');
+        }
+        if (corner.scrollTop) corner.scrollTop = 0;
         corner.classList.remove('pt-map-legend-gap-managed');
         setCornerLayoutProperty(corner, '--pt-map-legend-bottom', '');
         setCornerLayoutProperty(corner, '--pt-map-legend-max-height', '');
@@ -403,28 +434,46 @@ function(el, x) {
         stackTop = Math.min(stackTop, rect.top);
         stackBottom = Math.max(stackBottom, rect.bottom);
       });
-      var stackHeight = Math.max(0, stackBottom - stackTop);
+      var stackHeight = Math.max(0, Math.ceil(stackBottom - stackTop));
+      var unscrolledStackTop = stackTop + previousScrollTop;
       var availableHeight = mapAvailableHeight;
-      var targetTop = mapRect.top + 4;
-      var targetBottom = mapRect.bottom - 4;
+      var targetTop = Math.round(mapRect.top + 4);
+      var targetBottom = Math.round(mapRect.bottom - 4);
       var isLowerLeft = corner.classList.contains('leaflet-bottom') && corner.classList.contains('leaflet-left');
 
       if (isLowerLeft) {
         var safeGap = lowerLeftSafeGap(mapRect);
-        availableHeight = Math.max(0, safeGap.bottom - safeGap.top);
-        targetTop = safeGap.top;
-        targetBottom = safeGap.bottom;
+        availableHeight = Math.max(
+          0,
+          Math.floor(safeGap.bottom - safeGap.top)
+        );
+        targetTop = Math.round(safeGap.top);
+        targetBottom = Math.round(safeGap.bottom);
         if (safeGap.hasMeasuredObstacles) {
           corner.classList.add('pt-map-legend-gap-managed');
-          var bottomOffset = Math.max(0, mapRect.bottom - safeGap.bottom);
+          var bottomOffset = Math.max(
+            0,
+            Math.round(mapRect.bottom - safeGap.bottom)
+          );
           if (stackHeight <= availableHeight) {
-            var desiredTop = safeGap.top + ((availableHeight - stackHeight) / 2);
+            var desiredTop = Math.round(
+              safeGap.top + ((availableHeight - stackHeight) / 2)
+            );
             var computedBottom = window.getComputedStyle ? parseFloat(window.getComputedStyle(corner).bottom) : 0;
             if (!isFinite(computedBottom)) computedBottom = 0;
-            bottomOffset = Math.max(0, computedBottom - (desiredTop - stackTop));
+            bottomOffset = Math.max(
+              0,
+              Math.round(
+                computedBottom - (desiredTop - unscrolledStackTop)
+              )
+            );
           }
           setCornerLayoutProperty(corner, '--pt-map-legend-bottom', bottomOffset + 'px');
-          setCornerLayoutProperty(corner, '--pt-map-legend-max-height', Math.max(0, availableHeight) + 'px');
+          setCornerLayoutProperty(
+            corner,
+            '--pt-map-legend-max-height',
+            Math.max(0, Math.floor(availableHeight)) + 'px'
+          );
         } else {
           corner.classList.remove('pt-map-legend-gap-managed');
           setCornerLayoutProperty(corner, '--pt-map-legend-bottom', '');
@@ -436,14 +485,33 @@ function(el, x) {
         setCornerLayoutProperty(corner, '--pt-map-legend-max-height', '');
       }
 
-      var needsOverflow = stackHeight > availableHeight ||
-        (!isLowerLeft && (stackTop < targetTop || stackBottom > targetBottom));
-      if (!needsOverflow) return;
-
-      corner.classList.add('pt-map-legend-corner-overflow');
-      wireOverflowCorner(corner);
-      corner.scrollTop = previousScrollTop;
-      if (focusCard && corner.contains(focusCard)) bringLegendHeaderIntoView(focusCard, corner);
+      var tolerance = hadOverflow ? 2 : 0;
+      var needsOverflow =
+        stackHeight > Math.max(0, availableHeight - tolerance) ||
+        (
+          !isLowerLeft &&
+          (
+            stackTop < targetTop - tolerance ||
+            stackBottom > targetBottom + tolerance
+          )
+        );
+      if (needsOverflow) {
+        if (!hadOverflow) {
+          corner.classList.add('pt-map-legend-corner-overflow');
+        }
+        wireOverflowCorner(corner);
+        if (
+          focusCard &&
+          corner.contains(focusCard)
+        ) {
+          bringLegendHeaderIntoView(focusCard, corner);
+        }
+      } else {
+        if (hadOverflow) {
+          corner.classList.remove('pt-map-legend-corner-overflow');
+        }
+        if (corner.scrollTop) corner.scrollTop = 0;
+      }
     });
   }
 
@@ -451,10 +519,20 @@ function(el, x) {
     if (focusCard) responsiveFocusCard = focusCard;
     if (responsiveOverflowScheduled || !mapContainer) return;
     responsiveOverflowScheduled = true;
+    layoutDiagnostics.scheduledFrameCount += 1;
     if (window.requestAnimationFrame) window.requestAnimationFrame(recalculateResponsiveLegendOverflow);
     else setTimeout(recalculateResponsiveLegendOverflow, 0);
   }
   window.BRIM.legendCloseout.scheduleLayout = scheduleResponsiveLegendOverflow;
+  window.BRIM.legendCloseout.layoutStats = function() {
+    return {
+      scheduledFrameCount: layoutDiagnostics.scheduledFrameCount,
+      completedFrameCount: layoutDiagnostics.completedFrameCount,
+      styleWriteCount: layoutDiagnostics.styleWriteCount,
+      ignoredSelfMutationCount: layoutDiagnostics.ignoredSelfMutationCount,
+      framePending: responsiveOverflowScheduled
+    };
+  };
 
   function autoHeader(card, closeButton, label) {
     var old = card.querySelector('.pt-map-card-auto-header');
@@ -574,7 +652,19 @@ function(el, x) {
   }
 
   var legendObserver = new MutationObserver(function(records) {
+    var needsLayoutRefresh = false;
     records.forEach(function(record) {
+      var isOwnLayoutStyle =
+        record.type === 'attributes' &&
+        record.attributeName === 'style' &&
+        record.target &&
+        record.target.__brimLegendLayoutCssText ===
+          record.target.style.cssText;
+      if (isOwnLayoutStyle) {
+        layoutDiagnostics.ignoredSelfMutationCount += 1;
+      } else {
+        needsLayoutRefresh = true;
+      }
       Array.prototype.forEach.call(record.removedNodes || [], function(node) {
         if (!node || node.nodeType !== 1) return;
         var removedCards = [];
@@ -596,6 +686,7 @@ function(el, x) {
         card.style.display = 'none';
       }
     });
+    if (!needsLayoutRefresh) return;
     enhanceAllLegendCards();
     observeGapLayoutNodes();
     scheduleResponsiveLegendOverflow();

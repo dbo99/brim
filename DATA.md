@@ -39,6 +39,16 @@ The small SWRCB BLM water-right correction CSV is tracked because the core
 cache build stops rather than silently dropping its official membership and
 face-value corrections.
 
+## Curated Bulletin 118 SGMA crosswalk
+
+`00_config/bulletin118_sgma_2019_priority_crosswalk.csv` is a tracked,
+attribute-only snapshot of DWR's final 2019 SGMA basin-prioritization table.
+It contains 515 basin/subbasin codes, normalized priority, source OBJECTID,
+service URL, and access date. It contains no geometry. Refresh it only with
+`02_preprocess/68_refresh_bulletin118_sgma_2019_priority.R`; that script
+requires the exact published 515-row and 46/48/11/410 category contracts before
+overwriting the tracked crosswalk.
+
 ## Updating BLM land status
 
 For a replacement BLM-California land-status shapefile:

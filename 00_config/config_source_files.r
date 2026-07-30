@@ -107,6 +107,15 @@ SRC <- list(
     "groundwater",
     "i08_B118_v6_2_calalb.shp"
   ),
+
+  ## Attribute-only snapshot from DWR's final 2019 SGMA basin-prioritization
+  ## table. The refresh script validates the authoritative 515-row table and
+  ## writes this small tracked crosswalk; no DWR geometry is downloaded.
+  bull118_sgma_2019_priority = file.path(
+    DIR$root,
+    "00_config",
+    "bulletin118_sgma_2019_priority_crosswalk.csv"
+  ),
   
   counties = file.path(
     DIR$raw,
