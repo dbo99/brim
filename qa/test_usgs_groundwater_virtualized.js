@@ -15,6 +15,7 @@ const installLayer = new Function(`return (${source}\n);`)();
 function mockElement(tagName = "div", className = "") {
   const classes = new Set(String(className).split(/\s+/).filter(Boolean));
   const attributes = {};
+  const listeners = {};
   const element = {
     tagName: tagName.toUpperCase(),
     id: "",
@@ -40,12 +41,13 @@ function mockElement(tagName = "div", className = "") {
       if (element._mutationCallback) element._mutationCallback([]);
     },
     contains: (node) => node === element,
-    closest: (selector) => (
-      selector === ".pt-usgs-gw-virtual-nested-divicon" &&
-      classes.has("pt-usgs-gw-virtual-nested-divicon") ?
-        element :
-        null
-    ),
+    closest: (selector) => {
+      const matched = String(selector).split(",").some((part) => {
+        const trimmed = part.trim();
+        return trimmed.startsWith(".") && classes.has(trimmed.slice(1));
+      });
+      return matched ? element : null;
+    },
     getBoundingClientRect: () => ({
       left: 10,
       top: 10,
@@ -56,6 +58,32 @@ function mockElement(tagName = "div", className = "") {
     querySelectorAll: () => [],
     getElementsByTagName: () => [],
     appendChild: () => {},
+    addEventListener: (name, handler, capture) => {
+      listeners[name] = listeners[name] || [];
+      listeners[name].push({handler, capture: !!capture});
+    },
+    removeEventListener: (name, handler, capture) => {
+      listeners[name] = (listeners[name] || []).filter(
+        (record) => (
+          record.handler !== handler ||
+          record.capture !== !!capture
+        )
+      );
+    },
+    dispatchEvent: (event) => {
+      event.target = event.target || element;
+      (listeners[event.type] || []).slice().forEach(
+        (record) => record.handler(event)
+      );
+      if (
+        !event.propagationStopped &&
+        event.target !== element &&
+        event.target.dispatchEvent
+      ) {
+        event.target.dispatchEvent(event);
+      }
+    },
+    listenerCount: (name) => (listeners[name] || []).length,
     remove: () => {},
     click: () => {}
   };
@@ -138,13 +166,93 @@ function mockLayerGroup(initial = []) {
 
 class MockTileLayer {}
 
+function mockCanvasRenderer(options) {
+  const renderer = {
+    options,
+    _container: Object.assign(mockElement("canvas"), {isConnected: false}),
+    _drawFirst: null,
+    _drawLast: null,
+    _hoveredLayer: null,
+    _map: null,
+    onAdd(map) {
+      this._map = map;
+      this._container.isConnected = true;
+    },
+    onRemove() {
+      this._container.isConnected = false;
+      this._map = null;
+    },
+    _addLayer(layer) {
+      const order = {layer, prev: this._drawLast, next: null};
+      layer._mockCanvasOrder = order;
+      if (this._drawLast) this._drawLast.next = order;
+      else this._drawFirst = order;
+      this._drawLast = order;
+    },
+    _removeLayer(layer) {
+      const order = layer._mockCanvasOrder;
+      if (!order) return;
+      if (order.prev) order.prev.next = order.next;
+      else this._drawFirst = order.next;
+      if (order.next) order.next.prev = order.prev;
+      else this._drawLast = order.prev;
+      if (this._hoveredLayer === layer) this._hoveredLayer = null;
+      delete layer._mockCanvasOrder;
+    },
+    _hit(event) {
+      const point = this._map.mouseEventToLayerPoint(event);
+      let hit = null;
+      for (let order = this._drawFirst; order; order = order.next) {
+        if (order.layer._containsPoint(point)) hit = order.layer;
+      }
+      return hit;
+    },
+    _onMouseMove(event) {
+      const hit = this._hit(event);
+      if (this._hoveredLayer && this._hoveredLayer !== hit) {
+        this._hoveredLayer.fire("mouseout", {originalEvent: event});
+      }
+      if (hit && this._hoveredLayer !== hit) {
+        hit.fire("mouseover", {originalEvent: event});
+      }
+      this._hoveredLayer = hit;
+      if (hit) hit.fire("mousemove", {originalEvent: event});
+    },
+    _onClick(event) {
+      const hit = this._hit(event);
+      if (hit) hit.fire("click", {originalEvent: event});
+    },
+    _handleMouseOut(event) {
+      if (this._hoveredLayer) {
+        this._hoveredLayer.fire("mouseout", {originalEvent: event});
+      }
+      this._hoveredLayer = null;
+    }
+  };
+  return renderer;
+}
+
 global.L = {
   TileLayer: MockTileLayer,
-  canvas: (options) => ({options}),
+  canvas: (options) => mockCanvasRenderer(options),
   layerGroup: (layers) => mockLayerGroup(layers),
   circleMarker: (latlng, options) => {
     const layer = mockLayer(options);
     layer._latlng = latlng;
+    layer._containsPoint = (point) => point.hitLayer === layer;
+    layer.onAdd = function(map) {
+      this._map = map;
+      if (options.renderer) {
+        if (!map.hasLayer(options.renderer)) {
+          map.addLayer(options.renderer);
+        }
+        options.renderer._addLayer(this);
+      }
+    };
+    layer.onRemove = function() {
+      if (options.renderer) options.renderer._removeLayer(this);
+      this._map = null;
+    };
     return layer;
   },
   marker: (latlng, options) => {
@@ -258,6 +366,7 @@ function makeMap() {
   const panes = {
     pane_points: mockElement("div", "leaflet-pane leaflet-pane-points")
   };
+  const container = mockElement("div", "leaflet-container");
   const map = evented({
     _layers: new Set(),
     _zoom: 11,
@@ -305,11 +414,11 @@ function makeMap() {
       lat: 90 - point.y * 180 / scale
     };
   };
-  map.getContainer = () => ({
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    getElementsByTagName: () => []
+  map.mouseEventToLayerPoint = (event) => ({
+    hitLayer: event.hitLayer || null
   });
+  map.dragging = {moving: () => false};
+  map.getContainer = () => container;
   map.closePopup = () => {};
   map.getPane = (name) => panes[name] || null;
   map.getPanes = () => panes;
@@ -344,6 +453,23 @@ function waitFor(predicate, timeoutMs = 2000) {
 
 async function run() {
   const map = makeMap();
+  const container = map.getContainer();
+  const hucPolygonCanvas = mockElement(
+    "canvas",
+    "leaflet-zoom-animated fixture-huc-canvas"
+  );
+  const bulletinPolygonCanvas = mockElement(
+    "canvas",
+    "leaflet-zoom-animated fixture-bulletin-canvas"
+  );
+  let hucHoverCount = 0;
+  let bulletinClickCount = 0;
+  hucPolygonCanvas.addEventListener("mousemove", () => {
+    hucHoverCount += 1;
+  });
+  bulletinPolygonCanvas.addEventListener("click", () => {
+    bulletinClickCount += 1;
+  });
   const data = {
     groupName: "Points – USGS monitoring wells",
     records: {
@@ -375,6 +501,17 @@ async function run() {
   };
 
   installLayer.call(map, {}, {}, data);
+  container.dispatchEvent({
+    type: "mousemove",
+    target: hucPolygonCanvas
+  });
+  container.dispatchEvent({
+    type: "click",
+    target: bulletinPolygonCanvas
+  });
+  assert.strictEqual(hucHoverCount, 1);
+  assert.strictEqual(bulletinClickCount, 1);
+
   checkedState.checked = true;
   map.fire("overlayadd", {name: data.groupName});
 
@@ -393,6 +530,11 @@ async function run() {
   assert.strictEqual(stats.ordinaryWellRadius, 4.8);
   assert.strictEqual(stats.ordinaryWellStrokeWeight, 0.95);
   assert.strictEqual(stats.ordinaryWellOuterDiameter, 10.55);
+  assert.strictEqual(stats.displayPane, "pane_usgs_gw_display");
+  assert.strictEqual(stats.displayPaneZIndex, 584);
+  assert.strictEqual(stats.displayPanePassThrough, true);
+  assert.strictEqual(stats.displayRendererMounted, true);
+  assert.strictEqual(stats.displayCanvasConnected, true);
   assert.strictEqual(stats.interactivePane, "pane_usgs_gw_interactive");
   assert.strictEqual(stats.interactivePaneZIndex, 585);
 
@@ -411,6 +553,16 @@ async function run() {
   );
   assert.ok(nestedLayer, "nested/co-located display marker was not created");
   assert.ok(singleLayer, "Canvas exact-point layer was not created");
+  assert.strictEqual(singleLayer.options.pane, "pane_usgs_gw_display");
+  assert.strictEqual(
+    singleLayer.options.renderer.options.pane,
+    "pane_usgs_gw_display"
+  );
+  assert.strictEqual(
+    map.getPane("pane_usgs_gw_display").style.pointerEvents,
+    "none",
+    "the USGS-only Canvas pane must pass unrelated pointer events through"
+  );
   assert.strictEqual(nestedLayer.options.pane, "pane_usgs_gw_interactive");
   assert.strictEqual(
     map.getPane("pane_usgs_gw_interactive").style.zIndex,
@@ -446,6 +598,97 @@ async function run() {
     ),
     "single-site popup lost the USGS source URL"
   );
+
+  const backgroundMove = {
+    type: "mousemove",
+    target: hucPolygonCanvas,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+    stopImmediatePropagation() {
+      this.immediatePropagationStopped = true;
+    }
+  };
+  container.dispatchEvent(backgroundMove);
+  assert.strictEqual(
+    backgroundMove.propagationStopped,
+    undefined,
+    "transparent USGS Canvas space blocked an unrelated polygon event"
+  );
+  assert.strictEqual(
+    hucHoverCount,
+    2,
+    "HUC hover did not remain available while wells were active"
+  );
+  const backgroundBulletinClick = {
+    type: "click",
+    target: bulletinPolygonCanvas,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+    stopImmediatePropagation() {
+      this.immediatePropagationStopped = true;
+    }
+  };
+  container.dispatchEvent(backgroundBulletinClick);
+  assert.strictEqual(
+    bulletinClickCount,
+    2,
+    "Bulletin popup click did not remain available while wells were active"
+  );
+
+  const wellMove = {
+    type: "mousemove",
+    target: hucPolygonCanvas,
+    hitLayer: singleLayer,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+    stopImmediatePropagation() {
+      this.immediatePropagationStopped = true;
+    }
+  };
+  container.dispatchEvent(wellMove);
+  assert.strictEqual(wellMove.propagationStopped, true);
+  assert.strictEqual(wellMove.immediatePropagationStopped, true);
+  assert.strictEqual(
+    container.classList.contains("pt-usgs-gw-manual-hit"),
+    true
+  );
+  assert.strictEqual(
+    hucHoverCount,
+    2,
+    "a polygon received hover directly under an interactive well"
+  );
+
+  let forwardedWellClicks = 0;
+  singleLayer.on("click", () => {
+    forwardedWellClicks += 1;
+  });
+  const wellClick = {
+    type: "click",
+    target: bulletinPolygonCanvas,
+    hitLayer: singleLayer,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+    stopImmediatePropagation() {
+      this.immediatePropagationStopped = true;
+    }
+  };
+  container.dispatchEvent(wellClick);
+  assert.strictEqual(forwardedWellClicks, 1);
+  assert.strictEqual(wellClick.propagationStopped, true);
+  assert.strictEqual(
+    bulletinClickCount,
+    2,
+    "a polygon received a click directly under an interactive well"
+  );
+  stats = window.BRIM_USGS_GW_LOCAL.stats();
+  assert.ok(stats.rendererForwardedMoveCount >= 2);
+  assert.strictEqual(stats.rendererForwardedClickCount, 1);
+  assert.ok(stats.rendererHitCount >= 2);
+  assert.strictEqual(stats.interactionForwardingActive, true);
   const nestedPopup = String(nestedLayer._popupContent());
   assert.ok(
     nestedPopup.includes("/monitoring-location/1") &&
@@ -521,6 +764,49 @@ async function run() {
   stats = window.BRIM_USGS_GW_LOCAL.stats();
   assert.strictEqual(stats.active, false);
   assert.strictEqual(stats.displayCacheReady, true);
+  assert.strictEqual(stats.interactionForwardingActive, false);
+  assert.strictEqual(stats.displayRendererMounted, false);
+  assert.strictEqual(stats.displayCanvasConnected, false);
+  assert.strictEqual(
+    map.getPane("pane_usgs_gw_interactive").style.pointerEvents,
+    "none",
+    "turning wells off must immediately deactivate the DOM hit pane"
+  );
+  const inactiveWellMove = {
+    type: "mousemove",
+    target: hucPolygonCanvas,
+    hitLayer: singleLayer,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+    stopImmediatePropagation() {
+      this.immediatePropagationStopped = true;
+    }
+  };
+  container.dispatchEvent(inactiveWellMove);
+  assert.strictEqual(
+    container.classList.contains("pt-usgs-gw-manual-hit"),
+    false
+  );
+  assert.strictEqual(
+    inactiveWellMove.propagationStopped,
+    undefined,
+    "turning wells off left a stale manual interaction surface"
+  );
+  assert.strictEqual(
+    hucHoverCount,
+    3,
+    "HUC hover was not restored immediately after wells off"
+  );
+  container.dispatchEvent({
+    type: "click",
+    target: bulletinPolygonCanvas
+  });
+  assert.strictEqual(
+    bulletinClickCount,
+    3,
+    "Bulletin popup click was not restored immediately after wells off"
+  );
 
   checkedState.checked = true;
   map.fire("overlayadd", {name: data.groupName});
@@ -654,6 +940,9 @@ async function run() {
 
   window.BRIM_USGS_GW_LOCAL.destroy();
   assert.strictEqual(window.BRIM_USGS_GW_DEBUG, undefined);
+  assert.strictEqual(container.listenerCount("mousemove"), 0);
+  assert.strictEqual(container.listenerCount("click"), 0);
+  assert.strictEqual(container.listenerCount("mouseout"), 0);
   assert.ok(
     Object.values(map._events).every((handlers) => handlers.length === 0),
     "destroy left duplicate-able map listeners attached"

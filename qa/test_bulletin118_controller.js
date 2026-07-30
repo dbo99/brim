@@ -355,10 +355,10 @@ function makeFixture() {
   const renderer = {};
   const root = evented({});
   const layers = [
-    makeLayer("gw_bull118_1", "#FF0000", "#F5F5F5", renderer),
-    makeLayer("gw_bull118_2", "#FFFF00", "#FEE391", renderer),
-    makeLayer("gw_bull118_3", "#55FF00", "#FE9929", renderer),
-    makeLayer("gw_bull118_4", "#0070FF", "#993404", renderer)
+    makeLayer("gw_bull118_1", "#FF0000", "#F2F2F2", renderer),
+    makeLayer("gw_bull118_2", "#FFFF00", "#DFC7E5", renderer),
+    makeLayer("gw_bull118_3", "#55FF00", "#673A7B", renderer),
+    makeLayer("gw_bull118_4", "#0070FF", "#452357", renderer)
   ];
   const groupLayers = new Set(layers);
   root.addCalls = 0;
@@ -446,7 +446,7 @@ function makeFixture() {
       },
       blm_pct: {
         title: "BLM-managed land — %",
-        rows: [{color: "#993404", label: ">50%", count: 1}]
+        rows: [{color: "#452357", label: ">75%", count: 1}]
       }
     },
     styles: {

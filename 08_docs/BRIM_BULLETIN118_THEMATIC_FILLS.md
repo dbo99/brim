@@ -3,9 +3,10 @@
 ## Scope and controlling guidance
 
 This implementation is limited to the Local Bulletin 118 groundwater-basin
-layer. The six HUC layers, their retained products, controller, selector, and
-legend are unchanged; a later HUC-specific branch may reuse the fixed `%BLM`
-scheme documented here.
+layer. A later HUC-specific implementation extracted the fixed `%BLM`
+classification into `03_functions/blm_pct_theme_helpers.r`; Bulletin 118 now
+consumes that neutral helper with unchanged theme order, default, colors,
+counts, slider, search, card, and browser lifecycle.
 
 The controlling repository documents are:
 
@@ -189,21 +190,25 @@ The popup includes a concise DWR SGMA 2019 source link and preserves the
 existing label, basin name, `%BLM-CA`, BLM area, total area, Google search,
 formatting, and units.
 
+Every Bulletin hover retains basin/subbasin name and ID and now ends with
+`BLM-managed land: 12.3%`, using one decimal place, `0.0%` for zero, and
+`Not available` defensively. Popup content is unchanged.
+
 ## Fixed percentage-BLM audit and palette
 
 The audited field is the retained `percentBLMland`; no spatial recalculation is
 performed. The following map-cache distribution was measured read-only on
-2026-07-28:
+2026-07-30:
 
-| Layer | n | 0% | >0–1% | >1–5% | >5–15% | >15–30% | >30–50% | >50% | Missing |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Bulletin 118 | 515 | 279 | 66 | 36 | 32 | 23 | 29 | 50 | 0 |
-| HUC2 | 4 | 0 | 1 | 2 | 1 | 0 | 0 | 0 | 0 |
-| HUC4 | 16 | 1 | 1 | 9 | 2 | 1 | 2 | 0 | 0 |
-| HUC6 | 24 | 2 | 3 | 11 | 1 | 5 | 1 | 1 | 0 |
-| HUC8 | 140 | 19 | 34 | 41 | 17 | 13 | 13 | 3 | 0 |
-| HUC10 | 1,128 | 407 | 219 | 147 | 116 | 67 | 71 | 101 | 0 |
-| HUC12 | 5,065 | 2,743 | 519 | 384 | 339 | 262 | 210 | 608 | 0 |
+| Layer | n | 0% | >0–1% | >1–5% | >5–15% | >15–30% | >30–50% | >50–75% | >75% | Missing |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Bulletin 118 | 515 | 279 | 66 | 36 | 32 | 23 | 29 | 26 | 24 | 0 |
+| HUC2 | 4 | 0 | 1 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+| HUC4 | 16 | 1 | 1 | 9 | 2 | 1 | 2 | 0 | 0 | 0 |
+| HUC6 | 24 | 2 | 3 | 11 | 1 | 5 | 1 | 1 | 0 | 0 |
+| HUC8 | 140 | 19 | 34 | 41 | 17 | 13 | 13 | 2 | 1 | 0 |
+| HUC10 | 1,128 | 407 | 219 | 147 | 116 | 67 | 71 | 55 | 46 | 0 |
+| HUC12 | 5,065 | 2,743 | 519 | 384 | 339 | 262 | 210 | 218 | 390 | 0 |
 
 The candidate scheme remains useful across all levels: it isolates true zero,
 resolves low overlaps, retains mid-range distinctions, and preserves meaningful
@@ -213,18 +218,21 @@ The fixed mapping is:
 
 | Bin | Color |
 |---|---:|
-| 0% | `#F5F5F5` |
-| >0–1% | `#FFF7BC` |
-| >1–5% | `#FEE391` |
-| >5–15% | `#FEC44F` |
-| >15–30% | `#FE9929` |
-| >30–50% | `#D95F0E` |
-| >50% | `#993404` |
+| 0% | `#F2F2F2` |
+| >0–1% | `#F1E6F4` |
+| >1–5% | `#DFC7E5` |
+| >5–15% | `#C9A3D2` |
+| >15–30% | `#AA78B7` |
+| >30–50% | `#87539A` |
+| >50–75% | `#673A7B` |
+| >75% | `#452357` |
 | Missing | `#9E9E9E` |
 
-This is a colorblind-conscious yellow-to-brown sequential palette compatible
-with BRIM's Local identity. The definition lives in
-`03_functions/bulletin118_data_helpers.r` for later explicit HUC reuse.
+The purple sequential palette distinguishes percentage summaries from the
+yellow BLM-managed-land layer, blue precipitation, and green recharge. The
+labels, colors, classifier, and counted legend rows live in
+`03_functions/blm_pct_theme_helpers.r` and are shared verbatim by Bulletin 118
+and HUC.
 
 ## Unified thematic card and controller
 
@@ -259,6 +267,9 @@ Eligibility uses the retained `percentBLMland` value:
 - a positive threshold includes only finite values greater than or equal to the
   selected threshold; and
 - returning to 0% restores all 515 direct polygon references.
+
+Read-only counts at thresholds 0/1/50/70/75/100 are respectively
+515/170/50/30/24/0.
 
 The controller does not make an invisible Canvas path. It removes an excluded
 polygon from the existing Bulletin FeatureGroup, then adds that same object
@@ -314,8 +325,11 @@ source("run_build_map.r")
 build_final_map_only()
 ```
 
-The SGMA join and popup row are stored in `gw_bull118_map.rds`. The current
-runner has no Bulletin-118-only cache writer. The minimum supported rebuild is:
+The revised shared palette and bins and the new hover row are final-map
+construction changes, so this revision needs only `build_final_map_only()`.
+The existing SGMA join and popup row are stored in `gw_bull118_map.rds`. The
+current runner has no Bulletin-118-only cache writer, so a future change to
+those retained fields would need this minimum supported rebuild:
 
 ```r
 source("run_build_map.r")
@@ -344,7 +358,6 @@ Run:
 
 ```sh
 Rscript qa/test_bulletin118_thematic.R
-node --check 03_functions/js/brim_bulletin118_theme_control.js
 node qa/test_bulletin118_controller.js
 node qa/test_shared_card_layout_stability.js
 Rscript tools/validate_source_repository.R
@@ -373,12 +386,8 @@ causes no further style writes or queued animation frame.
 In the build-capable checkout:
 
 1. sync only the source files listed in the handoff manifest;
-2. rerun the crosswalk refresh only if a new source access is intended;
-3. run `rebuild_core_cache_and_map()`;
-4. reconcile the rebuilt `gw_bull118_map.rds` to the old retained product:
-   row/key/order, geometry binary/type/empty/validity, every old scientific
-   field, new priority/object-ID fields, popup row, category totals, and size;
-5. run `build_final_map_only()` only for later UI-only iterations.
+2. run `build_final_map_only()`;
+3. leave the retained `gw_bull118_map.rds` unchanged.
 
 Browser-test one unified Local card, selector/legend synchronization, exact
 colors/counts, all three themes, same/rapid/return switching, hover, popup,
@@ -386,9 +395,10 @@ pan/zoom, Measure, ordinary off/on, X, detach/drag/clamp/redock, Clear Local,
 Clear All, short-height overflow, card coexistence, reactivation, console, DOM/
 Canvas counts, and final HTML size.
 
-Regress HUC selector/legend without changing them, CalSim, Springs, Local USGS
-groundwater, streamgages, Water Rights/shared legends, mapped conveyance,
-Local upload, Ops/Measure, Local-panel rows, startup, and both clear paths.
+Regress the unified HUC selector/legend card and fixed `%BLM` theme, CalSim,
+Springs, Local USGS groundwater, streamgages, Water Rights/shared legends,
+mapped conveyance, Local upload, Ops/Measure, Local-panel rows, startup, and
+both clear paths.
 
 ## Known limits
 
@@ -399,4 +409,6 @@ Local upload, Ops/Measure, Local-panel rows, startup, and both clear paths.
   changed schema, renderer, row count, key set, or priority distribution.
 - The current exact join is code-only. The source table has no basin-name field,
   so names cannot be compared without requesting a different source.
-- HUC thematic implementation is explicitly deferred to a separate branch.
+- HUC and Bulletin now consume the same neutral `%BLM` classifier and palette;
+  rendered interaction and visual fidelity still require the shared browser
+  gate.

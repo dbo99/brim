@@ -22,7 +22,7 @@ function(el, x) {
     detachableStyle.textContent =
       '.leaflet-control-container>.pt-map-legend-corner-foreground{z-index:10990!important}' +
       '.pt-map-legend-card{z-index:11000!important}' +
-      '.pt-map-legend-card.pt-huc-theme-legend,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-map-legend-card.pt-ops-usgs-streamflow-card,.pt-map-legend-card.pt-ops-usgs-groundwater-card,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
+      '.pt-map-legend-card.pt-huc-theme-card,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-map-legend-card.pt-ops-usgs-streamflow-card,.pt-map-legend-card.pt-ops-usgs-groundwater-card,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
       '.pt-map-legend-card.pt-wcr-completed-depth-map-legend{z-index:11020!important}' +
       '.pt-map-legend-card.pt-mlrs-mineral-cases-map-legend{z-index:11021!important}' +
       '.pt-map-legend-card.pt-sgma-prioritization-map-legend{z-index:11022!important}' +
@@ -294,7 +294,7 @@ function(el, x) {
     {card: '.pt-conv-panel', close: '.pt-conv-close', handle: '.pt-conv-head', dock: '.pt-conv-float', label: 'Water Conveyance legend'},
     {card: '.pt-calsim3-explorer', close: '.pt-calsim3-close', handle: '.pt-calsim3-head', dock: '.pt-calsim3-dock', label: 'CalSim3.0 Network Explorer'},
     {card: '.pt-bulletin118-theme-card', close: '.pt-bulletin118-theme-close', handle: '.pt-bulletin118-theme-head', dock: '.pt-bulletin118-theme-dock', label: 'Bulletin 118 thematic card'},
-    {card: '.pt-huc-theme-legend', close: '.pt-huc-theme-legend-close', parentHandle: true, label: 'HUC thematic-fill legend'},
+    {card: '.pt-huc-theme-card', close: '.pt-huc-theme-close', handle: '.pt-huc-theme-head', dock: '.pt-huc-theme-dock', label: 'HUC thematic card'},
     {card: '.pt-cnrfc-local-catalog-legend', close: '.pt-cnrfc-local-close', label: 'CNRFC Local catalog legend'},
     {card: '.pt-usgs-gw-local-legend', close: '.pt-usgs-gw-local-close', handle: '.pt-usgs-gw-local-head', dock: '.pt-usgs-gw-local-dock', label: 'USGS groundwater catalog legend'},
     {card: '.pt-usgs-sw-local-legend', close: '.pt-usgs-sw-local-close', label: 'USGS streamgage catalog legend'},

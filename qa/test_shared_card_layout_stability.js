@@ -314,6 +314,15 @@ assert.match(
   /__brimLegendLayoutCssText[\s\S]*ignoredSelfMutationCount/
 );
 assert.match(helperSource, /scrollbar-gutter:stable/);
+assert.match(
+  helperSource,
+  /card: '\.pt-huc-theme-card'[\s\S]*dock: '\.pt-huc-theme-dock'/
+);
+assert.strictEqual(
+  helperSource.includes("card: '.pt-huc-theme-legend'"),
+  false,
+  "legacy separate HUC legend remains registered as a detachable card"
+);
 
 const calsimSource = fs.readFileSync(
   path.join(

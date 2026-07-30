@@ -35,6 +35,7 @@ source("03_functions/cache_helpers.r")
 source("03_functions/leaflet_core_helpers.r")
 source("03_functions/leaflet_loading_helpers.r")
 source("03_functions/leaflet_ops_live_helpers.r")
+source("03_functions/blm_pct_theme_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/leaflet_layer_helpers.r")
 source("03_functions/leaflet_label_helpers.r")
@@ -1329,7 +1330,8 @@ function(el, x) {
       '</p>' +
       '<p>' +
       '<b>Interpretation:</b> inches are area-normalized depth values. KAF/year values are total volume estimates and are strongly influenced by polygon area. ' +
-      'HUC thematic colors are scaled separately by HUC level so HUC12 patterns remain readable; colors should not be treated as directly comparable across HUC levels without checking the active legend.' +
+      'PRISM and BCMv8 thematic colors are scaled separately by HUC level so HUC12 patterns remain readable. ' +
+      'BLM-managed-land percentages use one fixed absolute classification shared across all HUC levels and Bulletin 118 groundwater basins.' +
       '</p>' +
 
       '<h2>BLM-focused reference / conservation layers</h2>' +
@@ -1423,11 +1425,12 @@ function(el, x) {
 MAP_DISPLAY$default_base_group
   ))
 
-# ==== 9a.3 Add HUC thematic-fill dropdown ===================================
+# ==== 9a.3 Add thematic cards ===============================================
 ##
-## HUC thematic colors are scaled separately by HUC level, and the browser-side
-## control/legend code is maintained in 03_functions/leaflet_huc_theme_helpers.r
-## plus 03_functions/js/brim_huc_theme_control.js.
+## HUC PRISM/BCMv8 colors remain level-scaled; %BLM uses shared fixed bins.
+## The unified HUC selector/legend card is maintained in
+## 03_functions/leaflet_huc_theme_helpers.r and
+## 03_functions/js/brim_huc_theme_control.js.
 
 m <- pt_add_bulletin118_theme_controls(
   m = m,

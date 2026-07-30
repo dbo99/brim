@@ -46,6 +46,16 @@ pt_fmt_huc_hover_inches <- function(x) {
   sprintf("%.1f in", value)
 }
 
+pt_fmt_blm_hover_pct <- function(x) {
+  value <- suppressWarnings(as.numeric(as.character(x)[1]))
+
+  if (length(value) == 0 || !is.finite(value)) {
+    return("Not available")
+  }
+
+  sprintf("%.1f%%", value)
+}
+
 pt_make_huc_hover_tooltips <- function(sfobj, lvl) {
   df <- sf::st_drop_geometry(sfobj)
   name_col <- paste0("huc", lvl, "_name")
@@ -56,6 +66,11 @@ pt_make_huc_hover_tooltips <- function(sfobj, lvl) {
 
   map_values <- if ("map_in" %in% names(df)) df$map_in else rep(NA_real_, nrow(df))
   recharge_values <- if ("rech_in" %in% names(df)) df$rech_in else rep(NA_real_, nrow(df))
+  blm_values <- if ("percentBLMland" %in% names(df)) {
+    df$percentBLMland
+  } else {
+    rep(NA_real_, nrow(df))
+  }
 
   vapply(seq_len(nrow(df)), function(i) {
     watershed_name <- as.character(df[[name_col]][i])
@@ -68,6 +83,8 @@ pt_make_huc_hover_tooltips <- function(sfobj, lvl) {
       "<div style='margin:0;'><strong>", pt_esc(watershed_name), "</strong></div>",
       "<div style='margin:0;'>MAP: ", pt_fmt_huc_hover_inches(map_values[i]), "</div>",
       "<div style='margin:0;'>Recharge: ", pt_fmt_huc_hover_inches(recharge_values[i]), "</div>",
+      "<div style='margin:0;'>BLM-managed land: ",
+      pt_fmt_blm_hover_pct(blm_values[i]), "</div>",
       "</div>"
     )
   }, character(1))
@@ -255,6 +272,8 @@ pt_make_gw_hover_tooltips <- function(x) {
       "<div style='line-height:1.1; white-space:nowrap;'>",
       "<div style='margin:0;'><strong>", pt_esc(basin_name), "</strong></div>",
       "<div style='margin:0;'>ID: ", pt_esc(basin_id), "</div>",
+      "<div style='margin:0;'>BLM-managed land: ",
+      pt_fmt_blm_hover_pct(x$percentBLMland[i]), "</div>",
       "</div>"
     )
   }, character(1))

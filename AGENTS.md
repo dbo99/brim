@@ -9,8 +9,33 @@ The authoritative production project remains outside this lean source repo.
 
 - Read `README.md`, `BUILD.md`, and `DATA.md`.
 - Inspect current code before relying on historical handoff notes.
-- Preserve existing behavior before reorganizing or refactoring.
-- Keep patches narrow and discuss large structural changes first.
+
+## Lean implementation and cleanup
+
+Keep changes as small and coherent as practicable. Before adding code, search
+for an existing function, helper, registry, controller, workflow, build step, or
+QA pipeline that can be extended cleanly. Prefer one maintained path and one
+source of truth over parallel implementations, one-off logic, duplicated
+constants, compatibility shims, or speculative abstractions.
+
+Within the files and functions touched by a task:
+
+- reuse and simplify before creating new layers of code;
+- extract shared logic only when the shared responsibility is real and the
+  result is clearer than the duplication;
+- remove superseded branches, dead code, unused variables/imports, temporary
+  diagnostics, obsolete comments, and redundant tests or documentation created
+  or exposed by the change;
+- do not leave the old implementation disabled beside its replacement;
+- keep functions focused, names explicit, and data flow easy to trace;
+- preserve established APIs, schemas, scientific meaning, and validated
+  behavior unless the task explicitly requires changing them;
+- leave each touched file and folder cleaner, clearer, and no larger than
+  necessary.
+
+Cleanup must remain proportional to the task. Do not turn a focused change into
+a broad refactor. When worthwhile cleanup would be extensive or risky, document
+it separately rather than mixing it into the current feature.
 
 ## Data safety
 

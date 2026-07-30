@@ -1303,7 +1303,7 @@ function(el, x) {
   function isControlTarget(target) {
     return target && target.closest && target.closest(
       '.leaflet-control, .pt-tools-adddata-wrap, .pt-local-upload-wrap, ' +
-      '.pt-ops-live-panel, .pt-huc-theme-control, .pt-huc-theme-legend'
+      '.pt-ops-live-panel, .pt-huc-theme-card'
     );
   }
 

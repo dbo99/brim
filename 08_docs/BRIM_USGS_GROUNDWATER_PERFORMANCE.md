@@ -150,13 +150,36 @@ bounded display before basemap movement. A delayed render after `zoomend` or
 `moveend` lets tile work run first. A stale callback must pass both its
 generation token and current active state before it can mount anything.
 
-## Nested-location interaction lifecycle
+## Interaction panes and lifecycle
 
 Nested markers and low-zoom aggregate markers use the dedicated
 `pane_usgs_gw_interactive` pane at z-index 585. This places bounded interactive
-DivIcons above point and operations geometry but below label/office panes, and
-prevents the transparent exact-site Canvas in `pane_points` from becoming the
-hit-test target for a visible nested marker.
+DivIcons above point and operations geometry but below label/office panes.
+
+Ordinary exact wells previously used a full-viewport Canvas in the shared
+`pane_points` pane. A Canvas is one rectangular DOM hit surface even where its
+pixels are transparent. Because `pane_points` sits above the polygon panes,
+that surface prevented HUC, Bulletin 118, groundwater-basin, and other polygon
+canvases from receiving hover or click events across the viewport. Retaining
+the completed virtualized root for ordinary off/on also allowed the shared
+renderer surface to outlive the visible wells.
+
+The bundled Leaflet 1.3.1 path confirms the lifecycle mismatch:
+`Map.getRenderer()` adds the explicit renderer as its own map layer, while
+`Path.onRemove()` removes only the path from that renderer. It does not remove
+the now-empty renderer layer or Canvas. Canvas `_onMouseMove()` and `_onClick()`
+then search only that renderer's draw list, so the upper empty/transparent DOM
+surface cannot forward a miss to a lower sibling Canvas.
+
+Ordinary wells now draw on the dedicated `pane_usgs_gw_display` pane at
+z-index 584. Only that USGS display pane has `pointer-events:none`; no shared
+pane and no global Canvas rule is changed. Capture listeners on the map
+container forward mouse movement and clicks into Leaflet's existing Canvas
+circle-marker hit loop. A real well hit stops before a lower polygon receives
+the event and retains the well tooltip/popup. Transparent Canvas space is not
+stopped, so the lower polygon receives its normal event immediately. No second
+well geometry, DOM marker population, analytical-record scan, timeout, or
+z-index-only workaround is introduced.
 
 Nested hover and popup handlers are bound before the marker is eligible for
 mount. Each marker records its coordinate ID, site count, creation generation,
@@ -171,13 +194,12 @@ Measure remains intentionally exclusive while active. A bounded
 suspension attribute/style lifecycle: `pointer-events:none` while active and
 `pointer-events:auto` after Measure closes. This is self-contained in the
 groundwater helper and also covers a pane created while Measure is already
-active.
-
-The reported intermittent state could not be browser-reproduced because the
-required in-app browser connection was unavailable in this development
-environment. Code and fixture evidence identify shared-pane Canvas/DivIcon hit
-testing, plus stale Measure pane state, as the credible failure paths addressed
-by the hardening.
+active. Turning the Local wells layer off immediately sets the interactive
+DivIcon pane to `pointer-events:none`, removes the bounded display root, clears
+Canvas hover, removes the dedicated renderer Canvas from the map, and disables
+forwarding. Cached source columns, spatial index, filters, and the completed
+same-viewport root remain available for fast reactivation without leaving an
+active or connected hit surface.
 
 The bounded diagnostic is silent by default:
 
@@ -286,13 +308,16 @@ Rscript qa/qa_usgs_groundwater_performance.R \
   /temporary/output/directory
 ```
 
-The Node fixture covers exact and aggregate display, nested semantics, dedicated
-pane hit testing, pre-mount interaction readiness, stable handler counts across
+The Node fixture covers exact and aggregate display, nested semantics, the
+USGS-only pass-through Canvas pane, transparent-space polygon pass-through,
+true-well event capture/forwarding, modeled HUC-hover and Bulletin-click
+availability before/during/after wells, immediate off-state interaction
+deactivation, pre-mount interaction readiness, stable handler counts across
 cached off/on restoration, Measure pane suppression/restoration, Canvas
-selection, lazy interactions, filtering, ordinary cached reactivation, explicit
-clear, clear during pending render, stale-job rejection, listener teardown, and
-equal radius/stroke across all eight water-level classes. It also checks the
-common legend-dot geometry.
+selection, lazy interactions, filtering, ordinary cached reactivation,
+explicit clear, clear during pending render, stale-job rejection, listener
+teardown, and equal radius/stroke across all eight water-level classes. It also
+checks the common legend-dot geometry.
 
 The R profiler writes count, nested-distribution, viewport-architecture, and
 algorithm-timing CSV files plus a short Markdown summary. Its timings are
@@ -349,8 +374,9 @@ reviewed decision.
 
 ## Limits
 
-Browser automation was unavailable in the Codex runtime used for this change.
-No interactive time, long-task, tile-settle, warning, or heap result should be
-claimed from the structural/profile fixtures. The manual full-application
-protocol above is required before declaring the user-facing acceptance targets
-met.
+The in-app browser rejected the local generated-HTML URL under its navigation
+security policy during this source gate. No interactive time, long-task,
+tile-settle, warning, or heap result should be claimed from the
+structural/profile fixtures. The manual full-application protocol above is
+required on the next rebuilt artifact before declaring the user-facing
+acceptance targets met.

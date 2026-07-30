@@ -34,6 +34,7 @@ if (length(missing_packages)) {
   )
 }
 
+source("03_functions/blm_pct_theme_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
 source("03_functions/leaflet_layer_local_core_helpers.r")
@@ -225,15 +226,41 @@ assert_true(
   "Popup defensive unmatched fallback is missing"
 )
 
-boundary_values <- c(NA, 0, 0.01, 1, 1.01, 5, 5.01, 15, 15.01, 30, 30.01, 50, 50.01)
+hover_values <- enriched[seq_len(3), , drop = FALSE]
+hover_values$percentBLMland <- c(12.34, 0, NA_real_)
+hover_html <- pt_make_gw_hover_tooltips(hover_values)
+assert_true(
+  endsWith(hover_html[[1]], "BLM-managed land: 12.3%</div></div>") &&
+    endsWith(hover_html[[2]], "BLM-managed land: 0.0%</div></div>") &&
+    endsWith(
+      hover_html[[3]],
+      "BLM-managed land: Not available</div></div>"
+    ),
+  "Bulletin 118 hover must end with one-decimal %BLM and defensive fallbacks"
+)
+assert_true(
+  all(vapply(hover_html, function(html) {
+    lengths(regmatches(
+      html,
+      gregexpr("BLM-managed land:", html, fixed = TRUE)
+    )) == 1L
+  }, logical(1))),
+  "Bulletin 118 hover duplicated the %BLM row"
+)
+
+boundary_values <- c(
+  NA, 0, 0.01, 1, 1.01, 5, 5.01, 15, 15.01, 30, 30.01, 50,
+  50.01, 75, 75.01, 100
+)
 expected_bins <- c(
   "Missing", "0%", ">0\u20131%", ">0\u20131%", ">1\u20135%", ">1\u20135%",
   ">5\u201315%", ">5\u201315%", ">15\u201330%", ">15\u201330%",
-  ">30\u201350%", ">30\u201350%", ">50%"
+  ">30\u201350%", ">30\u201350%", ">50\u201375%", ">50\u201375%",
+  ">75%", ">75%"
 )
 assert_true(
   identical(
-    as.character(pt_bulletin118_blm_bin(boundary_values)),
+    as.character(pt_blm_pct_bin(boundary_values)),
     expected_bins
   ),
   "Fixed %BLM bin boundaries changed"
@@ -322,10 +349,10 @@ assert_true(
 )
 assert_true(
   identical(
-    unname(PT_BULLETIN118_BLM_COLORS),
+    unname(PT_BLM_PCT_COLORS),
     c(
-      "#F5F5F5", "#FFF7BC", "#FEE391", "#FEC44F",
-      "#FE9929", "#D95F0E", "#993404", "#9E9E9E"
+      "#F2F2F2", "#F1E6F4", "#DFC7E5", "#C9A3D2", "#AA78B7",
+      "#87539A", "#673A7B", "#452357", "#9E9E9E"
     )
   ),
   "Fixed %BLM palette changed"
@@ -389,6 +416,18 @@ assert_true(
 assert_true(
   identical(gw_call$args[[5]], enriched$popup_html),
   "Bulletin 118 polygon registration lost popup binding"
+)
+registered_hover <- as.character(gw_call$args[[7]])
+assert_true(
+  length(registered_hover) == 515L &&
+    all(grepl("BLM-managed land:", registered_hover, fixed = TRUE)) &&
+    all(vapply(registered_hover, function(html) {
+      lengths(regmatches(
+        html,
+        gregexpr("BLM-managed land:", html, fixed = TRUE)
+      )) == 1L
+    }, logical(1))),
+  "Bulletin 118 polygon registration lost or duplicated final %BLM hover rows"
 )
 assert_true(
   length(gw_call$args[[2]]) == 515L &&

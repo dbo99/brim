@@ -23,6 +23,8 @@ function(el, x, data) {
   var frameBudgetMs = 8;
   var ordinaryWellRadius = 4.8;
   var ordinaryWellStrokeWeight = 0.95;
+  var displayPaneName = 'pane_usgs_gw_display';
+  var displayPaneZIndex = 584;
   var interactivePaneName = 'pane_usgs_gw_interactive';
   var interactivePaneZIndex = 585;
   var generation = 0;
@@ -52,7 +54,11 @@ function(el, x, data) {
   var renderStatusText = '';
   var renderStatusBusy = false;
   var pointRenderer = typeof L.canvas === 'function' ?
-    L.canvas({pane: 'pane_points', padding: 0.45, tolerance: 4}) :
+    L.canvas({
+      pane: displayPaneName,
+      padding: 0.45,
+      tolerance: 4
+    }) :
     null;
   var homeButton = null;
   var homeButtonHandler = null;
@@ -65,6 +71,10 @@ function(el, x, data) {
   var debugLastNestedEvent = null;
   var debugApi = null;
   var interactivePaneObserver = null;
+  var containerListenerRecords = [];
+  var rendererForwardedMoveCount = 0;
+  var rendererForwardedClickCount = 0;
+  var rendererHitCount = 0;
 
   function columnLength(value) {
     return Array.isArray(value) ? value.length : 0;
@@ -176,6 +186,20 @@ function(el, x, data) {
     return fallback;
   }
 
+  function ensureDisplayPane() {
+    var pane = map.getPane ? map.getPane(displayPaneName) : null;
+    if (!pane && map.createPane) pane = map.createPane(displayPaneName);
+    if (!pane) return null;
+    pane.style.zIndex = String(displayPaneZIndex);
+    /*
+     * A Leaflet Canvas covers its full pane, not only painted circles. Keep
+     * this USGS-only display surface out of DOM hit testing; the bounded
+     * virtualized circle-marker hits are forwarded explicitly below.
+     */
+    pane.style.pointerEvents = 'none';
+    return pane;
+  }
+
   function ensureInteractivePane() {
     var pane = map.getPane ? map.getPane(interactivePaneName) : null;
     if (!pane && map.createPane) {
@@ -195,7 +219,7 @@ function(el, x, data) {
       map._ptMeasureInteractionActive ||
       pane.getAttribute('data-pt-measure-suspended') === 'true'
     );
-    var expected = measureActive ? 'none' : 'auto';
+    var expected = measureActive || !layerActive ? 'none' : 'auto';
     if (pane.style.pointerEvents !== expected) {
       pane.style.pointerEvents = expected;
     }
@@ -214,6 +238,191 @@ function(el, x, data) {
         'class',
         'data-pt-measure-suspended'
       ]
+    });
+  }
+
+  function mapContainer() {
+    return map && map.getContainer ? map.getContainer() : null;
+  }
+
+  function eventTargetsUsgsDomMarker(event) {
+    var target = event && event.target;
+    if (!target || typeof target.closest !== 'function') return false;
+    return !!target.closest(
+      '.pt-usgs-gw-virtual-nested-divicon,' +
+      '.pt-usgs-gw-grid-cluster-divicon'
+    );
+  }
+
+  function eventTargetsMapUi(event) {
+    var target = event && event.target;
+    if (!target || typeof target.closest !== 'function') return false;
+    return !!target.closest(
+      '.leaflet-control,.leaflet-popup,.leaflet-tooltip'
+    );
+  }
+
+  function rendererInteractionSuppressed() {
+    return !!(
+      destroyed ||
+      !layerActive ||
+      mapMoving ||
+      mapZooming ||
+      map._ptMeasureInteractionActive ||
+      !currentRoot ||
+      !map.hasLayer ||
+      !map.hasLayer(currentRoot)
+    );
+  }
+
+  function rendererHit(event) {
+    if (
+      !pointRenderer ||
+      !pointRenderer._drawFirst ||
+      !map.mouseEventToLayerPoint
+    ) return null;
+
+    var point;
+    try {
+      point = map.mouseEventToLayerPoint(event);
+    } catch (pointError) {
+      return null;
+    }
+
+    var hit = null;
+    for (
+      var order = pointRenderer._drawFirst;
+      order;
+      order = order.next
+    ) {
+      var layer = order.layer;
+      if (
+        layer &&
+        layer.options &&
+        layer.options.interactive &&
+        typeof layer._containsPoint === 'function' &&
+        layer._containsPoint(point)
+      ) {
+        hit = layer;
+      }
+    }
+    return hit;
+  }
+
+  function setRendererCursor(active) {
+    var container = mapContainer();
+    if (
+      container &&
+      container.classList &&
+      typeof container.classList.toggle === 'function'
+    ) {
+      container.classList.toggle('pt-usgs-gw-manual-hit', !!active);
+    }
+  }
+
+  function clearRendererHover(event) {
+    setRendererCursor(false);
+    if (!pointRenderer || !pointRenderer._hoveredLayer) return;
+    if (event && typeof pointRenderer._handleMouseOut === 'function') {
+      try {
+        pointRenderer._handleMouseOut(event);
+        return;
+      } catch (mouseOutError) {}
+    }
+    try {
+      if (
+        pointRenderer._hoveredLayer.closeTooltip &&
+        pointRenderer._hoveredLayer.isTooltipOpen &&
+        pointRenderer._hoveredLayer.isTooltipOpen()
+      ) {
+        pointRenderer._hoveredLayer.closeTooltip();
+      }
+    } catch (tooltipCloseError) {}
+    pointRenderer._hoveredLayer = null;
+  }
+
+  function stopAtWell(event) {
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    if (event.stopPropagation) event.stopPropagation();
+  }
+
+  function forwardRendererMove(event) {
+    if (
+      eventTargetsUsgsDomMarker(event) ||
+      eventTargetsMapUi(event)
+    ) {
+      setRendererCursor(false);
+      return;
+    }
+    if (rendererInteractionSuppressed()) {
+      clearRendererHover(event);
+      return;
+    }
+    if (
+      !pointRenderer ||
+      !pointRenderer._drawFirst ||
+      !map.hasLayer(pointRenderer) ||
+      typeof pointRenderer._onMouseMove !== 'function'
+    ) {
+      setRendererCursor(false);
+      return;
+    }
+
+    pointRenderer._onMouseMove(event);
+    rendererForwardedMoveCount += 1;
+    var hit = pointRenderer._hoveredLayer;
+    setRendererCursor(!!hit);
+    if (hit) {
+      rendererHitCount += 1;
+      stopAtWell(event);
+    }
+  }
+
+  function forwardRendererClick(event) {
+    if (
+      eventTargetsUsgsDomMarker(event) ||
+      eventTargetsMapUi(event) ||
+      rendererInteractionSuppressed()
+    ) return;
+    if (
+      !pointRenderer ||
+      typeof pointRenderer._onClick !== 'function' ||
+      !rendererHit(event)
+    ) return;
+
+    pointRenderer._onClick(event);
+    rendererForwardedClickCount += 1;
+    rendererHitCount += 1;
+    stopAtWell(event);
+  }
+
+  function installRendererForwarding() {
+    var container = mapContainer();
+    if (!container || !container.addEventListener) return;
+    [
+      {eventName: 'mousemove', handler: forwardRendererMove},
+      {eventName: 'click', handler: forwardRendererClick},
+      {
+        eventName: 'mouseout',
+        handler: function(event) {
+          if (
+            !event.relatedTarget ||
+            !container.contains ||
+            !container.contains(event.relatedTarget)
+          ) clearRendererHover(event);
+        }
+      }
+    ].forEach(function(record) {
+      container.addEventListener(
+        record.eventName,
+        record.handler,
+        true
+      );
+      containerListenerRecords.push({
+        target: container,
+        eventName: record.eventName,
+        handler: record.handler
+      });
     });
   }
 
@@ -743,12 +952,24 @@ function(el, x, data) {
   }
 
   function closeInteractiveState() {
+    clearRendererHover();
     try { map.closePopup(); } catch (popupErr) {}
     try {
       var container = map.getContainer();
       var tooltip = container.querySelector('.leaflet-tooltip.pt-usgs-gw-local-tooltip');
       if (tooltip && tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
     } catch (tooltipErr) {}
+  }
+
+  function detachPointRenderer() {
+    clearRendererHover();
+    if (
+      !pointRenderer ||
+      !map.hasLayer ||
+      !map.removeLayer ||
+      !map.hasLayer(pointRenderer)
+    ) return;
+    try { map.removeLayer(pointRenderer); } catch (rendererRemoveError) {}
   }
 
   function disposeRootLater(root) {
@@ -768,11 +989,15 @@ function(el, x, data) {
 
   function detachCurrent(preserveComplete) {
     closeInteractiveState();
-    if (!currentRoot) return;
+    if (!currentRoot) {
+      detachPointRenderer();
+      return;
+    }
     markRootMounted(currentRoot, false);
     try {
       if (map.hasLayer(currentRoot)) map.removeLayer(currentRoot);
     } catch (removeErr) {}
+    detachPointRenderer();
     if (!preserveComplete || !currentRootComplete) {
       var old = currentRoot;
       currentRoot = null;
@@ -1603,7 +1828,7 @@ function(el, x, data) {
       inOps(index) ? '#ff00cc' : '#4D4D4D'
     );
     var options = {
-      pane: 'pane_points',
+      pane: displayPaneName,
       radius: ordinaryWellRadius,
       stroke: true,
       color: stroke,
@@ -1690,6 +1915,7 @@ function(el, x, data) {
 
   function mountDescriptors(token, renderKey, built) {
     if (!tokenCurrent(token) || !layerActive) return;
+    ensureDisplayPane();
     ensureInteractivePane();
 
     profilePhaseStart('layer-mount', {
@@ -1704,6 +1930,7 @@ function(el, x, data) {
       try {
         if (map.hasLayer(previousRoot)) map.removeLayer(previousRoot);
       } catch (removePreviousErr) {}
+      detachPointRenderer();
     }
 
     var root = L.layerGroup();
@@ -1722,6 +1949,7 @@ function(el, x, data) {
       if (!tokenCurrent(token) || !layerActive || currentRoot !== root) {
         markRootMounted(root, false);
         try { if (map.hasLayer(root)) map.removeLayer(root); } catch (removeErr) {}
+        detachPointRenderer();
         if (currentRoot === root) {
           currentRoot = null;
           currentRootComplete = false;
@@ -1857,11 +2085,14 @@ function(el, x, data) {
 
   function activate(reason) {
     layerActive = true;
+    ensureDisplayPane();
+    syncInteractivePanePointerState();
     scheduleRender(reason || 'activate', 0);
   }
 
   function deactivate(dropDisplayCache) {
     layerActive = false;
+    syncInteractivePanePointerState();
     hardClearDisplay(!!dropDisplayCache);
     profileRecord('deactivate', {
       dropDisplayCache: !!dropDisplayCache
@@ -1935,8 +2166,34 @@ function(el, x, data) {
       ordinaryWellOuterDiameter: Number(
         (2 * ordinaryWellRadius + ordinaryWellStrokeWeight).toFixed(2)
       ),
+      displayPane: displayPaneName,
+      displayPaneZIndex: displayPaneZIndex,
+      displayPanePassThrough: !!(
+        map.getPane &&
+        map.getPane(displayPaneName) &&
+        map.getPane(displayPaneName).style.pointerEvents === 'none'
+      ),
+      displayRendererMounted: !!(
+        pointRenderer &&
+        map.hasLayer &&
+        map.hasLayer(pointRenderer)
+      ),
+      displayCanvasConnected: !!(
+        pointRenderer &&
+        pointRenderer._container &&
+        pointRenderer._container.isConnected
+      ),
       interactivePane: interactivePaneName,
       interactivePaneZIndex: interactivePaneZIndex,
+      interactionForwardingActive: !!(
+        layerActive &&
+        currentRoot &&
+        map.hasLayer &&
+        map.hasLayer(currentRoot)
+      ),
+      rendererForwardedMoveCount: rendererForwardedMoveCount,
+      rendererForwardedClickCount: rendererForwardedClickCount,
+      rendererHitCount: rendererHitCount,
       mapMoving: mapMoving,
       mapZooming: mapZooming
     };
@@ -1959,6 +2216,7 @@ function(el, x, data) {
       '.leaflet-tooltip.pt-usgs-gw-local-tooltip{' +
       'font:12px/1.25 Arial,sans-serif;white-space:normal;' +
       'min-width:170px;max-width:360px;}' +
+      '.leaflet-container.pt-usgs-gw-manual-hit{cursor:pointer!important;}' +
       '.pt-usgs-gw-virtual-nested-divicon,' +
       '.pt-usgs-gw-grid-cluster-divicon{' +
       'background:transparent;border:0;pointer-events:auto;}' +
@@ -2068,13 +2326,25 @@ function(el, x, data) {
       try { interactivePaneObserver.disconnect(); } catch (paneObserverErr) {}
       interactivePaneObserver = null;
     }
+    containerListenerRecords.forEach(function(record) {
+      try {
+        record.target.removeEventListener(
+          record.eventName,
+          record.handler,
+          true
+        );
+      } catch (containerListenerError) {}
+    });
+    containerListenerRecords = [];
     if (window.BRIM_USGS_GW_DEBUG === debugApi) {
       delete window.BRIM_USGS_GW_DEBUG;
     }
   }
 
   installStyles();
+  ensureDisplayPane();
   installInteractivePaneObserver();
+  installRendererForwarding();
   installProfiler();
 
   window.BRIM_USGS_GW_PROFILE = {
