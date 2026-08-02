@@ -531,6 +531,28 @@ pt_ops_live_layer_definition_js <- function() {
     });
   }
 
+  if (includeMajorWaterSupplyBasinForecasts &&
+      MAJOR_WATER_SUPPLY_GEOMETRY &&
+      MAJOR_WATER_SUPPLY_GEOMETRY.features &&
+      MAJOR_WATER_SUPPLY_GEOMETRY.features.length === 23) {
+    addOpsLayer({
+      category: 'Forecasts / Outlooks',
+      subgroup: 'River / Reservoir Forecasts',
+      name: 'Major Water-Supply Basin Forecasts',
+      panelLabel: 'Water-Supply Basin Forecasts | CNRFC / CBRFC',
+      refreshable: true,
+      sourceUrl: MAJOR_WATER_SUPPLY_CNRFC_URL,
+      infoUrl: MAJOR_WATER_SUPPLY_CBRFC_URL,
+      infoLabel: 'CBRFC feed',
+      layer: makeMajorWaterSupplyBasinForecastLayer({
+        name: 'Major Water-Supply Basin Forecasts',
+        cnrfcUrl: MAJOR_WATER_SUPPLY_CNRFC_URL,
+        cbrfcUrl: MAJOR_WATER_SUPPLY_CBRFC_URL,
+        geometry: MAJOR_WATER_SUPPLY_GEOMETRY
+      })
+    });
+  }
+
   if (includeCdecReservoirStorage && CDEC_RESERVOIR_STORAGE_URL) {
     addOpsLayer({
       category: 'Forecasts / Outlooks',

@@ -61,6 +61,7 @@ function makeStyle(onWrite) {
 }
 
 function emptyNode(tagName = "div", initialClass = "") {
+  const listeners = {};
   const node = {
     nodeType: 1,
     tagName: tagName.toUpperCase(),
@@ -73,10 +74,13 @@ function emptyNode(tagName = "div", initialClass = "") {
     style: makeStyle(),
     textContent: "",
     appendChild(child) {
+      if (child.parentNode && child.parentNode !== this) {
+        child.parentNode.removeChild(child);
+      }
       child.parentNode = this;
       child.parentElement = this;
-      this.childNodes.push(child);
-      this.children.push(child);
+      if (!this.childNodes.includes(child)) this.childNodes.push(child);
+      if (!this.children.includes(child)) this.children.push(child);
       return child;
     },
     insertBefore(child) {
@@ -95,8 +99,24 @@ function emptyNode(tagName = "div", initialClass = "") {
     getAttribute(name) {
       return this[name] === undefined ? null : this[name];
     },
-    addEventListener() {},
-    removeEventListener() {},
+    addEventListener(name, handler) {
+      listeners[name] = listeners[name] || [];
+      listeners[name].push(handler);
+    },
+    removeEventListener(name, handler) {
+      listeners[name] = (listeners[name] || []).filter(
+        (candidate) => candidate !== handler
+      );
+    },
+    dispatchEvent(event) {
+      event.target = event.target || this;
+      (listeners[event.type] || []).slice().forEach(
+        (handler) => handler(event)
+      );
+    },
+    listenerCount(name) {
+      return (listeners[name] || []).length;
+    },
     querySelector() {
       return null;
     },
@@ -139,6 +159,7 @@ mapContainer.getBoundingClientRect = () => ({
 
 let cornerStyleWrites = 0;
 const corner = emptyNode("div", "leaflet-bottom leaflet-left");
+mapContainer.appendChild(corner);
 corner.scrollTop = 0;
 corner.style = makeStyle(() => {
   cornerStyleWrites += 1;
@@ -151,11 +172,15 @@ corner.style = makeStyle(() => {
 });
 
 const card = emptyNode("div", "pt-map-legend-card");
-card.getBoundingClientRect = () => {
-  const bottomCss = parseFloat(
+function cornerBottomPx() {
+  const managedBottom = parseFloat(
     corner.style.getPropertyValue("--pt-map-legend-bottom")
   );
-  const bottom = Number.isFinite(bottomCss) ? bottomCss : 4;
+  if (Number.isFinite(managedBottom)) return managedBottom;
+  return corner.classList.contains("pt-map-legend-gap-managed") ? 4 : 0;
+}
+card.getBoundingClientRect = () => {
+  const bottom = cornerBottomPx();
   const top = 484 - bottom;
   return {
     left: 8,
@@ -167,10 +192,24 @@ card.getBoundingClientRect = () => {
   };
 };
 
+const secondCard = emptyNode("div", "pt-map-legend-card");
+secondCard.getBoundingClientRect = () => {
+  const bottom = cornerBottomPx();
+  const top = 396 - bottom;
+  return {
+    left: 8,
+    right: 308,
+    top,
+    bottom: top + 80,
+    width: 300,
+    height: 80
+  };
+};
+const visibleCards = [card];
 corner.querySelectorAll = (selector) => (
-  selector === ".pt-map-legend-card" ? [card] : []
+  selector === ".pt-map-legend-card" ? visibleCards.slice() : []
 );
-corner.contains = (candidate) => candidate === card;
+corner.contains = (candidate) => visibleCards.includes(candidate);
 
 const externalWrap = emptyNode("div");
 externalWrap.id = "pt-tools-adddata-wrap";
@@ -187,6 +226,7 @@ documentById[externalWrap.id] = externalWrap;
 mapContainer.contains = (candidate) => (
   candidate === corner ||
   candidate === card ||
+  candidate === secondCard ||
   candidate === externalWrap
 );
 mapContainer.querySelectorAll = (selector) => {
@@ -199,12 +239,14 @@ mapContainer.querySelectorAll = (selector) => {
   return [];
 };
 
+const documentEvents = emptyNode("document");
 global.document = {
   head: documentHead,
   createElement: (tagName) => emptyNode(tagName),
   getElementById: (id) => documentById[id] || null,
-  addEventListener() {},
-  removeEventListener() {}
+  addEventListener: documentEvents.addEventListener.bind(documentEvents),
+  removeEventListener: documentEvents.removeEventListener.bind(documentEvents),
+  dispatchEvent: documentEvents.dispatchEvent.bind(documentEvents)
 };
 
 const frameCallbacks = new Map();
@@ -225,6 +267,18 @@ function flushMutations() {
   if (records.length && mutationCallback) mutationCallback(records);
 }
 
+const timeoutCallbacks = [];
+function setTimeoutMock(callback, delay = 0) {
+  timeoutCallbacks.push({callback, delay});
+  return timeoutCallbacks.length;
+}
+function flushTimeouts() {
+  const pending = timeoutCallbacks.splice(0).sort(
+    (a, b) => a.delay - b.delay
+  );
+  pending.forEach(({callback}) => callback());
+}
+
 global.MutationObserver = class {
   constructor(callback) {
     mutationCallback = callback;
@@ -233,9 +287,11 @@ global.MutationObserver = class {
   disconnect() {}
 };
 
+const resizeObservers = [];
 class ResizeObserverMock {
   constructor(callback) {
     this.callback = callback;
+    resizeObservers.push(this);
   }
   observe() {}
   disconnect() {}
@@ -246,7 +302,7 @@ global.window = {
   ResizeObserver: ResizeObserverMock,
   requestAnimationFrame,
   cancelAnimationFrame: (id) => frameCallbacks.delete(id),
-  setTimeout: () => 1,
+  setTimeout: setTimeoutMock,
   clearTimeout() {},
   addEventListener() {},
   getComputedStyle(node) {
@@ -254,12 +310,18 @@ global.window = {
       return {
         display: "block",
         bottom:
-          corner.style.getPropertyValue("--pt-map-legend-bottom") || "4px"
+          corner.style.getPropertyValue("--pt-map-legend-bottom") ||
+          (corner.classList.contains("pt-map-legend-gap-managed")
+            ? "4px"
+            : "0px")
       };
     }
     return {display: "block", bottom: "0px"};
   }
 };
+
+global.setTimeout = setTimeoutMock;
+global.clearTimeout = () => {};
 
 const map = {
   getContainer: () => mapContainer,
@@ -280,6 +342,21 @@ assert.strictEqual(
   "384px"
 );
 
+const authoritativeInitialWrites = cornerStyleWrites;
+flushTimeouts();
+assert.strictEqual(frameCallbacks.size, 1);
+flushFrames();
+assert.strictEqual(
+  corner.style.getPropertyValue("--pt-map-legend-bottom"),
+  "134px",
+  "a later startup pass corrected a mismatched initial bottom offset"
+);
+assert.strictEqual(
+  cornerStyleWrites,
+  authoritativeInitialWrites,
+  "a later startup pass exposed a second initial stack position"
+);
+
 flushMutations();
 assert.strictEqual(
   frameCallbacks.size,
@@ -296,6 +373,14 @@ assert.strictEqual(
   firstStableWrites,
   "an already-settled card rewrote its layout styles"
 );
+resizeObservers.forEach((observer) => observer.callback());
+assert.strictEqual(frameCallbacks.size, 1);
+flushFrames();
+assert.strictEqual(
+  cornerStyleWrites,
+  firstStableWrites,
+  "ResizeObserver activity rewrote a settled stack position"
+);
 flushMutations();
 assert.strictEqual(
   frameCallbacks.size,
@@ -307,6 +392,138 @@ const layoutStats = window.BRIM.legendCloseout.layoutStats();
 assert.strictEqual(layoutStats.framePending, false);
 assert.ok(layoutStats.ignoredSelfMutationCount >= 2);
 assert.strictEqual(layoutStats.styleWriteCount, 2);
+
+visibleCards.push(secondCard);
+window.BRIM.legendCloseout.scheduleLayout(secondCard);
+assert.strictEqual(frameCallbacks.size, 1);
+flushFrames();
+assert.strictEqual(
+  corner.style.getPropertyValue("--pt-map-legend-bottom"),
+  "90px",
+  "two lower-left cards did not settle as one centered stack"
+);
+assert.strictEqual(
+  secondCard.getBoundingClientRect().top,
+  306,
+  "the two-card stack did not settle at the authoritative safe-gap top"
+);
+const twoCardStableWrites = cornerStyleWrites;
+window.BRIM.legendCloseout.scheduleLayout();
+flushFrames();
+assert.strictEqual(
+  cornerStyleWrites,
+  twoCardStableWrites,
+  "a settled two-card stack repeated an identical style write"
+);
+assert.strictEqual(
+  /\./.test(corner.style.getPropertyValue("--pt-map-legend-bottom")),
+  false,
+  "lower-left positioning retained a fractional CSS pixel"
+);
+flushMutations();
+assert.strictEqual(
+  frameCallbacks.size,
+  0,
+  "the settled two-card stack left an observer-driven animation frame"
+);
+const finalLayoutStats = window.BRIM.legendCloseout.layoutStats();
+assert.strictEqual(finalLayoutStats.framePending, false);
+assert.strictEqual(finalLayoutStats.styleWriteCount, 3);
+
+const detachableCard = emptyNode("div", "pt-map-legend-card");
+detachableCard.style = makeStyle();
+detachableCard.getBoundingClientRect = () => {
+  const floating = detachableCard.classList.contains("pt-map-card-undocked");
+  const left = floating
+    ? parseFloat(detachableCard.style.getPropertyValue("left")) || 0
+    : 8;
+  const top = floating
+    ? parseFloat(detachableCard.style.getPropertyValue("top")) || 0
+    : 320;
+  return {left, top, right: left + 220, bottom: top + 120, width: 220, height: 120};
+};
+const dockButton = emptyNode("button", "pt-map-card-dock test-dock");
+const closeButton = emptyNode("button", "test-close");
+const dragHandle = emptyNode("div", "pt-map-card-handle");
+detachableCard.appendChild(dragHandle);
+detachableCard.appendChild(dockButton);
+detachableCard.appendChild(closeButton);
+detachableCard.querySelector = (selector) => ({
+  ".test-dock": dockButton,
+  ".test-close": closeButton,
+  ".pt-map-card-handle": dragHandle
+}[selector] || null);
+corner.appendChild(detachableCard);
+
+const detachableState = window.BRIM.legendCloseout.makeDetachable({
+  card: detachableCard,
+  map,
+  handleSelector: ".pt-map-card-handle",
+  dockSelector: ".test-dock",
+  label: "test card"
+});
+assert.ok(detachableState);
+assert.strictEqual(dockButton.listenerCount("click"), 1);
+assert.strictEqual(dragHandle.listenerCount("pointerdown"), 1);
+dockButton.dispatchEvent({
+  type: "click",
+  preventDefault() {},
+  stopPropagation() {}
+});
+assert.strictEqual(detachableState.floating, true);
+assert.strictEqual(detachableCard.parentNode, mapContainer);
+assert.strictEqual(
+  detachableCard.classList.contains("pt-map-card-undocked"),
+  true
+);
+
+dragHandle.dispatchEvent({
+  type: "pointerdown",
+  target: dragHandle,
+  button: 0,
+  clientX: 20,
+  clientY: 330,
+  preventDefault() {},
+  stopPropagation() {}
+});
+document.dispatchEvent({
+  type: "pointermove",
+  clientX: 65,
+  clientY: 365,
+  preventDefault() {}
+});
+document.dispatchEvent({type: "pointerup"});
+assert.strictEqual(detachableCard.style.getPropertyValue("left"), "53px");
+assert.strictEqual(detachableCard.style.getPropertyValue("top"), "355px");
+
+dockButton.dispatchEvent({
+  type: "click",
+  preventDefault() {},
+  stopPropagation() {}
+});
+assert.strictEqual(detachableState.floating, false);
+assert.strictEqual(detachableCard.parentNode, corner);
+assert.strictEqual(
+  detachableCard.classList.contains("pt-map-card-undocked"),
+  false
+);
+
+let closeCallbackCount = 0;
+window.BRIM.legendCloseout.wire(
+  detachableCard,
+  ".test-close",
+  () => { closeCallbackCount += 1; }
+);
+closeButton.dispatchEvent({
+  type: "click",
+  preventDefault() {},
+  stopPropagation() {}
+});
+assert.strictEqual(closeCallbackCount, 1);
+assert.strictEqual(detachableCard.style.display, "none");
+detachableState.destroy(false);
+assert.strictEqual(dockButton.listenerCount("click"), 0);
+assert.strictEqual(dragHandle.listenerCount("pointerdown"), 0);
 
 assert.match(helperSource, /Math\.round\(value\)/);
 assert.match(

@@ -218,6 +218,14 @@ layers <- list(
     label = "CNRFC precip/weather station catalog local layer"
   ),
 
+  major_water_supply_basin_geometry = if (
+    isTRUE(MAP_DISPLAY$add_ops_major_water_supply_basin_forecasts)
+  ) {
+    readRDS(file.path(DIR$cache_last, "major_water_supply_basin_geometry_map.rds"))
+  } else {
+    NULL
+  },
+
   deltamapr_canals = if (isTRUE(MAP_DISPLAY$add_deltamapr_canals)) {
     readRDS(file.path(DIR$cache_last, "deltamapr_canals_map.rds"))
   } else {
@@ -1178,7 +1186,8 @@ m <- pt_add_ops_live_layers(
   m = m,
   map_display = MAP_DISPLAY,
   cnrfc_river_reservoir_forecast_points = layers$cnrfc_active_river_reservoir_forecast_points,
-  cnrfc_precip_weather_stations = layers$cnrfc_precip_weather_stations
+  cnrfc_precip_weather_stations = layers$cnrfc_precip_weather_stations,
+  major_water_supply_basin_geometry = layers$major_water_supply_basin_geometry
 )
 
 m <- pt_add_tools_adddata_panel(

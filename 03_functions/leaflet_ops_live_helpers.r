@@ -42,6 +42,7 @@ pt_ops_live_source_module("leaflet_ops_live_snow_pillow_helpers.r", "Ops Live sn
 pt_ops_live_source_module("leaflet_ops_live_delta_ops_helpers.r", "Ops Live Delta operations helper")
 pt_ops_live_source_module("leaflet_ops_live_cnrfc_forecast_points_helpers.r", "Ops Live CNRFC forecast-points helper")
 pt_ops_live_source_module("leaflet_ops_live_cnrfc_precip_weather_helpers.r", "Ops Live CNRFC precip/weather helper")
+pt_ops_live_source_module("leaflet_ops_live_major_water_supply_basin_helpers.r", "Ops Live major water-supply basin helper")
 pt_ops_live_source_module("leaflet_ops_live_arcgis_export_helpers.r", "Ops Live ArcGIS export helper")
 pt_ops_live_source_module("leaflet_ops_live_service_helpers.r", "Ops Live service/status helper")
 pt_ops_live_source_module("leaflet_ops_live_layer_definition_helpers.r", "Ops Live layer-definition helper")
@@ -248,7 +249,7 @@ pt_ops_live_default_feed_url <- function(path) {
   )
 }
 
-pt_add_ops_live_layers <- function(m, map_display, cnrfc_river_reservoir_forecast_points = NULL, cnrfc_precip_weather_stations = NULL) {
+pt_add_ops_live_layers <- function(m, map_display, cnrfc_river_reservoir_forecast_points = NULL, cnrfc_precip_weather_stations = NULL, major_water_supply_basin_geometry = NULL) {
 
   if (!isTRUE(map_display$add_ops_live_layers)) {
     return(m)
@@ -296,6 +297,15 @@ function(el, x, data) {
   var CNRFC_RIVER_RESERVOIR_FORECAST_POINTS = data && data.cnrfcRiverReservoirForecastPoints ? data.cnrfcRiverReservoirForecastPoints : [];
   var includeCnrfcPrecipWeatherStations = !!(data && data.includeCnrfcPrecipWeatherStations);
   var CNRFC_PRECIP_WEATHER_STATIONS = data && data.cnrfcPrecipWeatherStations ? data.cnrfcPrecipWeatherStations : [];
+  var includeMajorWaterSupplyBasinForecasts = !!(data && data.includeMajorWaterSupplyBasinForecasts);
+  var MAJOR_WATER_SUPPLY_CNRFC_URL = data && data.majorWaterSupplyCnrfcUrl ? String(data.majorWaterSupplyCnrfcUrl) : '';
+  var MAJOR_WATER_SUPPLY_CBRFC_URL = data && data.majorWaterSupplyCbrfcUrl ? String(data.majorWaterSupplyCbrfcUrl) : '';
+  var MAJOR_WATER_SUPPLY_GEOMETRY = data && data.majorWaterSupplyGeometry ? data.majorWaterSupplyGeometry : {type:'FeatureCollection',features:[]};
+  var MAJOR_WATER_SUPPLY_PRODUCT_MAPPING = data && data.majorWaterSupplyProductMapping ? data.majorWaterSupplyProductMapping : [];
+  var MAJOR_WATER_SUPPLY_GEOMETRY_CATALOG = data && data.majorWaterSupplyGeometryCatalog ? data.majorWaterSupplyGeometryCatalog : [];
+  var MAJOR_WATER_SUPPLY_COMPONENT_MANIFEST = data && data.majorWaterSupplyComponentManifest ? data.majorWaterSupplyComponentManifest : [];
+  var MAJOR_WATER_SUPPLY_RESERVOIR_CROSSWALK = data && data.majorWaterSupplyReservoirCrosswalk ? data.majorWaterSupplyReservoirCrosswalk : [];
+  var MAJOR_WATER_SUPPLY_RELATED_LINKS = data && data.majorWaterSupplyRelatedLinks ? data.majorWaterSupplyRelatedLinks : [];
   var OPS_CATALOG_PRIMARY_PANEL = data && data.opsCatalogPrimaryPanel ? data.opsCatalogPrimaryPanel : {};
   var includeGfsSurfaceWind = !!(data && data.includeGfsSurfaceWind);
   var GFS_SURFACE_WIND_MANIFEST_URL = data && data.gfsSurfaceWindManifestUrl ? String(data.gfsSurfaceWindManifestUrl) : '';
@@ -326,6 +336,8 @@ __PT_OPS_LIVE_CNRFC_FORECAST_POINTS_HELPERS_JS__
 
 __PT_OPS_LIVE_CNRFC_PRECIP_WEATHER_HELPERS_JS__
 
+__PT_OPS_LIVE_MAJOR_WATER_SUPPLY_BASIN_HELPERS_JS__
+
 __PT_OPS_LIVE_ARCGIS_EXPORT_HELPERS_JS____PT_OPS_LIVE_SERVICE_HELPERS_JS____PT_OPS_LIVE_LAYER_DEFINITION_HELPERS_JS__
 
 __PT_OPS_LIVE_WIND_HELPERS_JS__
@@ -354,6 +366,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     "__PT_OPS_LIVE_DELTA_OPS_HELPERS_JS__" = "pt_ops_live_delta_ops_js",
     "__PT_OPS_LIVE_CNRFC_FORECAST_POINTS_HELPERS_JS__" = "pt_ops_live_cnrfc_forecast_points_js",
     "__PT_OPS_LIVE_CNRFC_PRECIP_WEATHER_HELPERS_JS__" = "pt_ops_live_cnrfc_precip_weather_js",
+    "__PT_OPS_LIVE_MAJOR_WATER_SUPPLY_BASIN_HELPERS_JS__" = "pt_ops_live_major_water_supply_basin_js",
     "__PT_OPS_LIVE_ARCGIS_EXPORT_HELPERS_JS__" = "pt_ops_live_arcgis_export_js",
     "__PT_OPS_LIVE_SERVICE_HELPERS_JS__" = "pt_ops_live_service_helpers_js",
     "__PT_OPS_LIVE_LAYER_DEFINITION_HELPERS_JS__" = "pt_ops_live_layer_definition_js",
@@ -385,6 +398,19 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
       js = js,
       token = token,
       replacement = do.call(ops_live_js_helpers[[token]], list())
+    )
+  }
+
+  major_basin_payload <- if (
+    isTRUE(map_display$add_ops_major_water_supply_basin_forecasts) &&
+    inherits(major_water_supply_basin_geometry, "sf")
+  ) {
+    pt_ops_live_major_basin_payload(major_water_supply_basin_geometry)
+  } else {
+    list(
+      geometry = list(type = "FeatureCollection", features = list()),
+      productMapping = list(), geometryCatalog = list(), componentManifest = list(),
+      reservoirCrosswalk = list(), relatedLinks = list()
     )
   }
 
@@ -580,6 +606,25 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
         cnrfc_precip_weather_stations,
         pt_ops_live_cnrfc_precip_weather_record_cols()
       ),
+      includeMajorWaterSupplyBasinForecasts = isTRUE(
+        map_display$add_ops_major_water_supply_basin_forecasts
+      ) && length(major_basin_payload$geometry$features) == 23L,
+      majorWaterSupplyCnrfcUrl = if (!is.null(map_display$ops_major_water_supply_cnrfc_url)) {
+        map_display$ops_major_water_supply_cnrfc_url
+      } else {
+        pt_ops_live_default_feed_url("data/major_water_supply_basin_forecasts.json")
+      },
+      majorWaterSupplyCbrfcUrl = if (!is.null(map_display$ops_major_water_supply_cbrfc_url)) {
+        map_display$ops_major_water_supply_cbrfc_url
+      } else {
+        pt_ops_live_default_feed_url("data/cbrfc_major_water_supply_forecasts.json")
+      },
+      majorWaterSupplyGeometry = major_basin_payload$geometry,
+      majorWaterSupplyProductMapping = major_basin_payload$productMapping,
+      majorWaterSupplyGeometryCatalog = major_basin_payload$geometryCatalog,
+      majorWaterSupplyComponentManifest = major_basin_payload$componentManifest,
+      majorWaterSupplyReservoirCrosswalk = major_basin_payload$reservoirCrosswalk,
+      majorWaterSupplyRelatedLinks = major_basin_payload$relatedLinks,
       includeGfsSurfaceWind = if (!is.null(map_display$add_ops_gfs_surface_wind)) {
         isTRUE(map_display$add_ops_gfs_surface_wind)
       } else {

@@ -11,6 +11,17 @@
 
 The complete exclusions are listed in `EXTERNAL_DATA_MANIFEST.csv`.
 
+## Major water-supply basin external geometry
+
+Phase B2 tracks only reviewed manifests and configuration. The official
+`CBRFC_Basins` shapefile family, `CBRFC_Outlets.zip`, original WBD HUC2 14/15
+archives, retained California RDS inputs, generated 23-feature RDS/cache files,
+QA CSVs, and rendered PNGs remain external. Their expected sizes, hashes,
+feature counts, schemas, CRS, URLs, and timestamps are recorded in
+`00_config/major_water_supply_basin_source_manifest.csv` and the focused QA
+provenance. Do not commit these raw or generated geospatial products. The large
+CBRFC zones archive is intentionally not a dependency.
+
 ## UIC aquifer-exemption products
 
 The controlled UIC pipeline writes generated data only to ignored tiers:

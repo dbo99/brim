@@ -38,6 +38,8 @@ dependency chain for the dataset being updated.
 - Consolidated conveyance: `02_preprocess/66_build_conveyance_pipeline.R`
 - UIC aquifer exemptions:
   `02_preprocess/67_build_uic_aquifer_exemptions.R`
+- Static major water-supply basin geometry:
+  `02_preprocess/69_build_major_water_supply_basin_geometry.R`
 - Main map assembly: `05_map_build/` via `run_build_map.r`
 
 ### UIC build boundary
@@ -52,6 +54,53 @@ The ordinary `build_final_map_only()` path never reads UIC raw, candidate,
 approved, map-ready, or label products. Production UIC rows appear only under
 **External Layers → Energy / Minerals → Underground Injection Control (UIC)**
 and contact their authoritative services only after a user enables them.
+
+### Major water-supply basin geometry
+
+This focused preprocessor depends on the retained California RDS inputs, the
+reviewed six-file CBRFC basin/outlet source set, and original WBD HUC2 14/15
+archives listed in the source manifest. Source acquisition is a separate,
+reviewed step; the builder does not download data, calculate forecast values,
+rebuild unrelated caches, or build HTML:
+
+```r
+source("run_build_map.r")
+preprocess_major_water_supply_basin_geometry()
+```
+
+It writes 23 retained geometries: 19 preserved California records, two
+generalized CBRFC operational unions, and two context-only HUC2 polygons. It
+also writes the 54-row mapping audit, source/checksum and selector audits,
+per-feature hashes, geometry/hole/part/outlet/HUC2 metrics, and five rendered
+comparison maps. California originals use `keep = 0.20`; the four cleaned
+derived unions use `keep = 0.10`; CBRFC unions use `keep = 0.05` under a 0.05%
+area guardrail; HUC2 context uses visually reviewed `keep = 0.01`.
+
+After one display simplification and any required validity repair, the four
+derived displays receive a separate narrow normalization pass. It fills
+validity-created interior rings and defensively removes only detached parts
+strictly smaller than 0.01 square mile. This display-only step has its own
+0.01% area-change guardrail and writes a per-artifact QA table. It does not run
+on the original 15 or alter the unsimplified EPSG:3310 product.
+
+The LKSA3 authoritative union retains its measured approximately 1.486-square-
+mile source gap. Its reviewed one-time 0.05 simplification fills that gap as an
+explicit geometry-specific display exception; no general hole-fill rule is
+added. The original full-resolution FNF RDS remains authoritative, all 19
+Phase B1 feature hashes must remain unchanged, and the old Local
+`cnrfc_fnf_delta_map.rds` cache is not rewritten.
+
+Run focused QA after preprocessing:
+
+```r
+source("qa/test_major_water_supply_basin_geometry.R")
+```
+
+See `08_docs/BRIM_MAJOR_WATER_SUPPLY_BASIN_FORECASTS.md` for the 23-object
+inventory, literal 54-key producer mapping, generalized-union limitations,
+source hashes, simplification results, supporting-link separation, and rendered
+review. This preprocessor is intentionally not part of any broad default
+rebuild.
 
 ## Source-repository limitation
 

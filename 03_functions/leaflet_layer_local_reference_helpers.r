@@ -909,6 +909,33 @@ function(el, x) {
 
   var currentMode = 'product_availability';
   var overlayState = false;
+  var cardUserHidden = false;
+  var cardControl = null;
+  var cardDiv = null;
+  var controllerDestroyed = false;
+  var mapBindings = [];
+
+  if (
+    map.__ptCnrfcBasinAvailabilityController &&
+    map.__ptCnrfcBasinAvailabilityController.destroy
+  ) {
+    map.__ptCnrfcBasinAvailabilityController.destroy();
+  }
+
+  function onMap(events, handler) {
+    if (!map || !map.on) return;
+    map.on(events, handler);
+    mapBindings.push({events: events, handler: handler});
+  }
+
+  function scheduleCardLayout(card) {
+    if (
+      window.BRIM && window.BRIM.legendCloseout &&
+      window.BRIM.legendCloseout.scheduleLayout
+    ) {
+      window.BRIM.legendCloseout.scheduleLayout(card || null);
+    }
+  }
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -1075,84 +1102,222 @@ function(el, x) {
     updatePanel();
   }
 
-  function addFloatingCnrfcBasinPanel() {
-    var mapContainer = map && map.getContainer ? map.getContainer() : (el ? el.querySelector('.leaflet-container') : null);
-    if (!mapContainer) {
-      console.warn('CNRFC basin availability panel: map container not found.');
-      return;
+  function cardActionsHtml() {
+    if (
+      window.BRIM && window.BRIM.legendCloseout &&
+      window.BRIM.legendCloseout.actionsHtml
+    ) {
+      return window.BRIM.legendCloseout.actionsHtml(
+        'pt-cnrfc-basin-dock',
+        'pt-cnrfc-basin-close',
+        'CNRFC basin catalog availability'
+      );
     }
+    return '<span class="pt-map-card-actions">' +
+      '<button type="button" class="pt-map-card-dock pt-cnrfc-basin-dock" aria-label="Undock CNRFC basin catalog availability" title="Undock CNRFC basin catalog availability">&#x2197;</button>' +
+      '<button type="button" class="pt-map-legend-close pt-cnrfc-basin-close" aria-label="Hide CNRFC basin catalog availability" title="Hide CNRFC basin catalog availability">&times;</button>' +
+      '</span>';
+  }
 
-    var oldPanel = mapContainer.querySelector('.pt-cnrfc-basin-panel');
-    if (oldPanel) oldPanel.remove();
-
-    var div = document.createElement('div');
-    div.className = 'pt-cnrfc-basin-panel leaflet-control';
-    div.style.display = 'none';
-    div.innerHTML =
-      '<div class="pt-cnrfc-basin-title">CNRFC basin catalog availability</div>' +
-      '<label class="pt-cnrfc-basin-label">Color by</label>' +
-      '<select class="pt-cnrfc-basin-select">' +
-        '<option value="product_availability">Product availability</option>' +
-        '<option value="forecast_group">Forecast group</option>' +
-        '<option value="water_supply">Water supply</option>' +
-        '<option value="ensemble">Ensemble products</option>' +
-        '<option value="qpf_snow_level">6-day daily QPF/FrzingLvl</option>' +
-        '<option value="temperature">Basin mean temp</option>' +
-      '</select>' +
-      '<div class="pt-cnrfc-basin-legend"></div>';
-
+  function ensureCardCss() {
+    if (document.getElementById('pt-cnrfc-basin-panel-style')) return;
     var style = document.createElement('style');
+    style.id = 'pt-cnrfc-basin-panel-style';
     style.textContent =
-      '.pt-cnrfc-basin-panel{position:absolute;left:10px;bottom:74px;z-index:10004;background:rgba(246,239,222,0.96);border:1px solid rgba(112,103,83,0.55);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,0.25);padding:7px 8px 8px 8px;width:285px;max-height:260px;overflow:auto;font-family:Arial,sans-serif;font-size:11.5px;line-height:1.25;color:#222;box-sizing:border-box;}' +
-      '.pt-cnrfc-basin-title{font-weight:700;font-size:12.5px;margin-bottom:4px;}' +
+      '.pt-cnrfc-basin-panel{position:relative;background:rgba(246,239,222,0.96);border:1px solid rgba(112,103,83,0.55);border-radius:7px;box-shadow:0 1px 5px rgba(0,0,0,0.25);padding:7px 8px 8px 8px;width:285px;max-height:260px;overflow:auto;font-family:Arial,sans-serif;font-size:11.5px;line-height:1.25;color:#222;box-sizing:border-box;}' +
+      '.pt-cnrfc-basin-title{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}' +
+      '.pt-cnrfc-basin-title-text{font-weight:700;font-size:12.5px;}' +
+      '.pt-cnrfc-basin-close,.pt-cnrfc-basin-dock{border:0;background:transparent;color:#776f61;font-weight:700;font-size:14px;line-height:1;padding:0 2px;cursor:pointer;}' +
       '.pt-cnrfc-basin-label{display:block;font-size:10.5px;color:#555;margin-bottom:2px;}' +
       '.pt-cnrfc-basin-select{width:100%;font-size:11.5px;margin-bottom:6px;}' +
       '.pt-cnrfc-basin-row{display:flex;align-items:center;gap:6px;margin:2px 0;}' +
       '.pt-cnrfc-basin-swatch{display:inline-block;width:14px;height:10px;border:1px solid rgba(0,0,0,0.35);flex:0 0 14px;}' +
       '.pt-cnrfc-basin-count{color:#666;}' +
       '.pt-cnrfc-basin-small,.pt-cnrfc-basin-note{font-size:10.5px;color:#555;margin-top:5px;}';
-    div.appendChild(style);
-
-    var select = div.querySelector('.pt-cnrfc-basin-select');
-    select.addEventListener('change', function() {
-      currentMode = select.value || 'product_availability';
-      applyMode();
-    });
-
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
-    mapContainer.appendChild(div);
+    document.head.appendChild(style);
   }
 
-  addFloatingCnrfcBasinPanel();
+  function closeCard(div) {
+    cardUserHidden = true;
+    if (
+      div && div.__brimDetachableState &&
+      div.__brimDetachableState.floating &&
+      div.__brimDetachableState.dock
+    ) {
+      div.__brimDetachableState.dock();
+    }
+    if (div) div.style.display = 'none';
+    scheduleCardLayout();
+  }
+
+  function wireCard(div) {
+    if (!div) return;
+    var shared = window.BRIM && window.BRIM.legendCloseout;
+    if (shared && shared.wire) {
+      shared.wire(div, '.pt-cnrfc-basin-close', function() {
+        closeCard(div);
+      });
+    } else {
+      var closeButton = div.querySelector('.pt-cnrfc-basin-close');
+      if (closeButton && !closeButton.__brimLegendCloseoutWired) {
+        closeButton.__brimLegendCloseoutWired = true;
+        closeButton.addEventListener('click', function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          closeCard(div);
+        }, false);
+      }
+    }
+    if (shared && shared.makeDetachable) {
+      shared.makeDetachable({
+        card: div,
+        map: map,
+        handleSelector: '.pt-cnrfc-basin-title',
+        dockSelector: '.pt-cnrfc-basin-dock',
+        label: 'CNRFC basin catalog availability'
+      });
+    }
+  }
+
+  function ensureCard() {
+    if (controllerDestroyed) return null;
+    if (
+      cardDiv && map.getContainer &&
+      map.getContainer().contains(cardDiv)
+    ) {
+      wireCard(cardDiv);
+      return cardDiv;
+    }
+
+    ensureCardCss();
+    cardControl = L.control({position: 'bottomleft'});
+    cardControl.onAdd = function() {
+      var div = L.DomUtil.create(
+        'div',
+        'leaflet-control pt-cnrfc-basin-panel pt-map-legend-card pt-map-legend-local'
+      );
+      div.style.display = 'none';
+      div.innerHTML =
+        '<div class="pt-cnrfc-basin-title pt-map-card-handle">' +
+          '<span class="pt-cnrfc-basin-title-text">CNRFC basin catalog availability</span>' +
+          cardActionsHtml() +
+        '</div>' +
+        '<label class="pt-cnrfc-basin-label">Color by</label>' +
+        '<select class="pt-cnrfc-basin-select">' +
+          '<option value="product_availability">Product availability</option>' +
+          '<option value="forecast_group">Forecast group</option>' +
+          '<option value="water_supply">Water supply</option>' +
+          '<option value="ensemble">Ensemble products</option>' +
+          '<option value="qpf_snow_level">6-day daily QPF/FrzingLvl</option>' +
+          '<option value="temperature">Basin mean temp</option>' +
+        '</select>' +
+        '<div class="pt-cnrfc-basin-legend"></div>';
+
+      var select = div.querySelector('.pt-cnrfc-basin-select');
+      select.value = currentMode;
+      select.addEventListener('change', function() {
+        currentMode = select.value || 'product_availability';
+        applyMode();
+      });
+
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      cardDiv = div;
+      return div;
+    };
+    cardControl.addTo(map);
+    if (!cardDiv && cardControl.getContainer) {
+      cardDiv = cardControl.getContainer();
+    }
+    wireCard(cardDiv);
+    return cardDiv;
+  }
+
+  function destroyCard(resetHidden) {
+    var hadCard = !!(cardControl || cardDiv);
+    var div = cardDiv;
+    if (div && div.__brimDetachableState && div.__brimDetachableState.destroy) {
+      div.__brimDetachableState.destroy(false);
+    }
+    if (cardControl) {
+      try {
+        if (map.removeControl) map.removeControl(cardControl);
+        else if (cardControl.remove) cardControl.remove();
+      } catch (e) {}
+    } else if (div && div.parentNode) {
+      div.parentNode.removeChild(div);
+    }
+    cardControl = null;
+    cardDiv = null;
+    if (resetHidden) cardUserHidden = false;
+    if (hadCard) scheduleCardLayout();
+  }
 
   function updatePanel() {
-    var container = map && map.getContainer ? map.getContainer() : el;
-    var div = container ? container.querySelector('.pt-cnrfc-basin-panel') : null;
-    if (!div && el && el.querySelector) div = el.querySelector('.pt-cnrfc-basin-panel');
-    if (!div) return;
-
     var visible = isVisible();
-    div.style.display = visible ? 'block' : 'none';
-    if (!visible) return;
+    if (!visible) {
+      overlayState = false;
+      destroyCard(true);
+      return;
+    }
+    overlayState = true;
+
+    var div = ensureCard();
+    if (!div) return;
+    div.style.display = cardUserHidden ? 'none' : 'block';
+    if (cardUserHidden) {
+      scheduleCardLayout();
+      return;
+    }
 
     var modeDef = modes[currentMode] || modes.product_availability;
     var legend = div.querySelector('.pt-cnrfc-basin-legend');
     if (legend) legend.innerHTML = legendRows(modeDef);
+    scheduleCardLayout(div);
   }
 
-  map.on('overlayadd', function(e) {
-    if (e && e.name === targetGroup) overlayState = true;
+  function onOverlayAdd(e) {
+    if (e && e.name === targetGroup) {
+      if (!overlayState) cardUserHidden = false;
+      overlayState = true;
+    }
     setTimeout(applyMode, 0);
     setTimeout(applyMode, 150);
-  });
-  map.on('overlayremove', function(e) {
+  }
+
+  function onOverlayRemove(e) {
     if (e && e.name === targetGroup) overlayState = false;
     setTimeout(updatePanel, 0);
-  });
-  map.on('layeradd layerremove zoomend moveend', function() {
+  }
+
+  function onMapLayerChange() {
     setTimeout(applyMode, 0);
-  });
+  }
+
+  function destroyController() {
+    if (controllerDestroyed) return;
+    controllerDestroyed = true;
+    mapBindings.forEach(function(binding) {
+      if (map && map.off) map.off(binding.events, binding.handler);
+    });
+    mapBindings = [];
+    destroyCard(false);
+    if (map.__ptCnrfcBasinAvailabilityController === controller) {
+      delete map.__ptCnrfcBasinAvailabilityController;
+    }
+  }
+
+  var controller = {
+    destroy: destroyController,
+    update: updatePanel,
+    getCard: function() { return cardDiv; },
+    isUserHidden: function() { return cardUserHidden; }
+  };
+  map.__ptCnrfcBasinAvailabilityController = controller;
+
+  onMap('overlayadd', onOverlayAdd);
+  onMap('overlayremove', onOverlayRemove);
+  onMap('layeradd layerremove zoomend moveend', onMapLayerChange);
+  onMap('unload', destroyController);
   setTimeout(applyMode, 0);
   setTimeout(applyMode, 400);
   setTimeout(applyMode, 1200);

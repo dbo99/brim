@@ -168,6 +168,8 @@ SCRIPT_PATHS <- list(
   preprocess_blm_offices        = "02_preprocess/06_blm_offices.r",
   preprocess_project_areas      = "02_preprocess/07_project_areas_placeholder.r",
   preprocess_cnrfc_basins       = "02_preprocess/08_cnrfc_basins.r",
+  preprocess_major_water_supply_basin_geometry =
+    "02_preprocess/69_build_major_water_supply_basin_geometry.R",
   preprocess_field_office_outer = "02_preprocess/09_field_office_outer.r",
   preprocess_calsim3_arcs       = "02_preprocess/10_calsim3_arcs.r",
   
@@ -908,6 +910,15 @@ refresh_cnrfc_basins_and_fo_outer_and_map <- function() {
   )
 }
 
+# ---- 6.3 Build static major water-supply basin geometry only ----------------
+
+preprocess_major_water_supply_basin_geometry <- function() {
+  run_step(
+    SCRIPT_PATHS$preprocess_major_water_supply_basin_geometry,
+    "Preprocess static major water-supply basin geometry"
+  )
+}
+
 
 # ==== 5.14 CNRFC product-intelligence preprocessors ==========================
 ##
@@ -1228,6 +1239,7 @@ qa_cnrfc_active_forecast_xml_parse_audit <- function(request_delay_sec = 0.10,
 ##   preprocess_cnrfc_basin_product_availability()
 ##   preprocess_cnrfc_forecast_point_product_availability()
 ##   preprocess_cnrfc_precip_weather_link_availability()
+##   preprocess_major_water_supply_basin_geometry()
 ##   update_usgs_gw_local_blm_distances()
 ##   refresh_usgs_gw_local_blm_distances_and_map()
 ##   update_swrcb_pod_blm_distances()
