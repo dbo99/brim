@@ -22,7 +22,7 @@ function(el, x) {
     detachableStyle.textContent =
       '.leaflet-control-container>.pt-map-legend-corner-foreground{z-index:10990!important}' +
       '.pt-map-legend-card{z-index:11000!important}' +
-      '.pt-map-legend-card.pt-huc-theme-card,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-map-legend-card.pt-ops-usgs-streamflow-card,.pt-map-legend-card.pt-ops-usgs-groundwater-card,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
+      '.pt-map-legend-card.pt-huc-theme-card,.pt-map-legend-card.pt-ops-map-legend,.pt-map-legend-card.pt-ops-snow-legend-control,.pt-map-legend-card.pt-ops-cocorahs-legend-control,.pt-map-legend-card.pt-ops-usgs-streamflow-card,.pt-map-legend-card.pt-ops-usgs-groundwater-card,.pt-map-legend-card.pt-major-basin-card,.pt-ops-scan-depth-control,.pt-ops-scan-legend-control{z-index:11010!important}' +
       '.pt-map-legend-card.pt-wcr-completed-depth-map-legend{z-index:11020!important}' +
       '.pt-map-legend-card.pt-mlrs-mineral-cases-map-legend{z-index:11021!important}' +
       '.pt-map-legend-card.pt-sgma-prioritization-map-legend{z-index:11022!important}' +
@@ -295,6 +295,8 @@ function(el, x) {
     {card: '.pt-calsim3-explorer', close: '.pt-calsim3-close', handle: '.pt-calsim3-head', dock: '.pt-calsim3-dock', label: 'CalSim3.0 Network Explorer'},
     {card: '.pt-bulletin118-theme-card', close: '.pt-bulletin118-theme-close', handle: '.pt-bulletin118-theme-head', dock: '.pt-bulletin118-theme-dock', label: 'Bulletin 118 thematic card'},
     {card: '.pt-huc-theme-card', close: '.pt-huc-theme-close', handle: '.pt-huc-theme-head', dock: '.pt-huc-theme-dock', label: 'HUC thematic card'},
+    {card: '.pt-cnrfc-basin-panel', close: '.pt-cnrfc-basin-close', handle: '.pt-cnrfc-basin-title', dock: '.pt-cnrfc-basin-dock', label: 'CNRFC basin catalog availability'},
+    {card: '.pt-major-basin-card', close: '.pt-major-basin-close', handle: '.pt-major-basin-title', dock: '.pt-major-basin-dock', label: 'Major Water-Supply Basin Forecasts card'},
     {card: '.pt-cnrfc-local-catalog-legend', close: '.pt-cnrfc-local-close', label: 'CNRFC Local catalog legend'},
     {card: '.pt-usgs-gw-local-legend', close: '.pt-usgs-gw-local-close', handle: '.pt-usgs-gw-local-head', dock: '.pt-usgs-gw-local-dock', label: 'USGS groundwater catalog legend'},
     {card: '.pt-usgs-sw-local-legend', close: '.pt-usgs-sw-local-close', label: 'USGS streamgage catalog legend'},
@@ -450,6 +452,12 @@ function(el, x) {
         targetTop = Math.round(safeGap.top);
         targetBottom = Math.round(safeGap.bottom);
         if (safeGap.hasMeasuredObstacles) {
+          // Measure the same unmanaged/managed bottom baseline that produced
+          // stackTop. Adding the class first activates its 4px CSS fallback;
+          // combining that new bottom with the old rectangle makes the first
+          // pass land 4px high and a later pass visibly correct it.
+          var currentBottom = window.getComputedStyle ? parseFloat(window.getComputedStyle(corner).bottom) : 0;
+          if (!isFinite(currentBottom)) currentBottom = 0;
           corner.classList.add('pt-map-legend-gap-managed');
           var bottomOffset = Math.max(
             0,
@@ -459,12 +467,10 @@ function(el, x) {
             var desiredTop = Math.round(
               safeGap.top + ((availableHeight - stackHeight) / 2)
             );
-            var computedBottom = window.getComputedStyle ? parseFloat(window.getComputedStyle(corner).bottom) : 0;
-            if (!isFinite(computedBottom)) computedBottom = 0;
             bottomOffset = Math.max(
               0,
               Math.round(
-                computedBottom - (desiredTop - unscrolledStackTop)
+                currentBottom - (desiredTop - unscrolledStackTop)
               )
             );
           }

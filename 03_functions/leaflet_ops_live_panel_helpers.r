@@ -111,7 +111,7 @@ pt_ops_live_panel_helpers_js <- function() {
       html += '<div class="pt-ops-layer-row" data-pt-ops-row-index="' + idx + '">' +
         '<label class="pt-ops-layer-label">' +
         '<input type="checkbox" data-pt-ops-index="' + idx + '"> ' +
-        '<span class="pt-ops-layer-name">' + escapeHtml(def.name) + '</span>' +
+        '<span class="pt-ops-layer-name">' + escapeHtml(def.panelLabel || def.name) + '</span>' +
         '<span class="pt-ops-layer-spinner" aria-hidden="true">loading…</span>' +
         '</label>' +
         layerRowLinksHtml(def) +

@@ -77,6 +77,12 @@ MAP_DISPLAY <- list(
   ## BRIM preprocessor.
   add_ops_cnrfc_river_reservoir_forecast_points = TRUE,
 
+  ## Static forecast geometry is embedded at final-map build time; current
+  ## CNRFC/CBRFC values are fetched and validated independently in the browser.
+  add_ops_major_water_supply_basin_forecasts = TRUE,
+  ops_major_water_supply_cnrfc_url = brim_live_feed_url("data/major_water_supply_basin_forecasts.json"),
+  ops_major_water_supply_cbrfc_url = brim_live_feed_url("data/cbrfc_major_water_supply_forecasts.json"),
+
   ## CNRFC precip/weather stations are built by 54_ after the NOAA/NWS audit.
   ## Ops Live uses the verified ASOS/airport + RAWS/GOES NWS/WRH time-series
   ## subset; the broader station-authority catalog is exposed as a Local layer.

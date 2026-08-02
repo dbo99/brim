@@ -1,0 +1,6 @@
+schema_version,selector_manifest_id,geometry_id,selector_order,source_id,selection_field,selection_value,expected_match_count,operation,required,decision_note
+1.0.0,CBRFC_GLDA3_UPSTREAM_V1,GLDA3_CBRFC_MODELED_UPSTREAM,1,CBRFC_BASINS,reg,UC,203,union,TRUE,All official CBRFC Upper Colorado operational basin polygons.
+1.0.0,CBRFC_LKSA3_LOCAL_V1,LKSA3_CBRFC_LOCAL_INTERVENING,1,CBRFC_BASINS,fgid,MEAD,10,union,TRUE,Reviewed Lake Mead operational basin group.
+1.0.0,CBRFC_LKSA3_LOCAL_V1,LKSA3_CBRFC_LOCAL_INTERVENING,2,CBRFC_BASINS,fgid,LITCOL,26,union,TRUE,Reviewed Little Colorado operational basin group.
+1.0.0,CBRFC_LKSA3_LOCAL_V1,LKSA3_CBRFC_LOCAL_INTERVENING,3,CBRFC_BASINS,fgid,VIRGIN,22,union,TRUE,Reviewed Virgin operational basin group.
+1.0.0,CBRFC_LKSA3_LOCAL_V1,LKSA3_CBRFC_LOCAL_INTERVENING,4,CBRFC_BASINS,fgid,MUDLV,21,union,TRUE,Reviewed Muddy/Las Vegas operational basin group.

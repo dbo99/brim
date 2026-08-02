@@ -1,0 +1,15 @@
+schema_version,geometry_id,forecast_lid,reservoir_record_key,reservoir_name,association_type,confidence,display_order,decision_note
+1.0.0,SCSC1_FNF,SCSC1,SCC,Success,reviewed_forecast_watershed_reservoir,high,10,Reviewed California forecast-basin association.
+1.0.0,TMDC1_FNF,TMDC1,TRM,Terminus,reviewed_forecast_watershed_reservoir,high,20,Reviewed California forecast-basin association.
+1.0.0,SHDC1_FNF,SHDC1,SHA,Shasta,reviewed_forecast_watershed_reservoir,high,30,Reviewed California forecast-basin association.
+1.0.0,CEGC1_FNF,CEGC1,CLE,Trinity,reviewed_forecast_watershed_reservoir,high,40,Reviewed California forecast-basin association.
+1.0.0,ORDC1_FNF,ORDC1,ORO,Oroville,reviewed_forecast_watershed_reservoir,high,50,Reviewed California forecast-basin association.
+1.0.0,HLEC1_FNF,HLEC1,ENG,Englebright,reviewed_forecast_watershed_reservoir,high,60,Reviewed California forecast-basin association.
+1.0.0,FOLC1_FNF,FOLC1,FOL,Folsom,reviewed_forecast_watershed_reservoir,high,70,Reviewed California forecast-basin association.
+1.0.0,NDPC1_FNF,NDPC1,DNP,Don Pedro,reviewed_forecast_watershed_reservoir,high,80,Reviewed California forecast-basin association.
+1.0.0,EXQC1_FNF,EXQC1,EXC,Exchequer,reviewed_forecast_watershed_reservoir,high,90,Reviewed California forecast-basin association.
+1.0.0,FRAC1_FNF,FRAC1,MIL,Millerton,reviewed_forecast_watershed_reservoir,high,100,Reviewed California forecast-basin association.
+1.0.0,PFTC1_FNF,PFTC1,PNF,Pine Flat,reviewed_forecast_watershed_reservoir,high,110,Reviewed California forecast-basin association.
+1.0.0,ISAC1_FNF,ISAC1,ISB,Isabella,reviewed_forecast_watershed_reservoir,high,120,Reviewed California forecast-basin association.
+1.0.0,CMPC1_FNF,CMPC1,PAR,Pardee,reviewed_forecast_watershed_reservoir,high,130,Reviewed California forecast-basin association.
+1.0.0,NMSC1_FNF,NMSC1,NML,New Melones,reviewed_forecast_watershed_reservoir,high,140,Reviewed California forecast-basin association.
