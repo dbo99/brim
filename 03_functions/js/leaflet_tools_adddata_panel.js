@@ -9,6 +9,9 @@ function(el, x, toolsData) {
   toolsData = toolsData || {};
   var PT2_ENABLE_BLM_SMA = !!toolsData.enable_blm_sma;
   var PT2_CATALOG = Array.isArray(toolsData.catalog) ? toolsData.catalog : [];
+  var PT2_CAPABILITY_DEFINITIONS = toolsData.capability_definitions || {};
+  var PT2_CAPABILITY_COVERAGE = Array.isArray(toolsData.capability_coverage) ?
+    toolsData.capability_coverage : [];
 
   // Keep a stable browser-side index for quick-add catalog rows.
   PT2_CATALOG.forEach(function(rec, idx) {
@@ -987,6 +990,10 @@ function(el, x, toolsData) {
       if (excludeLookup[String(k).toLowerCase()]) return false;
       return true;
     });
+  }
+
+  function ptHasMeaningfulPopupProperties(props, options) {
+    return ptExternalAttributeKeys(props || {}, options || {}).length > 0;
   }
 
   function ptStreamGaugeRecordClass(props) {
@@ -7054,6 +7061,8 @@ function(el, x, toolsData) {
       visible: true,
       legendUrl: ptCleanText(options.legendUrl),
       legendNote: ptCleanText(options.legendNote),
+      legendAdapter: ptCleanText(options.legendAdapter),
+      infoAdapter: ptCleanText(options.infoAdapter),
       loadMode: ptCleanText(options.loadMode),
       whereClause: ptCleanText(options.whereClause),
       popupFields: ptCleanText(options.popupFields),
@@ -8918,6 +8927,76 @@ function(el, x, toolsData) {
       '</span>';
   }
 
+  // One behavior-preserving legend dispatch path serves catalog details and
+  // active-layer details. Finalized catalog rows carry build-resolved adapter
+  // keys; manual overlays fall back to the same predicates used historically.
+  function ptLegacyLegendAdapterKeys(options) {
+    var keys = [];
+    if (ptIsDroughtMonitorStyle(options)) keys.push('drought_monitor');
+    if (ptIsCpcOutlookStyle(options)) keys.push('cpc_outlook');
+    if (ptIsStreamGaugeFlowStyle(options)) keys.push('stream_gauge_flow');
+    if (ptIsWcrCompletedDepthStyle(options)) keys.push('wcr_completed_depth');
+    if (ptIsFireYearStyle(options)) keys.push('fire_year');
+    if (ptIsMlrsMineralCaseStyle(options)) keys.push('mlrs_mineral_cases');
+    if (ptIsSgmaPrioritizationLayer(options)) keys.push('sgma_prioritization');
+    if (ptIsNifcCurrentFirePerimeterStyle(options)) keys.push('nifc_current_fire');
+    if (ptIsAmlFeatureStyle(options)) keys.push('aml_status');
+    if (ptIsCalIpcRampStyle(options)) keys.push('calipc_ramp');
+    if (ptIsSwrcbIrListingStatusStyle(options)) keys.push('swrcb_ir_status');
+    if (ptIsSubsidenceObservationStyle(options)) keys.push('subsidence_observation');
+    if (ptIsDwrTreInsarPointLocationStyle(options)) keys.push('dwr_tre_insar_points');
+    if (ptIsGenericCategoricalStyle(options)) keys.push('generic_categorical');
+    if (ptIsAlertCameraStyle(options)) keys.push('alert_camera');
+    if (ptIsAlertCameraViewshedStyle(options)) keys.push('alert_camera_viewshed');
+    return keys;
+  }
+
+  function ptLegendAdapterKeys(options) {
+    options = options || {};
+    var resolved = ptCleanText(options.legendAdapter || options.legend_adapter);
+    var catalogRecord = !!ptCleanText(options.catalogExtId || options.external_layer_id) ||
+      options.catalogIndex !== undefined && options.catalogIndex !== null;
+    if (catalogRecord) {
+      return resolved ? resolved.split(';').map(ptCleanText).filter(Boolean) : [];
+    }
+    return resolved ? resolved.split(';').map(ptCleanText).filter(Boolean) :
+      ptLegacyLegendAdapterKeys(options);
+  }
+
+  function ptRegisteredLegendRenderer(adapter, options) {
+    var renderers = {
+      drought_monitor: function() { return ptDroughtMonitorLegendHtml(); },
+      cpc_outlook: function() { return ptCpcOutlookLegendHtml(options); },
+      stream_gauge_flow: function() { return ptStreamGaugeFlowLegendHtml(); },
+      wcr_completed_depth: function() { return ptWcrCompletedDepthLegendHtml(); },
+      fire_year: function() { return ptFireYearLegendHtml(); },
+      mlrs_mineral_cases: function() { return ptMlrsMineralCasesLegendHtml(); },
+      sgma_prioritization: function() { return ptSgmaPrioritizationLegendHtml(); },
+      nifc_current_fire: function() { return ptNifcCurrentFireLegendHtml(); },
+      aml_status: function() { return ptAmlStatusLegendHtml(); },
+      calipc_ramp: function() { return ptCalIpcRampLegendHtml(options); },
+      swrcb_ir_status: function() { return ptSwrcbIrListingStatusLegendHtml(); },
+      subsidence_observation: function() { return ptSubsidenceObservationLegendHtml(); },
+      dwr_tre_insar_points: function() { return ptDwrTreInsarPointLegendHtml(); },
+      generic_categorical: function() { return ptGenericCategoricalLegendHtml(options); },
+      alert_camera: function() { return ptAlertCameraLegendHtml(); },
+      alert_camera_viewshed: function() { return ptAlertCameraViewshedLegendHtml(); }
+    };
+    return renderers[adapter] || null;
+  }
+
+  function ptRegisteredLegendHtml(options, context) {
+    var html = '';
+    ptLegendAdapterKeys(options).forEach(function(adapter) {
+      // MLRS historically rendered in active-layer details and its map card,
+      // but not in the collapsed catalog-detail pathway.
+      if (context === 'catalog_detail' && adapter === 'mlrs_mineral_cases') return;
+      var renderer = ptRegisteredLegendRenderer(adapter, options);
+      if (renderer) html += renderer();
+    });
+    return html;
+  }
+
   function ptRenderCustomLayerList() {
     var list = document.getElementById('pt-custom-layer-list');
     if (!list) return;
@@ -8936,75 +9015,13 @@ function(el, x, toolsData) {
       var legendHtml = '';
       if (rec.legendUrl) {
         legendHtml = ' <span class="pt-tools-muted">|</span> ' +
-          '<a href="' + ptEscapeHtml(rec.legendUrl) + '" target="_blank" title="' + ptEscapeHtml(rec.legendUrl) + '">Legend</a>';
+          '<a href="' + ptEscapeHtml(rec.legendUrl) + '" target="_blank" title="' + ptEscapeHtml(rec.legendUrl) + '">Provider legend — opens external page</a>';
       }
       if (rec.legendNote) {
         legendHtml += '<div class="pt-tools-muted"><b>Legend note:</b> ' + ptEscapeHtml(rec.legendNote) + '</div>';
       }
 
-      if (ptIsDroughtMonitorStyle(rec)) {
-        legendHtml += ptDroughtMonitorLegendHtml();
-      }
-
-      if (ptIsCpcOutlookStyle(rec)) {
-        legendHtml += ptCpcOutlookLegendHtml(rec);
-      }
-
-      if (ptIsStreamGaugeFlowStyle(rec)) {
-        legendHtml += ptStreamGaugeFlowLegendHtml();
-      }
-
-      if (ptIsWcrCompletedDepthStyle(rec)) {
-        legendHtml += ptWcrCompletedDepthLegendHtml();
-      }
-
-      if (ptIsFireYearStyle(rec)) {
-        legendHtml += ptFireYearLegendHtml();
-      }
-
-      if (ptIsMlrsMineralCaseStyle(rec)) {
-        legendHtml += ptMlrsMineralCasesLegendHtml();
-      }
-
-      if (ptIsSgmaPrioritizationLayer(rec)) {
-        legendHtml += ptSgmaPrioritizationLegendHtml();
-      }
-
-      if (ptIsNifcCurrentFirePerimeterStyle(rec)) {
-        legendHtml += ptNifcCurrentFireLegendHtml();
-      }
-
-      if (ptIsAmlFeatureStyle(rec)) {
-        legendHtml += ptAmlStatusLegendHtml();
-      }
-
-      if (ptIsCalIpcRampStyle(rec)) {
-        legendHtml += ptCalIpcRampLegendHtml(rec);
-      }
-
-      if (ptIsSwrcbIrListingStatusStyle(rec)) {
-        legendHtml += ptSwrcbIrListingStatusLegendHtml();
-      }
-
-      if (ptIsSubsidenceObservationStyle(rec)) {
-        legendHtml += ptSubsidenceObservationLegendHtml();
-      }
-
-      if (ptIsDwrTreInsarPointLocationStyle(rec)) {
-        legendHtml += ptDwrTreInsarPointLegendHtml();
-      }
-
-      if (ptIsGenericCategoricalStyle(rec)) {
-        legendHtml += ptGenericCategoricalLegendHtml(rec);
-      }
-
-      if (ptIsAlertCameraStyle(rec)) {
-        legendHtml += ptAlertCameraLegendHtml();
-      }
-
-      if (ptIsAlertCameraViewshedStyle(rec)) {
-        legendHtml += ptAlertCameraViewshedLegendHtml();
-      }
+      legendHtml += ptRegisteredLegendHtml(rec, 'active_layer');
 
       if (rec.hoverFields || rec.popupFields) {
         legendHtml += '<div class="pt-tools-muted"><b>Fields:</b> curated hover/popup fields active</div>';
@@ -9919,6 +9936,8 @@ function(el, x, toolsData) {
     var layerOptions = {
       legendUrl: legendUrlInput ? legendUrlInput.value : '',
       legendNote: legendNoteInput ? legendNoteInput.value : '',
+      legendAdapter: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'legend_adapter') : '',
+      infoAdapter: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'info_adapter') : '',
       minZoomLive: minZoomLiveInput ? minZoomLiveInput.value : '',
       minZoomCurrentView: minZoomCurrentViewInput ? minZoomCurrentViewInput.value : '',
       whereClause: whereClause,
@@ -10245,7 +10264,7 @@ function(el, x, toolsData) {
       (minZoomLive ? '<div><b>Min zoom:</b> ' + ptEscapeHtml(minZoomLive) + '</div>' : '') +
       (minZoomCurrentView ? '<div><b>Current-view min zoom:</b> ' + ptEscapeHtml(minZoomCurrentView) + '</div>' : '') +
       '<div><b>URL:</b> <a href="' + ptEscapeHtml(serviceUrl) + '" target="_blank">' + ptEscapeHtml(ptShortUrl(serviceUrl)) + '</a></div>' +
-      (legendUrl ? '<div><b>Legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">Open legend</a></div>' : '') +
+      (legendUrl ? '<div><b>Provider legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">opens external page</a></div>' : '') +
       (legendNote ? '<div><b>Legend note:</b> ' + ptEscapeHtml(legendNote) + '</div>' : '') +
       (bestUse ? '<div><b>Best use:</b> ' + ptEscapeHtml(bestUse) + '</div>' : '') +
       (hoverFields ? '<div><b>Hover:</b> ' + ptEscapeHtml(hoverFields) + '</div>' : '') +
@@ -10540,7 +10559,7 @@ function(el, x, toolsData) {
     }
 
     if (legendUrl) {
-      html += '<div><b>Legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">Open legend</a></div>';
+      html += '<div><b>Provider legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">opens external page</a></div>';
     }
 
     if (legendNote) {
@@ -10552,68 +10571,11 @@ function(el, x, toolsData) {
       defaultStyleMethod: ptCatalogField(rec, 'default_style_method'),
       styleUnits: ptCatalogField(rec, 'style_units'),
       styleLegendTitle: ptCatalogField(rec, 'style_legend_title'),
-      layerName: ptCatalogField(rec, 'display_name')
+      layerName: ptCatalogField(rec, 'display_name'),
+      legendAdapter: ptCatalogField(rec, 'legend_adapter'),
+      catalogExtId: ptCatalogField(rec, 'external_layer_id')
     };
-
-    if (ptIsDroughtMonitorStyle(styleInfoOptions)) {
-      html += ptDroughtMonitorLegendHtml();
-    }
-
-    if (ptIsCpcOutlookStyle(styleInfoOptions)) {
-      html += ptCpcOutlookLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsStreamGaugeFlowStyle(styleInfoOptions)) {
-      html += ptStreamGaugeFlowLegendHtml();
-    }
-
-    if (ptIsWcrCompletedDepthStyle(styleInfoOptions)) {
-      html += ptWcrCompletedDepthLegendHtml();
-    }
-
-    if (ptIsFireYearStyle(styleInfoOptions)) {
-      html += ptFireYearLegendHtml();
-    }
-
-    if (ptIsNifcCurrentFirePerimeterStyle(styleInfoOptions)) {
-      html += ptNifcCurrentFireLegendHtml();
-    }
-
-    if (ptIsAmlFeatureStyle(styleInfoOptions)) {
-      html += ptAmlStatusLegendHtml();
-    }
-
-    if (ptIsCalIpcRampStyle(styleInfoOptions)) {
-      html += ptCalIpcRampLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsSgmaPrioritizationLayer(styleInfoOptions)) {
-      html += ptSgmaPrioritizationLegendHtml();
-    }
-
-    if (ptIsSwrcbIrListingStatusStyle(styleInfoOptions)) {
-      html += ptSwrcbIrListingStatusLegendHtml();
-    }
-
-    if (ptIsSubsidenceObservationStyle(styleInfoOptions)) {
-      html += ptSubsidenceObservationLegendHtml();
-    }
-
-    if (ptIsDwrTreInsarPointLocationStyle(styleInfoOptions)) {
-      html += ptDwrTreInsarPointLegendHtml();
-    }
-
-    if (ptIsGenericCategoricalStyle(styleInfoOptions)) {
-      html += ptGenericCategoricalLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsAlertCameraStyle(styleInfoOptions)) {
-      html += ptAlertCameraLegendHtml();
-    }
-
-    if (ptIsAlertCameraViewshedStyle(styleInfoOptions)) {
-      html += ptAlertCameraViewshedLegendHtml();
-    }
+    html += ptRegisteredLegendHtml(styleInfoOptions, 'catalog_detail');
 
     if (notes) {
       html += '<div><b>Note:</b> ' + ptEscapeHtml(notes) + '</div>';
@@ -10750,6 +10712,101 @@ function(el, x, toolsData) {
     return value;
   }
 
+  function ptCapabilityDefinition(code) {
+    var definition = PT2_CAPABILITY_DEFINITIONS && PT2_CAPABILITY_DEFINITIONS[code];
+    if (!definition) return null;
+
+    var label = ptCleanText(definition.label);
+    var capability = ptCleanText(definition.capability);
+    if (!label || !capability) return null;
+
+    return {
+      code: code,
+      label: label,
+      capability: capability
+    };
+  }
+
+  function ptCatalogCapabilityEnabled(rec, fieldName) {
+    if (!rec || !Object.prototype.hasOwnProperty.call(rec, fieldName)) return false;
+    if (rec[fieldName] === true) return true;
+    return ['true', 't', '1', 'yes', 'y'].indexOf(
+      ptCleanText(rec[fieldName]).toLowerCase()
+    ) >= 0;
+  }
+
+  function ptCapabilityBadgeHtml(kind, count, denominator) {
+    var isLegend = kind === 'legend';
+    var definition = ptCapabilityDefinition(isLegend ? 'LGND' : 'INFO');
+    if (!definition) return '';
+
+    var hasCount = isFinite(count) && isFinite(denominator);
+    var accessibleLabel = definition.label;
+    var countHtml = '';
+    var countAttribute = '';
+    if (hasCount) {
+      count = Math.max(0, Math.round(Number(count)));
+      denominator = Math.max(count, Math.round(Number(denominator)));
+      if (count === 0 || denominator === 0) return '';
+      accessibleLabel = count + ' of ' + denominator + ' layers — ' + definition.label;
+      countHtml = ' <span class="pt-capability-badge-count" aria-hidden="true">' +
+        ptEscapeHtml(String(count)) + '</span>';
+      countAttribute = ' data-capability-count="' + ptEscapeHtml(String(count)) + '"' +
+        ' data-capability-denominator="' + ptEscapeHtml(String(denominator)) + '"';
+    }
+
+    return '<span class="pt-capability-badge pt-capability-badge--' +
+      (isLegend ? 'legend' : 'info') + '" data-capability="' +
+      (isLegend ? 'legend' : 'info') + '"' + countAttribute +
+      ' title="' + ptEscapeHtml(accessibleLabel) + '" aria-label="' +
+      ptEscapeHtml(accessibleLabel) + '">' + ptEscapeHtml(definition.code) + countHtml + '</span>';
+  }
+
+  function ptCatalogLayerCapabilityBadgesHtml(rec) {
+    var html = '';
+    if (ptCatalogCapabilityEnabled(rec, 'has_legend')) {
+      html += ptCapabilityBadgeHtml('legend');
+    }
+    if (ptCatalogCapabilityEnabled(rec, 'has_feature_info')) {
+      html += ptCapabilityBadgeHtml('info');
+    }
+    if (!html) return '';
+    return '<span class="pt-capability-badges pt-capability-badges--layer">' + html + '</span>';
+  }
+
+  function ptCatalogHierarchyCapabilityBadgesHtml(rec, hierarchy, denominator) {
+    if (!rec || !isFinite(denominator) || denominator <= 0) return '';
+    var legendCount = ptCatalogNumericField(rec, hierarchy + '_legend_count', 0);
+    var infoCount = ptCatalogNumericField(rec, hierarchy + '_info_count', 0);
+    var html = ptCapabilityBadgeHtml('legend', legendCount, denominator) +
+      ptCapabilityBadgeHtml('info', infoCount, denominator);
+    if (!html) return '';
+    return '<span class="pt-capability-badges pt-capability-badges--parent">' + html + '</span>';
+  }
+
+  function ptCatalogHierarchyCountHtml(matchedCount, totalCount) {
+    matchedCount = Math.max(0, Math.round(Number(matchedCount) || 0));
+    totalCount = Math.max(matchedCount, Math.round(Number(totalCount) || matchedCount));
+    if (matchedCount < totalCount) return '(' + matchedCount + ' of ' + totalCount + ')';
+    return '(' + totalCount + ')';
+  }
+
+  function ptCapabilityDefinitionKeyHtml() {
+    var legend = ptCapabilityDefinition('LGND');
+    var info = ptCapabilityDefinition('INFO');
+    if (!legend || !info) return '';
+
+    return '<div id="pt-catalog-capability-key" class="pt-tools-muted pt-catalog-capability-key">' +
+        '<span class="pt-capability-key-item"><span aria-hidden="true">' +
+          ptCapabilityBadgeHtml('legend') + '</span>' +
+          '<span>' + ptEscapeHtml(legend.label) + '</span></span>' +
+        '<span class="pt-capability-key-separator" aria-hidden="true">·</span>' +
+        '<span class="pt-capability-key-item"><span aria-hidden="true">' +
+          ptCapabilityBadgeHtml('info') + '</span>' +
+          '<span>' + ptEscapeHtml(info.label) + '</span></span>' +
+      '</div>';
+  }
+
   function ptCatalogExternalGroupOrder(rec) {
     return ptCatalogNumericField(rec, 'external_group_order', 999);
   }
@@ -10882,6 +10939,7 @@ function(el, x, toolsData) {
       var activeRec = isActive ? ptFindCustomLayerByCatalogIndex(idx) : null;
       var catalogRowActionHtml = '';
       var canRetryCurrentView = ptCatalogRecordIsRefreshableCurrentView(rec);
+      var capabilityBadgesHtml = ptCatalogLayerCapabilityBadgesHtml(rec);
 
       if (isLoading) {
         // Loading rows intentionally show only Cancel plus a retry/refresh
@@ -10912,7 +10970,11 @@ function(el, x, toolsData) {
             '<span class="pt-catalog-spinner" aria-hidden="true"></span>' +
           '</button>' +
           '<div class="pt-catalog-row-text">' +
-            '<div class="pt-catalog-layer-name">' + ptCatalogNumberBadgeHtml(rec) + ptEscapeHtml(layerName) + (isActive ? ' <span class="pt-catalog-active-badge">Active</span>' : '') + '</div>' +
+            '<div class="pt-catalog-layer-name">' +
+              '<span class="pt-catalog-layer-label">' + ptCatalogNumberBadgeHtml(rec) + ptEscapeHtml(layerName) + '</span>' +
+              (isActive ? '<span class="pt-catalog-active-badge">Active</span>' : '') +
+              capabilityBadgesHtml +
+            '</div>' +
             (typeLine ? '<div class="pt-tools-muted">' + ptEscapeHtml(typeLine) + '</div>' : '') +
           '</div>' +
           '<button type="button" class="pt-catalog-info-btn" data-pt-catalog-info="' + idx + '" aria-controls="' + detailId + '">info ▸</button>' +
@@ -10963,12 +11025,20 @@ function(el, x, toolsData) {
       var hasActive = ptCatalogGroupHasActiveLayer(groupRows);
       var isExpanded = ptCatalogGroupIsExpanded(groupName, groupRows, q);
       var groupClass = isExpanded ? ' pt-catalog-group-expanded' : ' pt-catalog-group-collapsed';
+      var groupTotal = ptCatalogNumericField(groupRows[0], 'group_layer_count', groupRows.length);
+      groupTotal = Math.max(groupRows.length, groupTotal);
+      var groupCapabilityBadgesHtml = ptCatalogHierarchyCapabilityBadgesHtml(
+        groupRows[0], 'group', groupTotal
+      );
 
       html += '<div class="pt-catalog-group' + groupClass + '" data-pt-catalog-group="' + ptEscapeHtml(groupKey) + '">' +
         '<button type="button" class="pt-catalog-group-title" data-pt-catalog-group-toggle="' + ptEscapeHtml(groupKey) + '" aria-expanded="' + (isExpanded ? 'true' : 'false') + '">' +
           '<span class="pt-catalog-group-toggle-symbol">' + (isExpanded ? '−' : '+') + '</span>' +
           '<span class="pt-catalog-group-label">' + ptEscapeHtml(groupName) + '</span>' +
-          '<span class="pt-catalog-group-count">(' + groupRows.length + ')</span>' +
+          '<span class="pt-catalog-group-meta">' +
+            '<span class="pt-catalog-group-count">' + ptCatalogHierarchyCountHtml(groupRows.length, groupTotal) + '</span>' +
+            groupCapabilityBadgesHtml +
+          '</span>' +
           (hasActive ? '<span class="pt-catalog-group-active-badge">Active</span>' : '') +
         '</button>' +
         '<div class="pt-catalog-group-rows">';
@@ -11009,6 +11079,13 @@ function(el, x, toolsData) {
 
         var showSubgroupHeading = (subgroups.length > 1 || subgroupName !== groupName);
         var subgroupKey = ptCatalogSubgroupKey(groupName, subgroupName);
+        var subgroupTotal = ptCatalogNumericField(
+          subgroupRows[0], 'subgroup_layer_count', subgroupRows.length
+        );
+        subgroupTotal = Math.max(subgroupRows.length, subgroupTotal);
+        var subgroupCapabilityBadgesHtml = ptCatalogHierarchyCapabilityBadgesHtml(
+          subgroupRows[0], 'subgroup', subgroupTotal
+        );
 
         // If a parent group contains only one subgroup with the same label as
         // the parent, the subgroup header is hidden to avoid a duplicate row.
@@ -11025,7 +11102,10 @@ function(el, x, toolsData) {
           html += '<button type="button" class="pt-catalog-subgroup-title" data-pt-catalog-subgroup-toggle="' + ptEscapeHtml(subgroupKey) + '" aria-expanded="' + (subgroupExpanded ? 'true' : 'false') + '">' +
             '<span class="pt-catalog-subgroup-toggle-symbol">' + (subgroupExpanded ? '−' : '+') + '</span>' +
             '<span class="pt-catalog-subgroup-label">' + ptEscapeHtml(subgroupName) + '</span>' +
-            '<span class="pt-catalog-subgroup-count">(' + subgroupRows.length + ')</span>' +
+            '<span class="pt-catalog-subgroup-meta">' +
+              '<span class="pt-catalog-subgroup-count">' + ptCatalogHierarchyCountHtml(subgroupRows.length, subgroupTotal) + '</span>' +
+              subgroupCapabilityBadgesHtml +
+            '</span>' +
           '</button>';
         }
 
@@ -11307,6 +11387,7 @@ function(el, x, toolsData) {
         '<div class="pt-tools-heading">Quick-add external overlays</div>' +
         '<input type="text" id="pt-catalog-search" class="pt-tools-input" placeholder="Search catalog layers, agencies, themes..."/>' +
         '<div class="pt-tools-muted">Click <b>+</b> to add a layer immediately. Use <b>info</b> for URL, legend, notes, hover/popup fields, and other metadata.</div>' +
+        ptCapabilityDefinitionKeyHtml() +
         '<div class="pt-tools-muted pt-catalog-load-key" title="Badge colors are BRIM QA load-behavior hints from a multi-extent load audit; external service behavior can vary by zoom, viewport, and provider load.">Load hint: <span class="pt-catalog-id-badge pt-catalog-load-badge pt-catalog-load-green pt-load-key-token">fast</span> <span class="pt-catalog-id-badge pt-catalog-load-badge pt-catalog-load-yellow pt-load-key-token">moderate</span> <span class="pt-catalog-id-badge pt-catalog-load-badge pt-catalog-load-orange pt-load-key-token">slow</span> <span class="pt-catalog-id-badge pt-catalog-load-badge pt-catalog-load-red pt-load-key-token">heavy</span> <span class="pt-catalog-id-badge pt-catalog-load-badge pt-catalog-load-gray pt-load-key-token">unknown</span></div>' +
         '<div class="pt-catalog-group-controls">' +
           '<button type="button" id="pt-catalog-expand-all-btn" class="pt-tools-mini-btn">Expand all</button>' +
@@ -12006,6 +12087,7 @@ function(el, x, toolsData) {
       .pt-catalog-group-title {
         width: 100%;
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 5px;
         border: none;
@@ -12043,6 +12125,16 @@ function(el, x, toolsData) {
         font-weight: 400;
       }
 
+      .pt-catalog-group-meta,
+      .pt-catalog-subgroup-meta {
+        display: inline-flex;
+        flex: 0 1 auto;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 4px;
+        min-width: 0;
+      }
+
       .pt-catalog-group-active-badge {
         flex: 0 0 auto;
         margin-left: 3px;
@@ -12061,6 +12153,7 @@ function(el, x, toolsData) {
       .pt-catalog-subgroup-title {
         position: relative;
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: flex-start;
         gap: 5px;
@@ -12098,7 +12191,7 @@ function(el, x, toolsData) {
 
       .pt-catalog-subgroup-label {
         flex: 0 1 auto;
-        max-width: 75%;
+        min-width: 0;
       }
 
       .pt-catalog-subgroup-count {
@@ -12193,6 +12286,63 @@ function(el, x, toolsData) {
         font-size: 10px;
         line-height: 1.35;
         vertical-align: 0;
+      }
+
+      .pt-catalog-capability-key {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px 5px;
+        margin-top: 3px;
+        font-size: 10.5px;
+        line-height: 1.3;
+      }
+
+      .pt-capability-key-item,
+      .pt-capability-badges {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .pt-capability-key-separator {
+        color: #879198;
+      }
+
+      .pt-capability-badge {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        padding: 0 4px;
+        border: 1px solid;
+        border-radius: 4px;
+        font-size: 9.5px;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: 0.015em;
+        white-space: nowrap;
+      }
+
+      .pt-capability-badge--legend {
+        background: #F1E8F5;
+        border-color: #B79AC3;
+        color: #4F2D5C;
+      }
+
+      .pt-capability-badge--info {
+        background: #E3F2F0;
+        border-color: #8DBAB4;
+        color: #174F4A;
+      }
+
+      .pt-capability-badge-count {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .pt-capability-badges--layer {
+        flex: 0 1 auto;
       }
 
       .pt-map-legend-close {
@@ -12303,8 +12453,18 @@ function(el, x, toolsData) {
       }
 
       .pt-catalog-layer-name {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 2px 4px;
         font-weight: 600;
         line-height: 1.2;
+      }
+
+      .pt-catalog-layer-label {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
 
       .pt-catalog-info-btn {
@@ -13611,6 +13771,8 @@ function(el, x, toolsData) {
     return {
       legendUrl: ptCatalogField(rec, 'legend_url'),
       legendNote: ptCatalogField(rec, 'legend_note'),
+      legendAdapter: ptCatalogField(rec, 'legend_adapter'),
+      infoAdapter: ptCatalogField(rec, 'info_adapter'),
       minZoomLive: ptCatalogField(rec, 'min_zoom_live'),
       minZoomCurrentView: ptCatalogField(rec, 'min_zoom_current_view'),
       whereClause: ptCatalogField(rec, 'where_clause'),
