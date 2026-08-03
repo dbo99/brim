@@ -41,6 +41,7 @@ source("03_functions/leaflet_layer_helpers.r")
 source("03_functions/leaflet_label_helpers.r")
 source("03_functions/leaflet_huc_theme_helpers.r")
 source("03_functions/leaflet_bulletin118_theme_helpers.r")
+source("03_functions/layer_capability_helpers.r")
 source("03_functions/leaflet_tools_adddata_helpers.r")
 source("03_functions/leaflet_local_upload_helpers.r")
 

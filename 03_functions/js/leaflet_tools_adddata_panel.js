@@ -9,6 +9,9 @@ function(el, x, toolsData) {
   toolsData = toolsData || {};
   var PT2_ENABLE_BLM_SMA = !!toolsData.enable_blm_sma;
   var PT2_CATALOG = Array.isArray(toolsData.catalog) ? toolsData.catalog : [];
+  var PT2_CAPABILITY_DEFINITIONS = toolsData.capability_definitions || {};
+  var PT2_CAPABILITY_COVERAGE = Array.isArray(toolsData.capability_coverage) ?
+    toolsData.capability_coverage : [];
 
   // Keep a stable browser-side index for quick-add catalog rows.
   PT2_CATALOG.forEach(function(rec, idx) {
@@ -987,6 +990,10 @@ function(el, x, toolsData) {
       if (excludeLookup[String(k).toLowerCase()]) return false;
       return true;
     });
+  }
+
+  function ptHasMeaningfulPopupProperties(props, options) {
+    return ptExternalAttributeKeys(props || {}, options || {}).length > 0;
   }
 
   function ptStreamGaugeRecordClass(props) {
@@ -7054,6 +7061,8 @@ function(el, x, toolsData) {
       visible: true,
       legendUrl: ptCleanText(options.legendUrl),
       legendNote: ptCleanText(options.legendNote),
+      legendAdapter: ptCleanText(options.legendAdapter),
+      infoAdapter: ptCleanText(options.infoAdapter),
       loadMode: ptCleanText(options.loadMode),
       whereClause: ptCleanText(options.whereClause),
       popupFields: ptCleanText(options.popupFields),
@@ -8918,6 +8927,76 @@ function(el, x, toolsData) {
       '</span>';
   }
 
+  // One behavior-preserving legend dispatch path serves catalog details and
+  // active-layer details. Finalized catalog rows carry build-resolved adapter
+  // keys; manual overlays fall back to the same predicates used historically.
+  function ptLegacyLegendAdapterKeys(options) {
+    var keys = [];
+    if (ptIsDroughtMonitorStyle(options)) keys.push('drought_monitor');
+    if (ptIsCpcOutlookStyle(options)) keys.push('cpc_outlook');
+    if (ptIsStreamGaugeFlowStyle(options)) keys.push('stream_gauge_flow');
+    if (ptIsWcrCompletedDepthStyle(options)) keys.push('wcr_completed_depth');
+    if (ptIsFireYearStyle(options)) keys.push('fire_year');
+    if (ptIsMlrsMineralCaseStyle(options)) keys.push('mlrs_mineral_cases');
+    if (ptIsSgmaPrioritizationLayer(options)) keys.push('sgma_prioritization');
+    if (ptIsNifcCurrentFirePerimeterStyle(options)) keys.push('nifc_current_fire');
+    if (ptIsAmlFeatureStyle(options)) keys.push('aml_status');
+    if (ptIsCalIpcRampStyle(options)) keys.push('calipc_ramp');
+    if (ptIsSwrcbIrListingStatusStyle(options)) keys.push('swrcb_ir_status');
+    if (ptIsSubsidenceObservationStyle(options)) keys.push('subsidence_observation');
+    if (ptIsDwrTreInsarPointLocationStyle(options)) keys.push('dwr_tre_insar_points');
+    if (ptIsGenericCategoricalStyle(options)) keys.push('generic_categorical');
+    if (ptIsAlertCameraStyle(options)) keys.push('alert_camera');
+    if (ptIsAlertCameraViewshedStyle(options)) keys.push('alert_camera_viewshed');
+    return keys;
+  }
+
+  function ptLegendAdapterKeys(options) {
+    options = options || {};
+    var resolved = ptCleanText(options.legendAdapter || options.legend_adapter);
+    var catalogRecord = !!ptCleanText(options.catalogExtId || options.external_layer_id) ||
+      options.catalogIndex !== undefined && options.catalogIndex !== null;
+    if (catalogRecord) {
+      return resolved ? resolved.split(';').map(ptCleanText).filter(Boolean) : [];
+    }
+    return resolved ? resolved.split(';').map(ptCleanText).filter(Boolean) :
+      ptLegacyLegendAdapterKeys(options);
+  }
+
+  function ptRegisteredLegendRenderer(adapter, options) {
+    var renderers = {
+      drought_monitor: function() { return ptDroughtMonitorLegendHtml(); },
+      cpc_outlook: function() { return ptCpcOutlookLegendHtml(options); },
+      stream_gauge_flow: function() { return ptStreamGaugeFlowLegendHtml(); },
+      wcr_completed_depth: function() { return ptWcrCompletedDepthLegendHtml(); },
+      fire_year: function() { return ptFireYearLegendHtml(); },
+      mlrs_mineral_cases: function() { return ptMlrsMineralCasesLegendHtml(); },
+      sgma_prioritization: function() { return ptSgmaPrioritizationLegendHtml(); },
+      nifc_current_fire: function() { return ptNifcCurrentFireLegendHtml(); },
+      aml_status: function() { return ptAmlStatusLegendHtml(); },
+      calipc_ramp: function() { return ptCalIpcRampLegendHtml(options); },
+      swrcb_ir_status: function() { return ptSwrcbIrListingStatusLegendHtml(); },
+      subsidence_observation: function() { return ptSubsidenceObservationLegendHtml(); },
+      dwr_tre_insar_points: function() { return ptDwrTreInsarPointLegendHtml(); },
+      generic_categorical: function() { return ptGenericCategoricalLegendHtml(options); },
+      alert_camera: function() { return ptAlertCameraLegendHtml(); },
+      alert_camera_viewshed: function() { return ptAlertCameraViewshedLegendHtml(); }
+    };
+    return renderers[adapter] || null;
+  }
+
+  function ptRegisteredLegendHtml(options, context) {
+    var html = '';
+    ptLegendAdapterKeys(options).forEach(function(adapter) {
+      // MLRS historically rendered in active-layer details and its map card,
+      // but not in the collapsed catalog-detail pathway.
+      if (context === 'catalog_detail' && adapter === 'mlrs_mineral_cases') return;
+      var renderer = ptRegisteredLegendRenderer(adapter, options);
+      if (renderer) html += renderer();
+    });
+    return html;
+  }
+
   function ptRenderCustomLayerList() {
     var list = document.getElementById('pt-custom-layer-list');
     if (!list) return;
@@ -8942,69 +9021,7 @@ function(el, x, toolsData) {
         legendHtml += '<div class="pt-tools-muted"><b>Legend note:</b> ' + ptEscapeHtml(rec.legendNote) + '</div>';
       }
 
-      if (ptIsDroughtMonitorStyle(rec)) {
-        legendHtml += ptDroughtMonitorLegendHtml();
-      }
-
-      if (ptIsCpcOutlookStyle(rec)) {
-        legendHtml += ptCpcOutlookLegendHtml(rec);
-      }
-
-      if (ptIsStreamGaugeFlowStyle(rec)) {
-        legendHtml += ptStreamGaugeFlowLegendHtml();
-      }
-
-      if (ptIsWcrCompletedDepthStyle(rec)) {
-        legendHtml += ptWcrCompletedDepthLegendHtml();
-      }
-
-      if (ptIsFireYearStyle(rec)) {
-        legendHtml += ptFireYearLegendHtml();
-      }
-
-      if (ptIsMlrsMineralCaseStyle(rec)) {
-        legendHtml += ptMlrsMineralCasesLegendHtml();
-      }
-
-      if (ptIsSgmaPrioritizationLayer(rec)) {
-        legendHtml += ptSgmaPrioritizationLegendHtml();
-      }
-
-      if (ptIsNifcCurrentFirePerimeterStyle(rec)) {
-        legendHtml += ptNifcCurrentFireLegendHtml();
-      }
-
-      if (ptIsAmlFeatureStyle(rec)) {
-        legendHtml += ptAmlStatusLegendHtml();
-      }
-
-      if (ptIsCalIpcRampStyle(rec)) {
-        legendHtml += ptCalIpcRampLegendHtml(rec);
-      }
-
-      if (ptIsSwrcbIrListingStatusStyle(rec)) {
-        legendHtml += ptSwrcbIrListingStatusLegendHtml();
-      }
-
-      if (ptIsSubsidenceObservationStyle(rec)) {
-        legendHtml += ptSubsidenceObservationLegendHtml();
-      }
-
-      if (ptIsDwrTreInsarPointLocationStyle(rec)) {
-        legendHtml += ptDwrTreInsarPointLegendHtml();
-      }
-
-      if (ptIsGenericCategoricalStyle(rec)) {
-        legendHtml += ptGenericCategoricalLegendHtml(rec);
-      }
-
-      if (ptIsAlertCameraStyle(rec)) {
-        legendHtml += ptAlertCameraLegendHtml();
-      }
-
-      if (ptIsAlertCameraViewshedStyle(rec)) {
-        legendHtml += ptAlertCameraViewshedLegendHtml();
-      }
+      legendHtml += ptRegisteredLegendHtml(rec, 'active_layer');
 
       if (rec.hoverFields || rec.popupFields) {
         legendHtml += '<div class="pt-tools-muted"><b>Fields:</b> curated hover/popup fields active</div>';
@@ -9919,6 +9936,8 @@ function(el, x, toolsData) {
     var layerOptions = {
       legendUrl: legendUrlInput ? legendUrlInput.value : '',
       legendNote: legendNoteInput ? legendNoteInput.value : '',
+      legendAdapter: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'legend_adapter') : '',
+      infoAdapter: pendingCatalogRecord ? ptCatalogField(pendingCatalogRecord, 'info_adapter') : '',
       minZoomLive: minZoomLiveInput ? minZoomLiveInput.value : '',
       minZoomCurrentView: minZoomCurrentViewInput ? minZoomCurrentViewInput.value : '',
       whereClause: whereClause,
@@ -10552,68 +10571,11 @@ function(el, x, toolsData) {
       defaultStyleMethod: ptCatalogField(rec, 'default_style_method'),
       styleUnits: ptCatalogField(rec, 'style_units'),
       styleLegendTitle: ptCatalogField(rec, 'style_legend_title'),
-      layerName: ptCatalogField(rec, 'display_name')
+      layerName: ptCatalogField(rec, 'display_name'),
+      legendAdapter: ptCatalogField(rec, 'legend_adapter'),
+      catalogExtId: ptCatalogField(rec, 'external_layer_id')
     };
-
-    if (ptIsDroughtMonitorStyle(styleInfoOptions)) {
-      html += ptDroughtMonitorLegendHtml();
-    }
-
-    if (ptIsCpcOutlookStyle(styleInfoOptions)) {
-      html += ptCpcOutlookLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsStreamGaugeFlowStyle(styleInfoOptions)) {
-      html += ptStreamGaugeFlowLegendHtml();
-    }
-
-    if (ptIsWcrCompletedDepthStyle(styleInfoOptions)) {
-      html += ptWcrCompletedDepthLegendHtml();
-    }
-
-    if (ptIsFireYearStyle(styleInfoOptions)) {
-      html += ptFireYearLegendHtml();
-    }
-
-    if (ptIsNifcCurrentFirePerimeterStyle(styleInfoOptions)) {
-      html += ptNifcCurrentFireLegendHtml();
-    }
-
-    if (ptIsAmlFeatureStyle(styleInfoOptions)) {
-      html += ptAmlStatusLegendHtml();
-    }
-
-    if (ptIsCalIpcRampStyle(styleInfoOptions)) {
-      html += ptCalIpcRampLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsSgmaPrioritizationLayer(styleInfoOptions)) {
-      html += ptSgmaPrioritizationLegendHtml();
-    }
-
-    if (ptIsSwrcbIrListingStatusStyle(styleInfoOptions)) {
-      html += ptSwrcbIrListingStatusLegendHtml();
-    }
-
-    if (ptIsSubsidenceObservationStyle(styleInfoOptions)) {
-      html += ptSubsidenceObservationLegendHtml();
-    }
-
-    if (ptIsDwrTreInsarPointLocationStyle(styleInfoOptions)) {
-      html += ptDwrTreInsarPointLegendHtml();
-    }
-
-    if (ptIsGenericCategoricalStyle(styleInfoOptions)) {
-      html += ptGenericCategoricalLegendHtml(styleInfoOptions);
-    }
-
-    if (ptIsAlertCameraStyle(styleInfoOptions)) {
-      html += ptAlertCameraLegendHtml();
-    }
-
-    if (ptIsAlertCameraViewshedStyle(styleInfoOptions)) {
-      html += ptAlertCameraViewshedLegendHtml();
-    }
+    html += ptRegisteredLegendHtml(styleInfoOptions, 'catalog_detail');
 
     if (notes) {
       html += '<div><b>Note:</b> ' + ptEscapeHtml(notes) + '</div>';
@@ -13611,6 +13573,8 @@ function(el, x, toolsData) {
     return {
       legendUrl: ptCatalogField(rec, 'legend_url'),
       legendNote: ptCatalogField(rec, 'legend_note'),
+      legendAdapter: ptCatalogField(rec, 'legend_adapter'),
+      infoAdapter: ptCatalogField(rec, 'info_adapter'),
       minZoomLive: ptCatalogField(rec, 'min_zoom_live'),
       minZoomCurrentView: ptCatalogField(rec, 'min_zoom_current_view'),
       whereClause: ptCatalogField(rec, 'where_clause'),

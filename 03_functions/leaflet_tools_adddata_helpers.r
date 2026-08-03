@@ -50,6 +50,8 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
   ## live catalog service just to populate the dropdowns.
   catalog_path <- file.path("00_config", "external_service_catalog.csv")
   catalog_records <- list()
+  capability_coverage_records <- list()
+  capability_definitions <- pt_layer_capability_definitions()
 
   if (file.exists(catalog_path)) {
 
@@ -283,20 +285,26 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
         catalog_df$display_name
       ), , drop = FALSE]
 
-      # Stable External Layer IDs make it easier to discuss catalog rows
-      # during QA/dev (for example, "remove #066") without relying on a long
-      # display name.  Existing IDs from the CSV are preserved; blanks get a
-      # temporary build-time fallback so older catalogs still render.
+      # Stable External Layer IDs are build contracts for panel-visible rows.
+      # Hidden legacy rows may retain the old fallback solely so they can still
+      # be serialized; they cannot enter capability coverage without a real ID.
       if (!"external_layer_id" %in% names(catalog_df)) catalog_df$external_layer_id <- ""
       missing_ext_id <- is.na(catalog_df$external_layer_id) | trimws(as.character(catalog_df$external_layer_id)) == ""
-      catalog_df$external_layer_id[missing_ext_id] <- sprintf("EXT%03d", which(missing_ext_id))
+      external_visible <- tolower(trimws(as.character(catalog_df$primary_panel))) %in% c("external", "both")
+      if (any(missing_ext_id & external_visible)) {
+        stop(
+          "External-visible catalog rows require maintained stable external_layer_id values.",
+          call. = FALSE
+        )
+      }
+      hidden_missing <- missing_ext_id & !external_visible
+      catalog_df$external_layer_id[hidden_missing] <- sprintf("HIDDEN%03d", which(hidden_missing))
 
       # User-facing display numbers are assigned after the same sort used by
       # the External Layers panel, but only to rows that are actually visible
       # in the External panel. Disabled/Ops-only rows retain stable IDs but do
       # not consume user-facing layer numbers.
       catalog_df$external_display_num <- ""
-      external_visible <- tolower(trimws(as.character(catalog_df$primary_panel))) %in% c("external", "both")
       catalog_df$external_display_num[external_visible] <- as.character(seq_len(sum(external_visible)))
       visible_display_numbers <- suppressWarnings(as.integer(
         catalog_df$external_display_num[external_visible]
@@ -314,6 +322,18 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
           call. = FALSE
         )
       }
+
+      capability_result <- pt_finalize_external_layer_capabilities(catalog_df)
+      catalog_df <- capability_result$catalog
+      pt_finalize_external_layer_inventory(
+        catalog_df,
+        capability_result$layer_rows
+      )
+      capability_definitions <- capability_result$definitions
+      capability_coverage_records <- lapply(
+        seq_len(nrow(capability_result$coverage)),
+        function(i) as.list(capability_result$coverage[i, , drop = FALSE])
+      )
 
       catalog_records <- lapply(seq_len(nrow(catalog_df)), function(i) {
         list(
@@ -379,7 +399,32 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
           load_median_seconds = as.character(catalog_df$load_median_seconds[i]),
           load_p90_seconds = as.character(catalog_df$load_p90_seconds[i]),
           load_max_seconds = as.character(catalog_df$load_max_seconds[i]),
-          load_feature_cap_rate = as.character(catalog_df$load_feature_cap_rate[i])
+          load_feature_cap_rate = as.character(catalog_df$load_feature_cap_rate[i]),
+          layer_key = as.character(catalog_df$layer_key[i]),
+          panel_visible = isTRUE(catalog_df$panel_visible[i]),
+          has_legend = isTRUE(catalog_df$has_legend[i]),
+          has_feature_info = isTRUE(catalog_df$has_feature_info[i]),
+          feature_info_hover = isTRUE(catalog_df$feature_info_hover[i]),
+          feature_info_popup = isTRUE(catalog_df$feature_info_popup[i]),
+          feature_info_identify = isTRUE(catalog_df$feature_info_identify[i]),
+          feature_info_equivalent = isTRUE(catalog_df$feature_info_equivalent[i]),
+          legend_type = as.character(catalog_df$legend_type[i]),
+          provider_legend_available = isTRUE(catalog_df$provider_legend_available[i]),
+          legend_adapter = as.character(catalog_df$legend_adapter[i]),
+          info_adapter = as.character(catalog_df$info_adapter[i]),
+          registration_source = as.character(catalog_df$registration_source[i]),
+          content_basis = as.character(catalog_df$content_basis[i]),
+          legend_renderable = isTRUE(catalog_df$legend_renderable[i]),
+          info_content_meaningful = isTRUE(catalog_df$info_content_meaningful[i]),
+          group_layer_count = as.integer(catalog_df$group_layer_count[i]),
+          group_legend_count = as.integer(catalog_df$group_legend_count[i]),
+          group_info_count = as.integer(catalog_df$group_info_count[i]),
+          subgroup_layer_count = as.integer(catalog_df$subgroup_layer_count[i]),
+          subgroup_legend_count = as.integer(catalog_df$subgroup_legend_count[i]),
+          subgroup_info_count = as.integer(catalog_df$subgroup_info_count[i]),
+          capability_diagnostic_code = as.character(catalog_df$diagnostic_code[i]),
+          capability_diagnostic_severity = as.character(catalog_df$diagnostic_severity[i]),
+          capability_diagnostic_detail = as.character(catalog_df$diagnostic_detail[i])
         )
       })
 
@@ -398,7 +443,9 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
 
   tools_data <- list(
     enable_blm_sma = add_blm_sma,
-    catalog = catalog_records
+    catalog = catalog_records,
+    capability_definitions = capability_definitions,
+    capability_coverage = capability_coverage_records
   )
 
   js_path <- file.path(
