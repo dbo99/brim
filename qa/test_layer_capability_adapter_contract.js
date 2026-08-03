@@ -46,6 +46,8 @@ for (const adapter of adapters) {
 }
 assert(uic.includes('function sourceRowsHtml()'), 'UIC dynamic source-card renderer is missing.');
 assert(external.includes('generic_categorical: function() { return ptGenericCategoricalLegendHtml(options); }'), 'Generic categorical style-note dispatch was removed.');
+assert((external.match(/<b>Provider legend:<\/b>/g) || []).length >= 2, 'Provider legend links are not clearly distinguished from BRIM legends.');
+assert(external.includes('Provider legend — opens external page'), 'Active-layer provider link label is ambiguous.');
 
 const adapterKeysFactory = new Function(
   'ptCleanText', 'ptLegacyLegendAdapterKeys',
@@ -71,7 +73,7 @@ assert(!popupContract({}), 'Empty feature properties were treated as meaningful.
 assert(!popupContract({OBJECTID: 1, Shape_Area: 10, GlobalID: 'x'}), 'System-only properties were treated as meaningful.');
 assert(popupContract({OBJECTID: 1, NAME: 'District'}), 'A meaningful returned property was rejected.');
 assert(/if \(clickable\)[\s\S]{0,500}ptPopupFromProperties\(props, options\)/.test(external), 'Generic popup runtime behavior is no longer available independently of capability classification.');
-assert(!external.includes('pt-capability-badge') && !external.includes('data-pt-capability'), 'Phase 1 introduced visible capability badge markup.');
-assert(!external.includes('>LGND<') && !external.includes('>INFO<'), 'Phase 1 introduced visible LGND/INFO text.');
+const badgeContract = extractFunction(external, 'ptCatalogLayerCapabilityBadgesHtml');
+assert(!badgeContract.includes('ptLegendAdapterKeys') && !badgeContract.includes('ptHasMeaningfulPopupProperties'), 'Visible badges reclassify capability metadata in the browser.');
 
 console.log('Layer capability adapter contract tests passed.');

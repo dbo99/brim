@@ -4,8 +4,9 @@
 ## the first consumer, but the schema and definitions deliberately avoid
 ## External-specific names.
 
-PT_LAYER_CAPABILITY_SCHEMA_VERSION <- "1.0"
-PT_LAYER_INVENTORY_SCHEMA_VERSION <- "1.0"
+PT_LAYER_CAPABILITY_SCHEMA_VERSION <- "1.2"
+PT_LAYER_INVENTORY_SCHEMA_VERSION <- "1.2"
+PT_CAPABILITY_GIT_HEAD_UNAVAILABLE <- "unavailable — build workspace is not a Git checkout"
 
 pt_layer_capability_definitions <- function() {
   list(
@@ -40,12 +41,30 @@ pt_capability_slug <- function(x) {
   ifelse(nzchar(x), x, "other")
 }
 
-pt_capability_git_head <- function() {
+pt_capability_git_head_display <- function(git_head) {
+  git_head <- pt_capability_text(git_head)[1]
+  if (nzchar(git_head)) git_head else PT_CAPABILITY_GIT_HEAD_UNAVAILABLE
+}
+
+pt_capability_git_head <- function(work_dir = getwd()) {
+  work_dir <- pt_capability_text(work_dir)[1]
+  if (!nzchar(work_dir) || !dir.exists(work_dir)) {
+    return(PT_CAPABILITY_GIT_HEAD_UNAVAILABLE)
+  }
   out <- tryCatch(
-    suppressWarnings(system2("git", c("rev-parse", "HEAD"), stdout = TRUE, stderr = FALSE)),
+    suppressWarnings(system2(
+      "git",
+      c("-C", shQuote(normalizePath(work_dir, mustWork = TRUE)), "rev-parse", "HEAD"),
+      stdout = TRUE,
+      stderr = FALSE
+    )),
     error = function(e) character()
   )
-  if (length(out) == 1L && grepl("^[0-9a-fA-F]{40}$", out)) out else ""
+  if (length(out) == 1L && grepl("^[0-9a-fA-F]{40}$", out)) {
+    unname(out)
+  } else {
+    PT_CAPABILITY_GIT_HEAD_UNAVAILABLE
+  }
 }
 
 pt_layer_capability_registration_columns <- function() {
@@ -111,7 +130,7 @@ pt_register_layer_capability <- function(
 }
 
 pt_layer_legend_adapter_catalog <- function() {
-  data.frame(
+  out <- data.frame(
     adapter = c(
       "drought_monitor", "cpc_outlook", "stream_gauge_flow",
       "wcr_completed_depth", "fire_year", "mlrs_mineral_cases",
@@ -138,9 +157,90 @@ pt_layer_legend_adapter_catalog <- function() {
       "style_note", rep("inline", 2L),
       "dynamic_map_card"
     ),
-    qualifies_lgnd = c(rep(TRUE, 13L), FALSE, TRUE, TRUE, TRUE),
+    legend_status = c(
+      "brim_hidden_or_manual", "partial_brim_legend",
+      "brim_hidden_or_manual", "brim_automatic",
+      "brim_hidden_or_manual", "brim_shared_automatic",
+      "brim_automatic", "style_note_only", "brim_hidden_or_manual",
+      "style_note_only", "brim_hidden_or_manual", "brim_automatic",
+      "brim_hidden_or_manual", "style_note_only",
+      "brim_hidden_or_manual", "brim_hidden_or_manual",
+      "brim_shared_automatic"
+    ),
+    legend_surface = c(
+      rep("collapsed_active_external_details", 3L), "map_card",
+      "collapsed_active_external_details", "shared_map_card", "map_card",
+      rep("collapsed_active_external_details", 4L), "map_card",
+      rep("collapsed_active_external_details", 4L), "leaflet_control"
+    ),
+    legend_mount_path = c(
+      rep("ptRenderCustomLayerList -> #pt-active-external-body", 3L),
+      "ptUpdateWcrCompletedDepthMapLegend -> .pt-wcr-completed-depth-map-legend",
+      "ptRenderCustomLayerList -> #pt-active-external-body",
+      "ptUpdateMlrsMineralCasesMapLegend -> .pt-mlrs-mineral-cases-map-legend",
+      "ptUpdateSgmaPrioritizationMapLegend -> .pt-sgma-prioritization-map-legend",
+      rep("ptRenderCustomLayerList -> #pt-active-external-body", 4L),
+      "ptUpdateSubsidenceObservationMapLegend -> .pt-subsidence-observation-map-legend",
+      rep("ptRenderCustomLayerList -> #pt-active-external-body", 4L),
+      "BRIM.uicExplorer.upsertExternal -> L.control(bottomleft)"
+    ),
+    legend_shared_with = c(
+      rep("", 5L), "MLRS mineral-case layer family", "", rep("", 9L),
+      "External UIC Explorer source rows"
+    ),
+    legend_automatic_mount = c(
+      FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE,
+      FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE
+    ),
+    legend_keyed_symbology = c(
+      TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+      FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE
+    ),
+    structured_style_mapping_available = TRUE,
+    legend_candidate_basis = c(
+      "keyed renderer is confined to collapsed Active external details",
+      "partial probability legend does not key all rendered bins",
+      "keyed renderer is confined to collapsed Active external details",
+      "activation automatically mounts a keyed WCR completed-depth map card",
+      "keyed renderer is confined to collapsed Active external details",
+      "activation automatically mounts the shared keyed MLRS map card",
+      "activation automatically mounts a keyed SGMA map card",
+      "prose style description without a concrete key",
+      "keyed renderer is confined to collapsed Active external details",
+      "prose style description without a concrete key",
+      "keyed renderer is confined to collapsed Active external details",
+      "activation automatically mounts a keyed subsidence-observation map card",
+      "keyed renderer is confined to collapsed Active external details",
+      "runtime categorical palette without a concrete value key",
+      "keyed renderer is confined to collapsed Active external details",
+      "keyed renderer is confined to collapsed Active external details",
+      "activation automatically mounts the shared keyed UIC Leaflet control"
+    ),
     stringsAsFactors = FALSE
   )
+  out$legend_renderer_key <- out$renderer_function
+  out$qualifies_lgnd <- out$legend_status %in% c(
+    "brim_automatic", "brim_shared_automatic"
+  ) & out$legend_automatic_mount & out$legend_keyed_symbology
+  out
+}
+
+pt_layer_legend_status_values <- function() {
+  c(
+    "brim_automatic", "brim_shared_automatic", "brim_hidden_or_manual",
+    "partial_brim_legend", "renderer_available_unmounted",
+    "style_mapping_available", "style_note_only",
+    "provider_reference_only", "none"
+  )
+}
+
+pt_strict_has_legend <- function(status, automatic_mount, keyed_symbology) {
+  automatic_mount <- as.logical(automatic_mount)
+  keyed_symbology <- as.logical(keyed_symbology)
+  automatic_mount[is.na(automatic_mount)] <- FALSE
+  keyed_symbology[is.na(keyed_symbology)] <- FALSE
+  pt_capability_text(status) %in% c("brim_automatic", "brim_shared_automatic") &
+    automatic_mount & keyed_symbology
 }
 
 pt_validate_legend_adapter_implementations <- function(
@@ -229,10 +329,89 @@ pt_external_legend_adapter_keys <- function(record) {
   names(flags)[flags]
 }
 
+pt_external_provider_legend_reference <- function(record) {
+  explicit_url <- pt_record_value(record, "legend_url")
+  if (nzchar(explicit_url)) {
+    return(list(available = TRUE, url = explicit_url, scope = "catalog_explicit"))
+  }
+  service_url <- pt_record_value(record, "service_url")
+  is_map <- identical(tolower(pt_record_value(record, "service_type")), "map") ||
+    grepl("/MapServer", service_url, ignore.case = TRUE)
+  if (!is_map) return(list(available = FALSE, url = "", scope = ""))
+  endpoint <- sub("[?#].*$", "", service_url)
+  endpoint <- sub("/+$", "", endpoint)
+  match <- regexec("^(.*?/MapServer)(?:/\\d+)?$", endpoint, ignore.case = TRUE, perl = TRUE)
+  parts <- regmatches(endpoint, match)[[1]]
+  if (length(parts) < 2L) return(list(available = FALSE, url = "", scope = ""))
+  list(available = TRUE, url = paste0(parts[2], "/legend"), scope = "map_service")
+}
+
 pt_external_provider_legend_available <- function(record) {
-  if (nzchar(pt_record_value(record, "legend_url"))) return(TRUE)
-  identical(tolower(pt_record_value(record, "service_type")), "map") &&
-    grepl("/MapServer(?:/\\d+)?/?(?:\\?.*)?$", pt_record_value(record, "service_url"), ignore.case = TRUE)
+  isTRUE(pt_external_provider_legend_reference(record)$available)
+}
+
+pt_external_legend_state <- function(record, adapters) {
+  adapter_catalog <- pt_layer_legend_adapter_catalog()
+  adapter_rows <- adapter_catalog[match(adapters, adapter_catalog$adapter), , drop = FALSE]
+  adapter_rows <- adapter_rows[!is.na(adapter_rows$adapter), , drop = FALSE]
+  specialized_family <- pt_external_specialized_style_family(record)
+  provider <- pt_external_provider_legend_reference(record)
+
+  if (nrow(adapter_rows)) {
+    priority <- match(adapter_rows$legend_status, c(
+      "brim_automatic", "brim_shared_automatic", "brim_hidden_or_manual",
+      "partial_brim_legend", "renderer_available_unmounted",
+      "style_mapping_available", "style_note_only"
+    ))
+    selected <- adapter_rows[order(priority, adapter_rows$adapter)[1], , drop = FALSE]
+    status <- selected$legend_status
+    return(list(
+      legend_status = status,
+      legend_surface = selected$legend_surface,
+      legend_renderer_key = selected$legend_renderer_key,
+      legend_mount_path = selected$legend_mount_path,
+      legend_shared_with = selected$legend_shared_with,
+      legend_automatic_mount = isTRUE(selected$legend_automatic_mount),
+      legend_keyed_symbology = isTRUE(selected$legend_keyed_symbology),
+      structured_style_mapping_available = any(adapter_rows$structured_style_mapping_available),
+      legend_candidate_basis = selected$legend_candidate_basis,
+      provider_legend_available = isTRUE(provider$available),
+      provider_legend_url = provider$url,
+      provider_legend_scope = provider$scope
+    ))
+  }
+
+  if (nzchar(specialized_family)) {
+    return(list(
+      legend_status = "style_mapping_available",
+      legend_surface = "unmounted_style_adapter",
+      legend_renderer_key = specialized_family,
+      legend_mount_path = "",
+      legend_shared_with = "",
+      legend_automatic_mount = FALSE,
+      legend_keyed_symbology = FALSE,
+      structured_style_mapping_available = TRUE,
+      legend_candidate_basis = paste0("deterministic ", specialized_family, " style mapping has no mounted BRIM legend"),
+      provider_legend_available = isTRUE(provider$available),
+      provider_legend_url = provider$url,
+      provider_legend_scope = provider$scope
+    ))
+  }
+
+  list(
+    legend_status = if (isTRUE(provider$available)) "provider_reference_only" else "none",
+    legend_surface = if (isTRUE(provider$available)) "external_provider_page" else "",
+    legend_renderer_key = "",
+    legend_mount_path = "",
+    legend_shared_with = "",
+    legend_automatic_mount = FALSE,
+    legend_keyed_symbology = FALSE,
+    structured_style_mapping_available = FALSE,
+    legend_candidate_basis = if (isTRUE(provider$available)) "provider legend reference only" else "",
+    provider_legend_available = isTRUE(provider$available),
+    provider_legend_url = provider$url,
+    provider_legend_scope = provider$scope
+  )
 }
 
 pt_external_specialized_style_family <- function(record) {
@@ -273,7 +452,10 @@ pt_external_info_resolution <- function(record) {
   equivalent <- FALSE
   adapter <- ""
   basis <- character()
-  generic_popup_unverified <- FALSE
+  info_content_basis <- "none"
+  info_fields_curated <- FALSE
+  info_content_quality <- "none"
+  generic_popup_fields_uncurated <- FALSE
 
   if (uic) {
     hover <- TRUE
@@ -281,6 +463,9 @@ pt_external_info_resolution <- function(record) {
     equivalent <- TRUE
     adapter <- "uic_bespoke"
     basis <- c(basis, "registered UIC tooltip/popup interaction")
+    info_content_basis <- "bespoke_feature_interaction"
+    info_fields_curated <- TRUE
+    info_content_quality <- "bespoke"
   } else if (dwr_tre_raster) {
     hover <- hover_config
     popup <- clickable || popup_config || link_config
@@ -288,21 +473,34 @@ pt_external_info_resolution <- function(record) {
     equivalent <- TRUE
     adapter <- "dwr_tre_raster_identify"
     basis <- c(basis, "BRIM-formatted DWR/TRE ImageServer identify value")
+    info_content_basis <- "formatted_raster_identify"
+    info_fields_curated <- TRUE
+    info_content_quality <- "formatted"
   } else if (image_route) {
     adapter <- "image_identify_unqualified"
   } else if (vector_route) {
     hover <- hover_config || label_config
-    meaningful_config <- popup_config || hover_config || label_config || link_config || mlrs
-    popup <- clickable && meaningful_config
+    curated_config <- popup_config || hover_config || label_config || link_config || mlrs
+    popup <- clickable
     equivalent <- mlrs && popup
     adapter <- if (mlrs) "mlrs_aggregate" else "shared_vector_feature"
     if (hover_config) basis <- c(basis, "configured hover fields")
     if (!hover_config && label_config) basis <- c(basis, "usable default label")
     if (popup_config && clickable) basis <- c(basis, "configured popup fields")
     if (link_config && clickable) basis <- c(basis, "feature-specific popup link")
-    if (clickable && !meaningful_config) {
-      basis <- c(basis, "generic vector popup route present; meaningful content unverified")
-      generic_popup_unverified <- TRUE
+    if (clickable && !curated_config) {
+      basis <- c(basis, "shared vector handler binds ptPopupFromProperties to returned feature attributes")
+      info_content_basis <- "generic_attribute_popup"
+      info_content_quality <- "uncurated"
+      generic_popup_fields_uncurated <- TRUE
+    } else if (mlrs && popup) {
+      info_content_basis <- "bespoke_aggregate_popup"
+      info_fields_curated <- TRUE
+      info_content_quality <- "bespoke"
+    } else if (hover || popup) {
+      info_content_basis <- if (popup) "curated_feature_popup" else "curated_hover_or_tooltip"
+      info_fields_curated <- popup_config || hover_config || label_config
+      info_content_quality <- "curated"
     }
     if (mlrs && popup) basis <- c(basis, "registered MLRS aggregate click interaction")
   } else if (visual_map_route) {
@@ -314,9 +512,10 @@ pt_external_info_resolution <- function(record) {
     if (hover_config) basis <- c(basis, "configured MapServer identify hover fields")
     if (popup_config) basis <- c(basis, "configured MapServer identify popup fields")
     if (link_config) basis <- c(basis, "feature-specific MapServer identify link")
-    if (clickable && !meaningful_config) {
-      basis <- c(basis, "generic MapServer popup route present; meaningful content unverified")
-      generic_popup_unverified <- TRUE
+    if (hover || popup || identify) {
+      info_content_basis <- "curated_visual_identify"
+      info_fields_curated <- popup_config || hover_config
+      info_content_quality <- "curated"
     }
   }
 
@@ -328,12 +527,28 @@ pt_external_info_resolution <- function(record) {
     feature_info_equivalent = equivalent,
     info_adapter = adapter,
     content_basis = paste(unique(basis), collapse = "; "),
-    generic_popup_unverified = generic_popup_unverified,
+    info_content_basis = info_content_basis,
+    info_fields_curated = info_fields_curated,
+    info_content_quality = info_content_quality,
+    generic_popup_fields_uncurated = generic_popup_fields_uncurated,
     bare_info_flags = clickable && !(hover || popup || identify || equivalent)
   )
 }
 
 pt_capability_diagnostic_severities <- function() c("info", "warning", "error")
+
+pt_info_content_basis_values <- function() {
+  c(
+    "none", "generic_attribute_popup", "curated_feature_popup",
+    "curated_hover_or_tooltip", "curated_visual_identify",
+    "formatted_raster_identify", "bespoke_feature_interaction",
+    "bespoke_aggregate_popup", "explicit_registration"
+  )
+}
+
+pt_info_content_quality_values <- function() {
+  c("none", "uncurated", "curated", "formatted", "bespoke", "registered")
+}
 
 pt_add_capability_diagnostic <- function(codes, severities, details, code, severity, detail) {
   if (!severity %in% pt_capability_diagnostic_severities()) {
@@ -353,7 +568,13 @@ pt_layer_capability_output_columns <- function() {
     "stable_layer_id", "display_name", "panel_visible", "has_legend",
     "has_feature_info", "feature_info_hover", "feature_info_popup",
     "feature_info_identify", "feature_info_equivalent", "legend_type",
-    "provider_legend_available", "legend_adapter", "info_adapter",
+    "legend_status", "legend_surface", "legend_renderer_key",
+    "legend_mount_path", "legend_shared_with", "legend_automatic_mount",
+    "legend_keyed_symbology", "structured_style_mapping_available",
+    "legend_candidate_basis", "provider_legend_available",
+    "provider_legend_url", "provider_legend_scope",
+    "provider_legend_reference_only", "legend_adapter", "info_adapter",
+    "info_content_basis", "info_fields_curated", "info_content_quality",
     "registration_source", "content_basis",
     "legend_renderable", "info_content_meaningful", "layer_count",
     "legend_count", "info_count", "group_layer_count", "group_legend_count",
@@ -395,6 +616,13 @@ pt_apply_capability_registrations <- function(layer_rows, registrations) {
     if (isTRUE(registration$has_legend) && any(!adapter_catalog$qualifies_lgnd[match(adapters, adapter_catalog$adapter)])) {
       stop("LGND capability registration uses a non-qualifying style-note adapter: ", registration$layer_key, call. = FALSE)
     }
+    if (isTRUE(registration$has_legend) && !pt_strict_has_legend(
+      layer_rows$legend_status[row_idx],
+      layer_rows$legend_automatic_mount[row_idx],
+      layer_rows$legend_keyed_symbology[row_idx]
+    )) {
+      stop("LGND capability registration requires normalized automatic, keyed mount evidence: ", registration$layer_key, call. = FALSE)
+    }
     info_modes <- unlist(registration[c(
       "feature_info_hover", "feature_info_popup", "feature_info_identify",
       "feature_info_equivalent"
@@ -419,6 +647,14 @@ pt_apply_capability_registrations <- function(layer_rows, registrations) {
       current_info <- strsplit(pt_capability_text(layer_rows$info_adapter[row_idx]), ";", fixed = TRUE)[[1]]
       layer_rows$has_feature_info[row_idx] <- TRUE
       layer_rows$info_content_meaningful[row_idx] <- TRUE
+      if (!nzchar(pt_capability_text(layer_rows$info_content_basis[row_idx])) ||
+          identical(layer_rows$info_content_basis[row_idx], "none")) {
+        layer_rows$info_content_basis[row_idx] <- "explicit_registration"
+      }
+      if (!nzchar(pt_capability_text(layer_rows$info_content_quality[row_idx])) ||
+          identical(layer_rows$info_content_quality[row_idx], "none")) {
+        layer_rows$info_content_quality[row_idx] <- "registered"
+      }
       layer_rows$feature_info_hover[row_idx] <- layer_rows$feature_info_hover[row_idx] || isTRUE(registration$feature_info_hover)
       layer_rows$feature_info_popup[row_idx] <- layer_rows$feature_info_popup[row_idx] || isTRUE(registration$feature_info_popup)
       layer_rows$feature_info_identify[row_idx] <- layer_rows$feature_info_identify[row_idx] || isTRUE(registration$feature_info_identify)
@@ -465,21 +701,28 @@ pt_external_layer_capabilities <- function(catalog_df, build_timestamp, git_head
     subgroup_key <- paste0(group_key, ":subgroup:", pt_capability_slug(subgroup))
     adapters <- setdiff(pt_external_legend_adapter_keys(record), c("alert_camera", "alert_camera_viewshed"))
     adapter_match <- match(adapters, adapter_catalog$adapter)
-    qualifying_adapters <- adapters[adapter_catalog$qualifies_lgnd[adapter_match]]
-    has_legend <- length(qualifying_adapters) > 0L
+    legend_state <- pt_external_legend_state(record, adapters)
+    has_legend <- pt_strict_has_legend(
+      legend_state$legend_status,
+      legend_state$legend_automatic_mount,
+      legend_state$legend_keyed_symbology
+    )
     legend_renderable <- length(adapters) > 0L
     legend_type <- ""
-    if (has_legend) {
-      types <- adapter_catalog$legend_type[match(qualifying_adapters, adapter_catalog$adapter)]
-      legend_type <- if ("dynamic_map_card" %in% types) "dynamic_map_card" else "inline"
-    } else if (legend_renderable) {
-      legend_type <- paste(unique(adapter_catalog$legend_type[adapter_match]), collapse = ";")
+    if (legend_renderable) {
+      types <- unique(adapter_catalog$legend_type[adapter_match])
+      legend_type <- if (has_legend && "dynamic_map_card" %in% types) {
+        "dynamic_map_card"
+      } else {
+        paste(types, collapse = ";")
+      }
     }
-    provider_link <- pt_external_provider_legend_available(record)
+    provider_link <- isTRUE(legend_state$provider_legend_available)
+    provider_reference_only <- provider_link && !has_legend
     if (!has_legend && !legend_renderable && provider_link) legend_type <- "provider_link"
     info <- pt_external_info_resolution(record)
     codes <- severities <- details <- character()
-    if (provider_link) {
+    if (provider_reference_only) {
       diagnostic <- pt_add_capability_diagnostic(codes, severities, details, "provider_legend_reference_only", "info", "Provider legend availability is recorded but does not establish LGND.")
       codes <- diagnostic$codes; severities <- diagnostic$severities; details <- diagnostic$details
     }
@@ -488,8 +731,8 @@ pt_external_layer_capabilities <- function(catalog_df, build_timestamp, git_head
       diagnostic <- pt_add_capability_diagnostic(codes, severities, details, "specialized_style_without_registered_legend", "warning", paste0("Specialized ", specialized_family, " styling has no registered usable BRIM legend."))
       codes <- diagnostic$codes; severities <- diagnostic$severities; details <- diagnostic$details
     }
-    if (isTRUE(info$generic_popup_unverified)) {
-      diagnostic <- pt_add_capability_diagnostic(codes, severities, details, "generic_popup_content_unverified", "warning", "A generic popup route exists, but meaningful returned content is not deterministically established.")
+    if (isTRUE(info$generic_popup_fields_uncurated)) {
+      diagnostic <- pt_add_capability_diagnostic(codes, severities, details, "generic_popup_fields_uncurated", "info", "The shared vector popup presents returned non-system attributes, but its fields are not curated.")
       codes <- diagnostic$codes; severities <- diagnostic$severities; details <- diagnostic$details
     }
     if (tolower(pt_record_value(record, "service_type")) == "image" &&
@@ -503,8 +746,10 @@ pt_external_layer_capabilities <- function(catalog_df, build_timestamp, git_head
     if (nzchar(info$info_adapter)) registration_source <- c(registration_source, paste0("info_adapter:", info$info_adapter))
     if (!length(registration_source)) registration_source <- "effective_catalog"
     content_basis <- c()
-    if (has_legend) content_basis <- c(content_basis, paste0("BRIM renderer: ", qualifying_adapters))
-    if (legend_renderable && !has_legend) content_basis <- c(content_basis, paste0("BRIM style note renderer: ", adapters))
+    if (legend_renderable) content_basis <- c(content_basis, paste0("BRIM renderer: ", adapters))
+    if (nzchar(legend_state$legend_candidate_basis)) {
+      content_basis <- c(content_basis, paste0("Legend state: ", legend_state$legend_candidate_basis))
+    }
     if (nzchar(info$content_basis)) content_basis <- c(content_basis, info$content_basis)
 
     out[[i]] <- data.frame(
@@ -528,9 +773,24 @@ pt_external_layer_capabilities <- function(catalog_df, build_timestamp, git_head
       feature_info_identify = isTRUE(info$feature_info_identify),
       feature_info_equivalent = isTRUE(info$feature_info_equivalent),
       legend_type = legend_type,
+      legend_status = legend_state$legend_status,
+      legend_surface = legend_state$legend_surface,
+      legend_renderer_key = legend_state$legend_renderer_key,
+      legend_mount_path = legend_state$legend_mount_path,
+      legend_shared_with = legend_state$legend_shared_with,
+      legend_automatic_mount = isTRUE(legend_state$legend_automatic_mount),
+      legend_keyed_symbology = isTRUE(legend_state$legend_keyed_symbology),
+      structured_style_mapping_available = isTRUE(legend_state$structured_style_mapping_available),
+      legend_candidate_basis = legend_state$legend_candidate_basis,
       provider_legend_available = provider_link,
+      provider_legend_url = legend_state$provider_legend_url,
+      provider_legend_scope = legend_state$provider_legend_scope,
+      provider_legend_reference_only = provider_reference_only,
       legend_adapter = paste(adapters, collapse = ";"),
       info_adapter = info$info_adapter,
+      info_content_basis = info$info_content_basis,
+      info_fields_curated = isTRUE(info$info_fields_curated),
+      info_content_quality = info$info_content_quality,
       registration_source = paste(registration_source, collapse = ";"),
       content_basis = paste(unique(content_basis), collapse = "; "),
       legend_renderable = legend_renderable,
@@ -579,7 +839,15 @@ pt_capability_aggregate_rows <- function(layer_rows) {
     row$feature_info_identify <- any(x$feature_info_identify)
     row$feature_info_equivalent <- any(x$feature_info_equivalent)
     row$provider_legend_available <- any(x$provider_legend_available)
+    row$provider_legend_reference_only <- any(x$provider_legend_reference_only)
+    row$provider_legend_url <- row$provider_legend_scope <- ""
+    row$legend_status <- row$legend_surface <- row$legend_renderer_key <- ""
+    row$legend_mount_path <- row$legend_shared_with <- row$legend_candidate_basis <- ""
+    row$legend_automatic_mount <- row$legend_keyed_symbology <- FALSE
+    row$structured_style_mapping_available <- any(x$structured_style_mapping_available)
     row$legend_type <- row$legend_adapter <- row$info_adapter <- "aggregate"
+    row$info_content_basis <- row$info_content_quality <- "aggregate"
+    row$info_fields_curated <- any(x$info_fields_curated)
     row$registration_source <- "derived_full_catalog_aggregate"
     row$content_basis <- "All panel-visible descendants"
     row$legend_renderable <- any(x$legend_renderable)
@@ -608,7 +876,15 @@ pt_capability_aggregate_rows <- function(layer_rows) {
     row$feature_info_identify <- any(x$feature_info_identify)
     row$feature_info_equivalent <- any(x$feature_info_equivalent)
     row$provider_legend_available <- any(x$provider_legend_available)
+    row$provider_legend_reference_only <- any(x$provider_legend_reference_only)
+    row$provider_legend_url <- row$provider_legend_scope <- ""
+    row$legend_status <- row$legend_surface <- row$legend_renderer_key <- ""
+    row$legend_mount_path <- row$legend_shared_with <- row$legend_candidate_basis <- ""
+    row$legend_automatic_mount <- row$legend_keyed_symbology <- FALSE
+    row$structured_style_mapping_available <- any(x$structured_style_mapping_available)
     row$legend_type <- row$legend_adapter <- row$info_adapter <- "aggregate"
+    row$info_content_basis <- row$info_content_quality <- "aggregate"
+    row$info_fields_curated <- any(x$info_fields_curated)
     row$registration_source <- "derived_full_catalog_aggregate"
     row$content_basis <- "All panel-visible descendants"
     row$legend_renderable <- any(x$legend_renderable)
@@ -649,15 +925,37 @@ pt_finalize_layer_capability_rows <- function(
   row_adapters <- lapply(strsplit(pt_capability_text(layer_rows$legend_adapter), ";", fixed = TRUE), function(x) x[nzchar(x)])
   unknown_adapters <- setdiff(unique(unlist(row_adapters)), adapter_catalog$adapter)
   if (length(unknown_adapters)) stop("Normalized capability rows use unknown legend adapters: ", paste(unknown_adapters, collapse = ", "), call. = FALSE)
-  invalid_lgnd <- vapply(seq_len(nrow(layer_rows)), function(i) {
-    if (!isTRUE(layer_rows$has_legend[i])) return(FALSE)
-    adapters <- row_adapters[[i]]
-    !length(adapters) || !any(adapter_catalog$qualifies_lgnd[match(adapters, adapter_catalog$adapter)])
-  }, logical(1))
-  if (any(invalid_lgnd)) stop("Normalized LGND rows lack a qualifying registered legend adapter.", call. = FALSE)
+  invalid_status <- setdiff(unique(pt_capability_text(layer_rows$legend_status)), pt_layer_legend_status_values())
+  if (length(invalid_status)) stop("Normalized capability rows use unsupported legend statuses: ", paste(invalid_status, collapse = ", "), call. = FALSE)
+  invalid_info_basis <- setdiff(unique(pt_capability_text(layer_rows$info_content_basis)), pt_info_content_basis_values())
+  if (length(invalid_info_basis)) stop("Normalized capability rows use unsupported INFO content bases: ", paste(invalid_info_basis, collapse = ", "), call. = FALSE)
+  invalid_info_quality <- setdiff(unique(pt_capability_text(layer_rows$info_content_quality)), pt_info_content_quality_values())
+  if (length(invalid_info_quality)) stop("Normalized capability rows use unsupported INFO content quality values: ", paste(invalid_info_quality, collapse = ", "), call. = FALSE)
+  incomplete_info <- layer_rows$has_feature_info & (
+    layer_rows$info_content_basis == "none" | layer_rows$info_content_quality == "none"
+  )
+  if (any(incomplete_info)) stop("INFO rows require a factual content basis and quality classification.", call. = FALSE)
+  invalid_generic_info <- layer_rows$info_content_basis == "generic_attribute_popup" & (
+    layer_rows$info_fields_curated | layer_rows$info_content_quality != "uncurated"
+  )
+  if (any(invalid_generic_info)) stop("Generic attribute popup INFO must remain explicitly uncurated.", call. = FALSE)
   pt_validate_legend_adapter_implementations()
   pt_validate_capability_registrations(registrations, layer_rows$layer_key)
   layer_rows <- pt_apply_capability_registrations(layer_rows, registrations)
+  layer_rows$has_legend <- pt_strict_has_legend(
+    layer_rows$legend_status,
+    layer_rows$legend_automatic_mount,
+    layer_rows$legend_keyed_symbology
+  )
+  layer_rows$legend_count <- as.integer(layer_rows$has_legend)
+  incomplete_automatic <- layer_rows$has_legend & (
+    !nzchar(pt_capability_text(layer_rows$legend_renderer_key)) |
+      !nzchar(pt_capability_text(layer_rows$legend_surface)) |
+      !nzchar(pt_capability_text(layer_rows$legend_mount_path))
+  )
+  if (any(incomplete_automatic)) {
+    stop("Strict LGND rows require a renderer key, automatic surface, and mount path.", call. = FALSE)
+  }
   aggregates <- pt_capability_aggregate_rows(layer_rows)
 
   expected_group <- aggregate(cbind(layer_count, legend_count, info_count) ~ group_key, layer_rows, sum)
@@ -691,13 +989,181 @@ pt_finalize_layer_capability_rows <- function(
   list(layer_rows = layer_rows, coverage = coverage, aggregates = aggregates, qa_path = if (isTRUE(write_qa)) qa_path else "")
 }
 
+pt_legend_summary_markdown_escape <- function(x) {
+  x <- pt_capability_text(x)
+  x <- gsub("|", "&#124;", x, fixed = TRUE)
+  x <- gsub("\r", " ", x, fixed = TRUE)
+  gsub("\n", " ", x, fixed = TRUE)
+}
+
+pt_legend_summary_markdown_table <- function(headers, rows) {
+  headers <- pt_legend_summary_markdown_escape(headers)
+  header <- paste0("| ", paste(headers, collapse = " | "), " |")
+  divider <- paste0("| ", paste(rep("---", length(headers)), collapse = " | "), " |")
+  if (!nrow(rows)) {
+    empty <- c("_None_", rep("", length(headers) - 1L))
+    return(c(header, divider, paste0("| ", paste(empty, collapse = " | "), " |")))
+  }
+  body <- vapply(seq_len(nrow(rows)), function(i) {
+    values <- pt_legend_summary_markdown_escape(unlist(rows[i, , drop = FALSE], use.names = FALSE))
+    paste0("| ", paste(values, collapse = " | "), " |")
+  }, character(1))
+  c(header, divider, body)
+}
+
+pt_layer_legend_summary_markdown <- function(layer_rows, catalog_df = NULL) {
+  if (!nrow(layer_rows) || any(layer_rows$record_type != "layer")) {
+    stop("Legend summary requires normalized layer records.", call. = FALSE)
+  }
+  required <- c(
+    "legend_status", "legend_surface", "legend_renderer_key",
+    "legend_mount_path", "legend_shared_with", "legend_automatic_mount",
+    "legend_keyed_symbology", "structured_style_mapping_available",
+    "legend_candidate_basis", "provider_legend_available",
+    "provider_legend_url", "provider_legend_scope",
+    "provider_legend_reference_only"
+  )
+  missing <- setdiff(required, names(layer_rows))
+  if (length(missing)) stop("Legend summary rows are missing columns: ", paste(missing, collapse = ", "), call. = FALSE)
+
+  rows <- layer_rows
+  style_adapter <- rep("", nrow(rows))
+  if (!is.null(catalog_df) && nrow(catalog_df)) {
+    catalog_keys <- paste0("external:", pt_capability_text(catalog_df$external_layer_id))
+    idx <- match(rows$layer_key, catalog_keys)
+    matched <- which(!is.na(idx))
+    if (length(matched)) {
+      style_adapter[matched] <- pt_capability_text(catalog_df$default_style_method[idx[matched]])
+    }
+  }
+  rows$renderer_or_style_adapter <- ifelse(
+    nzchar(pt_capability_text(rows$legend_adapter)),
+    pt_capability_text(rows$legend_adapter),
+    style_adapter
+  )
+
+  status_values <- pt_layer_legend_status_values()
+  status_counts <- table(factor(rows$legend_status, levels = status_values))
+  candidate <- !rows$has_legend & (
+    rows$structured_style_mapping_available |
+      rows$legend_status %in% c(
+        "brim_hidden_or_manual", "partial_brim_legend",
+        "renderer_available_unmounted", "style_mapping_available",
+        "style_note_only"
+      )
+  )
+  metrics <- data.frame(
+    Metric = c(
+      "External-visible layers", "Automatic BRIM legends",
+      "Shared automatic BRIM legends", "Provider-reference-only layers",
+      "Hidden/manual legend renderers", "Partial BRIM legends",
+      "Structured-style-mapping candidates", "Prose style notes",
+      "No known legend"
+    ),
+    Count = c(
+      nrow(rows), sum(rows$has_legend),
+      sum(rows$legend_status == "brim_shared_automatic"),
+      sum(rows$provider_legend_reference_only),
+      sum(rows$legend_status == "brim_hidden_or_manual"),
+      sum(rows$legend_status == "partial_brim_legend"),
+      sum(candidate & rows$structured_style_mapping_available),
+      sum(rows$legend_status == "style_note_only"),
+      sum(rows$legend_status == "none")
+    ),
+    stringsAsFactors = FALSE
+  )
+  status_table <- data.frame(
+    Status = status_values,
+    Count = as.integer(status_counts),
+    stringsAsFactors = FALSE
+  )
+
+  hierarchy_counts <- function(keys, labels) {
+    ordered_keys <- unique(keys)
+    out <- lapply(ordered_keys, function(key) {
+      idx <- keys == key
+      data.frame(
+        Label = labels[which(idx)[1]],
+        Layers = sum(idx),
+        Automatic = sum(rows$has_legend[idx]),
+        ProviderOnly = sum(rows$provider_legend_reference_only[idx]),
+        Candidates = sum(candidate[idx]),
+        stringsAsFactors = FALSE
+      )
+    })
+    do.call(rbind, out)
+  }
+  group_counts <- hierarchy_counts(rows$group_key, rows$group)
+  names(group_counts)[1] <- "Group"
+  subgroup_counts <- hierarchy_counts(
+    rows$subgroup_key,
+    paste(rows$group, rows$subgroup, sep = " / ")
+  )
+  names(subgroup_counts)[1] <- "Group / Subgroup"
+
+  automatic <- rows[rows$has_legend, , drop = FALSE]
+  automatic_table <- data.frame(
+    `Layer key` = automatic$layer_key,
+    `Display name` = automatic$display_name,
+    `Group / subgroup` = paste(automatic$group, automatic$subgroup, sep = " / "),
+    Status = automatic$legend_status,
+    Surface = automatic$legend_surface,
+    Renderer = automatic$legend_renderer_key,
+    `Mount path` = automatic$legend_mount_path,
+    `Shared with` = automatic$legend_shared_with,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  provider <- rows[rows$provider_legend_reference_only, , drop = FALSE]
+  provider_table <- data.frame(
+    `Layer key` = provider$layer_key,
+    `Display name` = provider$display_name,
+    `Group / subgroup` = paste(provider$group, provider$subgroup, sep = " / "),
+    Scope = provider$provider_legend_scope,
+    `Provider legend URL` = ifelse(
+      nzchar(provider$provider_legend_url),
+      paste0("<", provider$provider_legend_url, ">"),
+      ""
+    ),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  future <- rows[candidate, , drop = FALSE]
+  candidate_table <- data.frame(
+    `Layer key` = future$layer_key,
+    `Display name` = future$display_name,
+    `Group / subgroup` = paste(future$group, future$subgroup, sep = " / "),
+    `Current status` = future$legend_status,
+    `Renderer / style adapter` = future$renderer_or_style_adapter,
+    `Candidate basis` = future$legend_candidate_basis,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  c(
+    "# BRIM External Layer Legend Summary", "",
+    "## Build metadata", "",
+    paste0("- Build timestamp: `", pt_capability_text(rows$build_timestamp[1]), "`"),
+    paste0("- Git HEAD: `", pt_capability_git_head_display(rows$git_head[1]), "`"), "",
+    "## Overall counts", "", pt_legend_summary_markdown_table(names(metrics), metrics), "",
+    "## Legend status counts", "", pt_legend_summary_markdown_table(names(status_table), status_table), "",
+    "## Counts by group", "", pt_legend_summary_markdown_table(names(group_counts), group_counts), "",
+    "## Counts by subgroup", "", pt_legend_summary_markdown_table(names(subgroup_counts), subgroup_counts), "",
+    "## Automatic BRIM legends", "", pt_legend_summary_markdown_table(names(automatic_table), automatic_table), "",
+    "## Provider-reference-only layers", "", pt_legend_summary_markdown_table(names(provider_table), provider_table), "",
+    "## Future legend candidates", "", pt_legend_summary_markdown_table(names(candidate_table), candidate_table), ""
+  )
+}
+
 pt_finalize_external_layer_capabilities <- function(
     catalog_df,
     registrations = pt_new_layer_capability_registry(),
     write_qa = TRUE,
     qa_path = file.path("04_processed_data", "qa", "layer_capability_coverage_latest.csv"),
+    legend_summary_path = file.path("04_processed_data", "qa", "layer_legend_summary_latest.md"),
     build_timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     git_head = pt_capability_git_head()) {
+  git_head <- pt_capability_git_head_display(git_head)
   resolved_rows <- pt_external_layer_capabilities(catalog_df, build_timestamp, git_head)
   finalized <- pt_finalize_layer_capability_rows(resolved_rows, registrations, write_qa, qa_path)
   layer_rows <- finalized$layer_rows
@@ -706,27 +1172,58 @@ pt_finalize_external_layer_capabilities <- function(
   capability_cols <- c(
     "layer_key", "panel_visible", "has_legend", "has_feature_info",
     "feature_info_hover", "feature_info_popup", "feature_info_identify",
-    "feature_info_equivalent", "legend_type", "provider_legend_available",
-    "legend_adapter", "info_adapter", "registration_source", "content_basis",
+    "feature_info_equivalent", "legend_type", "legend_status",
+    "legend_surface", "legend_renderer_key", "legend_mount_path",
+    "legend_shared_with", "legend_automatic_mount", "legend_keyed_symbology",
+    "structured_style_mapping_available", "legend_candidate_basis",
+    "provider_legend_available", "provider_legend_url",
+    "provider_legend_scope", "provider_legend_reference_only",
+    "legend_adapter", "info_adapter", "info_content_basis",
+    "info_fields_curated", "info_content_quality",
+    "registration_source", "content_basis",
     "legend_renderable", "info_content_meaningful", "group_layer_count",
     "group_legend_count", "group_info_count", "subgroup_layer_count",
     "subgroup_legend_count", "subgroup_info_count", "diagnostic_code",
     "diagnostic_severity", "diagnostic_detail"
   )
-  logical_cols <- c("panel_visible", "has_legend", "has_feature_info", "feature_info_hover", "feature_info_popup", "feature_info_identify", "feature_info_equivalent", "provider_legend_available", "legend_renderable", "info_content_meaningful")
+  logical_cols <- c(
+    "panel_visible", "has_legend", "has_feature_info", "feature_info_hover",
+    "feature_info_popup", "feature_info_identify", "feature_info_equivalent",
+    "legend_automatic_mount", "legend_keyed_symbology",
+    "structured_style_mapping_available", "provider_legend_available",
+    "provider_legend_reference_only", "info_fields_curated", "legend_renderable",
+    "info_content_meaningful"
+  )
   for (nm in capability_cols) catalog_df[[nm]] <- if (nm %in% logical_cols) FALSE else if (grepl("_count$", nm)) NA_integer_ else ""
   visible_idx <- which(!is.na(match_idx))
   for (nm in capability_cols) catalog_df[[nm]][visible_idx] <- layer_rows[[nm]][match_idx[visible_idx]]
 
   joined <- sum(catalog_df$panel_visible)
   if (joined != nrow(layer_rows)) stop("Capability records could not join one-to-one to the finalized External catalog.", call. = FALSE)
+  summary_markdown <- pt_layer_legend_summary_markdown(layer_rows, catalog_df)
+  written_summary_path <- ""
+  if (isTRUE(write_qa)) {
+    dir.create(dirname(legend_summary_path), recursive = TRUE, showWarnings = FALSE)
+    writeLines(summary_markdown, legend_summary_path, useBytes = TRUE)
+    written_summary_path <- legend_summary_path
+    message(
+      "External legend capabilities: ", sum(layer_rows$has_legend),
+      " automatic BRIM; ", sum(layer_rows$provider_legend_reference_only),
+      " provider-reference-only; ",
+      sum(!layer_rows$has_legend & layer_rows$structured_style_mapping_available),
+      " structured-style candidates."
+    )
+    message("Layer legend summary: ", legend_summary_path)
+  }
   list(
     catalog = catalog_df,
     layer_rows = layer_rows,
     coverage = finalized$coverage,
     definitions = pt_layer_capability_definitions(),
     legend_adapters = pt_layer_legend_adapter_catalog(),
-    qa_path = finalized$qa_path
+    qa_path = finalized$qa_path,
+    legend_summary_path = written_summary_path,
+    legend_summary_markdown = summary_markdown
   )
 }
 
@@ -741,9 +1238,15 @@ pt_layer_inventory_output_columns <- function() {
     "service_family_layer_count", "exact_endpoint_match_count", "load_method",
     "load_scope", "load_hint_classification", "default_clickable",
     "supports_popups", "uses_hover", "uses_identify", "custom_loader",
-    "style_adapter", "legend_adapter", "info_adapter",
-    "provider_legend_available", "has_legend", "has_feature_info", "has_both",
-    "has_neither", "feature_info_hover", "feature_info_popup",
+    "style_adapter", "legend_adapter", "info_adapter", "info_content_basis",
+    "info_fields_curated", "info_content_quality",
+    "legend_status", "legend_surface", "legend_renderer_key",
+    "legend_mount_path", "legend_shared_with", "legend_automatic_mount",
+    "legend_keyed_symbology", "structured_style_mapping_available",
+    "legend_candidate_basis", "provider_legend_available",
+    "provider_legend_url", "provider_legend_scope",
+    "provider_legend_reference_only", "has_legend", "has_feature_info",
+    "has_both", "has_neither", "feature_info_hover", "feature_info_popup",
     "feature_info_identify", "feature_info_equivalent", "legend_type",
     "description_present", "source_note_present", "update_note_present",
     "official_source_link_present", "diagnostic_code", "diagnostic_severity",
@@ -819,7 +1322,7 @@ pt_inventory_load_scope <- function(load_method) {
 pt_inventory_flag_codes <- function() {
   c(
     "no_lgnd_no_info", "provider_legend_reference_only",
-    "generic_popup_content_unverified",
+    "generic_popup_fields_uncurated",
     "specialized_style_without_registered_legend", "shared_service_family",
     "exact_duplicate_endpoint", "custom_loader", "metadata_incomplete"
   )
@@ -841,7 +1344,7 @@ pt_inventory_flags_for_row <- function(record) {
   )[[1]]
   flags <- c(flags, intersect(
     c(
-      "provider_legend_reference_only", "generic_popup_content_unverified",
+      "provider_legend_reference_only", "generic_popup_fields_uncurated",
       "specialized_style_without_registered_legend"
     ),
     diagnostic_codes
@@ -976,7 +1479,22 @@ pt_external_layer_inventory_rows <- function(catalog_df, capability_layer_rows) 
       style_adapter = pt_record_value(record, "default_style_method"),
       legend_adapter = capability$legend_adapter,
       info_adapter = capability$info_adapter,
+      info_content_basis = capability$info_content_basis,
+      info_fields_curated = capability$info_fields_curated,
+      info_content_quality = capability$info_content_quality,
+      legend_status = capability$legend_status,
+      legend_surface = capability$legend_surface,
+      legend_renderer_key = capability$legend_renderer_key,
+      legend_mount_path = capability$legend_mount_path,
+      legend_shared_with = capability$legend_shared_with,
+      legend_automatic_mount = capability$legend_automatic_mount,
+      legend_keyed_symbology = capability$legend_keyed_symbology,
+      structured_style_mapping_available = capability$structured_style_mapping_available,
+      legend_candidate_basis = capability$legend_candidate_basis,
       provider_legend_available = capability$provider_legend_available,
+      provider_legend_url = capability$provider_legend_url,
+      provider_legend_scope = capability$provider_legend_scope,
+      provider_legend_reference_only = capability$provider_legend_reference_only,
       has_legend = capability$has_legend,
       has_feature_info = capability$has_feature_info,
       has_both = FALSE,

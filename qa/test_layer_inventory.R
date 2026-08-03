@@ -8,12 +8,14 @@ source(file.path("03_functions", "leaflet_tools_adddata_helpers.r"))
 
 inventory_path <- file.path("04_processed_data", "qa", "layer_inventory_latest.csv")
 capability_path <- file.path("04_processed_data", "qa", "layer_capability_coverage_latest.csv")
+legend_summary_path <- file.path("04_processed_data", "qa", "layer_legend_summary_latest.md")
 map <- pt_add_tools_adddata_panel(
   leaflet::leaflet(),
   list(add_tools_adddata_panel = TRUE, add_blm_sma_context_overlay = FALSE)
 )
 payload <- map$jsHooks$render[[2]]$data
 expect_true(file.exists(inventory_path), "Ordinary final-map panel assembly did not write the inventory artifact.")
+expect_true(file.exists(legend_summary_path), "Ordinary capability finalization did not write the legend summary artifact.")
 
 inventory <- utils::read.csv(inventory_path, stringsAsFactors = FALSE, check.names = FALSE)
 coverage <- utils::read.csv(capability_path, stringsAsFactors = FALSE, check.names = FALSE)
@@ -23,10 +25,21 @@ expect_true(nrow(inventory) == 175L, "External inventory baseline is no longer 1
 expect_true(!anyDuplicated(inventory$layer_key), "Inventory layer keys are duplicated.")
 expect_true(identical(inventory$layer_key, layers$layer_key), "Inventory does not join one-to-one in capability-layer order.")
 expect_true(all(inventory$stable_layer_id == layers$stable_layer_id), "Stable IDs drifted across the inventory/capability join.")
-expect_true(sum(inventory$has_legend) == 27L, "Inventory LGND baseline changed.")
-expect_true(sum(inventory$has_feature_info) == 96L, "Inventory INFO baseline changed.")
-expect_true(sum(inventory$has_both) == 26L, "Inventory combined LGND/INFO baseline changed.")
-expect_true(sum(inventory$has_neither) == 78L, "Inventory neither-capability baseline changed.")
+expect_true(sum(inventory$has_legend) == 13L, "Inventory strict LGND baseline changed.")
+expect_true(sum(inventory$has_feature_info) == 120L, "Inventory INFO baseline changed.")
+expect_true(sum(inventory$has_both) == 12L, "Inventory combined LGND/INFO baseline changed.")
+expect_true(sum(inventory$has_neither) == 54L, "Inventory neither-capability baseline changed.")
+expect_true(identical(
+  inventory$has_legend,
+  pt_strict_has_legend(inventory$legend_status, inventory$legend_automatic_mount, inventory$legend_keyed_symbology)
+), "Inventory LGND values do not follow strict legend state.")
+provider_inventory <- inventory[inventory$provider_legend_available, , drop = FALSE]
+expect_true(nrow(provider_inventory) == 92L && all(nzchar(provider_inventory$provider_legend_url)), "Provider legend URLs are not fully represented in inventory.")
+expect_true(sum(inventory$provider_legend_reference_only) == 89L && !any(inventory$has_legend[inventory$provider_legend_reference_only]), "Provider-reference-only inventory semantics changed.")
+generic_ids <- c("EXT048", "EXT051", sprintf("EXT%03d", 81:100), "EXT105", "EXT106")
+generic_inventory <- inventory[match(paste0("external:", generic_ids), inventory$layer_key), , drop = FALSE]
+expect_true(!anyNA(generic_inventory$layer_key) && all(generic_inventory$has_feature_info), "Generic shared-vector INFO roster is incomplete in inventory.")
+expect_true(all(generic_inventory$info_content_basis == "generic_attribute_popup") && !any(generic_inventory$info_fields_curated) && all(generic_inventory$info_content_quality == "uncurated"), "Inventory lost the generic-popup curation distinction.")
 
 catalog <- do.call(rbind, lapply(payload$catalog, function(record) {
   as.data.frame(lapply(record, function(value) {
