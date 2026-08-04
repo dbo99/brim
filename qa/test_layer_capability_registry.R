@@ -26,7 +26,7 @@ expect_true(identical(written_legend_summary[1], "# BRIM External Layer Legend S
 written_git_line <- written_legend_summary[startsWith(written_legend_summary, "- Git HEAD: `")]
 expect_true(length(written_git_line) == 1L && written_git_line != "- Git HEAD: ``", "Written legend summary contains empty Git metadata.")
 expect_true(identical(names(payload$capability_definitions), c("LGND", "INFO")), "Capability definitions were not embedded in the runtime payload.")
-expect_true(payload$capability_definitions$LGND$label == "Map legend available", "LGND wording drifted.")
+expect_true(payload$capability_definitions$LGND$label == "BRIM map legend available", "LGND wording drifted.")
 expect_true(payload$capability_definitions$INFO$label == "Feature details available by hover or click", "INFO wording drifted.")
 expect_true(identical(pt_capability_diagnostic_severities(), c("info", "warning", "error")), "Diagnostic severity contract changed.")
 
@@ -38,6 +38,39 @@ required_columns <- pt_layer_capability_output_columns()
 expect_true(identical(names(coverage), required_columns), "Coverage artifact schema changed unexpectedly.")
 expect_true(nrow(layers) == 175L, "External-visible baseline is no longer 175 layers.")
 expect_true(nrow(groups) == 22L && nrow(subgroups) == 54L, "Capability hierarchy baseline changed.")
+renamed_group_expectations <- data.frame(
+  group = c("Geology / Geophysics", "Hydro Basins / Admin Bnds"),
+  group_key = c(
+    "external:group:geology_geophysics_seismicity",
+    "external:group:hydrologic_basins_admin_boundaries"
+  ),
+  layer_count = c(10L, 14L),
+  stringsAsFactors = FALSE
+)
+renamed_groups <- groups[match(renamed_group_expectations$group, groups$group), , drop = FALSE]
+expect_true(
+  !anyNA(renamed_groups$group) &&
+    identical(renamed_groups$group_key, renamed_group_expectations$group_key) &&
+    identical(renamed_groups$layer_count, renamed_group_expectations$layer_count),
+  "Renamed External group labels or their stable historical keys changed."
+)
+expect_true(
+  !any(layers$group %in% c(
+    "Geology / Geophysics / Seismicity",
+    "Hydrologic Basins / Admin Boundaries"
+  )),
+  "A retired External group display label remains in the effective catalog."
+)
+expect_true(
+  setequal(
+    unique(layers$subgroup[layers$group == "Geology / Geophysics"]),
+    c("Faults / seismicity", "Geology / maps", "Land subsidence")
+  ) && setequal(
+    unique(layers$subgroup[layers$group == "Hydro Basins / Admin Bnds"]),
+    c("1water", "Groundwater", "Surface water", "Watershed condition")
+  ),
+  "A subgroup label changed while renaming its External parent group."
+)
 expect_true(!anyDuplicated(layers$layer_key), "Layer capability keys are not unique.")
 expect_true(!anyDuplicated(layers$stable_layer_id), "Stable External IDs are not unique.")
 expect_true(all(startsWith(layers$layer_key, "external:")), "External layer keys are not panel-qualified.")
@@ -182,6 +215,27 @@ catalog <- do.call(rbind, lapply(payload$catalog, function(record) {
 }))
 catalog_ext048 <- catalog[catalog$external_layer_id == "EXT048", , drop = FALSE]
 expect_true(nrow(catalog_ext048) == 1L && catalog_ext048$external_display_num == "143" && pt_capability_truth(catalog_ext048$has_feature_info), "External display #143 / EXT048 did not receive build-resolved INFO.")
+user_visible_catalog_fields <- intersect(c(
+  "agency", "program", "theme", "external_group", "external_subgroup",
+  "display_name", "notes", "geographic_scope", "pt2_usage_note",
+  "large_layer_warning", "legend_note", "popup_aliases",
+  "popup_link_label", "hover_aliases", "best_use",
+  "useful_for_visualization", "style_legend_title",
+  "field_curation_notes", "load_note", "load_audit_basis"
+), names(catalog))
+user_visible_catalog_text <- unlist(
+  catalog[user_visible_catalog_fields],
+  use.names = FALSE
+)
+legacy_brand_pattern <- "PortaTreasure2|(^|[^A-Za-z0-9_])PT2([^A-Za-z0-9_]|$)"
+expect_true(
+  !any(grepl(legacy_brand_pattern, user_visible_catalog_text, perl = TRUE)),
+  "A user-visible External/Ops catalog value retains legacy branding."
+)
+expect_true(
+  "pt2_usage_note" %in% names(catalog),
+  "The permitted internal pt2_usage_note schema field was renamed."
+)
 first_result <- pt_finalize_external_layer_capabilities(catalog, write_qa = FALSE, build_timestamp = "fixed", git_head = "fixed")
 second_result <- pt_finalize_external_layer_capabilities(catalog, write_qa = FALSE, build_timestamp = "fixed", git_head = "fixed")
 first <- first_result$coverage

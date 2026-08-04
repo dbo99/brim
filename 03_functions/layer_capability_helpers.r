@@ -12,7 +12,7 @@ pt_layer_capability_definitions <- function() {
   list(
     LGND = list(
       code = "LGND",
-      label = "Map legend available",
+      label = "BRIM map legend available",
       capability = "has_legend"
     ),
     INFO = list(
@@ -39,6 +39,18 @@ pt_capability_slug <- function(x) {
   x <- tolower(gsub("[^a-zA-Z0-9]+", "_", x))
   x <- gsub("^_+|_+$", "", x)
   ifelse(nzchar(x), x, "other")
+}
+
+pt_external_group_key_slug <- function(group) {
+  group <- pt_capability_text(group)
+  stable_aliases <- c(
+    "Geology / Geophysics" = "geology_geophysics_seismicity",
+    "Hydro Basins / Admin Bnds" = "hydrologic_basins_admin_boundaries"
+  )
+  slug <- unname(stable_aliases[group])
+  missing <- is.na(slug)
+  slug[missing] <- pt_capability_slug(group[missing])
+  slug
 }
 
 pt_capability_git_head_display <- function(git_head) {
@@ -697,7 +709,7 @@ pt_external_layer_capabilities <- function(catalog_df, build_timestamp, git_head
     subgroup <- pt_record_value(record, "external_subgroup")
     if (!nzchar(subgroup)) subgroup <- pt_record_value(record, "theme")
     if (!nzchar(subgroup)) subgroup <- "Other"
-    group_key <- paste0("external:group:", pt_capability_slug(group))
+    group_key <- paste0("external:group:", pt_external_group_key_slug(group))
     subgroup_key <- paste0(group_key, ":subgroup:", pt_capability_slug(subgroup))
     adapters <- setdiff(pt_external_legend_adapter_keys(record), c("alert_camera", "alert_camera_viewshed"))
     adapter_match <- match(adapters, adapter_catalog$adapter)
