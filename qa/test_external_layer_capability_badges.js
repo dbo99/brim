@@ -32,7 +32,7 @@ const helperNames = [
 ];
 const helperSource = helperNames.map(name => extractFunction(source, name)).join('\n');
 const definitions = {
-  LGND: {code: 'LGND', label: 'Map legend available', capability: 'has_legend'},
+  LGND: {code: 'LGND', label: 'BRIM map legend available', capability: 'has_legend'},
   INFO: {
     code: 'INFO',
     label: 'Feature details available by hover or click',
@@ -70,7 +70,7 @@ assert(both.includes('>LGND</span>') && both.includes('>INFO</span>'), 'LGND and
 assert(!helpers.ptCatalogLayerCapabilityBadgesHtml({}), 'Catalog rows without capability fields did not degrade safely.');
 assert(!helpers.ptCatalogLayerCapabilityBadgesHtml({has_legend: false, has_feature_info: false}), 'Neither-capability layer rendered a badge.');
 assert(!legendOnly.includes('data-capability-count'), 'Layer-level badges display numeric counts.');
-assert(legendOnly.includes('aria-label="Map legend available"'), 'Layer LGND lacks its shared accessible definition.');
+assert(legendOnly.includes('aria-label="BRIM map legend available"'), 'Layer LGND lacks its shared accessible definition.');
 assert(infoOnly.includes('aria-label="Feature details available by hover or click"'), 'Layer INFO lacks its shared accessible definition.');
 
 const parentRecord = {
@@ -81,7 +81,7 @@ const parentRecord = {
 };
 const groupBadges = helpers.ptCatalogHierarchyCapabilityBadgesHtml(parentRecord, 'group', 10);
 assert(groupBadges.includes('data-capability-count="2"') && groupBadges.includes('data-capability-count="9"'), 'Group badges do not use the precomputed nonzero totals.');
-assert(groupBadges.includes('aria-label="2 of 10 layers — Map legend available"'), 'Parent accessible label lacks numerator, denominator, or shared definition.');
+assert(groupBadges.includes('aria-label="2 of 10 layers — BRIM map legend available"'), 'Parent accessible label lacks numerator, denominator, or shared definition.');
 const subgroupBadges = helpers.ptCatalogHierarchyCapabilityBadgesHtml(parentRecord, 'subgroup', 4);
 assert(subgroupBadges.includes('data-capability-count="1"'), 'Subgroup LGND total did not render.');
 assert(!subgroupBadges.includes('data-capability="info"'), 'Zero-count subgroup INFO badge was not omitted.');
@@ -98,6 +98,7 @@ assert((source.match(/ptCapabilityDefinitionKeyHtml\(\)/g) || []).length === 2, 
 assert((source.match(/id="pt-catalog-capability-key"/g) || []).length === 1, 'Capability key markup is duplicated.');
 assert(keyHtml.includes(definitions.LGND.label) && keyHtml.includes(definitions.INFO.label), 'Capability key does not consume shared definition metadata.');
 assert((keyHtml.match(/pt-capability-key-item/g) || []).length === 2, 'Capability key does not render both shared definitions.');
+assert(keyHtml.includes('Provider legends may be linked in layer info.'), 'Capability key omits the provider-legend clarification.');
 
 const layerBadgeContract = extractFunction(source, 'ptCatalogLayerCapabilityBadgesHtml');
 assert(layerBadgeContract.includes("'has_legend'") && layerBadgeContract.includes("'has_feature_info'"), 'Layer badges do not consume build-resolved booleans.');

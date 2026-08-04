@@ -46,8 +46,8 @@ for (const adapter of adapters) {
 }
 assert(uic.includes('function sourceRowsHtml()'), 'UIC dynamic source-card renderer is missing.');
 assert(external.includes('generic_categorical: function() { return ptGenericCategoricalLegendHtml(options); }'), 'Generic categorical style-note dispatch was removed.');
-assert((external.match(/<b>Provider legend:<\/b>/g) || []).length >= 2, 'Provider legend links are not clearly distinguished from BRIM legends.');
-assert(external.includes('Provider legend — opens external page'), 'Active-layer provider link label is ambiguous.');
+assert(external.includes('Provider legend — opens external page'), 'Provider link label is ambiguous.');
+assert(external.includes('Source page — opens external page'), 'Catalog source-page link label is ambiguous.');
 
 const adapterKeysFactory = new Function(
   'ptCleanText', 'ptLegacyLegendAdapterKeys',

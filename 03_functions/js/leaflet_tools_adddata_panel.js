@@ -444,6 +444,65 @@ function(el, x, toolsData) {
     div.style.color = isError ? '#8B0000' : '#244C1E';
   }
 
+  function ptManualSelectedLoadMode(currentViewOnly) {
+    if (ptPendingCatalogIdx !== null && PT2_CATALOG[ptPendingCatalogIdx]) {
+      var catalogMode = ptCatalogField(
+        PT2_CATALOG[ptPendingCatalogIdx],
+        'default_load_mode'
+      ).toLowerCase();
+      if (catalogMode) return catalogMode;
+    }
+    return currentViewOnly ? 'current_view' : 'live';
+  }
+
+  function ptManualSqlState(url, selectedType, currentViewOnly, loadMode, whereClause) {
+    var detectedType = ptDetectServiceType(url, selectedType);
+    var normalizedLoadMode = ptCleanText(loadMode).toLowerCase();
+    var cleanedWhere = ptCleanText(whereClause);
+    var isFeatureServer = detectedType === 'feature';
+    var isMapServer = detectedType === 'map';
+    var isTiled = normalizedLoadMode === 'tiled';
+    var parentVisualMapServer = isMapServer && !isTiled && !currentViewOnly &&
+      ptIsParentMapServerUrl(url);
+    var supported = isFeatureServer ||
+      (isMapServer && !isTiled && !parentVisualMapServer);
+
+    return {
+      detectedType: detectedType,
+      supported: supported,
+      allowsInput: (isFeatureServer || isMapServer) && !isTiled,
+      appliedWhereClause: supported ? cleanedWhere : '',
+      validationWhereClause: parentVisualMapServer ? cleanedWhere : '',
+      actionLabel: supported && cleanedWhere ?
+        'Add filtered overlay' : 'Add configured overlay'
+    };
+  }
+
+  function ptCurrentManualSqlState() {
+    var urlInput = document.getElementById('pt-custom-url');
+    var typeInput = document.getElementById('pt-custom-type');
+    var currentViewInput = document.getElementById('pt-custom-current-view');
+    var whereInput = document.getElementById('pt-custom-where');
+    var selectedType = typeInput ? typeInput.value : 'auto';
+    var currentViewOnly = currentViewInput ? currentViewInput.checked : false;
+    var loadMode = ptManualSelectedLoadMode(currentViewOnly);
+
+    return ptManualSqlState(
+      urlInput ? urlInput.value : '',
+      selectedType,
+      currentViewOnly,
+      loadMode,
+      whereInput ? whereInput.value : ''
+    );
+  }
+
+  function ptUpdateManualAddActionLabel() {
+    var btn = document.getElementById('pt-custom-add-btn');
+    var state = ptCurrentManualSqlState();
+    if (btn && !ptManualAddInProgress) btn.textContent = state.actionLabel;
+    return state.actionLabel;
+  }
+
   function ptSetManualAddLoading(isLoading, msg) {
     var btn = document.getElementById('pt-custom-add-btn');
     var spinner = document.getElementById('pt-custom-add-spinner');
@@ -477,9 +536,6 @@ function(el, x, toolsData) {
 
     if (btn) {
       if (isLoading) {
-        if (!btn.getAttribute('data-pt-original-text')) {
-          btn.setAttribute('data-pt-original-text', btn.textContent || 'Add manual overlay');
-        }
         btn.disabled = true;
         btn.setAttribute('aria-disabled', 'true');
         btn.textContent = 'Adding…';
@@ -487,8 +543,8 @@ function(el, x, toolsData) {
       } else {
         btn.disabled = false;
         btn.removeAttribute('aria-disabled');
-        btn.textContent = btn.getAttribute('data-pt-original-text') || 'Add manual overlay';
         btn.classList.remove('pt-tools-btn-working');
+        ptUpdateManualAddActionLabel();
       }
     }
 
@@ -729,7 +785,11 @@ function(el, x, toolsData) {
     ptHideSublayerChooser();
     ptUpdatePopupSupportUI();
     ptUpdateLoadModeUI();
-    ptSetInlineNote('pt-manual-action-note', 'Updated URL to selected service layer. Click Add manual overlay to load it.', false);
+    ptSetInlineNote(
+      'pt-manual-action-note',
+      'Updated URL to selected service layer. Click ' + ptUpdateManualAddActionLabel() + ' to load it.',
+      false
+    );
 
     return true;
   }
@@ -783,7 +843,8 @@ function(el, x, toolsData) {
 
         ptPopulateSublayerChooser(parentUrl, choices);
         ptSetStatus(
-          'This parent service has multiple layers. Choose one in the layer selector near the URL box, then click Add manual overlay again.',
+          'This parent service has multiple layers. Choose one in the layer selector near the URL box, then click ' +
+            ptUpdateManualAddActionLabel() + ' again.',
           true
         );
       })
@@ -9018,7 +9079,7 @@ function(el, x, toolsData) {
           '<a href="' + ptEscapeHtml(rec.legendUrl) + '" target="_blank" title="' + ptEscapeHtml(rec.legendUrl) + '">Provider legend — opens external page</a>';
       }
       if (rec.legendNote) {
-        legendHtml += '<div class="pt-tools-muted"><b>Legend note:</b> ' + ptEscapeHtml(rec.legendNote) + '</div>';
+        legendHtml += '<div class="pt-tools-muted"><b>Map display notes:</b> ' + ptEscapeHtml(rec.legendNote) + '</div>';
       }
 
       legendHtml += ptRegisteredLegendHtml(rec, 'active_layer');
@@ -9920,7 +9981,7 @@ function(el, x, toolsData) {
     var detectedType = ptDetectServiceType(url, selectedType);
     var clickable = clickableInput ? clickableInput.checked : false;
     var currentViewOnly = currentViewInput ? currentViewInput.checked : false;
-    var whereClause = whereInput ? whereInput.value.trim() : '';
+    var rawWhereClause = whereInput ? whereInput.value.trim() : '';
 
     // Quick-add catalog rows can carry a default load mode that is more
     // specific than the manual current-view checkbox.  For example, cached
@@ -9933,6 +9994,21 @@ function(el, x, toolsData) {
       catalogDefaultLoadMode = ptCatalogField(pendingCatalogRecord, 'default_load_mode').toLowerCase();
     }
 
+    var effectiveLoadMode = catalogDefaultLoadMode ||
+      ptManualSelectedLoadMode(currentViewOnly);
+    var sqlState = ptManualSqlState(
+      url,
+      selectedType,
+      currentViewOnly,
+      effectiveLoadMode,
+      rawWhereClause
+    );
+    // A nonblank SQL value on a parent visual MapServer is retained only long
+    // enough for the existing /MapServer/N validation message. Unsupported
+    // loaders otherwise receive and record no SQL value.
+    var whereClause = sqlState.appliedWhereClause ||
+      sqlState.validationWhereClause;
+
     var layerOptions = {
       legendUrl: legendUrlInput ? legendUrlInput.value : '',
       legendNote: legendNoteInput ? legendNoteInput.value : '',
@@ -9941,7 +10017,7 @@ function(el, x, toolsData) {
       minZoomLive: minZoomLiveInput ? minZoomLiveInput.value : '',
       minZoomCurrentView: minZoomCurrentViewInput ? minZoomCurrentViewInput.value : '',
       whereClause: whereClause,
-      loadMode: catalogDefaultLoadMode || (currentViewOnly ? 'current_view' : 'live'),
+      loadMode: effectiveLoadMode,
       popupFields: popupFieldsInput ? popupFieldsInput.value : '',
       popupAliases: popupAliasesInput ? popupAliasesInput.value : '',
       popupLinkTemplate: popupLinkTemplateInput ? popupLinkTemplateInput.value : '',
@@ -10021,7 +10097,7 @@ function(el, x, toolsData) {
     }
 
     if (detectedType === 'map' && clickable && !currentViewOnly) {
-      ptSetStatus('Adding visual MapServer overlay with PT2 identify-enabled hover/click where the service supports identify/query.', false);
+      ptSetStatus('Adding visual MapServer overlay with BRIM identify-enabled hover/click where the service supports identify/query.', false);
     }
 
     if (currentViewOnly && (detectedType === 'map' || detectedType === 'feature') && ptIsParentArcgisServiceUrl(url)) {
@@ -10265,7 +10341,7 @@ function(el, x, toolsData) {
       (minZoomCurrentView ? '<div><b>Current-view min zoom:</b> ' + ptEscapeHtml(minZoomCurrentView) + '</div>' : '') +
       '<div><b>URL:</b> <a href="' + ptEscapeHtml(serviceUrl) + '" target="_blank">' + ptEscapeHtml(ptShortUrl(serviceUrl)) + '</a></div>' +
       (legendUrl ? '<div><b>Provider legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">opens external page</a></div>' : '') +
-      (legendNote ? '<div><b>Legend note:</b> ' + ptEscapeHtml(legendNote) + '</div>' : '') +
+      (legendNote ? '<div><b>Map display notes:</b> ' + ptEscapeHtml(legendNote) + '</div>' : '') +
       (bestUse ? '<div><b>Best use:</b> ' + ptEscapeHtml(bestUse) + '</div>' : '') +
       (hoverFields ? '<div><b>Hover:</b> ' + ptEscapeHtml(hoverFields) + '</div>' : '') +
       (popupFields ? '<div><b>Popup:</b> curated fields</div>' : '') +
@@ -10434,7 +10510,11 @@ function(el, x, toolsData) {
       ptSetStatus('Adding catalog overlay...', false);
       ptHandleAddCustomLayer(actionNoteId || 'pt-catalog-action-note');
     } else {
-      ptSetStatus('Catalog layer loaded into the advanced manual fields. Review and click Add manual overlay.', false);
+      ptSetStatus(
+        'Catalog layer loaded into the advanced manual fields. Review and click ' +
+          ptUpdateManualAddActionLabel() + '.',
+        false
+      );
     }
   }
 
@@ -10558,12 +10638,8 @@ function(el, x, toolsData) {
       html += '<div class="pt-catalog-warning"><b>Large layer:</b> ' + ptEscapeHtml(largeLayerWarning) + '</div>';
     }
 
-    if (legendUrl) {
-      html += '<div><b>Provider legend:</b> <a href="' + ptEscapeHtml(legendUrl) + '" target="_blank">opens external page</a></div>';
-    }
-
     if (legendNote) {
-      html += '<div><b>Legend note:</b> ' + ptEscapeHtml(legendNote) + '</div>';
+      html += '<div><b>Map display notes:</b> ' + ptEscapeHtml(legendNote) + '</div>';
     }
 
     var styleInfoOptions = {
@@ -10589,12 +10665,16 @@ function(el, x, toolsData) {
     // Avoid showing two visually identical links in the expanded info panel:
     // keep a single raw Service URL row unless the source page is meaningfully
     // different from the actual service endpoint.
+    if (legendUrl) {
+      html += '<div><a href="' + ptEscapeHtml(legendUrl) + '" target="_blank" rel="noopener noreferrer">Provider legend — opens external page</a></div>';
+    }
+
     if (showSourcePageLink) {
-      html += '<div><a href="' + ptEscapeHtml(sourcePage) + '" target="_blank">Open source page</a></div>';
+      html += '<div><a href="' + ptEscapeHtml(sourcePage) + '" target="_blank" rel="noopener noreferrer">Source page — opens external page</a></div>';
     }
 
     if (serviceUrl) {
-      html += '<div><b>Service URL:</b> <a href="' + ptEscapeHtml(serviceUrl) + '" target="_blank" title="' + ptEscapeHtml(serviceUrl) + '">' + ptEscapeHtml(ptShortUrl(serviceUrl)) + '</a></div>';
+      html += '<div><b>Service URL</b> — <a href="' + ptEscapeHtml(serviceUrl) + '" target="_blank" rel="noopener noreferrer" title="' + ptEscapeHtml(serviceUrl) + '">' + ptEscapeHtml(ptShortUrl(serviceUrl)) + '</a></div>';
     }
 
     return html;
@@ -10674,9 +10754,39 @@ function(el, x, toolsData) {
 
     ptApplyCatalogRecord(false);
 
+    ptRevealAdvancedManualForm();
+  }
+
+  function ptRevealAdvancedManualForm() {
     var advanced = document.getElementById('pt-advanced-manual-details');
-    if (advanced) {
-      advanced.open = true;
+    if (!advanced) return;
+
+    advanced.open = true;
+
+    var panelBody = advanced.closest ? advanced.closest('.pt-tools-body') : null;
+    if (panelBody && panelBody.getBoundingClientRect && advanced.getBoundingClientRect) {
+      var panelRect = panelBody.getBoundingClientRect();
+      var advancedRect = advanced.getBoundingClientRect();
+      panelBody.scrollTop = Math.max(
+        0,
+        panelBody.scrollTop + advancedRect.top - panelRect.top - 8
+      );
+    }
+
+    var focusName = function() {
+      var nameInput = document.getElementById('pt-custom-name');
+      if (!nameInput || typeof nameInput.focus !== 'function') return;
+      try {
+        nameInput.focus({preventScroll: true});
+      } catch (focusError) {
+        nameInput.focus();
+      }
+    };
+
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(focusName);
+    } else {
+      window.setTimeout(focusName, 0);
     }
   }
 
@@ -10804,6 +10914,8 @@ function(el, x, toolsData) {
         '<span class="pt-capability-key-item"><span aria-hidden="true">' +
           ptCapabilityBadgeHtml('info') + '</span>' +
           '<span>' + ptEscapeHtml(info.label) + '</span></span>' +
+        '<span class="pt-capability-key-separator" aria-hidden="true">·</span>' +
+        '<span class="pt-capability-key-note">Provider legends may be linked in layer info.</span>' +
       '</div>';
   }
 
@@ -11171,7 +11283,7 @@ function(el, x, toolsData) {
         '<li><b>GeoJSON:</b> URL ends in <code>.geojson</code> or returns GeoJSON directly. These work best for small public datasets that allow browser access.</li>' +
         '<li><b>Hub / portal pages:</b> URLs containing <code>/datasets/</code> are usually information pages, not direct map services. Look for API, REST, ArcGIS GeoServices, or View in ArcGIS Online links.</li>' +
         '<li><b>Large national FeatureServer layers:</b> zoom to your area of interest and use <code>load current map view only</code> to avoid drawing the whole western U.S. or CONUS in the browser.</li>' +
-        '<li><b>Legends:</b> MapServer catalog layers may include a legend link. If PT2 cannot draw a service legend directly, use the Legend link in the Active temporary layers list.</li>' +
+        '<li><b>Legends:</b> MapServer catalog layers may include a legend link. If BRIM cannot draw a service legend directly, use the Legend link in the Active temporary layers list.</li>' +
       '</ul>' +
 
       '<h2>California water and state data</h2>' +
@@ -11456,7 +11568,7 @@ function(el, x, toolsData) {
           '<div id="pt-custom-load-help" class="pt-tools-muted">Use current-view loading for large FeatureServer or queryable MapServer sublayers. Zoom to the area of interest first.</div>' +
           '<label class="pt-tools-small-label">Optional SQL filter</label>' +
           '<input type="text" id="pt-custom-where" class="pt-tools-input" placeholder="e.g., STATE = \'CA\' or MSMT_YEAR = 2011"/>' +
-          '<div id="pt-custom-where-help" class="pt-tools-muted">FeatureServer filters returned features. MapServer filters the rendered image when the service supports layer definitions.</div>' +
+          '<div id="pt-custom-where-help" class="pt-tools-muted">Optional. Applied when this action creates a new overlay; existing layers are unchanged. Supported for FeatureServer queries and MapServer sublayers. Not used for GeoJSON, ImageServer, or tiled layers.</div>' +
           '<input type="hidden" id="pt-custom-legend-url"/>' +
           '<input type="hidden" id="pt-custom-legend-note"/>' +
           '<input type="hidden" id="pt-custom-min-zoom-live"/>' +
@@ -11478,7 +11590,7 @@ function(el, x, toolsData) {
           '<input type="hidden" id="pt-custom-field-curation-notes"/>' +
           '<input type="hidden" id="pt-custom-show-native-field-names"/>' +
           '<div class="pt-tools-row pt-tools-manual-add-row">' +
-            '<button type="button" id="pt-custom-add-btn" class="pt-tools-btn">Add manual overlay</button>' +
+            '<button type="button" id="pt-custom-add-btn" class="pt-tools-btn">Add configured overlay</button>' +
             '<span id="pt-custom-add-spinner" class="pt-tools-spinner" aria-hidden="true"></span>' +
           '</div>' +
           '<div id="pt-manual-action-note" class="pt-tools-local-status pt-manual-action-note"></div>' +
@@ -13207,7 +13319,6 @@ function(el, x, toolsData) {
     var isMapServer = detectedType === 'map';
     var isImageServer = detectedType === 'image';
     var allowsCurrentView = isFeatureServer || isMapServer;
-    var allowsWhere = isFeatureServer || isMapServer; // ImageServer drawing filters are not exposed in this first pass.
     var currentViewOnly = currentViewInput.checked;
     var urlTools = document.getElementById('pt-custom-url-tools');
     var tryZeroBtn = document.getElementById('pt-custom-try-zero-btn');
@@ -13230,7 +13341,7 @@ function(el, x, toolsData) {
 
     if (urlHelperNote) {
       if (parentArcgisServiceUrl) {
-        urlHelperNote.textContent = 'This looks like a parent ArcGIS service. In current-view mode PT2 will try to auto-select the only mappable layer, or ask you to choose one if there are several.';
+        urlHelperNote.textContent = 'This looks like a parent ArcGIS service. In current-view mode BRIM will try to auto-select the only mappable layer, or ask you to choose one if there are several.';
       } else if (arcgisRestUrl) {
         urlHelperNote.textContent = 'Open service metadata to review layer IDs, field names, and source details for SQL filters.';
       } else {
@@ -13245,8 +13356,16 @@ function(el, x, toolsData) {
       currentViewOnly = false;
     }
 
+    var sqlState = ptManualSqlState(
+      url,
+      selectedType,
+      currentViewOnly,
+      ptManualSelectedLoadMode(currentViewOnly),
+      whereInput ? whereInput.value : ''
+    );
+
     if (whereInput) {
-      whereInput.disabled = !allowsWhere;
+      whereInput.disabled = !sqlState.allowsInput;
     }
 
     if (currentViewLabel) {
@@ -13266,16 +13385,10 @@ function(el, x, toolsData) {
     }
 
     if (whereHelp) {
-      if (isMapServer && currentViewOnly) {
-        whereHelp.textContent = 'For current-view MapServer snapshots, the SQL filter limits returned features. Parent MapServer URLs are auto-resolved when possible.';
-      } else if (isMapServer) {
-        whereHelp.textContent = 'For MapServer visual overlays, the SQL filter is passed as a visual drawing filter. Use field names from the source service page; numeric values usually omit display commas, e.g., MSMT_YEAR = 2011.';
-      } else if (isFeatureServer) {
-        whereHelp.textContent = 'For FeatureServer layers, the SQL filter limits returned features. Use field names from the source service page.';
-      } else {
-        whereHelp.textContent = 'SQL filters apply to FeatureServer layers and to MapServer layer endpoints that support layer definitions or queries.';
-      }
+      whereHelp.textContent = 'Optional. Applied when this action creates a new overlay; existing layers are unchanged. Supported for FeatureServer queries and MapServer sublayers. Not used for GeoJSON, ImageServer, or tiled layers.';
     }
+
+    ptUpdateManualAddActionLabel();
   }
 
 
@@ -13574,6 +13687,10 @@ function(el, x, toolsData) {
   ptBind('pt-custom-current-view', 'change', function() {
     ptUpdatePopupSupportUI();
     ptUpdateLoadModeUI();
+  });
+
+  ptBind('pt-custom-where', 'input', function() {
+    ptUpdateManualAddActionLabel();
   });
 
   ptBind('pt-custom-try-zero-btn', 'click', function(e) {
