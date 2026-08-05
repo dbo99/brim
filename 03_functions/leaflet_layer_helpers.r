@@ -20,6 +20,9 @@
 # inside downstream layer modules.
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
+source("00_config/config_local_reference_interactions.r")
+source("03_functions/local_reference_interaction_helpers.r")
+pt_validate_local_reference_config()
 
 source("03_functions/leaflet_layer_local_core_helpers.r")
 source("03_functions/leaflet_layer_local_polygon_helpers.r")

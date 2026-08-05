@@ -3223,7 +3223,16 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
     ## can pick it up without rebuilding the core cache.
     special_label_group <- NA_character_
     special_ref <- FALSE
-    if (nm == "gsps") {
+    interactive_local_reference <- FALSE
+    if (
+      nm == "wildernessstudyarea" &&
+      "pt_local_reference_geometry_key" %in% names(x) &&
+      "pt_reference_hover_text" %in% names(x) &&
+      "pt_reference_hover_html" %in% names(x)
+    ) {
+      special_ref <- TRUE
+      interactive_local_reference <- TRUE
+    } else if (nm == "gsps") {
       x$pt_reference_label_text <- ref_pretty_label(ref_get_chr(
         x,
         c("Basin_Su_1", "Basin_Name", "Basin_Subbasin_Name", "Basin", "NAME", "Name"),
@@ -3309,7 +3318,46 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
       
     } else {
       
-      if (special_ref) {
+      if (interactive_local_reference) {
+        m <- m |>
+          leaflet::addPolygons(
+            data = x,
+            group = group_name,
+            layerId = ~pt_local_reference_geometry_key,
+            fill = TRUE,
+            fillColor = ~fill_col,
+            fillOpacity = ~fill_opacity,
+            color = ~line_col,
+            weight = ~line_weight,
+            opacity = 0.90,
+            dashArray = ~line_dash,
+            popup = ~popup_html,
+            popupOptions = leaflet::popupOptions(autoPan = FALSE),
+            label = lapply(x$pt_reference_hover_html, htmltools::HTML),
+            labelOptions = leaflet::labelOptions(
+              direction = "auto",
+              opacity = 0.9,
+              textsize = "12px",
+              className = "pt-wsa-hover-tooltip",
+              style = list(
+                "white-space" = "normal",
+                "width" = "fit-content",
+                "min-width" = "min(220px, calc(100vw - 32px))",
+                "max-width" = "min(320px, calc(100vw - 32px))",
+                "overflow-wrap" = "break-word",
+                "word-break" = "normal",
+                "line-height" = "1.3",
+                "box-sizing" = "border-box"
+              )
+            ),
+            options = leaflet::pathOptions(pane = "pane_lines"),
+            highlightOptions = leaflet::highlightOptions(
+              weight = 4,
+              opacity = 1,
+              bringToFront = TRUE
+            )
+          )
+      } else if (special_ref) {
         m <- m |>
           leaflet::addPolygons(
             data = x,
@@ -3388,6 +3436,11 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
   m <- pt_add_wsr_reference_browser_layers(
     m,
     reference_layers[names(reference_layers) %in% pt_wsr_local_layer_keys]
+  )
+
+  m <- pt_add_local_reference_controller(
+    m,
+    reference_layers = reference_layers
   )
 
   m

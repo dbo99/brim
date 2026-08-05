@@ -1,0 +1,5 @@
+"layer_id","category_key","category_label","total_category_records","semantic_feature_count","geometry_component_count"
+"wilderness_study_areas","suitable","Recommended suitable",4,4,21
+"wilderness_study_areas","non_suitable","Recommended non-suitable",46,46,60
+"wilderness_study_areas","no_recommendation","No recommendation",11,11,21
+"wilderness_study_areas","unknown","Not stated",2,2,2

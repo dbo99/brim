@@ -844,6 +844,13 @@ for (nm in names(reference_layers_raw)) {
   geom_type    <- tolower(as.character(x$pt_geom_type[1]))
   popup_spec   <- as.character(x$pt_popup_spec[1])
   color_field  <- as.character(x$pt_colorbycolumn[1])
+
+  if (nm == "wildernessstudyarea") {
+    x <- pt_prepare_local_reference_wsa(
+      x,
+      validate_snapshot = TRUE
+    )
+  }
   
   x <- x |>
     simplify_sf_for_web(
@@ -851,17 +858,25 @@ for (nm in names(reference_layers_raw)) {
       layer_label = display_name
     )
   
-  x$popup_html <- pt_make_reference_layer_popups(
-    x = x,
-    popup_spec = popup_spec,
-    display_name = display_name
-  )
+  if (nm != "wildernessstudyarea") {
+    x$popup_html <- pt_make_reference_layer_popups(
+      x = x,
+      popup_spec = popup_spec,
+      display_name = display_name
+    )
+  }
   
   # ---- Special case 1: Wild & Scenic Rivers --------------------------------
   ##
   ## Normalize all local WSR line/corridor sources into shared display/filter
   ## fields while preserving source-specific layer names and popup attribution.
-  if (nm %in% pt_wsr_line_layers) {
+  if (nm == "wildernessstudyarea") {
+
+    ## WSA popup, hover, category, and style fields were prepared above from
+    ## the shared Phase 1 definition. Do not pass them through generic palette
+    ## logic or replace source-backed popup content after simplification.
+
+  } else if (nm %in% pt_wsr_line_layers) {
 
     raw_class <- if ("CLASSIFICA" %in% names(x)) x$CLASSIFICA else if ("CATEGORY_c" %in% names(x)) x$CATEGORY_c else rep("", nrow(x))
     x$wsr_class <- pt_wsr_class(raw_class)
@@ -1374,4 +1389,3 @@ if (exists("cnrfc_precip_map") && nrow(cnrfc_precip_map) > 0) {
 }
 
 # ==== END ADD: CNRFC point hover text ========================================
-
