@@ -112,7 +112,7 @@ stopifnot(grepl("word-break:normal!important", controller_source, fixed = TRUE))
 stopifnot(grepl("line-height:1.3!important", controller_source, fixed = TRUE))
 stopifnot(grepl(".pt-wsa-hover-line{display:block", controller_source, fixed = TRUE))
 stopifnot(grepl(
-  "@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip{display:none!important}",
+  "@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}",
   controller_source,
   fixed = TRUE
 ))
@@ -123,6 +123,31 @@ stopifnot(grepl(
   fixed = TRUE
 ))
 stopifnot(grepl(
+  'className = "pt-local-reference-tabbed-popup"',
+  drawing_source,
+  fixed = TRUE
+))
+stopifnot(grepl(
+  'autoPan = TRUE',
+  drawing_source,
+  fixed = TRUE
+))
+stopifnot(grepl(
+  'keepInView = TRUE',
+  drawing_source,
+  fixed = TRUE
+))
+stopifnot(grepl(
+  'autoPanPaddingTopLeft = c(16, 84)',
+  drawing_source,
+  fixed = TRUE
+))
+stopifnot(grepl(
+  'autoPanPaddingBottomRight = c(16, 24)',
+  drawing_source,
+  fixed = TRUE
+))
+stopifnot(!grepl(
   'popupOptions = leaflet::popupOptions(autoPan = FALSE)',
   drawing_source,
   fixed = TRUE

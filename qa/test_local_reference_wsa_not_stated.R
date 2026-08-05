@@ -72,7 +72,7 @@ trinity_unknown <- unknown[
 ]
 stopifnot(nrow(red_unknown) == 1L, nrow(trinity_unknown) == 1L)
 stopifnot(!grepl("mi²", red_unknown$pt_reference_hover_text, fixed = TRUE))
-stopifnot(grepl("GIS acreage:</b> 0 acres", red_unknown$popup_html, fixed = TRUE))
+stopifnot(grepl("GIS acreage:</span> 0 acres", red_unknown$popup_html, fixed = TRUE))
 stopifnot(grepl(
   "Approximate geometry-derived anomaly:</b>",
   red_unknown$popup_html,
@@ -217,7 +217,14 @@ stopifnot(length(leaflet_ids) == 63L)
 stopifnot(!anyNA(leaflet_index))
 stopifnot(all(lengths(leaflet_geometry[leaflet_index]) > 0L))
 stopifnot(identical(leaflet_options$pane, "pane_lines"))
-stopifnot(identical(leaflet_popup_options$autoPan, FALSE))
+stopifnot(identical(leaflet_popup_options$autoPan, TRUE))
+stopifnot(identical(leaflet_popup_options$keepInView, TRUE))
+stopifnot(identical(leaflet_popup_options$autoPanPaddingTopLeft, c(16, 84)))
+stopifnot(identical(leaflet_popup_options$autoPanPaddingBottomRight, c(16, 24)))
+stopifnot(identical(
+  leaflet_popup_options$className,
+  "pt-local-reference-tabbed-popup"
+))
 stopifnot(identical(leaflet_options$fillColor[leaflet_index], c("#B0B0B0", "#B0B0B0")))
 stopifnot(identical(leaflet_options$color[leaflet_index], c("#6B6B6B", "#6B6B6B")))
 stopifnot(identical(leaflet_options$fillOpacity[leaflet_index], c(0.14, 0.14)))

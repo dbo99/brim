@@ -3225,7 +3225,7 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
     special_ref <- FALSE
     interactive_local_reference <- FALSE
     if (
-      nm == "wildernessstudyarea" &&
+      nm %in% c("trails", "wildernessstudyarea") &&
       "pt_local_reference_geometry_key" %in% names(x) &&
       "pt_reference_hover_text" %in% names(x) &&
       "pt_reference_hover_html" %in% names(x)
@@ -3273,7 +3273,51 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
     
     if (geom_type == "polyline") {
       
-      if (special_ref) {
+      if (interactive_local_reference) {
+        m <- m |>
+          leaflet::addPolylines(
+            data = x,
+            group = group_name,
+            layerId = ~pt_local_reference_geometry_key,
+            color = ~line_col,
+            weight = ~line_weight,
+            opacity = 0.90,
+            dashArray = ~line_dash,
+            popup = ~popup_html,
+            popupOptions = leaflet::popupOptions(
+              maxWidth = 460,
+              minWidth = 400,
+              autoPan = TRUE,
+              keepInView = TRUE,
+              autoPanPaddingTopLeft = c(16, 84),
+              autoPanPaddingBottomRight = c(16, 24),
+              className = "pt-local-reference-tabbed-popup"
+            ),
+            label = lapply(x$pt_reference_hover_html, htmltools::HTML),
+            labelOptions = leaflet::labelOptions(
+              direction = "auto",
+              opacity = 0.9,
+              textsize = "12px",
+              className = "pt-trails-hover-tooltip",
+              style = list(
+                "white-space" = "normal",
+                "width" = "fit-content",
+                "min-width" = "min(220px, calc(100vw - 32px))",
+                "max-width" = "min(320px, calc(100vw - 32px))",
+                "overflow-wrap" = "break-word",
+                "word-break" = "normal",
+                "line-height" = "1.3",
+                "box-sizing" = "border-box"
+              )
+            ),
+            options = leaflet::pathOptions(pane = "pane_lines"),
+            highlightOptions = leaflet::highlightOptions(
+              weight = 4,
+              opacity = 1,
+              bringToFront = TRUE
+            )
+          )
+      } else if (special_ref) {
         m <- m |>
           leaflet::addPolylines(
             data = x,
@@ -3332,7 +3376,15 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
             opacity = 0.90,
             dashArray = ~line_dash,
             popup = ~popup_html,
-            popupOptions = leaflet::popupOptions(autoPan = FALSE),
+            popupOptions = leaflet::popupOptions(
+              maxWidth = 460,
+              minWidth = 400,
+              autoPan = TRUE,
+              keepInView = TRUE,
+              autoPanPaddingTopLeft = c(16, 84),
+              autoPanPaddingBottomRight = c(16, 24),
+              className = "pt-local-reference-tabbed-popup"
+            ),
             label = lapply(x$pt_reference_hover_html, htmltools::HTML),
             labelOptions = leaflet::labelOptions(
               direction = "auto",

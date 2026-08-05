@@ -116,12 +116,14 @@ const mapListeners = Object.create(null);
 const map = {
   rootActive: true,
   fitBoundsCalls: [],
+  closePopupCalls: 0,
   layerManager: {
     _byGroup: {'Reference – Synthetic': layers},
     _groupContainers: {'Reference – Synthetic': groupRoot}
   },
   hasLayer: function(layer) { return layer === groupRoot ? this.rootActive : rootMembers.has(layer); },
   fitBounds: function(bounds, options) { this.fitBoundsCalls.push({bounds, options}); },
+  closePopup: function() { this.closePopupCalls += 1; },
   on: function(names, handler) {
     names.split(/\s+/).forEach(name => {
       mapListeners[name] = mapListeners[name] || [];
@@ -153,9 +155,11 @@ const payload = [{
   zoom_padding: 36,
   zoom_max: 12,
   preserve_view_on_reset: true,
+  popup_layout: 'tabbed_card',
   primary_count_mode: 'semantic_feature',
   primary_count_label: 'Synthetic features',
   show_component_count: false,
+  show_category_count: true,
   component_count_label: 'mapped components',
   category_heading: 'BLM recommendation for wilderness designation',
   caution: 'Historical recommendation, not current WSA status. Management continues under the applicable FLPMA authority; verify current plans, closures, and field-office direction.',
@@ -183,7 +187,8 @@ const controllerSource = fs.readFileSync(
   'utf8'
 );
 const controller = eval('(' + controllerSource + '\n)');
-controller.call(map, null, null, payload);
+const mapRoot = new FakeElement('map');
+controller.call(map, mapRoot, null, payload);
 
 assert.strictEqual(controls.length, 1);
 const card = controls[0].card;
@@ -376,9 +381,11 @@ assert.ok(controllerSource.includes('.pt-local-reference-card{box-sizing:border-
 assert.ok(controllerSource.includes('@media (max-width:420px)'));
 assert.ok(/@media \(pointer:coarse\)/.test(controllerSource));
 assert.ok(controllerSource.includes('.leaflet-tooltip.pt-wsa-hover-tooltip'));
+assert.ok(controllerSource.includes('.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}'));
+assert.ok(controllerSource.includes("listen(map, 'popupclose', onAnyPopupClose)"));
 assert.ok(controllerSource.includes('overflow-wrap:break-word!important'));
 assert.ok(!controllerSource.includes('overflow-wrap:anywhere'));
-assert.ok(controllerSource.includes('.leaflet-tooltip.pt-wsa-hover-tooltip{display:none!important}'));
+assert.ok(controllerSource.includes('.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}'));
 assert.ok(!controllerSource.includes("' rec · '"));
 assert.ok(!controllerSource.includes("' sem · '"));
 assert.ok(!controllerSource.includes("' geom'"));

@@ -845,7 +845,12 @@ for (nm in names(reference_layers_raw)) {
   popup_spec   <- as.character(x$pt_popup_spec[1])
   color_field  <- as.character(x$pt_colorbycolumn[1])
 
-  if (nm == "wildernessstudyarea") {
+  if (nm == "trails") {
+    x <- pt_prepare_local_reference_trails(
+      x,
+      validate_snapshot = TRUE
+    )
+  } else if (nm == "wildernessstudyarea") {
     x <- pt_prepare_local_reference_wsa(
       x,
       validate_snapshot = TRUE
@@ -858,7 +863,7 @@ for (nm in names(reference_layers_raw)) {
       layer_label = display_name
     )
   
-  if (nm != "wildernessstudyarea") {
+  if (!nm %in% c("trails", "wildernessstudyarea")) {
     x$popup_html <- pt_make_reference_layer_popups(
       x = x,
       popup_spec = popup_spec,
@@ -870,11 +875,12 @@ for (nm in names(reference_layers_raw)) {
   ##
   ## Normalize all local WSR line/corridor sources into shared display/filter
   ## fields while preserving source-specific layer names and popup attribution.
-  if (nm == "wildernessstudyarea") {
+  if (nm %in% c("trails", "wildernessstudyarea")) {
 
-    ## WSA popup, hover, category, and style fields were prepared above from
-    ## the shared Phase 1 definition. Do not pass them through generic palette
-    ## logic or replace source-backed popup content after simplification.
+    ## Trails/WSA popup, hover, category, and style fields were prepared above
+    ## from the shared Local Reference definitions. Do not pass them through
+    ## generic palette logic or replace source-backed popup content after
+    ## simplification.
 
   } else if (nm %in% pt_wsr_line_layers) {
 

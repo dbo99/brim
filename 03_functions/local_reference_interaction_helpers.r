@@ -1,9 +1,8 @@
 # ==== local_reference_interaction_helpers.r ================================
 ##
 ## Shared contracts for the bounded Local > Reference interaction framework.
-## Phase 1 executes only the Wilderness Study Areas contract. The remaining
-## ten registry rows are intentionally validation-only until separately
-## approved.
+## Phase 2 executes the Trails contract beside the accepted Wilderness Study
+## Areas exemplar. The remaining nine rows stay validation-only.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -72,7 +71,8 @@ pt_validate_local_reference_config <- function() {
     "category_definition", "unknown_style", "shared_management_style",
     "legend_mode", "filter_mode", "auto_supported", "auto_default",
     "count_mode", "primary_count_mode", "primary_count_label",
-    "show_component_count", "component_count_label", "category_heading",
+    "show_component_count", "show_category_count", "component_count_label",
+    "category_heading", "card_caution", "popup_layout",
     "feature_selection_supported", "feature_selection_mode",
     "feature_search_fields", "feature_display_field",
     "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
@@ -96,7 +96,7 @@ pt_validate_local_reference_config <- function() {
     stop("Local Reference Auto-zoom cannot default on where Auto-zoom is unsupported.")
   }
   if (any(registry$auto_zoom_supported & !registry$feature_selection_supported)) {
-    stop("Phase 1 Local Reference Auto-zoom requires named-feature selection support.")
+    stop("Local Reference Auto-zoom requires named-feature selection support.")
   }
   if (any(!registry$feature_selection_mode %in% c(
     "none", "semantic_feature_multi"
@@ -137,14 +137,20 @@ pt_validate_local_reference_config <- function() {
     stop("Visible Local Reference component counts require a full component label.")
   }
   category_heading_rows <- which(nzchar(trimws(registry$category_heading)))
-  if (!identical(category_heading_rows, 4L) || !identical(
-    registry$category_heading[[4]],
-    "BLM recommendation for wilderness designation"
-  )) {
-    stop("Phase 1 category-heading contract must remain WSA-only and exact.")
+  if (!identical(category_heading_rows, c(1L, 4L)) ||
+      !identical(registry$category_heading[[1]], "Trail") ||
+      !identical(
+        registry$category_heading[[4]],
+        "BLM recommendation for wilderness designation"
+      )) {
+    stop("Phase 2 category headings must remain exact for Trails and WSA.")
   }
   if (!all(registry$primary_count_mode == "semantic_feature")) {
     stop("Default Local Reference visible counts must use semantic features.")
+  }
+  if (any(!registry$popup_layout %in% c("standard", "tabbed_card")) ||
+      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L))) {
+    stop("Phase 2 tabbed Local Reference popup layout must remain Trails/WSA-only.")
   }
 
   expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE)
@@ -153,13 +159,25 @@ pt_validate_local_reference_config <- function() {
       !identical(as.logical(registry$auto_default), expected_auto_default)) {
     stop("Local Reference Auto support/default contract differs from the approved 11-layer matrix.")
   }
-  if (!identical(which(registry$implementation_status == "phase1_wsa"), 4L)) {
-    stop("Phase 1 execution must remain limited to Wilderness Study Areas.")
+  if (!identical(
+    which(registry$implementation_status %in% c("phase2_trails", "phase1_wsa")),
+    c(1L, 4L)
+  )) {
+    stop("Phase 2 execution must remain limited to Trails and WSA.")
   }
-  if (!identical(which(registry$feature_selection_supported), 4L) ||
-      !identical(which(registry$auto_zoom_supported), 4L) ||
-      !identical(which(registry$auto_zoom_default), 4L)) {
-    stop("Phase 1 named-feature selection and Auto-zoom must remain WSA-only.")
+  if (!identical(which(registry$feature_selection_supported), c(1L, 4L)) ||
+      !identical(which(registry$auto_zoom_supported), c(1L, 4L)) ||
+      !identical(which(registry$auto_zoom_default), c(1L, 4L))) {
+    stop("Phase 2 named-feature selection and Auto-zoom must remain Trails/WSA-only.")
+  }
+  if (!identical(
+    unlist(registry$feature_search_fields[[1]], use.names = FALSE),
+    c(
+      "pt_trails_official_name", "pt_trails_common_name",
+      "pt_trails_abbreviation", "pt_trails_alias_search", "pt_trails_nlcs_id"
+    )
+  )) {
+    stop("Phase 2 Trails named-feature search fields differ from the approved contract.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[4]], use.names = FALSE),
@@ -167,8 +185,8 @@ pt_validate_local_reference_config <- function() {
   )) {
     stop("Phase 1 WSA named-feature search fields differ from the approved contract.")
   }
-  if (!identical(which(registry$retention_enabled), 4L)) {
-    stop("Phase 1 field retention must remain limited to Wilderness Study Areas.")
+  if (!identical(which(registry$retention_enabled), c(1L, 4L))) {
+    stop("Phase 2 field retention must remain limited to Trails and WSA.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -457,8 +475,17 @@ pt_local_reference_geometry_components <- function(x) {
   if (!inherits(x, "sf")) return(rep(1L, nrow(x)))
   vapply(seq_len(nrow(x)), function(i) {
     geometry <- sf::st_geometry(x[i, , drop = FALSE])
+    geometry_type <- as.character(sf::st_geometry_type(geometry, by_geometry = TRUE))
+    cast_type <- if (any(grepl("LINESTRING", geometry_type))) {
+      "LINESTRING"
+    } else if (any(grepl("POLYGON", geometry_type))) {
+      "POLYGON"
+    } else {
+      NA_character_
+    }
     count <- tryCatch(
-      length(suppressWarnings(sf::st_cast(geometry, "POLYGON"))),
+      if (is.na(cast_type)) 1L else
+        length(suppressWarnings(sf::st_cast(geometry, cast_type))),
       error = function(e) 1L
     )
     max(1L, as.integer(count))
@@ -473,6 +500,727 @@ pt_local_reference_geometry_acres <- function(x) {
   )
   if (is.null(projected)) return(rep(NA_real_, nrow(x)))
   as.numeric(sf::st_area(projected)) / 4046.8564224
+}
+
+pt_local_reference_trails_reference <- function(
+  path = PT_LOCAL_REFERENCE_TRAILS_REFERENCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_nlcs_id", "source_segment_number", "official_name",
+    "common_name", "abbreviation", "designation_class",
+    "designation_date", "designation_year", "public_law", "legal_authority",
+    "designation_authority", "administering_agency",
+    "administering_agency_url", "local_managing_agency",
+    "co_managing_agencies", "blm_role", "blm_role_summary",
+    "management_evidence_title", "management_evidence_url",
+    "management_verified_on", "management_confidence", "trail_status",
+    "route_representation", "total_length_miles", "length_qualifier",
+    "states_crossed", "trail_summary_short",
+    "historic_or_scenic_significance", "indigenous_context",
+    "official_page_url", "official_map_url", "management_plan_title",
+    "management_plan_url", "management_plan_date", "management_plan_status",
+    "gis_download_url", "partner_organization", "partner_url",
+    "conditions_url", "permit_url", "closest_final_study_title",
+    "closest_final_study_url", "hover_admin_summary", "last_verified",
+    "source_notes"
+  ))
+}
+
+pt_local_reference_trails_aliases <- function(
+  path = PT_LOCAL_REFERENCE_TRAILS_ALIASES_PATH
+) {
+  aliases <- pt_local_reference_read_csv(path, c(
+    "source_nlcs_id", "source_name_candidate", "alias_type",
+    "evidence_url", "last_verified"
+  ))
+  if (any(aliases$alias_type == "internal_package_alias")) {
+    stop("Trails production aliases must exclude package-internal aliases.")
+  }
+  aliases
+}
+
+pt_local_reference_trails_curated_overrides <- function(
+  path = PT_LOCAL_REFERENCE_TRAILS_CURATED_OVERRIDES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_nlcs_id", "field_name", "override_value", "reason",
+    "evidence_url", "review_status", "last_verified"
+  ))
+}
+
+pt_local_reference_trails_narrative_provenance <- function(
+  path = PT_LOCAL_REFERENCE_TRAILS_NARRATIVE_PROVENANCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_nlcs_id", "narrative_field", "narrative_text",
+    "source_register_id", "source_title", "source_agency", "source_url",
+    "source_register_url", "source_scope", "source_applicability",
+    "text_treatment", "verified_on", "confidence",
+    "normal_popup_approved", "package_origin_file", "package_origin_line",
+    "package_origin_field", "override_origin_file", "override_origin_line",
+    "audit_note"
+  ))
+}
+
+pt_validate_local_reference_trails_research <- function(
+  reference = pt_local_reference_trails_reference(),
+  aliases = pt_local_reference_trails_aliases(),
+  overrides = pt_local_reference_trails_curated_overrides(),
+  narrative = pt_local_reference_trails_narrative_provenance()
+) {
+  expected_ids <- sprintf("NLCS%06d", 280:285)
+  narrative_fields <- c(
+    "trail_summary_short", "historic_or_scenic_significance",
+    "indigenous_context"
+  )
+  if (!identical(as.character(reference$source_nlcs_id), expected_ids) ||
+      anyDuplicated(reference$source_nlcs_id)) {
+    stop("Trails reference must contain the six exact NLCS IDs in canonical order.")
+  }
+  if (!setequal(unique(aliases$source_nlcs_id), expected_ids) ||
+      !setequal(unique(overrides$source_nlcs_id), expected_ids)) {
+    stop("Trails aliases and curated overrides must cover all six semantic trails.")
+  }
+  if (nrow(aliases) != 28L || nrow(overrides) != 24L) {
+    stop("Trails compact intake must retain 28 approved aliases and 24 curated overrides.")
+  }
+  if (any(overrides$review_status != "human_verified")) {
+    stop("Every Trails curated override must remain human verified.")
+  }
+  expected_narrative_keys <- as.vector(outer(
+    expected_ids, narrative_fields, paste, sep = "/"
+  ))
+  narrative_keys <- paste(
+    narrative$source_nlcs_id, narrative$narrative_field, sep = "/"
+  )
+  if (nrow(narrative) != 18L || anyDuplicated(narrative_keys) ||
+      !setequal(narrative_keys, expected_narrative_keys)) {
+    stop("Trails narrative provenance must contain three unique fields for all six trails.")
+  }
+  if (any(!narrative$text_treatment %in% c(
+    "direct_quote", "attributed_paraphrase", "curated_summary"
+  )) || any(!narrative$source_applicability %in% c(
+    "direct_trail", "general_context"
+  ))) {
+    stop("Trails narrative provenance contains an unsupported treatment or applicability.")
+  }
+  approved <- narrative$normal_popup_approved %in% TRUE
+  approved_required <- c(
+    "narrative_text", "source_title", "source_agency", "source_url",
+    "source_scope", "verified_on", "confidence"
+  )
+  if (any(!approved) || any(vapply(approved_required, function(field) {
+    any(!nzchar(pt_local_reference_clean_chr(narrative[[field]][approved])))
+  }, logical(1))) ||
+      any(!grepl("^https://", narrative$source_url[approved])) ||
+      any(grepl(
+        "Interpretation should|Visitor language should|should not be reduced",
+        narrative$narrative_text[approved],
+        ignore.case = TRUE
+      ))) {
+    stop("Approved Trails popup narratives must be sourced, non-prescriptive, and directly linked.")
+  }
+  for (i in seq_len(nrow(overrides))) {
+    id_index <- match(overrides$source_nlcs_id[[i]], reference$source_nlcs_id)
+    field <- overrides$field_name[[i]]
+    expected_value <- if (identical(field, "indigenous_context")) {
+      narrative$narrative_text[
+        narrative$source_nlcs_id == overrides$source_nlcs_id[[i]] &
+          narrative$narrative_field == field & approved
+      ]
+    } else if (!is.na(id_index) && field %in% names(reference)) {
+      reference[[field]][[id_index]]
+    } else {
+      character(0)
+    }
+    if (length(expected_value) != 1L ||
+        !identical(
+          pt_local_reference_clean_chr(expected_value),
+          pt_local_reference_clean_chr(overrides$override_value[[i]])
+        )) {
+      stop(
+        "Trails curated override does not reconcile to compact reference: ",
+        overrides$source_nlcs_id[[i]], " / ", field
+      )
+    }
+  }
+  url_fields <- grep("(_url|_urls)$", names(reference), value = TRUE)
+  urls <- unlist(reference[url_fields], use.names = FALSE)
+  urls <- pt_local_reference_clean_chr(urls)
+  urls <- urls[nzchar(urls)]
+  forbidden <- c(
+    "congress.*search", "courtlistener", "google.*scholar", "wikipedia",
+    "web_search", "nepa.*search"
+  )
+  if (any(!grepl("^https://", urls)) ||
+      any(grepl(paste(forbidden, collapse = "|"), urls, ignore.case = TRUE))) {
+    stop("Trails compact reference contains a non-approved or discovery URL.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_trails_hover_html <- function(
+  official_name,
+  designation_class,
+  designation_year,
+  admin_summary
+) {
+  vapply(seq_along(official_name), function(i) {
+    values <- c(
+      pt_local_reference_clean_chr(official_name[[i]], "Unnamed national trail"),
+      paste(
+        c(
+          pt_local_reference_clean_chr(designation_class[[i]]),
+          pt_local_reference_clean_chr(designation_year[[i]])
+        )[nzchar(c(
+          pt_local_reference_clean_chr(designation_class[[i]]),
+          pt_local_reference_clean_chr(designation_year[[i]])
+        ))],
+        collapse = " · "
+      ),
+      pt_local_reference_clean_chr(admin_summary[[i]])
+    )
+    classes <- c(
+      "pt-trails-hover-name", "pt-trails-hover-designation",
+      "pt-trails-hover-administration"
+    )
+    rows <- paste0(
+      "<div class=\"pt-trails-hover-line ", classes, "\">",
+      htmltools::htmlEscape(values),
+      "</div>"
+    )
+    paste0(
+      "<div class=\"pt-trails-hover-lines\">",
+      paste(rows[nzchar(values)], collapse = ""),
+      "</div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_trails_link <- function(url, label) {
+  url <- pt_local_reference_clean_chr(url)
+  label <- pt_local_reference_clean_chr(label)
+  if (!nzchar(url) || !nzchar(label)) return("")
+  paste0(
+    "<a href=\"", htmltools::htmlEscape(url),
+    "\" target=\"_blank\" rel=\"noopener noreferrer\">",
+    htmltools::htmlEscape(label), "</a>"
+  )
+}
+
+pt_local_reference_popup_row <- function(label, value) {
+  value <- pt_local_reference_clean_chr(value)
+  if (!nzchar(value)) return("")
+  paste0(
+    "<div class=\"pt-lr-popup-row\"><span class=\"pt-lr-popup-label\">",
+    htmltools::htmlEscape(label), ":</span> ",
+    htmltools::htmlEscape(value), "</div>"
+  )
+}
+
+pt_local_reference_popup_section <- function(heading, content, class_name = "") {
+  content <- content[nzchar(content)]
+  if (!length(content)) return("")
+  class_token <- if (nzchar(class_name)) paste0(" ", class_name) else ""
+  paste0(
+    "<section class=\"pt-lr-popup-section", class_token, "\">",
+    "<h3>", htmltools::htmlEscape(heading), "</h3>",
+    paste(content, collapse = ""),
+    "</section>"
+  )
+}
+
+pt_local_reference_tabbed_popup <- function(
+  popup_key,
+  title,
+  designation_badge,
+  tabs,
+  popup_class = "",
+  tablist_label = "Details"
+) {
+  tabs <- Filter(function(tab) {
+    nzchar(pt_local_reference_clean_chr(tab$html))
+  }, tabs)
+  safe_key <- gsub("[^A-Za-z0-9_-]+", "-", tolower(popup_key))
+  tab_keys <- vapply(tabs, `[[`, character(1), "key")
+  if (!length(tabs) || anyDuplicated(tab_keys)) {
+    stop("Local Reference tabbed popup requires unique tab keys.")
+  }
+  tab_buttons <- vapply(seq_along(tabs), function(index) {
+    tab <- tabs[[index]]
+    tab_id <- paste0("pt-lr-tab-", safe_key, "-", tab$key)
+    panel_id <- paste0("pt-lr-panel-", safe_key, "-", tab$key)
+    selected <- index == 1L
+    paste0(
+      "<button type=\"button\" id=\"", tab_id,
+      "\" class=\"pt-lr-popup-tab\" role=\"tab\" data-pt-lr-popup-tab=\"",
+      htmltools::htmlEscape(tab$key), "\" aria-controls=\"", panel_id,
+      "\" aria-selected=\"", tolower(selected), "\" tabindex=\"",
+      if (selected) "0" else "-1", "\">",
+      htmltools::htmlEscape(tab$label), "</button>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+  tab_panels <- vapply(seq_along(tabs), function(index) {
+    tab <- tabs[[index]]
+    tab_id <- paste0("pt-lr-tab-", safe_key, "-", tab$key)
+    panel_id <- paste0("pt-lr-panel-", safe_key, "-", tab$key)
+    paste0(
+      "<section id=\"", panel_id,
+      "\" class=\"pt-lr-popup-panel\" role=\"tabpanel\" aria-labelledby=\"",
+      tab_id, "\" data-pt-lr-popup-panel=\"",
+      htmltools::htmlEscape(tab$key), "\"",
+      if (index == 1L) "" else " hidden",
+      ">", tab$html, "</section>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+  paste0(
+    "<article class=\"pt-popup pt-local-reference-popup pt-local-reference-tabbed-popup-card",
+    if (nzchar(popup_class)) paste0(" ", htmltools::htmlEscape(popup_class)) else "",
+    "\" ",
+    "data-pt-lr-tabbed-popup data-pt-lr-popup-key=\"", htmltools::htmlEscape(safe_key), "\">",
+    "<div class=\"pt-lr-popup-sticky\">",
+    "<header class=\"pt-lr-popup-header\"><div class=\"pt-lr-popup-title\" role=\"heading\" aria-level=\"2\">",
+    htmltools::htmlEscape(title), "</div><span class=\"pt-lr-popup-badge\">",
+    htmltools::htmlEscape(designation_badge), "</span></header>",
+    "<div class=\"pt-lr-popup-tabs\" role=\"tablist\" aria-label=\"",
+    htmltools::htmlEscape(tablist_label), "\">",
+    paste(tab_buttons, collapse = ""), "</div></div>",
+    "<div class=\"pt-lr-popup-panel-scroll\">",
+    paste(tab_panels, collapse = ""),
+    "</div></article>"
+  )
+}
+
+pt_local_reference_trails_narrative_section <- function(
+  narrative,
+  source_nlcs_id,
+  narrative_field,
+  heading
+) {
+  row <- narrative[
+    narrative$source_nlcs_id == source_nlcs_id &
+      narrative$narrative_field == narrative_field &
+      narrative$normal_popup_approved %in% TRUE,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(row) != 1L ||
+      !nzchar(pt_local_reference_clean_chr(row$narrative_text))) {
+    return("")
+  }
+  source_link <- pt_local_reference_trails_link(
+    row$source_url,
+    paste0(row$source_title, " — ", row$source_agency)
+  )
+  treatment <- switch(
+    row$text_treatment,
+    direct_quote = "Direct quotation",
+    attributed_paraphrase = "Attributed paraphrase",
+    curated_summary = "Curated summary",
+    "Source-backed narrative"
+  )
+  pt_local_reference_popup_section(
+    heading,
+    c(
+      paste0(
+        "<p>", htmltools::htmlEscape(row$narrative_text), "</p>"
+      ),
+      paste0(
+        "<div class=\"pt-lr-narrative-source\"><span>",
+        htmltools::htmlEscape(treatment), ":</span> ", source_link, "</div>"
+      )
+    ),
+    class_name = "pt-lr-popup-narrative"
+  )
+}
+
+pt_local_reference_trails_popup <- function(
+  df,
+  narrative = pt_local_reference_trails_narrative_provenance()
+) {
+  esc <- function(x, fallback = "Not stated") {
+    htmltools::htmlEscape(pt_local_reference_clean_chr(x, fallback))
+  }
+  present <- function(x) nzchar(pt_local_reference_clean_chr(x))
+  vapply(seq_len(nrow(df)), function(i) {
+    row <- df[i, , drop = FALSE]
+    is_scenic <- identical(
+      pt_local_reference_clean_chr(row$pt_trails_designation_class),
+      "National Scenic Trail"
+    )
+    caution <- if (is_scenic) {
+      PT_LOCAL_REFERENCE_TRAILS_SCENIC_CAUTION
+    } else {
+      PT_LOCAL_REFERENCE_TRAILS_HISTORIC_CAUTION
+    }
+    source_nlcs_id <- pt_local_reference_clean_chr(row$pt_trails_nlcs_id)
+    summary_row <- narrative[
+      narrative$source_nlcs_id == source_nlcs_id &
+        narrative$narrative_field == "trail_summary_short" &
+        narrative$normal_popup_approved %in% TRUE,
+      ,
+      drop = FALSE
+    ]
+    summary_text <- if (nrow(summary_row) == 1L) {
+      pt_local_reference_clean_chr(summary_row$narrative_text)
+    } else {
+      ""
+    }
+    length_value <- suppressWarnings(as.numeric(row$pt_trails_total_length_miles))
+    overview <- c(
+      if (nzchar(summary_text)) paste0(
+        "<p class=\"pt-lr-popup-summary\">", esc(summary_text), "</p>"
+      ) else "",
+      pt_local_reference_popup_row("Common name", row$pt_trails_common_name),
+      pt_local_reference_popup_row("Abbreviation", row$pt_trails_abbreviation),
+      pt_local_reference_popup_row(
+        "Designated",
+        paste(
+          c(
+            pt_local_reference_clean_chr(row$pt_trails_designation_date),
+            pt_local_reference_clean_chr(row$pt_trails_public_law)
+          )[nzchar(c(
+            pt_local_reference_clean_chr(row$pt_trails_designation_date),
+            pt_local_reference_clean_chr(row$pt_trails_public_law)
+          ))],
+          collapse = " · "
+        )
+      ),
+      if (is.finite(length_value)) pt_local_reference_popup_row(
+        "Approximate trail-wide length",
+        paste0(pt_local_reference_format_number(length_value, 0), " miles")
+      ) else "",
+      pt_local_reference_popup_row("Length context", row$pt_trails_length_qualifier),
+      pt_local_reference_popup_row("States", row$pt_trails_states_crossed),
+      pt_local_reference_popup_section(
+        "Route representation",
+        if (present(row$pt_trails_route_representation)) {
+          paste0("<p>", esc(row$pt_trails_route_representation), "</p>")
+        } else {
+          ""
+        }
+      ),
+      paste0(
+        "<div class=\"pt-trails-caution\"><span>Route and access context:</span> ",
+        esc(caution), "</div>"
+      )
+    )
+    administering_link <- pt_local_reference_trails_link(
+      row$pt_trails_administering_agency_url,
+      row$pt_trails_administering_agency
+    )
+    management <- c(
+      if (nzchar(administering_link)) paste0(
+        "<div class=\"pt-lr-popup-row\"><span class=\"pt-lr-popup-label\">Trail-wide administering agency:</span> ",
+        administering_link, "</div>"
+      ) else pt_local_reference_popup_row(
+        "Trail-wide administering agency", row$pt_trails_administering_agency
+      ),
+      pt_local_reference_popup_row(
+        "BLM role", PT_LOCAL_REFERENCE_BLM_ROLE_LABELS[[row$pt_trails_blm_role]]
+      ),
+      if (present(row$pt_trails_blm_role_summary)) paste0(
+        "<p>", esc(row$pt_trails_blm_role_summary), "</p>"
+      ) else "",
+      pt_local_reference_popup_row(
+        "Local managing responsibility", row$pt_trails_local_managing_agency
+      ),
+      pt_local_reference_popup_row(
+        "Other management participants", row$pt_trails_co_managing_agencies
+      ),
+      if (present(row$pt_trails_management_evidence_url)) paste0(
+        "<div class=\"pt-lr-popup-evidence\"><span>Management evidence:</span> ",
+        pt_local_reference_trails_link(
+          row$pt_trails_management_evidence_url,
+          row$pt_trails_management_evidence_title
+        ), "</div>"
+      ) else "",
+      pt_local_reference_popup_row(
+        "Evidence verification",
+        paste(
+          c(
+            pt_local_reference_clean_chr(row$pt_trails_management_verified_on),
+            pt_local_reference_clean_chr(row$pt_trails_management_confidence)
+          )[nzchar(c(
+            pt_local_reference_clean_chr(row$pt_trails_management_verified_on),
+            pt_local_reference_clean_chr(row$pt_trails_management_confidence)
+          ))],
+          collapse = " · "
+        )
+      )
+    )
+    significance_heading <- if (is_scenic) {
+      "History and cultural context"
+    } else {
+      "Historical significance"
+    }
+    history_context <- c(
+      pt_local_reference_trails_narrative_section(
+        narrative, source_nlcs_id,
+        "historic_or_scenic_significance", significance_heading
+      ),
+      pt_local_reference_trails_narrative_section(
+        narrative, source_nlcs_id,
+        "indigenous_context", "Indigenous and Tribal context"
+      )
+    )
+    resource_links <- c(
+      pt_local_reference_trails_link(row$pt_trails_official_page_url, "Official trail page"),
+      pt_local_reference_trails_link(row$pt_trails_official_map_url, "Official maps"),
+      pt_local_reference_trails_link(row$pt_trails_gis_download_url, "Official GIS resource"),
+      pt_local_reference_trails_link(row$pt_trails_management_plan_url, paste0(
+        row$pt_trails_management_plan_title,
+        ifelse(row$pt_trails_management_plan_status == "draft_not_final", " — draft, not final", "")
+      )),
+      pt_local_reference_trails_link(
+        row$pt_trails_closest_final_study_url,
+        row$pt_trails_closest_final_study_title
+      ),
+      pt_local_reference_trails_link(row$pt_trails_conditions_url, "Current conditions"),
+      pt_local_reference_trails_link(row$pt_trails_permit_url, "Permit information"),
+      pt_local_reference_trails_link(
+        row$pt_trails_partner_url,
+        if (present(row$pt_trails_partner_organization)) {
+          paste0("Partner: ", row$pt_trails_partner_organization)
+        } else {
+          ""
+        }
+      )
+    )
+    resource_links <- resource_links[nzchar(resource_links)]
+    resources <- if (length(resource_links)) paste0(
+      "<ul class=\"pt-lr-popup-resource-list\"><li>",
+      paste(resource_links, collapse = "</li><li>"),
+      "</li></ul>"
+    ) else ""
+    technical <- c(
+      pt_local_reference_popup_row("NLCS ID", row$pt_trails_nlcs_id),
+      pt_local_reference_popup_row("Raw NLCS_NAME", row$pt_trails_source_name),
+      pt_local_reference_popup_row("Source segment number", row$pt_trails_source_segment),
+      pt_local_reference_popup_row(
+        "GlobalID (geometry/audit only)", row$pt_trails_global_id
+      ),
+      if (present(row$pt_trails_management_agency)) paste0(
+        pt_local_reference_popup_row("Raw MNG_AGCY", row$pt_trails_management_agency),
+        "<div class=\"pt-lr-popup-note\">Raw MNG_AGCY is not used to infer management.</div>"
+      ) else "",
+      pt_local_reference_popup_row(
+        "Geometry components", row$pt_local_reference_geometry_components
+      ),
+      pt_local_reference_popup_row(
+        "Designation authority", row$pt_trails_designation_authority
+      ),
+      if (present(row$pt_trails_source_notes)) pt_local_reference_popup_row(
+        "Research note", row$pt_trails_source_notes
+      ) else ""
+    )
+    resources <- c(
+      resources,
+      paste0(
+        "<details class=\"pt-popup-technical\"><summary>Source and verification details</summary>",
+        paste(technical[nzchar(technical)], collapse = ""), "</details>"
+      )
+    )
+    pt_local_reference_tabbed_popup(
+      popup_key = source_nlcs_id,
+      title = row$pt_trails_official_name,
+      designation_badge = row$pt_trails_designation_class,
+      popup_class = "pt-trails-popup",
+      tablist_label = "Trail details",
+      tabs = list(
+        list(key = "overview", label = "Overview", html = paste(overview, collapse = "")),
+        list(key = "management", label = "Management", html = paste(management[nzchar(management)], collapse = "")),
+        list(key = "history", label = "History & context", html = paste(history_context[nzchar(history_context)], collapse = "")),
+        list(key = "resources", label = "Resources", html = paste(resources[nzchar(resources)], collapse = ""))
+      )
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_prepare_local_reference_trails <- function(
+  x,
+  validate_snapshot = FALSE,
+  build_display = TRUE,
+  reference_path = PT_LOCAL_REFERENCE_TRAILS_REFERENCE_PATH,
+  aliases_path = PT_LOCAL_REFERENCE_TRAILS_ALIASES_PATH,
+  overrides_path = PT_LOCAL_REFERENCE_TRAILS_CURATED_OVERRIDES_PATH,
+  narrative_path = PT_LOCAL_REFERENCE_TRAILS_NARRATIVE_PROVENANCE_PATH
+) {
+  if (!inherits(x, "sf") || !nrow(x)) {
+    stop("Trails preparation requires a non-empty sf object.")
+  }
+  resolved <- pt_local_reference_resolve_aliases(
+    "national_scenic_historic_trails",
+    names(x),
+    require_all = TRUE
+  )
+  get_field <- function(name) x[[resolved[[name]]]]
+  x$pt_trails_nlcs_id <- pt_local_reference_clean_chr(get_field("nlcs_id"))
+  x$pt_trails_global_id <- pt_local_reference_clean_chr(get_field("global_id"))
+  x$pt_trails_source_name <- pt_local_reference_clean_chr(get_field("name"))
+  x$pt_trails_source_segment <- pt_local_reference_clean_chr(get_field("source_segment"))
+  x$pt_trails_trail_type_raw <- pt_local_reference_clean_chr(get_field("trail_type"))
+  x$pt_trails_management_agency <- pt_local_reference_clean_chr(get_field("management_agency"))
+  x$pt_trails_admin_state <- pt_local_reference_clean_chr(get_field("admin_state"))
+  x$pt_trails_condition_category <- pt_local_reference_clean_chr(get_field("condition_category"))
+  x$pt_trails_create_date <- pt_local_reference_format_date(get_field("create_date"))
+  x$pt_trails_modify_date <- pt_local_reference_format_date(get_field("modify_date"))
+
+  reference <- pt_local_reference_trails_reference(reference_path)
+  aliases <- pt_local_reference_trails_aliases(aliases_path)
+  overrides <- pt_local_reference_trails_curated_overrides(overrides_path)
+  narrative <- pt_local_reference_trails_narrative_provenance(narrative_path)
+  pt_validate_local_reference_trails_research(
+    reference, aliases, overrides, narrative
+  )
+  reference_index <- match(x$pt_trails_nlcs_id, reference$source_nlcs_id)
+  if (anyNA(reference_index)) {
+    stop(
+      "Trails enrichment requires exact NLCS_ID joins; unmatched: ",
+      paste(unique(x$pt_trails_nlcs_id[is.na(reference_index)]), collapse = ", ")
+    )
+  }
+  x$pt_trails_join_method <- "exact_nlcs_id"
+  fields <- setdiff(names(reference), c("source_nlcs_id", "source_segment_number"))
+  for (field in fields) {
+    output_field <- paste0("pt_trails_", field)
+    x[[output_field]] <- reference[[field]][reference_index]
+  }
+  for (field in unique(narrative$narrative_field)) {
+    approved <- narrative[
+      narrative$narrative_field == field &
+        narrative$normal_popup_approved %in% TRUE,
+      ,
+      drop = FALSE
+    ]
+    approved_index <- match(x$pt_trails_nlcs_id, approved$source_nlcs_id)
+    if (anyNA(approved_index)) {
+      stop("Trails approved narrative coverage is incomplete for ", field, ".")
+    }
+    x[[paste0("pt_trails_", field)]] <-
+      approved$narrative_text[approved_index]
+  }
+  alias_search <- vapply(x$pt_trails_nlcs_id, function(id) {
+    paste(unique(pt_local_reference_clean_chr(
+      aliases$source_name_candidate[aliases$source_nlcs_id == id]
+    )), collapse = " | ")
+  }, character(1), USE.NAMES = FALSE)
+  x$pt_trails_alias_search <- alias_search
+
+  normalized_global <- tolower(gsub("[{}[:space:]]", "", x$pt_trails_global_id))
+  x$pt_local_reference_semantic_key <- paste0(
+    "trail:nlcs_id:", tolower(x$pt_trails_nlcs_id)
+  )
+  x$pt_local_reference_feature_key <- x$pt_local_reference_semantic_key
+  x$pt_local_reference_geometry_key <- paste0("trail:globalid:", normalized_global)
+  if (any(!nzchar(normalized_global)) ||
+      anyDuplicated(x$pt_local_reference_semantic_key) ||
+      anyDuplicated(x$pt_local_reference_geometry_key)) {
+    stop("Trails requires unique NLCS_ID semantic keys and populated unique GlobalID geometry keys.")
+  }
+  x$pt_local_reference_geometry_components <- pt_local_reference_geometry_components(x)
+  category_key <- pt_local_reference_category_key(
+    "national_scenic_historic_trails",
+    x$pt_trails_nlcs_id
+  )
+  x <- pt_local_reference_apply_category_tokens(
+    x,
+    "national_scenic_historic_trails",
+    category_key
+  )
+
+  if (isTRUE(build_display)) {
+    designation_line <- paste(
+      x$pt_trails_designation_class,
+      x$pt_trails_designation_year,
+      sep = " · "
+    )
+    x$pt_reference_label_text <- x$pt_trails_official_name
+    x$pt_reference_hover_text <- paste(
+      x$pt_trails_official_name,
+      designation_line,
+      x$pt_trails_hover_admin_summary,
+      sep = "\n"
+    )
+    x$pt_reference_hover_html <- pt_local_reference_trails_hover_html(
+      x$pt_trails_official_name,
+      x$pt_trails_designation_class,
+      x$pt_trails_designation_year,
+      x$pt_trails_hover_admin_summary
+    )
+    x$popup_html <- pt_local_reference_trails_popup(x, narrative)
+  }
+
+  if (isTRUE(validate_snapshot)) {
+    expected_ids <- sprintf("NLCS%06d", 280:285)
+    if (nrow(x) != 6L ||
+        !setequal(x$pt_trails_nlcs_id, expected_ids) ||
+        any(x$pt_trails_join_method != "exact_nlcs_id") ||
+        sum(x$pt_local_reference_geometry_components) != 177L ||
+        sum(x$pt_trails_designation_class == "National Historic Trail") != 5L ||
+        sum(x$pt_trails_designation_class == "National Scenic Trail") != 1L ||
+        any(x$pt_trails_source_segment != reference$source_segment_number[reference_index]) ||
+        any(!sf::st_is_valid(x)) || any(sf::st_is_empty(x))) {
+      stop("Trails source snapshot differs from the accepted six-trail/177-component contract.")
+    }
+    butterfield <- x[x$pt_trails_nlcs_id == "NLCS000285", , drop = FALSE]
+    if (nrow(butterfield) != 1L ||
+        butterfield$pt_trails_blm_role != "unknown" ||
+        !grepl("data stewardship", butterfield$pt_trails_blm_role_summary, fixed = TRUE) ||
+        grepl("office", butterfield$pt_trails_hover_admin_summary, ignore.case = TRUE)) {
+      stop("Butterfield management must remain unverified and data-steward-context only.")
+    }
+  }
+  x
+}
+
+pt_local_reference_trails_reconciliation_qa <- function(x) {
+  data.frame(
+    nlcs_id = x$pt_trails_nlcs_id,
+    raw_brim_source_name = x$pt_trails_source_name,
+    source_segment_number = x$pt_trails_source_segment,
+    source_globalid = x$pt_trails_global_id,
+    geometry_type = as.character(sf::st_geometry_type(x, by_geometry = TRUE)),
+    geometry_component_count = x$pt_local_reference_geometry_components,
+    package_match = TRUE,
+    official_display_name = x$pt_trails_official_name,
+    research_readiness = "ready_with_documented_unknowns",
+    join_method = x$pt_trails_join_method,
+    unresolved_discrepancies = ifelse(
+      x$pt_trails_nlcs_id == "NLCS000285",
+      "",
+      "Package raw_source_name was officialized; authoritative BRIM raw NLCS_NAME preserved."
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+pt_write_local_reference_trails_qa <- function(
+  x,
+  output_dir,
+  prefix = "local_reference_trails_phase2"
+) {
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  reconciliation <- pt_local_reference_trails_reconciliation_qa(x)
+  categories <- aggregate(
+    cbind(
+      semantic_feature_count = rep(1L, nrow(x)),
+      geometry_component_count = x$pt_local_reference_geometry_components
+    ),
+    by = list(
+      category_key = x$pt_local_reference_category_key,
+      category_label = x$pt_local_reference_category_label
+    ),
+    FUN = sum
+  )
+  categories$record_count <- categories$semantic_feature_count
+  paths <- c(
+    reconciliation = file.path(output_dir, paste0(prefix, "_reconciliation.csv")),
+    category_counts = file.path(output_dir, paste0(prefix, "_category_counts.csv"))
+  )
+  utils::write.csv(reconciliation, paths[["reconciliation"]], row.names = FALSE, na = "")
+  utils::write.csv(categories, paths[["category_counts"]], row.names = FALSE, na = "")
+  paths
 }
 
 pt_local_reference_wsa_compact_office <- function(x) {
@@ -556,88 +1304,226 @@ pt_local_reference_wsa_link <- function(url, label) {
 }
 
 pt_local_reference_wsa_popup <- function(df) {
-  esc <- function(x) htmltools::htmlEscape(pt_local_reference_clean_chr(x, "Not stated"))
+  esc <- function(x, fallback = "Not stated") {
+    htmltools::htmlEscape(pt_local_reference_clean_chr(x, fallback))
+  }
+  present <- function(x) nzchar(pt_local_reference_clean_chr(x))
+  link_list <- function(links) {
+    links <- links[nzchar(links)]
+    if (!length(links)) return("")
+    paste0(
+      "<ul class=\"pt-lr-popup-resource-list\"><li>",
+      paste(links, collapse = "</li><li>"),
+      "</li></ul>"
+    )
+  }
   vapply(seq_len(nrow(df)), function(i) {
     row <- df[i, , drop = FALSE]
     raw_acres <- suppressWarnings(as.numeric(row$pt_wsa_source_gis_acres))
     calculated_acres <- suppressWarnings(as.numeric(row$pt_wsa_calculated_geometry_acres))
-    area_row <- paste0(
-      "<div><b>GIS acreage:</b> ",
-      esc(pt_local_reference_format_source_gis_acres(raw_acres)), "</div>"
+    square_miles <- pt_local_reference_format_square_miles_from_acres(raw_acres)
+    area_rows <- c(
+      pt_local_reference_popup_row(
+        "GIS acreage",
+        pt_local_reference_format_source_gis_acres(raw_acres)
+      )
     )
     if (!is.na(raw_acres) && raw_acres == 0 && !is.na(calculated_acres) && calculated_acres > 0) {
-      area_row <- paste0(
-        area_row,
-        "<div class=\"pt-wsa-source-anomaly\"><b>Approximate geometry-derived anomaly:</b> ",
-        esc(pt_local_reference_format_number(calculated_acres, 1)),
-        " acres — source anomaly only; the raw source value above remains authoritative.</div>"
+      area_rows <- c(
+        area_rows,
+        paste0(
+          "<div class=\"pt-wsa-source-anomaly\"><b>",
+          "Approximate geometry-derived anomaly:</b> ",
+          esc(pt_local_reference_format_number(calculated_acres, 1)),
+          " acres — source anomaly only; the raw source value above remains ",
+          "authoritative.</div>"
+        )
       )
     }
 
-    core_rows <- c(
-      paste0("<div><b>BLM recommendation:</b> ", esc(row$pt_local_reference_category_label), "</div>"),
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_rod_date))) paste0("<div><b>Record of Decision date:</b> ", esc(row$pt_wsa_rod_date), "</div>") else "",
-      area_row,
-      if (nzchar(pt_local_reference_clean_chr(row$designation_subtype_reference))) paste0("<div><b>Reference subtype:</b> ", esc(row$designation_subtype_reference), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$date_established_reference))) paste0("<div><b>Reference established date:</b> ", esc(row$date_established_reference), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$geographic_scope_note))) paste0("<div><b>Geographic scope:</b> ", esc(row$geographic_scope_note), "</div>") else ""
-    )
-    management_rows <- c(
-      paste0("<div><b>Local managing agency:</b> ", esc(row$pt_management_local_managing_agency), "</div>"),
-      paste0("<div><b>BLM role:</b> ", esc(row$pt_management_blm_role_label), "</div>"),
-      paste0("<div>", esc(row$pt_management_blm_role_summary), "</div>"),
-      paste0("<div><b>Administrative state:</b> ", esc(row$pt_wsa_admin_state), "</div>"),
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_casefile))) paste0("<div><b>Case file:</b> ", esc(row$pt_wsa_casefile), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_code))) paste0("<div><b>WSA code:</b> ", esc(row$pt_wsa_code), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$managing_office))) paste0("<div><b>Verified responsible office:</b> ", esc(row$managing_office), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$managing_office_url))) pt_local_reference_wsa_link(row$managing_office_url, "Official managing-office page") else "",
-      pt_local_reference_wsa_link(row$pt_management_role_source_url, "Official management-role source")
-    )
-    research_rows <- c(
-      if (nzchar(pt_local_reference_clean_chr(row$notable_values))) paste0("<div><b>Notable values:</b> ", esc(row$notable_values), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$access_note))) paste0("<div><b>Access note:</b> ", esc(row$access_note), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$official_page_url))) pt_local_reference_wsa_link(row$official_page_url, "Official unit page") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$curation_verified_date))) paste0("<div><b>Curated evidence verified:</b> ", esc(row$curation_verified_date), "</div>") else ""
-    )
-    source_links <- paste(
-      c(
-        pt_local_reference_wsa_link(PT_LOCAL_REFERENCE_WSA_SOURCE_URL, "BLM source service"),
-        pt_local_reference_wsa_link(PT_LOCAL_REFERENCE_WSA_DETAIL_URL, "BLM WSA detail table"),
-        pt_local_reference_wsa_link(PT_LOCAL_REFERENCE_WSA_DOCUMENTS_URL, "BLM state wilderness documents")
+    flpma_value <- if (present(row$pt_wsa_flpma_section)) {
+      paste0("§", pt_local_reference_clean_chr(row$pt_wsa_flpma_section))
+    } else {
+      "Not stated"
+    }
+    overview <- c(
+      pt_local_reference_popup_row("FLPMA section", flpma_value),
+      if (nzchar(square_miles)) {
+        pt_local_reference_popup_row("Approximate mapped area", square_miles)
+      } else {
+        ""
+      },
+      pt_local_reference_popup_row(
+        "Reference subtype", row$designation_subtype_reference
       ),
-      collapse = " · "
-    )
-    technical_rows <- c(
-      paste0("<div><b>Stable feature key:</b> ", esc(row$pt_local_reference_feature_key), "</div>"),
+      pt_local_reference_popup_row(
+        "Reference established date", row$date_established_reference
+      ),
+      pt_local_reference_popup_row("Geographic scope", row$geographic_scope_note),
       paste0(
-        "<div><b>Raw WSA_RCMND source value:</b> ",
-        if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_recommendation_raw))) {
-          esc(row$pt_wsa_recommendation_raw)
-        } else {
-          "<i>blank / not stated</i>"
-        },
+        "<div class=\"pt-wsa-status-context\">",
+        esc(pt_local_reference_config_row("wilderness_study_areas")$card_caution),
         "</div>"
-      ),
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_nlcs_id))) paste0("<div><b>NLCS ID:</b> ", esc(row$pt_wsa_nlcs_id), "</div>") else "",
-      if (!nzchar(pt_local_reference_clean_chr(row$pt_wsa_nlcs_id)) && nzchar(pt_local_reference_clean_chr(row$pt_wsa_global_id))) paste0("<div><b>GlobalID fallback:</b> ", esc(row$pt_wsa_global_id), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_sma_id))) paste0("<div><b>SMA ID:</b> ", esc(row$pt_wsa_sma_id), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_fau_id))) paste0("<div><b>FAU ID:</b> ", esc(row$pt_wsa_fau_id), "</div>") else "",
-      if (nzchar(pt_local_reference_clean_chr(row$pt_wsa_modify_date))) paste0("<div><b>Modify date:</b> ", esc(row$pt_wsa_modify_date), "</div>") else "",
-      paste0("<div><b>Management-role evidence verified:</b> ", esc(row$pt_management_role_verified_on), " (", esc(row$pt_management_role_confidence), ")</div>"),
-      paste0("<div><b>Seed join:</b> ", esc(row$pt_wsa_join_status), "</div>"),
-      paste0("<div><b>Geometry components:</b> ", esc(row$pt_local_reference_geometry_components), "</div>"),
-      source_links
+      )
     )
-    paste0(
-      "<div class=\"pt-popup pt-local-reference-popup pt-wsa-popup\">",
-      "<div class=\"pt-popup-title\"><b>", esc(row$pt_wsa_name), "</b></div>",
-      "<div class=\"pt-popup-subtitle\">", esc(row$pt_wsa_designation_subtitle), "</div>",
-      "<div class=\"pt-popup-section\"><b>Designation and recommendation</b>", paste0(core_rows, collapse = ""), "</div>",
-      "<div class=\"pt-popup-section\"><b>Management and planning</b>", paste0(management_rows, collapse = ""), "</div>",
-      if (any(nzchar(research_rows))) paste0("<div class=\"pt-popup-section\"><b>Official research notes</b>", paste0(research_rows, collapse = ""), "</div>") else "",
-      "<div class=\"pt-wsa-caution\"><b>Recommendation context:</b> ", esc(PT_LOCAL_REFERENCE_WSA_POPUP_CAUTION), "</div>",
-      "<details class=\"pt-popup-technical\"><summary>Source and technical details</summary>", paste0(technical_rows, collapse = ""), "</details>",
-      "</div>"
+    raw_recommendation <- if (present(row$pt_wsa_recommendation_raw)) {
+      esc(row$pt_wsa_recommendation_raw)
+    } else {
+      "<i>blank / not stated</i>"
+    }
+    recommendation_links <- link_list(c(
+      pt_local_reference_wsa_link(
+        PT_LOCAL_REFERENCE_WSA_DETAIL_URL,
+        "BLM WSA detail table"
+      ),
+      pt_local_reference_wsa_link(
+        PT_LOCAL_REFERENCE_WSA_DOCUMENTS_URL,
+        "BLM state wilderness documents"
+      )
+    ))
+    recommendation <- c(
+      pt_local_reference_popup_row(
+        "BLM recommendation", row$pt_local_reference_category_label
+      ),
+      paste0(
+        "<div class=\"pt-lr-popup-row\"><span class=\"pt-lr-popup-label\">",
+        "Raw WSA_RCMND source value:</span> ", raw_recommendation, "</div>"
+      ),
+      pt_local_reference_popup_row(
+        "Record of Decision date", row$pt_wsa_rod_date
+      ),
+      paste0(
+        "<div class=\"pt-wsa-caution\"><span>Recommendation context:</span> ",
+        esc(PT_LOCAL_REFERENCE_WSA_POPUP_CAUTION), "</div>"
+      ),
+      recommendation_links
+    )
+    management_links <- link_list(c(
+      if (present(row$managing_office_url)) {
+        pt_local_reference_wsa_link(
+          row$managing_office_url,
+          "Official managing-office page"
+        )
+      } else {
+        ""
+      },
+      pt_local_reference_wsa_link(
+        row$pt_management_role_source_url,
+        "Official management-role source"
+      )
+    ))
+    management <- c(
+      pt_local_reference_popup_row(
+        "Local managing agency", row$pt_management_local_managing_agency
+      ),
+      pt_local_reference_popup_row(
+        "BLM role", row$pt_management_blm_role_label
+      ),
+      if (present(row$pt_management_blm_role_summary)) {
+        paste0("<p>", esc(row$pt_management_blm_role_summary), "</p>")
+      } else {
+        ""
+      },
+      pt_local_reference_popup_row("Administrative state", row$pt_wsa_admin_state),
+      pt_local_reference_popup_row("Verified responsible office", row$managing_office),
+      management_links,
+      pt_local_reference_popup_row(
+        "Management-role evidence verified",
+        paste(
+          c(
+            pt_local_reference_clean_chr(row$pt_management_role_verified_on),
+            pt_local_reference_clean_chr(row$pt_management_role_confidence)
+          )[nzchar(c(
+            pt_local_reference_clean_chr(row$pt_management_role_verified_on),
+            pt_local_reference_clean_chr(row$pt_management_role_confidence)
+          ))],
+          collapse = " · "
+        )
+      )
+    )
+    research <- pt_local_reference_popup_section(
+      "Official research notes",
+      c(
+        pt_local_reference_popup_row("Notable values", row$notable_values),
+        pt_local_reference_popup_row("Access note", row$access_note),
+        pt_local_reference_popup_row(
+          "Curated evidence verified", row$curation_verified_date
+        )
+      )
+    )
+    source_links <- link_list(c(
+      pt_local_reference_wsa_link(
+        PT_LOCAL_REFERENCE_WSA_SOURCE_URL,
+        "BLM source feature service"
+      ),
+      pt_local_reference_wsa_link(
+        PT_LOCAL_REFERENCE_WSA_DETAIL_URL,
+        "BLM WSA detail table"
+      ),
+      pt_local_reference_wsa_link(
+        PT_LOCAL_REFERENCE_WSA_DOCUMENTS_URL,
+        "BLM state wilderness documents"
+      ),
+      if (present(row$official_page_url)) {
+        pt_local_reference_wsa_link(row$official_page_url, "Official unit page")
+      } else {
+        ""
+      }
+    ))
+    technical_rows <- c(
+      pt_local_reference_popup_row(
+        "Stable feature key", row$pt_local_reference_feature_key
+      ),
+      pt_local_reference_popup_row("Case file", row$pt_wsa_casefile),
+      pt_local_reference_popup_row("WSA code", row$pt_wsa_code),
+      pt_local_reference_popup_row("NLCS ID", row$pt_wsa_nlcs_id),
+      if (!present(row$pt_wsa_nlcs_id)) {
+        pt_local_reference_popup_row("GlobalID fallback", row$pt_wsa_global_id)
+      } else {
+        ""
+      },
+      pt_local_reference_popup_row("SMA ID", row$pt_wsa_sma_id),
+      pt_local_reference_popup_row("FAU ID", row$pt_wsa_fau_id),
+      pt_local_reference_popup_row("Modify date", row$pt_wsa_modify_date),
+      pt_local_reference_popup_row("Seed join", row$pt_wsa_join_status),
+      pt_local_reference_popup_row(
+        "Geometry components", row$pt_local_reference_geometry_components
+      )
+    )
+    sources_details <- c(
+      paste(area_rows[nzchar(area_rows)], collapse = ""),
+      research,
+      source_links,
+      paste0(
+        "<details class=\"pt-popup-technical\"><summary>Technical details</summary>",
+        paste(technical_rows[nzchar(technical_rows)], collapse = ""),
+        "</details>"
+      )
+    )
+    pt_local_reference_tabbed_popup(
+      popup_key = row$pt_local_reference_feature_key,
+      title = row$pt_wsa_name,
+      designation_badge = "Wilderness Study Area",
+      popup_class = "pt-wsa-popup",
+      tablist_label = "Wilderness Study Area details",
+      tabs = list(
+        list(
+          key = "overview", label = "Overview",
+          html = paste(overview[nzchar(overview)], collapse = "")
+        ),
+        list(
+          key = "recommendation", label = "Recommendation",
+          html = paste(recommendation[nzchar(recommendation)], collapse = "")
+        ),
+        list(
+          key = "management", label = "Management",
+          html = paste(management[nzchar(management)], collapse = "")
+        ),
+        list(
+          key = "sources", label = "Sources & details",
+          html = paste(sources_details[nzchar(sources_details)], collapse = "")
+        )
+      )
     )
   }, character(1))
 }
@@ -1022,7 +1908,9 @@ pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
 
 pt_local_reference_controller_payload <- function(reference_layers) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
-    LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status == "phase1_wsa",
+    LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
+      "phase2_trails", "phase1_wsa"
+    ),
     , drop = FALSE
   ]
   payload <- lapply(seq_len(nrow(active)), function(i) {
@@ -1032,8 +1920,11 @@ pt_local_reference_controller_payload <- function(reference_layers) {
     required <- c(
       "pt_local_reference_feature_key", "pt_local_reference_geometry_key",
       "pt_local_reference_semantic_key", "pt_local_reference_category_key",
-      "pt_local_reference_geometry_components", "pt_wsa_name"
+      "pt_local_reference_geometry_components"
     )
+    if (isTRUE(row$feature_selection_supported)) {
+      required <- c(required, as.character(row$feature_display_field))
+    }
     missing_fields <- setdiff(required, names(x))
     if (length(missing_fields)) {
       stop(
@@ -1043,6 +1934,11 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       )
     }
     definition <- pt_local_reference_categories(row$layer_id)
+    definition <- definition[
+      definition$include_when_absent |
+        definition$category_key %in% unique(x$pt_local_reference_category_key),
+      , drop = FALSE
+    ]
     features <- if (isTRUE(row$feature_selection_supported)) {
       pt_local_reference_semantic_feature_catalog(x, row)
     } else {
@@ -1087,9 +1983,11 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       primary_count_mode = row$primary_count_mode,
       primary_count_label = row$primary_count_label,
       show_component_count = isTRUE(row$show_component_count),
+      show_category_count = isTRUE(row$show_category_count),
       component_count_label = row$component_count_label,
       category_heading = row$category_heading,
-      caution = PT_LOCAL_REFERENCE_WSA_CARD_CAUTION,
+      caution = row$card_caution,
+      popup_layout = row$popup_layout,
       categories = categories,
       features = features,
       records = records

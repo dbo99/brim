@@ -45,9 +45,10 @@ WRITE_QA <- TRUE
 RUN_TS <- make_timestamp()
 
 ## Optional focused execution for a reviewed subset. The normal default remains
-## the full manifest; Phase 1 WSA validation can later run only its approved
-## source row with:
+## the full manifest; reviewed Local Reference phases can run only their
+## approved source row, for example:
 ##   options(brim.reference_layer_nicknames = "wildernessstudyarea")
+##   options(brim.reference_layer_nicknames = "trails")
 REFERENCE_LAYER_NICKNAMES <- getOption(
   "brim.reference_layer_nicknames",
   NULL
@@ -304,7 +305,18 @@ for (i in seq_len(nrow(manifest))) {
       source           = "Reference layer"
     )
 
-  if (row$nickname == "wildernessstudyarea") {
+  if (row$nickname == "trails") {
+    layer <- pt_prepare_local_reference_trails(
+      layer,
+      validate_snapshot = TRUE,
+      build_display = FALSE
+    )
+    pt_write_local_reference_trails_qa(
+      layer,
+      output_dir = DIR$qa,
+      prefix = paste0("local_reference_trails_", RUN_TS)
+    )
+  } else if (row$nickname == "wildernessstudyarea") {
     layer <- pt_prepare_local_reference_wsa(
       layer,
       validate_snapshot = TRUE,

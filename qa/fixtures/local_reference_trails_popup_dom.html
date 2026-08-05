@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRIM Trails mounted tabbed-popup fixture</title>
+  <link rel="stylesheet" href="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.css">
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; }
+    #fixture-status {
+      position: fixed; z-index: 10000; right: 8px; bottom: 8px;
+      max-width: calc(100vw - 16px); padding: 6px 8px; border-radius: 4px;
+      background: rgba(255,255,255,.94); font: 12px/1.3 Arial,sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="Mounted Trails tabbed-popup test map"></div>
+  <output id="fixture-status" aria-live="polite">Running mounted-popup checks…</output>
+  <script src="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.js"></script>
+  <script src="../../03_functions/js/brim_local_reference_filter_engine.js"></script>
+  <script>
+  (async function() {
+    'use strict';
+    var status = document.getElementById('fixture-status');
+    var nextFrame = function() {
+      return new Promise(function(resolve) {
+        requestAnimationFrame(function() { requestAnimationFrame(resolve); });
+      });
+    };
+    var delay = function(milliseconds) {
+      return new Promise(function(resolve) { window.setTimeout(resolve, milliseconds); });
+    };
+    var escapeHtml = function(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    };
+    var popupHtml = function(data) {
+      var keys = ['overview', 'management', 'history', 'resources'];
+      var labels = ['Overview', 'Management', 'History & context', 'Resources'];
+      var tabId = function(key) { return 'fixture-tab-' + data.id + '-' + key; };
+      var panelId = function(key) { return 'fixture-panel-' + data.id + '-' + key; };
+      var tabs = keys.map(function(key, index) {
+        return '<button type="button" class="pt-lr-popup-tab" role="tab" ' +
+          'id="' + tabId(key) + '" aria-controls="' + panelId(key) + '" ' +
+          'aria-selected="' + (index === 0 ? 'true' : 'false') + '" ' +
+          'tabindex="' + (index === 0 ? '0' : '-1') + '" ' +
+          'data-pt-lr-popup-tab="' + key + '">' + labels[index] + '</button>';
+      }).join('');
+      var longResources = Array(30).fill(0).map(function(_, index) {
+        return '<li><a href="https://www.nps.gov/subjects/nationaltrailssystem/" ' +
+          'target="_blank" rel="noopener noreferrer">Official planning or interpretive resource ' +
+          (index + 1) + '</a></li>';
+      }).join('');
+      var contents = {
+        overview: '<p class="pt-lr-popup-summary">' + escapeHtml(data.summary) + '</p>' +
+          '<div class="pt-lr-popup-row"><span class="pt-lr-popup-label">Designation:</span> ' +
+          escapeHtml(data.badge) + '</div>',
+        management: '<section class="pt-lr-popup-section"><h3>Administration and coordination</h3>' +
+          '<p>' + escapeHtml(data.management) + '</p></section>',
+        history: '<section class="pt-lr-popup-section pt-lr-popup-narrative"><h3>Historical significance</h3>' +
+          '<p>' + escapeHtml(data.history) + '</p><div class="pt-lr-narrative-source">' +
+          '<span>Source:</span> ' + escapeHtml(data.source) + '</div></section>' +
+          '<section class="pt-lr-popup-section pt-lr-popup-narrative"><h3>Indigenous and Tribal context</h3>' +
+          '<p>' + escapeHtml(data.indigenous) + '</p></section>',
+        resources: '<p class="pt-lr-popup-note">Official trail-wide and source resources.</p>' +
+          '<ul class="pt-lr-popup-resource-list">' + longResources + '</ul>' +
+          '<button type="button" class="pt-lr-popup-fixture-disabled" disabled>' +
+          'Unavailable fixture action</button>'
+      };
+      var panels = keys.map(function(key, index) {
+        return '<section class="pt-lr-popup-panel" role="tabpanel" id="' + panelId(key) +
+          '" aria-labelledby="' + tabId(key) + '" data-pt-lr-popup-panel="' + key + '"' +
+          (index === 0 ? '' : ' hidden') + '>' + contents[key] + '</section>';
+      }).join('');
+      return '<article class="pt-local-reference-tabbed-popup-card pt-trails-popup" ' +
+        'data-pt-lr-tabbed-popup data-trail-id="' + escapeHtml(data.id) + '">' +
+        '<div class="pt-lr-popup-sticky"><header class="pt-lr-popup-header">' +
+        '<div class="pt-lr-popup-title">' + escapeHtml(data.name) + '</div>' +
+        '<span class="pt-lr-popup-badge">' + escapeHtml(data.badge) + '</span></header>' +
+        '<div class="pt-lr-popup-tabs" role="tablist" aria-label="Trail details">' + tabs +
+        '</div></div><div class="pt-lr-popup-panel-scroll">' + panels + '</div></article>';
+    };
+    var trails = [{
+      id: 'california', name: 'California National Historic Trail', badge: 'National Historic Trail',
+      summary: 'A congressionally designated route connecting overland-emigration corridors to California.',
+      management: 'The National Park Service administers the trail in coordination with landowners and partners.',
+      history: 'The route represents major nineteenth-century overland migration and its far-reaching consequences.',
+      indigenous: 'The NPS interpretive plan describes these corridors as crossing American Indian homelands and documents resource loss, disease, violence, and loss of homeland, while emphasizing Indigenous survival.',
+      source: 'NPS Four National Historic Trails Long-Range Interpretive Plan'
+    }, {
+      id: 'old-spanish', name: 'Old Spanish National Historic Trail', badge: 'National Historic Trail',
+      summary: 'A network of trade routes between New Mexico and California.',
+      management: 'The Bureau of Land Management and National Park Service jointly administer the trail.',
+      history: 'The trail connected long-used Indigenous paths and later commercial routes across the Southwest.',
+      indigenous: 'The BLM–NPS strategy identifies prehistoric Indigenous paths and documents irreversible changes to livelihood as well as captivity and enslavement.',
+      source: 'BLM–NPS Old Spanish National Historic Trail Comprehensive Administrative Strategy'
+    }, {
+      id: 'butterfield', name: 'Butterfield Overland National Historic Trail', badge: 'National Historic Trail',
+      summary: 'A designated route associated with the overland mail and passenger service.',
+      management: 'The National Park Service is the trail-wide administering agency; the source record documents consultation with 49 Tribes.',
+      history: 'The congressionally authorized study evaluated the route and its national significance.',
+      indigenous: 'The study identifies Tribes with current or traditional relationships to the route and documents consultation.',
+      source: 'NPS Butterfield Overland Trail Special Resource Study'
+    }];
+    var byId = {};
+    trails.forEach(function(trail) { byId[trail.id] = trail; });
+    var selectedKey = function(container) {
+      var node = container.querySelector('[role="tab"][aria-selected="true"]');
+      return node && node.getAttribute('data-pt-lr-popup-tab');
+    };
+    var openTrail;
+
+    try {
+      var map = L.map('map', {
+        zoomControl: false, attributionControl: false, dragging: false,
+        scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false,
+        keyboard: false
+      }).setView([36, -118], 6);
+      var groupName = 'Reference – National Scenic/Historic Trails';
+      var lines = trails.map(function(trail, index) {
+        var line = L.polyline([[35 + index * 0.2, -118], [36 + index * 0.2, -117]], {
+          layerId: 'trail:globalid:' + trail.id, color: '#7A3E9D', weight: 2.4
+        });
+        line.bindPopup(popupHtml(trail), {
+          autoPan: true, keepInView: true, minWidth: 400, maxWidth: 460,
+          autoPanPaddingTopLeft: [16, 84], autoPanPaddingBottomRight: [16, 24],
+          className: 'pt-local-reference-tabbed-popup'
+        });
+        return line;
+      });
+      var groupRoot = L.layerGroup(lines).addTo(map);
+      map.layerManager = {_byGroup: {}, _groupContainers: {}};
+      map.layerManager._byGroup[groupName] = {};
+      lines.forEach(function(line, index) {
+        map.layerManager._byGroup[groupName]['fixture-' + index] = line;
+      });
+      map.layerManager._groupContainers[groupName] = groupRoot;
+
+      var controllerSource = await fetch(
+        '../../03_functions/js/brim_local_reference_controller.js'
+      ).then(function(response) {
+        if (!response.ok) throw new Error('Could not load production controller.');
+        return response.text();
+      });
+      var installController = (0, eval)('(' + controllerSource + ')');
+      installController.call(map, document.getElementById('map'), {}, [{
+        layer_id: 'national_scenic_historic_trails', display_name: 'National Scenic/Historic Trails',
+        group_name: groupName, auto_supported: true, auto_default: true,
+        feature_selection_supported: true, feature_selection_mode: 'semantic_feature_multi',
+        feature_search_fields: ['pt_trails_official_name'], feature_display_field: 'pt_trails_official_name',
+        auto_zoom_supported: true, auto_zoom_default: true, zoom_padding: 36, zoom_max: 12,
+        preserve_view_on_reset: true, primary_count_mode: 'semantic_feature', primary_count_label: 'trails',
+        popup_layout: 'tabbed_card',
+        show_component_count: false, show_category_count: false, component_count_label: 'mapped trail segments',
+        category_heading: 'Trail', caution: 'Mapped trail lines are reference representations.',
+        categories: [{category_key: 'trail', label: 'Trail', fill_color: 'transparent',
+          stroke_color: '#7A3E9D', fill_opacity: 0, stroke_weight: 2.4, dash_array: '',
+          legend_swatch_style: 'line'}],
+        features: trails.map(function(trail, index) { return {
+          semantic_feature_key: 'trail:' + trail.id, feature_key: 'trail:' + trail.id,
+          display_name: trail.name, category_keys: ['trail'], search_text: trail.name.toLowerCase(),
+          semantic_feature_bounds: [35 + index * 0.2, -118, 36 + index * 0.2, -117],
+          geometry_component_count: 1
+        }; }),
+        records: trails.map(function(trail) { return {
+          geometry_key: 'trail:globalid:' + trail.id, feature_key: 'trail:' + trail.id,
+          semantic_feature_key: 'trail:' + trail.id, category_key: 'trail', geometry_component_count: 1
+        }; })
+      }]);
+
+      map.invalidateSize({pan: false});
+      await nextFrame();
+      openTrail = async function(id, tabKey) {
+        var index = trails.findIndex(function(trail) { return trail.id === id; });
+        if (index < 0) throw new Error('Unknown fixture trail: ' + id);
+        lines[index].openPopup();
+        await nextFrame();
+        await delay(300);
+        await nextFrame();
+        var mounted = Array.prototype.slice.call(
+          document.querySelectorAll('.leaflet-popup.pt-local-reference-tabbed-popup')
+        ).filter(function(candidate) {
+          return candidate.textContent.indexOf(trails[index].name) >= 0;
+        }).pop();
+        if (!mounted) throw new Error('Requested trail popup was not mounted: ' + id);
+        if (tabKey && tabKey !== 'overview') {
+          var tab = mounted.querySelector('[data-pt-lr-popup-tab="' + tabKey + '"]');
+          tab.click();
+          await nextFrame();
+        }
+        return mounted;
+      };
+      window.__PT_TRAILS_POPUP_FIXTURE__ = {map: map, trails: byId, openTrail: openTrail};
+
+      var popup = await openTrail('california', '');
+      var root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
+      var initialOverview = selectedKey(root) === 'overview' && !panels[0].hidden &&
+        panels.slice(1).every(function(panel) { return panel.hidden; });
+      var popupStackingClassApplied = document.getElementById('map').classList.contains(
+        'pt-lr-tabbed-popup-open'
+      );
+      var enabledTabCursor = getComputedStyle(tabs[0]).cursor === 'pointer';
+      var disabledControlCursor = getComputedStyle(
+        root.querySelector('.pt-lr-popup-fixture-disabled')
+      ).cursor === 'not-allowed';
+      var normalTextCursor = getComputedStyle(
+        root.querySelector('.pt-lr-popup-title')
+      ).cursor !== 'pointer';
+      var mapCursor = getComputedStyle(document.getElementById('map')).cursor;
+      var mapCursorPreserved = mapCursor !== 'pointer' && mapCursor !== 'text';
+      var initialPopupNode = popup;
+      var centerBeforeTabs = map.getCenter();
+      var zoomBeforeTabs = map.getZoom();
+
+      tabs[1].click();
+      await nextFrame();
+      var clickSwitch = selectedKey(root) === 'management' && !panels[1].hidden;
+      tabs[1].dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}));
+      await nextFrame();
+      var arrowSwitch = selectedKey(root) === 'history' && document.activeElement === tabs[2];
+      tabs[2].dispatchEvent(new KeyboardEvent('keydown', {key: 'End', bubbles: true}));
+      await nextFrame();
+      var endSwitch = selectedKey(root) === 'resources' && document.activeElement === tabs[3];
+      tabs[3].dispatchEvent(new KeyboardEvent('keydown', {key: 'Home', bubbles: true}));
+      await nextFrame();
+      var homeSwitch = selectedKey(root) === 'overview' && document.activeElement === tabs[0];
+      tabs[0].dispatchEvent(new KeyboardEvent('keydown', {key: ' ', bubbles: true}));
+      await nextFrame();
+      var spaceActivation = selectedKey(root) === 'overview';
+      var tabStateMapStable = centerBeforeTabs.equals(map.getCenter()) && zoomBeforeTabs === map.getZoom();
+      var popupNotRecreated = document.querySelector('.leaflet-popup') === initialPopupNode;
+
+      map.closePopup();
+      await nextFrame();
+      popup = await openTrail('old-spanish', '');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var differentTrailResetsOverview = selectedKey(root) === 'overview' &&
+        popup.textContent.indexOf('Old Spanish National Historic Trail') >= 0;
+      popup.querySelector('[data-pt-lr-popup-tab="history"]').click();
+      await nextFrame();
+      map.closePopup();
+      await nextFrame();
+      popup = await openTrail('old-spanish', '');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var reopenResetsOverview = selectedKey(root) === 'overview';
+
+      var content = popup.querySelector('.leaflet-popup-content');
+      var card = popup.querySelector('.pt-local-reference-tabbed-popup-card');
+      var scroller = popup.querySelector('.pt-lr-popup-panel-scroll');
+      var contentRect = content.getBoundingClientRect();
+      var cardRect = card.getBoundingClientRect();
+      var tabTops = Array.from(new Set(Array.prototype.slice.call(
+        popup.querySelectorAll('[role="tab"]')
+      ).map(function(tab) { return Math.round(tab.getBoundingClientRect().top); })));
+      var narrow = window.innerWidth <= 520;
+      var widthPass = narrow ?
+        contentRect.width <= window.innerWidth - 54 && contentRect.width >= Math.min(280, window.innerWidth - 58) :
+        contentRect.width >= 398 && contentRect.width <= 462;
+      var cardHeightPass = cardRect.height <= Math.min(window.innerHeight * 0.72, 620) + 2;
+      var tabRowsPass = narrow ? tabTops.length === 2 : tabTops.length === 1;
+      var noHorizontalOverflow = root.scrollWidth <= root.clientWidth + 1 &&
+        scroller.scrollWidth <= scroller.clientWidth + 1;
+      var resourceTab = popup.querySelector('[data-pt-lr-popup-tab="resources"]');
+      resourceTab.click();
+      await nextFrame();
+      var internalScroll = scroller.scrollHeight > scroller.clientHeight &&
+        getComputedStyle(scroller).overflowY === 'auto';
+      var popupAfterLongTab = popup.getBoundingClientRect();
+      var stickyAfterLongTab = popup.querySelector('.pt-lr-popup-sticky').getBoundingClientRect();
+      var longTabInsideViewport = popupAfterLongTab.top >= -1 &&
+        popupAfterLongTab.bottom <= window.innerHeight + 1 && stickyAfterLongTab.top >= -1;
+      var injectionData = Object.assign({}, trails[0], {
+        id: 'injection', name: '<img src=x onerror=alert(1)> California Trail',
+        summary: '<scr' + 'ipt>window.__injected=true</scr' + 'ipt>'
+      });
+      var injectionHost = document.createElement('div');
+      injectionHost.innerHTML = popupHtml(injectionData);
+      var injectionSafe = !injectionHost.querySelector('img,script') &&
+        injectionHost.textContent.indexOf('<img src=x onerror=alert(1)>') >= 0 &&
+        injectionHost.textContent.indexOf('<scr' + 'ipt>window.__injected=true</scr' + 'ipt>') >= 0;
+
+      var mapClickCount = 0;
+      map.on('click', function() { mapClickCount += 1; });
+      var resourceLink = popup.querySelector('.pt-lr-popup-resource-list a');
+      resourceLink.addEventListener('click', function(event) { event.preventDefault(); });
+      resourceLink.click();
+      await nextFrame();
+      var popupLinkDoesNotReachMap = mapClickCount === 0;
+
+      await openTrail('butterfield', 'management');
+      window.BRIM.localReferenceController.reset();
+      await nextFrame();
+      await delay(350);
+      var globalResetClosesPopup = !document.querySelector('.leaflet-popup');
+      var resetClearsPopupStackingClass = !document.getElementById('map').classList.contains(
+        'pt-lr-tabbed-popup-open'
+      );
+      await openTrail('butterfield', 'management');
+      map.fire('overlayremove', {layer: groupRoot, name: groupName});
+      await nextFrame();
+      await delay(350);
+      var layerOffClosesPopup = !document.querySelector('.leaflet-popup');
+      map.fire('overlayadd', {layer: groupRoot, name: groupName});
+      await nextFrame();
+      var oneFilterCardAfterLayerCycle =
+        document.querySelectorAll('[data-pt-local-reference-layer="national_scenic_historic_trails"]').length === 1;
+      await openTrail('old-spanish', 'resources');
+      var onlyOnePopupActive = document.querySelectorAll('.leaflet-popup').length === 1;
+
+      var results = {
+        passed: initialOverview && popupStackingClassApplied && resetClearsPopupStackingClass &&
+          enabledTabCursor && disabledControlCursor &&
+          normalTextCursor && mapCursorPreserved && tabs.length === 4 && panels.length === 4 && clickSwitch &&
+          arrowSwitch && endSwitch && homeSwitch && spaceActivation && tabStateMapStable &&
+          popupNotRecreated && differentTrailResetsOverview && reopenResetsOverview && widthPass &&
+          cardHeightPass && tabRowsPass && noHorizontalOverflow && internalScroll && injectionSafe &&
+          longTabInsideViewport && popupLinkDoesNotReachMap && globalResetClosesPopup && layerOffClosesPopup &&
+          oneFilterCardAfterLayerCycle && onlyOnePopupActive,
+        four_tabs_and_panels: tabs.length === 4 && panels.length === 4,
+        overview_default: initialOverview,
+        tabbed_popup_stacking_class_applied: popupStackingClassApplied,
+        reset_clears_popup_stacking_class: resetClearsPopupStackingClass,
+        enabled_tab_cursor_pointer: enabledTabCursor,
+        disabled_control_cursor_not_allowed: disabledControlCursor,
+        normal_popup_text_not_pointer: normalTextCursor,
+        surrounding_map_cursor_preserved: mapCursorPreserved,
+        click_switch: clickSwitch,
+        keyboard_arrow_switch_and_focus: arrowSwitch,
+        keyboard_home_end: endSwitch && homeSwitch,
+        keyboard_space_activation: spaceActivation,
+        map_center_zoom_stable_across_tabs: tabStateMapStable,
+        popup_node_not_recreated: popupNotRecreated,
+        different_trail_resets_overview: differentTrailResetsOverview,
+        reopen_resets_overview: reopenResetsOverview,
+        content_width: contentRect.width,
+        card_height: cardRect.height,
+        width_contract_passed: widthPass,
+        height_contract_passed: cardHeightPass,
+        tab_row_count: tabTops.length,
+        responsive_tab_rows_passed: tabRowsPass,
+        no_horizontal_overflow: noHorizontalOverflow,
+        resources_internal_scroll: internalScroll,
+        long_tab_and_sticky_header_inside_viewport: longTabInsideViewport,
+        source_values_cannot_inject_html: injectionSafe,
+        popup_link_does_not_reach_map: popupLinkDoesNotReachMap,
+        reset_clear_path_closes_popup: globalResetClosesPopup,
+        layer_off_closes_popup: layerOffClosesPopup,
+        one_filter_card_after_layer_cycle: oneFilterCardAfterLayerCycle,
+        only_one_popup_active: onlyOnePopupActive,
+        viewport_width: window.innerWidth,
+        viewport_height: window.innerHeight
+      };
+      window.__PT_TRAILS_POPUP_FIXTURE__.runTeardown = async function() {
+        window.BRIM.localReferenceController.destroy();
+        await nextFrame();
+        await delay(350);
+        return {
+          popup_count: document.querySelectorAll('.leaflet-popup').length,
+          card_count: document.querySelectorAll('[data-pt-local-reference-layer]').length,
+          passed: !document.querySelector('.leaflet-popup') &&
+            !document.querySelector('[data-pt-local-reference-layer]')
+        };
+      };
+      window.__PT_TRAILS_POPUP_DOM_RESULTS__ = results;
+      status.setAttribute('data-results', JSON.stringify(results));
+      status.textContent = results.passed ?
+        'PASS: mounted Trails tabbed-popup checks' :
+        'FAIL: mounted Trails tabbed-popup checks';
+      status.style.color = results.passed ? '#1E6B45' : '#9A2E20';
+      status.style.fontWeight = '700';
+    } catch (error) {
+      var failure = {passed: false, error: String(error && error.stack || error)};
+      window.__PT_TRAILS_POPUP_DOM_RESULTS__ = failure;
+      status.setAttribute('data-results', JSON.stringify(failure));
+      status.textContent = 'FAIL: ' + failure.error;
+      status.style.color = '#9A2E20';
+    }
+  }());
+  </script>
+</body>
+</html>

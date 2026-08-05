@@ -13,12 +13,18 @@ function(el, x, data) {
   }
 
   var listenerRecords = [];
+  var domListenerRecords = [];
   var controllers = [];
   var destroyed = false;
 
   function listen(target, names, handler) {
     target.on(names, handler);
     listenerRecords.push({target: target, names: names, handler: handler});
+  }
+
+  function listenDom(target, name, handler) {
+    target.addEventListener(name, handler);
+    domListenerRecords.push({target: target, name: name, handler: handler});
   }
 
   function escapeHtml(value) {
@@ -83,12 +89,104 @@ function(el, x, data) {
       '.pt-lr-category-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-summary{margin:6px 0;color:#3d3a35}.pt-lr-pending{font-weight:700;color:#8a4d00}' +
       '.pt-lr-caution{margin-top:7px;padding-top:6px;border-top:1px solid rgba(82,72,45,.26);color:#5a4634;font-size:11px}' +
       '.pt-lr-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}' +
-      '.leaflet-tooltip.pt-wsa-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
+      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
       '.pt-wsa-hover-lines{display:block;max-width:100%}.pt-wsa-hover-line{display:block;white-space:normal}.pt-wsa-hover-name{font-weight:600}' +
+      '.pt-trails-hover-lines{display:block;max-width:100%}.pt-trails-hover-line{display:block;white-space:normal}.pt-trails-hover-name{font-weight:600}' +
       '.pt-wsa-popup .pt-popup-subtitle{margin-top:2px;color:#555;font-size:12px}.pt-wsa-popup .pt-popup-section{margin-top:7px}.pt-wsa-popup .pt-wsa-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-wsa-source-anomaly{color:#8a2f1c}.pt-popup-technical{margin-top:7px;font-size:11px}' +
+      '.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content-wrapper{padding:0;overflow:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{box-sizing:border-box;width:min(430px,calc(100vw - 72px))!important;min-width:min(400px,calc(100vw - 72px))!important;max-width:min(460px,calc(100vw - 72px))!important;margin:10px 12px 12px}' +
+      '.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}' +
+      '.pt-local-reference-tabbed-popup-card{display:flex;max-height:min(72vh,620px);min-height:0;flex-direction:column;overflow:hidden;color:#272727;font:12px/1.4 Arial,sans-serif}.pt-lr-popup-sticky{position:sticky;top:0;z-index:2;flex:0 0 auto;background:#fff}.pt-lr-popup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:2px 1px 9px}.pt-lr-popup-title{font-size:15px;font-weight:700;line-height:1.2}.pt-lr-popup-badge{flex:0 0 auto;padding:2px 6px;border:1px solid #8d8370;border-radius:10px;background:#f4eee1;color:#493f31;font-size:10px;line-height:1.25;white-space:nowrap}' +
+      '.pt-lr-popup-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;border-bottom:1px solid #8f8778}.pt-lr-popup-tab{min-width:0;padding:6px 4px;border:1px solid transparent;border-bottom:0;border-radius:4px 4px 0 0;background:#eee8dc;color:#3d3933;font:600 11px/1.2 Arial,sans-serif;white-space:normal;cursor:pointer}.pt-lr-popup-tab[aria-selected=true]{border-color:#8f8778;background:#fff;color:#171717}.pt-lr-popup-tab:focus-visible{outline:3px solid #1d6fa5;outline-offset:-2px}' +
+      '.pt-local-reference-tabbed-popup-card button:enabled,.pt-local-reference-tabbed-popup-card summary{cursor:pointer}.pt-local-reference-tabbed-popup-card button:disabled{cursor:not-allowed}' +
+      '.pt-lr-popup-panel-scroll{height:min(54vh,450px);min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.pt-lr-popup-panel{padding:9px 2px 4px}.pt-lr-popup-panel[hidden]{display:none!important}.pt-lr-popup-summary,.pt-lr-popup-panel p{margin:0 0 8px}.pt-lr-popup-row{margin:3px 0}.pt-lr-popup-label,.pt-lr-popup-evidence>span,.pt-trails-caution>span{font-weight:700}.pt-lr-popup-section{margin-top:10px}.pt-lr-popup-section h3{margin:0 0 4px;color:#3e392f;font-size:12px;line-height:1.25}.pt-lr-popup-narrative{padding-top:2px;border-top:1px solid rgba(82,72,45,.18)}.pt-lr-narrative-source{margin-top:3px;color:#5c574f;font-size:10.5px}.pt-lr-narrative-source span{font-weight:700}.pt-lr-popup-evidence{margin-top:7px}.pt-lr-popup-resource-list{margin:0;padding-left:19px}.pt-lr-popup-resource-list li{margin:4px 0}.pt-lr-popup-note{margin:1px 0 4px;color:#5b5650;font-size:10.5px}.pt-trails-popup .pt-trails-caution{margin-top:9px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-trails-popup .pt-popup-technical{margin-top:10px;padding-top:6px;border-top:1px solid rgba(82,72,45,.2)}' +
+      '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
-      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
+      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
+  }
+
+  function popupRoot(node) {
+    return node && node.closest ? node.closest('[data-pt-lr-tabbed-popup]') : null;
+  }
+
+  function activatePopupTab(root, tab, moveFocus) {
+    if (!root || !tab) return false;
+    var key = String(tab.getAttribute('data-pt-lr-popup-tab') || '');
+    var tabs = Array.prototype.slice.call(
+      root.querySelectorAll('[role="tab"][data-pt-lr-popup-tab]')
+    );
+    var panels = Array.prototype.slice.call(
+      root.querySelectorAll('[role="tabpanel"][data-pt-lr-popup-panel]')
+    );
+    tabs.forEach(function(candidate) {
+      var selected = candidate === tab;
+      candidate.setAttribute('aria-selected', selected ? 'true' : 'false');
+      candidate.setAttribute('tabindex', selected ? '0' : '-1');
+    });
+    panels.forEach(function(panel) {
+      panel.hidden = String(panel.getAttribute('data-pt-lr-popup-panel') || '') !== key;
+    });
+    if (moveFocus && tab.focus) {
+      try { tab.focus({preventScroll: true}); } catch (error) { tab.focus(); }
+    }
+    return true;
+  }
+
+  function resetTabbedPopup(container) {
+    var root = container && container.querySelector ?
+      container.querySelector('[data-pt-lr-tabbed-popup]') : null;
+    if (!root) return false;
+    var first = root.querySelector('[role="tab"][data-pt-lr-popup-tab]');
+    return activatePopupTab(root, first, false);
+  }
+
+  function onTabbedPopupClick(event) {
+    var tab = event.target.closest && event.target.closest('[data-pt-lr-popup-tab]');
+    var root = popupRoot(tab);
+    if (!root) return;
+    event.preventDefault();
+    activatePopupTab(root, tab, false);
+  }
+
+  function onTabbedPopupKeydown(event) {
+    var tab = event.target.closest && event.target.closest('[data-pt-lr-popup-tab]');
+    var root = popupRoot(tab);
+    if (!root) return;
+    var tabs = Array.prototype.slice.call(
+      root.querySelectorAll('[role="tab"][data-pt-lr-popup-tab]')
+    );
+    var index = tabs.indexOf(tab);
+    var nextIndex = index;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      nextIndex = (index + 1) % tabs.length;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      nextIndex = (index - 1 + tabs.length) % tabs.length;
+    } else if (event.key === 'Home') {
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      nextIndex = tabs.length - 1;
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      activatePopupTab(root, tab, true);
+      return;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    activatePopupTab(root, tabs[nextIndex], true);
+  }
+
+  function onAnyPopupOpen(event) {
+    var container = event && event.popup ? event.popup._container : null;
+    var tabbed = resetTabbedPopup(container);
+    if (el && el.classList) {
+      if (tabbed) el.classList.add('pt-lr-tabbed-popup-open');
+      else el.classList.remove('pt-lr-tabbed-popup-open');
+    }
+  }
+
+  function onAnyPopupClose() {
+    if (el && el.classList) el.classList.remove('pt-lr-tabbed-popup-open');
   }
 
   function createLayerController(layerData) {
@@ -421,7 +519,9 @@ function(el, x, data) {
           var key = escapeHtml(category.category_key);
           return '<label class="pt-lr-category"><input type="checkbox" data-pt-lr-category="' + key + '" checked>' +
             swatch(category) + '<span>' + escapeHtml(category.label) + '</span>' +
-            '<span class="pt-lr-category-count" data-pt-lr-count="' + key + '"></span></label>';
+            (layerData.show_category_count ?
+              '<span class="pt-lr-category-count" data-pt-lr-count="' + key + '"></span>' : '') +
+            '</label>';
         }).join('');
         var closeHtml = window.BRIM.legendCloseout ?
           window.BRIM.legendCloseout.actionsHtml(
@@ -521,7 +621,17 @@ function(el, x, data) {
       control.addTo(map);
     }
 
+    function closeLayerPopup() {
+      if (String(layerData.popup_layout || '') !== 'tabbed_card') return false;
+      var popup = map._popup;
+      var source = popup && popup._source;
+      if (!source || !recordByGeometry[layerId(source)]) return false;
+      map.closePopup(popup);
+      return true;
+    }
+
     function resetController() {
+      closeLayerPopup();
       clearFeaturePicker();
       render(engine.reset(), true, 'reset');
     }
@@ -551,6 +661,7 @@ function(el, x, data) {
     }
 
     function destroy() {
+      closeLayerPopup();
       if (detachable && typeof detachable.destroy === 'function') {
         detachable.destroy(true, true);
       }
@@ -579,6 +690,10 @@ function(el, x, data) {
   }
 
   installCss();
+  listenDom(el, 'click', onTabbedPopupClick);
+  listenDom(el, 'keydown', onTabbedPopupKeydown);
+  listen(map, 'popupopen', onAnyPopupOpen);
+  listen(map, 'popupclose', onAnyPopupClose);
   payloads.forEach(function(payload) {
     controllers.push(createLayerController(payload));
   });
@@ -590,8 +705,15 @@ function(el, x, data) {
       try { record.target.off(record.names, record.handler); } catch (error) {}
     });
     listenerRecords = [];
+    domListenerRecords.forEach(function(record) {
+      try {
+        record.target.removeEventListener(record.name, record.handler);
+      } catch (error) {}
+    });
+    domListenerRecords = [];
     controllers.forEach(function(controller) { controller.destroy(); });
     controllers = [];
+    if (el && el.classList) el.classList.remove('pt-lr-tabbed-popup-open');
   }
 
   listen(map, 'unload', destroy);

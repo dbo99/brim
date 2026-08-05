@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRIM WSA mounted shared tabbed-popup fixture</title>
+  <link rel="stylesheet" href="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.css">
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; }
+    #fixture-status {
+      position: fixed; z-index: 10000; right: 8px; bottom: 8px;
+      max-width: calc(100vw - 16px); padding: 6px 8px; border-radius: 4px;
+      background: rgba(255,255,255,.94); font: 12px/1.3 Arial,sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="Mounted WSA shared tabbed-popup test map"></div>
+  <output id="fixture-status" aria-live="polite">Running mounted-popup checks…</output>
+  <script src="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.js"></script>
+  <script src="../../03_functions/js/brim_local_reference_filter_engine.js"></script>
+  <script>
+  (async function() {
+    'use strict';
+    var status = document.getElementById('fixture-status');
+    var caution = 'Historical recommendation, not current WSA status. Management continues ' +
+      'under the applicable FLPMA authority; verify current plans, closures, and field-office direction.';
+    var fullCaution = 'FLPMA §603 study areas and §202 areas have distinct recommendation histories. ' +
+      caution;
+    var nextFrame = function() {
+      return new Promise(function(resolve) {
+        requestAnimationFrame(function() { requestAnimationFrame(resolve); });
+      });
+    };
+    var delay = function(milliseconds) {
+      return new Promise(function(resolve) { window.setTimeout(resolve, milliseconds); });
+    };
+    var escapeHtml = function(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    };
+    var row = function(label, value) {
+      if (!String(value || '').trim()) return '';
+      return '<div class="pt-lr-popup-row"><span class="pt-lr-popup-label">' +
+        escapeHtml(label) + ':</span> ' + escapeHtml(value) + '</div>';
+    };
+    var popupHtml = function(data) {
+      var keys = ['overview', 'recommendation', 'management', 'sources'];
+      var labels = ['Overview', 'Recommendation', 'Management', 'Sources & details'];
+      var tabId = function(key) { return 'fixture-tab-' + data.id + '-' + key; };
+      var panelId = function(key) { return 'fixture-panel-' + data.id + '-' + key; };
+      var tabs = keys.map(function(key, index) {
+        return '<button type="button" class="pt-lr-popup-tab" role="tab" ' +
+          'id="' + tabId(key) + '" aria-controls="' + panelId(key) + '" ' +
+          'aria-selected="' + (index === 0 ? 'true' : 'false') + '" ' +
+          'tabindex="' + (index === 0 ? '0' : '-1') + '" ' +
+          'data-pt-lr-popup-tab="' + key + '">' + escapeHtml(labels[index]) + '</button>';
+      }).join('');
+      var longTechnical = Array(24).fill(0).map(function(_, index) {
+        return row('Verification field ' + (index + 1), 'Official source detail ' + (index + 1));
+      }).join('');
+      var anomaly = data.sourceAcres === '0' ?
+        '<div class="pt-wsa-source-anomaly"><b>Approximate geometry-derived anomaly:</b> ' +
+        '317.9 acres — source anomaly only; the raw source value above remains authoritative.</div>' : '';
+      var contents = {
+        overview: row('FLPMA section', data.flpma) + row('Approximate mapped area', data.area) +
+          '<div class="pt-wsa-status-context">' + escapeHtml(caution) + '</div>',
+        recommendation: row('BLM recommendation', data.recommendation) +
+          row('Raw WSA_RCMND source value', data.rawRecommendation) +
+          '<div class="pt-wsa-caution"><span>Recommendation context:</span> ' +
+          escapeHtml(fullCaution) + '</div>',
+        management: row('Local managing agency', 'Bureau of Land Management') +
+          row('BLM role', 'Local land manager') + row('Verified responsible office', data.office) +
+          '<p>Spatial intersections are not promoted into verified responsibility.</p>',
+        sources: row('GIS acreage', data.sourceAcres + ' acres') + anomaly +
+          '<ul class="pt-lr-popup-resource-list"><li><a href="https://www.blm.gov/programs/' +
+          'national-conservation-lands/wilderness/wilderness-study-areas" target="_blank" ' +
+          'rel="noopener noreferrer">Official BLM WSA source</a></li></ul>' +
+          '<details class="pt-popup-technical" open><summary>Technical details</summary>' +
+          row('Stable feature key', data.stableKey) + longTechnical + '</details>' +
+          '<button type="button" class="pt-lr-popup-fixture-disabled" disabled>' +
+          'Unavailable fixture action</button>'
+      };
+      var panels = keys.map(function(key, index) {
+        return '<section class="pt-lr-popup-panel" role="tabpanel" id="' + panelId(key) +
+          '" aria-labelledby="' + tabId(key) + '" data-pt-lr-popup-panel="' + key + '"' +
+          (index === 0 ? '' : ' hidden') + '>' + contents[key] + '</section>';
+      }).join('');
+      return '<article class="pt-popup pt-local-reference-popup ' +
+        'pt-local-reference-tabbed-popup-card pt-wsa-popup" data-pt-lr-tabbed-popup ' +
+        'data-wsa-id="' + escapeHtml(data.id) + '"><div class="pt-lr-popup-sticky">' +
+        '<header class="pt-lr-popup-header"><div class="pt-lr-popup-title" role="heading" ' +
+        'aria-level="2">' + escapeHtml(data.name) + '</div><span class="pt-lr-popup-badge">' +
+        'Wilderness Study Area</span></header><div class="pt-lr-popup-tabs" role="tablist" ' +
+        'aria-label="Wilderness Study Area details">' + tabs + '</div></div>' +
+        '<div class="pt-lr-popup-panel-scroll">' + panels + '</div></article>';
+    };
+    var areas = [{
+      id: 'bitterbrush', name: 'Bitterbrush Wilderness Study Area', flpma: '§603',
+      area: '~1.01 mi²', recommendation: 'No recommendation', rawRecommendation: 'No recommendation',
+      office: '', sourceAcres: '647.2', stableKey: 'wsa:nlcs_id:nlcs000239'
+    }, {
+      id: 'buffalo-hills', name: 'Buffalo Hills Wilderness Study Area', flpma: '§603',
+      area: '~74.2 mi²', recommendation: 'Recommended non-suitable', rawRecommendation: 'Non-suitable',
+      office: 'Eagle Lake Field Office / Applegate Field Office', sourceAcres: '47,510.7',
+      stableKey: 'wsa:nlcs_id:nlcs000217'
+    }, {
+      id: 'red-mountain', name: 'Red Mountain', flpma: 'Not stated', area: '',
+      recommendation: 'Not stated', rawRecommendation: 'blank / not stated', office: '',
+      sourceAcres: '0', stableKey: 'wsa:globalid:eab306b9-62de-406c-9e79-fa7692fd729d'
+    }];
+    var selectedKey = function(root) {
+      var node = root.querySelector('[role="tab"][aria-selected="true"]');
+      return node && node.getAttribute('data-pt-lr-popup-tab');
+    };
+
+    try {
+      var map = L.map('map', {
+        zoomControl: false, attributionControl: false, dragging: false,
+        scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false
+      }).setView([36, -118], 6);
+      var groupName = 'Reference – Wilderness Study Areas';
+      var layers = areas.map(function(area, index) {
+        var lat = 35.4 + index * 0.35;
+        var polygon = L.polygon([[lat, -118], [lat + 0.2, -118], [lat + 0.2, -117.7]], {
+          layerId: 'wsa:geometry:' + area.id, color: '#476C86', fillColor: '#8FB3C8', fillOpacity: 0.35
+        });
+        polygon.bindPopup(popupHtml(area), {
+          autoPan: true, keepInView: true, minWidth: 400, maxWidth: 460,
+          autoPanPaddingTopLeft: [16, 84], autoPanPaddingBottomRight: [16, 24],
+          className: 'pt-local-reference-tabbed-popup'
+        });
+        return polygon;
+      });
+      var groupRoot = L.layerGroup(layers).addTo(map);
+      map.layerManager = {_byGroup: {}, _groupContainers: {}};
+      map.layerManager._byGroup[groupName] = {};
+      layers.forEach(function(layer, index) {
+        map.layerManager._byGroup[groupName]['wsa-' + index] = layer;
+      });
+      map.layerManager._groupContainers[groupName] = groupRoot;
+
+      var controllerSource = await fetch(
+        '../../03_functions/js/brim_local_reference_controller.js'
+      ).then(function(response) {
+        if (!response.ok) throw new Error('Could not load production controller.');
+        return response.text();
+      });
+      var installController = (0, eval)('(' + controllerSource + ')');
+      installController.call(map, document.getElementById('map'), {}, [{
+        layer_id: 'wilderness_study_areas', display_name: 'Wilderness Study Areas',
+        group_name: groupName, auto_supported: true, auto_default: true,
+        feature_selection_supported: true, feature_selection_mode: 'semantic_feature_multi',
+        feature_search_fields: ['NLCS_NAME'], feature_display_field: 'pt_wsa_name',
+        auto_zoom_supported: true, auto_zoom_default: true, zoom_padding: 36, zoom_max: 12,
+        preserve_view_on_reset: true, primary_count_mode: 'semantic_feature',
+        primary_count_label: 'Wilderness Study Areas', popup_layout: 'tabbed_card',
+        show_component_count: false, show_category_count: true,
+        component_count_label: 'mapped polygon components',
+        category_heading: 'BLM recommendation for wilderness designation', caution: caution,
+        categories: [{category_key: 'wsa', label: 'Recommended non-suitable',
+          fill_color: '#8FB3C8', stroke_color: '#476C86', fill_opacity: 0.35,
+          stroke_weight: 1.4, dash_array: '', legend_swatch_style: 'polygon'}],
+        features: areas.map(function(area, index) { return {
+          semantic_feature_key: 'wsa:' + area.id, feature_key: 'wsa:' + area.id,
+          display_name: area.name, category_keys: ['wsa'], search_text: area.name.toLowerCase(),
+          semantic_feature_bounds: [35.4 + index * 0.35, -118, 35.6 + index * 0.35, -117.7],
+          geometry_component_count: 1
+        }; }),
+        records: areas.map(function(area) { return {
+          geometry_key: 'wsa:geometry:' + area.id, feature_key: 'wsa:' + area.id,
+          semantic_feature_key: 'wsa:' + area.id, category_key: 'wsa', geometry_component_count: 1
+        }; })
+      }]);
+
+      var openArea = async function(id, tabKey) {
+        var index = areas.findIndex(function(area) { return area.id === id; });
+        layers[index].openPopup();
+        await nextFrame(); await delay(300); await nextFrame();
+        var popup = document.querySelector('.leaflet-popup.pt-local-reference-tabbed-popup');
+        if (!popup) throw new Error('WSA popup was not mounted: ' + id);
+        if (tabKey && tabKey !== 'overview') {
+          popup.querySelector('[data-pt-lr-popup-tab="' + tabKey + '"]').click();
+          await nextFrame();
+        }
+        return popup;
+      };
+      window.__PT_WSA_POPUP_FIXTURE__ = {map: map, areas: areas, openArea: openArea};
+
+      var popup = await openArea('bitterbrush');
+      var root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
+      var initialOverview = selectedKey(root) === 'overview' && !panels[0].hidden &&
+        panels.slice(1).every(function(panel) { return panel.hidden; });
+      var popupStackingClassApplied = document.getElementById('map').classList.contains(
+        'pt-lr-tabbed-popup-open'
+      );
+      var enabledTabCursor = getComputedStyle(tabs[0]).cursor === 'pointer';
+      var disabledControlCursor = getComputedStyle(
+        root.querySelector('.pt-lr-popup-fixture-disabled')
+      ).cursor === 'not-allowed';
+      var normalTextCursor = getComputedStyle(
+        root.querySelector('.pt-lr-popup-title')
+      ).cursor !== 'pointer';
+      var mapCursor = getComputedStyle(document.getElementById('map')).cursor;
+      var mapCursorPreserved = mapCursor !== 'pointer' && mapCursor !== 'text';
+      var centerBefore = map.getCenter();
+      var zoomBefore = map.getZoom();
+      tabs[0].dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}));
+      await nextFrame();
+      var keyboardNavigation = selectedKey(root) === 'recommendation' &&
+        document.activeElement === tabs[1];
+      tabs[1].dispatchEvent(new KeyboardEvent('keydown', {key: 'End', bubbles: true}));
+      await nextFrame();
+      var keyboardEnd = selectedKey(root) === 'sources';
+      var mapStable = centerBefore.equals(map.getCenter()) && zoomBefore === map.getZoom();
+      var scroller = root.querySelector('.pt-lr-popup-panel-scroll');
+      var internalScroll = scroller.scrollHeight > scroller.clientHeight &&
+        getComputedStyle(scroller).overflowY === 'auto';
+      var contentRect = popup.querySelector('.leaflet-popup-content').getBoundingClientRect();
+      var cardRect = root.getBoundingClientRect();
+      var stickyRect = root.querySelector('.pt-lr-popup-sticky').getBoundingClientRect();
+      var narrow = window.innerWidth <= 520;
+      var controlVisibility = getComputedStyle(
+        document.querySelector('.leaflet-control-container')
+      ).visibility;
+      var fixedControlsDoNotOverlay = !narrow || controlVisibility === 'hidden';
+      var widthPass = narrow ? contentRect.width <= window.innerWidth - 54 :
+        contentRect.width >= 398 && contentRect.width <= 462;
+      var tabRows = Array.from(new Set(tabs.map(function(tab) {
+        return Math.round(tab.getBoundingClientRect().top);
+      }))).length;
+      var layoutPass = widthPass && cardRect.height <= Math.min(window.innerHeight * 0.72, 620) + 2 &&
+        (narrow ? tabRows === 2 : tabRows === 1) && stickyRect.top >= -1 &&
+        root.scrollWidth <= root.clientWidth + 1;
+
+      popup = await openArea('buffalo-hills', 'management');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var twoOfficePass = root.textContent.indexOf(
+        'Eagle Lake Field Office / Applegate Field Office'
+      ) >= 0;
+      popup = await openArea('red-mountain', 'sources');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var redMountainPass = root.textContent.indexOf('GIS acreage: 0 acres') >= 0 &&
+        root.textContent.indexOf('Approximate geometry-derived anomaly: 317.9 acres') >= 0 &&
+        root.textContent.indexOf('raw source value above remains authoritative') >= 0;
+      var wordingPass = popupHtml(areas[0]).indexOf(escapeHtml(caution)) >= 0 &&
+        popupHtml(areas[0]).indexOf(escapeHtml(fullCaution)) >= 0;
+      var noBlankLabels = !document.querySelector('.pt-lr-popup-label:empty, .pt-lr-popup-section h3:empty');
+      var injectionArea = Object.assign({}, areas[0], {
+        id: 'injection', name: '<img src=x onerror=alert(1)>',
+        office: '<scr' + 'ipt>alert(1)</scr' + 'ipt>'
+      });
+      var injectionHost = document.createElement('div');
+      injectionHost.innerHTML = popupHtml(injectionArea);
+      var injectionSafe = !injectionHost.querySelector('img,script') &&
+        injectionHost.textContent.indexOf('<img src=x onerror=alert(1)>') >= 0;
+
+      window.BRIM.localReferenceController.reset();
+      await nextFrame(); await delay(350);
+      var resetClosesPopup = !document.querySelector('.leaflet-popup');
+      var resetClearsPopupStackingClass = !document.getElementById('map').classList.contains(
+        'pt-lr-tabbed-popup-open'
+      );
+      popup = await openArea('buffalo-hills', 'management');
+      map.fire('overlayremove', {layer: groupRoot, name: groupName});
+      await nextFrame(); await delay(350);
+      var layerOffClosesPopup = !document.querySelector('.leaflet-popup');
+      map.fire('overlayadd', {layer: groupRoot, name: groupName});
+      await nextFrame();
+      popup = await openArea('bitterbrush', 'management');
+      var anotherAreaResetsOverview = selectedKey(
+        (await openArea('red-mountain')).querySelector('[data-pt-lr-tabbed-popup]')
+      ) === 'overview';
+      var onlyOnePopup = document.querySelectorAll('.leaflet-popup').length === 1;
+      var oneFilterCard = document.querySelectorAll(
+        '[data-pt-local-reference-layer="wilderness_study_areas"]'
+      ).length === 1;
+
+      var results = {
+        passed: tabs.length === 4 && panels.length === 4 && initialOverview &&
+          popupStackingClassApplied && resetClearsPopupStackingClass &&
+          fixedControlsDoNotOverlay &&
+          enabledTabCursor && disabledControlCursor && normalTextCursor && mapCursorPreserved && keyboardNavigation &&
+          keyboardEnd && mapStable && internalScroll && layoutPass && twoOfficePass &&
+          redMountainPass && wordingPass && noBlankLabels && injectionSafe && resetClosesPopup &&
+          layerOffClosesPopup && anotherAreaResetsOverview && onlyOnePopup && oneFilterCard,
+        four_tabs_and_panels: tabs.length === 4 && panels.length === 4,
+        overview_default: initialOverview,
+        tabbed_popup_stacking_class_applied: popupStackingClassApplied,
+        reset_clears_popup_stacking_class: resetClearsPopupStackingClass,
+        narrow_fixed_controls_do_not_overlay_popup: fixedControlsDoNotOverlay,
+        enabled_tab_cursor_pointer: enabledTabCursor,
+        disabled_control_cursor_not_allowed: disabledControlCursor,
+        normal_popup_text_not_pointer: normalTextCursor,
+        surrounding_map_cursor_preserved: mapCursorPreserved,
+        keyboard_navigation: keyboardNavigation && keyboardEnd,
+        map_center_zoom_stable_across_tabs: mapStable,
+        internal_scroll: internalScroll,
+        content_width: contentRect.width,
+        card_height: cardRect.height,
+        tab_row_count: tabRows,
+        responsive_layout_passed: layoutPass,
+        two_verified_offices_preserved: twoOfficePass,
+        red_mountain_source_zero_anomaly_preserved: redMountainPass,
+        accepted_cautions_preserved: wordingPass,
+        no_blank_labels_or_headings: noBlankLabels,
+        source_values_cannot_inject_html: injectionSafe,
+        reset_clear_path_closes_popup: resetClosesPopup,
+        layer_off_closes_popup: layerOffClosesPopup,
+        opening_another_wsa_resets_overview: anotherAreaResetsOverview,
+        only_one_popup_active: onlyOnePopup,
+        one_filter_card_after_layer_cycle: oneFilterCard,
+        viewport_width: window.innerWidth,
+        viewport_height: window.innerHeight
+      };
+      window.__PT_WSA_POPUP_DOM_RESULTS__ = results;
+      status.setAttribute('data-results', JSON.stringify(results));
+      status.textContent = results.passed ?
+        'PASS: mounted WSA shared tabbed-popup checks' :
+        'FAIL: mounted WSA shared tabbed-popup checks';
+      status.style.color = results.passed ? '#1E6B45' : '#9A2E20';
+      status.style.fontWeight = '700';
+    } catch (error) {
+      var failure = {passed: false, error: String(error && error.stack || error)};
+      window.__PT_WSA_POPUP_DOM_RESULTS__ = failure;
+      status.setAttribute('data-results', JSON.stringify(failure));
+      status.textContent = 'FAIL: ' + failure.error;
+      status.style.color = '#9A2E20';
+    }
+  }());
+  </script>
+</body>
+</html>

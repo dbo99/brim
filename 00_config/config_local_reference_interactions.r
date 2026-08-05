@@ -6,14 +6,15 @@
 ##
 ## SCOPE:
 ##   This registry intentionally excludes Wild & Scenic Rivers, CalSim3.0,
-##   uploads, External, Ops Live, and BRIM Live. Only Wilderness Study Areas is
-##   executable in the Phase 1 checkpoint; the other ten rows are contracts.
+##   uploads, External, Ops Live, and BRIM Live. Trails and Wilderness Study
+##   Areas are executable in Phase 2; the other nine rows remain contracts.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
 ##   - BLM publication or administration alone never selects BLM symbology.
 ##   - All map and legend colors remain provisional pending realistic visual QA.
 ##   - Category rows carry separate map/legend cartographic tokens.
+##   - Phase 2 enables Trails beside the accepted WSA exemplar.
 
 PT_LOCAL_REFERENCE_LAYER_IDS <- c(
   "national_scenic_historic_trails",
@@ -190,12 +191,12 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
       "nlcs000284", "nlcs000285", "unknown"
     ),
     label = c(
-      "California Historic Trail",
-      "Pony Express Trail",
-      "Old Spanish Trail",
-      "Juan Bautista de Anza Trail",
-      "Pacific Crest Trail",
-      "Butterfield Overland National Historic Trail",
+      "California",
+      "Pony Express",
+      "Old Spanish",
+      "Juan Bautista de Anza",
+      "Pacific Crest",
+      "Butterfield Overland",
       "Unknown trail identity"
     ),
     source_values = c(
@@ -210,7 +211,8 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     fill_opacity = rep(0, 7),
     stroke_weight = c(rep(2.4, 6), 2.1),
     dash_array = rep("", 7),
-    legend_swatch_style = rep("line", 7)
+    legend_swatch_style = rep("line", 7),
+    include_when_absent = c(rep(TRUE, 6), FALSE)
   ),
   national_monuments = PT_LOCAL_REFERENCE_AGENCY_CATEGORIES,
   ca_desert_ncl = pt_local_reference_neutral_categories(),
@@ -322,7 +324,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "Water Districts"
   ),
   implementation_status = c(
-    "registry_contract", "registry_contract", "registry_contract",
+    "phase2_trails", "registry_contract", "registry_contract",
     "phase1_wsa", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract"
@@ -363,12 +365,12 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "metadata_only", "metadata_only", "metadata_only"
   ),
   legend_mode = c(
-    "planned_interactive", "planned_interactive", "none", "interactive",
+    "interactive", "planned_interactive", "none", "interactive",
     "planned_interactive", "none", "none", "planned_interactive", "none",
     "planned_interactive", "none"
   ),
   filter_mode = c(
-    "planned_category_search", "planned_category_search", "none",
+    "category_search", "planned_category_search", "none",
     "category_search", "planned_category_search", "none", "none",
     "planned_category_plus_feature_search", "none",
     "planned_category_search", "none"
@@ -394,51 +396,71 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   primary_count_mode = rep("semantic_feature", 11),
   primary_count_label = c(
-    "National Scenic/Historic Trails", "National Monuments",
+    "trails", "National Monuments",
     "CA Desert National Conservation Lands", "Wilderness Study Areas",
     "Federal Wilderness Areas", "DRECP areas", "ACECs",
     "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
   ),
   show_component_count = rep(FALSE, 11),
+  show_category_count = c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
   component_count_label = c(
     "mapped trail segments", rep("mapped polygon components", 10)
   ),
   category_heading = c(
-    "", "", "", "BLM recommendation for wilderness designation",
+    "Trail", "", "", "BLM recommendation for wilderness designation",
     "", "", "", "", "", "", ""
   ),
+  card_caution = c(
+    paste(
+      "Mapped trail lines are reference representations and do not imply",
+      "a continuous maintained route, public access, or current passability."
+    ),
+    "", "", paste(
+      "Historical recommendation, not current WSA status.",
+      "Management continues under the applicable FLPMA authority;",
+      "verify current plans, closures, and field-office direction."
+    ),
+    "", "", "", "", "", "", ""
+  ),
+  popup_layout = ifelse(
+    PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
+      "national_scenic_historic_trails", "wilderness_study_areas"
+    ),
+    "tabbed_card",
+    "standard"
+  ),
   feature_selection_supported = c(
-    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   feature_selection_mode = c(
-    "none", "none", "none", "semantic_feature_multi",
+    "semantic_feature_multi", "none", "none", "semantic_feature_multi",
     "none", "none", "none", "none", "none", "none", "none"
   ),
   feature_display_field = c(
-    "NLCS_NAME", "NLCS_NAME", "NLCS_NAME", "pt_wsa_name",
+    "pt_trails_official_name", "NLCS_NAME", "NLCS_NAME", "pt_wsa_name",
     "NAME", "", "ACEC_NAME", "ALLOT_NAME", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
-    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   auto_zoom_default = c(
-    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
   preserve_view_on_reset = rep(TRUE, 11),
   retention_enabled = c(
-    FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   stringsAsFactors = FALSE
 )
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
-  c("NLCS_NAME", "NLCS_ID", "TRAIL_TYPE"),
+  c("NLCS_NAME", "NLCS_ID", "NSHT_SGMNT_NO", "TRAIL_TYPE"),
   c("NLCS_NAME", "AGENCY_COD"),
   "NLCS_NAME",
   c("NLCS_NAME", "WSACODE_ca", "CASEFILE_N", "NLCS_ID", "GlobalID"),
@@ -453,10 +475,14 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
 
 ## Search-field contracts are kept separate from the older generic search
 ## matrix because named-feature selection does not treat typing as a map
-## filter. Only WSA enables this capability in Phase 1; the remaining rows are
-## forward contracts for later layer-specific review.
+## filter. Trails and WSA enable this capability in Phase 2; the remaining rows
+## are forward contracts for later layer-specific review.
 LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields <-
   LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields
+LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[1]] <- c(
+  "pt_trails_official_name", "pt_trails_common_name",
+  "pt_trails_abbreviation", "pt_trails_alias_search", "pt_trails_nlcs_id"
+)
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$category_sort_order <- I(lapply(
   PT_LOCAL_REFERENCE_LAYER_IDS,
@@ -467,6 +493,18 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$category_sort_order <- I(lapply(
 ))
 
 PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
+  national_scenic_historic_trails = list(
+    nlcs_id = c("NLCS_ID"),
+    global_id = c("GlobalID", "GLOBALID", "globalid"),
+    name = c("NLCS_NAME"),
+    source_segment = c("NSHT_SGMNT_NO", "NSHT_SGMNT"),
+    trail_type = c("TRAIL_TYPE"),
+    management_agency = c("MNG_AGCY"),
+    admin_state = c("ADMIN_ST"),
+    condition_category = c("NHT_CND_CTGY", "NHT_CND_CT"),
+    create_date = c("CREATE_DAT", "CREATE_DATE"),
+    modify_date = c("MODIFY_DATE", "MODIFY_DAT")
+  ),
   wilderness_study_areas = list(
     nlcs_id = c("NLCS_ID"),
     global_id = c("GlobalID", "GLOBALID", "globalid"),
@@ -482,6 +520,30 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     sma_id = c("SMA_ID"),
     fau_id = c("FAU_ID")
   )
+)
+
+PT_LOCAL_REFERENCE_TRAILS_REFERENCE_PATH <- file.path(
+  "00_config", "local_reference_trails_reference.csv"
+)
+PT_LOCAL_REFERENCE_TRAILS_ALIASES_PATH <- file.path(
+  "00_config", "local_reference_trails_aliases.csv"
+)
+PT_LOCAL_REFERENCE_TRAILS_CURATED_OVERRIDES_PATH <- file.path(
+  "00_config", "local_reference_trails_curated_overrides.csv"
+)
+PT_LOCAL_REFERENCE_TRAILS_NARRATIVE_PROVENANCE_PATH <- file.path(
+  "00_config", "local_reference_trails_narrative_provenance.csv"
+)
+
+PT_LOCAL_REFERENCE_TRAILS_HISTORIC_CAUTION <- paste(
+  "Mapped National Historic Trail lines may represent corridors, alternatives,",
+  "traces, roads, sites, or approximate alignments. They do not imply a",
+  "continuous maintained route, a legal boundary, or public access."
+)
+PT_LOCAL_REFERENCE_TRAILS_SCENIC_CAUTION <- paste(
+  "The Pacific Crest Trail is substantially continuous, but mapped alignment",
+  "does not guarantee current passability. Closures, hazards, permits, and",
+  "land-manager requirements vary; verify current conditions."
 )
 
 PT_LOCAL_REFERENCE_WSA_SEED_PATH <- file.path(

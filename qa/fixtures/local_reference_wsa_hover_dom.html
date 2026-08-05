@@ -235,7 +235,7 @@
 
       var controllerStyle = document.getElementById('pt-local-reference-controller-css');
       var coarsePointerRule = !!controllerStyle &&
-        controllerStyle.textContent.indexOf('@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip{display:none!important}') >= 0;
+        controllerStyle.textContent.indexOf('@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}') >= 0;
       var coarseRuntimeSuppressed = !window.matchMedia('(pointer: coarse)').matches ||
         getComputedStyle(document.createElement('div')).display !== 'block';
 
