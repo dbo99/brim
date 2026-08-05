@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BRIM Trails mounted-tooltip regression fixture</title>
+  <link rel="stylesheet" href="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.css">
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; }
+    #fixture-status {
+      position: fixed; z-index: 10000; right: 8px; bottom: 8px;
+      max-width: calc(100vw - 16px); padding: 6px 8px; border-radius: 4px;
+      background: rgba(255,255,255,.94); font: 12px/1.3 Arial,sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" aria-label="Mounted Trails tooltip test map"></div>
+  <output id="fixture-status" aria-live="polite">Running mounted-tooltip checks…</output>
+  <script src="../../05_map_build/dev_sandbox/delta_ops_sandbox/docs/data/delta_ops_snapshot_preview_v2_files/leaflet-1.3.1/leaflet.js"></script>
+  <script src="../../03_functions/js/brim_local_reference_filter_engine.js"></script>
+  <script>
+  (async function() {
+    'use strict';
+    var status = document.getElementById('fixture-status');
+    var nextFrame = function() {
+      return new Promise(function(resolve) {
+        requestAnimationFrame(function() { requestAnimationFrame(resolve); });
+      });
+    };
+    var waitFor = async function(predicate, attempts) {
+      var remaining = attempts || 60;
+      while (remaining > 0 && !predicate()) {
+        await nextFrame();
+        remaining -= 1;
+      }
+      return predicate();
+    };
+    var escapeHtml = function(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    };
+    var hoverHtml = function(name, designation, administration) {
+      var values = [name, designation, administration];
+      var classes = [
+        'pt-trails-hover-name', 'pt-trails-hover-designation',
+        'pt-trails-hover-administration'
+      ];
+      return '<div class="pt-trails-hover-lines">' + values.map(function(value, index) {
+        return '<div class="pt-trails-hover-line ' + classes[index] + '">' +
+          escapeHtml(value) + '</div>';
+      }).join('') + '</div>';
+    };
+    var inspect = function() {
+      var tooltip = document.querySelector('.leaflet-tooltip.pt-trails-hover-tooltip');
+      if (!tooltip) throw new Error('Leaflet did not mount the Trails tooltip.');
+      var rect = tooltip.getBoundingClientRect();
+      var computed = getComputedStyle(tooltip);
+      return {
+        line_count: tooltip.querySelectorAll('.pt-trails-hover-line').length,
+        no_literal_br: !/<br\s*\/?\s*>|&lt;br/i.test(tooltip.innerHTML + tooltip.textContent),
+        normal_white_space: computed.whiteSpace === 'normal',
+        break_word_wrapping: computed.overflowWrap === 'break-word',
+        normal_word_break: computed.wordBreak === 'normal',
+        width: rect.width,
+        height: rect.height,
+        noncollapsed_width: rect.width >= Math.min(220, window.innerWidth - 32) - 2,
+        responsive_max_width: rect.width <= Math.min(320, window.innerWidth - 32) + 2,
+        no_internal_horizontal_overflow: tooltip.scrollWidth <= tooltip.clientWidth + 1,
+        inside_viewport: rect.left >= -1 && rect.right <= window.innerWidth + 1,
+        reasonable_height: rect.height >= 48 && rect.height <= 145
+      };
+    };
+    var allTrue = function(value) {
+      return Object.keys(value).every(function(key) {
+        if (key === 'width' || key === 'height') return true;
+        if (key === 'line_count') return value[key] === 3;
+        return value[key] === true;
+      });
+    };
+
+    try {
+      var map = L.map('map', {
+        zoomControl: false, attributionControl: false, dragging: false,
+        scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false,
+        keyboard: false
+      }).setView([36, -118], 6);
+      var groupName = 'Reference – National Scenic/Historic Trails';
+      var geometryKey = 'trail:globalid:fixture';
+      var trustedHover = hoverHtml(
+        'Butterfield Overland National Historic Trail',
+        'National Historic Trail · 2023',
+        'Admin: NPS · BLM role not verified'
+      );
+      var popupHtml = '<div class="pt-trails-popup"><b>Butterfield Overland National Historic Trail</b>' +
+        '<div><b>Trail-wide administering agency:</b> National Park Service</div>' +
+        '<div><b>BLM role:</b> Unknown</div>' +
+        '<div>2018 Butterfield Overland Trail Special Resource Study (final)</div></div>';
+      var line = L.polyline([[33, -118], [36, -116], [38, -119]], {
+        layerId: geometryKey, color: '#B54800', weight: 2.4
+      });
+      line.bindTooltip(trustedHover, {
+        direction: 'top', opacity: 0.9, className: 'pt-trails-hover-tooltip', sticky: false
+      });
+      line.bindPopup(popupHtml, {autoPan: false});
+      var groupRoot = L.layerGroup([line]).addTo(map);
+      map.layerManager = {_byGroup: {}, _groupContainers: {}};
+      map.layerManager._byGroup[groupName] = {fixture: line};
+      map.layerManager._groupContainers[groupName] = groupRoot;
+
+      var controllerSource = await fetch(
+        '../../03_functions/js/brim_local_reference_controller.js'
+      ).then(function(response) {
+        if (!response.ok) throw new Error('Could not load production controller.');
+        return response.text();
+      });
+      var installController = (0, eval)('(' + controllerSource + ')');
+      installController.call(map, document.getElementById('map'), {}, [{
+        layer_id: 'national_scenic_historic_trails',
+        display_name: 'National Scenic/Historic Trails',
+        group_name: groupName,
+        auto_supported: true,
+        auto_default: true,
+        feature_selection_supported: true,
+        feature_selection_mode: 'semantic_feature_multi',
+        feature_search_fields: ['pt_trails_official_name', 'pt_trails_alias_search'],
+        feature_display_field: 'pt_trails_official_name',
+        auto_zoom_supported: true,
+        auto_zoom_default: true,
+        zoom_padding: 36,
+        zoom_max: 12,
+        preserve_view_on_reset: true,
+        primary_count_mode: 'semantic_feature',
+        primary_count_label: 'trails',
+        show_component_count: false,
+        show_category_count: false,
+        component_count_label: 'mapped trail segments',
+        category_heading: 'Trail',
+        caution: 'Mapped trail lines are reference representations.',
+        categories: [{
+          category_key: 'nlcs000285', label: 'Butterfield Overland',
+          fill_color: 'transparent', stroke_color: '#B54800', fill_opacity: 0,
+          stroke_weight: 2.4, dash_array: '', legend_swatch_style: 'line'
+        }],
+        features: [{
+          semantic_feature_key: 'trail:nlcs_id:nlcs000285',
+          feature_key: 'trail:nlcs_id:nlcs000285',
+          display_name: 'Butterfield Overland National Historic Trail',
+          category_keys: ['nlcs000285'],
+          search_text: 'butterfield butterfield trail buov nlcs000285',
+          semantic_feature_bounds: [33, -119, 38, -116],
+          geometry_component_count: 11
+        }],
+        records: [{
+          geometry_key: geometryKey,
+          feature_key: 'trail:nlcs_id:nlcs000285',
+          semantic_feature_key: 'trail:nlcs_id:nlcs000285',
+          category_key: 'nlcs000285',
+          geometry_component_count: 11
+        }]
+      }]);
+
+      map.invalidateSize({pan: false});
+      await nextFrame();
+      await nextFrame();
+      var centerBefore = map.getCenter();
+      var zoomBefore = map.getZoom();
+      var sizeBefore = map.getSize();
+      line.openTooltip();
+      await nextFrame();
+      var tooltip = inspect();
+      var stableAfterHover = centerBefore.equals(map.getCenter()) &&
+        zoomBefore === map.getZoom() && sizeBefore.equals(map.getSize());
+
+      var attack = hoverHtml(
+        '<img src=x onerror=alert(1)> National Historic Trail',
+        'National Historic Trail · 1992',
+        'Admin: NPS'
+      );
+      line.setTooltipContent(attack);
+      await nextFrame();
+      var attackNode = document.querySelector('.leaflet-tooltip.pt-trails-hover-tooltip');
+      var injectionSafe = !attackNode.querySelector('img,script') &&
+        attackNode.textContent.indexOf('<img src=x onerror=alert(1)>') >= 0;
+
+      line.setTooltipContent(trustedHover);
+      var centerBeforePopup = map.getCenter();
+      var zoomBeforePopup = map.getZoom();
+      line.openPopup();
+      await nextFrame();
+      var popup = document.querySelector('.leaflet-popup');
+      var popupUnchanged = !!popup &&
+        popup.textContent.indexOf('Trail-wide administering agency: National Park Service') >= 0 &&
+        popup.textContent.indexOf('2018 Butterfield Overland Trail Special Resource Study (final)') >= 0;
+      var stableAfterPopup = centerBeforePopup.equals(map.getCenter()) &&
+        zoomBeforePopup === map.getZoom();
+      var hoverClosedForPopup = await waitFor(function() {
+        return !document.querySelector('.leaflet-tooltip.pt-trails-hover-tooltip');
+      });
+
+      var card = document.querySelector('[data-pt-local-reference-layer="national_scenic_historic_trails"]');
+      var categoryCountHidden = !!card && !card.querySelector('.pt-lr-category-count');
+      var summaryUsesSemanticTrail = !!card &&
+        card.querySelector('.pt-lr-summary').textContent === 'Showing 1 of 1 trails';
+      var noTechnicalCountAbbreviations = !!card && !/\b(rec|sem|geom)\b/.test(card.textContent);
+      var coarseRule = document.getElementById('pt-local-reference-controller-css')
+        .textContent.indexOf('.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}') >= 0;
+
+      var results = {
+        passed: allTrue(tooltip) && stableAfterHover && stableAfterPopup &&
+          injectionSafe && popupUnchanged && hoverClosedForPopup &&
+          categoryCountHidden && summaryUsesSemanticTrail &&
+          noTechnicalCountAbbreviations && coarseRule,
+        tooltip: tooltip,
+        map_center_zoom_size_stable_after_hover: stableAfterHover,
+        map_center_zoom_stable_after_popup: stableAfterPopup,
+        source_values_cannot_inject_html: injectionSafe,
+        popup_regression_passed: popupUnchanged,
+        popup_closes_hover: hoverClosedForPopup,
+        category_row_count_hidden: categoryCountHidden,
+        semantic_summary: summaryUsesSemanticTrail,
+        no_technical_count_abbreviations: noTechnicalCountAbbreviations,
+        coarse_pointer_rule_present: coarseRule,
+        viewport_width: window.innerWidth
+      };
+      window.__PT_TRAILS_HOVER_DOM_RESULTS__ = results;
+      status.setAttribute('data-results', JSON.stringify(results));
+      status.textContent = results.passed ?
+        'PASS: mounted Trails tooltip DOM checks' :
+        'FAIL: mounted Trails tooltip DOM checks';
+      status.style.color = results.passed ? '#1E6B45' : '#9A2E20';
+      status.style.fontWeight = '700';
+    } catch (error) {
+      var failure = {passed: false, error: String(error && error.stack || error)};
+      window.__PT_TRAILS_HOVER_DOM_RESULTS__ = failure;
+      status.setAttribute('data-results', JSON.stringify(failure));
+      status.textContent = 'FAIL: ' + failure.error;
+      status.style.color = '#9A2E20';
+    }
+  }());
+  </script>
+</body>
+</html>

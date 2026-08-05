@@ -1,0 +1,7 @@
+"category_key","label","source_values","fill_color","stroke_color","fill_opacity","stroke_weight","dash_array","legend_swatch_style","sort_order","include_when_absent","provisional"
+"nlcs000280","California","NLCS000280","transparent","#8C510A",0,2.4,"","line",1,TRUE,TRUE
+"nlcs000281","Pony Express","NLCS000281","transparent","#C51B7D",0,2.4,"","line",2,TRUE,TRUE
+"nlcs000282","Old Spanish","NLCS000282","transparent","#6A3D9A",0,2.4,"","line",3,TRUE,TRUE
+"nlcs000283","Juan Bautista de Anza","NLCS000283","transparent","#006D77",0,2.4,"","line",4,TRUE,TRUE
+"nlcs000284","Pacific Crest","NLCS000284","transparent","#2166AC",0,2.4,"","line",5,TRUE,TRUE
+"nlcs000285","Butterfield Overland","NLCS000285","transparent","#B54800",0,2.4,"","line",6,TRUE,TRUE

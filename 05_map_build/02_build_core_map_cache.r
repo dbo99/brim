@@ -28,10 +28,12 @@
 source("00_config/config_paths.r")
 source("00_config/config_run_flags.r")
 source("00_config/config_source_files.r")
+source("00_config/config_local_reference_interactions.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
+source("03_functions/local_reference_interaction_helpers.r")
 
 # ==== 2. Load packages =======================================================
 
@@ -43,6 +45,8 @@ suppressPackageStartupMessages({
   library(htmltools)
   library(rmapshaper)
 })
+
+pt_validate_local_reference_config()
 
 # ==== 3. User-facing switches ================================================
 

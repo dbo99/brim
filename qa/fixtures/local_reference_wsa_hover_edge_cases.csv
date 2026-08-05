@@ -1,0 +1,9 @@
+case_id,name,flpma_section,recommendation_label,source_gis_acres,managing_office,viewport_width,expected_semantic_lines,expected_compact_office,unbroken_name
+long_name,Sawtooth Mountains C Wilderness Study Area,603,No recommendation,101400.3,,320,2,,FALSE
+two_verified_offices,Buffalo Hills Wilderness Study Area,603,Recommended non-suitable,47510.7,Eagle Lake Field Office / Applegate Field Office,280,3,Eagle Lake / Applegate,FALSE
+long_word_wrapping,Sawtooth Mountains C and Northern California Desert Foothills Wilderness Study Area,202,Recommended suitable,1234.5,,240,2,,FALSE
+narrow_viewport,Red Mountain,,Not stated,0,,160,2,,FALSE
+small_area,Small Valid Wilderness Study Area,202,No recommendation,307.2,,220,2,,FALSE
+very_small_area,Very Small Valid Wilderness Study Area,202,No recommendation,23.04,,220,2,,FALSE
+null_area,Blank Acreage Wilderness Study Area,603,Recommended suitable,,,220,2,,FALSE
+nonnumeric_area,Nonnumeric Acreage Wilderness Study Area,603,Recommended suitable,not available,,220,2,,FALSE

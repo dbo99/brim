@@ -24,8 +24,10 @@
 
 source("00_config/config_paths.r")
 source("00_config/config_source_files.r")
+source("00_config/config_local_reference_interactions.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
+source("03_functions/local_reference_interaction_helpers.r")
 
 # ==== 2. Load packages =======================================================
 
@@ -41,6 +43,34 @@ suppressPackageStartupMessages({
 
 WRITE_QA <- TRUE
 RUN_TS <- make_timestamp()
+
+## Optional focused execution for a reviewed subset. The normal default remains
+## the full manifest; reviewed Local Reference phases can run only their
+## approved source row, for example:
+##   options(brim.reference_layer_nicknames = "wildernessstudyarea")
+##   options(brim.reference_layer_nicknames = "trails")
+REFERENCE_LAYER_NICKNAMES <- getOption(
+  "brim.reference_layer_nicknames",
+  NULL
+)
+
+## Optional explicit source paths for reviewed, isolated inputs that should not
+## be copied into the normal raw-data tree. Keys are manifest nicknames. This
+## remains opt-in; normal batch preprocessing still uses the manifest folder
+## and filename unchanged.
+REFERENCE_LAYER_SOURCE_OVERRIDES <- getOption(
+  "brim.reference_layer_source_overrides",
+  list()
+)
+if (!is.list(REFERENCE_LAYER_SOURCE_OVERRIDES) ||
+    (length(REFERENCE_LAYER_SOURCE_OVERRIDES) &&
+      (is.null(names(REFERENCE_LAYER_SOURCE_OVERRIDES)) ||
+        any(!nzchar(names(REFERENCE_LAYER_SOURCE_OVERRIDES))) ||
+        anyDuplicated(names(REFERENCE_LAYER_SOURCE_OVERRIDES))))) {
+  stop("Reference-layer source overrides must be a uniquely named list.")
+}
+
+pt_validate_local_reference_config()
 
 # ==== 4. Helper functions ====================================================
 
@@ -127,6 +157,34 @@ manifest <- readr::read_csv(
     display_name  = pt_reference_display_name(.data$nickname)
   )
 
+unknown_source_overrides <- setdiff(
+  names(REFERENCE_LAYER_SOURCE_OVERRIDES),
+  manifest$nickname
+)
+if (length(unknown_source_overrides)) {
+  stop(
+    "Reference-layer source override requested unknown nickname(s): ",
+    paste(unknown_source_overrides, collapse = ", ")
+  )
+}
+
+if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
+  requested_nicknames <- unique(trimws(as.character(REFERENCE_LAYER_NICKNAMES)))
+  requested_nicknames <- requested_nicknames[nzchar(requested_nicknames)]
+  unknown_nicknames <- setdiff(requested_nicknames, manifest$nickname)
+  if (length(unknown_nicknames)) {
+    stop(
+      "Focused reference-layer run requested unknown nickname(s): ",
+      paste(unknown_nicknames, collapse = ", ")
+    )
+  }
+  manifest <- manifest[manifest$nickname %in% requested_nicknames, , drop = FALSE]
+  message(
+    "Focused reference-layer run: ",
+    paste(manifest$nickname, collapse = ", ")
+  )
+}
+
 if (any(is.na(manifest$nickname) | manifest$nickname == "")) {
   stop("Manifest contains blank nickname values.")
 }
@@ -151,6 +209,15 @@ for (i in seq_len(nrow(manifest))) {
   row <- manifest[i, , drop = FALSE]
   
   raw_path <- file.path(DIR$raw, row$folder, row$filename)
+  source_override <- REFERENCE_LAYER_SOURCE_OVERRIDES[[row$nickname]]
+  if (!is.null(source_override)) {
+    source_override <- trimws(as.character(source_override))
+    if (length(source_override) != 1L || !nzchar(source_override)) {
+      stop("Source override for ", row$nickname, " must be one nonblank path.")
+    }
+    raw_path <- normalizePath(source_override, winslash = "/", mustWork = FALSE)
+    message("Using reviewed source override for ", row$nickname, ": ", raw_path)
+  }
   
   if (!file.exists(raw_path)) {
     stop("Missing shapefile for reference layer ", row$nickname, ": ", raw_path)
@@ -163,12 +230,25 @@ for (i in seq_len(nrow(manifest))) {
   raw <- sf::st_read(raw_path, quiet = TRUE)
   
   popup_fields <- pt_parse_popup_fields(row$popup)
+
+  retained_interaction_fields <- if (
+    row$nickname %in% LOCAL_REFERENCE_INTERACTION_REGISTRY$source_nickname
+  ) {
+    pt_local_reference_retained_source_fields(
+      source_nickname = row$nickname,
+      available_fields = names(raw),
+      require_all = TRUE
+    )
+  } else {
+    character(0)
+  }
   
   required_fields <- unique(na.omit(c(
     row$namecolumn,
     row$colorbycolumn,
     row$label_field,
-    popup_fields
+    popup_fields,
+    retained_interaction_fields
   )))
   
   missing_fields <- setdiff(required_fields, names(raw))
@@ -224,6 +304,30 @@ for (i in seq_len(nrow(manifest))) {
       pt_simplify_keep = row$simplify_keep,
       source           = "Reference layer"
     )
+
+  if (row$nickname == "trails") {
+    layer <- pt_prepare_local_reference_trails(
+      layer,
+      validate_snapshot = TRUE,
+      build_display = FALSE
+    )
+    pt_write_local_reference_trails_qa(
+      layer,
+      output_dir = DIR$qa,
+      prefix = paste0("local_reference_trails_", RUN_TS)
+    )
+  } else if (row$nickname == "wildernessstudyarea") {
+    layer <- pt_prepare_local_reference_wsa(
+      layer,
+      validate_snapshot = TRUE,
+      build_display = FALSE
+    )
+    pt_write_local_reference_wsa_qa(
+      layer,
+      output_dir = DIR$qa,
+      prefix = paste0("local_reference_wsa_", RUN_TS)
+    )
+  }
   
   base_name <- paste0("reference_", row$nickname, "_wgs84")
   
