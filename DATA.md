@@ -1,81 +1,108 @@
-# BRIM data guide
+# BRIM data governance
 
-## Data tiers
+## Data classes
 
-1. **Tracked source and curated inputs** — code, configuration, reviewed
-   decision tables, small provenance files, and representative fixtures.
-2. **External production inputs** — large raw rasters, shapefiles, GDBs,
-   GeoPackages, and downloaded observations.
-3. **External derived products** — production RDS/GPKG files and map caches.
-4. **Generated products** — final HTML, QA figures, sandbox maps, and logs.
+1. **Tracked authored source** — code, registries, compact configuration, controlled tokens, reviewed crosswalks, small curated inputs, tests, and documentation.
+2. **External raw inputs** — downloaded services, shapefiles, GDBs, rasters, archives, observations, and source snapshots too large or inappropriate for normal Git.
+3. **External processed products** — standardized RDS/GPKG/GeoJSON products, analysis outputs, and map-ready geometries.
+4. **Caches** — assembled map/cache objects derived from retained processed products.
+5. **Generated review/release artifacts** — realistic/final HTML, QA maps, screenshots, reports, logs, and rollback packages.
+6. **Research packages** — workbooks/ZIPs/source registers used as evidence and curated-input candidates; not production geometry or code authority.
 
-The complete exclusions are listed in `EXTERNAL_DATA_MANIFEST.csv`.
+`EXTERNAL_DATA_MANIFEST.csv` records excluded external products. Absence from Git does not make a dataset optional.
 
-## Major water-supply basin external geometry
+## Source authority
 
-Phase B2 tracks only reviewed manifests and configuration. The official
-`CBRFC_Basins` shapefile family, `CBRFC_Outlets.zip`, original WBD HUC2 14/15
-archives, retained California RDS inputs, generated 23-feature RDS/cache files,
-QA CSVs, and rendered PNGs remain external. Their expected sizes, hashes,
-feature counts, schemas, CRS, URLs, and timestamps are recorded in
-`00_config/major_water_supply_basin_source_manifest.csv` and the focused QA
-provenance. Do not commit these raw or generated geospatial products. The large
-CBRFC zones archive is intentionally not a dependency.
+For each layer, explicitly identify:
 
-## UIC aquifer-exemption products
+- authoritative geometry/source object;
+- semantic feature key;
+- geometry/record/audit key;
+- raw source attributes;
+- curated enrichment source;
+- source date/version/service;
+- processing lineage;
+- current map/cache child.
 
-The controlled UIC pipeline writes generated data only to ignored tiers:
+BRIM local source geometry and raw fields outrank research-package geometry or prebuilt popup content unless a reviewed migration explicitly replaces the source.
 
-- `01_raw_data/uic_aquifer_exemptions/raw_snapshots/<snapshot_id>/` —
-  timestamped immutable raw source snapshots;
-- `04_processed_data/uic_aquifer_exemptions/candidate/<candidate_id>/` —
-  full standardized, map-ready, label, metadata, comparison, and QA products;
-- `04_processed_data/uic_aquifer_exemptions/approved/` — an explicitly
-  approved comparison baseline for the controlled research workflow;
-- `04_processed_data/uic_aquifer_exemptions/archive/` — prior approved
-  products retained for rollback;
-- `04_processed_data/uic_aquifer_exemptions/checks/` and `qa/` — current
-  service status, difference reports, and standalone review maps.
+## Identity and joins
 
-The repository tracks only the pipeline code and configuration. Do not commit
-downloaded UIC GeoJSON, RDS products, approval archives, or sandbox/final HTML.
-The normal BRIM build reads none of these products. Production polygons and
-EPA reference points are authoritative External rows fetched on demand in the
-browser. EPA county-location records remain retrieval/QA products only because
-their county geometry is not an aquifer-exemption boundary.
+- Use durable semantic identifiers when available.
+- Keep semantic identity separate from geometry components, service OBJECTIDs, row numbers, and GlobalIDs that may change on republication.
+- Preserve raw source names; store standardized display names and aliases separately.
+- Exact ID joins are preferred.
+- Name normalization may produce reviewed candidates but must not silently become a production join.
+- Fuzzy joins require an explicit allowlist/manual review and QA evidence.
+- Report completeness, uniqueness, duplicates, unmatched source rows, unmatched enrichment rows, and fallback keys.
 
-## Curated SWRCB correction input
+## Raw versus curated values
 
-The small SWRCB BLM water-right correction CSV is tracked because the core
-cache build stops rather than silently dropping its official membership and
-face-value corrections.
+Never overwrite a raw source field with curated text.
 
-## Curated Bulletin 118 SGMA crosswalk
+Curated values must retain:
 
-`00_config/bulletin118_sgma_2019_priority_crosswalk.csv` is a tracked,
-attribute-only snapshot of DWR's final 2019 SGMA basin-prioritization table.
-It contains 515 basin/subbasin codes, normalized priority, source OBJECTID,
-service URL, and access date. It contains no geometry. Refresh it only with
-`02_preprocess/68_refresh_bulletin118_sgma_2019_priority.R`; that script
-requires the exact published 515-row and 46/48/11/410 category contracts before
-overwriting the tracked crosswalk.
+- semantic key;
+- target field;
+- raw/source value;
+- proposed display value;
+- evidence title/URL;
+- verification date;
+- provenance class;
+- confidence/review status;
+- limitation note.
 
-## Updating BLM land status
+Unknown, blank, not applicable, not found, and unresolved must remain distinguishable.
 
-For a replacement BLM-California land-status shapefile:
+## Management and jurisdiction
 
-1. Place the full shapefile family under `01_raw_data/blm/` in a production
-   or reproducibility checkout.
-2. Update `SRC$blm_fedlands` in `00_config/config_source_files.r`.
-3. Run `02_preprocess/01_blm_managed_and_held.r`.
-4. Refresh every downstream BLM-derived percentage, distance, clipping, and
-   conveyance field before rebuilding the map.
+Do not infer management authority from:
 
-The current convenience helper refreshes the principal BLM map layer but is
-not yet a complete orchestration runner for every downstream dependency.
+- agency publication of a GIS service;
+- a generic `MNG_AGCY` field without context;
+- spatial intersection alone;
+- a partner association;
+- broad program participation.
 
-## Data policy
+Separate designation authority, administering agency, local managing agency, co-management, BLM role, responsible office, intersecting offices, and data stewardship. Claims need evidence and confidence.
 
-Do not commit production geospatial inputs or generated map caches to normal
-Git history. Keep them in the active/reproducibility project, documented
-external storage, or a controlled data-release mechanism.
+## Geometry and area
+
+For every spatial workflow record:
+
+- source and working CRS;
+- geometry type;
+- empty/valid status;
+- feature, geometry-record, multipart, part/ring, and semantic counts separately;
+- repairs/simplification/generalization rules;
+- before/after area/length and guardrails;
+- sliver/hole/overlap treatment;
+- source versus calculated area provenance.
+
+Calculated area is not official acreage unless an authoritative source says so. Preserve native source values and label geometry-derived estimates clearly.
+
+Canonical/full-resolution geometry must remain separate from display-optimized geometry. Simplification, clipping, dissolving, and repair must be deterministic, documented, and tested.
+
+## Cache ownership
+
+A shared cache is not a license to rewrite unrelated children.
+
+- Identify the owned child.
+- Hash all siblings before and after a focused refresh.
+- Require unchanged siblings unless the task explicitly owns them.
+- Treat an idempotent no-op as success when the resulting child is byte-identical.
+- Do not copy broad cache directories into source or production.
+
+## External services and live data
+
+Record endpoint, layer ID, schema, query/filter, batching, timestamp, failure retention, fallback behavior, and user-visible currency. Do not make startup network requests for default-off External layers unless the architecture explicitly requires it.
+
+The live-feed generator is a separate repository; see `08_docs/integrations/LIVE_DATA_FEEDS.md`.
+
+## Git policy
+
+Do not commit large raw/processed geospatial data, caches, realistic/final HTML, browser downloads, screenshots, logs, secrets, or machine-specific paths unless an explicit tracked contract and repository-size policy approve the file.
+
+Small tracked fixtures must be labeled non-authoritative and must not be silently substituted for production inputs.
+
+Feature-specific data inventories and pipeline details belong in focused feature/pipeline documentation, not this root policy.
