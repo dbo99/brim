@@ -16,15 +16,21 @@ function(el, x, data) {
   var domListenerRecords = [];
   var controllers = [];
   var destroyed = false;
+  var tabbedPopupLayoutState = null;
 
   function listen(target, names, handler) {
     target.on(names, handler);
     listenerRecords.push({target: target, names: names, handler: handler});
   }
 
-  function listenDom(target, name, handler) {
-    target.addEventListener(name, handler);
-    domListenerRecords.push({target: target, name: name, handler: handler});
+  function listenDom(target, name, handler, options) {
+    target.addEventListener(name, handler, options);
+    domListenerRecords.push({
+      target: target,
+      name: name,
+      handler: handler,
+      options: options
+    });
   }
 
   function escapeHtml(value) {
@@ -98,8 +104,9 @@ function(el, x, data) {
       '.pt-local-reference-tabbed-popup-card{display:flex;max-height:min(72vh,620px);min-height:0;flex-direction:column;overflow:hidden;color:#272727;font:12px/1.4 Arial,sans-serif}.pt-lr-popup-sticky{position:sticky;top:0;z-index:2;flex:0 0 auto;background:#fff}.pt-lr-popup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:2px 1px 9px}.pt-lr-popup-title{font-size:15px;font-weight:700;line-height:1.2}.pt-lr-popup-badge{flex:0 0 auto;padding:2px 6px;border:1px solid #8d8370;border-radius:10px;background:#f4eee1;color:#493f31;font-size:10px;line-height:1.25;white-space:nowrap}' +
       '.pt-lr-popup-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;border-bottom:1px solid #8f8778}.pt-lr-popup-tab{min-width:0;padding:6px 4px;border:1px solid transparent;border-bottom:0;border-radius:4px 4px 0 0;background:#eee8dc;color:#3d3933;font:600 11px/1.2 Arial,sans-serif;white-space:normal;cursor:pointer}.pt-lr-popup-tab[aria-selected=true]{border-color:#8f8778;background:#fff;color:#171717}.pt-lr-popup-tab:focus-visible{outline:3px solid #1d6fa5;outline-offset:-2px}' +
       '.pt-local-reference-tabbed-popup-card button:enabled,.pt-local-reference-tabbed-popup-card summary{cursor:pointer}.pt-local-reference-tabbed-popup-card button:disabled{cursor:not-allowed}' +
-      '.pt-lr-popup-panel-scroll{height:min(54vh,450px);min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.pt-lr-popup-panel{padding:9px 2px 4px}.pt-lr-popup-panel[hidden]{display:none!important}.pt-lr-popup-summary,.pt-lr-popup-panel p{margin:0 0 8px}.pt-lr-popup-row{margin:3px 0}.pt-lr-popup-label,.pt-lr-popup-evidence>span,.pt-trails-caution>span{font-weight:700}.pt-lr-popup-section{margin-top:10px}.pt-lr-popup-section h3{margin:0 0 4px;color:#3e392f;font-size:12px;line-height:1.25}.pt-lr-popup-narrative{padding-top:2px;border-top:1px solid rgba(82,72,45,.18)}.pt-lr-narrative-source{margin-top:3px;color:#5c574f;font-size:10.5px}.pt-lr-narrative-source span{font-weight:700}.pt-lr-popup-evidence{margin-top:7px}.pt-lr-popup-resource-list{margin:0;padding-left:19px}.pt-lr-popup-resource-list li{margin:4px 0}.pt-lr-popup-note{margin:1px 0 4px;color:#5b5650;font-size:10.5px}.pt-trails-popup .pt-trails-caution{margin-top:9px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-trails-popup .pt-popup-technical{margin-top:10px;padding-top:6px;border-top:1px solid rgba(82,72,45,.2)}' +
-      '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{height:min(50vh,390px)}}' +
+      '.pt-lr-popup-panel-scroll{height:var(--pt-lr-popup-panel-height,auto);min-height:0;max-height:min(54vh,450px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.pt-lr-popup-panel{padding:9px 2px 4px}.pt-lr-popup-panel[hidden]{display:none!important}.pt-lr-popup-summary,.pt-lr-popup-panel p{margin:0 0 8px}.pt-lr-popup-row{margin:3px 0}.pt-lr-popup-label,.pt-lr-popup-evidence>span,.pt-trails-caution>span{font-weight:700}.pt-lr-popup-section{margin-top:10px}.pt-lr-popup-section h3{margin:0 0 4px;color:#3e392f;font-size:12px;line-height:1.25}.pt-lr-popup-narrative{padding-top:2px;border-top:1px solid rgba(82,72,45,.18)}.pt-lr-narrative-source{margin-top:3px;color:#5c574f;font-size:10.5px}.pt-lr-narrative-source span{font-weight:700}.pt-lr-popup-evidence{margin-top:7px}.pt-lr-popup-resource-list{margin:0;padding-left:19px}.pt-lr-popup-resource-list li{margin:4px 0}.pt-lr-popup-note{margin:1px 0 4px;color:#5b5650;font-size:10.5px}.pt-trails-popup .pt-trails-caution{margin-top:9px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-trails-popup .pt-popup-technical{margin-top:10px;padding-top:6px;border-top:1px solid rgba(82,72,45,.2)}' +
+      '.pt-local-reference-tabbed-popup-card.pt-lr-popup-measuring{visibility:hidden!important}.pt-lr-popup-measuring .pt-lr-popup-panel-scroll{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}' +
+      '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{max-height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
       '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
@@ -107,6 +114,155 @@ function(el, x, data) {
 
   function popupRoot(node) {
     return node && node.closest ? node.closest('[data-pt-lr-tabbed-popup]') : null;
+  }
+
+  function cleanupTabbedPopupLayout() {
+    var state = tabbedPopupLayoutState;
+    tabbedPopupLayoutState = null;
+    if (!state) return;
+    if (state.resizeTimer !== null) window.clearTimeout(state.resizeTimer);
+    if (state.settleTimer !== null) window.clearTimeout(state.settleTimer);
+    if (state.frameOne !== null) window.cancelAnimationFrame(state.frameOne);
+    if (state.frameTwo !== null) window.cancelAnimationFrame(state.frameTwo);
+    if (state.resizeObserver) state.resizeObserver.disconnect();
+  }
+
+  function tallestNaturalPanelHeight(root, scroller) {
+    if (!scroller) return 0;
+    var panels = Array.prototype.slice.call(
+      scroller.querySelectorAll('[role="tabpanel"][data-pt-lr-popup-panel]')
+    );
+    if (!panels.length) return 0;
+    var panelStates = panels.map(function(panel) { return panel.hidden; });
+    var wasMeasuring = root.classList.contains('pt-lr-popup-measuring');
+    var tallest = 0;
+    try {
+      // All state changes are synchronous within one frame. Hiding the live
+      // card prevents a panel flash while each populated tab is measured at
+      // its natural height; no Leaflet pan/zoom event is involved.
+      root.classList.add('pt-lr-popup-measuring');
+      panels.forEach(function(panel) { panel.hidden = true; });
+      panels.forEach(function(panel) {
+        panel.hidden = false;
+        tallest = Math.max(
+          tallest,
+          panel.scrollHeight,
+          panel.getBoundingClientRect().height
+        );
+        panel.hidden = true;
+      });
+    } finally {
+      panels.forEach(function(panel, index) { panel.hidden = panelStates[index]; });
+      if (!wasMeasuring) root.classList.remove('pt-lr-popup-measuring');
+    }
+    return Math.ceil(tallest);
+  }
+
+  function applyTabbedPopupLayout(state) {
+    if (!state || state !== tabbedPopupLayoutState || !state.root.isConnected) return false;
+    var root = state.root;
+    var scroller = root.querySelector('.pt-lr-popup-panel-scroll');
+    if (!scroller) return false;
+    var width = scroller.getBoundingClientRect().width;
+    if (!(width > 0)) return false;
+    var naturalHeight = tallestNaturalPanelHeight(root, scroller);
+    if (!(naturalHeight > 0)) return false;
+    var cap = parseFloat(window.getComputedStyle(scroller).maxHeight);
+    if (!(cap > 0)) cap = 450;
+    var floor = Math.min(112, cap);
+    var target = Math.ceil(Math.max(floor, Math.min(naturalHeight + 1, cap)));
+    root.style.setProperty('--pt-lr-popup-panel-height', target + 'px');
+    root.setAttribute('data-pt-lr-popup-layout-ready', 'true');
+    root.setAttribute('data-pt-lr-popup-natural-height', String(naturalHeight));
+    root.setAttribute('data-pt-lr-popup-target-height', String(target));
+    root.setAttribute('data-pt-lr-popup-height-cap', String(Math.round(cap * 1000) / 1000));
+    state.lastWidth = width;
+    return true;
+  }
+
+  function applyInitialTabbedPopupLayout(state) {
+    var applied = applyTabbedPopupLayout(state);
+    if (applied && !state.initialPositionUpdated && state.popup) {
+      state.initialPositionUpdated = true;
+      // Leaflet initially positions the popup before the content-driven panel
+      // height is known. Refresh layout and position without update(), which
+      // would rebuild string-backed popup content and discard the measured
+      // card, then apply Leaflet's existing open-time auto-pan rules once.
+      if (state.popup._updateLayout) state.popup._updateLayout();
+      if (state.popup._updatePosition) state.popup._updatePosition();
+      if (state.popup.options.autoPan !== false && state.popup._adjustPan) {
+        state.popup._adjustPan();
+      }
+    }
+    return applied;
+  }
+
+  function scheduleTabbedPopupLayout(state, delay) {
+    if (!state || state !== tabbedPopupLayoutState) return;
+    if (state.resizeTimer !== null) window.clearTimeout(state.resizeTimer);
+    state.resizeTimer = window.setTimeout(function() {
+      state.resizeTimer = null;
+      state.frameOne = window.requestAnimationFrame(function() {
+        state.frameOne = null;
+        state.frameTwo = window.requestAnimationFrame(function() {
+          state.frameTwo = null;
+          applyInitialTabbedPopupLayout(state);
+        });
+      });
+    }, Math.max(0, Number(delay) || 0));
+  }
+
+  function startTabbedPopupLayout(root, popup) {
+    cleanupTabbedPopupLayout();
+    if (!root) return;
+    var state = {
+      root: root,
+      lastWidth: 0,
+      resizeTimer: null,
+      settleTimer: null,
+      frameOne: null,
+      frameTwo: null,
+      resizeObserver: null,
+      popup: popup,
+      initialPositionUpdated: false
+    };
+    tabbedPopupLayoutState = state;
+    if (!applyInitialTabbedPopupLayout(state)) scheduleTabbedPopupLayout(state, 0);
+    state.settleTimer = window.setTimeout(function() {
+      state.settleTimer = null;
+      scheduleTabbedPopupLayout(state, 0);
+    }, 120);
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(function() {
+        if (state === tabbedPopupLayoutState) scheduleTabbedPopupLayout(state, 0);
+      });
+    }
+    if (window.ResizeObserver) {
+      state.resizeObserver = new window.ResizeObserver(function(entries) {
+        if (state !== tabbedPopupLayoutState || !entries.length) return;
+        var width = entries[0].contentRect.width;
+        if (Math.abs(width - state.lastWidth) > 1) scheduleTabbedPopupLayout(state, 60);
+      });
+      state.resizeObserver.observe(root.querySelector('.pt-lr-popup-panel-scroll'));
+    }
+  }
+
+  function onTabbedPopupViewportResize() {
+    var state = tabbedPopupLayoutState;
+    if (!state || !state.root.isConnected) return;
+    scheduleTabbedPopupLayout(state, 80);
+  }
+
+  function onTabbedPopupDetailsToggle(event) {
+    var details = event && event.target;
+    if (!details || String(details.tagName || '').toLowerCase() !== 'details') return;
+    var root = popupRoot(details);
+    var state = tabbedPopupLayoutState;
+    if (!root || !state || state.root !== root) return;
+    // Native details toggles update their open state before this event. Two
+    // animation frames let the collapsed/expanded layout settle before all
+    // populated panels are measured again at the current popup width.
+    scheduleTabbedPopupLayout(state, 0);
   }
 
   function activatePopupTab(root, tab, moveFocus) {
@@ -183,9 +339,17 @@ function(el, x, data) {
       if (tabbed) el.classList.add('pt-lr-tabbed-popup-open');
       else el.classList.remove('pt-lr-tabbed-popup-open');
     }
+    if (tabbed) {
+      startTabbedPopupLayout(
+        container.querySelector('[data-pt-lr-tabbed-popup]'),
+        event.popup
+      );
+    }
+    else cleanupTabbedPopupLayout();
   }
 
   function onAnyPopupClose() {
+    cleanupTabbedPopupLayout();
     if (el && el.classList) el.classList.remove('pt-lr-tabbed-popup-open');
   }
 
@@ -206,6 +370,7 @@ function(el, x, data) {
     var chipList = null;
     var suggestions = [];
     var activeSuggestionIndex = -1;
+    var suggestionCloseTimer = null;
     var hiddenByClose = false;
     var active = !!(groupRoot && map.hasLayer && map.hasLayer(groupRoot));
     var primaryCountMode = String(layerData.primary_count_mode || 'semantic_feature');
@@ -219,6 +384,8 @@ function(el, x, data) {
     var safeLayerId = String(layerData.layer_id || 'layer').replace(/[^A-Za-z0-9_-]/g, '-');
     var searchId = 'pt-lr-search-' + safeLayerId;
     var listboxId = 'pt-lr-listbox-' + safeLayerId;
+    var diagnosticPrefix = 'data-pt-lr-' + safeLayerId + '-';
+    var teardownCount = 0;
 
     layerData.records.forEach(function(record) {
       recordByGeometry[String(record.geometry_key)] = record;
@@ -233,8 +400,56 @@ function(el, x, data) {
       return !!(groupRoot && groupRoot.hasLayer && groupRoot.hasLayer(layer));
     }
 
+    function ownedLayers() {
+      return Object.keys(layerByGeometry).map(function(key) {
+        return layerByGeometry[key];
+      });
+    }
+
+    function groupMemberCount() {
+      return groupRoot && typeof groupRoot.getLayers === 'function' ?
+        groupRoot.getLayers().length : ownedLayers().filter(rootHas).length;
+    }
+
+    function attachedOwnedLayerCount() {
+      return ownedLayers().filter(function(layer) {
+        return !!(map.hasLayer && map.hasLayer(layer));
+      }).length;
+    }
+
+    function writeDiagnostics(snapshot) {
+      if (!el || !el.setAttribute) return;
+      var showing = snapshot && snapshot.counts ? snapshot.counts.currently_showing : null;
+      el.setAttribute(diagnosticPrefix + 'active', active ? 'true' : 'false');
+      el.setAttribute(
+        diagnosticPrefix + 'semantic-count',
+        String(active && showing ? Number(showing.semantic_feature_count || 0) : 0)
+      );
+      el.setAttribute(
+        diagnosticPrefix + 'component-count',
+        String(active && showing ? Number(showing.geometry_component_count || 0) : 0)
+      );
+      el.setAttribute(diagnosticPrefix + 'attached-layer-count', String(attachedOwnedLayerCount()));
+      el.setAttribute(diagnosticPrefix + 'group-member-count', String(groupMemberCount()));
+      el.setAttribute(diagnosticPrefix + 'card-count', card ? '1' : '0');
+      el.setAttribute(
+        diagnosticPrefix + 'pending-callback-count',
+        suggestionCloseTimer === null ? '0' : '1'
+      );
+    }
+
+    function clearDiagnostics() {
+      if (!el || !el.removeAttribute) return;
+      [
+        'active', 'semantic-count', 'component-count', 'attached-layer-count',
+        'group-member-count', 'card-count', 'pending-callback-count'
+      ].forEach(function(name) {
+        el.removeAttribute(diagnosticPrefix + name);
+      });
+    }
+
     function reconcileLayers(snapshot) {
-      if (!groupRoot) return;
+      if (!active || !groupRoot) return;
       var visible = Object.create(null);
       snapshot.visible_geometry_keys.forEach(function(key) {
         visible[String(key)] = true;
@@ -297,6 +512,10 @@ function(el, x, data) {
     }
 
     function closeSuggestions() {
+      if (suggestionCloseTimer !== null) {
+        window.clearTimeout(suggestionCloseTimer);
+        suggestionCloseTimer = null;
+      }
       suggestions = [];
       activeSuggestionIndex = -1;
       if (suggestionList) {
@@ -446,6 +665,7 @@ function(el, x, data) {
           snapshot.counts.currently_showing.geometry_component_count + ' ' +
           componentCountLabel + '.';
       }
+      writeDiagnostics(snapshot);
       if (zoomAction) maybeAutoZoom(snapshot, zoomAction);
     }
 
@@ -489,7 +709,11 @@ function(el, x, data) {
         }
       });
       searchInput.addEventListener('blur', function() {
-        setTimeout(closeSuggestions, 120);
+        if (suggestionCloseTimer !== null) window.clearTimeout(suggestionCloseTimer);
+        suggestionCloseTimer = window.setTimeout(function() {
+          suggestionCloseTimer = null;
+          closeSuggestions();
+        }, 120);
       });
       suggestionList.addEventListener('mousedown', function(event) {
         event.preventDefault();
@@ -508,7 +732,8 @@ function(el, x, data) {
     }
 
     function createCard() {
-      control = L.control({position: 'bottomleft'});
+      if (card) return;
+      if (!control) control = L.control({position: 'bottomleft'});
       control.onAdd = function() {
         card = L.DomUtil.create(
           'div',
@@ -621,6 +846,19 @@ function(el, x, data) {
       control.addTo(map);
     }
 
+    function removeCard() {
+      if (detachable && typeof detachable.destroy === 'function') {
+        detachable.destroy(true, true);
+      }
+      detachable = null;
+      if (control && typeof control.remove === 'function') control.remove();
+      card = null;
+      searchInput = null;
+      suggestionList = null;
+      searchStatus = null;
+      chipList = null;
+    }
+
     function closeLayerPopup() {
       if (String(layerData.popup_layout || '') !== 'tabbed_card') return false;
       var popup = map._popup;
@@ -630,8 +868,61 @@ function(el, x, data) {
       return true;
     }
 
+    function closeOwnedPresentation() {
+      var popupClosed = closeLayerPopup();
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        if (layer && typeof layer.closeTooltip === 'function') {
+          try { layer.closeTooltip(); } catch (tooltipError) {}
+        }
+        if (layer && typeof layer.closePopup === 'function') {
+          try { layer.closePopup(); } catch (popupError) {}
+        }
+      });
+      if (popupClosed) cleanupTabbedPopupLayout();
+    }
+
+    function detachOwnedGeometry() {
+      var groupLayers = groupRoot && typeof groupRoot.getLayers === 'function' ?
+        groupRoot.getLayers().slice() : [];
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        if (rootHas(layer) && groupRoot.removeLayer) groupRoot.removeLayer(layer);
+        if (map.hasLayer && map.hasLayer(layer) && map.removeLayer) map.removeLayer(layer);
+      });
+      // The Local Reference group is an exclusive owner for one user-facing
+      // registry row. Clear any unmatched residue as well as registered
+      // components so no parallel or stale geometry can survive layer-off.
+      groupLayers.forEach(function(layer) {
+        if (groupRoot && groupRoot.hasLayer && groupRoot.hasLayer(layer) && groupRoot.removeLayer) {
+          groupRoot.removeLayer(layer);
+        }
+        if (map.hasLayer && map.hasLayer(layer) && map.removeLayer) map.removeLayer(layer);
+      });
+      if (groupRoot && typeof groupRoot.clearLayers === 'function') groupRoot.clearLayers();
+      if (groupRoot && map.hasLayer && map.hasLayer(groupRoot) && map.removeLayer) {
+        map.removeLayer(groupRoot);
+      }
+    }
+
+    function teardownInactiveLayer() {
+      active = false;
+      hiddenByClose = false;
+      closeSuggestions();
+      closeOwnedPresentation();
+      detachOwnedGeometry();
+      var resetSnapshot = engine.reset();
+      removeCard();
+      teardownCount += 1;
+      writeDiagnostics(resetSnapshot);
+    }
+
     function resetController() {
-      closeLayerPopup();
+      if (!active) {
+        teardownInactiveLayer();
+        return;
+      }
+      closeOwnedPresentation();
       clearFeaturePicker();
       render(engine.reset(), true, 'reset');
     }
@@ -640,16 +931,16 @@ function(el, x, data) {
       if (!eventMatches(event)) return;
       active = true;
       hiddenByClose = false;
+      closeSuggestions();
+      engine.reset();
+      createCard();
       render(engine.snapshot(), true, '');
       setCardVisible();
     }
 
     function onOverlayRemove(event) {
       if (!eventMatches(event)) return;
-      active = false;
-      hiddenByClose = false;
-      resetController();
-      setCardVisible();
+      teardownInactiveLayer();
     }
 
     function onPopupOpen(event) {
@@ -661,53 +952,80 @@ function(el, x, data) {
     }
 
     function destroy() {
-      closeLayerPopup();
-      if (detachable && typeof detachable.destroy === 'function') {
-        detachable.destroy(true, true);
-      }
-      detachable = null;
-      if (control && typeof control.remove === 'function') control.remove();
-      card = null;
+      teardownInactiveLayer();
+      clearDiagnostics();
       control = null;
-      searchInput = null;
-      suggestionList = null;
-      searchStatus = null;
-      chipList = null;
+      recordByGeometry = Object.create(null);
+      layerByGeometry = Object.create(null);
     }
 
-    listen(map, 'overlayadd', onOverlayAdd);
-    listen(map, 'overlayremove', onOverlayRemove);
-    listen(map, 'popupopen', onPopupOpen);
-    createCard();
+    if (active) createCard();
+    else teardownInactiveLayer();
     return {
       layerId: layerData.layer_id,
       reset: resetController,
       snapshot: engine.snapshot,
       destroy: destroy,
+      onOverlayAdd: onOverlayAdd,
+      onOverlayRemove: onOverlayRemove,
+      onPopupOpen: onPopupOpen,
       resolvedLayerCount: function() { return Object.keys(layerByGeometry).length; },
-      expectedLayerCount: function() { return layerData.records.length; }
+      expectedLayerCount: function() { return layerData.records.length; },
+      diagnostics: function() {
+        var owned = ownedLayers();
+        return {
+          active: active,
+          group_root_attached: !!(groupRoot && map.hasLayer && map.hasLayer(groupRoot)),
+          group_member_layer_count: groupMemberCount(),
+          attached_owned_layer_count: attachedOwnedLayerCount(),
+          open_owned_tooltip_count: owned.filter(function(layer) {
+            return !!(layer && layer._tooltip &&
+              typeof layer.isTooltipOpen === 'function' && layer.isTooltipOpen());
+          }).length,
+          card_count: card ? 1 : 0,
+          pending_controller_callback_count: suggestionCloseTimer === null ? 0 : 1,
+          controller_created_group_count: 0,
+          teardown_count: teardownCount
+        };
+      }
     };
   }
 
   installCss();
   listenDom(el, 'click', onTabbedPopupClick);
   listenDom(el, 'keydown', onTabbedPopupKeydown);
-  listen(map, 'popupopen', onAnyPopupOpen);
+  // The native details toggle event does not bubble consistently. Capture it
+  // once at the shared map root so Trails and WSA use the same layout path.
+  listenDom(el, 'toggle', onTabbedPopupDetailsToggle, true);
+  if (window.addEventListener) {
+    listenDom(window, 'resize', onTabbedPopupViewportResize);
+  }
   listen(map, 'popupclose', onAnyPopupClose);
   payloads.forEach(function(payload) {
     controllers.push(createLayerController(payload));
+  });
+  listen(map, 'overlayadd', function(event) {
+    controllers.forEach(function(controller) { controller.onOverlayAdd(event); });
+  });
+  listen(map, 'overlayremove', function(event) {
+    controllers.forEach(function(controller) { controller.onOverlayRemove(event); });
+  });
+  listen(map, 'popupopen', function(event) {
+    onAnyPopupOpen(event);
+    controllers.forEach(function(controller) { controller.onPopupOpen(event); });
   });
 
   function destroy() {
     if (destroyed) return;
     destroyed = true;
+    cleanupTabbedPopupLayout();
     listenerRecords.forEach(function(record) {
       try { record.target.off(record.names, record.handler); } catch (error) {}
     });
     listenerRecords = [];
     domListenerRecords.forEach(function(record) {
       try {
-        record.target.removeEventListener(record.name, record.handler);
+        record.target.removeEventListener(record.name, record.handler, record.options);
       } catch (error) {}
     });
     domListenerRecords = [];
@@ -727,6 +1045,10 @@ function(el, x, data) {
         snapshot.layer_id = controller.layerId;
         snapshot.resolved_leaflet_layers = controller.resolvedLayerCount();
         snapshot.expected_leaflet_layers = controller.expectedLayerCount();
+        var diagnostics = controller.diagnostics();
+        Object.keys(diagnostics).forEach(function(key) {
+          snapshot[key] = diagnostics[key];
+        });
         return snapshot;
       });
     },

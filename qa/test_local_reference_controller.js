@@ -68,7 +68,11 @@ global.document = {
   getElementById: function() { return null; },
   createElement: function() { return new FakeElement(); }
 };
-global.window = {BRIM: {}};
+global.window = {
+  BRIM: {},
+  setTimeout: setTimeout,
+  clearTimeout: clearTimeout
+};
 window.BRIM.localReferenceFilterEngine = require('../03_functions/js/brim_local_reference_filter_engine.js');
 
 const controls = [];
@@ -78,8 +82,9 @@ global.L = {
       onAdd: null,
       card: null,
       addTo: function(map) {
+        this.removed = false;
         this.card = this.onAdd(map);
-        controls.push(this);
+        if (!controls.includes(this)) controls.push(this);
         return this;
       },
       remove: function() { this.removed = true; }
@@ -96,7 +101,11 @@ function fakeLayer(id) {
   return {
     options: {layerId: id},
     closeTooltipCalls: 0,
-    closeTooltip: function() { this.closeTooltipCalls += 1; }
+    closePopupCalls: 0,
+    tooltipOpen: false,
+    closeTooltip: function() { this.tooltipOpen = false; this.closeTooltipCalls += 1; },
+    closePopup: function() { this.closePopupCalls += 1; },
+    isTooltipOpen: function() { return this.tooltipOpen; }
   };
 }
 
@@ -107,10 +116,13 @@ const layers = {
   g4: fakeLayer('g4')
 };
 const rootMembers = new Set(Object.values(layers));
+const directMembers = new Set();
 const groupRoot = {
   hasLayer: layer => rootMembers.has(layer),
   addLayer: layer => rootMembers.add(layer),
-  removeLayer: layer => rootMembers.delete(layer)
+  removeLayer: layer => rootMembers.delete(layer),
+  clearLayers: () => rootMembers.clear(),
+  getLayers: () => Array.from(rootMembers)
 };
 const mapListeners = Object.create(null);
 const map = {
@@ -121,7 +133,15 @@ const map = {
     _byGroup: {'Reference – Synthetic': layers},
     _groupContainers: {'Reference – Synthetic': groupRoot}
   },
-  hasLayer: function(layer) { return layer === groupRoot ? this.rootActive : rootMembers.has(layer); },
+  hasLayer: function(layer) {
+    if (layer === groupRoot) return this.rootActive;
+    return directMembers.has(layer) || (this.rootActive && rootMembers.has(layer));
+  },
+  removeLayer: function(layer) {
+    if (layer === groupRoot) this.rootActive = false;
+    else directMembers.delete(layer);
+    return this;
+  },
   fitBounds: function(bounds, options) { this.fitBoundsCalls.push({bounds, options}); },
   closePopup: function() { this.closePopupCalls += 1; },
   on: function(names, handler) {
@@ -214,6 +234,8 @@ assert.deepStrictEqual(stats.counts.total, {
 });
 assert.deepStrictEqual(stats.counts.currently_showing, stats.counts.total);
 assert.strictEqual(stats.resolved_leaflet_layers, 4);
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '3');
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '8');
 
 const countA = card.querySelector('[data-pt-lr-count="a"]');
 const countB = card.querySelector('[data-pt-lr-count="b"]');
@@ -355,21 +377,59 @@ assert.strictEqual(map.fitBoundsCalls.length, beforeNoZoomActions);
 search.value = 'alpha';
 search.dispatch('input');
 search.dispatch('keydown', search, {key: 'Enter'});
+search.dispatch('blur');
+layers.g1.tooltipOpen = true;
+directMembers.add(layers.g1); // Simulate an unmanaged/direct rendering residue.
 map.rootActive = false;
 map.fire('overlayremove', {name: 'Reference – Synthetic'});
 map.fire('overlayremove', {name: 'Reference – Synthetic'});
-assert.strictEqual(rootMembers.size, 4);
-assert.strictEqual(card.style.display, 'none');
-assert.strictEqual(search.value, '');
-assert.strictEqual(chips.innerHTML, '');
-assert.deepStrictEqual(window.BRIM.localReferenceController.stats()[0].draft_feature_keys, []);
+assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(directMembers.size, 0);
+stats = window.BRIM.localReferenceController.stats()[0];
+assert.deepStrictEqual(stats.draft_feature_keys, []);
+assert.strictEqual(stats.active, false);
+assert.strictEqual(stats.group_root_attached, false);
+assert.strictEqual(stats.group_member_layer_count, 0);
+assert.strictEqual(stats.attached_owned_layer_count, 0);
+assert.strictEqual(stats.open_owned_tooltip_count, 0);
+assert.strictEqual(stats.card_count, 0);
+assert.strictEqual(stats.pending_controller_callback_count, 0);
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '0');
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '0');
 map.rootActive = true;
 map.fire('overlayadd', {name: 'Reference – Synthetic'});
-assert.strictEqual(card.style.display, '');
+assert.strictEqual(rootMembers.size, 4);
+stats = window.BRIM.localReferenceController.stats()[0];
+assert.strictEqual(stats.active, true);
+assert.strictEqual(stats.group_root_attached, true);
+assert.strictEqual(stats.group_member_layer_count, 4);
+assert.strictEqual(stats.attached_owned_layer_count, 4);
+assert.strictEqual(stats.card_count, 1);
+assert.deepStrictEqual(stats.draft_feature_keys, []);
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '3');
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '8');
 assert.strictEqual(controls.length, 1);
 
+// Ten full off/on cycles remain exact, default, and duplicate-free.
+for (let cycle = 0; cycle < 10; cycle += 1) {
+  map.rootActive = false;
+  map.fire('overlayremove', {name: 'Reference – Synthetic'});
+  stats = window.BRIM.localReferenceController.stats()[0];
+  assert.strictEqual(stats.group_member_layer_count, 0, 'off cycle ' + cycle);
+  assert.strictEqual(stats.attached_owned_layer_count, 0, 'off cycle ' + cycle);
+  assert.strictEqual(stats.card_count, 0, 'off cycle ' + cycle);
+  map.rootActive = true;
+  map.fire('overlayadd', {name: 'Reference – Synthetic'});
+  stats = window.BRIM.localReferenceController.stats()[0];
+  assert.strictEqual(stats.group_member_layer_count, 4, 'on cycle ' + cycle);
+  assert.strictEqual(stats.attached_owned_layer_count, 4, 'on cycle ' + cycle);
+  assert.strictEqual(stats.card_count, 1, 'on cycle ' + cycle);
+  assert.deepStrictEqual(stats.draft_feature_keys, [], 'default chips cycle ' + cycle);
+}
+
+const tooltipCloseCountBeforePopup = layers.g1.closeTooltipCalls;
 map.fire('popupopen', {popup: {_source: layers.g1}});
-assert.strictEqual(layers.g1.closeTooltipCalls, 1);
+assert.strictEqual(layers.g1.closeTooltipCalls, tooltipCloseCountBeforePopup + 1);
 
 assert.ok(!/zoomstart|zoomend|movestart|moveend/.test(controllerSource));
 assert.ok(controllerSource.includes("action === 'typing'"));
@@ -383,6 +443,21 @@ assert.ok(/@media \(pointer:coarse\)/.test(controllerSource));
 assert.ok(controllerSource.includes('.leaflet-tooltip.pt-wsa-hover-tooltip'));
 assert.ok(controllerSource.includes('.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}'));
 assert.ok(controllerSource.includes("listen(map, 'popupclose', onAnyPopupClose)"));
+assert.ok(controllerSource.includes('height:var(--pt-lr-popup-panel-height,auto)'));
+assert.ok(controllerSource.includes('max-height:min(54vh,450px)'));
+assert.ok(controllerSource.includes('max-height:min(50vh,390px)'));
+assert.ok(!controllerSource.includes('.pt-lr-popup-panel-scroll{height:min('));
+assert.ok(controllerSource.includes('tallestNaturalPanelHeight'));
+assert.ok(controllerSource.includes('var floor = Math.min(112, cap)'));
+assert.ok(controllerSource.includes('naturalHeight + 1'));
+assert.ok(controllerSource.includes('window.ResizeObserver'));
+assert.ok(controllerSource.includes('document.fonts.ready'));
+assert.ok(controllerSource.includes('pt-lr-popup-measuring'));
+assert.ok(controllerSource.includes('state.popup._updateLayout'));
+assert.ok(controllerSource.includes("listenDom(el, 'toggle', onTabbedPopupDetailsToggle, true)"));
+assert.ok(controllerSource.includes('teardownInactiveLayer'));
+assert.ok(controllerSource.includes('detachOwnedGeometry'));
+assert.ok(!controllerSource.includes('cloneNode(true)'));
 assert.ok(controllerSource.includes('overflow-wrap:break-word!important'));
 assert.ok(!controllerSource.includes('overflow-wrap:anywhere'));
 assert.ok(controllerSource.includes('.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}'));
@@ -392,8 +467,26 @@ assert.ok(!controllerSource.includes("' geom'"));
 
 window.BRIM.localReferenceController.destroy();
 assert.strictEqual(controls[0].removed, true);
+assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(map.rootActive, false);
+assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-active'), null);
 assert.strictEqual((mapListeners.overlayadd || []).length, 0);
 assert.strictEqual((mapListeners.overlayremove || []).length, 0);
 assert.strictEqual((mapListeners.popupopen || []).length, 0);
+
+// An initially inactive source group is normalized to the same zero-owned
+// invariant before any layer-on event.
+Object.values(layers).forEach(layer => rootMembers.add(layer));
+map.rootActive = false;
+const inactiveMapRoot = new FakeElement('map');
+controller.call(map, inactiveMapRoot, null, payload);
+stats = window.BRIM.localReferenceController.stats()[0];
+assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(stats.active, false);
+assert.strictEqual(stats.group_member_layer_count, 0);
+assert.strictEqual(stats.attached_owned_layer_count, 0);
+assert.strictEqual(stats.card_count, 0);
+assert.strictEqual(inactiveMapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '0');
+window.BRIM.localReferenceController.destroy();
 
 console.log('Local Reference synthetic controller selection/zoom/lifecycle tests passed.');

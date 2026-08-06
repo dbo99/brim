@@ -22,6 +22,10 @@
   <script>
   (async function() {
     'use strict';
+    window.__PT_TRAILS_POPUP_ASYNC_ERRORS__ = [];
+    window.addEventListener('error', function(event) {
+      window.__PT_TRAILS_POPUP_ASYNC_ERRORS__.push(String(event.error || event.message));
+    });
     var status = document.getElementById('fixture-status');
     var nextFrame = function() {
       return new Promise(function(resolve) {
@@ -47,7 +51,7 @@
           'tabindex="' + (index === 0 ? '0' : '-1') + '" ' +
           'data-pt-lr-popup-tab="' + key + '">' + labels[index] + '</button>';
       }).join('');
-      var longResources = Array(30).fill(0).map(function(_, index) {
+      var resourceRows = Array(data.resourceCount || 3).fill(0).map(function(_, index) {
         return '<li><a href="https://www.nps.gov/subjects/nationaltrailssystem/" ' +
           'target="_blank" rel="noopener noreferrer">Official planning or interpretive resource ' +
           (index + 1) + '</a></li>';
@@ -64,7 +68,12 @@
           '<section class="pt-lr-popup-section pt-lr-popup-narrative"><h3>Indigenous and Tribal context</h3>' +
           '<p>' + escapeHtml(data.indigenous) + '</p></section>',
         resources: '<p class="pt-lr-popup-note">Official trail-wide and source resources.</p>' +
-          '<ul class="pt-lr-popup-resource-list">' + longResources + '</ul>' +
+          '<ul class="pt-lr-popup-resource-list">' + resourceRows + '</ul>' +
+          '<details class="pt-popup-technical"><summary>Source and verification details</summary>' +
+          '<div class="pt-lr-popup-row"><span class="pt-lr-popup-label">Stable key:</span> trail:' +
+          escapeHtml(data.id) + '</div><div class="pt-lr-popup-row"><span class="pt-lr-popup-label">' +
+          'Verification:</span> Official source package reviewed</div><div class="pt-lr-popup-row">' +
+          '<span class="pt-lr-popup-label">Geometry:</span> Canonical trail components</div></details>' +
           '<button type="button" class="pt-lr-popup-fixture-disabled" disabled>' +
           'Unavailable fixture action</button>'
       };
@@ -87,27 +96,66 @@
       management: 'The National Park Service administers the trail in coordination with landowners and partners.',
       history: 'The route represents major nineteenth-century overland migration and its far-reaching consequences.',
       indigenous: 'The NPS interpretive plan describes these corridors as crossing American Indian homelands and documents resource loss, disease, violence, and loss of homeland, while emphasizing Indigenous survival.',
-      source: 'NPS Four National Historic Trails Long-Range Interpretive Plan'
+      source: 'NPS Four National Historic Trails Long-Range Interpretive Plan', resourceCount: 30
     }, {
       id: 'old-spanish', name: 'Old Spanish National Historic Trail', badge: 'National Historic Trail',
       summary: 'A network of trade routes between New Mexico and California.',
       management: 'The Bureau of Land Management and National Park Service jointly administer the trail.',
       history: 'The trail connected long-used Indigenous paths and later commercial routes across the Southwest.',
       indigenous: 'The BLM–NPS strategy identifies prehistoric Indigenous paths and documents irreversible changes to livelihood as well as captivity and enslavement.',
-      source: 'BLM–NPS Old Spanish National Historic Trail Comprehensive Administrative Strategy'
+      source: 'BLM–NPS Old Spanish National Historic Trail Comprehensive Administrative Strategy',
+      resourceCount: 4
     }, {
       id: 'butterfield', name: 'Butterfield Overland National Historic Trail', badge: 'National Historic Trail',
       summary: 'A designated route associated with the overland mail and passenger service.',
       management: 'The National Park Service is the trail-wide administering agency; the source record documents consultation with 49 Tribes.',
       history: 'The congressionally authorized study evaluated the route and its national significance.',
       indigenous: 'The study identifies Tribes with current or traditional relationships to the route and documents consultation.',
-      source: 'NPS Butterfield Overland Trail Special Resource Study'
+      source: 'NPS Butterfield Overland Trail Special Resource Study', resourceCount: 3
     }];
     var byId = {};
     trails.forEach(function(trail) { byId[trail.id] = trail; });
     var selectedKey = function(container) {
       var node = container.querySelector('[role="tab"][aria-selected="true"]');
       return node && node.getAttribute('data-pt-lr-popup-tab');
+    };
+    var disclosureCycle = async function(root, map, cycles) {
+      var details = root.querySelector('.pt-popup-technical');
+      var summary = details && details.querySelector('summary');
+      var closedHeights = [];
+      var openHeights = [];
+      var center = map.getCenter();
+      var zoom = map.getZoom();
+      if (!details || !summary) throw new Error('Trail details disclosure missing.');
+      if (details.open) summary.click();
+      await delay(80); await nextFrame();
+      var initialClosed = root.getBoundingClientRect().height;
+      for (var index = 0; index < cycles; index += 1) {
+        summary.focus({preventScroll: true});
+        summary.click();
+        await delay(80); await nextFrame();
+        openHeights.push(root.getBoundingClientRect().height);
+        summary.click();
+        await delay(80); await nextFrame();
+        closedHeights.push(root.getBoundingClientRect().height);
+      }
+      var closedSpread = Math.max.apply(Math, closedHeights) - Math.min.apply(Math, closedHeights);
+      return {
+        passed: openHeights.every(function(height, index) {
+          return height > closedHeights[index] + 8;
+        }) && closedHeights.every(function(height) {
+          return Math.abs(height - initialClosed) <= 2;
+        }) && closedSpread <= 2 && selectedKey(root) === 'resources' &&
+          document.activeElement === summary && center.equals(map.getCenter()) && zoom === map.getZoom() &&
+          !root.classList.contains('pt-lr-popup-measuring'),
+        initial_closed_height: initialClosed,
+        open_heights: openHeights,
+        closed_heights: closedHeights,
+        closed_height_spread: closedSpread,
+        active_tab_preserved: selectedKey(root) === 'resources',
+        focus_preserved: document.activeElement === summary,
+        map_center_zoom_stable: center.equals(map.getCenter()) && zoom === map.getZoom()
+      };
     };
     var openTrail;
 
@@ -138,7 +186,8 @@
       map.layerManager._groupContainers[groupName] = groupRoot;
 
       var controllerSource = await fetch(
-        '../../03_functions/js/brim_local_reference_controller.js'
+        '../../03_functions/js/brim_local_reference_controller.js?fixture=' + Date.now(),
+        {cache: 'no-store'}
       ).then(function(response) {
         if (!response.ok) throw new Error('Could not load production controller.');
         return response.text();
@@ -192,6 +241,14 @@
         return mounted;
       };
       window.__PT_TRAILS_POPUP_FIXTURE__ = {map: map, trails: byId, openTrail: openTrail};
+      var visualParams = new URLSearchParams(window.location.search);
+      var visualTrail = visualParams.get('feature');
+      if (visualTrail) {
+        await openTrail(visualTrail, visualParams.get('tab') || 'overview');
+        status.textContent = 'Visual fixture: ' + visualTrail;
+        status.style.color = '#1E6B45';
+        return;
+      }
 
       var popup = await openTrail('california', '');
       var root = popup.querySelector('[data-pt-lr-tabbed-popup]');
@@ -266,8 +323,32 @@
       var resourceTab = popup.querySelector('[data-pt-lr-popup-tab="resources"]');
       resourceTab.click();
       await nextFrame();
+      var shortTrailNoScroll = scroller.scrollHeight <= scroller.clientHeight + 1;
+      var shortTrailNaturalHeight = Number(root.getAttribute('data-pt-lr-popup-natural-height'));
+      var shortTrailTargetHeight = Number(root.getAttribute('data-pt-lr-popup-target-height'));
+      var shortTrailTracksContent = shortTrailNaturalHeight > 0 &&
+        Math.abs(shortTrailTargetHeight - Math.max(112, shortTrailNaturalHeight + 1)) <= 1 &&
+        shortTrailTargetHeight < 300;
+      var desktopDisclosure = await disclosureCycle(root, map, 5);
+      document.body.classList.add('pt-fixture-narrow');
+      map.invalidateSize({pan: false});
+      window.dispatchEvent(new Event('resize'));
+      await delay(360); await nextFrame();
+      var narrowDisclosure = await disclosureCycle(root, map, 5);
+      document.body.classList.remove('pt-fixture-narrow');
+      map.invalidateSize({pan: false});
+      window.dispatchEvent(new Event('resize'));
+      await delay(360); await nextFrame();
+      popup = await openTrail('california', 'resources');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      scroller = root.querySelector('.pt-lr-popup-panel-scroll');
       var internalScroll = scroller.scrollHeight > scroller.clientHeight &&
         getComputedStyle(scroller).overflowY === 'auto';
+      var longTrailNaturalHeight = Number(root.getAttribute('data-pt-lr-popup-natural-height'));
+      var longTrailTargetHeight = Number(root.getAttribute('data-pt-lr-popup-target-height'));
+      var longTrailCap = Number(root.getAttribute('data-pt-lr-popup-height-cap'));
+      var longTrailCapped = longTrailNaturalHeight > longTrailCap &&
+        Math.abs(longTrailTargetHeight - longTrailCap) <= 1;
       var popupAfterLongTab = popup.getBoundingClientRect();
       var stickyAfterLongTab = popup.querySelector('.pt-lr-popup-sticky').getBoundingClientRect();
       var longTabInsideViewport = popupAfterLongTab.top >= -1 &&
@@ -299,10 +380,39 @@
         'pt-lr-tabbed-popup-open'
       );
       await openTrail('butterfield', 'management');
+      if (map.hasLayer(groupRoot)) map.removeLayer(groupRoot);
       map.fire('overlayremove', {layer: groupRoot, name: groupName});
       await nextFrame();
       await delay(350);
-      var layerOffClosesPopup = !document.querySelector('.leaflet-popup');
+      var offStats = window.BRIM.localReferenceController.stats()[0];
+      var layerOffClosesPopup = !document.querySelector('.leaflet-popup') &&
+        !document.querySelector('.leaflet-tooltip') &&
+        !document.querySelector('[data-pt-local-reference-layer="national_scenic_historic_trails"]');
+      var layerOffZeroOwnedObjects = lines.filter(function(line) {
+        return map.hasLayer(line);
+      }).length === 0 && !map.hasLayer(groupRoot) &&
+        offStats.group_member_layer_count === 0 && offStats.attached_owned_layer_count === 0 &&
+        offStats.card_count === 0 && offStats.pending_controller_callback_count === 0;
+      var componentCountsAcrossCycles = [];
+      var zeroCountsAcrossCycles = [];
+      for (var cycle = 0; cycle < 10; cycle += 1) {
+        groupRoot.addTo(map);
+        map.fire('overlayadd', {layer: groupRoot, name: groupName});
+        await nextFrame();
+        componentCountsAcrossCycles.push(lines.filter(function(line) {
+          return map.hasLayer(line);
+        }).length);
+        map.removeLayer(groupRoot);
+        map.fire('overlayremove', {layer: groupRoot, name: groupName});
+        await nextFrame();
+        zeroCountsAcrossCycles.push(lines.filter(function(line) {
+          return map.hasLayer(line);
+        }).length);
+      }
+      var lifecycleCyclesPass = componentCountsAcrossCycles.every(function(count) {
+        return count === lines.length;
+      }) && zeroCountsAcrossCycles.every(function(count) { return count === 0; });
+      groupRoot.addTo(map);
       map.fire('overlayadd', {layer: groupRoot, name: groupName});
       await nextFrame();
       var oneFilterCardAfterLayerCycle =
@@ -316,9 +426,11 @@
           normalTextCursor && mapCursorPreserved && tabs.length === 4 && panels.length === 4 && clickSwitch &&
           arrowSwitch && endSwitch && homeSwitch && spaceActivation && tabStateMapStable &&
           popupNotRecreated && differentTrailResetsOverview && reopenResetsOverview && widthPass &&
-          cardHeightPass && tabRowsPass && noHorizontalOverflow && internalScroll && injectionSafe &&
+          cardHeightPass && tabRowsPass && noHorizontalOverflow && shortTrailNoScroll &&
+          shortTrailTracksContent && desktopDisclosure.passed && narrowDisclosure.passed &&
+          internalScroll && longTrailCapped && injectionSafe &&
           longTabInsideViewport && popupLinkDoesNotReachMap && globalResetClosesPopup && layerOffClosesPopup &&
-          oneFilterCardAfterLayerCycle && onlyOnePopupActive,
+          layerOffZeroOwnedObjects && lifecycleCyclesPass && oneFilterCardAfterLayerCycle && onlyOnePopupActive,
         four_tabs_and_panels: tabs.length === 4 && panels.length === 4,
         overview_default: initialOverview,
         tabbed_popup_stacking_class_applied: popupStackingClassApplied,
@@ -342,17 +454,33 @@
         tab_row_count: tabTops.length,
         responsive_tab_rows_passed: tabRowsPass,
         no_horizontal_overflow: noHorizontalOverflow,
+        short_trail_no_internal_scroll: shortTrailNoScroll,
+        short_trail_tracks_content: shortTrailTracksContent,
+        short_trail_natural_height: shortTrailNaturalHeight,
+        short_trail_target_height: shortTrailTargetHeight,
+        desktop_disclosure_cycles: desktopDisclosure,
+        narrow_disclosure_cycles: narrowDisclosure,
         resources_internal_scroll: internalScroll,
+        long_trail_capped: longTrailCapped,
+        long_trail_natural_height: longTrailNaturalHeight,
+        long_trail_target_height: longTrailTargetHeight,
+        long_trail_height_cap: longTrailCap,
         long_tab_and_sticky_header_inside_viewport: longTabInsideViewport,
         source_values_cannot_inject_html: injectionSafe,
         popup_link_does_not_reach_map: popupLinkDoesNotReachMap,
         reset_clear_path_closes_popup: globalResetClosesPopup,
         layer_off_closes_popup: layerOffClosesPopup,
+        layer_off_zero_owned_objects: layerOffZeroOwnedObjects,
+        component_counts_across_10_cycles: componentCountsAcrossCycles,
+        off_counts_across_10_cycles: zeroCountsAcrossCycles,
+        lifecycle_10_cycles_passed: lifecycleCyclesPass,
         one_filter_card_after_layer_cycle: oneFilterCardAfterLayerCycle,
         only_one_popup_active: onlyOnePopupActive,
         viewport_width: window.innerWidth,
-        viewport_height: window.innerHeight
+        viewport_height: window.innerHeight,
+        async_errors: window.__PT_TRAILS_POPUP_ASYNC_ERRORS__.slice()
       };
+      results.passed = results.passed && results.async_errors.length === 0;
       window.__PT_TRAILS_POPUP_FIXTURE__.runTeardown = async function() {
         window.BRIM.localReferenceController.destroy();
         await nextFrame();
