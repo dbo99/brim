@@ -94,7 +94,8 @@ global.L = {
   DomEvent: {
     disableClickPropagation: function() {},
     disableScrollPropagation: function() {}
-  }
+  },
+  point: function(x, y) { return {x, y}; }
 };
 
 function fakeLayer(id) {
@@ -103,6 +104,29 @@ function fakeLayer(id) {
     closeTooltipCalls: 0,
     closePopupCalls: 0,
     tooltipOpen: false,
+    styleCalls: [],
+    listeners: Object.create(null),
+    on: function(names, handler) {
+      names.split(/\s+/).forEach(name => {
+        this.listeners[name] = this.listeners[name] || [];
+        this.listeners[name].push(handler);
+      });
+    },
+    off: function(names, handler) {
+      names.split(/\s+/).forEach(name => {
+        this.listeners[name] = (this.listeners[name] || []).filter(item => item !== handler);
+      });
+    },
+    fire: function(name, event) {
+      (this.listeners[name] || []).slice().forEach(handler => handler(event || {}));
+    },
+    bindPopup: function(html, options) {
+      this.popupHtml = html;
+      this.popupOptions = options;
+      return this;
+    },
+    openPopup: function(latlng) { this.openPopupLatLng = latlng; return this; },
+    setStyle: function(style) { this.styleCalls.push(style); this.style = style; },
     closeTooltip: function() { this.tooltipOpen = false; this.closeTooltipCalls += 1; },
     closePopup: function() { this.closePopupCalls += 1; },
     isTooltipOpen: function() { return this.tooltipOpen; }
@@ -180,6 +204,9 @@ const payload = [{
   primary_count_label: 'Synthetic features',
   show_component_count: false,
   show_category_count: true,
+  category_count_mode: 'semantic_feature',
+  distinguish_units_supported: true,
+  facets: [],
   component_count_label: 'mapped components',
   category_heading: 'BLM recommendation for wilderness designation',
   caution: 'Historical recommendation, not current WSA status. Management continues under the applicable FLPMA authority; verify current plans, closures, and field-office direction.',
@@ -219,6 +246,8 @@ assert.ok(card.innerHTML.includes('aria-autocomplete="list"'));
 assert.ok(card.innerHTML.includes('role="listbox"'));
 assert.ok(card.innerHTML.includes('Auto-zoom'));
 assert.ok(card.innerHTML.includes('Zoom to results'));
+assert.ok(card.innerHTML.includes('Select named Synthetic features'));
+assert.ok(!card.innerHTML.includes('Select named named'));
 ['Recommended suitable', 'Recommended non-suitable', 'No recommendation', 'Not stated'].forEach(label => {
   assert.ok(card.innerHTML.includes('<span>' + label + '</span>'), 'missing category label: ' + label);
 });
@@ -236,6 +265,30 @@ assert.deepStrictEqual(stats.counts.currently_showing, stats.counts.total);
 assert.strictEqual(stats.resolved_leaflet_layers, 4);
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '3');
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '8');
+
+// Distinguish mode is available for exactly one selected category, uses a
+// deterministic semantic fill, retains category stroke, and turns itself off
+// (restoring accepted category colors) when a second category is selected.
+const categoryBForDistinguish = card.querySelector('[data-pt-lr-category="b"]');
+card.querySelector('.pt-lr-none').dispatch('click');
+const categoryAForDistinguish = card.querySelector('[data-pt-lr-category="a"]');
+categoryAForDistinguish.checked = true;
+card.dispatch('change', categoryAForDistinguish);
+const distinguish = card.querySelector('.pt-lr-distinguish');
+assert.strictEqual(distinguish.disabled, false);
+distinguish.checked = true;
+card.dispatch('change', distinguish);
+assert.ok(/^hsl\(/.test(layers.g1.style.fillColor));
+assert.notStrictEqual(layers.g1.style.fillColor, layers.g2.style.fillColor);
+assert.strictEqual(layers.g1.style.color, '#010203');
+assert.strictEqual(window.BRIM.localReferenceController.stats()[0].distinguish_units, true);
+categoryBForDistinguish.checked = true;
+card.dispatch('change', categoryBForDistinguish);
+assert.strictEqual(window.BRIM.localReferenceController.stats()[0].distinguish_units, false);
+assert.strictEqual(layers.g1.style.fillColor, '#112233');
+assert.strictEqual(layers.g3.style.fillColor, '#445566');
+card.querySelector('.pt-lr-reset').dispatch('click');
+map.fitBoundsCalls = [];
 
 const countA = card.querySelector('[data-pt-lr-count="a"]');
 const countB = card.querySelector('[data-pt-lr-count="b"]');
@@ -488,5 +541,126 @@ assert.strictEqual(stats.attached_owned_layer_count, 0);
 assert.strictEqual(stats.card_count, 0);
 assert.strictEqual(inactiveMapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '0');
 window.BRIM.localReferenceController.destroy();
+
+// Federal Wilderness uses normalized lookup records and creates its three-tab
+// popup only when a mapped component is selected.
+rootMembers.add(layers.g1);
+map.rootActive = true;
+map.layerManager = {
+  _byGroup: {'Reference – Federal Wilderness': {g1: layers.g1}},
+  _groupContainers: {'Reference – Federal Wilderness': groupRoot}
+};
+const federalPayload = [{
+  layer_id: 'federal_wilderness',
+  display_name: 'Federal Wilderness',
+  group_name: 'Reference – Federal Wilderness',
+  auto_supported: true,
+  auto_default: true,
+  feature_selection_supported: true,
+  feature_selection_mode: 'semantic_feature_multi',
+  auto_zoom_supported: true,
+  auto_zoom_default: true,
+  zoom_padding: 36,
+  zoom_max: 11,
+  preserve_view_on_reset: true,
+  popup_layout: 'tabbed_card',
+  primary_count_mode: 'semantic_feature',
+  primary_count_label: 'named wildernesses',
+  show_component_count: true,
+  show_category_count: true,
+  category_count_mode: 'geometry_component',
+  distinguish_units_supported: true,
+  facets: [],
+  component_count_label: 'mapped components',
+  category_heading: 'Managing agency',
+  caution: 'Verify current access and agency direction.',
+  categories: [
+    {category_key: 'usfs', label: 'U.S. Forest Service', fill_color: '#228B22', stroke_color: '#228B22', fill_opacity: 0.18, stroke_weight: 1.6, dash_array: '', legend_swatch_style: 'polygon'}
+  ],
+  features: [
+    {semantic_feature_key: 'fw-95', feature_key: 'fw-95', display_name: 'Ansel Adams Wilderness', category_keys: ['usfs'], search_text: 'ansel adams wilderness', semantic_feature_bounds: [37, -120, 38, -119], geometry_component_count: 1}
+  ],
+  records: [
+    {geometry_key: 'g1', feature_key: 'fw-95', semantic_feature_key: 'fw-95', category_key: 'usfs', geometry_component_count: 1, facet_values: {}}
+  ],
+  federal_wilderness: {
+    semantics: [{
+      wilderness_id: 'fw-95', official_name: 'Ansel Adams Wilderness',
+      alternate_names: 'N/A', states: 'CA', designation_date: '1964-09-03',
+      designation_year: 1964, original_public_law: 'Public Law 88-577',
+      subsequent_public_laws: 'Public Law 98-425', official_reference_acres: 230872,
+      source_component_count: 1, managing_agencies: 'USFS', shared_management: false,
+      summary_short: 'A named federal wilderness.',
+      management_access_summary: 'Check current Forest Service information.',
+      wilderness_connect_url: 'https://example.test/wilderness',
+      congress_search_url: 'https://example.test/congress',
+      acreage_source: 'Official published interagency reference acreage.',
+      validation_status: 'PASS WITH DOCUMENTED EXPLANATION',
+      explanatory_note: 'Public Law 98-425 renamed the original Minarets Wilderness.',
+      evidence_source: 'Direct GovInfo public law.',
+      evidence_url: 'https://www.govinfo.gov/content/pkg/PLAW-88publ577/html/PLAW-88publ577.htm'
+    }],
+    components: [{
+      component_id: 'g1', wilderness_id: 'fw-95', agency_key: 'USFS',
+      office_key: 'office-001', geographic_state: 'CA', source_gis_acres: 231457,
+      calculated_acres: 231457.2, component_description: 'USFS-managed component.',
+      geometry_caveat: 'Preserve component geometry.'
+    }],
+    agencies: [{agency_key: 'USFS', name: 'U.S. Forest Service'}],
+    offices: [{office_key: 'office-001', local_managing_unit: 'Inyo National Forest', local_unit_url: 'https://example.test/inyo', blm_office: 'undefined', blm_office_url: ''}],
+    documents: [
+      {wilderness_id: 'fw-95', title: 'Public Law 88-577 — Wilderness Act', type: 'public law', publication_date: '1964-09-03', url: 'https://www.govinfo.gov/content/pkg/PLAW-88publ577/html/PLAW-88publ577.htm', authority_level: '1 - public law'},
+      {wilderness_id: 'fw-95', title: 'Official management page', type: 'agency page', url: 'https://example.test/management', authority_level: '3 - official managing-agency page'},
+      {wilderness_id: 'fw-95', title: 'Secondary profile', type: 'profile', url: 'https://example.test/profile', authority_level: '9 - interagency reference'}
+    ],
+    policy: [
+      {topic: 'Designation', language: 'Federal Wilderness is a congressional designation.'},
+      {topic: 'Management identity', language: 'Named wilderness and selected component management are distinct.'},
+      {topic: 'BLM stewardship', language: 'Publication does not establish BLM management.'},
+      {topic: 'Access', language: 'Designation does not guarantee public access.'},
+      {topic: 'Rules', language: 'Rules vary by managing agency.'},
+      {topic: 'Motorized/mechanized use', language: 'Motorized use is generally prohibited.'},
+      {topic: 'Acreage', language: 'GIS and published acreage can differ.'},
+      {topic: 'Boundary meaning', language: 'The polygon is not an access route.'},
+      {topic: 'Litigation', language: 'Research links are discovery tools.'},
+      {topic: 'Current conditions', language: 'Check current alerts.'}
+    ],
+    sources: [
+      {title: 'Official GIS source', agency: 'BLM', url: 'https://example.test/source', type: 'Official GIS service'},
+      {title: 'Unrelated Field Office', agency: 'BLM', url: 'https://example.test/unrelated-office', type: 'Official local office page'}
+    ],
+    templates: {govinfo_public_law: 'https://www.govinfo.gov/content/pkg/PLAW-{congress}publ{number}/html/PLAW-{congress}publ{number}.htm'}
+  }
+}];
+const federalMapRoot = new FakeElement('map');
+controller.call(map, federalMapRoot, null, federalPayload);
+const federalCard = controls.at(-1).card;
+assert.strictEqual(federalCard.getAttribute('data-pt-local-reference-layer'), 'federal_wilderness');
+assert.ok(federalCard.innerHTML.includes('<details class="pt-lr-map-details"><summary>Map / layer note</summary>'));
+assert.ok(!federalCard.innerHTML.includes('Filter by category or select named features'));
+assert.strictEqual(federalCard.querySelector('.pt-lr-summary').textContent, '1/1 wildernesses · 1/1 components');
+const federalTooltipCloseBefore = layers.g1.closeTooltipCalls;
+layers.g1.fire('click', {latlng: {lat: 37.5, lng: -119.5}});
+assert.strictEqual(layers.g1.closeTooltipCalls, federalTooltipCloseBefore + 1);
+assert.strictEqual((layers.g1.popupHtml.match(/role="tab"/g) || []).length, 3);
+assert.ok(layers.g1.popupHtml.includes('Original designation'));
+assert.ok(layers.g1.popupHtml.includes('1964-09-03 · Public Law 88-577'));
+assert.ok(layers.g1.popupHtml.includes('Official published wilderness acreage'));
+assert.ok(layers.g1.popupHtml.includes('230,872 acres'));
+assert.ok(layers.g1.popupHtml.includes('Selected mapped-component source GIS acreage'));
+assert.ok(layers.g1.popupHtml.includes('231,457.0 acres'));
+assert.ok(layers.g1.popupHtml.includes('PASS WITH DOCUMENTED EXPLANATION'));
+assert.ok(layers.g1.popupHtml.includes('PLAW-98publ425'));
+assert.ok(layers.g1.popupHtml.includes('Official GIS source'));
+assert.ok(!layers.g1.popupHtml.includes('Unrelated Field Office'));
+assert.ok(!/>\s*(?:NA|N\/A|null|undefined)\s*</i.test(layers.g1.popupHtml));
+assert.strictEqual(layers.g1.popupOptions.className, 'pt-local-reference-tabbed-popup');
+assert.deepStrictEqual(layers.g1.openPopupLatLng, {lat: 37.5, lng: -119.5});
+assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"]{width:330px;max-height:none;overflow:visible'));
+assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-categories{display:block}'));
+assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-values{display:block}'));
+assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto'));
+window.BRIM.localReferenceController.destroy();
+assert.strictEqual((layers.g1.listeners.click || []).length, 0);
 
 console.log('Local Reference synthetic controller selection/zoom/lifecycle tests passed.');

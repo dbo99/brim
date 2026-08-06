@@ -7,14 +7,15 @@
 ## SCOPE:
 ##   This registry intentionally excludes Wild & Scenic Rivers, CalSim3.0,
 ##   uploads, External, Ops Live, and BRIM Live. Trails and Wilderness Study
-##   Areas are executable in Phase 2; the other nine rows remain contracts.
+##   Areas are executable in Phase 2. Federal Wilderness is the Phase 3
+##   flagship implementation; the other eight rows remain contracts.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
 ##   - BLM publication or administration alone never selects BLM symbology.
 ##   - All map and legend colors remain provisional pending realistic visual QA.
 ##   - Category rows carry separate map/legend cartographic tokens.
-##   - Phase 2 enables Trails beside the accepted WSA exemplar.
+##   - Phase 3 enables Federal Wilderness beside the accepted Trails/WSA work.
 
 PT_LOCAL_REFERENCE_LAYER_IDS <- c(
   "national_scenic_historic_trails",
@@ -165,6 +166,71 @@ PT_LOCAL_REFERENCE_AGENCY_CATEGORIES <- pt_local_reference_category_rows(
   )
 )
 
+## Federal Wilderness retains the exact agency colors used by the existing
+## BRIM layer. These are accepted layer constants, not the provisional shared
+## agency palette above.
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_AGENCY_CATEGORIES <-
+  pt_local_reference_category_rows(
+    category_key = c("blm", "usfs", "nps", "fws", "unknown"),
+    label = c(
+      "Bureau of Land Management",
+      "U.S. Forest Service",
+      "National Park Service",
+      "U.S. Fish & Wildlife Service",
+      "Unknown / unverified"
+    ),
+    source_values = c("6|BLM", "8|USFS", "5|NPS", "4|FWS|USFWS", ""),
+    fill_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#737373"),
+    stroke_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#737373"),
+    fill_opacity = c(0.18, 0.18, 0.18, 0.18, 0.12),
+    stroke_weight = c(1.6, 1.6, 1.6, 1.6, 1.4),
+    dash_array = c("", "", "", "", "2,3"),
+    legend_swatch_style = c(
+      "polygon", "polygon", "polygon", "polygon", "dotted_polygon"
+    ),
+    include_when_absent = c(TRUE, TRUE, TRUE, TRUE, FALSE),
+    provisional = FALSE
+  )
+
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS <- list(
+  list(
+    facet_key = "management_pattern",
+    label = "Management pattern",
+    record_field = "pt_fw_management_pattern",
+    count_mode = "semantic_feature",
+    values = data.frame(
+      value_key = c("single_agency", "shared_multi_agency"),
+      label = c("Single-agency wilderness", "Shared or multi-agency wilderness"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "designation_history",
+    label = "Designation history",
+    record_field = "pt_fw_designation_history",
+    count_mode = "semantic_feature",
+    values = data.frame(
+      value_key = c("original_only", "has_subsequent_law"),
+      label = c("Original designation only", "Has subsequent public law"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "geographic_context",
+    label = "Geographic context",
+    record_field = "pt_fw_geographic_context",
+    count_mode = "geometry_component",
+    values = data.frame(
+      value_key = c("california", "western_nevada_context"),
+      label = c("California", "Western Nevada context"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  )
+)
+
 pt_local_reference_neutral_categories <- function(
   fill_color = "#D8D4C8",
   stroke_color = "#6B6963",
@@ -241,7 +307,7 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
       "polygon", "polygon", "polygon", "dotted_polygon"
     )
   ),
-  federal_wilderness = PT_LOCAL_REFERENCE_AGENCY_CATEGORIES,
+  federal_wilderness = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_AGENCY_CATEGORIES,
   drecp = pt_local_reference_neutral_categories(
     fill_color = "#D8D0BE",
     stroke_color = "#756F63"
@@ -325,7 +391,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   implementation_status = c(
     "phase2_trails", "registry_contract", "registry_contract",
-    "phase1_wsa", "registry_contract", "registry_contract",
+    "phase1_wsa", "phase3_federal_wilderness", "registry_contract",
     "registry_contract", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract"
   ),
@@ -352,7 +418,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   palette_key = c(
     "trail_identity_v1", "agency_provisional_v1", "neutral_context_v1",
-    "wsa_recommendation_provisional_v1", "agency_provisional_v1",
+    "wsa_recommendation_provisional_v1", "federal_wilderness_agency_accepted_v1",
     "neutral_context_v1", "neutral_context_v1", "allotment_status_deferred",
     "neutral_context_v1", "rwqcb_provider_provisional_v1",
     "neutral_context_v1"
@@ -366,12 +432,12 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   legend_mode = c(
     "interactive", "planned_interactive", "none", "interactive",
-    "planned_interactive", "none", "none", "planned_interactive", "none",
+    "interactive", "none", "none", "planned_interactive", "none",
     "planned_interactive", "none"
   ),
   filter_mode = c(
     "category_search", "planned_category_search", "none",
-    "category_search", "planned_category_search", "none", "none",
+    "category_search", "faceted_category_search", "none", "none",
     "planned_category_plus_feature_search", "none",
     "planned_category_search", "none"
   ),
@@ -398,17 +464,22 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   primary_count_label = c(
     "trails", "National Monuments",
     "CA Desert National Conservation Lands", "Wilderness Study Areas",
-    "Federal Wilderness Areas", "DRECP areas", "ACECs",
+    "named wildernesses", "DRECP areas", "ACECs",
     "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
   ),
-  show_component_count = rep(FALSE, 11),
+  show_component_count = c(FALSE, FALSE, FALSE, FALSE, TRUE, rep(FALSE, 6)),
   show_category_count = c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+  category_count_mode = c(
+    "semantic_feature", "semantic_feature", "semantic_feature",
+    "semantic_feature", "geometry_component", rep("semantic_feature", 6)
+  ),
   component_count_label = c(
-    "mapped trail segments", rep("mapped polygon components", 10)
+    "mapped trail segments", rep("mapped polygon components", 3),
+    "mapped components", rep("mapped polygon components", 6)
   ),
   category_heading = c(
     "Trail", "", "", "BLM recommendation for wilderness designation",
-    "", "", "", "", "", "", ""
+    "Managing agency", "", "", "", "", "", ""
   ),
   card_caution = c(
     paste(
@@ -420,41 +491,50 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
       "Management continues under the applicable FLPMA authority;",
       "verify current plans, closures, and field-office direction."
     ),
-    "", "", "", "", "", "", ""
+    paste(
+      "Federal Wilderness boundaries and managing agencies are reference data.",
+      "Verify current access, closures, permits, and agency direction."
+    ),
+    "", "", "", "", "", ""
   ),
   popup_layout = ifelse(
     PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
-      "national_scenic_historic_trails", "wilderness_study_areas"
+      "national_scenic_historic_trails", "wilderness_study_areas",
+      "federal_wilderness"
     ),
     "tabbed_card",
     "standard"
   ),
   feature_selection_supported = c(
-    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   feature_selection_mode = c(
     "semantic_feature_multi", "none", "none", "semantic_feature_multi",
-    "none", "none", "none", "none", "none", "none", "none"
+    "semantic_feature_multi", "none", "none", "none", "none", "none", "none"
   ),
   feature_display_field = c(
     "pt_trails_official_name", "NLCS_NAME", "NLCS_NAME", "pt_wsa_name",
-    "NAME", "", "ACEC_NAME", "ALLOT_NAME", "county_name",
+    "pt_fw_official_name", "", "ACEC_NAME", "ALLOT_NAME", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
-    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   auto_zoom_default = c(
-    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE,
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
   preserve_view_on_reset = rep(TRUE, 11),
   retention_enabled = c(
-    TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+  ),
+  distinguish_units_supported = c(
+    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   stringsAsFactors = FALSE
 )
@@ -464,7 +544,12 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
   c("NLCS_NAME", "AGENCY_COD"),
   "NLCS_NAME",
   c("NLCS_NAME", "WSACODE_ca", "CASEFILE_N", "NLCS_ID", "GlobalID"),
-  c("NLCS_NAME", "ManagingAg"),
+  c(
+    "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
+    "GlobalID", "FAU_ID", "ManagingAg", "pt_fw_agency_name",
+    "pt_fw_alternate_names", "pt_fw_wilderness_abbreviation",
+    "pt_fw_designation_year", "pt_fw_original_public_law"
+  ),
   character(0),
   c("ACEC_NAME", "LUP_NAME"),
   c("ALLOT_NAME", "ALLOT_NO"),
@@ -475,14 +560,29 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
 
 ## Search-field contracts are kept separate from the older generic search
 ## matrix because named-feature selection does not treat typing as a map
-## filter. Trails and WSA enable this capability in Phase 2; the remaining rows
-## are forward contracts for later layer-specific review.
+## filter. Trails, WSA, and Federal Wilderness enable this capability; the
+## remaining rows are forward contracts for later layer-specific review.
 LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields <-
   LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields
 LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[1]] <- c(
   "pt_trails_official_name", "pt_trails_common_name",
   "pt_trails_abbreviation", "pt_trails_alias_search", "pt_trails_nlcs_id"
 )
+LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[5]] <- c(
+  "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
+  "GlobalID", "FAU_ID", "pt_fw_agency_name", "pt_fw_alternate_names",
+  "pt_fw_wilderness_abbreviation", "pt_fw_original_public_law"
+)
+
+LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets <- I(lapply(
+  PT_LOCAL_REFERENCE_LAYER_IDS,
+  function(layer_id) {
+    if (identical(layer_id, "federal_wilderness")) {
+      return(PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS)
+    }
+    list()
+  }
+))
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$category_sort_order <- I(lapply(
   PT_LOCAL_REFERENCE_LAYER_IDS,
@@ -519,7 +619,37 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     gis_acres = c("GIS_ACRES"),
     sma_id = c("SMA_ID"),
     fau_id = c("FAU_ID")
+  ),
+  federal_wilderness = list(
+    nlcs_id = c("NLCS_ID"),
+    global_id = c("GlobalID", "GLOBALID", "globalid"),
+    name = c("NLCS_NAME"),
+    agency_code = c("ManagingAg"),
+    agency_name = c("managing_agency", "ManagingAgency"),
+    admin_state = c("ADMIN_ST", "geographic_state", "State"),
+    gis_acres = c("GIS_Acres", "GISAcres", "GIS_ACRES"),
+    modify_date = c("Modify_Dat", "Modify_Date", "MODIFY_DATE"),
+    fau_id = c("FAU_ID")
   )
+)
+
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMPONENTS_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_components.csv"
+)
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_REFERENCE_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_reference.csv"
+)
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DESIGNATION_VALIDATION_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_designation_validation.csv"
+)
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DOCUMENTS_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_documents.csv"
+)
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMMON_POLICY_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_common_policy_language.csv"
+)
+PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_SOURCE_REGISTER_PATH <- file.path(
+  "00_config", "local_reference_federal_wilderness_source_register.csv"
 )
 
 PT_LOCAL_REFERENCE_TRAILS_REFERENCE_PATH <- file.path(

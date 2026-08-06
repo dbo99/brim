@@ -141,4 +141,66 @@ assert.strictEqual(noSelection.snapshot().auto_zoom, false);
 assert.deepStrictEqual(noSelection.featureSearch('alpha'), []);
 assert.throws(() => noSelection.addFeature('f1'), /unsupported/);
 
+const facetFixture = Object.assign({}, fixture, {
+  facets: [
+    {
+      facet_key: 'management_pattern',
+      values: [
+        {value_key: 'single_agency'},
+        {value_key: 'shared_multi_agency'}
+      ]
+    },
+    {
+      facet_key: 'geographic_context',
+      values: [
+        {value_key: 'california'},
+        {value_key: 'western_nevada_context'}
+      ]
+    }
+  ],
+  features: fixture.features.map(feature => Object.assign({}, feature, {
+    display_name: feature.semantic_feature_key === 'f1' ?
+      'Alpha/Ridge–Wilderness' : feature.display_name
+  })),
+  records: fixture.records.map(record => Object.assign({}, record, {
+    facet_values: {
+      management_pattern: record.semantic_feature_key === 'f4' ?
+        'shared_multi_agency' : 'single_agency',
+      geographic_context: record.semantic_feature_key === 'f4' ?
+        'western_nevada_context' : 'california'
+    }
+  }))
+});
+const facetEngine = engineApi.create(facetFixture);
+state = facetEngine.snapshot();
+assert.deepStrictEqual(state.applied_facets.management_pattern, [
+  'single_agency', 'shared_multi_agency'
+]);
+assert.strictEqual(
+  state.facet_counts.geographic_context.western_nevada_context.total.record_count,
+  2
+);
+assert.deepStrictEqual(
+  facetEngine.featureSearch('alpha ridge wilderness').map(row => row.semantic_feature_key),
+  ['f1'],
+  'slash, dash, and punctuation must normalize for named-feature search'
+);
+state = facetEngine.setFacetValue('management_pattern', 'shared_multi_agency', false);
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 3);
+assert.strictEqual(state.counts.currently_showing.geometry_component_count, 6);
+state = facetEngine.facetNone('geographic_context');
+assert.strictEqual(state.counts.currently_showing.record_count, 0);
+state = facetEngine.facetAll('geographic_context');
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 3);
+state = facetEngine.setAuto(false);
+state = facetEngine.setFacetValue('management_pattern', 'shared_multi_agency', true);
+assert.strictEqual(state.has_pending_changes, true);
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 3);
+state = facetEngine.apply();
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 4);
+state = facetEngine.reset();
+assert.deepStrictEqual(state.draft_facets.geographic_context, [
+  'california', 'western_nevada_context'
+]);
+
 console.log('Local Reference synthetic filter-engine selection/count tests passed.');

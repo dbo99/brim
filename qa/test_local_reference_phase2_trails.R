@@ -420,8 +420,14 @@ tracked_sources <- c(
 )
 source_text <- paste(unlist(lapply(tracked_sources, readLines, warn = FALSE)), collapse = "\n")
 stopifnot(
-  !grepl(paste0("/", "Users", "/"), source_text, fixed = TRUE),
-  !grepl("congress_search_url|courtlistener_search_url|web_search_url", source_text)
+  !grepl(paste0("/", "Users", "/"), source_text, fixed = TRUE)
 )
+## Generic discovery/search URLs remain excluded from the Trails sidecars and
+## popup contract. Federal Wilderness uses its own keyed secondary-research
+## fields in the shared helper, so their names are no longer forbidden globally.
+stopifnot(!any(grepl(
+  "congress_search_url|courtlistener_search_url|web_search_url",
+  names(pt_local_reference_trails_reference())
+)))
 
 message("Local Reference Phase 2 Trails R/config/join/hover/popup tests passed.")

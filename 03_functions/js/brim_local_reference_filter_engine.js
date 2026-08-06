@@ -11,6 +11,8 @@
   function clean(value) {
     return String(value === undefined || value === null ? '' : value)
       .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
@@ -40,6 +42,21 @@
     return different;
   }
 
+  function copySetMap(source) {
+    var out = Object.create(null);
+    Object.keys(source).forEach(function(key) {
+      out[key] = copySet(source[key]);
+    });
+    return out;
+  }
+
+  function setMapsDiffer(left, right) {
+    var keys = unique(Object.keys(left).concat(Object.keys(right)));
+    return keys.some(function(key) {
+      return !left[key] || !right[key] || setsDiffer(left[key], right[key]);
+    });
+  }
+
   function normalizeBounds(value) {
     var bounds = Array.isArray(value) ? value.slice(0, 4) : [];
     if (bounds.length !== 4) return null;
@@ -67,6 +84,7 @@
     var categories = Array.isArray(config.categories) ? config.categories.slice() : [];
     var records = Array.isArray(config.records) ? config.records.slice() : [];
     var configuredFeatures = Array.isArray(config.features) ? config.features.slice() : [];
+    var facets = Array.isArray(config.facets) ? config.facets.slice() : [];
     var categoryKeys = categories.map(function(category) {
       return String(category.category_key || '');
     });
@@ -78,6 +96,27 @@
     }
     var validCategory = Object.create(null);
     categoryKeys.forEach(function(key) { validCategory[key] = true; });
+
+    var facetByKey = Object.create(null);
+    var facetKeys = [];
+    facets.forEach(function(facet, facetIndex) {
+      var facetKey = String(facet.facet_key || '');
+      var values = Array.isArray(facet.values) ? facet.values.slice() : [];
+      var valueKeys = values.map(function(value) {
+        return String(value.value_key || '');
+      });
+      if (!facetKey || !valueKeys.length || valueKeys.some(function(key) { return !key; })) {
+        throw new Error('Local Reference facet ' + facetIndex + ' requires named values.');
+      }
+      if (facetByKey[facetKey] || unique(valueKeys).length !== valueKeys.length) {
+        throw new Error('Local Reference facet and value keys must be unique.');
+      }
+      facet.facet_key = facetKey;
+      facet.values = values;
+      facet.value_keys = valueKeys;
+      facetByKey[facetKey] = facet;
+      facetKeys.push(facetKey);
+    });
 
     records.forEach(function(record, index) {
       if (!record || !validCategory[String(record.category_key || '')]) {
@@ -99,6 +138,16 @@
         1,
         Number(record.geometry_component_count) || 1
       );
+      record.facet_values = record.facet_values || {};
+      facetKeys.forEach(function(facetKey) {
+        var facetValue = String(record.facet_values[facetKey] || '');
+        if (facetByKey[facetKey].value_keys.indexOf(facetValue) === -1) {
+          throw new Error(
+            'Local Reference record ' + index + ' has an unknown ' + facetKey + ' facet value.'
+          );
+        }
+        record.facet_values[facetKey] = facetValue;
+      });
     });
 
     var featureSelectionSupported = config.feature_selection_supported === true;
@@ -180,6 +229,12 @@
     var appliedSelected = copySet(defaultSelected);
     var draftFeatureKeys = new Set();
     var appliedFeatureKeys = new Set();
+    var defaultFacetSelected = Object.create(null);
+    facetKeys.forEach(function(facetKey) {
+      defaultFacetSelected[facetKey] = new Set(facetByKey[facetKey].value_keys);
+    });
+    var draftFacetSelected = copySetMap(defaultFacetSelected);
+    var appliedFacetSelected = copySetMap(defaultFacetSelected);
     var autoSupported = config.auto_supported === true;
     var auto = autoSupported && config.auto_default === true;
     var autoZoomSupported = config.auto_zoom_supported === true;
@@ -188,6 +243,7 @@
     function apply() {
       appliedSelected = copySet(draftSelected);
       appliedFeatureKeys = copySet(draftFeatureKeys);
+      appliedFacetSelected = copySetMap(draftFacetSelected);
       return snapshot();
     }
 
@@ -218,6 +274,31 @@
     function setAutoZoom(value) {
       autoZoom = autoZoomSupported && value === true;
       return snapshot();
+    }
+
+    function setFacetValue(facetKey, valueKey, selected) {
+      facetKey = String(facetKey || '');
+      valueKey = String(valueKey || '');
+      if (!facetByKey[facetKey] || facetByKey[facetKey].value_keys.indexOf(valueKey) === -1) {
+        throw new Error('Unknown Local Reference facet value: ' + facetKey + '/' + valueKey);
+      }
+      if (selected) draftFacetSelected[facetKey].add(valueKey);
+      else draftFacetSelected[facetKey].delete(valueKey);
+      return maybeApply();
+    }
+
+    function facetAll(facetKey) {
+      facetKey = String(facetKey || '');
+      if (!facetByKey[facetKey]) throw new Error('Unknown Local Reference facet: ' + facetKey);
+      draftFacetSelected[facetKey] = copySet(defaultFacetSelected[facetKey]);
+      return maybeApply();
+    }
+
+    function facetNone(facetKey) {
+      facetKey = String(facetKey || '');
+      if (!facetByKey[facetKey]) throw new Error('Unknown Local Reference facet: ' + facetKey);
+      draftFacetSelected[facetKey] = new Set();
+      return maybeApply();
     }
 
     function all() {
@@ -256,6 +337,8 @@
       appliedSelected = copySet(defaultSelected);
       draftFeatureKeys = new Set();
       appliedFeatureKeys = new Set();
+      draftFacetSelected = copySetMap(defaultFacetSelected);
+      appliedFacetSelected = copySetMap(defaultFacetSelected);
       auto = autoSupported && config.auto_default === true;
       autoZoom = autoZoomSupported && config.auto_zoom_default === true;
       return snapshot();
@@ -298,9 +381,12 @@
 
     function recordMatches(record) {
       if (!appliedSelected.has(record.category_key)) return false;
-      return !appliedFeatureKeys.size || appliedFeatureKeys.has(
-        record.semantic_feature_key
-      );
+      if (appliedFeatureKeys.size && !appliedFeatureKeys.has(record.semantic_feature_key)) {
+        return false;
+      }
+      return facetKeys.every(function(facetKey) {
+        return appliedFacetSelected[facetKey].has(record.facet_values[facetKey]);
+      });
     }
 
     function countRows(rows) {
@@ -354,6 +440,35 @@
           currently_showing: countRows(showingRows)
         };
       });
+      var facetCounts = {};
+      facets.forEach(function(facet) {
+        var facetKey = facet.facet_key;
+        var valueCounts = {};
+        facet.values.forEach(function(value) {
+          var valueKey = String(value.value_key);
+          var totalRows = records.filter(function(record) {
+            return record.facet_values[facetKey] === valueKey;
+          });
+          var showingRows = showing.filter(function(record) {
+            return record.facet_values[facetKey] === valueKey;
+          });
+          valueCounts[valueKey] = {
+            total: countRows(totalRows),
+            currently_showing: countRows(showingRows)
+          };
+        });
+        facetCounts[facetKey] = valueCounts;
+      });
+      var draftFacets = {};
+      var appliedFacets = {};
+      facetKeys.forEach(function(facetKey) {
+        draftFacets[facetKey] = facetByKey[facetKey].value_keys.filter(function(valueKey) {
+          return draftFacetSelected[facetKey].has(valueKey);
+        });
+        appliedFacets[facetKey] = facetByKey[facetKey].value_keys.filter(function(valueKey) {
+          return appliedFacetSelected[facetKey].has(valueKey);
+        });
+      });
       return {
         auto_supported: autoSupported,
         auto: auto,
@@ -375,14 +490,18 @@
         }),
         draft_features: selectedFeatureRows(draftFeatureKeys),
         applied_features: selectedFeatureRows(appliedFeatureKeys),
+        draft_facets: draftFacets,
+        applied_facets: appliedFacets,
         has_pending_changes:
           setsDiffer(draftSelected, appliedSelected) ||
-          setsDiffer(draftFeatureKeys, appliedFeatureKeys),
+          setsDiffer(draftFeatureKeys, appliedFeatureKeys) ||
+          setMapsDiffer(draftFacetSelected, appliedFacetSelected),
         counts: {
           total: countRows(records),
           currently_showing: countRows(showing)
         },
         category_counts: categoryCounts,
+        facet_counts: facetCounts,
         visible_geometry_keys: showing.map(function(record) {
           return record.geometry_key;
         }),
@@ -395,6 +514,9 @@
       setCategory: setCategory,
       setAuto: setAuto,
       setAutoZoom: setAutoZoom,
+      setFacetValue: setFacetValue,
+      facetAll: facetAll,
+      facetNone: facetNone,
       addFeature: addFeature,
       removeFeature: removeFeature,
       featureSearch: featureSearch,

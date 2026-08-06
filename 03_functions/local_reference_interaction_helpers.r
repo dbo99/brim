@@ -1,8 +1,9 @@
 # ==== local_reference_interaction_helpers.r ================================
 ##
 ## Shared contracts for the bounded Local > Reference interaction framework.
-## Phase 2 executes the Trails contract beside the accepted Wilderness Study
-## Areas exemplar. The remaining nine rows stay validation-only.
+## Phase 3 executes Federal Wilderness beside the accepted Trails and
+## Wilderness Study Areas implementations. The remaining eight rows stay
+## validation-only.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -71,12 +72,14 @@ pt_validate_local_reference_config <- function() {
     "category_definition", "unknown_style", "shared_management_style",
     "legend_mode", "filter_mode", "auto_supported", "auto_default",
     "count_mode", "primary_count_mode", "primary_count_label",
-    "show_component_count", "show_category_count", "component_count_label",
+    "show_component_count", "show_category_count", "category_count_mode",
+    "component_count_label",
     "category_heading", "card_caution", "popup_layout",
     "feature_selection_supported", "feature_selection_mode",
     "feature_search_fields", "feature_display_field",
     "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
-    "preserve_view_on_reset", "retention_enabled", "search_fields",
+    "preserve_view_on_reset", "retention_enabled",
+    "distinguish_units_supported", "search_fields", "filter_facets",
     "category_sort_order"
   )
   missing_registry <- setdiff(required_registry, names(registry))
@@ -129,6 +132,11 @@ pt_validate_local_reference_config <- function() {
   ))) {
     stop("Local Reference primary_count_mode contains an unsupported value.")
   }
+  if (any(!registry$category_count_mode %in% c(
+    "semantic_feature", "record", "geometry_component"
+  ))) {
+    stop("Local Reference category_count_mode contains an unsupported value.")
+  }
   if (any(!nzchar(trimws(registry$primary_count_label)))) {
     stop("Local Reference primary_count_label values must be nonblank.")
   }
@@ -137,20 +145,21 @@ pt_validate_local_reference_config <- function() {
     stop("Visible Local Reference component counts require a full component label.")
   }
   category_heading_rows <- which(nzchar(trimws(registry$category_heading)))
-  if (!identical(category_heading_rows, c(1L, 4L)) ||
+  if (!identical(category_heading_rows, c(1L, 4L, 5L)) ||
       !identical(registry$category_heading[[1]], "Trail") ||
       !identical(
         registry$category_heading[[4]],
         "BLM recommendation for wilderness designation"
-      )) {
-    stop("Phase 2 category headings must remain exact for Trails and WSA.")
+      ) ||
+      !identical(registry$category_heading[[5]], "Managing agency")) {
+    stop("Active Local Reference category headings differ from the approved contract.")
   }
   if (!all(registry$primary_count_mode == "semantic_feature")) {
     stop("Default Local Reference visible counts must use semantic features.")
   }
   if (any(!registry$popup_layout %in% c("standard", "tabbed_card")) ||
-      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L))) {
-    stop("Phase 2 tabbed Local Reference popup layout must remain Trails/WSA-only.")
+      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L, 5L))) {
+    stop("Tabbed Local Reference popup layout must remain Trails/WSA/Federal Wilderness-only.")
   }
 
   expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE)
@@ -160,15 +169,17 @@ pt_validate_local_reference_config <- function() {
     stop("Local Reference Auto support/default contract differs from the approved 11-layer matrix.")
   }
   if (!identical(
-    which(registry$implementation_status %in% c("phase2_trails", "phase1_wsa")),
-    c(1L, 4L)
+    which(registry$implementation_status %in% c(
+      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness"
+    )),
+    c(1L, 4L, 5L)
   )) {
-    stop("Phase 2 execution must remain limited to Trails and WSA.")
+    stop("Local Reference execution must remain limited to Trails, WSA, and Federal Wilderness.")
   }
-  if (!identical(which(registry$feature_selection_supported), c(1L, 4L)) ||
-      !identical(which(registry$auto_zoom_supported), c(1L, 4L)) ||
-      !identical(which(registry$auto_zoom_default), c(1L, 4L))) {
-    stop("Phase 2 named-feature selection and Auto-zoom must remain Trails/WSA-only.")
+  if (!identical(which(registry$feature_selection_supported), c(1L, 4L, 5L)) ||
+      !identical(which(registry$auto_zoom_supported), c(1L, 4L, 5L)) ||
+      !identical(which(registry$auto_zoom_default), c(1L, 4L, 5L))) {
+    stop("Named-feature selection and Auto-zoom must remain Trails/WSA/Federal Wilderness-only.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[1]], use.names = FALSE),
@@ -185,8 +196,30 @@ pt_validate_local_reference_config <- function() {
   )) {
     stop("Phase 1 WSA named-feature search fields differ from the approved contract.")
   }
-  if (!identical(which(registry$retention_enabled), c(1L, 4L))) {
-    stop("Phase 2 field retention must remain limited to Trails and WSA.")
+  if (!identical(
+    unlist(registry$feature_search_fields[[5]], use.names = FALSE),
+    c(
+      "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
+      "GlobalID", "FAU_ID", "pt_fw_agency_name", "pt_fw_alternate_names",
+      "pt_fw_wilderness_abbreviation", "pt_fw_original_public_law"
+    )
+  )) {
+    stop("Federal Wilderness named-feature search fields differ from the approved contract.")
+  }
+  if (!identical(which(registry$retention_enabled), c(1L, 4L, 5L))) {
+    stop("Field retention must remain limited to Trails, WSA, and Federal Wilderness.")
+  }
+  if (!identical(which(registry$distinguish_units_supported), 5L)) {
+    stop("Distinguish named units must remain Federal Wilderness-only.")
+  }
+  facets <- unclass(registry$filter_facets)
+  if (length(facets) != nrow(registry) ||
+      !identical(which(lengths(facets) > 0L), 5L) ||
+      !identical(
+        vapply(facets[[5]], `[[`, character(1), "facet_key"),
+        c("management_pattern", "designation_history", "geographic_context")
+      )) {
+    stop("Federal Wilderness must retain its exact three approved filter facets.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -264,7 +297,19 @@ pt_validate_local_reference_config <- function() {
     ))) {
       stop(layer_id, " contains an unsupported legend_swatch_style token.")
     }
-    if (any(!definition$provisional)) {
+    if (identical(layer_id, "federal_wilderness")) {
+      known <- definition$category_key %in% c("blm", "usfs", "nps", "fws")
+      expected_colors <- c(
+        blm = "#B8860B", usfs = "#228B22", nps = "#54278F", fws = "#1F78B4"
+      )
+      actual_colors <- stats::setNames(
+        definition$fill_color[known], definition$category_key[known]
+      )
+      if (!identical(actual_colors[names(expected_colors)], expected_colors) ||
+          any(definition$provisional)) {
+        stop("Federal Wilderness must retain its accepted four-agency palette.")
+      }
+    } else if (any(!definition$provisional)) {
       stop(layer_id, " palette tokens must remain provisional until BRIM basemap review.")
     }
     expected_order <- unlist(registry$category_sort_order[registry$layer_id == layer_id])
@@ -1811,6 +1856,677 @@ pt_write_local_reference_wsa_qa <- function(x, output_dir, prefix = "local_refer
   paths
 }
 
+pt_local_reference_fw_components <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMPONENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_layer", "component_id", "wilderness_id", "source_globalid", "source_semantic_id",
+    "source_nlcs_id", "source_name", "standardized_name",
+    "managing_agency_code", "managing_agency", "co_managing_agencies",
+    "local_managing_unit", "local_unit_url", "blm_role", "blm_role_summary",
+    "geographic_state", "source_gis_acres", "calculated_acres",
+    "component_description", "geometry_caveat",
+    "source_designation_date", "source_public_law_code", "last_verified"
+  ))
+}
+
+pt_local_reference_fw_reference <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_REFERENCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "wilderness_id", "source_semantic_id", "official_name", "alternate_names",
+    "wilderness_abbreviation",
+    "states", "designation_date", "designation_year", "original_public_law",
+    "subsequent_public_laws", "legal_authority", "official_reference_acres",
+    "source_component_count", "managing_agencies", "shared_management",
+    "wilderness_summary_short", "management_access_summary",
+    "official_page_url", "direct_official_agency_page_url", "official_map_url",
+    "primary_management_plan_title", "primary_management_plan_url",
+    "local_unit_pages", "wilderness_connect_url", "congress_search_url",
+    "nepa_search_url", "courtlistener_search_url",
+    "google_scholar_case_search_url", "web_search_url", "acreage_source",
+    "last_verified"
+  ))
+}
+
+pt_local_reference_fw_designations <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DESIGNATION_VALIDATION_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "wilderness_id", "official_wilderness_name",
+    "resolved_original_designation_date", "resolved_designation_year",
+    "original_public_law", "original_law_enactment_date",
+    "subsequent_public_laws", "subsequent_law_count",
+    "evidence_source", "evidence_url", "validation_status",
+    "explanatory_note", "prior_reference_designation_date",
+    "prior_reference_designation_year", "prior_reference_original_public_law",
+    "prior_reference_subsequent_public_laws"
+  ))
+}
+
+pt_local_reference_fw_documents <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DOCUMENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "document_id", "wilderness_id", "component_id", "document_title",
+    "document_type", "agency", "publication_date", "geographic_scope",
+    "document_url", "landing_page_url", "authority_level",
+    "wilderness_wide_or_component_specific", "last_verified", "notes"
+  ))
+}
+
+pt_local_reference_fw_common_policy <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMMON_POLICY_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "policy_id", "topic", "recommended_language", "use", "source_basis"
+  ))
+}
+
+pt_local_reference_fw_source_register <- function(
+  path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_SOURCE_REGISTER_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_id", "title", "agency", "url", "source_type", "use",
+    "verification_date", "limitations"
+  ))
+}
+
+pt_local_reference_fw_law_token <- function(x) {
+  value <- toupper(pt_local_reference_clean_chr(x))
+  match_value <- regmatches(
+    value,
+    regexpr("PUBLIC LAW[[:space:]]+[0-9]+-[0-9]+", value)
+  )
+  gsub("[[:space:]]+", " ", match_value)
+}
+
+pt_validate_local_reference_fw_research <- function(
+  components = pt_local_reference_fw_components(),
+  reference = pt_local_reference_fw_reference(),
+  designations = pt_local_reference_fw_designations(),
+  documents = pt_local_reference_fw_documents(),
+  policy = pt_local_reference_fw_common_policy(),
+  sources = pt_local_reference_fw_source_register()
+) {
+  if (nrow(components) != 197L || anyDuplicated(components$component_id) ||
+      length(unique(components$wilderness_id)) != 158L) {
+    stop("Federal Wilderness component crosswalk must retain 197 unique components and 158 wildernesses.")
+  }
+  if (nrow(reference) != 158L || anyDuplicated(reference$wilderness_id) ||
+      !setequal(unique(components$wilderness_id), reference$wilderness_id)) {
+    stop("Federal Wilderness semantic reference must be a complete one-row-per-wilderness lookup.")
+  }
+  designation_dates <- pt_local_reference_clean_chr(
+    designations$resolved_original_designation_date
+  )
+  designation_years <- suppressWarnings(as.integer(
+    designations$resolved_designation_year
+  ))
+  allowed_status <- c("PASS", "PASS WITH DOCUMENTED EXPLANATION")
+  if (nrow(designations) != 158L || anyDuplicated(designations$wilderness_id) ||
+      !setequal(reference$wilderness_id, designations$wilderness_id) ||
+      any(!nzchar(designation_dates)) ||
+      any(!nzchar(pt_local_reference_clean_chr(designations$original_public_law))) ||
+      any(designation_years != suppressWarnings(as.integer(substr(designation_dates, 1, 4)))) ||
+      any(!designations$validation_status %in% allowed_status) ||
+      sum(designations$validation_status == "PASS") != 154L ||
+      sum(designations$validation_status == "PASS WITH DOCUMENTED EXPLANATION") != 4L) {
+    stop("Federal Wilderness designation validation must retain 158 resolved records, 154 PASS and four documented explanations.")
+  }
+  expected_agencies <- c(BLM = 105L, FWS = 2L, NPS = 15L, USFS = 75L)
+  actual_agencies <- table(factor(components$managing_agency, levels = names(expected_agencies)))
+  if (!identical(as.integer(actual_agencies), unname(expected_agencies)) ||
+      sum(components$geographic_state == "CA", na.rm = TRUE) != 194L ||
+      sum(components$geographic_state == "NV", na.rm = TRUE) != 3L) {
+    stop("Federal Wilderness agency or geographic component counts differ from the accepted snapshot.")
+  }
+  shared <- tolower(pt_local_reference_clean_chr(reference$shared_management)) == "true"
+  if (sum(shared) != 14L || sum(!shared) != 144L) {
+    stop("Federal Wilderness management-pattern counts must remain 144 single and 14 shared.")
+  }
+  has_later <- nzchar(pt_local_reference_clean_chr(designations$subsequent_public_laws))
+  if (sum(has_later) != 22L || sum(!has_later) != 136L) {
+    stop("Federal Wilderness resolved designation-history counts must remain 136 original-only and 22 with later law(s).")
+  }
+  if (nrow(documents) != 360L || anyDuplicated(documents$document_id) ||
+      sum(documents$document_type == "public law", na.rm = TRUE) != 176L ||
+      !setequal(setdiff(unique(documents$wilderness_id), "ALL"), reference$wilderness_id)) {
+    stop("Federal Wilderness documents must retain the accepted 360-row keyed lookup.")
+  }
+  public_laws <- documents[documents$document_type == "public law", , drop = FALSE]
+  public_laws$law_token <- pt_local_reference_fw_law_token(public_laws$document_title)
+  expected_laws <- lapply(seq_len(nrow(designations)), function(i) {
+    later <- trimws(unlist(strsplit(
+      pt_local_reference_clean_chr(designations$subsequent_public_laws[[i]]),
+      ";",
+      fixed = TRUE
+    )))
+    unique(pt_local_reference_fw_law_token(c(
+      designations$original_public_law[[i]], later[nzchar(later)]
+    )))
+  })
+  laws_ok <- vapply(seq_len(nrow(designations)), function(i) {
+    actual <- unique(public_laws$law_token[
+      public_laws$wilderness_id == designations$wilderness_id[[i]]
+    ])
+    all(actual[nzchar(actual)] %in% expected_laws[[i]][nzchar(expected_laws[[i]])])
+  }, logical(1))
+  if (!all(laws_ok)) {
+    stop(
+      "Federal Wilderness public-law lookup contradicts resolved designation records for: ",
+      paste(designations$wilderness_id[!laws_ok], collapse = ", ")
+    )
+  }
+  if (nrow(policy) != 10L || anyDuplicated(policy$policy_id)) {
+    stop("Federal Wilderness common-policy lookup must retain ten unique rows.")
+  }
+  required_source_titles <- c(
+    "BLM CA Federal Wilderness Areas Polygon FeatureServer",
+    "National Wilderness Preservation System Law Library"
+  )
+  if (!all(required_source_titles %in% sources$title)) {
+    stop("Federal Wilderness source register is missing its GIS or Wilderness Act authority.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_fw_hover_html <- function(df) {
+  vapply(seq_len(nrow(df)), function(i) {
+    row <- df[i, , drop = FALSE]
+    named_area <- pt_local_reference_format_square_miles_from_acres(
+      row$pt_fw_official_reference_acres
+    )
+    named_area <- sub("^~", "", named_area)
+    cues <- c(
+      if (identical(row$pt_fw_management_pattern, "shared_multi_agency")) {
+        paste0("Shared: ", row$pt_fw_managing_agencies)
+      } else {
+        row$pt_fw_agency_name
+      },
+      paste0("Designated ", row$pt_fw_designation_year),
+      if (nzchar(named_area)) paste0("Approx. area: ", named_area) else "",
+      if (identical(row$pt_fw_geographic_context, "western_nevada_context")) {
+        "Western Nevada context"
+      } else {
+        ""
+      }
+    )
+    cues <- cues[nzchar(cues)]
+    paste0(
+      "<div class=\"pt-fw-hover-lines\">",
+      "<div class=\"pt-fw-hover-line pt-fw-hover-title\">",
+      htmltools::htmlEscape(row$pt_fw_official_name), "</div>",
+      paste0(
+        "<div class=\"pt-fw-hover-line\">",
+        htmltools::htmlEscape(cues), "</div>",
+        collapse = ""
+      ),
+      "</div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_fw_runtime_geometry <- function(x) {
+  sf_column <- attr(x, "sf_column")
+  if (is.null(sf_column) || !length(sf_column) || !sf_column %in% names(x)) {
+    sf_column <- names(x)[vapply(x, inherits, logical(1), what = "sfc")][[1]]
+  }
+  keep <- c(
+    "pt_nickname", "pt_display_name", "pt_geom_type",
+    "component_id", "wilderness_id",
+    "pt_local_reference_feature_key", "pt_local_reference_semantic_key",
+    "pt_local_reference_geometry_key", "pt_local_reference_geometry_components",
+    "pt_local_reference_category_key", "pt_local_reference_category_label",
+    "fill_col", "line_col", "fill_opacity", "line_weight", "line_dash",
+    "pt_legend_swatch_style",
+    "pt_fw_management_pattern", "pt_fw_designation_history",
+    "pt_fw_geographic_context",
+    "pt_reference_label_text", "pt_reference_hover_html",
+    "pt_reference_hover_text", sf_column
+  )
+  missing <- setdiff(keep, names(x))
+  if (length(missing)) {
+    stop("Federal Wilderness runtime geometry is missing: ", paste(missing, collapse = ", "))
+  }
+  x[, keep, drop = FALSE]
+}
+
+pt_prepare_local_reference_federal_wilderness <- function(
+  x,
+  validate_snapshot = FALSE,
+  build_display = TRUE,
+  components_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMPONENTS_PATH,
+  reference_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_REFERENCE_PATH,
+  designations_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DESIGNATION_VALIDATION_PATH,
+  documents_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_DOCUMENTS_PATH,
+  policy_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMMON_POLICY_PATH,
+  sources_path = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_SOURCE_REGISTER_PATH
+) {
+  pt_validate_local_reference_config()
+  if (!inherits(x, "sf") || !nrow(x)) {
+    stop("Federal Wilderness preparation requires a non-empty sf object.")
+  }
+  resolved <- pt_local_reference_resolve_aliases(
+    "federal_wilderness", names(x), require_all = TRUE
+  )
+  get_field <- function(name) x[[resolved[[name]]]]
+  components <- pt_local_reference_fw_components(components_path)
+  reference <- pt_local_reference_fw_reference(reference_path)
+  designations <- pt_local_reference_fw_designations(designations_path)
+  documents <- pt_local_reference_fw_documents(documents_path)
+  policy <- pt_local_reference_fw_common_policy(policy_path)
+  sources <- pt_local_reference_fw_source_register(sources_path)
+  pt_validate_local_reference_fw_research(
+    components, reference, designations, documents, policy, sources
+  )
+
+  source_component_id <- tolower(gsub(
+    "[{}[:space:]]", "", pt_local_reference_clean_chr(get_field("global_id"))
+  ))
+  source_component_id <- ifelse(
+    startsWith(source_component_id, "blmca-"),
+    source_component_id,
+    paste0("blmca-", source_component_id)
+  )
+  source_wilderness_id <- paste0("fw-", pt_local_reference_clean_chr(get_field("fau_id")))
+  if ("component_id" %in% names(x) &&
+      !identical(as.character(x$component_id), source_component_id)) {
+    stop("Federal Wilderness component_id differs from normalized GlobalID.")
+  }
+  if ("wilderness_id" %in% names(x) &&
+      !identical(as.character(x$wilderness_id), source_wilderness_id)) {
+    stop("Federal Wilderness wilderness_id differs from FAU_ID.")
+  }
+  x$component_id <- source_component_id
+  x$wilderness_id <- source_wilderness_id
+  component_index <- match(x$component_id, components$component_id)
+  reference_index <- match(x$wilderness_id, reference$wilderness_id)
+  designation_index <- match(x$wilderness_id, designations$wilderness_id)
+  if (anyNA(component_index) || anyNA(reference_index) || anyNA(designation_index)) {
+    stop("Federal Wilderness geometry IDs are not fully covered by accepted lookups.")
+  }
+  if (any(components$wilderness_id[component_index] != x$wilderness_id)) {
+    stop("Federal Wilderness component-to-semantic lookup relationship changed.")
+  }
+
+  x$pt_fw_global_id <- pt_local_reference_clean_chr(get_field("global_id"))
+  x$pt_fw_fau_id <- pt_local_reference_clean_chr(get_field("fau_id"))
+  x$pt_fw_nlcs_id <- pt_local_reference_clean_chr(get_field("nlcs_id"))
+  x$pt_fw_source_name <- pt_local_reference_clean_chr(get_field("name"))
+  x$pt_fw_agency_code <- pt_local_reference_clean_chr(get_field("agency_code"))
+  x$pt_fw_agency_name <- components$managing_agency[component_index]
+  x$pt_fw_admin_state <- components$geographic_state[component_index]
+  x$pt_fw_source_gis_acres <- suppressWarnings(as.numeric(get_field("gis_acres")))
+  x$pt_fw_source_modify_date <- pt_local_reference_format_date(get_field("modify_date"))
+  x$pt_fw_official_name <- reference$official_name[reference_index]
+  x$pt_fw_alternate_names <- pt_local_reference_clean_chr(
+    reference$alternate_names[reference_index]
+  )
+  x$pt_fw_wilderness_abbreviation <- pt_local_reference_clean_chr(
+    reference$wilderness_abbreviation[reference_index]
+  )
+  x$pt_fw_states <- reference$states[reference_index]
+  x$pt_fw_designation_date <- designations$resolved_original_designation_date[designation_index]
+  x$pt_fw_designation_year <- designations$resolved_designation_year[designation_index]
+  x$pt_fw_original_public_law <- designations$original_public_law[designation_index]
+  x$pt_fw_subsequent_public_laws <- pt_local_reference_clean_chr(
+    designations$subsequent_public_laws[designation_index]
+  )
+  x$pt_fw_designation_validation_status <- designations$validation_status[designation_index]
+  x$pt_fw_designation_explanatory_note <- pt_local_reference_clean_chr(
+    designations$explanatory_note[designation_index]
+  )
+  x$pt_fw_designation_evidence_url <- designations$evidence_url[designation_index]
+  x$pt_fw_official_reference_acres <- suppressWarnings(as.numeric(
+    reference$official_reference_acres[reference_index]
+  ))
+  x$pt_fw_acreage_source <- pt_local_reference_clean_chr(
+    reference$acreage_source[reference_index]
+  )
+  x$pt_fw_source_component_count <- as.integer(reference$source_component_count[reference_index])
+  x$pt_fw_managing_agencies <- reference$managing_agencies[reference_index]
+  x$pt_fw_summary_short <- pt_local_reference_clean_chr(
+    reference$wilderness_summary_short[reference_index]
+  )
+  x$pt_fw_management_access_summary <- pt_local_reference_clean_chr(
+    reference$management_access_summary[reference_index]
+  )
+  x$pt_fw_local_managing_unit <- pt_local_reference_clean_chr(
+    components$local_managing_unit[component_index]
+  )
+  x$pt_fw_local_unit_url <- pt_local_reference_clean_chr(
+    components$local_unit_url[component_index]
+  )
+  x$pt_fw_blm_office <- pt_local_reference_clean_chr(
+    components$blm_office[component_index]
+  )
+  x$pt_fw_source_layer <- pt_local_reference_clean_chr(
+    components$source_layer[component_index]
+  )
+  x$pt_fw_geometry_caveat <- pt_local_reference_clean_chr(
+    components$geometry_caveat[component_index]
+  )
+  x$pt_fw_component_description <- pt_local_reference_clean_chr(
+    components$component_description[component_index]
+  )
+  x$pt_fw_direct_official_agency_page_url <- pt_local_reference_clean_chr(
+    reference$direct_official_agency_page_url[reference_index]
+  )
+  x$pt_fw_official_page_url <- pt_local_reference_clean_chr(
+    reference$official_page_url[reference_index]
+  )
+  x$pt_fw_official_map_url <- pt_local_reference_clean_chr(
+    reference$official_map_url[reference_index]
+  )
+  x$pt_fw_primary_management_plan_title <- pt_local_reference_clean_chr(
+    reference$primary_management_plan_title[reference_index]
+  )
+  x$pt_fw_primary_management_plan_url <- pt_local_reference_clean_chr(
+    reference$primary_management_plan_url[reference_index]
+  )
+  x$pt_fw_wilderness_connect_url <- pt_local_reference_clean_chr(
+    reference$wilderness_connect_url[reference_index]
+  )
+  x$pt_fw_congress_search_url <- pt_local_reference_clean_chr(
+    reference$congress_search_url[reference_index]
+  )
+  x$pt_fw_nepa_search_url <- pt_local_reference_clean_chr(
+    reference$nepa_search_url[reference_index]
+  )
+  x$pt_fw_courtlistener_search_url <- pt_local_reference_clean_chr(
+    reference$courtlistener_search_url[reference_index]
+  )
+  x$pt_fw_google_scholar_case_search_url <- pt_local_reference_clean_chr(
+    reference$google_scholar_case_search_url[reference_index]
+  )
+  x$pt_fw_web_search_url <- pt_local_reference_clean_chr(
+    reference$web_search_url[reference_index]
+  )
+  x$pt_fw_last_verified <- pmax(
+    pt_local_reference_clean_chr(components$last_verified[component_index]),
+    pt_local_reference_clean_chr(reference$last_verified[reference_index])
+  )
+  x$pt_fw_management_pattern <- ifelse(
+    tolower(pt_local_reference_clean_chr(reference$shared_management[reference_index])) == "true",
+    "shared_multi_agency",
+    "single_agency"
+  )
+  x$pt_fw_designation_history <- ifelse(
+    nzchar(x$pt_fw_subsequent_public_laws),
+    "has_subsequent_law",
+    "original_only"
+  )
+  x$pt_fw_geographic_context <- ifelse(
+    x$pt_fw_admin_state == "NV",
+    "western_nevada_context",
+    "california"
+  )
+  x$pt_fw_state_label <- ifelse(x$pt_fw_admin_state == "NV", "Nevada", "California")
+  x$pt_fw_management_jurisdiction <- ifelse(
+    x$pt_fw_geographic_context == "western_nevada_context",
+    "BLM Nevada",
+    ""
+  )
+  x$pt_fw_management_district <- ifelse(
+    x$pt_fw_geographic_context == "western_nevada_context",
+    "Winnemucca District",
+    ""
+  )
+  x$pt_fw_brim_inclusion <- ifelse(
+    x$pt_fw_geographic_context == "western_nevada_context",
+    "Western Nevada context",
+    "California source context"
+  )
+  x$pt_management_local_managing_agency <- x$pt_fw_agency_name
+  x$pt_management_co_managing_agencies <- pt_local_reference_clean_chr(
+    components$co_managing_agencies[component_index]
+  )
+  x$pt_management_blm_role <- components$blm_role[component_index]
+  x$pt_management_blm_role_summary <- components$blm_role_summary[component_index]
+  x$pt_local_reference_feature_key <- x$wilderness_id
+  x$pt_local_reference_semantic_key <- x$wilderness_id
+  x$pt_local_reference_geometry_key <- x$component_id
+  x$pt_local_reference_geometry_components <- 1L
+  x$pt_fw_calculated_geometry_acres <- suppressWarnings(as.numeric(
+    components$calculated_acres[component_index]
+  ))
+  x <- pt_local_reference_apply_category_tokens(
+    x,
+    "federal_wilderness",
+    pt_local_reference_category_key("federal_wilderness", x$pt_fw_agency_code)
+  )
+  if (isTRUE(build_display)) {
+    x$pt_reference_label_text <- x$pt_fw_official_name
+    x$pt_reference_hover_html <- pt_local_reference_fw_hover_html(x)
+    x$pt_reference_hover_text <- paste(
+      x$pt_fw_official_name,
+      x$pt_fw_agency_name,
+      x$pt_fw_designation_year,
+      sep = " · "
+    )
+  }
+  if (isTRUE(validate_snapshot)) {
+    expected_categories <- c(blm = 105L, usfs = 75L, nps = 15L, fws = 2L)
+    actual_categories <- table(factor(
+      x$pt_local_reference_category_key,
+      levels = names(expected_categories)
+    ))
+    if (nrow(x) != 197L || length(unique(x$wilderness_id)) != 158L ||
+        anyDuplicated(x$component_id) ||
+        !identical(as.integer(actual_categories), unname(expected_categories)) ||
+        sum(x$pt_fw_geographic_context == "western_nevada_context") != 3L ||
+        length(unique(x$wilderness_id[x$pt_fw_management_pattern == "shared_multi_agency"])) != 14L ||
+        length(unique(x$wilderness_id[x$pt_fw_designation_history == "has_subsequent_law"])) != 22L) {
+      stop("Federal Wilderness prepared snapshot differs from the accepted 197/158 contract.")
+    }
+  }
+  if (isTRUE(build_display)) pt_local_reference_fw_runtime_geometry(x) else x
+}
+
+pt_local_reference_fw_qa <- function(x) {
+  data.frame(
+    metric = c(
+      "mapped_components", "named_wildernesses", "california_components",
+      "western_nevada_components", "single_agency_wildernesses",
+      "shared_multi_agency_wildernesses", "original_only_wildernesses",
+      "wildernesses_with_subsequent_law"
+    ),
+    value = c(
+      nrow(x), length(unique(x$wilderness_id)),
+      sum(x$pt_fw_geographic_context == "california"),
+      sum(x$pt_fw_geographic_context == "western_nevada_context"),
+      length(unique(x$wilderness_id[x$pt_fw_management_pattern == "single_agency"])),
+      length(unique(x$wilderness_id[x$pt_fw_management_pattern == "shared_multi_agency"])),
+      length(unique(x$wilderness_id[x$pt_fw_designation_history == "original_only"])),
+      length(unique(x$wilderness_id[x$pt_fw_designation_history == "has_subsequent_law"]))
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+pt_write_local_reference_fw_qa <- function(x, output_dir, prefix = "local_reference_federal_wilderness") {
+  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+  paths <- c(
+    snapshot = file.path(output_dir, paste0(prefix, "_snapshot.csv")),
+    category_counts = file.path(output_dir, paste0(prefix, "_category_counts.csv"))
+  )
+  utils::write.csv(pt_local_reference_fw_qa(x), paths[["snapshot"]], row.names = FALSE, na = "")
+  utils::write.csv(
+    pt_local_reference_category_qa(x, "federal_wilderness"),
+    paths[["category_counts"]],
+    row.names = FALSE,
+    na = ""
+  )
+  paths
+}
+
+pt_local_reference_fw_feature_catalog <- function(x, reference, components) {
+  if (!inherits(x, "sf")) stop("Federal Wilderness feature bounds require an sf object.")
+  semantic_keys <- as.character(x$pt_local_reference_semantic_key)
+  semantic_order <- unique(semantic_keys)
+  reference_index <- match(semantic_order, reference$wilderness_id)
+  if (anyNA(reference_index)) stop("Federal Wilderness search catalog lacks semantic references.")
+  x_wgs84 <- if (isTRUE(sf::st_crs(x) == sf::st_crs(4326))) x else sf::st_transform(x, 4326)
+  lapply(seq_along(semantic_order), function(i) {
+    semantic_key <- semantic_order[[i]]
+    index <- which(semantic_keys == semantic_key)
+    ref <- reference[reference_index[[i]], , drop = FALSE]
+    component_index <- match(x$component_id[index], components$component_id)
+    search_text <- tolower(paste(unique(pt_local_reference_clean_chr(c(
+      ref$official_name, ref$alternate_names, ref$wilderness_abbreviation,
+      ref$states, ref$managing_agencies, semantic_key,
+      components$standardized_name[component_index],
+      components$local_managing_unit[component_index],
+      components$blm_office[component_index]
+    ))), collapse = " "))
+    bounds <- sf::st_bbox(x_wgs84[index, , drop = FALSE])
+    bounds_vector <- unname(as.numeric(c(
+      bounds[["ymin"]], bounds[["xmin"]], bounds[["ymax"]], bounds[["xmax"]]
+    )))
+    if (length(bounds_vector) != 4L || any(!is.finite(bounds_vector))) {
+      stop("Invalid Federal Wilderness semantic-feature bounds for ", semantic_key, ".")
+    }
+    list(
+      semantic_feature_key = semantic_key,
+      feature_key = semantic_key,
+      display_name = pt_local_reference_clean_chr(ref$official_name),
+      category_keys = unique(as.character(x$pt_local_reference_category_key[index])),
+      search_text = search_text,
+      semantic_feature_bounds = bounds_vector,
+      geometry_component_count = sum(as.integer(x$pt_local_reference_geometry_components[index]))
+    )
+  })
+}
+
+pt_local_reference_fw_popup_payload <- function(
+  components = pt_local_reference_fw_components(),
+  reference = pt_local_reference_fw_reference(),
+  designations = pt_local_reference_fw_designations(),
+  documents = pt_local_reference_fw_documents(),
+  policy = pt_local_reference_fw_common_policy(),
+  sources = pt_local_reference_fw_source_register()
+) {
+  clean <- pt_local_reference_clean_chr
+  office_identity <- paste(
+    clean(components$local_managing_unit), clean(components$local_unit_url),
+    clean(components$blm_office), clean(components$blm_office_url), sep = "\r"
+  )
+  nonblank_office <- nzchar(gsub("\r", "", office_identity, fixed = TRUE))
+  unique_offices <- unique(office_identity[nonblank_office])
+  office_key_lookup <- stats::setNames(
+    sprintf("office-%03d", seq_along(unique_offices)), unique_offices
+  )
+  component_office_keys <- rep("", nrow(components))
+  component_office_keys[nonblank_office] <- unname(office_key_lookup[
+    office_identity[nonblank_office]
+  ])
+  offices <- lapply(seq_along(unique_offices), function(i) {
+    row <- components[match(unique_offices[[i]], office_identity), , drop = FALSE]
+    list(
+      office_key = sprintf("office-%03d", i),
+      local_managing_unit = clean(row$local_managing_unit),
+      local_unit_url = clean(row$local_unit_url),
+      blm_office = clean(row$blm_office),
+      blm_office_url = clean(row$blm_office_url)
+    )
+  })
+  agency_codes <- unique(clean(components$managing_agency_code))
+  agencies <- lapply(agency_codes, function(code) {
+    row <- components[match(code, clean(components$managing_agency_code)), , drop = FALSE]
+    list(agency_key = code, name = clean(row$managing_agency))
+  })
+  designation_index <- match(reference$wilderness_id, designations$wilderness_id)
+  semantics <- lapply(seq_len(nrow(reference)), function(i) {
+    ref <- reference[i, , drop = FALSE]
+    designation <- designations[designation_index[[i]], , drop = FALSE]
+    list(
+      wilderness_id = clean(ref$wilderness_id),
+      official_name = clean(ref$official_name),
+      alternate_names = clean(ref$alternate_names),
+      wilderness_abbreviation = clean(ref$wilderness_abbreviation),
+      states = clean(ref$states),
+      designation_date = clean(designation$resolved_original_designation_date),
+      designation_year = as.integer(designation$resolved_designation_year),
+      original_public_law = clean(designation$original_public_law),
+      subsequent_public_laws = clean(designation$subsequent_public_laws),
+      official_reference_acres = suppressWarnings(as.numeric(ref$official_reference_acres)),
+      source_component_count = as.integer(ref$source_component_count),
+      managing_agencies = clean(ref$managing_agencies),
+      shared_management = tolower(clean(ref$shared_management)) == "true",
+      summary_short = clean(ref$wilderness_summary_short),
+      management_access_summary = clean(ref$management_access_summary),
+      official_page_url = clean(ref$official_page_url),
+      direct_official_agency_page_url = clean(ref$direct_official_agency_page_url),
+      official_map_url = clean(ref$official_map_url),
+      primary_management_plan_title = clean(ref$primary_management_plan_title),
+      primary_management_plan_url = clean(ref$primary_management_plan_url),
+      wilderness_connect_url = clean(ref$wilderness_connect_url),
+      congress_search_url = clean(ref$congress_search_url),
+      nepa_search_url = clean(ref$nepa_search_url),
+      courtlistener_search_url = clean(ref$courtlistener_search_url),
+      google_scholar_case_search_url = clean(ref$google_scholar_case_search_url),
+      web_search_url = clean(ref$web_search_url),
+      acreage_source = clean(ref$acreage_source),
+      validation_status = clean(designation$validation_status),
+      explanatory_note = clean(designation$explanatory_note),
+      evidence_source = clean(designation$evidence_source),
+      evidence_url = clean(designation$evidence_url)
+    )
+  })
+  component_records <- lapply(seq_len(nrow(components)), function(i) {
+    row <- components[i, , drop = FALSE]
+    list(
+      component_id = clean(row$component_id),
+      wilderness_id = clean(row$wilderness_id),
+      agency_key = clean(row$managing_agency_code),
+      office_key = component_office_keys[[i]],
+      co_managing_agencies = clean(row$co_managing_agencies),
+      blm_role = clean(row$blm_role),
+      blm_role_summary = clean(row$blm_role_summary),
+      geographic_state = clean(row$geographic_state),
+      source_gis_acres = suppressWarnings(as.numeric(row$source_gis_acres)),
+      calculated_acres = suppressWarnings(as.numeric(row$calculated_acres)),
+      component_description = clean(row$component_description),
+      geometry_caveat = clean(row$geometry_caveat)
+    )
+  })
+  document_records <- lapply(seq_len(nrow(documents)), function(i) {
+    row <- documents[i, , drop = FALSE]
+    list(
+      document_id = clean(row$document_id),
+      wilderness_id = clean(row$wilderness_id),
+      component_id = clean(row$component_id),
+      title = clean(row$document_title),
+      type = clean(row$document_type),
+      agency = clean(row$agency),
+      publication_date = clean(row$publication_date),
+      url = clean(row$document_url),
+      authority_level = clean(row$authority_level),
+      scope = clean(row$wilderness_wide_or_component_specific)
+    )
+  })
+  list(
+    semantics = semantics,
+    components = component_records,
+    documents = document_records,
+    agencies = agencies,
+    offices = offices,
+    policy = lapply(seq_len(nrow(policy)), function(i) list(
+      topic = clean(policy$topic[[i]]),
+      language = clean(policy$recommended_language[[i]])
+    )),
+    sources = lapply(seq_len(nrow(sources)), function(i) list(
+      title = clean(sources$title[[i]]), agency = clean(sources$agency[[i]]),
+      url = clean(sources$url[[i]]), type = clean(sources$source_type[[i]]),
+      use = clean(sources$use[[i]]), limitations = clean(sources$limitations[[i]])
+    )),
+    templates = list(
+      govinfo_public_law = "https://www.govinfo.gov/content/pkg/PLAW-{congress}publ{number}/html/PLAW-{congress}publ{number}.htm"
+    )
+  )
+}
+
 pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
   if (!inherits(x, "sf")) {
     stop("Local Reference semantic-feature bounds require an sf object.")
@@ -1909,7 +2625,7 @@ pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
 pt_local_reference_controller_payload <- function(reference_layers) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
-      "phase2_trails", "phase1_wsa"
+      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness"
     ),
     , drop = FALSE
   ]
@@ -1917,14 +2633,38 @@ pt_local_reference_controller_payload <- function(reference_layers) {
     row <- active[i, , drop = FALSE]
     x <- reference_layers[[row$source_nickname]]
     if (is.null(x) || !nrow(x)) return(NULL)
+    is_federal_wilderness <- identical(
+      as.character(row$layer_id[[1]]), "federal_wilderness"
+    )
+    fw_components <- fw_reference <- fw_designations <- fw_documents <-
+      fw_policy <- fw_sources <- NULL
+    if (is_federal_wilderness) {
+      fw_components <- pt_local_reference_fw_components()
+      fw_reference <- pt_local_reference_fw_reference()
+      fw_designations <- pt_local_reference_fw_designations()
+      fw_documents <- pt_local_reference_fw_documents()
+      fw_policy <- pt_local_reference_fw_common_policy()
+      fw_sources <- pt_local_reference_fw_source_register()
+      pt_validate_local_reference_fw_research(
+        fw_components, fw_reference, fw_designations, fw_documents,
+        fw_policy, fw_sources
+      )
+    }
     required <- c(
       "pt_local_reference_feature_key", "pt_local_reference_geometry_key",
       "pt_local_reference_semantic_key", "pt_local_reference_category_key",
       "pt_local_reference_geometry_components"
     )
-    if (isTRUE(row$feature_selection_supported)) {
+    if (isTRUE(row$feature_selection_supported) && !is_federal_wilderness) {
       required <- c(required, as.character(row$feature_display_field))
     }
+    facet_definitions <- row$filter_facets[[1]]
+    facet_fields <- if (length(facet_definitions)) {
+      vapply(facet_definitions, `[[`, character(1), "record_field")
+    } else {
+      character(0)
+    }
+    required <- c(required, facet_fields)
     missing_fields <- setdiff(required, names(x))
     if (length(missing_fields)) {
       stop(
@@ -1940,17 +2680,34 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       , drop = FALSE
     ]
     features <- if (isTRUE(row$feature_selection_supported)) {
-      pt_local_reference_semantic_feature_catalog(x, row)
+      if (is_federal_wilderness) {
+        pt_local_reference_fw_feature_catalog(x, fw_reference, fw_components)
+      } else {
+        pt_local_reference_semantic_feature_catalog(x, row)
+      }
     } else {
       list()
     }
-    records <- lapply(seq_len(nrow(x)), function(j) list(
-      geometry_key = x$pt_local_reference_geometry_key[[j]],
-      feature_key = x$pt_local_reference_feature_key[[j]],
-      semantic_feature_key = x$pt_local_reference_semantic_key[[j]],
-      category_key = x$pt_local_reference_category_key[[j]],
-      geometry_component_count = as.integer(x$pt_local_reference_geometry_components[[j]])
-    ))
+    records <- lapply(seq_len(nrow(x)), function(j) {
+      facet_values <- if (length(facet_definitions)) {
+        stats::setNames(
+          lapply(facet_definitions, function(facet) {
+            as.character(x[[facet$record_field]][[j]])
+          }),
+          vapply(facet_definitions, `[[`, character(1), "facet_key")
+        )
+      } else {
+        list()
+      }
+      list(
+        geometry_key = x$pt_local_reference_geometry_key[[j]],
+        feature_key = x$pt_local_reference_feature_key[[j]],
+        semantic_feature_key = x$pt_local_reference_semantic_key[[j]],
+        category_key = x$pt_local_reference_category_key[[j]],
+        geometry_component_count = as.integer(x$pt_local_reference_geometry_components[[j]]),
+        facet_values = facet_values
+      )
+    })
     categories <- lapply(seq_len(nrow(definition)), function(j) {
       as.list(definition[j, c(
         "category_key", "label", "fill_color", "stroke_color",
@@ -1958,6 +2715,18 @@ pt_local_reference_controller_payload <- function(reference_layers) {
         "legend_swatch_style", "sort_order", "include_when_absent",
         "provisional"
       ), drop = FALSE])
+    })
+    facets <- lapply(facet_definitions, function(facet) {
+      values <- facet$values[order(facet$values$sort_order), , drop = FALSE]
+      list(
+        facet_key = facet$facet_key,
+        label = facet$label,
+        record_field = facet$record_field,
+        count_mode = facet$count_mode,
+        values = lapply(seq_len(nrow(values)), function(j) {
+          as.list(values[j, c("value_key", "label", "sort_order"), drop = FALSE])
+        })
+      )
     })
     list(
       layer_id = row$layer_id,
@@ -1984,13 +2753,24 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       primary_count_label = row$primary_count_label,
       show_component_count = isTRUE(row$show_component_count),
       show_category_count = isTRUE(row$show_category_count),
+      category_count_mode = row$category_count_mode,
       component_count_label = row$component_count_label,
       category_heading = row$category_heading,
       caution = row$card_caution,
       popup_layout = row$popup_layout,
+      distinguish_units_supported = isTRUE(row$distinguish_units_supported),
       categories = categories,
+      facets = facets,
       features = features,
-      records = records
+      records = records,
+      federal_wilderness = if (is_federal_wilderness) {
+        pt_local_reference_fw_popup_payload(
+          fw_components, fw_reference, fw_designations, fw_documents,
+          fw_policy, fw_sources
+        )
+      } else {
+        NULL
+      }
     )
   })
   Filter(Negate(is.null), payload)
