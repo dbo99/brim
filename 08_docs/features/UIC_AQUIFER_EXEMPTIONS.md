@@ -204,10 +204,10 @@ A release check should cover:
 9. absence of Local UIC rows, panes, labels, controls, cache reads, startup
    serialization, profiling hooks, renderer switches, candidate notices, and
    candidate-specific output naming;
-10. a normal production build:
+10. a normal production build, run from the root of the isolated
+    `BRIM_v0.38_codex_ship` workspace:
 
 ```r
-setwd("/Users/davidoconnor_mbp22/Documents/BRIM_v0.38_codex_ship")
 source("run_build_map.r")
 build_final_map_only()
 ```

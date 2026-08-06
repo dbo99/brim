@@ -1,119 +1,130 @@
-# BRIM build guide
+# BRIM build, test, and release guide
+
+## Environment boundary
+
+Author source in `BRIM_v0.38_source_repo`. Run realistic builds in `BRIM_v0.38_codex_ship`. Treat `BRIM_v0.38` as production and modify it only during an approved post-merge release.
+
+The lean source repository does not contain every required processed product and cannot prove a complete production build by itself.
 
 ## Entry point
 
 ```r
-setwd("/path/to/BRIM")
 source("run_build_map.r")
 ```
 
-## Build levels
+## Build decision tree
 
-### Final map only
+Choose the smallest valid path.
+
+### 1. Source-only validation
+
+Use when changing configuration, helpers, controllers, tests, or documentation and no rendered artifact is yet required.
+
+- parse changed R files;
+- validate JavaScript in its intended context;
+- run focused R/JS/fixture tests;
+- run diff, secret, and path scans.
+
+### 2. Final map only
 
 ```r
 build_final_map_only()
 ```
 
-Uses existing current core and label caches.
+Use only when required current caches already exist and the change affects map assembly, UI, styling, popups, controls, or browser behavior without changing processed/cache data.
 
-### Rebuild core cache, labels, and final map
+### 3. Rebuild retained cache and map
 
 ```r
 rebuild_everything_from_cache_and_map()
 ```
 
-This is the preferred complete map-build validation after data cleanup.
+Use only when existing retained processed products are authoritative and the core/label cache must be reconstructed. This is not permission to run preprocessors.
 
-### Preprocessors
+### 4. Focused child/cache refresh
 
-Preprocessors under `02_preprocess/` are not one homogeneous batch.
-Some download remote data, some generate production RDS/GPKG files, some
-perform one-time audits, and some may overwrite outputs. Run only a reviewed
-dependency chain for the dataset being updated.
+Use a layer-owned refresh entry point when one cache child can be updated without rewriting siblings. Record before/after child hashes and require unchanged sibling hashes.
 
-## Important pipelines
+### 5. Focused preprocessor
 
-- BLM core boundary: `02_preprocess/01_blm_managed_and_held.r`
-- Consolidated conveyance: `02_preprocess/66_build_conveyance_pipeline.R`
-- UIC aquifer exemptions:
-  `02_preprocess/67_build_uic_aquifer_exemptions.R`
-- Static major water-supply basin geometry:
-  `02_preprocess/69_build_major_water_supply_basin_geometry.R`
-- Main map assembly: `05_map_build/` via `run_build_map.r`
+Run only after the preprocessor gate below passes.
 
-### UIC build boundary
+### 6. Broad dependency orchestration
 
-`run_uic_pipeline("check_only")`, candidate refresh, and the standalone UIC
-sandbox map are a developer/research workflow separate from production BRIM.
-Candidate promotion requires an explicit candidate ID and confirmation phrase,
-but even promoted pipeline products are comparison baselines rather than Local
-map inputs; see `UIC_AQUIFER_EXEMPTIONS.md`.
+Exceptional. Requires an explicit dependency graph, backup plan, remote-service plan, overwrite inventory, runtime expectation, and user authorization. Never infer authorization from a request to “build” or “test.”
 
-The ordinary `build_final_map_only()` path never reads UIC raw, candidate,
-approved, map-ready, or label products. Production UIC rows appear only under
-**External Layers → Energy / Minerals → Underground Injection Control (UIC)**
-and contact their authoritative services only after a user enables them.
+## Preprocessor gate
 
-### Major water-supply basin geometry
+Before any preprocessor runs, document:
 
-This focused preprocessor depends on the retained California RDS inputs, the
-reviewed six-file CBRFC basin/outlet source set, and original WBD HUC2 14/15
-archives listed in the source manifest. Source acquisition is a separate,
-reviewed step; the builder does not download data, calculate forecast values,
-rebuild unrelated caches, or build HTML:
+1. exact script/function;
+2. why current processed products/caches are insufficient;
+3. authoritative inputs and expected versions/hashes;
+4. remote endpoints and whether network access is required;
+5. all outputs, archives, QA products, and files that may be overwritten;
+6. sibling products that must remain byte-identical;
+7. expected row/feature/component counts and schema/CRS contracts;
+8. failure behavior and rollback/recovery method;
+9. exact subsequent build step;
+10. focused tests required for acceptance.
 
-```r
-source("run_build_map.r")
-preprocess_major_water_supply_basin_geometry()
-```
+Do not run preprocessors generically, speculatively, by loop, or as a convenience sweep. Do not let a build script install packages or silently download replacement data unless the reviewed pipeline explicitly owns that behavior.
 
-It writes 23 retained geometries: 19 preserved California records, two
-generalized CBRFC operational unions, and two context-only HUC2 polygons. It
-also writes the 54-row mapping audit, source/checksum and selector audits,
-per-feature hashes, geometry/hole/part/outlet/HUC2 metrics, and five rendered
-comparison maps. California originals use `keep = 0.20`; the four cleaned
-derived unions use `keep = 0.10`; CBRFC unions use `keep = 0.05` under a 0.05%
-area guardrail; HUC2 context uses visually reviewed `keep = 0.01`.
+## Isolated realistic build
 
-After one display simplification and any required validity repair, the four
-derived displays receive a separate narrow normalization pass. It fills
-validity-created interior rings and defensively removes only detached parts
-strictly smaller than 0.01 square mile. This display-only step has its own
-0.01% area-change guardrail and writes a per-artifact QA table. It does not run
-on the original 15 or alter the unsimplified EPSG:3310 product.
+A user-facing change is not accepted from source tests alone.
 
-The LKSA3 authoritative union retains its measured approximately 1.486-square-
-mile source gap. Its reviewed one-time 0.05 simplification fills that gap as an
-explicit geometry-specific display exception; no general hole-fill rule is
-added. The original full-resolution FNF RDS remains authoritative, all 19
-Phase B1 feature hashes must remain unchanged, and the old Local
-`cnrfc_fnf_delta_map.rds` cache is not rewritten.
+1. verify clean source branch/HEAD;
+2. sync an exact source manifest to `codex_ship`;
+3. run only the authorized processing/cache stage;
+4. prove sibling products are unchanged;
+5. build a new realistic HTML;
+6. record path, size, SHA-256, source manifest, cache hashes, and test results;
+7. perform mounted browser tests where possible;
+8. obtain human visual acceptance.
 
-Run focused QA after preprocessing:
+Do not modify production during this stage.
 
-```r
-source("qa/test_major_water_supply_basin_geometry.R")
-```
+## Commit and PR gate
 
-See `08_docs/BRIM_MAJOR_WATER_SUPPLY_BASIN_FORECASTS.md` for the 23-object
-inventory, literal 54-key producer mapping, generalized-union limitations,
-source hashes, simplification results, supporting-link separation, and rendered
-review. This preprocessor is intentionally not part of any broad default
-rebuild.
+After acceptance:
 
-## Source-repository limitation
+- stage only the coherent source/QA/documentation manifest;
+- exclude research ZIPs, realistic HTML, generated caches, screenshots, logs, and sandbox reports unless an established tracked contract requires them;
+- audit the staged diff;
+- commit and push only with user authorization;
+- merge through a human PR gate;
+- update local `main` by fast-forward and verify clean state.
 
-This GitHub-ready source directory does not include the production caches
-and processed data needed to render the complete 200 MB HTML. Use the
-validated `BRIM_v0.38_codex_ship` or restore external data listed in
-`EXTERNAL_DATA_MANIFEST.csv` for production builds.
+## Production release
 
-## Sample validation
+Production release occurs only after merge.
 
-A source-only validation should at minimum:
+1. audit the exact merged delta;
+2. identify authored files and accepted generated artifacts separately;
+3. back up every production target in one release folder;
+4. write a rollback script before copying;
+5. sync exact authored files from merged source;
+6. deploy only the exact accepted HTML/cache artifacts by recorded hash;
+7. verify every destination hash/content;
+8. run a production smoke test, including at least one unrelated layer;
+9. write a permanent closeout record;
+10. delete merged branches only after production acceptance.
 
-1. Parse every R file.
-2. Confirm no tracked file exceeds repository size policy.
-3. Inspect the fixtures under `sample_data/`.
-4. Review path and credential scan reports.
+A new build after visual acceptance is a new candidate and requires review; do not silently substitute it for the accepted artifact.
+
+## Build evidence
+
+Every implementation report should state:
+
+- repository/branch/base/head;
+- exact changed-source manifest;
+- exact processing/build commands;
+- inputs/outputs and cache effects;
+- test commands/results;
+- realistic HTML path/size/hash;
+- manual review targets;
+- production status;
+- staged/commit/PR status.
+
+Feature-specific pipelines and commands belong beside the pipeline or in `08_docs/features/`, not in this root guide.

@@ -21,7 +21,7 @@ The controlling repository rules are:
 
 Guidance and precedent inspected for this work includes `AGENTS.md`,
 `README.md`, `BUILD.md`, `DATA.md`, `CODEX_HANDOFF.md`,
-`LIVE_DATA_FEEDS.md`, the current Local registry/build/helper source, shared
+`08_docs/integrations/LIVE_DATA_FEEDS.md`, the current Local registry/build/helper source, shared
 detachable-card and responsive-stack code, the BRIM-mapped conveyance
 explorer, Springs/USGS groundwater/HUC performance notes and controllers,
 shared Local clear controls, Measure lifecycle code, bundled Leaflet 1.3.1
