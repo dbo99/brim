@@ -12,6 +12,19 @@
       max-width: calc(100vw - 16px); padding: 6px 8px; border-radius: 4px;
       background: rgba(255,255,255,.94); font: 12px/1.3 Arial,sans-serif;
     }
+    body.pt-fixture-narrow { width: 420px; height: 720px; overflow: hidden; background: #ddd; }
+    body.pt-fixture-narrow #map { width: 420px; height: 720px; }
+    body.pt-fixture-narrow .leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container {
+      visibility: hidden;
+    }
+    body.pt-fixture-narrow .leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content {
+      width: 364px !important; min-width: 0 !important; max-width: 364px !important;
+      margin: 9px 10px 11px;
+    }
+    body.pt-fixture-narrow .pt-lr-popup-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    body.pt-fixture-narrow .pt-lr-popup-panel-scroll { max-height: 360px; }
   </style>
 </head>
 <body>
@@ -22,7 +35,14 @@
   <script>
   (async function() {
     'use strict';
+    window.__PT_WSA_POPUP_ASYNC_ERRORS__ = [];
+    window.addEventListener('error', function(event) {
+      window.__PT_WSA_POPUP_ASYNC_ERRORS__.push(String(event.error || event.message));
+    });
     var status = document.getElementById('fixture-status');
+    if (new URLSearchParams(window.location.search).get('narrow') === '1') {
+      document.body.classList.add('pt-fixture-narrow');
+    }
     var caution = 'Historical recommendation, not current WSA status. Management continues ' +
       'under the applicable FLPMA authority; verify current plans, closures, and field-office direction.';
     var fullCaution = 'FLPMA §603 study areas and §202 areas have distinct recommendation histories. ' +
@@ -45,8 +65,14 @@
         escapeHtml(label) + ':</span> ' + escapeHtml(value) + '</div>';
     };
     var popupHtml = function(data) {
-      var keys = ['overview', 'recommendation', 'management', 'sources'];
-      var labels = ['Overview', 'Recommendation', 'Management', 'Sources & details'];
+      var allKeys = ['overview', 'recommendation', 'management', 'sources'];
+      var labelsByKey = {
+        overview: 'Overview', recommendation: 'Recommendation',
+        management: 'Management', sources: 'Sources & details'
+      };
+      var keys = allKeys.filter(function(key) {
+        return !data.enabledTabs || data.enabledTabs.indexOf(key) >= 0;
+      });
       var tabId = function(key) { return 'fixture-tab-' + data.id + '-' + key; };
       var panelId = function(key) { return 'fixture-panel-' + data.id + '-' + key; };
       var tabs = keys.map(function(key, index) {
@@ -54,9 +80,9 @@
           'id="' + tabId(key) + '" aria-controls="' + panelId(key) + '" ' +
           'aria-selected="' + (index === 0 ? 'true' : 'false') + '" ' +
           'tabindex="' + (index === 0 ? '0' : '-1') + '" ' +
-          'data-pt-lr-popup-tab="' + key + '">' + escapeHtml(labels[index]) + '</button>';
+          'data-pt-lr-popup-tab="' + key + '">' + escapeHtml(labelsByKey[key]) + '</button>';
       }).join('');
-      var longTechnical = Array(24).fill(0).map(function(_, index) {
+      var technicalRows = Array(data.technicalRows || 2).fill(0).map(function(_, index) {
         return row('Verification field ' + (index + 1), 'Official source detail ' + (index + 1));
       }).join('');
       var anomaly = data.sourceAcres === '0' ?
@@ -76,8 +102,8 @@
           '<ul class="pt-lr-popup-resource-list"><li><a href="https://www.blm.gov/programs/' +
           'national-conservation-lands/wilderness/wilderness-study-areas" target="_blank" ' +
           'rel="noopener noreferrer">Official BLM WSA source</a></li></ul>' +
-          '<details class="pt-popup-technical" open><summary>Technical details</summary>' +
-          row('Stable feature key', data.stableKey) + longTechnical + '</details>' +
+          '<details class="pt-popup-technical"><summary>Technical details</summary>' +
+          row('Stable feature key', data.stableKey) + technicalRows + '</details>' +
           '<button type="button" class="pt-lr-popup-fixture-disabled" disabled>' +
           'Unavailable fixture action</button>'
       };
@@ -96,23 +122,66 @@
         '<div class="pt-lr-popup-panel-scroll">' + panels + '</div></article>';
     };
     var areas = [{
-      id: 'bitterbrush', name: 'Bitterbrush Wilderness Study Area', flpma: '§603',
-      area: '~1.01 mi²', recommendation: 'No recommendation', rawRecommendation: 'No recommendation',
-      office: '', sourceAcres: '647.2', stableKey: 'wsa:nlcs_id:nlcs000239'
+      id: 'wall-canyon', name: 'Wall Canyon Wilderness Study Area', flpma: '§603',
+      area: '~74.3 mi²', recommendation: 'Recommended non-suitable', rawRecommendation: 'Non-suitable',
+      office: '', sourceAcres: '47,567.4', stableKey: 'wsa:nlcs_id:nlcs000247', technicalRows: 6
     }, {
       id: 'buffalo-hills', name: 'Buffalo Hills Wilderness Study Area', flpma: '§603',
       area: '~74.2 mi²', recommendation: 'Recommended non-suitable', rawRecommendation: 'Non-suitable',
       office: 'Eagle Lake Field Office / Applegate Field Office', sourceAcres: '47,510.7',
-      stableKey: 'wsa:nlcs_id:nlcs000217'
+      stableKey: 'wsa:nlcs_id:nlcs000217', technicalRows: 3
     }, {
       id: 'red-mountain', name: 'Red Mountain', flpma: 'Not stated', area: '',
       recommendation: 'Not stated', rawRecommendation: 'blank / not stated', office: '',
-      sourceAcres: '0', stableKey: 'wsa:globalid:eab306b9-62de-406c-9e79-fa7692fd729d'
+      sourceAcres: '0', stableKey: 'wsa:globalid:eab306b9-62de-406c-9e79-fa7692fd729d',
+      technicalRows: 2
+    }, {
+      id: 'minimal', name: 'Minimal conditional-tab fixture', flpma: '§603', area: '',
+      recommendation: '', rawRecommendation: '', office: '', sourceAcres: '12.5',
+      stableKey: 'wsa:fixture:minimal', technicalRows: 1, enabledTabs: ['overview', 'sources']
     }];
-    var selectedKey = function(root) {
+      var selectedKey = function(root) {
       var node = root.querySelector('[role="tab"][aria-selected="true"]');
-      return node && node.getAttribute('data-pt-lr-popup-tab');
-    };
+        return node && node.getAttribute('data-pt-lr-popup-tab');
+      };
+      var disclosureCycle = async function(root, map, cycles) {
+        var details = root.querySelector('.pt-popup-technical');
+        var summary = details && details.querySelector('summary');
+        var closedHeights = [];
+        var openHeights = [];
+        var center = map.getCenter();
+        var zoom = map.getZoom();
+        if (!details || !summary) throw new Error('Technical details disclosure missing.');
+        if (details.open) summary.click();
+        await delay(80); await nextFrame();
+        var initialClosed = root.getBoundingClientRect().height;
+        for (var index = 0; index < cycles; index += 1) {
+          summary.focus({preventScroll: true});
+          summary.click();
+          await delay(80); await nextFrame();
+          openHeights.push(root.getBoundingClientRect().height);
+          summary.click();
+          await delay(80); await nextFrame();
+          closedHeights.push(root.getBoundingClientRect().height);
+        }
+        var closedSpread = Math.max.apply(Math, closedHeights) - Math.min.apply(Math, closedHeights);
+        return {
+          passed: openHeights.every(function(height, index) {
+            return height > closedHeights[index] + 8;
+          }) && closedHeights.every(function(height) {
+            return Math.abs(height - initialClosed) <= 2;
+          }) && closedSpread <= 2 && selectedKey(root) === 'sources' &&
+            document.activeElement === summary && center.equals(map.getCenter()) && zoom === map.getZoom() &&
+            !root.classList.contains('pt-lr-popup-measuring'),
+          initial_closed_height: initialClosed,
+          open_heights: openHeights,
+          closed_heights: closedHeights,
+          closed_height_spread: closedSpread,
+          active_tab_preserved: selectedKey(root) === 'sources',
+          focus_preserved: document.activeElement === summary,
+          map_center_zoom_stable: center.equals(map.getCenter()) && zoom === map.getZoom()
+        };
+      };
 
     try {
       var map = L.map('map', {
@@ -141,7 +210,8 @@
       map.layerManager._groupContainers[groupName] = groupRoot;
 
       var controllerSource = await fetch(
-        '../../03_functions/js/brim_local_reference_controller.js'
+        '../../03_functions/js/brim_local_reference_controller.js?fixture=' + Date.now(),
+        {cache: 'no-store'}
       ).then(function(response) {
         if (!response.ok) throw new Error('Could not load production controller.');
         return response.text();
@@ -186,8 +256,16 @@
         return popup;
       };
       window.__PT_WSA_POPUP_FIXTURE__ = {map: map, areas: areas, openArea: openArea};
+      var visualParams = new URLSearchParams(window.location.search);
+      var visualArea = visualParams.get('feature');
+      if (visualArea) {
+        await openArea(visualArea, visualParams.get('tab') || 'overview');
+        status.textContent = 'Visual fixture: ' + visualArea;
+        status.style.color = '#1E6B45';
+        return;
+      }
 
-      var popup = await openArea('bitterbrush');
+      var popup = await openArea('wall-canyon');
       var root = popup.querySelector('[data-pt-lr-tabbed-popup]');
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
       var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
@@ -207,6 +285,20 @@
       var mapCursorPreserved = mapCursor !== 'pointer' && mapCursor !== 'text';
       var centerBefore = map.getCenter();
       var zoomBefore = map.getZoom();
+      var scroller = root.querySelector('.pt-lr-popup-panel-scroll');
+      var stablePanelHeight = scroller.getBoundingClientRect().height;
+      var tabPanelHeights = [];
+      var tabPanelFits = [];
+      tabs.forEach(function(tab) {
+        tab.click();
+        tabPanelHeights.push(scroller.getBoundingClientRect().height);
+        tabPanelFits.push(scroller.scrollHeight <= scroller.clientHeight + 1);
+      });
+      tabs[0].click();
+      await nextFrame();
+      var stableAcrossTabs = tabPanelHeights.every(function(height) {
+        return Math.abs(height - stablePanelHeight) <= 1;
+      });
       tabs[0].dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}));
       await nextFrame();
       var keyboardNavigation = selectedKey(root) === 'recommendation' &&
@@ -215,13 +307,48 @@
       await nextFrame();
       var keyboardEnd = selectedKey(root) === 'sources';
       var mapStable = centerBefore.equals(map.getCenter()) && zoomBefore === map.getZoom();
-      var scroller = root.querySelector('.pt-lr-popup-panel-scroll');
-      var internalScroll = scroller.scrollHeight > scroller.clientHeight &&
-        getComputedStyle(scroller).overflowY === 'auto';
+      var wallPanelsFit = tabPanelFits.every(Boolean);
+      var naturalPanelHeight = Number(root.getAttribute('data-pt-lr-popup-natural-height'));
+      var targetPanelHeight = Number(root.getAttribute('data-pt-lr-popup-target-height'));
+      var compactHeightTracksContent = naturalPanelHeight > 0 &&
+        Math.abs(targetPanelHeight - Math.max(112, naturalPanelHeight + 1)) <= 1 &&
+        targetPanelHeight < 280;
+      var desktopPanelWidth = scroller.getBoundingClientRect().width;
+      var desktopDisclosure = await disclosureCycle(root, map, 5);
+      var frameSawHiddenCard = false;
+      var sampleFrame = 0;
+      var sampleVisibility = function() {
+        if (getComputedStyle(root).visibility === 'hidden') frameSawHiddenCard = true;
+        sampleFrame = requestAnimationFrame(sampleVisibility);
+      };
+      sampleFrame = requestAnimationFrame(sampleVisibility);
+      document.body.classList.add('pt-fixture-narrow');
+      map.invalidateSize({pan: false});
+      window.dispatchEvent(new Event('resize'));
+      await delay(360); await nextFrame();
+      var narrowPanelWidth = scroller.getBoundingClientRect().width;
+      var narrowNaturalHeight = Number(root.getAttribute('data-pt-lr-popup-natural-height'));
+      var narrowTargetHeight = Number(root.getAttribute('data-pt-lr-popup-target-height'));
+      var narrowTabRows = Array.from(new Set(tabs.map(function(tab) {
+        return Math.round(tab.getBoundingClientRect().top);
+      }))).length;
+      var resizeRecalculated = narrowPanelWidth < desktopPanelWidth - 20 &&
+        narrowNaturalHeight >= naturalPanelHeight && narrowTargetHeight >= targetPanelHeight &&
+        narrowTabRows === 2;
+      var narrowDisclosure = await disclosureCycle(root, map, 5);
+      document.body.classList.remove('pt-fixture-narrow');
+      map.invalidateSize({pan: false});
+      window.dispatchEvent(new Event('resize'));
+      await delay(360); await nextFrame();
+      cancelAnimationFrame(sampleFrame);
+      var noLayoutFlash = !frameSawHiddenCard;
+      var noTemporaryMeasurementState =
+        !root.style.visibility && !scroller.hasAttribute('style') &&
+        document.querySelectorAll('.pt-lr-popup-measure').length === 0;
       var contentRect = popup.querySelector('.leaflet-popup-content').getBoundingClientRect();
       var cardRect = root.getBoundingClientRect();
       var stickyRect = root.querySelector('.pt-lr-popup-sticky').getBoundingClientRect();
-      var narrow = window.innerWidth <= 520;
+      var narrow = window.innerWidth <= 520 || document.body.classList.contains('pt-fixture-narrow');
       var controlVisibility = getComputedStyle(
         document.querySelector('.leaflet-control-container')
       ).visibility;
@@ -239,12 +366,21 @@
       root = popup.querySelector('[data-pt-lr-tabbed-popup]');
       var twoOfficePass = root.textContent.indexOf(
         'Eagle Lake Field Office / Applegate Field Office'
-      ) >= 0;
+      ) >= 0 && Number(root.getAttribute('data-pt-lr-popup-target-height')) < 300;
       popup = await openArea('red-mountain', 'sources');
       root = popup.querySelector('[data-pt-lr-tabbed-popup]');
       var redMountainPass = root.textContent.indexOf('GIS acreage: 0 acres') >= 0 &&
         root.textContent.indexOf('Approximate geometry-derived anomaly: 317.9 acres') >= 0 &&
-        root.textContent.indexOf('raw source value above remains authoritative') >= 0;
+        root.textContent.indexOf('raw source value above remains authoritative') >= 0 &&
+        Number(root.getAttribute('data-pt-lr-popup-target-height')) < 300;
+      popup = await openArea('minimal');
+      root = popup.querySelector('[data-pt-lr-tabbed-popup]');
+      var mountedTabLabels = Array.prototype.map.call(
+        root.querySelectorAll('[role="tab"]'),
+        function(tab) { return tab.textContent.trim(); }
+      );
+      var emptyTabsSuppressed = mountedTabLabels.length === 2 &&
+        mountedTabLabels.indexOf('Recommendation') < 0 && mountedTabLabels.indexOf('Management') < 0;
       var wordingPass = popupHtml(areas[0]).indexOf(escapeHtml(caution)) >= 0 &&
         popupHtml(areas[0]).indexOf(escapeHtml(fullCaution)) >= 0;
       var noBlankLabels = !document.querySelector('.pt-lr-popup-label:empty, .pt-lr-popup-section h3:empty');
@@ -263,13 +399,44 @@
       var resetClearsPopupStackingClass = !document.getElementById('map').classList.contains(
         'pt-lr-tabbed-popup-open'
       );
-      popup = await openArea('buffalo-hills', 'management');
+      popup = await openArea('buffalo-hills', 'sources');
+      popup.querySelector('.pt-popup-technical summary').click();
+      await delay(80); await nextFrame();
+      if (map.hasLayer(groupRoot)) map.removeLayer(groupRoot);
       map.fire('overlayremove', {layer: groupRoot, name: groupName});
       await nextFrame(); await delay(350);
-      var layerOffClosesPopup = !document.querySelector('.leaflet-popup');
+      var offStats = window.BRIM.localReferenceController.stats()[0];
+      var layerOffClosesPopup = !document.querySelector('.leaflet-popup') &&
+        !document.querySelector('.leaflet-tooltip') &&
+        !document.querySelector('[data-pt-local-reference-layer="wilderness_study_areas"]');
+      var layerOffZeroOwnedObjects = layers.filter(function(layer) {
+        return map.hasLayer(layer);
+      }).length === 0 && !map.hasLayer(groupRoot) &&
+        offStats.group_member_layer_count === 0 && offStats.attached_owned_layer_count === 0 &&
+        offStats.card_count === 0 && offStats.pending_controller_callback_count === 0;
+      var componentCountsAcrossCycles = [];
+      var zeroCountsAcrossCycles = [];
+      for (var cycle = 0; cycle < 10; cycle += 1) {
+        groupRoot.addTo(map);
+        map.fire('overlayadd', {layer: groupRoot, name: groupName});
+        await nextFrame();
+        componentCountsAcrossCycles.push(layers.filter(function(layer) {
+          return map.hasLayer(layer);
+        }).length);
+        map.removeLayer(groupRoot);
+        map.fire('overlayremove', {layer: groupRoot, name: groupName});
+        await nextFrame();
+        zeroCountsAcrossCycles.push(layers.filter(function(layer) {
+          return map.hasLayer(layer);
+        }).length);
+      }
+      var lifecycleCyclesPass = componentCountsAcrossCycles.every(function(count) {
+        return count === layers.length;
+      }) && zeroCountsAcrossCycles.every(function(count) { return count === 0; });
+      groupRoot.addTo(map);
       map.fire('overlayadd', {layer: groupRoot, name: groupName});
       await nextFrame();
-      popup = await openArea('bitterbrush', 'management');
+      popup = await openArea('wall-canyon', 'management');
       var anotherAreaResetsOverview = selectedKey(
         (await openArea('red-mountain')).querySelector('[data-pt-lr-tabbed-popup]')
       ) === 'overview';
@@ -283,9 +450,13 @@
           popupStackingClassApplied && resetClearsPopupStackingClass &&
           fixedControlsDoNotOverlay &&
           enabledTabCursor && disabledControlCursor && normalTextCursor && mapCursorPreserved && keyboardNavigation &&
-          keyboardEnd && mapStable && internalScroll && layoutPass && twoOfficePass &&
+          keyboardEnd && mapStable && stableAcrossTabs && wallPanelsFit &&
+          compactHeightTracksContent && resizeRecalculated && noLayoutFlash &&
+          noTemporaryMeasurementState && desktopDisclosure.passed && narrowDisclosure.passed &&
+          layoutPass && twoOfficePass && emptyTabsSuppressed &&
           redMountainPass && wordingPass && noBlankLabels && injectionSafe && resetClosesPopup &&
-          layerOffClosesPopup && anotherAreaResetsOverview && onlyOnePopup && oneFilterCard,
+          layerOffClosesPopup && layerOffZeroOwnedObjects && lifecycleCyclesPass &&
+          anotherAreaResetsOverview && onlyOnePopup && oneFilterCard,
         four_tabs_and_panels: tabs.length === 4 && panels.length === 4,
         overview_default: initialOverview,
         tabbed_popup_stacking_class_applied: popupStackingClassApplied,
@@ -297,24 +468,44 @@
         surrounding_map_cursor_preserved: mapCursorPreserved,
         keyboard_navigation: keyboardNavigation && keyboardEnd,
         map_center_zoom_stable_across_tabs: mapStable,
-        internal_scroll: internalScroll,
+        stable_height_across_tabs: stableAcrossTabs,
+        wall_canyon_all_panels_fit_without_scroll: wallPanelsFit,
+        sparse_height_tracks_tallest_panel: compactHeightTracksContent,
+        natural_panel_height: naturalPanelHeight,
+        target_panel_height: targetPanelHeight,
+        desktop_panel_width: desktopPanelWidth,
+        narrow_panel_width: narrowPanelWidth,
+        narrow_natural_panel_height: narrowNaturalHeight,
+        narrow_target_panel_height: narrowTargetHeight,
+        resize_recalculated: resizeRecalculated,
+        no_layout_flash: noLayoutFlash,
+        no_temporary_measurement_state: noTemporaryMeasurementState,
+        desktop_disclosure_cycles: desktopDisclosure,
+        narrow_disclosure_cycles: narrowDisclosure,
         content_width: contentRect.width,
         card_height: cardRect.height,
         tab_row_count: tabRows,
         responsive_layout_passed: layoutPass,
         two_verified_offices_preserved: twoOfficePass,
         red_mountain_source_zero_anomaly_preserved: redMountainPass,
+        empty_tabs_suppressed: emptyTabsSuppressed,
         accepted_cautions_preserved: wordingPass,
         no_blank_labels_or_headings: noBlankLabels,
         source_values_cannot_inject_html: injectionSafe,
         reset_clear_path_closes_popup: resetClosesPopup,
         layer_off_closes_popup: layerOffClosesPopup,
+        layer_off_zero_owned_objects: layerOffZeroOwnedObjects,
+        component_counts_across_10_cycles: componentCountsAcrossCycles,
+        off_counts_across_10_cycles: zeroCountsAcrossCycles,
+        lifecycle_10_cycles_passed: lifecycleCyclesPass,
         opening_another_wsa_resets_overview: anotherAreaResetsOverview,
         only_one_popup_active: onlyOnePopup,
         one_filter_card_after_layer_cycle: oneFilterCard,
         viewport_width: window.innerWidth,
-        viewport_height: window.innerHeight
+        viewport_height: window.innerHeight,
+        async_errors: window.__PT_WSA_POPUP_ASYNC_ERRORS__.slice()
       };
+      results.passed = results.passed && results.async_errors.length === 0;
       window.__PT_WSA_POPUP_DOM_RESULTS__ = results;
       status.setAttribute('data-results', JSON.stringify(results));
       status.textContent = results.passed ?
