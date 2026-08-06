@@ -82,6 +82,7 @@ LABEL_ZOOM <- tibble::tribble(
   # ---- Future polygon / line labels ----------------------------------------
   "cnrfc_basins",         "CNRFC Product Availability", "Labels: CNRFC Product Availability", 7.0,       Inf,
   "acec",                 "ACECs",                 "Labels: ACECs",                  8.0,       Inf,
+  "fedwilderness",        "Federal Wilderness",    "Labels: Federal Wilderness",     8.0,       Inf,
   "wilderness",           "Wilderness",            "Labels: Wilderness",             8.0,       Inf,
   "wild_scenic_corridor", "Wild & Scenic Rivers",  "Labels: Wild & Scenic Rivers",   8.5,       Inf,
   "wild_scenic_reaches",  "W&S River Reaches",     "Labels: W&S River Reaches",     10.0,       Inf,
@@ -129,6 +130,7 @@ LABEL_INCLUDE <- list(
   cnrfc_basins = TRUE,
   field_office_outer = TRUE,
   acec = TRUE,
+  fedwilderness = TRUE,
   wilderness = TRUE,
   wild_scenic_corridor = TRUE,
   wild_scenic_reaches = TRUE,
@@ -173,7 +175,7 @@ LABEL_FIELDS <- list(
   # ---- Manifest-driven reference-layer labels -------------------------------
   ##
   ## These fields must match the cached reference layer fields exactly.
-  fedwilderness = "NLCS_NAME",
+  fedwilderness = "pt_reference_label_text",
   acec          = "ACEC_NAME",
   allotments    = "ALLOT_NAME",
   
@@ -243,6 +245,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "CNRFC FNF Sha/Tri/west Sierra Basins",
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
+    "Federal Wilderness",
     "ACECs",
     "CalSim3.0",
     "Water Districts",
@@ -271,6 +274,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "CNRFC FNF Sha/Tri/west Sierra Basins",
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
+    "Federal Wilderness",
     "ACECs",
     "CalSim3.0",
     "Water Districts",

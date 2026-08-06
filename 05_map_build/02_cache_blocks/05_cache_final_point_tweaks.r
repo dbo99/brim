@@ -855,15 +855,22 @@ for (nm in names(reference_layers_raw)) {
       x,
       validate_snapshot = TRUE
     )
+  } else if (nm == "fedwilderness") {
+    x <- pt_prepare_local_reference_federal_wilderness(
+      x,
+      validate_snapshot = TRUE
+    )
   }
   
-  x <- x |>
-    simplify_sf_for_web(
-      keep = keep_val,
-      layer_label = display_name
-    )
+  if (nm != "fedwilderness") {
+    x <- x |>
+      simplify_sf_for_web(
+        keep = keep_val,
+        layer_label = display_name
+      )
+  }
   
-  if (!nm %in% c("trails", "wildernessstudyarea")) {
+  if (!nm %in% c("trails", "wildernessstudyarea", "fedwilderness")) {
     x$popup_html <- pt_make_reference_layer_popups(
       x = x,
       popup_spec = popup_spec,
@@ -875,9 +882,10 @@ for (nm in names(reference_layers_raw)) {
   ##
   ## Normalize all local WSR line/corridor sources into shared display/filter
   ## fields while preserving source-specific layer names and popup attribution.
-  if (nm %in% c("trails", "wildernessstudyarea")) {
+  if (nm %in% c("trails", "wildernessstudyarea", "fedwilderness")) {
 
-    ## Trails/WSA popup, hover, category, and style fields were prepared above
+    ## Trails/WSA/Federal Wilderness popup, hover, category, and style fields
+    ## were prepared above
     ## from the shared Local Reference definitions. Do not pass them through
     ## generic palette logic or replace source-backed popup content after
     ## simplification.

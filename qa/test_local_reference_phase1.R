@@ -24,12 +24,13 @@ expect_equal(
 )
 stopifnot(all(c(
   "primary_count_mode", "primary_count_label",
-  "show_component_count", "show_category_count", "component_count_label",
+  "show_component_count", "show_category_count", "category_count_mode",
+  "component_count_label",
   "category_heading", "card_caution", "popup_layout",
   "feature_selection_supported", "feature_selection_mode",
   "feature_search_fields", "feature_display_field",
   "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
-  "preserve_view_on_reset"
+  "preserve_view_on_reset", "distinguish_units_supported", "filter_facets"
 ) %in% names(LOCAL_REFERENCE_INTERACTION_REGISTRY)))
 stopifnot(all(LOCAL_REFERENCE_INTERACTION_REGISTRY$primary_count_mode == "semantic_feature"))
 wsa_registry <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
@@ -40,8 +41,8 @@ expect_equal(wsa_registry$primary_count_label, "Wilderness Study Areas", "WSA pr
 expect_equal(wsa_registry$popup_layout, "tabbed_card", "WSA tabbed popup layout")
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$popup_layout == "tabbed_card"),
-  c(1L, 4L),
-  "only Trails and WSA use the shared tabbed popup shell"
+  c(1L, 4L, 5L),
+  "active Trails, WSA, and Federal Wilderness use the shared tabbed popup shell"
 )
 stopifnot(!isTRUE(wsa_registry$show_component_count))
 stopifnot(isTRUE(wsa_registry$feature_selection_supported))
@@ -59,13 +60,13 @@ expect_equal(wsa_registry$zoom_max, 12, "WSA maximum zoom")
 stopifnot(isTRUE(wsa_registry$preserve_view_on_reset))
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_selection_supported),
-  c(1L, 4L),
-  "Phase 2 selection-enabled rows"
+  c(1L, 4L, 5L),
+  "current selection-enabled rows"
 )
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$auto_zoom_supported),
-  c(1L, 4L),
-  "Phase 2 Auto-zoom-enabled rows"
+  c(1L, 4L, 5L),
+  "current Auto-zoom-enabled rows"
 )
 expect_equal(
   wsa_registry$category_heading,
@@ -74,8 +75,8 @@ expect_equal(
 )
 expect_equal(
   sum(nzchar(LOCAL_REFERENCE_INTERACTION_REGISTRY$category_heading)),
-  2L,
-  "two configured category headings"
+  3L,
+  "three configured category headings"
 )
 
 fixture_path <- file.path(
@@ -556,17 +557,14 @@ stopifnot(
   payload_size_value("controller_payload_json_bytes") >= 40000L,
   payload_size_value("controller_payload_json_bytes") < 50000L
 )
-expect_equal(
-  payload_size_value("filter_engine_js_bytes"),
+## The accepted Phase 1 artifact is historical. Later Local Reference phases
+## intentionally extend the shared engine/controller, so retain the recorded
+## checkpoint values without requiring current byte sizes to remain frozen.
+stopifnot(
+  payload_size_value("filter_engine_js_bytes") > 0L,
   as.integer(file.info(file.path(
     "03_functions", "js", "brim_local_reference_filter_engine.js"
-  ))$size),
-  "filter-engine size QA artifact"
-)
-## The accepted Phase 1 artifact is historical. Phase 2 intentionally extends
-## the shared controller, so retain the recorded checkpoint value without
-## requiring the current controller byte size to remain frozen.
-stopifnot(
+  ))$size) >= payload_size_value("filter_engine_js_bytes"),
   payload_size_value("controller_js_bytes") > 0L,
   as.integer(file.info(file.path(
     "03_functions", "js", "brim_local_reference_controller.js"

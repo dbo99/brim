@@ -809,6 +809,7 @@ function(el, x) {
         {main: 'CNRFC FNF Sha/Tri/west Sierra Basins', label: 'CNRFC FNF Sha/Tri/west Sierra Basins'},
         {main: 'Groundwater Sustainability Plan Areas', label: 'Groundwater Sustainability Plan Areas'},
         {main: 'Adjudicated Groundwater Basins', label: 'Adjudicated Groundwater Basins'},
+        {main: 'Federal Wilderness', label: 'Federal Wilderness'},
         {main: 'ACECs', label: 'ACECs'},
         {main: 'CalSim3.0', label: 'CalSim3.0'},
         {main: 'Water conveyance | BRIM mapped', label: 'Water conveyance | BRIM mapped'},

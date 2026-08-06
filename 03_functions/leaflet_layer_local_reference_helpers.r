@@ -3225,7 +3225,7 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
     special_ref <- FALSE
     interactive_local_reference <- FALSE
     if (
-      nm %in% c("trails", "wildernessstudyarea") &&
+      nm %in% c("trails", "wildernessstudyarea", "fedwilderness") &&
       "pt_local_reference_geometry_key" %in% names(x) &&
       "pt_reference_hover_text" %in% names(x) &&
       "pt_reference_hover_html" %in% names(x)
@@ -3375,7 +3375,7 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
             weight = ~line_weight,
             opacity = 0.90,
             dashArray = ~line_dash,
-            popup = ~popup_html,
+            popup = if (identical(nm, "fedwilderness")) NULL else ~popup_html,
             popupOptions = leaflet::popupOptions(
               maxWidth = 460,
               minWidth = 400,
@@ -3390,7 +3390,11 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
               direction = "auto",
               opacity = 0.9,
               textsize = "12px",
-              className = "pt-wsa-hover-tooltip",
+              className = if (identical(nm, "fedwilderness")) {
+                "pt-fw-hover-tooltip"
+              } else {
+                "pt-wsa-hover-tooltip"
+              },
               style = list(
                 "white-space" = "normal",
                 "width" = "fit-content",

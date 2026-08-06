@@ -171,6 +171,13 @@ if (length(unknown_source_overrides)) {
 if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
   requested_nicknames <- unique(trimws(as.character(REFERENCE_LAYER_NICKNAMES)))
   requested_nicknames <- requested_nicknames[nzchar(requested_nicknames)]
+  if ("fedwilderness" %in% requested_nicknames) {
+    stop(
+      "Federal Wilderness is fail-closed in the generic reference batch. Use ",
+      "02_preprocess/68_federal_wilderness_pipeline/",
+      "build_federal_wilderness_197_candidate.R instead."
+    )
+  }
   unknown_nicknames <- setdiff(requested_nicknames, manifest$nickname)
   if (length(unknown_nicknames)) {
     stop(
@@ -183,6 +190,14 @@ if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
     "Focused reference-layer run: ",
     paste(manifest$nickname, collapse = ", ")
   )
+}
+
+if ("fedwilderness" %in% manifest$nickname) {
+  message(
+    "Skipping Federal Wilderness in the broad reference batch; its accepted ",
+    "197/158 source is owned by the focused pipeline."
+  )
+  manifest <- manifest[manifest$nickname != "fedwilderness", , drop = FALSE]
 }
 
 if (any(is.na(manifest$nickname) | manifest$nickname == "")) {

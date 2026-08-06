@@ -116,7 +116,10 @@ stopifnot(grepl(
   controller_source,
   fixed = TRUE
 ))
-stopifnot(grepl('className = "pt-wsa-hover-tooltip"', drawing_source, fixed = TRUE))
+stopifnot(
+  grepl('"pt-wsa-hover-tooltip"', drawing_source, fixed = TRUE),
+  grepl('identical(nm, "fedwilderness")', drawing_source, fixed = TRUE)
+)
 stopifnot(grepl(
   'label = lapply(x$pt_reference_hover_html, htmltools::HTML)',
   drawing_source,
