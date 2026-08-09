@@ -100,7 +100,8 @@ function(el, x, data) {
       .replace(/\{number\}/g, match[2]);
   }
 
-  function tabbedPopup(key, title, tabs) {
+  function tabbedPopup(key, title, tabs, options) {
+    options = options || {};
     var safeKey = cleanText(key).toLowerCase().replace(/[^A-Za-z0-9_-]+/g, '-');
     var buttons = tabs.map(function(tab, index) {
       var tabId = 'pt-lr-tab-' + safeKey + '-' + tab.key;
@@ -121,13 +122,16 @@ function(el, x, data) {
         (index === 0 ? '' : ' hidden') + '>' + tab.html + '</section>';
     }).join('');
     return '<article class="pt-popup pt-local-reference-popup ' +
-      'pt-local-reference-tabbed-popup-card pt-fw-popup" ' +
+      'pt-local-reference-tabbed-popup-card ' +
+      escapeHtml(cleanText(options.popupClass) || 'pt-lr-generic-popup') + '" ' +
       'data-pt-lr-tabbed-popup data-pt-lr-popup-key="' + escapeHtml(safeKey) + '">' +
       '<div class="pt-lr-popup-sticky"><header class="pt-lr-popup-header">' +
       '<div class="pt-lr-popup-title" role="heading" aria-level="2">' +
-      escapeHtml(title) + '</div><span class="pt-lr-popup-badge">Federal Wilderness</span>' +
+      escapeHtml(title) + '</div><span class="pt-lr-popup-badge">' +
+      escapeHtml(cleanText(options.badge) || 'Local Reference') + '</span>' +
       '</header><div class="pt-lr-popup-tabs" role="tablist" ' +
-      'aria-label="Federal Wilderness details">' + buttons + '</div></div>' +
+      'aria-label="' + escapeHtml(cleanText(options.tablistLabel) || 'Details') + '">' +
+      buttons + '</div></div>' +
       '<div class="pt-lr-popup-panel-scroll">' + panels + '</div></article>';
   }
 
@@ -276,7 +280,314 @@ function(el, x, data) {
       {key: 'overview', label: 'Overview', html: overview},
       {key: 'use-access', label: 'Use & access', html: useAccess},
       {key: 'laws-documents', label: 'Laws & official documents', html: laws}
-    ]);
+    ], {
+      badge: 'Federal Wilderness',
+      popupClass: 'pt-fw-popup',
+      tablistLabel: 'Federal Wilderness details'
+    });
+  }
+
+  function appendLookup(lookup, key, row) {
+    key = cleanText(key);
+    if (!key) return;
+    lookup[key] = lookup[key] || [];
+    lookup[key].push(row);
+  }
+
+  function compactList(items, renderer, emptyText) {
+    var rows = (items || []).map(renderer).filter(Boolean);
+    if (!rows.length) {
+      return emptyText ? '<p class="pt-lr-popup-note">' + escapeHtml(emptyText) + '</p>' : '';
+    }
+    return '<ul class="pt-lr-popup-resource-list"><li>' + rows.join('</li><li>') + '</li></ul>';
+  }
+
+  function uniqueResourceList(items) {
+    var seen = {};
+    return resourceList((items || []).filter(function(item) {
+      var url = cleanText(item && item.url);
+      if (!url || seen[url]) return false;
+      seen[url] = true;
+      return true;
+    }));
+  }
+
+  function formatSquareMilesFromAcres(value) {
+    var acres = Number(value);
+    if (!isFinite(acres) || acres <= 0) return '';
+    var miles = acres / 640;
+    var digits = miles >= 100 ? 0 : miles >= 10 ? 1 : 2;
+    return formatNumber(miles, digits) + ' mi²';
+  }
+
+  function buildAcecPopup(record, data, lookup) {
+    var semantic = lookup.semantic[String(record.semantic_feature_key)] || {};
+    var component = lookup.component[String(record.geometry_key)] || {};
+    var values = lookup.values[String(semantic.acec_id)] || [];
+    var management = lookup.management[String(semantic.acec_id)] || [];
+    var planning = lookup.planning[String(semantic.acec_id)] || [];
+    var relationships = lookup.relationships[String(semantic.acec_id)] || [];
+    var sourceOffices = lookup.offices[String(semantic.acec_id)] || [];
+    var fieldOfficeContext = lookup.fieldOfficeContext[String(semantic.acec_id)] || [];
+    var fieldOfficeDisplayMinimum = Number(
+      data.field_office_presentation &&
+        data.field_office_presentation.additional_office_minimum_percent
+    );
+    if (!isFinite(fieldOfficeDisplayMinimum) || fieldOfficeDisplayMinimum <= 0) {
+      fieldOfficeDisplayMinimum = 1;
+    }
+    var sortedFieldOfficeContext = fieldOfficeContext.slice().sort(function(a, b) {
+      return Number(b.percent_of_acec_area || 0) - Number(a.percent_of_acec_area || 0);
+    });
+    var displayedFieldOfficeContext = sortedFieldOfficeContext.filter(function(row, index) {
+      return index === 0 || Number(row.percent_of_acec_area) >= fieldOfficeDisplayMinimum;
+    });
+    var hiddenFieldOfficeContext = sortedFieldOfficeContext.filter(function(row, index) {
+      return index > 0 && Number(row.percent_of_acec_area) < fieldOfficeDisplayMinimum;
+    });
+    var access = (lookup.access[String(semantic.acec_id)] || [])[0] || {};
+    var sourceAreaValue = cleanText(semantic.current_gis_acres) ?
+      Number(semantic.current_gis_acres) : NaN;
+    var calculatedAreaValue = cleanText(semantic.calculated_source_geometry_acres) ?
+      Number(semantic.calculated_source_geometry_acres) : NaN;
+    var area = formatNumber(sourceAreaValue, 1);
+    var calculatedArea = formatNumber(calculatedAreaValue, 1);
+    var areaDifference = Math.abs(sourceAreaValue - calculatedAreaValue);
+    var areaDifferencePercent = sourceAreaValue > 0 ?
+      areaDifference / sourceAreaValue * 100 : NaN;
+    var materialAreaDifference = isFinite(areaDifference) &&
+      areaDifference >= Number(data.area_presentation &&
+        data.area_presentation.material_difference_minimum_acres || 10) &&
+      areaDifferencePercent >= Number(data.area_presentation &&
+        data.area_presentation.material_difference_minimum_percent || 0.5);
+    var overview = '';
+    overview += popupRow('Designation status', semantic.designation_status_label);
+    var wsaContextStatus = cleanText(semantic.wsa_name_context_status);
+    if (wsaContextStatus) {
+      overview += '<div class="pt-acec-wsa-cue pt-acec-wsa-' +
+        (wsaContextStatus === 'current_wsa' ? 'current' : 'historical') +
+        '"><strong>WSA name context:</strong> ' +
+        escapeHtml(cleanText(semantic.popup_wording)) + '</div>';
+    }
+    overview += popupRow('Decision', [
+      cleanText(semantic.designation_decision_date), cleanText(semantic.designation_authority)
+    ].filter(Boolean).join(' · '));
+    overview += popupRow('Current governing plan', semantic.current_governing_plans);
+    overview += popupRow('Source administrative unit', semantic.source_administrative_unit);
+    var fieldOfficeContextNames = displayedFieldOfficeContext.map(function(row) {
+      return cleanText(row.current_field_office_name);
+    }).filter(Boolean);
+    overview += popupRow('Field office context', fieldOfficeContextNames.length ?
+      fieldOfficeContextNames.join(' · ') + ' (derived spatially)' :
+      'No spatial match — review required');
+    overview += '<div class="pt-acec-caution">' +
+      escapeHtml(cleanText(data.caveats && data.caveats.field_office_context)) + '</div>';
+    var fieldOfficeContextClass = fieldOfficeContext.length ?
+      cleanText(fieldOfficeContext[0].acec_context_class) :
+      'no_spatial_match_review_required';
+    if (/review_required$/.test(fieldOfficeContextClass)) {
+      overview += '<div class="pt-acec-research-cue"><strong>Field office context:</strong> ' +
+        escapeHtml(fieldOfficeContextClass === 'partial_spatial_match_review_required' ?
+          'Current field-office polygons cover only part of this ACEC; interpret this context cautiously.' :
+          'No current field-office polygon intersection was retained for this ACEC.') + '</div>';
+    }
+    overview += popupRow('Current BLM source GIS acreage', area ? area + ' acres (' +
+      formatSquareMilesFromAcres(sourceAreaValue) + ')' : '');
+    if (materialAreaDifference) {
+      overview += popupRow('BRIM calculated source-geometry acreage',
+        calculatedArea ? calculatedArea + ' acres' : '');
+      overview += '<div class="pt-acec-research-cue">The source and calculated ' +
+        'acreages differ by ' + escapeHtml(formatNumber(areaDifference, 1)) +
+        ' acres; see technical details for geometry provenance.</div>';
+    }
+    overview += popupRow('Counties', semantic.counties);
+    overview += '<div class="pt-acec-caution">' +
+      escapeHtml(cleanText(data.caveats && data.caveats.boundary)) + '</div>';
+    if (cleanText(semantic.rna_relationship_status) ===
+        'research_candidate_from_source_name_only') {
+      overview += '<div class="pt-acec-research-cue"><strong>Research note:</strong> ' +
+        escapeHtml(cleanText(data.caveats && data.caveats.rna)) + '</div>';
+    }
+
+    var valueItems = compactList(values, function(value) {
+      var heading = cleanText(value.value_name);
+      return heading ? escapeHtml(heading) : '';
+    }, 'No value detail was supplied beyond the semantic summary.');
+    var valueSource = values.filter(function(value) {
+      return cleanText(value.value_source_url);
+    })[0] || {};
+    var valueSourceLink = popupLink(
+      valueSource.value_source_url,
+      'BLM California ACEC source'
+    );
+    var valueSourceStatement = '<p class="pt-lr-popup-note">Identified as relevant ' +
+      'values in the current BLM California ACEC source.' +
+      (valueSourceLink ? ' ' + valueSourceLink : '') + '</p>';
+    var hasAquaticValue = values.some(function(value) {
+      return cleanText(value.value_family) === 'water_aquatic' ||
+        cleanText(value.value_type) === 'fish_resource';
+    });
+    var waterResourceStatement = hasAquaticValue ?
+      'The statewide BLM ACEC source identifies fish or aquatic resources as a ' +
+        'relevant value for this ACEC.' :
+      'The statewide BLM ACEC source does not identify fish or aquatic resources ' +
+        'as a relevant value for this ACEC.';
+    var fieldOfficeRows = displayedFieldOfficeContext.map(function(context) {
+      var office = lookup.currentFieldOffice[
+        String(context.current_field_office_key)
+      ] || {};
+      var name = cleanText(context.current_field_office_name) ||
+        cleanText(office.current_official_name);
+      var officeLabel = popupLink(office.official_office_url, name) || escapeHtml(name);
+      var percent = Number(context.percent_of_acec_area);
+      return '<strong>' + officeLabel + '</strong>' +
+        (displayedFieldOfficeContext.length > 1 && isFinite(percent) ?
+          ' — ' + formatNumber(percent, 1) + '% of mapped ACEC area' : '');
+    }).filter(Boolean);
+    var fieldOfficeItems = fieldOfficeRows.length ?
+      '<ul class="pt-lr-popup-resource-list"><li>' +
+        fieldOfficeRows.join('</li><li>') + '</li></ul>' :
+      '<p>No current field-office polygon intersection was retained.</p>';
+    if (displayedFieldOfficeContext.length === 1) {
+      var primaryOffice = displayedFieldOfficeContext[0];
+      var primaryOfficePercent = Number(primaryOffice.percent_of_acec_area);
+      var primaryOfficeName = cleanText(primaryOffice.current_field_office_name);
+      fieldOfficeItems += '<p class="pt-lr-popup-note">' + escapeHtml(
+        primaryOfficePercent >= 99 ?
+          'Nearly all mapped ACEC area lies within the ' + primaryOfficeName + ' boundary.' :
+          'Most mapped ACEC area lies within the ' + primaryOfficeName + ' boundary.'
+      ) + '</p>';
+    }
+    var valuesContext = popupSection(
+      'Relevant and important values',
+      valueItems + valueSourceStatement
+    ) + popupSection('Water-resource relevance',
+      '<p>' + escapeHtml(waterResourceStatement) + '</p>') +
+      popupSection('Current field office context', fieldOfficeItems);
+
+    var managementItems = compactList(management, function(item) {
+      var direction = cleanText(item.management_direction);
+      if (!direction) return '';
+      return escapeHtml(direction) +
+        (cleanText(item.exception_or_condition) ? '<div class="pt-lr-popup-note">Condition: ' +
+          escapeHtml(item.exception_or_condition) + '</div>' : '');
+    }, 'Consult the governing plan for current area-specific direction.');
+    var publicAccessStatus = cleanText(access.public_access_status);
+    if (/^(?:unresolved|unknown|not_verified)$/i.test(publicAccessStatus)) {
+      publicAccessStatus = 'Not established from this reference layer';
+    }
+    var nonBlmLandContext = cleanText(access.non_blm_land_summary);
+    if (/no surface-management overlay was supplied or executed/i.test(nonBlmLandContext)) {
+      nonBlmLandContext = 'Not established from this reference layer';
+    }
+    var sourceOfficeItems = sourceOffices.map(function(office) {
+      return [cleanText(office.responsible_blm_district),
+        cleanText(office.responsible_blm_field_office)].filter(Boolean).join(' · ');
+    }).filter(Boolean).join('; ');
+    var currentOfficeLinks = displayedFieldOfficeContext.map(function(context) {
+      var office = lookup.currentFieldOffice[
+        String(context.current_field_office_key)
+      ] || {};
+      return {
+        url: office.official_office_url,
+        label: cleanText(office.current_official_name) ||
+          cleanText(context.current_field_office_name)
+      };
+    });
+    var planningDocumentLinks = planning.map(function(item) {
+      return {
+        url: item.document_url,
+        label: cleanText(item.planning_action_title) || cleanText(item.document_title)
+      };
+    });
+    var officialSourceLinks = uniqueResourceList([
+      {url: semantic.current_plan_url, label: 'Current governing plan'},
+      {url: semantic.designation_document_url, label: 'Designation decision'},
+      {url: semantic.current_official_map_url, label: 'Official ACEC map'},
+      {url: semantic.current_office_url, label: 'Source administrative-unit page'}
+    ].concat(planningDocumentLinks).concat(currentOfficeLinks));
+
+    var technicalFieldOfficeItems = compactList(sortedFieldOfficeContext, function(context) {
+      var percent = Number(context.percent_of_acec_area);
+      var acres = Number(context.intersection_area_acres);
+      var percentDigits = percent < 0.1 ? 4 : percent < 1 ? 2 : 2;
+      return '<strong>' + escapeHtml(cleanText(context.current_field_office_name)) +
+        '</strong>' + (isFinite(percent) ? ' — ' + formatNumber(percent, percentDigits) +
+          '% of mapped ACEC area' : '') +
+        (isFinite(acres) ? ' · ' + formatNumber(acres, acres < 10 ? 2 : 1) +
+          ' intersecting acres' : '');
+    }, 'No retained field-office relationship.');
+    if (hiddenFieldOfficeContext.length) {
+      technicalFieldOfficeItems += '<p class="pt-lr-popup-note">Additional ' +
+        'intersections below ' + escapeHtml(formatNumber(fieldOfficeDisplayMinimum, 0)) +
+        '% are retained here but omitted from the primary presentation.</p>';
+    }
+    var technicalRelationshipItems = compactList(relationships, function(relationship) {
+      var name = cleanText(relationship.related_feature_name) ||
+        cleanText(relationship.related_layer_family);
+      var codes = [
+        cleanText(relationship.relationship_type),
+        cleanText(relationship.relationship_context_class)
+      ].filter(Boolean).join(' · ');
+      return name ? '<strong>' + escapeHtml(name) + '</strong>' +
+        (codes ? '<div class="pt-lr-popup-note">' + escapeHtml(codes) + '</div>' : '') : '';
+    }, 'No source relationship record.');
+    var sourceAdminCodes = sourceOffices.map(function(office) {
+      return cleanText(office.source_admin_unit_code);
+    }).filter(Boolean).filter(function(value, index, all) {
+      return all.indexOf(value) === index;
+    }).join(' · ');
+    var managementSources = popupSection('Management direction',
+      (management.length ? '' : (cleanText(semantic.management_direction_summary) ? '<p>' +
+        escapeHtml(semantic.management_direction_summary) + '</p>' : '')) + managementItems) +
+      '<div class="pt-acec-caution">' +
+      escapeHtml(cleanText(data.caveats && data.caveats.management)) + '</div>' +
+      popupSection('Access and land-status context',
+        (cleanText(semantic.access_and_land_status_summary) ? '<p>' +
+          escapeHtml(semantic.access_and_land_status_summary) + '</p>' : '') +
+        popupRow('Public access', publicAccessStatus)) +
+      popupSection('Official sources and planning documents', officialSourceLinks) +
+      '<details class="pt-popup-technical"><summary>Technical details and provenance</summary>' +
+      popupRow('Semantic ACEC ID', semantic.acec_id) +
+      popupRow('Mapped component ID', component.component_id) +
+      popupRow('Source GlobalID', component.source_globalid) +
+      popupRow('Source OBJECTID', component.source_objectid) +
+      popupRow('Source name', component.source_name) +
+      popupRow('Source administrative-unit code', sourceAdminCodes) +
+      popupRow('Source administrative-unit evidence', sourceOfficeItems) +
+      popupRow('Current BLM source GIS acreage', area ? area + ' acres' : '') +
+      popupRow('BRIM calculated source-geometry acreage',
+        calculatedArea ? calculatedArea + ' acres' : '') +
+      popupRow('Acreage difference', isFinite(areaDifference) ?
+        formatNumber(areaDifference, 1) + ' acres (' +
+          formatNumber(areaDifferencePercent, 3) + '%)' : '') +
+      popupRow('Geometry parts', semantic.source_geometry_part_count) +
+      popupRow('Source modified', component.component_source_modified_date) +
+      popupRow('BLM modified', component.component_blm_modify_date) +
+      popupRow('WSA-name inventory comparison', semantic.comparison_inventory) +
+      popupRow('Matched current WSA', semantic.current_wsa_name) +
+      popupRow('Current WSA NLCS ID', semantic.current_wsa_nlcs_id) +
+      popupRow('WSA comparison date', semantic.comparison_date) +
+      popupRow('Planning framework', semantic.planning_framework) +
+      popupRow('Source geometry provenance', semantic.source_geometry_provenance) +
+      popupRow('Last verified', semantic.last_verified) +
+      popupRow('Record confidence', semantic.record_confidence) +
+      popupSection('Field-office intersection detail', technicalFieldOfficeItems) +
+      popupSection('Source relationship records', technicalRelationshipItems) +
+      popupSection('Access/source fields',
+        popupRow('Public access status', access.public_access_status) +
+        popupRow('Public access scope', access.public_access_scope) +
+        popupRow('Non-BLM land context', nonBlmLandContext)) + '</details>';
+
+    return tabbedPopup(component.component_id, semantic.official_acec_name, [
+      {key: 'overview', label: 'Overview', html: overview},
+      {key: 'values-context', label: 'Values & context', html: valuesContext},
+      {key: 'management-sources', label: 'Management & sources', html: managementSources}
+    ], {
+      badge: 'BLM ACEC',
+      popupClass: 'pt-acec-popup',
+      tablistLabel: 'ACEC details'
+    });
   }
 
   function layerId(layer) {
@@ -316,7 +627,7 @@ function(el, x, data) {
     style.id = 'pt-local-reference-controller-css';
     style.textContent =
       '.pt-local-reference-card{box-sizing:border-box;width:330px;max-width:calc(100vw - 28px);max-height:min(68vh,610px);overflow:auto;padding:9px 10px;background:rgba(246,239,222,.97);color:#262626;border:1px solid rgba(82,72,45,.38);border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.32);font:12px/1.35 Arial,sans-serif;touch-action:pan-y}' +
-      '.pt-local-reference-card .pt-lr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}.pt-local-reference-card .pt-lr-title{font-size:14px;font-weight:700}' +
+      '.pt-local-reference-card .pt-lr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}.pt-local-reference-card .pt-lr-title{font-size:14px;font-weight:700}.pt-lr-head-controls,.pt-lr-head-toggles{display:flex;align-items:center;gap:6px}.pt-lr-head-controls{margin-left:auto}.pt-lr-head-toggles .pt-lr-toggle{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}' +
       '.pt-lr-feature-picker{max-width:100%;margin:3px 0 7px}.pt-lr-feature-label{display:block;margin-bottom:3px;color:#4f493e;font-size:11px;font-weight:700}' +
       '.pt-local-reference-card .pt-lr-search{box-sizing:border-box;width:100%;min-height:32px;margin:0;padding:5px 7px;border:1px solid #8c887e;border-radius:4px;font:12px Arial,sans-serif}' +
       '.pt-lr-suggestions{box-sizing:border-box;max-height:150px;margin:2px 0 0;padding:0;overflow:auto;border:1px solid #8c887e;border-radius:4px;background:#fff;list-style:none}.pt-lr-suggestions[hidden]{display:none}' +
@@ -328,7 +639,7 @@ function(el, x, data) {
       '.pt-lr-toolbar .pt-lr-toggle{display:inline-flex;align-items:center;gap:4px;margin-left:0}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:auto}' +
       '.pt-lr-category-heading,.pt-lr-facet-heading{max-width:100%;margin:6px 0 3px;color:#544c3e;font-size:11px;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:break-word;word-break:normal}.pt-lr-categories,.pt-lr-facet-values{border-top:1px solid rgba(82,72,45,.23)}' +
       '.pt-lr-category{display:grid;grid-template-columns:18px 25px minmax(0,1fr) auto;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid rgba(82,72,45,.14)}' +
-      '.pt-lr-facet{margin-top:7px}.pt-lr-facet-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.pt-lr-facet-toolbar{display:flex;gap:3px}.pt-lr-facet-toolbar button{min-height:25px;padding:2px 6px;border:1px solid #817b6e;border-radius:4px;background:#fffdf8;color:#292929;cursor:pointer;font-size:10.5px}.pt-lr-facet-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(82,72,45,.12)}.pt-lr-facet-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-distinguish-note{margin:-2px 0 5px;color:#5a5144;font-size:10.5px}' +
+      '.pt-lr-facet{margin-top:7px}.pt-lr-facet-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.pt-lr-facet-collapsible>summary{cursor:pointer;list-style-position:outside}.pt-lr-facet-collapsible>.pt-lr-facet-toolbar{justify-content:flex-end;margin:2px 0}.pt-lr-facet-toolbar{display:flex;gap:3px}.pt-lr-facet-toolbar button{min-height:25px;padding:2px 6px;border:1px solid #817b6e;border-radius:4px;background:#fffdf8;color:#292929;cursor:pointer;font-size:10.5px}.pt-lr-facet-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(82,72,45,.12)}.pt-lr-facet-row-swatch{grid-template-columns:18px minmax(0,1fr) 13px auto}.pt-lr-facet-value-swatch{box-sizing:border-box;width:12px;height:12px;border:1px solid rgba(45,40,32,.45);border-radius:3px}.pt-lr-facet-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-distinguish-note{margin:-2px 0 5px;color:#5a5144;font-size:10.5px}.pt-lr-quick-views{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:3px 0}.pt-lr-quick-views>span{font-weight:700}.pt-lr-quick-views button{min-height:24px;padding:2px 6px;border:1px solid #8b654f;border-radius:12px;background:#fffaf3;color:#51382d;font-size:10px;cursor:pointer}.pt-lr-quick-views button[aria-pressed=true]{border:2px solid var(--pt-lr-quick-color,#6f624c);padding:1px 5px;background:color-mix(in srgb,var(--pt-lr-quick-color,#6f624c) 14%,#fffaf3);font-weight:700}.pt-lr-quick-views button[aria-pressed=true]::before{content:"\\2713";margin-right:3px}.pt-lr-thematic-state{display:flex;align-items:center;gap:4px;margin:2px 0;color:#4f493e;font-size:10px;font-weight:600}.pt-lr-thematic-state[hidden]{display:none}.pt-lr-thematic-state-swatch{box-sizing:border-box;width:12px;height:12px;border:1px solid rgba(45,40,32,.5);border-radius:3px}' +
       '.pt-lr-swatch{display:inline-block;width:19px;height:13px;box-sizing:border-box}.pt-lr-swatch-line{height:0;border-left:0!important;border-right:0!important;border-bottom:0!important}' +
       '.pt-lr-category-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-summary{margin:6px 0;color:#3d3a35}.pt-lr-pending{font-weight:700;color:#8a4d00}' +
       '.pt-lr-caution{margin-top:7px;padding-top:6px;border-top:1px solid rgba(82,72,45,.26);color:#5a4634;font-size:11px}' +
@@ -341,23 +652,26 @@ function(el, x, data) {
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet{margin-top:2px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-toolbar{gap:2px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-toolbar button{min-height:18px;padding:0 4px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-values{display:block}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) auto;gap:3px;min-height:17px;padding:1px 0}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-summary{margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution>div{margin-top:2px;padding-top:3px;border-top:1px solid rgba(82,72,45,.2)}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="acec"]{width:330px;max-height:min(66vh,590px);padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-controls{gap:5px;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles{gap:5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles input{margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-suggestions{width:250px;max-width:100%}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar button,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:3px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views>span{grid-column:1/-1;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button{width:100%;min-height:20px;padding:1px 4px;font-size:9.5px;line-height:1.12;white-space:normal}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button[aria-pressed=true]{padding:0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-toolbar button{min-height:19px;padding:0 5px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 14px 46px;gap:4px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row input{justify-self:center;margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-value-swatch{justify-self:center}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-count{width:100%;text-align:right}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row:not(.pt-lr-facet-row-swatch) .pt-lr-facet-label{grid-column:2/4}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary{position:relative;display:flex;min-height:24px;box-sizing:border-box;align-items:center;margin:1px 0;padding:2px 4px 2px 25px;border-radius:4px;cursor:pointer;list-style:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::-webkit-details-marker,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::before{content:"▸";position:absolute;left:5px;display:flex;width:16px;height:18px;align-items:center;justify-content:center;font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible[open]>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details[open]>summary::before{content:"▾"}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:hover,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:focus-visible,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-summary{margin:3px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
+      '.pt-acec-map-display-body{padding:0 4px 3px 25px}.pt-acec-overlap-toggle{display:inline-flex;align-items:center;gap:4px;min-height:24px;font-weight:600;cursor:pointer}.pt-acec-overlap-toggle input{margin:0}.pt-acec-overlap-note{margin-top:1px;color:#5a5144;font-size:9px;line-height:1.25}' +
       '.pt-lr-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}' +
-      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
+      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
       '.pt-wsa-hover-lines{display:block;max-width:100%}.pt-wsa-hover-line{display:block;white-space:normal}.pt-wsa-hover-name{font-weight:600}' +
       '.pt-trails-hover-lines{display:block;max-width:100%}.pt-trails-hover-line{display:block;white-space:normal}.pt-trails-hover-name{font-weight:600}' +
       '.pt-fw-hover-lines{display:block;max-width:100%}.pt-fw-hover-line{display:block;white-space:normal}.pt-fw-hover-title{font-weight:700}.pt-fw-shared-cue,.pt-fw-nevada-cue,.pt-fw-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}' +
+      '.pt-acec-hover-lines{display:block;max-width:100%}.pt-acec-hover-line{display:block;white-space:normal}.pt-acec-hover-title{font-weight:700}.pt-acec-caution,.pt-acec-research-cue,.pt-acec-wsa-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #9a5a3b}.pt-acec-research-cue{background:#f5ecff;border-left-color:#78509a}.pt-acec-wsa-current{background:#eef6e9;border-left-color:#4f8c68}.pt-acec-wsa-historical{background:#fff1df;border-left-color:#a66a43}' +
       '.pt-wsa-popup .pt-popup-subtitle{margin-top:2px;color:#555;font-size:12px}.pt-wsa-popup .pt-popup-section{margin-top:7px}.pt-wsa-popup .pt-wsa-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-wsa-source-anomaly{color:#8a2f1c}.pt-popup-technical{margin-top:7px;font-size:11px}' +
       '.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content-wrapper{padding:0;overflow:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{box-sizing:border-box;width:min(430px,calc(100vw - 72px))!important;min-width:min(400px,calc(100vw - 72px))!important;max-width:min(460px,calc(100vw - 72px))!important;margin:10px 12px 12px}' +
       '.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}' +
       '.pt-local-reference-tabbed-popup-card{display:flex;max-height:min(72vh,620px);min-height:0;flex-direction:column;overflow:hidden;color:#272727;font:12px/1.4 Arial,sans-serif}.pt-lr-popup-sticky{position:sticky;top:0;z-index:2;flex:0 0 auto;background:#fff}.pt-lr-popup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:2px 1px 9px}.pt-lr-popup-title{font-size:15px;font-weight:700;line-height:1.2}.pt-lr-popup-badge{flex:0 0 auto;padding:2px 6px;border:1px solid #8d8370;border-radius:10px;background:#f4eee1;color:#493f31;font-size:10px;line-height:1.25;white-space:nowrap}' +
       '.pt-lr-popup-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;border-bottom:1px solid #8f8778}.pt-lr-popup-tab{min-width:0;padding:6px 4px;border:1px solid transparent;border-bottom:0;border-radius:4px 4px 0 0;background:#eee8dc;color:#3d3933;font:600 11px/1.2 Arial,sans-serif;white-space:normal;cursor:pointer}.pt-lr-popup-tab[aria-selected=true]{border-color:#8f8778;background:#fff;color:#171717}.pt-lr-popup-tab:focus-visible{outline:3px solid #1d6fa5;outline-offset:-2px}' +
-      '.pt-fw-popup .pt-lr-popup-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.pt-fw-popup .pt-lr-popup-tabs,.pt-acec-popup .pt-lr-popup-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}' +
       '.pt-local-reference-tabbed-popup-card button:enabled,.pt-local-reference-tabbed-popup-card summary{cursor:pointer}.pt-local-reference-tabbed-popup-card button:disabled{cursor:not-allowed}' +
       '.pt-lr-popup-panel-scroll{height:var(--pt-lr-popup-panel-height,auto);min-height:0;max-height:min(54vh,450px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.pt-lr-popup-panel{padding:9px 2px 4px}.pt-lr-popup-panel[hidden]{display:none!important}.pt-lr-popup-summary,.pt-lr-popup-panel p{margin:0 0 8px}.pt-lr-popup-row{margin:3px 0}.pt-lr-popup-label,.pt-lr-popup-evidence>span,.pt-trails-caution>span{font-weight:700}.pt-lr-popup-section{margin-top:10px}.pt-lr-popup-section h3{margin:0 0 4px;color:#3e392f;font-size:12px;line-height:1.25}.pt-lr-popup-narrative{padding-top:2px;border-top:1px solid rgba(82,72,45,.18)}.pt-lr-narrative-source{margin-top:3px;color:#5c574f;font-size:10.5px}.pt-lr-narrative-source span{font-weight:700}.pt-lr-popup-evidence{margin-top:7px}.pt-lr-popup-resource-list{margin:0;padding-left:19px}.pt-lr-popup-resource-list li{margin:4px 0}.pt-lr-popup-note{margin:1px 0 4px;color:#5b5650;font-size:10.5px}.pt-trails-popup .pt-trails-caution{margin-top:9px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-trails-popup .pt-popup-technical{margin-top:10px;padding-top:6px;border-top:1px solid rgba(82,72,45,.2)}' +
       '.pt-local-reference-tabbed-popup-card.pt-lr-popup-measuring{visibility:hidden!important}.pt-lr-popup-measuring .pt-lr-popup-panel-scroll{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}' +
       '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{max-height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
-      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
+      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
   }
 
@@ -639,6 +953,7 @@ function(el, x, data) {
     var safeLayerId = String(layerData.layer_id || 'layer').replace(/[^A-Za-z0-9_-]/g, '-');
     var searchId = 'pt-lr-search-' + safeLayerId;
     var listboxId = 'pt-lr-listbox-' + safeLayerId;
+    var acecOverlapDescriptionId = 'pt-lr-acec-overlap-description-' + safeLayerId;
     var diagnosticPrefix = 'data-pt-lr-' + safeLayerId + '-';
     var teardownCount = 0;
     var federalData = layerData.federal_wilderness || null;
@@ -649,6 +964,33 @@ function(el, x, data) {
       office: Object.create(null),
       policy: Object.create(null)
     };
+    var acecData = layerData.acec || null;
+    var acecLookup = {
+      semantic: Object.create(null),
+      component: Object.create(null),
+      values: Object.create(null),
+      documents: Object.create(null),
+      management: Object.create(null),
+      planning: Object.create(null),
+      relationships: Object.create(null),
+      offices: Object.create(null),
+      currentFieldOffice: Object.create(null),
+      fieldOfficeContext: Object.create(null),
+      access: Object.create(null)
+    };
+    var acecValueFacet = null;
+    var acecValueByKey = Object.create(null);
+    var acecOverlapStyle = acecData && acecData.overlap_style || {};
+    var acecOverlapPairs = acecData && Array.isArray(acecData.overlap_pairs) ?
+      acecData.overlap_pairs : [];
+    var acecOverlapPalette = Array.isArray(acecOverlapStyle.palette) ?
+      acecOverlapStyle.palette.filter(validHexColor) : [];
+    var acecOverlapAdjacency = Object.create(null);
+    var acecOverlapColorBySemantic = Object.create(null);
+    var acecOverlapColorConflictCount = 0;
+    var acecDistinguishOverlaps = false;
+    var acecActiveOverlapParticipants = Object.create(null);
+    var acecActiveOverlapPairCount = 0;
 
     if (federalData) {
       (federalData.semantics || []).forEach(function(row) {
@@ -667,10 +1009,55 @@ function(el, x, data) {
         federalLookup.policy[String(row.topic)] = row.language;
       });
     }
+    if (acecData) {
+      (acecData.semantics || []).forEach(function(row) {
+        acecLookup.semantic[String(row.acec_id)] = row;
+      });
+      (acecData.components || []).forEach(function(row) {
+        acecLookup.component[String(row.component_id)] = row;
+      });
+      (acecData.values || []).forEach(function(row) {
+        appendLookup(acecLookup.values, row.acec_id, row);
+      });
+      (acecData.documents || []).forEach(function(row) {
+        acecLookup.documents[String(row.document_id)] = row;
+      });
+      (acecData.management || []).forEach(function(row) {
+        appendLookup(acecLookup.management, row.acec_id, row);
+      });
+      (acecData.planning || []).forEach(function(row) {
+        appendLookup(acecLookup.planning, row.acec_id, row);
+      });
+      (acecData.relationships || []).forEach(function(row) {
+        appendLookup(acecLookup.relationships, row.acec_id, row);
+      });
+      (acecData.offices || []).forEach(function(row) {
+        appendLookup(acecLookup.offices, row.acec_id, row);
+      });
+      (acecData.current_field_offices || []).forEach(function(row) {
+        acecLookup.currentFieldOffice[String(row.office_key)] = row;
+      });
+      (acecData.field_office_context || []).forEach(function(row) {
+        appendLookup(acecLookup.fieldOfficeContext, row.acec_id, row);
+      });
+      (acecData.access || []).forEach(function(row) {
+        appendLookup(acecLookup.access, row.acec_id, row);
+      });
+    }
 
     layerData.categories.forEach(function(category) {
       categoryByKey[String(category.category_key)] = category;
     });
+    if (acecData) {
+      (layerData.facets || []).forEach(function(facet) {
+        if (String(facet.facet_key) !== 'relevant_value_family') return;
+        acecValueFacet = facet;
+        (facet.values || []).forEach(function(value) {
+          acecValueByKey[String(value.value_key)] = value;
+        });
+      });
+      initializeAcecOverlapGraph();
+    }
 
     layerData.records.forEach(function(record) {
       recordByGeometry[String(record.geometry_key)] = record;
@@ -689,6 +1076,37 @@ function(el, x, data) {
           if (layer.closeTooltip) layer.closeTooltip();
           layer.bindPopup(
             buildFederalWildernessPopup(record, federalData, federalLookup),
+            {
+              maxWidth: 460,
+              minWidth: 400,
+              autoPan: true,
+              keepInView: true,
+              autoPanPaddingTopLeft: L.point(16, 84),
+              autoPanPaddingBottomRight: L.point(16, 24),
+              className: 'pt-local-reference-tabbed-popup'
+            }
+          );
+          layer.openPopup(event && event.latlng ? event.latlng : undefined);
+        });
+      });
+    }
+    if (acecData) {
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        listen(layer, 'mouseout', function() {
+          var record = recordByGeometry[key];
+          if (!record || !active || typeof layer.setStyle !== 'function') return;
+          // Leaflet's highlight handler restores the path's build-time style on
+          // mouseout. Reapply the controller's current applied value theme so a
+          // hover cannot leave a single-value result in stale neutral colors.
+          layer.setStyle(styleForRecord(record, engine.snapshot()));
+        });
+        listen(layer, 'click', function(event) {
+          var record = recordByGeometry[key];
+          if (!record) return;
+          if (layer.closeTooltip) layer.closeTooltip();
+          layer.bindPopup(
+            buildAcecPopup(record, acecData, acecLookup),
             {
               maxWidth: 460,
               minWidth: 400,
@@ -728,6 +1146,7 @@ function(el, x, data) {
     function writeDiagnostics(snapshot) {
       if (!el || !el.setAttribute) return;
       var showing = snapshot && snapshot.counts ? snapshot.counts.currently_showing : null;
+      var acecTheme = acecValueTheme(snapshot, 'applied_facets');
       el.setAttribute(diagnosticPrefix + 'active', active ? 'true' : 'false');
       el.setAttribute(
         diagnosticPrefix + 'semantic-count',
@@ -747,6 +1166,27 @@ function(el, x, data) {
         diagnosticPrefix + 'pending-callback-count',
         suggestionCloseTimer === null ? '0' : '1'
       );
+      if (acecData) {
+        el.setAttribute(diagnosticPrefix + 'value-style-mode', acecTheme.mode);
+        el.setAttribute(diagnosticPrefix + 'value-style-key', acecTheme.value_key || '');
+        el.setAttribute(diagnosticPrefix + 'value-style-color', acecTheme.fill_color || '');
+        el.setAttribute(
+          diagnosticPrefix + 'distinguish-overlaps',
+          acecDistinguishOverlaps ? 'true' : 'false'
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'active-overlap-pair-count',
+          String(acecActiveOverlapPairCount)
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'active-overlap-participant-count',
+          String(Object.keys(acecActiveOverlapParticipants).length)
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'overlap-color-conflict-count',
+          String(acecOverlapColorConflictCount)
+        );
+      }
     }
 
     function clearDiagnostics() {
@@ -754,7 +1194,10 @@ function(el, x, data) {
       [
         'active', 'semantic-count', 'component-count', 'attached-layer-count',
         'group-member-count', 'card-count', 'distinguish-units',
-        'pending-callback-count'
+        'pending-callback-count', 'value-style-mode', 'value-style-key',
+        'value-style-color', 'distinguish-overlaps',
+        'active-overlap-pair-count', 'active-overlap-participant-count',
+        'overlap-color-conflict-count'
       ].forEach(function(name) {
         el.removeAttribute(diagnosticPrefix + name);
       });
@@ -771,38 +1214,181 @@ function(el, x, data) {
         if (visible[key] && !rootHas(layer)) groupRoot.addLayer(layer);
         if (!visible[key] && rootHas(layer)) groupRoot.removeLayer(layer);
       });
-      applyUnitStyles();
+      applyRecordStyles(snapshot);
     }
 
-    function semanticFillColor(semanticKey) {
+    function stableHash(value) {
       var hash = 2166136261;
-      String(semanticKey || '').split('').forEach(function(character) {
+      String(value || '').split('').forEach(function(character) {
         hash ^= character.charCodeAt(0);
         hash = Math.imul(hash, 16777619);
       });
-      var hue = Math.abs(hash >>> 0) % 360;
+      return hash >>> 0;
+    }
+
+    function semanticFillColor(semanticKey) {
+      var hue = stableHash(semanticKey) % 360;
       return 'hsl(' + hue + ',58%,52%)';
     }
 
-    function styleForRecord(record) {
+    function validHexColor(value) {
+      return /^#[0-9a-f]{6}$/i.test(String(value || '').trim());
+    }
+
+    function darkenHexColor(value, proportion) {
+      var hex = String(value || '').trim();
+      if (!validHexColor(hex)) return hex;
+      var factor = 1 - Math.max(0, Math.min(1, Number(proportion) || 0));
+      var channel = function(offset) {
+        return Math.round(parseInt(hex.slice(offset, offset + 2), 16) * factor)
+          .toString(16).padStart(2, '0');
+      };
+      return ('#' + channel(1) + channel(3) + channel(5)).toUpperCase();
+    }
+
+    function initializeAcecOverlapGraph() {
+      if (!acecData || !acecOverlapPalette.length) return;
+      acecOverlapPairs.forEach(function(pair) {
+        var left = String(pair.acec_id_a || '');
+        var right = String(pair.acec_id_b || '');
+        if (!left || !right || left === right) return;
+        if (!acecOverlapAdjacency[left]) acecOverlapAdjacency[left] = [];
+        if (!acecOverlapAdjacency[right]) acecOverlapAdjacency[right] = [];
+        if (acecOverlapAdjacency[left].indexOf(right) < 0) {
+          acecOverlapAdjacency[left].push(right);
+        }
+        if (acecOverlapAdjacency[right].indexOf(left) < 0) {
+          acecOverlapAdjacency[right].push(left);
+        }
+      });
+      var nodes = Object.keys(acecOverlapAdjacency).sort(function(left, right) {
+        var degreeDifference = acecOverlapAdjacency[right].length -
+          acecOverlapAdjacency[left].length;
+        return degreeDifference || left.localeCompare(right);
+      });
+      nodes.forEach(function(node) {
+        var used = Object.create(null);
+        acecOverlapAdjacency[node].forEach(function(neighbor) {
+          var color = acecOverlapColorBySemantic[neighbor];
+          if (color) used[color] = true;
+        });
+        var start = stableHash(node) % acecOverlapPalette.length;
+        var chosen = '';
+        for (var offset = 0; offset < acecOverlapPalette.length; offset += 1) {
+          var candidate = acecOverlapPalette[
+            (start + offset) % acecOverlapPalette.length
+          ];
+          if (!used[candidate]) {
+            chosen = candidate;
+            break;
+          }
+        }
+        acecOverlapColorBySemantic[node] = chosen || acecOverlapPalette[start];
+      });
+      acecOverlapPairs.forEach(function(pair) {
+        var left = String(pair.acec_id_a || '');
+        var right = String(pair.acec_id_b || '');
+        if (left && right && acecOverlapColorBySemantic[left] ===
+            acecOverlapColorBySemantic[right]) {
+          acecOverlapColorConflictCount += 1;
+        }
+      });
+    }
+
+    function updateAcecActiveOverlaps(snapshot) {
+      acecActiveOverlapParticipants = Object.create(null);
+      acecActiveOverlapPairCount = 0;
+      if (!acecDistinguishOverlaps || !snapshot) return;
+      var visible = Object.create(null);
+      (snapshot.visible_geometry_keys || []).forEach(function(geometryKey) {
+        var record = recordByGeometry[String(geometryKey)];
+        if (record) visible[String(record.semantic_feature_key)] = true;
+      });
+      acecOverlapPairs.forEach(function(pair) {
+        var left = String(pair.acec_id_a || '');
+        var right = String(pair.acec_id_b || '');
+        if (!visible[left] || !visible[right]) return;
+        acecActiveOverlapParticipants[left] = true;
+        acecActiveOverlapParticipants[right] = true;
+        acecActiveOverlapPairCount += 1;
+      });
+    }
+
+    function acecValueTheme(snapshot, facetStateKey) {
+      var neutral = {
+        mode: 'default',
+        value_key: '',
+        label: '',
+        fill_color: '',
+        stroke_color: '',
+        fill_opacity: null,
+        stroke_weight: null
+      };
+      if (!acecData || !acecValueFacet || !snapshot) return neutral;
+      var facetStates = snapshot[facetStateKey] || {};
+      var selected = facetStates[String(acecValueFacet.facet_key)] || [];
+      if (selected.length === 0) {
+        neutral.mode = 'none';
+        return neutral;
+      }
+      if (selected.length > 1) {
+        neutral.mode = selected.length === (acecValueFacet.values || []).length ?
+          'default' : 'multiple';
+        return neutral;
+      }
+      var value = acecValueByKey[String(selected[0])] || {};
+      if (!validHexColor(value.swatch_color)) return neutral;
+      var thematicStyle = acecValueFacet.thematic_style || {};
+      neutral.mode = 'single';
+      neutral.value_key = String(value.value_key);
+      neutral.label = String(value.label || value.value_key);
+      neutral.fill_color = String(value.swatch_color).toUpperCase();
+      neutral.stroke_color = darkenHexColor(
+        neutral.fill_color,
+        Number(thematicStyle.stroke_darken || 0)
+      );
+      neutral.fill_opacity = Number(thematicStyle.fill_opacity);
+      neutral.stroke_weight = Number(thematicStyle.stroke_weight);
+      return neutral;
+    }
+
+    function styleForRecord(record, snapshot) {
       var category = categoryByKey[String(record.category_key)] || {};
+      var acecTheme = acecValueTheme(snapshot, 'applied_facets');
+      var thematic = acecTheme.mode === 'single';
+      var overlapColor = acecDistinguishOverlaps &&
+        acecActiveOverlapParticipants[String(record.semantic_feature_key)] ?
+        acecOverlapColorBySemantic[String(record.semantic_feature_key)] : '';
+      var overlapping = validHexColor(overlapColor);
       return {
         fillColor: distinguishUnits ?
-          semanticFillColor(record.semantic_feature_key) : category.fill_color,
-        color: category.stroke_color,
-        fillOpacity: Number(category.fill_opacity || 0),
-        weight: Number(category.stroke_weight || 1),
+          semanticFillColor(record.semantic_feature_key) :
+          (overlapping ? overlapColor :
+            (thematic ? acecTheme.fill_color : category.fill_color)),
+        color: overlapping ? darkenHexColor(
+          overlapColor,
+          Number(acecOverlapStyle.stroke_darken || 0)
+        ) : (thematic ? acecTheme.stroke_color : category.stroke_color),
+        fillOpacity: overlapping && isFinite(Number(acecOverlapStyle.fill_opacity)) ?
+          Number(acecOverlapStyle.fill_opacity) :
+          (thematic && isFinite(acecTheme.fill_opacity) ?
+            acecTheme.fill_opacity : Number(category.fill_opacity || 0)),
+        weight: overlapping && isFinite(Number(acecOverlapStyle.stroke_weight)) ?
+          Number(acecOverlapStyle.stroke_weight) :
+          (thematic && isFinite(acecTheme.stroke_weight) ?
+            acecTheme.stroke_weight : Number(category.stroke_weight || 1)),
         dashArray: String(category.dash_array || '')
       };
     }
 
-    function applyUnitStyles() {
-      if (!distinguishUnitsSupported) return;
+    function applyRecordStyles(snapshot) {
+      if (!distinguishUnitsSupported && !acecData) return;
+      if (acecData) updateAcecActiveOverlaps(snapshot);
       Object.keys(layerByGeometry).forEach(function(key) {
         var layer = layerByGeometry[key];
         var record = recordByGeometry[key];
         if (layer && record && typeof layer.setStyle === 'function') {
-          layer.setStyle(styleForRecord(record));
+          layer.setStyle(styleForRecord(record, snapshot));
         }
       });
     }
@@ -811,7 +1397,15 @@ function(el, x, data) {
       var eligible = distinguishUnitsSupported && snapshot &&
         snapshot.draft_selected.length === 1;
       distinguishUnits = eligible && value === true;
-      applyUnitStyles();
+      applyRecordStyles(snapshot);
+    }
+
+    function setAcecDistinguishOverlaps(value, snapshot) {
+      acecDistinguishOverlaps = !!(
+        acecData && acecOverlapPairs.length && acecOverlapPalette.length &&
+        value === true
+      );
+      applyRecordStyles(snapshot);
     }
 
     function eventMatches(event) {
@@ -966,6 +1560,40 @@ function(el, x, data) {
       );
     }
 
+    function renderQuickViewState(snapshot) {
+      if (!card || !card.querySelectorAll) return;
+      Array.prototype.forEach.call(
+        card.querySelectorAll('[data-pt-lr-quick-view]'),
+        function(button) {
+          var facetKey = String(button.getAttribute('data-pt-lr-quick-facet') || '');
+          var valueKey = String(button.getAttribute('data-pt-lr-quick-value') || '');
+          var selectedValues = snapshot.draft_facets[facetKey] || [];
+          var activeQuickView = selectedValues.length === 1 && selectedValues[0] === valueKey;
+          button.setAttribute('aria-pressed', activeQuickView ? 'true' : 'false');
+        }
+      );
+      var thematicState = card.querySelector('.pt-lr-thematic-state');
+      if (!thematicState) return;
+      var appliedTheme = acecValueTheme(snapshot, 'applied_facets');
+      var neutralCategory = categoryByKey.acec || {};
+      if (appliedTheme.mode === 'single') {
+        thematicState.hidden = false;
+        thematicState.innerHTML =
+          '<span class="pt-lr-thematic-state-swatch" aria-hidden="true" style="background:' +
+          escapeHtml(appliedTheme.fill_color) + '"></span><span>Map color: ' +
+          escapeHtml(appliedTheme.label) + '</span>';
+      } else if (appliedTheme.mode === 'multiple') {
+        thematicState.hidden = false;
+        thematicState.innerHTML =
+          '<span class="pt-lr-thematic-state-swatch" aria-hidden="true" style="background:' +
+          escapeHtml(neutralCategory.fill_color || '#B86F52') + '"></span>' +
+          '<span>Map color: neutral (multiple values selected)</span>';
+      } else {
+        thematicState.hidden = true;
+        thematicState.innerHTML = '';
+      }
+    }
+
     function render(snapshot, reconcile, zoomAction) {
       if (!card) return;
       if (distinguishUnits && snapshot.draft_selected.length !== 1) {
@@ -1022,6 +1650,7 @@ function(el, x, data) {
         });
       });
       renderChips(snapshot);
+      renderQuickViewState(snapshot);
       var auto = card.querySelector('.pt-lr-auto');
       if (auto) auto.checked = snapshot.auto;
       var autoZoom = card.querySelector('.pt-lr-auto-zoom');
@@ -1037,6 +1666,10 @@ function(el, x, data) {
             'Distinguish named wildernesses within the selected agency' :
             'Select exactly one managing agency before distinguishing named wildernesses'
         );
+      }
+      var distinguishOverlaps = card.querySelector('.pt-acec-distinguish-overlaps');
+      if (distinguishOverlaps) {
+        distinguishOverlaps.checked = acecDistinguishOverlaps;
       }
       var apply = card.querySelector('.pt-lr-apply');
       if (apply) apply.disabled = !snapshot.has_pending_changes;
@@ -1063,7 +1696,11 @@ function(el, x, data) {
           currentPrimary + '/' + totalPrimary + ' wildernesses · ' +
             snapshot.counts.currently_showing.geometry_component_count + '/' +
             snapshot.counts.total.geometry_component_count + ' components' :
-          fullSummary;
+          acecData ?
+            currentPrimary + '/' + totalPrimary + ' ACECs · ' +
+              snapshot.counts.currently_showing.geometry_component_count + '/' +
+              snapshot.counts.total.geometry_component_count + ' parts' :
+            fullSummary;
         summary.setAttribute('aria-label', fullSummary);
         summary.setAttribute('title', fullSummary);
       }
@@ -1147,12 +1784,28 @@ function(el, x, data) {
         var facetKey = escapeHtml(facet.facet_key);
         var values = (facet.values || []).map(function(value) {
           var valueKey = escapeHtml(value.value_key);
-          return '<label class="pt-lr-facet-row"><input type="checkbox" ' +
+          var swatchColor = String(value.swatch_color || '').trim();
+          var hasSwatch = /^#[0-9a-f]{6}$/i.test(swatchColor);
+          return '<label class="pt-lr-facet-row' + (hasSwatch ? ' pt-lr-facet-row-swatch' : '') +
+            '"><input type="checkbox" ' +
             'data-pt-lr-facet="' + facetKey + '" data-pt-lr-facet-value="' + valueKey + '" checked>' +
-            '<span>' + escapeHtml(value.label) + '</span>' +
+            '<span class="pt-lr-facet-label">' + escapeHtml(value.label) + '</span>' +
+            (hasSwatch ? '<span class="pt-lr-facet-value-swatch" aria-hidden="true" style="background:' +
+              escapeHtml(swatchColor) + '"></span>' : '') +
             '<span class="pt-lr-facet-count" data-pt-lr-facet-count="' + facetKey +
             '" data-pt-lr-facet-count-value="' + valueKey + '"></span></label>';
         }).join('');
+        var content =
+          '<div class="pt-lr-facet-toolbar">' +
+          '<button type="button" data-pt-lr-facet-all="' + facetKey + '">All</button>' +
+          '<button type="button" data-pt-lr-facet-none="' + facetKey + '">None</button>' +
+          '</div><div class="pt-lr-facet-values">' + values + '</div>';
+        if (facet.collapsible === true) {
+          return '<details class="pt-lr-facet pt-lr-facet-collapsible" ' +
+            'data-pt-lr-facet-section="' + facetKey + '"' +
+            (facet.open_default === true ? ' open' : '') + '><summary class="pt-lr-facet-heading">' +
+            escapeHtml(facet.label) + '</summary>' + content + '</details>';
+        }
         return '<section class="pt-lr-facet" data-pt-lr-facet-section="' + facetKey + '">' +
           '<div class="pt-lr-facet-head"><div class="pt-lr-facet-heading" role="heading" aria-level="3">' +
           escapeHtml(facet.label) + '</div><div class="pt-lr-facet-toolbar">' +
@@ -1160,6 +1813,29 @@ function(el, x, data) {
           '<button type="button" data-pt-lr-facet-none="' + facetKey + '">None</button>' +
           '</div></div><div class="pt-lr-facet-values">' + values + '</div></section>';
       }).join('');
+    }
+
+    function quickViewsHtml() {
+      var quickViews = layerData.quick_views || [];
+      if (!quickViews.length) return '';
+      var neutralCategory = categoryByKey.acec || {};
+      return '<div class="pt-lr-quick-views"><span>Quick views:</span>' +
+        quickViews.map(function(view) {
+          var facet = (layerData.facets || []).filter(function(candidate) {
+            return String(candidate.facet_key) === String(view.facet_key);
+          })[0] || {};
+          var value = (facet.values || []).filter(function(candidate) {
+            return String(candidate.value_key) === String(view.value_key);
+          })[0] || {};
+          var quickColor = validHexColor(value.swatch_color) ?
+            String(value.swatch_color).toUpperCase() :
+            String(neutralCategory.stroke_color || '#7A3F2E');
+          return '<button type="button" data-pt-lr-quick-view="' +
+            escapeHtml(view.quick_view_key) + '" data-pt-lr-quick-facet="' +
+            escapeHtml(view.facet_key) + '" data-pt-lr-quick-value="' +
+            escapeHtml(view.value_key) + '" aria-pressed="false" style="--pt-lr-quick-color:' +
+            escapeHtml(quickColor) + '">' + escapeHtml(view.label) + '</button>';
+        }).join('') + '</div>';
     }
 
     function createCard() {
@@ -1171,6 +1847,7 @@ function(el, x, data) {
           'leaflet-control pt-map-legend-card pt-map-legend-local pt-local-reference-card'
         );
         card.setAttribute('data-pt-local-reference-layer', layerData.layer_id);
+        var categoryFilterVisible = layerData.category_filter_visible !== false;
         var categoryRows = layerData.categories.map(function(category) {
           var key = escapeHtml(category.category_key);
           return '<label class="pt-lr-category"><input type="checkbox" data-pt-lr-category="' + key + '" checked>' +
@@ -1184,15 +1861,40 @@ function(el, x, data) {
             'pt-lr-dock', 'pt-lr-close', 'Local Reference filter'
           ) :
           '<button type="button" class="pt-lr-close" aria-label="Hide Local Reference filter">&times;</button>';
-        var categoryHeadingHtml = String(layerData.category_heading || '') ?
+        var autoToggleHtml = layerData.auto_supported ?
+          '<label class="pt-lr-toggle pt-lr-auto-toggle"><input type="checkbox" class="pt-lr-auto"> Auto</label>' : '';
+        var autoZoomToggleHtml = autoZoomSupported ?
+          '<label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-auto-zoom"> Auto-zoom</label>' : '';
+        var headControlsHtml = acecData ?
+          '<div class="pt-lr-head-controls"><div class="pt-lr-head-toggles">' +
+          autoToggleHtml + autoZoomToggleHtml + '</div>' + closeHtml + '</div>' : closeHtml;
+        var toolbarItemsHtml =
+          (categoryFilterVisible ? '<button type="button" class="pt-lr-all">All</button>' +
+            '<button type="button" class="pt-lr-none">None</button>' : '') +
+          (acecData ? '' : autoToggleHtml + autoZoomToggleHtml);
+        var toolbarHtml = toolbarItemsHtml ?
+          '<div class="pt-lr-toolbar">' + toolbarItemsHtml + '</div>' : '';
+        var categoryHeadingHtml = categoryFilterVisible && String(layerData.category_heading || '') ?
           '<div class="pt-lr-category-heading" role="heading" aria-level="3">' +
           escapeHtml(layerData.category_heading) + '</div>' : '';
-        var subtitleHtml = federalData ? '' : '<div>' +
+        var subtitleHtml = (federalData || acecData) ? '' : '<div>' +
           (featureSelectionSupported ?
             'Filter by category or select named features' : 'Filter by category') +
           '</div>';
-        var cautionHtml = federalData ? '' :
+        var cautionHtml = federalData ? '' : acecData ?
+          '<details class="pt-lr-map-details pt-acec-layer-note"><summary>Boundary / use note</summary>' +
+          '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div></details>' :
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div>';
+        var acecDisplayHtml = acecData ?
+          '<details class="pt-lr-map-details pt-acec-map-display"><summary>Map / display</summary>' +
+          '<div class="pt-acec-map-display-body"><label class="pt-acec-overlap-toggle" ' +
+          'title="Give simultaneously visible overlapping ACECs contrasting colors.">' +
+          '<input type="checkbox" class="pt-acec-distinguish-overlaps" aria-describedby="' +
+          acecOverlapDescriptionId + '"> Distinguish overlaps</label>' +
+          '<span class="pt-lr-visually-hidden" id="' + acecOverlapDescriptionId + '">' +
+          'Give simultaneously visible overlapping ACECs contrasting colors.</span>' +
+          '<div class="pt-acec-overlap-note">Only current overlap participants change; ' +
+          'colors have no category meaning.</div></div></details>' : '';
         var mapDetailsHtml = layerData.show_component_count ?
           (federalData ?
             '<details class="pt-lr-map-details"><summary>Map / layer note</summary>' +
@@ -1203,19 +1905,15 @@ function(el, x, data) {
         card.innerHTML =
           '<div class="pt-lr-head pt-map-card-handle"><div><div class="pt-lr-title">' +
           escapeHtml(layerData.display_name) + '</div>' + subtitleHtml +
-          '</div>' + closeHtml + '</div>' +
+          '</div>' + headControlsHtml + '</div>' +
           featurePickerHtml() +
-          '<div class="pt-lr-toolbar"><button type="button" class="pt-lr-all">All</button>' +
-          '<button type="button" class="pt-lr-none">None</button>' +
-          (layerData.auto_supported ?
-            '<label class="pt-lr-toggle pt-lr-auto-toggle"><input type="checkbox" class="pt-lr-auto"> Auto</label>' : '') +
-          (autoZoomSupported ?
-            '<label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-auto-zoom"> Auto-zoom</label>' : '') +
-          '</div>' + categoryHeadingHtml +
-          '<div class="pt-lr-categories">' + categoryRows + '</div>' +
+          toolbarHtml + categoryHeadingHtml +
+          (categoryFilterVisible ? '<div class="pt-lr-categories">' + categoryRows + '</div>' : '') +
           (distinguishUnitsSupported ?
             '<div class="pt-lr-toolbar pt-lr-distinguish-row"><label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-distinguish"> Distinguish named units</label>' +
             '<span class="pt-lr-distinguish-note" title="Available when exactly one managing agency is selected.">one agency only</span></div>' : '') +
+          quickViewsHtml() +
+          (acecData ? '<div class="pt-lr-thematic-state" hidden aria-live="polite"></div>' : '') +
           facetsHtml() +
           '<div class="pt-lr-actions"><button type="button" class="pt-lr-apply">Apply</button>' +
           '<button type="button" class="pt-lr-reset">Reset</button>' +
@@ -1223,7 +1921,7 @@ function(el, x, data) {
             '<button type="button" class="pt-lr-zoom-results">Zoom to results</button>' : '') +
           '<span class="pt-lr-pending"></span></div>' +
           '<div class="pt-lr-summary" aria-live="polite"></div>' +
-          mapDetailsHtml + cautionHtml;
+          mapDetailsHtml + acecDisplayHtml + cautionHtml;
         L.DomEvent.disableClickPropagation(card);
         L.DomEvent.disableScrollPropagation(card);
         wireFeaturePicker();
@@ -1257,6 +1955,11 @@ function(el, x, data) {
             setDistinguishUnits(event.target.checked, distinguishSnapshot);
             render(distinguishSnapshot, false, '');
           }
+          if (event.target.classList.contains('pt-acec-distinguish-overlaps')) {
+            var overlapSnapshot = engine.snapshot();
+            setAcecDistinguishOverlaps(event.target.checked, overlapSnapshot);
+            render(overlapSnapshot, false, '');
+          }
         });
         if ((layerData.facets || []).length && card.querySelectorAll) {
           Array.prototype.forEach.call(
@@ -1278,11 +1981,30 @@ function(el, x, data) {
             }
           );
         }
-        card.querySelector('.pt-lr-all').addEventListener('click', function() {
+        if (card.querySelectorAll) {
+          Array.prototype.forEach.call(
+            card.querySelectorAll('[data-pt-lr-quick-view]'),
+            function(button) {
+              button.addEventListener('click', function() {
+                var facetKey = button.getAttribute('data-pt-lr-quick-facet');
+                var valueKey = button.getAttribute('data-pt-lr-quick-value');
+                var before = engine.snapshot();
+                if (before.auto) engine.setAuto(false);
+                engine.facetNone(facetKey);
+                var next = engine.setFacetValue(facetKey, valueKey, true);
+                if (before.auto) next = engine.setAuto(true);
+                render(next, before.auto, before.auto ? 'facet' : '');
+              });
+            }
+          );
+        }
+        var allButton = card.querySelector('.pt-lr-all');
+        if (allButton) allButton.addEventListener('click', function() {
           var next = engine.all();
           render(next, next.auto, 'all');
         });
-        card.querySelector('.pt-lr-none').addEventListener('click', function() {
+        var noneButton = card.querySelector('.pt-lr-none');
+        if (noneButton) noneButton.addEventListener('click', function() {
           var next = engine.none();
           render(next, next.auto, 'none');
         });
@@ -1294,6 +2016,7 @@ function(el, x, data) {
           clearFeaturePicker();
           var resetSnapshot = engine.reset();
           setDistinguishUnits(false, resetSnapshot);
+          setAcecDistinguishOverlaps(false, resetSnapshot);
           render(resetSnapshot, true, 'reset');
         });
         var zoomButton = card.querySelector('.pt-lr-zoom-results');
@@ -1393,6 +2116,7 @@ function(el, x, data) {
       detachOwnedGeometry();
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
+      setAcecDistinguishOverlaps(false, resetSnapshot);
       removeCard();
       teardownCount += 1;
       writeDiagnostics(resetSnapshot);
@@ -1407,6 +2131,7 @@ function(el, x, data) {
       clearFeaturePicker();
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
+      setAcecDistinguishOverlaps(false, resetSnapshot);
       render(resetSnapshot, true, 'reset');
     }
 
@@ -1417,6 +2142,7 @@ function(el, x, data) {
       closeSuggestions();
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
+      setAcecDistinguishOverlaps(false, resetSnapshot);
       createCard();
       render(engine.snapshot(), true, '');
       setCardVisible();
@@ -1457,6 +2183,7 @@ function(el, x, data) {
       expectedLayerCount: function() { return layerData.records.length; },
       diagnostics: function() {
         var owned = ownedLayers();
+        var valueTheme = acecValueTheme(engine.snapshot(), 'applied_facets');
         return {
           active: active,
           group_root_attached: !!(groupRoot && map.hasLayer && map.hasLayer(groupRoot)),
@@ -1470,6 +2197,14 @@ function(el, x, data) {
           pending_controller_callback_count: suggestionCloseTimer === null ? 0 : 1,
           controller_created_group_count: 0,
           distinguish_units: distinguishUnits,
+          distinguish_overlaps: acecDistinguishOverlaps,
+          active_overlap_pair_count: acecActiveOverlapPairCount,
+          active_overlap_participant_count:
+            Object.keys(acecActiveOverlapParticipants).length,
+          overlap_color_conflict_count: acecOverlapColorConflictCount,
+          value_style_mode: valueTheme.mode,
+          value_style_key: valueTheme.value_key,
+          value_style_color: valueTheme.fill_color,
           teardown_count: teardownCount
         };
       }

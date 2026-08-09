@@ -171,11 +171,13 @@ if (length(unknown_source_overrides)) {
 if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
   requested_nicknames <- unique(trimws(as.character(REFERENCE_LAYER_NICKNAMES)))
   requested_nicknames <- requested_nicknames[nzchar(requested_nicknames)]
-  if ("fedwilderness" %in% requested_nicknames) {
+  focused_pipeline_rows <- intersect(requested_nicknames, c("fedwilderness", "acec"))
+  if (length(focused_pipeline_rows)) {
     stop(
-      "Federal Wilderness is fail-closed in the generic reference batch. Use ",
-      "02_preprocess/68_federal_wilderness_pipeline/",
-      "build_federal_wilderness_197_candidate.R instead."
+      paste(focused_pipeline_rows, collapse = ", "),
+      " is fail-closed in the generic reference batch. Use its focused ",
+      "02_preprocess/68_federal_wilderness_pipeline or ",
+      "02_preprocess/69_acec_pipeline builder instead."
     )
   }
   unknown_nicknames <- setdiff(requested_nicknames, manifest$nickname)
@@ -192,12 +194,13 @@ if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
   )
 }
 
-if ("fedwilderness" %in% manifest$nickname) {
+focused_pipeline_rows <- intersect(manifest$nickname, c("fedwilderness", "acec"))
+if (length(focused_pipeline_rows)) {
   message(
-    "Skipping Federal Wilderness in the broad reference batch; its accepted ",
-    "197/158 source is owned by the focused pipeline."
+    "Skipping ", paste(focused_pipeline_rows, collapse = ", "),
+    " in the broad reference batch; accepted inputs are owned by focused pipelines."
   )
-  manifest <- manifest[manifest$nickname != "fedwilderness", , drop = FALSE]
+  manifest <- manifest[!manifest$nickname %in% focused_pipeline_rows, , drop = FALSE]
 }
 
 if (any(is.na(manifest$nickname) | manifest$nickname == "")) {

@@ -1,9 +1,9 @@
 # ==== local_reference_interaction_helpers.r ================================
 ##
 ## Shared contracts for the bounded Local > Reference interaction framework.
-## Phase 3 executes Federal Wilderness beside the accepted Trails and
-## Wilderness Study Areas implementations. The remaining eight rows stay
-## validation-only.
+## Phase 4 executes California ACECs beside the accepted Trails, Wilderness
+## Study Areas, and Federal Wilderness implementations. The remaining seven
+## rows stay validation-only.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -73,13 +73,14 @@ pt_validate_local_reference_config <- function() {
     "legend_mode", "filter_mode", "auto_supported", "auto_default",
     "count_mode", "primary_count_mode", "primary_count_label",
     "show_component_count", "show_category_count", "category_count_mode",
-    "component_count_label",
+    "component_count_label", "category_filter_visible",
     "category_heading", "card_caution", "popup_layout",
     "feature_selection_supported", "feature_selection_mode",
     "feature_search_fields", "feature_display_field",
     "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
     "preserve_view_on_reset", "retention_enabled",
     "distinguish_units_supported", "search_fields", "filter_facets",
+    "quick_views",
     "category_sort_order"
   )
   missing_registry <- setdiff(required_registry, names(registry))
@@ -158,28 +159,28 @@ pt_validate_local_reference_config <- function() {
     stop("Default Local Reference visible counts must use semantic features.")
   }
   if (any(!registry$popup_layout %in% c("standard", "tabbed_card")) ||
-      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L, 5L))) {
-    stop("Tabbed Local Reference popup layout must remain Trails/WSA/Federal Wilderness-only.")
+      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L, 5L, 7L))) {
+    stop("Tabbed Local Reference popup layout must remain Trails/WSA/Federal Wilderness/ACEC-only.")
   }
 
-  expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE)
-  expected_auto_default <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE)
+  expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE)
+  expected_auto_default <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
   if (!identical(as.logical(registry$auto_supported), expected_auto_supported) ||
       !identical(as.logical(registry$auto_default), expected_auto_default)) {
     stop("Local Reference Auto support/default contract differs from the approved 11-layer matrix.")
   }
   if (!identical(
     which(registry$implementation_status %in% c(
-      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness"
+      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness", "phase4_acec"
     )),
-    c(1L, 4L, 5L)
+    c(1L, 4L, 5L, 7L)
   )) {
-    stop("Local Reference execution must remain limited to Trails, WSA, and Federal Wilderness.")
+    stop("Local Reference execution must remain limited to Trails, WSA, Federal Wilderness, and ACEC.")
   }
-  if (!identical(which(registry$feature_selection_supported), c(1L, 4L, 5L)) ||
-      !identical(which(registry$auto_zoom_supported), c(1L, 4L, 5L)) ||
-      !identical(which(registry$auto_zoom_default), c(1L, 4L, 5L))) {
-    stop("Named-feature selection and Auto-zoom must remain Trails/WSA/Federal Wilderness-only.")
+  if (!identical(which(registry$feature_selection_supported), c(1L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_supported), c(1L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_default), c(1L, 4L, 5L, 7L))) {
+    stop("Named-feature selection and Auto-zoom must remain Trails/WSA/Federal Wilderness/ACEC-only.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[1]], use.names = FALSE),
@@ -206,20 +207,109 @@ pt_validate_local_reference_config <- function() {
   )) {
     stop("Federal Wilderness named-feature search fields differ from the approved contract.")
   }
-  if (!identical(which(registry$retention_enabled), c(1L, 4L, 5L))) {
-    stop("Field retention must remain limited to Trails, WSA, and Federal Wilderness.")
+  if (!identical(
+    unlist(registry$feature_search_fields[[7]], use.names = FALSE),
+    c(
+      "pt_acec_official_name", "pt_acec_legacy_name", "pt_acec_aliases",
+      "pt_acec_governing_plan", "pt_acec_planning_framework",
+      "pt_acec_source_admin_unit", "pt_acec_field_office_context_names",
+      "acec_id", "component_id", "pt_acec_global_id"
+    )
+  )) {
+    stop("ACEC named-feature search fields differ from the approved contract.")
+  }
+  if (!identical(which(registry$retention_enabled), c(1L, 4L, 5L, 7L))) {
+    stop("Field retention must remain limited to Trails, WSA, Federal Wilderness, and ACEC.")
   }
   if (!identical(which(registry$distinguish_units_supported), 5L)) {
     stop("Distinguish named units must remain Federal Wilderness-only.")
   }
   facets <- unclass(registry$filter_facets)
   if (length(facets) != nrow(registry) ||
-      !identical(which(lengths(facets) > 0L), 5L) ||
+      !identical(which(lengths(facets) > 0L), c(5L, 7L)) ||
       !identical(
         vapply(facets[[5]], `[[`, character(1), "facet_key"),
         c("management_pattern", "designation_history", "geographic_context")
+      ) ||
+      !identical(
+        vapply(facets[[7]], `[[`, character(1), "facet_key"),
+        c("relevant_value_family", "planning_framework", "field_office_context")
       )) {
-    stop("Federal Wilderness must retain its exact three approved filter facets.")
+    stop("Federal Wilderness and ACEC must retain their exact approved filter facets.")
+  }
+  quick_views <- unclass(registry$quick_views)
+  if (length(quick_views) != nrow(registry) ||
+      !identical(which(lengths(quick_views) > 0L), 7L) ||
+      !identical(
+        vapply(quick_views[[7]], `[[`, character(1), "quick_view_key"),
+        c(
+          "fish_aquatic", "drecp", "wildlife_habitat", "cultural_historic",
+          "scenic", "natural_systems"
+        )
+      )) {
+    stop("ACEC must retain its exact six approved quick views.")
+  }
+  acec_value_styles <- facets[[7]][[1]]$values
+  if (!identical(acec_value_styles, PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES) ||
+      !identical(
+        as.character(acec_value_styles$swatch_color),
+        c("#3B82A0", "#7A9A4A", "#4F8C68", "#A66A43", "#8A6DAA", "#B58A3D")
+      ) ||
+      anyDuplicated(acec_value_styles$swatch_color) ||
+      any(!grepl("^#[0-9A-F]{6}$", acec_value_styles$swatch_color)) ||
+      !identical(
+        facets[[7]][[1]]$thematic_style,
+        PT_LOCAL_REFERENCE_ACEC_VALUE_THEMATIC_STYLE
+      ) ||
+      !identical(PT_LOCAL_REFERENCE_ACEC_VALUE_THEMATIC_STYLE$multiple_selection, "neutral")) {
+    stop("ACEC value-family colors and thematic style must retain their centralized contract.")
+  }
+  acec_overlap_style <- PT_LOCAL_REFERENCE_ACEC_OVERLAP_STYLE
+  if (!is.list(acec_overlap_style) ||
+      !identical(
+        names(acec_overlap_style),
+        c(
+          "palette", "fill_opacity", "stroke_weight", "stroke_darken",
+          "minimum_overlap_area_m2"
+        )
+      ) ||
+      length(acec_overlap_style$palette) != 6L ||
+      anyDuplicated(acec_overlap_style$palette) ||
+      any(!grepl("^#[0-9A-F]{6}$", acec_overlap_style$palette)) ||
+      !isTRUE(acec_overlap_style$fill_opacity > 0 &&
+                acec_overlap_style$fill_opacity <= 1) ||
+      !isTRUE(acec_overlap_style$stroke_weight > 0) ||
+      !isTRUE(acec_overlap_style$stroke_darken >= 0 &&
+                acec_overlap_style$stroke_darken <= 1) ||
+      !identical(acec_overlap_style$minimum_overlap_area_m2, 1)) {
+    stop("ACEC overlap colors and display style differ from the reviewed contract.")
+  }
+  current_offices <- PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES
+  current_office_text <- paste(
+    current_offices$office_key,
+    current_offices$current_official_name,
+    current_offices$boundary_source_name
+  )
+  if (nrow(current_offices) != 14L ||
+      anyDuplicated(current_offices$office_key) ||
+      anyDuplicated(current_offices$office_code) ||
+      !setequal(
+        current_offices$office_code,
+        c(
+          "CAD05000", "CAD06000", "CAD07000", "CAD08000", "CAD09000",
+          "CAC05000", "CAC06000", "CAC07000", "CAC08000", "CAC09000",
+          "CAN02000", "CAN03000", "CAN05000", "CAN06000"
+        )
+      ) || any(grepl(
+        "Hollister|Alturas|Susanville",
+        current_office_text,
+        ignore.case = TRUE
+      ))) {
+    stop("ACEC current field-office lookup differs from the verified 14-office roster.")
+  }
+  if (anyNA(registry$category_filter_visible) ||
+      !identical(which(!registry$category_filter_visible), 7L)) {
+    stop("Only ACEC may hide the category filter in the active Local Reference matrix.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -2527,6 +2617,831 @@ pt_local_reference_fw_popup_payload <- function(
   )
 }
 
+pt_local_reference_acec_components <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_COMPONENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "component_id", "acec_id", "source_globalid", "source_globalid_normalized",
+    "source_objectid", "source_name", "source_feature_type",
+    "source_designation_code", "source_status_code", "source_agency_code",
+    "component_gis_acres", "component_calculated_acres",
+    "component_blm_district", "component_blm_field_office",
+    "component_governing_plan", "component_source_modified_date",
+    "component_supplied_geometry_part_count", "component_supplied_geometry_valid",
+    "component_live_shape_area_m2", "component_live_shape_length_m"
+  ))
+}
+
+pt_local_reference_acec_reference <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_REFERENCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "official_acec_name", "alternate_names", "source_semantic_key",
+    "designation_status", "designation_status_label", "designation_type",
+    "rna_relationship_status", "is_currently_designated", "is_proposed_only",
+    "is_historical_or_superseded", "source_component_count",
+    "source_geometry_part_count", "official_acres", "current_gis_acres",
+    "calculated_source_geometry_acres", "blm_districts", "blm_field_offices",
+    "source_administrative_unit", "source_admin_unit_code",
+    "current_governing_plans", "designation_decision_date", "designation_year",
+    "designation_authority", "designation_document_id",
+    "designation_document_url", "designation_document_page",
+    "designation_history_summary", "relevant_and_important_values_summary",
+    "value_families", "management_direction_summary",
+    "access_and_land_status_summary", "counties", "states",
+    "planning_framework", "water_resource_relevance",
+    "water_resource_relevance_summary", "current_official_page_url",
+    "current_official_map_url", "current_plan_url", "current_office_url",
+    "research_status", "last_verified", "record_confidence",
+    "unit_summary_short", "source_geometry_provenance"
+  ))
+}
+
+pt_local_reference_acec_values <- function(path = PT_LOCAL_REFERENCE_ACEC_VALUES_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "value_record_id", "value_family", "value_type",
+    "value_name", "value_scope", "value_is_primary", "value_description",
+    "value_source_document", "value_source_url", "value_source_page",
+    "value_source_section", "value_last_verified", "value_confidence",
+    "water_resource_connection", "provenance_class"
+  ))
+}
+
+pt_local_reference_acec_documents <- function(path = PT_LOCAL_REFERENCE_ACEC_DOCUMENTS_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "document_id", "document_type", "document_title", "nepa_number",
+    "document_date", "document_status", "source_agency", "document_url",
+    "url_status", "relevant_pages", "retrieval_date", "associated_acec_count"
+  ))
+}
+
+pt_local_reference_acec_management <- function(path = PT_LOCAL_REFERENCE_ACEC_MANAGEMENT_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "prescription_id", "management_category",
+    "management_action_type", "management_direction", "management_scope",
+    "geographic_scope", "seasonal_scope", "exception_or_condition",
+    "is_prohibition", "is_restriction", "is_required_action",
+    "is_management_objective", "current_or_historical", "governing_document",
+    "governing_document_url", "governing_document_page",
+    "governing_document_section", "last_verified", "confidence", "provenance_class"
+  ))
+}
+
+pt_local_reference_acec_planning <- function(path = PT_LOCAL_REFERENCE_ACEC_PLANNING_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "planning_action_id", "planning_action_type",
+    "planning_action_title", "planning_action_date", "planning_action_status",
+    "planning_action_effect", "prior_status", "resulting_status",
+    "boundary_effect", "acreage_before", "acreage_after", "document_id",
+    "document_title", "document_url", "document_page", "eplanning_project_id",
+    "eplanning_project_url", "source_agency", "last_verified", "confidence"
+  ))
+}
+
+pt_local_reference_acec_relationships <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_RELATIONSHIPS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "related_layer_family", "related_feature_id",
+    "related_feature_name", "relationship_type", "relationship_scope",
+    "relationship_method", "relationship_source", "relationship_source_url",
+    "spatial_derivation_required", "intersection_area_acres",
+    "intersection_percent_of_component", "intersection_percent_of_acec",
+    "relationship_last_verified", "confidence", "relationship_context_class"
+  ))
+}
+
+pt_local_reference_acec_sources <- function(path = PT_LOCAL_REFERENCE_ACEC_SOURCES_PATH) {
+  source <- pt_local_reference_read_csv(path, c(
+    "source_title", "source_type", "agency", "url", "retrieved_or_verified",
+    "authoritative_scope", "local_snapshot", "status"
+  ))
+  names(source)[[1]] <- sub("^\\ufeff", "", names(source)[[1]])
+  source
+}
+
+pt_local_reference_acec_offices <- function(path = PT_LOCAL_REFERENCE_ACEC_OFFICES_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "source_admin_unit_code", "source_admin_unit_label",
+    "responsible_blm_district", "responsible_blm_field_office", "assignment_type",
+    "boundary_dataset", "dataset_date", "intersection_method", "overlap_acres",
+    "overlap_percent", "multiple_offices_intersect", "crosses_office_boundary",
+    "evidence_url", "derivation_date", "confidence", "manual_review_status"
+  ))
+}
+
+pt_local_reference_acec_current_field_offices <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "office_key", "office_code", "current_official_name", "boundary_source_name",
+    "parent_district_code", "parent_district_name", "official_office_url",
+    "roster_source_url", "roster_verified_on", "boundary_globalid",
+    "boundary_source", "boundary_source_url", "boundary_snapshot_date",
+    "boundary_raw_shp_sha256", "boundary_derivative_rds_sha256",
+    "current_roster_status", "sort_order"
+  ))
+}
+
+pt_local_reference_acec_field_office_context <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "current_field_office_key",
+    "current_field_office_code", "current_field_office_name",
+    "intersection_area_m2", "intersection_area_acres", "percent_of_acec_area",
+    "acec_context_class", "source_context_qa_class", "relationship_method",
+    "minimum_intersection_area_m2", "complete_coverage_percent",
+    "boundary_snapshot_date", "derivation_date", "confidence"
+  ))
+}
+
+pt_local_reference_acec_access <- function(path = PT_LOCAL_REFERENCE_ACEC_ACCESS_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "component_id", "boundary_represents", "designation_applies_to",
+    "surface_management_scope", "mineral_estate_scope", "includes_non_blm_land",
+    "non_blm_land_summary", "public_access_status", "public_access_scope",
+    "access_information_source", "access_information_source_url",
+    "access_information_verified_on", "access_information_confidence",
+    "land_status_caveat", "last_verified"
+  ))
+}
+
+pt_local_reference_acec_overrides <- function(path = PT_LOCAL_REFERENCE_ACEC_OVERRIDES_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "override_id", "acec_id", "component_id", "target_field", "source_value",
+    "proposed_value", "reason", "evidence_title", "evidence_url", "confidence",
+    "review_status"
+  ))
+}
+
+pt_local_reference_acec_ui_filters <- function(path = PT_LOCAL_REFERENCE_ACEC_UI_FILTERS_PATH) {
+  pt_local_reference_read_csv(path, c(
+    "filter_group_id", "value_key", "user_label", "current_semantic_count",
+    "filter_scope", "sort_order", "default_selected", "tooltip"
+  ))
+}
+
+pt_local_reference_acec_wsa_name_context <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_WSA_NAME_CONTEXT_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id", "official_acec_name", "wsa_name_context_status",
+    "current_wsa_name", "current_wsa_nlcs_id", "current_wsa_global_id",
+    "current_wsa_feature_key", "comparison_inventory", "comparison_source_url",
+    "comparison_date", "match_method", "popup_wording"
+  ))
+}
+
+pt_local_reference_acec_overlap_pairs <- function(
+  path = PT_LOCAL_REFERENCE_ACEC_OVERLAP_PAIRS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "acec_id_a", "acec_id_b", "overlap_area_m2", "overlap_area_acres",
+    "percent_of_smaller_acec", "relationship_type"
+  ))
+}
+
+pt_local_reference_acec_normalize_globalid <- function(x) {
+  tolower(gsub("[{}[:space:]]", "", pt_local_reference_clean_chr(x)))
+}
+
+pt_local_reference_acec_component_id <- function(global_id) {
+  value <- pt_local_reference_acec_normalize_globalid(global_id)
+  ifelse(startsWith(value, "blmca-"), value, paste0("blmca-", value))
+}
+
+pt_validate_local_reference_acec_research <- function(
+  components = pt_local_reference_acec_components(),
+  reference = pt_local_reference_acec_reference(),
+  values = pt_local_reference_acec_values(),
+  documents = pt_local_reference_acec_documents(),
+  management = pt_local_reference_acec_management(),
+  planning = pt_local_reference_acec_planning(),
+  relationships = pt_local_reference_acec_relationships(),
+  sources = pt_local_reference_acec_sources(),
+  offices = pt_local_reference_acec_offices(),
+  current_field_offices = pt_local_reference_acec_current_field_offices(),
+  field_office_context = pt_local_reference_acec_field_office_context(),
+  access = pt_local_reference_acec_access(),
+  overrides = pt_local_reference_acec_overrides(),
+  ui_filters = pt_local_reference_acec_ui_filters(),
+  wsa_name_context = pt_local_reference_acec_wsa_name_context(),
+  overlap_pairs = pt_local_reference_acec_overlap_pairs()
+) {
+  expected_rows <- c(
+    components = 238L, reference = 238L, values = 867L, documents = 32L,
+    management = 246L, planning = 238L, relationships = 476L, sources = 7L,
+    offices = 238L, current_field_offices = 14L, field_office_context = 276L,
+    access = 238L, overrides = 3L, ui_filters = 27L,
+    wsa_name_context = 11L, overlap_pairs = 27L
+  )
+  actual_rows <- c(
+    components = nrow(components), reference = nrow(reference), values = nrow(values),
+    documents = nrow(documents), management = nrow(management), planning = nrow(planning),
+    relationships = nrow(relationships), sources = nrow(sources), offices = nrow(offices),
+    current_field_offices = nrow(current_field_offices),
+    field_office_context = nrow(field_office_context), access = nrow(access),
+    overrides = nrow(overrides), ui_filters = nrow(ui_filters),
+    wsa_name_context = nrow(wsa_name_context), overlap_pairs = nrow(overlap_pairs)
+  )
+  if (!identical(actual_rows, expected_rows)) {
+    stop("ACEC research-table row counts differ from the reviewed enrichment package.")
+  }
+  if (anyDuplicated(components$component_id) || anyDuplicated(components$source_globalid_normalized) ||
+      anyDuplicated(reference$acec_id) || anyDuplicated(values$value_record_id) ||
+      anyDuplicated(documents$document_id) || anyDuplicated(management$prescription_id) ||
+      anyDuplicated(planning$planning_action_id) || anyDuplicated(wsa_name_context$acec_id)) {
+    stop("ACEC research keys must remain unique at their declared grain.")
+  }
+  overlap_a <- pt_local_reference_clean_chr(overlap_pairs$acec_id_a)
+  overlap_b <- pt_local_reference_clean_chr(overlap_pairs$acec_id_b)
+  overlap_key <- paste(overlap_a, overlap_b, sep = "|")
+  overlap_area_m2 <- suppressWarnings(as.numeric(overlap_pairs$overlap_area_m2))
+  overlap_area_acres <- suppressWarnings(as.numeric(overlap_pairs$overlap_area_acres))
+  overlap_percent <- suppressWarnings(as.numeric(overlap_pairs$percent_of_smaller_acec))
+  overlap_type <- pt_local_reference_clean_chr(overlap_pairs$relationship_type)
+  overlap_nodes <- sort(unique(c(overlap_a, overlap_b)))
+  overlap_neighbors <- stats::setNames(lapply(overlap_nodes, function(node) {
+    unique(c(
+      overlap_b[overlap_a == node],
+      overlap_a[overlap_b == node]
+    ))
+  }), overlap_nodes)
+  overlap_seen <- character(0)
+  overlap_component_sizes <- integer(0)
+  for (node in overlap_nodes) {
+    if (node %in% overlap_seen) next
+    queue <- node
+    component <- character(0)
+    while (length(queue)) {
+      current <- queue[[1]]
+      queue <- queue[-1]
+      if (current %in% overlap_seen) next
+      overlap_seen <- c(overlap_seen, current)
+      component <- c(component, current)
+      queue <- c(queue, setdiff(overlap_neighbors[[current]], overlap_seen))
+    }
+    overlap_component_sizes <- c(overlap_component_sizes, length(component))
+  }
+  if (any(!nzchar(overlap_a) | !nzchar(overlap_b)) ||
+      any(overlap_a >= overlap_b) || anyDuplicated(overlap_key) ||
+      any(!overlap_a %in% reference$acec_id) ||
+      any(!overlap_b %in% reference$acec_id) ||
+      any(!is.finite(overlap_area_m2) | overlap_area_m2 <=
+            PT_LOCAL_REFERENCE_ACEC_OVERLAP_STYLE$minimum_overlap_area_m2) ||
+      any(!is.finite(overlap_area_acres) | overlap_area_acres <= 0) ||
+      any(abs(overlap_area_acres - overlap_area_m2 / 4046.8564224) > 1e-8) ||
+      any(!is.finite(overlap_percent) | overlap_percent <= 0 | overlap_percent > 100) ||
+      any(!overlap_type %in% c("overlap", "containment")) ||
+      sum(overlap_type == "containment") != 2L ||
+      length(overlap_nodes) != 39L || length(overlap_component_sizes) != 13L ||
+      !identical(sort(overlap_component_sizes, decreasing = TRUE),
+                 c(7L, 6L, 5L, 3L, rep(2L, 9L))) ||
+      max(lengths(overlap_neighbors)) != 4L) {
+    stop("ACEC current-geometry overlap graph differs from the reviewed 27-pair contract.")
+  }
+  normalized <- pt_local_reference_acec_normalize_globalid(components$source_globalid)
+  if (!identical(normalized, pt_local_reference_clean_chr(components$source_globalid_normalized)) ||
+      !identical(components$component_id, paste0("blmca-", normalized))) {
+    stop("ACEC component IDs must be exact normalized source GlobalIDs.")
+  }
+  ids <- reference$acec_id
+  related_tables <- list(components, values, management, planning, relationships, offices, access)
+  if (any(vapply(related_tables, function(x) {
+    any(!pt_local_reference_clean_chr(x$acec_id) %in% ids)
+  }, logical(1))) || !setequal(components$acec_id, ids) ||
+      !setequal(planning$acec_id, ids) || !setequal(offices$acec_id, ids) ||
+      !setequal(access$acec_id, ids)) {
+    stop("ACEC one-to-many lookup keys do not reconcile to the semantic reference.")
+  }
+  current_office_text <- paste(
+    current_field_offices$office_key,
+    current_field_offices$current_official_name,
+    current_field_offices$boundary_source_name
+  )
+  current_office_order <- order(as.integer(current_field_offices$sort_order))
+  ordered_current_office_names <-
+    current_field_offices$current_official_name[current_office_order]
+  context_key <- paste(
+    field_office_context$acec_id,
+    field_office_context$current_field_office_code,
+    sep = "|"
+  )
+  context_area_m2 <- suppressWarnings(as.numeric(
+    field_office_context$intersection_area_m2
+  ))
+  context_area_acres <- suppressWarnings(as.numeric(
+    field_office_context$intersection_area_acres
+  ))
+  context_percent <- suppressWarnings(as.numeric(
+    field_office_context$percent_of_acec_area
+  ))
+  context_maximum <- ave(
+    context_percent,
+    field_office_context$acec_id,
+    FUN = function(x) x == max(x)
+  )
+  context_presentation_keep <- context_maximum == 1 |
+    context_percent >=
+      PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_METADATA$
+        presentation_additional_office_minimum_percent
+  context_semantic <- field_office_context[!duplicated(
+    field_office_context$acec_id
+  ), c("acec_id", "acec_context_class", "source_context_qa_class"), drop = FALSE]
+  context_classes <- table(factor(
+    context_semantic$acec_context_class,
+    levels = c(
+      "wholly_within_one_field_office", "crosses_field_office_boundaries",
+      "partial_spatial_match_review_required", "no_spatial_match_review_required"
+    )
+  ))
+  source_context_classes <- table(factor(
+    context_semantic$source_context_qa_class,
+    levels = c(
+      "exact_single", "source_in_multiple", "district_only_contextualized",
+      "source_spatial_disagreement", "no_spatial_match"
+    )
+  ))
+  if (nrow(current_field_offices) != 14L ||
+      anyDuplicated(current_field_offices$office_key) ||
+      anyDuplicated(current_field_offices$office_code) ||
+      !identical(
+        as.integer(current_field_offices$sort_order[current_office_order]),
+        seq_len(14L)
+      ) ||
+      !identical(
+        ordered_current_office_names,
+        sort(ordered_current_office_names, method = "radix")
+      ) ||
+      anyDuplicated(context_key) ||
+      !setequal(field_office_context$acec_id, ids) ||
+      !setequal(
+        field_office_context$current_field_office_code,
+        current_field_offices$office_code
+      ) || !all(field_office_context$current_field_office_key %in%
+                   current_field_offices$office_key) ||
+      any(!is.finite(context_area_m2) | context_area_m2 <= 100) ||
+      any(!is.finite(context_area_acres) | context_area_acres <= 0) ||
+      any(abs(context_area_acres - context_area_m2 / 4046.8564224) > 1e-7) ||
+      any(!is.finite(context_percent) | context_percent <= 0 |
+            context_percent > 100.000001) ||
+      !all(field_office_context$relationship_method ==
+             "positive-area intersection in EPSG:3310") ||
+      !all(as.numeric(field_office_context$minimum_intersection_area_m2) == 100) ||
+      !identical(
+        PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_METADATA$
+          presentation_additional_office_minimum_percent,
+        1
+      ) ||
+      sum(context_presentation_keep) != 254L ||
+      sum(!context_presentation_keep) != 22L ||
+      length(unique(field_office_context$acec_id[!context_presentation_keep])) != 20L ||
+      sum(table(field_office_context$acec_id[context_presentation_keep]) > 1L) != 15L ||
+      !identical(as.integer(context_classes), c(202L, 35L, 1L, 0L)) ||
+      !identical(as.integer(source_context_classes), c(106L, 6L, 126L, 0L, 0L)) ||
+      any(grepl(
+        "Hollister|Alturas|Susanville",
+        paste(current_office_text, field_office_context$current_field_office_name),
+        ignore.case = TRUE
+      ))) {
+    stop("ACEC current field-office context differs from the reviewed spatial contract.")
+  }
+  acreage_difference <- abs(
+    as.numeric(reference$current_gis_acres) -
+      as.numeric(reference$calculated_source_geometry_acres)
+  )
+  acreage_difference_percent <-
+    acreage_difference / as.numeric(reference$current_gis_acres) * 100
+  material_area_difference <-
+    acreage_difference >=
+      PT_LOCAL_REFERENCE_ACEC_AREA_PRESENTATION$material_difference_minimum_acres &
+    acreage_difference_percent >=
+      PT_LOCAL_REFERENCE_ACEC_AREA_PRESENTATION$material_difference_minimum_percent
+  if (sum(material_area_difference) != 1L ||
+      !identical(reference$official_acec_name[material_area_difference], "Massacre Rim")) {
+    stop("ACEC acreage presentation audit differs from the reviewed one-record exception.")
+  }
+  designated <- tolower(pt_local_reference_clean_chr(reference$is_currently_designated)) == "true"
+  if (!all(designated) || any(tolower(reference$designation_type) != "acec") ||
+      any(tolower(pt_local_reference_clean_chr(reference$is_proposed_only)) == "true") ||
+      any(tolower(pt_local_reference_clean_chr(reference$is_historical_or_superseded)) == "true")) {
+    stop("The reviewed ACEC reference must retain all 238 current designated ACECs without status/type filtering.")
+  }
+  black_mountain <- reference$acec_id[reference$official_acec_name == "Black Mountain"]
+  if (length(black_mountain) != 2L || length(unique(black_mountain)) != 2L) {
+    stop("The two Black Mountain ACECs must remain distinct semantic features.")
+  }
+  expected_frameworks <- c(
+    california_desert_other_plan = 13L, central_california_plan = 53L,
+    drecp = 128L, northern_california_other_plan = 19L,
+    northwest_california_integrated_plan = 25L
+  )
+  actual_frameworks <- table(factor(reference$planning_framework, levels = names(expected_frameworks)))
+  if (!identical(as.integer(actual_frameworks), unname(expected_frameworks))) {
+    stop("ACEC planning-framework counts differ from the reviewed package.")
+  }
+  expected_value_counts <- c(
+    botanical_or_ecological = 192L, cultural_archaeological_historic = 126L,
+    other_or_unresolved = 5L, scenic = 73L, water_aquatic = 34L,
+    wildlife_and_habitat = 156L
+  )
+  actual_value_counts <- table(factor(
+    unlist(strsplit(reference$value_families, ";", fixed = TRUE)),
+    levels = names(expected_value_counts)
+  ))
+  if (!identical(as.integer(actual_value_counts), unname(expected_value_counts))) {
+    stop("ACEC value-family semantic counts differ from the reviewed package.")
+  }
+  if (sum(reference$rna_relationship_status == "research_candidate_from_source_name_only") != 3L ||
+      any(overrides$review_status == "rejected")) {
+    stop("ACEC RNA candidates or curated-override review states changed unexpectedly.")
+  }
+  named_wsa <- reference[
+    grepl("(^|[^A-Za-z])WSA([^A-Za-z]|$)", reference$official_acec_name),
+    c("acec_id", "official_acec_name"), drop = FALSE
+  ]
+  wsa_index <- match(wsa_name_context$acec_id, named_wsa$acec_id)
+  current_wsa <- wsa_name_context$wsa_name_context_status == "current_wsa"
+  historical_name <- wsa_name_context$wsa_name_context_status == "historical_name_only"
+  if (nrow(named_wsa) != 11L || anyNA(wsa_index) ||
+      !identical(
+        pt_local_reference_clean_chr(wsa_name_context$official_acec_name),
+        pt_local_reference_clean_chr(named_wsa$official_acec_name[wsa_index])
+      ) || sum(current_wsa) != 6L || sum(historical_name) != 5L ||
+      any(!(current_wsa | historical_name)) ||
+      any(!nzchar(pt_local_reference_clean_chr(
+        wsa_name_context$current_wsa_nlcs_id[current_wsa]
+      ))) || any(nzchar(pt_local_reference_clean_chr(
+        wsa_name_context$current_wsa_nlcs_id[historical_name]
+      ))) || any(!nzchar(pt_local_reference_clean_chr(
+        wsa_name_context$popup_wording
+      )))) {
+    stop("ACEC WSA-name context must retain 11 exact names: 6 current and 5 historical-name-only.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_acec_hover_html <- function(df) {
+  value_labels <- c(
+    water_aquatic = "Fish/aquatic",
+    wildlife_and_habitat = "Wildlife/habitat",
+    botanical_or_ecological = "Natural systems/processes",
+    cultural_archaeological_historic = "Cultural/historic",
+    scenic = "Scenic",
+    other_or_unresolved = "Natural hazard/other"
+  )
+  vapply(seq_len(nrow(df)), function(i) {
+    area <- pt_local_reference_format_square_miles_from_acres(df$pt_acec_gis_acres[[i]])
+    family_keys <- strsplit(
+      pt_local_reference_clean_chr(df$pt_acec_value_families[[i]]),
+      ";", fixed = TRUE
+    )[[1]]
+    family_keys <- family_keys[nzchar(family_keys)]
+    family_text <- unname(value_labels[family_keys])
+    family_text <- family_text[!is.na(family_text) & nzchar(family_text)]
+    details <- c(
+      if (nzchar(df$pt_acec_governing_plan[[i]])) {
+        paste0("Plan: ", df$pt_acec_governing_plan[[i]])
+      } else "",
+      if (length(family_text)) {
+        paste0("Values: ", paste(family_text, collapse = " · "))
+      } else "",
+      if (nzchar(area)) paste0("Approx. mapped area: ", sub("^~", "", area)) else ""
+    )
+    details <- details[nzchar(details)]
+    paste0(
+      "<div class=\"pt-acec-hover-lines\"><div class=\"pt-acec-hover-line pt-acec-hover-title\">",
+      htmltools::htmlEscape(df$pt_acec_official_name[[i]]), "</div>",
+      paste0("<div class=\"pt-acec-hover-line\">", htmltools::htmlEscape(details), "</div>", collapse = ""),
+      "</div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_acec_runtime_geometry <- function(x) {
+  if (!requireNamespace("sf", quietly = TRUE)) stop("ACEC runtime geometry requires sf.")
+  invisible(sf::st_geometry(x))
+  sf_column <- attr(x, "sf_column")
+  if (is.null(sf_column) || !length(sf_column) || !sf_column %in% names(x)) {
+    sf_column <- names(x)[vapply(x, inherits, logical(1), what = "sfc")][[1]]
+  }
+  keep <- c(
+    "pt_nickname", "pt_display_name", "pt_geom_type", "component_id", "acec_id",
+    "pt_local_reference_feature_key", "pt_local_reference_semantic_key",
+    "pt_local_reference_geometry_key", "pt_local_reference_geometry_components",
+    "pt_local_reference_category_key", "pt_local_reference_category_label",
+    "fill_col", "line_col", "fill_opacity", "line_weight", "line_dash",
+    "pt_legend_swatch_style", "pt_acec_official_name", "pt_acec_legacy_name",
+    "pt_acec_aliases", "pt_acec_governing_plan", "pt_acec_planning_framework",
+    "pt_acec_source_admin_unit", "pt_acec_field_office_context",
+    "pt_acec_field_office_context_names", "pt_acec_value_families",
+    "pt_acec_global_id", "pt_reference_label_text", "pt_reference_hover_html",
+    "pt_reference_hover_text", sf_column
+  )
+  missing <- setdiff(keep, names(x))
+  if (length(missing)) stop("ACEC runtime geometry is missing: ", paste(missing, collapse = ", "))
+  out <- x[, keep, drop = FALSE]
+  attr(out, "pt_acec_candidate_metadata") <- attr(x, "pt_acec_candidate_metadata")
+  out
+}
+
+pt_prepare_local_reference_acec <- function(
+  x,
+  validate_snapshot = FALSE,
+  build_display = TRUE,
+  components_path = PT_LOCAL_REFERENCE_ACEC_COMPONENTS_PATH,
+  reference_path = PT_LOCAL_REFERENCE_ACEC_REFERENCE_PATH,
+  field_office_context_path = PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_PATH,
+  current_field_offices_path = PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES_PATH
+) {
+  pt_validate_local_reference_config()
+  if (!inherits(x, "sf") || !nrow(x)) stop("ACEC preparation requires a non-empty sf object.")
+  resolved <- pt_local_reference_resolve_aliases("acec", names(x), require_all = TRUE)
+  get_field <- function(name) x[[resolved[[name]]]]
+  components <- pt_local_reference_acec_components(components_path)
+  reference <- pt_local_reference_acec_reference(reference_path)
+  field_office_context <- pt_local_reference_acec_field_office_context(
+    field_office_context_path
+  )
+  current_field_offices <- pt_local_reference_acec_current_field_offices(
+    current_field_offices_path
+  )
+  pt_validate_local_reference_acec_research(components = components, reference = reference)
+
+  source_component_id <- pt_local_reference_acec_component_id(get_field("global_id"))
+  if (anyDuplicated(source_component_id)) stop("ACEC source GlobalIDs must be complete and unique.")
+  component_index <- match(source_component_id, components$component_id)
+  if (anyNA(component_index)) stop("ACEC geometry GlobalIDs are not fully covered by the reviewed component crosswalk.")
+  x$component_id <- source_component_id
+  x$acec_id <- components$acec_id[component_index]
+  reference_index <- match(x$acec_id, reference$acec_id)
+  if (anyNA(reference_index)) stop("ACEC semantic IDs are not fully covered by the reviewed reference.")
+
+  x$pt_acec_global_id <- pt_local_reference_clean_chr(get_field("global_id"))
+  x$pt_acec_source_name <- pt_local_reference_clean_chr(get_field("name"))
+  x$pt_acec_official_name <- reference$official_acec_name[reference_index]
+  x$pt_acec_legacy_name <- ifelse(
+    pt_local_reference_normalize_text(x$pt_acec_source_name) !=
+      pt_local_reference_normalize_text(x$pt_acec_official_name),
+    x$pt_acec_source_name, ""
+  )
+  x$pt_acec_aliases <- pt_local_reference_clean_chr(reference$alternate_names[reference_index])
+  x$pt_acec_governing_plan <- pt_local_reference_clean_chr(reference$current_governing_plans[reference_index])
+  x$pt_acec_planning_framework <- reference$planning_framework[reference_index]
+  x$pt_acec_source_admin_unit <- reference$source_administrative_unit[reference_index]
+  office_order <- stats::setNames(
+    as.integer(current_field_offices$sort_order),
+    current_field_offices$office_key
+  )
+  context_rows <- split(
+    seq_len(nrow(field_office_context)),
+    field_office_context$acec_id
+  )
+  context_values <- lapply(x$acec_id, function(acec_id) {
+    rows <- context_rows[[acec_id]]
+    if (is.null(rows) || !length(rows)) {
+      return(list(keys = "", names = ""))
+    }
+    keys <- pt_local_reference_clean_chr(
+      field_office_context$current_field_office_key[rows]
+    )
+    names <- pt_local_reference_clean_chr(
+      field_office_context$current_field_office_name[rows]
+    )
+    order_index <- order(office_order[keys])
+    list(
+      keys = paste(unique(keys[order_index]), collapse = ";"),
+      names = paste(unique(names[order_index]), collapse = "; ")
+    )
+  })
+  x$pt_acec_field_office_context <- vapply(
+    context_values, `[[`, character(1), "keys"
+  )
+  x$pt_acec_field_office_context_names <- vapply(
+    context_values, `[[`, character(1), "names"
+  )
+  if (any(!nzchar(x$pt_acec_field_office_context)) ||
+      any(!nzchar(x$pt_acec_field_office_context_names))) {
+    stop("Every ACEC must retain at least one reviewed current field-office context.")
+  }
+  x$pt_acec_value_families <- reference$value_families[reference_index]
+  x$pt_acec_designation_status <- reference$designation_status[reference_index]
+  x$pt_acec_designation_status_label <- reference$designation_status_label[reference_index]
+  x$pt_acec_designation_year <- pt_local_reference_clean_chr(reference$designation_year[reference_index])
+  x$pt_acec_gis_acres <- suppressWarnings(as.numeric(get_field("gis_acres")))
+  x$pt_acec_calculated_acres <- suppressWarnings(as.numeric(reference$calculated_source_geometry_acres[reference_index]))
+  x$pt_acec_source_modified_date <- pt_local_reference_format_date(get_field("modify_date"))
+  x$pt_acec_last_edited_date <- pt_local_reference_format_date(get_field("last_edited_date"))
+  x$pt_local_reference_feature_key <- x$acec_id
+  x$pt_local_reference_semantic_key <- x$acec_id
+  x$pt_local_reference_geometry_key <- x$component_id
+  x$pt_local_reference_geometry_components <- as.integer(
+    components$component_supplied_geometry_part_count[component_index]
+  )
+  x <- pt_local_reference_apply_category_tokens(
+    x, "acec", rep("acec", nrow(x))
+  )
+  if (isTRUE(build_display)) {
+    x$pt_reference_label_text <- x$pt_acec_official_name
+    x$pt_reference_hover_html <- pt_local_reference_acec_hover_html(x)
+    x$pt_reference_hover_text <- paste(
+      x$pt_acec_official_name,
+      pt_local_reference_format_square_miles_from_acres(x$pt_acec_gis_acres),
+      sep = " · "
+    )
+  }
+  if (isTRUE(validate_snapshot)) {
+    if (nrow(x) != 238L || length(unique(x$acec_id)) != 238L ||
+        anyDuplicated(x$component_id) ||
+        sum(x$pt_local_reference_geometry_components) != 613L ||
+        !all(x$pt_local_reference_category_key == "acec")) {
+      stop("Prepared ACEC snapshot differs from the reviewed 238-designation/613-part contract.")
+    }
+  }
+  if (isTRUE(build_display)) pt_local_reference_acec_runtime_geometry(x) else x
+}
+
+pt_local_reference_acec_qa <- function(x) {
+  data.frame(
+    metric = c(
+      "mapped_components", "semantic_acecs", "geometry_parts",
+      "multipart_acecs", "drecp_acecs", "fish_or_aquatic_acecs",
+      "rna_name_candidates_not_verified"
+    ),
+    value = c(
+      nrow(x), length(unique(x$acec_id)),
+      sum(x$pt_local_reference_geometry_components),
+      sum(x$pt_local_reference_geometry_components > 1L),
+      length(unique(x$acec_id[x$pt_acec_planning_framework == "drecp"])),
+      length(unique(x$acec_id[grepl("(^|;)water_aquatic(;|$)", x$pt_acec_value_families)])),
+      3L
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+pt_local_reference_acec_popup_payload <- function(
+  components = pt_local_reference_acec_components(),
+  reference = pt_local_reference_acec_reference(),
+  values = pt_local_reference_acec_values(),
+  documents = pt_local_reference_acec_documents(),
+  management = pt_local_reference_acec_management(),
+  planning = pt_local_reference_acec_planning(),
+  relationships = pt_local_reference_acec_relationships(),
+  sources = pt_local_reference_acec_sources(),
+  offices = pt_local_reference_acec_offices(),
+  current_field_offices = pt_local_reference_acec_current_field_offices(),
+  field_office_context = pt_local_reference_acec_field_office_context(),
+  access = pt_local_reference_acec_access(),
+  wsa_name_context = pt_local_reference_acec_wsa_name_context(),
+  overlap_pairs = pt_local_reference_acec_overlap_pairs()
+) {
+  clean <- pt_local_reference_clean_chr
+  to_records <- function(df, fields) {
+    lapply(seq_len(nrow(df)), function(i) {
+      stats::setNames(lapply(fields, function(field) {
+        value <- df[[field]][[i]]
+        if (is.numeric(value) || is.integer(value) || is.logical(value)) value else clean(value)
+      }), fields)
+    })
+  }
+  wsa_index <- match(reference$acec_id, wsa_name_context$acec_id)
+  wsa_fields <- c(
+    "wsa_name_context_status", "current_wsa_name", "current_wsa_nlcs_id",
+    "current_wsa_global_id", "current_wsa_feature_key", "comparison_inventory",
+    "comparison_source_url", "comparison_date", "match_method", "popup_wording"
+  )
+  for (field in wsa_fields) {
+    reference[[field]] <- ""
+    matched <- !is.na(wsa_index)
+    reference[[field]][matched] <- clean(wsa_name_context[[field]][wsa_index[matched]])
+  }
+  semantic_fields <- c(
+    "acec_id", "official_acec_name", "alternate_names", "designation_status_label",
+    "rna_relationship_status", "source_geometry_part_count", "official_acres",
+    "current_gis_acres", "calculated_source_geometry_acres", "blm_districts",
+    "blm_field_offices", "source_administrative_unit", "current_governing_plans",
+    "designation_decision_date", "designation_year", "designation_authority",
+    "designation_document_url", "designation_document_page",
+    "designation_history_summary", "relevant_and_important_values_summary",
+    "value_families", "management_direction_summary", "access_and_land_status_summary",
+    "counties", "states", "planning_framework", "water_resource_relevance",
+    "water_resource_relevance_summary", "current_official_page_url",
+    "current_official_map_url", "current_plan_url", "current_office_url",
+    "research_status", "last_verified", "record_confidence", "unit_summary_short",
+    "source_geometry_provenance", "wsa_name_context_status", "current_wsa_name",
+    "current_wsa_nlcs_id", "current_wsa_global_id", "current_wsa_feature_key",
+    "comparison_inventory", "comparison_source_url", "comparison_date",
+    "match_method", "popup_wording"
+  )
+  list(
+    semantics = to_records(reference, semantic_fields),
+    components = to_records(components, c(
+      "component_id", "acec_id", "source_globalid", "source_objectid", "source_name",
+      "source_feature_type", "source_designation_code", "source_status_code",
+      "source_agency_code", "component_gis_acres", "component_calculated_acres",
+      "component_blm_district", "component_blm_field_office", "component_governing_plan",
+      "component_source_modified_date", "component_blm_modify_date",
+      "component_supplied_geometry_part_count", "component_supplied_geometry_valid"
+    )),
+    values = to_records(values, c(
+      "acec_id", "component_id", "value_record_id", "value_family", "value_type",
+      "value_name", "value_scope", "value_is_primary", "value_description",
+      "value_source_document", "value_source_url", "value_source_page",
+      "value_source_section", "value_last_verified", "value_confidence",
+      "water_resource_connection", "provenance_class"
+    )),
+    documents = to_records(documents, c(
+      "document_id", "document_type", "document_title", "nepa_number",
+      "document_date", "document_status", "source_agency", "document_url",
+      "url_status", "relevant_pages", "retrieval_date", "associated_acec_count"
+    )),
+    management = to_records(management, c(
+      "acec_id", "component_id", "prescription_id", "management_category",
+      "management_action_type", "management_direction", "management_scope",
+      "geographic_scope", "seasonal_scope", "exception_or_condition",
+      "current_or_historical", "governing_document", "governing_document_url",
+      "governing_document_page", "governing_document_section", "last_verified",
+      "confidence", "provenance_class"
+    )),
+    planning = to_records(planning, c(
+      "acec_id", "component_id", "planning_action_id", "planning_action_type",
+      "planning_action_title", "planning_action_date", "planning_action_status",
+      "planning_action_effect", "prior_status", "resulting_status", "boundary_effect",
+      "acreage_before", "acreage_after", "document_id", "document_title",
+      "document_url", "document_page", "eplanning_project_id",
+      "eplanning_project_url", "source_agency", "last_verified", "confidence"
+    )),
+    relationships = to_records(relationships, c(
+      "acec_id", "component_id", "related_layer_family", "related_feature_id",
+      "related_feature_name", "relationship_type", "relationship_scope",
+      "relationship_method", "relationship_source", "relationship_source_url",
+      "spatial_derivation_required", "intersection_area_acres",
+      "intersection_percent_of_component", "intersection_percent_of_acec",
+      "relationship_last_verified", "confidence", "relationship_context_class"
+    )),
+    offices = to_records(offices, c(
+      "acec_id", "component_id", "source_admin_unit_code", "source_admin_unit_label",
+      "responsible_blm_district", "responsible_blm_field_office", "assignment_type",
+      "boundary_dataset", "dataset_date", "intersection_method", "overlap_acres",
+      "overlap_percent", "multiple_offices_intersect", "crosses_office_boundary",
+      "evidence_url", "derivation_date", "confidence", "manual_review_status"
+    )),
+    current_field_offices = to_records(current_field_offices, c(
+      "office_key", "office_code", "current_official_name", "boundary_source_name",
+      "parent_district_code", "parent_district_name", "official_office_url",
+      "roster_source_url", "roster_verified_on", "boundary_globalid",
+      "boundary_source", "boundary_source_url", "boundary_snapshot_date",
+      "current_roster_status", "sort_order"
+    )),
+    field_office_context = to_records(field_office_context, c(
+      "acec_id", "component_id", "current_field_office_key",
+      "current_field_office_code", "current_field_office_name",
+      "intersection_area_m2", "intersection_area_acres", "percent_of_acec_area",
+      "acec_context_class", "source_context_qa_class", "relationship_method",
+      "minimum_intersection_area_m2", "complete_coverage_percent",
+      "boundary_snapshot_date", "derivation_date", "confidence"
+    )),
+    access = to_records(access, c(
+      "acec_id", "component_id", "boundary_represents", "designation_applies_to",
+      "surface_management_scope", "mineral_estate_scope", "includes_non_blm_land",
+      "non_blm_land_summary", "public_access_status", "public_access_scope",
+      "access_information_source", "access_information_source_url",
+      "access_information_verified_on", "access_information_confidence",
+      "land_status_caveat", "last_verified"
+    )),
+    overlap_pairs = to_records(overlap_pairs, c(
+      "acec_id_a", "acec_id_b", "overlap_area_m2", "overlap_area_acres",
+      "percent_of_smaller_acec", "relationship_type"
+    )),
+    overlap_style = PT_LOCAL_REFERENCE_ACEC_OVERLAP_STYLE,
+    field_office_presentation = list(
+      additional_office_minimum_percent =
+        PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_METADATA$
+          presentation_additional_office_minimum_percent,
+      rule = PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_METADATA$presentation_rule
+    ),
+    area_presentation = PT_LOCAL_REFERENCE_ACEC_AREA_PRESENTATION,
+    sources = to_records(sources, intersect(c(
+      "source_title", "source_type", "agency", "url", "retrieved_or_verified",
+      "authoritative_scope", "local_snapshot", "status", "notes"
+    ), names(sources))),
+    caveats = list(
+      boundary = PT_LOCAL_REFERENCE_ACEC_BOUNDARY_CAVEAT,
+      management = PT_LOCAL_REFERENCE_ACEC_MANAGEMENT_CAVEAT,
+      field_office_context = paste(
+        "Derived from spatial intersection with verified current BLM field-office",
+        "boundaries; this does not by itself establish administrative responsibility."
+      ),
+      rna = paste(
+        "Three ACEC names are RNA research candidates only.",
+        "RNA status is not verified and is not offered as a map filter."
+      )
+    )
+  )
+}
+
 pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
   if (!inherits(x, "sf")) {
     stop("Local Reference semantic-feature bounds require an sf object.")
@@ -2625,7 +3540,7 @@ pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
 pt_local_reference_controller_payload <- function(reference_layers) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
-      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness"
+      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness", "phase4_acec"
     ),
     , drop = FALSE
   ]
@@ -2636,6 +3551,7 @@ pt_local_reference_controller_payload <- function(reference_layers) {
     is_federal_wilderness <- identical(
       as.character(row$layer_id[[1]]), "federal_wilderness"
     )
+    is_acec <- identical(as.character(row$layer_id[[1]]), "acec")
     fw_components <- fw_reference <- fw_designations <- fw_documents <-
       fw_policy <- fw_sources <- NULL
     if (is_federal_wilderness) {
@@ -2648,6 +3564,39 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       pt_validate_local_reference_fw_research(
         fw_components, fw_reference, fw_designations, fw_documents,
         fw_policy, fw_sources
+      )
+    }
+    acec_components <- acec_reference <- acec_values <- acec_documents <-
+      acec_management <- acec_planning <- acec_relationships <- acec_sources <-
+      acec_offices <- acec_current_field_offices <-
+      acec_field_office_context <- acec_access <- acec_wsa_name_context <-
+      acec_overlap_pairs <- NULL
+    if (is_acec) {
+      acec_components <- pt_local_reference_acec_components()
+      acec_reference <- pt_local_reference_acec_reference()
+      acec_values <- pt_local_reference_acec_values()
+      acec_documents <- pt_local_reference_acec_documents()
+      acec_management <- pt_local_reference_acec_management()
+      acec_planning <- pt_local_reference_acec_planning()
+      acec_relationships <- pt_local_reference_acec_relationships()
+      acec_sources <- pt_local_reference_acec_sources()
+      acec_offices <- pt_local_reference_acec_offices()
+      acec_current_field_offices <-
+        pt_local_reference_acec_current_field_offices()
+      acec_field_office_context <-
+        pt_local_reference_acec_field_office_context()
+      acec_access <- pt_local_reference_acec_access()
+      acec_wsa_name_context <- pt_local_reference_acec_wsa_name_context()
+      acec_overlap_pairs <- pt_local_reference_acec_overlap_pairs()
+      pt_validate_local_reference_acec_research(
+        acec_components, acec_reference, acec_values, acec_documents,
+        acec_management, acec_planning, acec_relationships, acec_sources,
+        offices = acec_offices,
+        current_field_offices = acec_current_field_offices,
+        field_office_context = acec_field_office_context,
+        access = acec_access,
+        wsa_name_context = acec_wsa_name_context,
+        overlap_pairs = acec_overlap_pairs
       )
     }
     required <- c(
@@ -2692,7 +3641,18 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       facet_values <- if (length(facet_definitions)) {
         stats::setNames(
           lapply(facet_definitions, function(facet) {
-            as.character(x[[facet$record_field]][[j]])
+            value <- as.character(x[[facet$record_field]][[j]])
+            delimiter <- if (!is.null(facet$multivalue_delimiter)) {
+              as.character(facet$multivalue_delimiter)
+            } else {
+              ""
+            }
+            if (nzchar(delimiter)) {
+              values <- trimws(unlist(strsplit(value, delimiter, fixed = TRUE)))
+              values[nzchar(values)]
+            } else {
+              value
+            }
           }),
           vapply(facet_definitions, `[[`, character(1), "facet_key")
         )
@@ -2718,13 +3678,24 @@ pt_local_reference_controller_payload <- function(reference_layers) {
     })
     facets <- lapply(facet_definitions, function(facet) {
       values <- facet$values[order(facet$values$sort_order), , drop = FALSE]
+      value_fields <- intersect(
+        c("value_key", "label", "swatch_color", "sort_order"),
+        names(values)
+      )
       list(
         facet_key = facet$facet_key,
         label = facet$label,
         record_field = facet$record_field,
         count_mode = facet$count_mode,
+        collapsible = isTRUE(facet$collapsible),
+        open_default = isTRUE(facet$open_default),
+        thematic_style = if (is.list(facet$thematic_style)) {
+          facet$thematic_style
+        } else {
+          list()
+        },
         values = lapply(seq_len(nrow(values)), function(j) {
-          as.list(values[j, c("value_key", "label", "sort_order"), drop = FALSE])
+          as.list(values[j, value_fields, drop = FALSE])
         })
       )
     })
@@ -2753,6 +3724,7 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       primary_count_label = row$primary_count_label,
       show_component_count = isTRUE(row$show_component_count),
       show_category_count = isTRUE(row$show_category_count),
+      category_filter_visible = isTRUE(row$category_filter_visible),
       category_count_mode = row$category_count_mode,
       component_count_label = row$component_count_label,
       category_heading = row$category_heading,
@@ -2761,12 +3733,27 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       distinguish_units_supported = isTRUE(row$distinguish_units_supported),
       categories = categories,
       facets = facets,
+      quick_views = lapply(row$quick_views[[1]], identity),
       features = features,
       records = records,
       federal_wilderness = if (is_federal_wilderness) {
         pt_local_reference_fw_popup_payload(
           fw_components, fw_reference, fw_designations, fw_documents,
           fw_policy, fw_sources
+        )
+      } else {
+        NULL
+      },
+      acec = if (is_acec) {
+        pt_local_reference_acec_popup_payload(
+          acec_components, acec_reference, acec_values, acec_documents,
+          acec_management, acec_planning, acec_relationships, acec_sources,
+          offices = acec_offices,
+          current_field_offices = acec_current_field_offices,
+          field_office_context = acec_field_office_context,
+          access = acec_access,
+          wsa_name_context = acec_wsa_name_context,
+          overlap_pairs = acec_overlap_pairs
         )
       } else {
         NULL

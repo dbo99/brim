@@ -176,7 +176,7 @@ LABEL_FIELDS <- list(
   ##
   ## These fields must match the cached reference layer fields exactly.
   fedwilderness = "pt_reference_label_text",
-  acec          = "ACEC_NAME",
+  acec          = "pt_reference_label_text",
   allotments    = "ALLOT_NAME",
   
   ## Water districts are cached with a cleaned display field created during

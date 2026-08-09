@@ -203,4 +203,107 @@ assert.deepStrictEqual(state.draft_facets.geographic_context, [
   'california', 'western_nevada_context'
 ]);
 
+const multivalueFixture = {
+  auto_supported: true,
+  auto_default: true,
+  feature_selection_supported: false,
+  feature_selection_mode: 'none',
+  categories: [{category_key: 'acec'}],
+  facets: [{
+    facet_key: 'relevant_value_family',
+    values: [
+      {value_key: 'water_aquatic'},
+      {value_key: 'wildlife_and_habitat'},
+      {value_key: 'scenic'}
+    ]
+  }],
+  records: [
+    {geometry_key: 'a', semantic_feature_key: 'a', category_key: 'acec', geometry_component_count: 2,
+      facet_values: {relevant_value_family: ['water_aquatic', 'wildlife_and_habitat']}},
+    {geometry_key: 'b', semantic_feature_key: 'b', category_key: 'acec', geometry_component_count: 1,
+      facet_values: {relevant_value_family: 'scenic'}}
+  ]
+};
+const multivalueEngine = engineApi.create(multivalueFixture);
+state = multivalueEngine.snapshot();
+assert.strictEqual(
+  state.facet_counts.relevant_value_family.water_aquatic.total.semantic_feature_count,
+  1
+);
+state = multivalueEngine.setFacetValue('relevant_value_family', 'water_aquatic', false);
+assert.strictEqual(
+  state.counts.currently_showing.semantic_feature_count,
+  2,
+  'a multi-valued ACEC remains visible while any selected value matches'
+);
+state = multivalueEngine.setFacetValue('relevant_value_family', 'wildlife_and_habitat', false);
+assert.deepStrictEqual(state.visible_geometry_keys, ['b']);
+state = multivalueEngine.facetNone('relevant_value_family');
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 0);
+
+const fieldOfficeContextFixture = {
+  auto_supported: true,
+  auto_default: true,
+  feature_selection_supported: false,
+  feature_selection_mode: 'none',
+  categories: [{category_key: 'acec'}],
+  facets: [
+    {
+      facet_key: 'planning_framework',
+      values: [
+        {value_key: 'drecp'},
+        {value_key: 'other'}
+      ]
+    },
+    {
+      facet_key: 'field_office_context',
+      values: [
+        {value_key: 'barstow_field_office'},
+        {value_key: 'needles_field_office'},
+        {value_key: 'ridgecrest_field_office'},
+        {value_key: 'central_coast_field_office'}
+      ]
+    }
+  ],
+  records: [
+    {geometry_key: 'cross-office', semantic_feature_key: 'cross-office', category_key: 'acec', geometry_component_count: 3,
+      facet_values: {planning_framework: 'drecp', field_office_context: ['barstow_field_office', 'needles_field_office']}},
+    {geometry_key: 'ridgecrest', semantic_feature_key: 'ridgecrest', category_key: 'acec', geometry_component_count: 1,
+      facet_values: {planning_framework: 'drecp', field_office_context: 'ridgecrest_field_office'}},
+    {geometry_key: 'needles', semantic_feature_key: 'needles', category_key: 'acec', geometry_component_count: 2,
+      facet_values: {planning_framework: 'other', field_office_context: 'needles_field_office'}},
+    {geometry_key: 'central-coast', semantic_feature_key: 'central-coast', category_key: 'acec', geometry_component_count: 1,
+      facet_values: {planning_framework: 'other', field_office_context: 'central_coast_field_office'}}
+  ]
+};
+const fieldOfficeContextEngine = engineApi.create(fieldOfficeContextFixture);
+state = fieldOfficeContextEngine.snapshot();
+assert.strictEqual(
+  state.facet_counts.field_office_context.needles_field_office.total.semantic_feature_count,
+  2,
+  'a cross-office ACEC contributes once to each matching office count'
+);
+state = fieldOfficeContextEngine.facetNone('field_office_context');
+state = fieldOfficeContextEngine.setFacetValue('field_office_context', 'barstow_field_office', true);
+assert.deepStrictEqual(state.visible_geometry_keys, ['cross-office']);
+state = fieldOfficeContextEngine.setFacetValue('field_office_context', 'needles_field_office', true);
+assert.strictEqual(
+  state.counts.currently_showing.semantic_feature_count,
+  2,
+  'field-office values use OR semantics without duplicating a cross-office ACEC'
+);
+assert.deepStrictEqual(state.visible_geometry_keys, ['cross-office', 'needles']);
+state = fieldOfficeContextEngine.facetNone('planning_framework');
+state = fieldOfficeContextEngine.setFacetValue('planning_framework', 'drecp', true);
+assert.deepStrictEqual(
+  state.visible_geometry_keys,
+  ['cross-office'],
+  'field-office context combines with other facets using AND semantics'
+);
+assert.deepStrictEqual(state.counts.currently_showing, {
+  record_count: 1,
+  semantic_feature_count: 1,
+  geometry_component_count: 3
+});
+
 console.log('Local Reference synthetic filter-engine selection/count tests passed.');
