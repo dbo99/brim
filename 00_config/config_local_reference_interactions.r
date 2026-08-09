@@ -7,8 +7,9 @@
 ## SCOPE:
 ##   This registry intentionally excludes Wild & Scenic Rivers, CalSim3.0,
 ##   uploads, External, Ops Live, and BRIM Live. Trails and Wilderness Study
-##   Areas are executable in Phase 2. Federal Wilderness is the Phase 3
-##   flagship implementation; the other eight rows remain contracts.
+##   Areas are executable in Phase 2. Federal Wilderness is the accepted
+##   Phase 3 implementation. ACECs are the focused Phase 4 implementation;
+##   the other seven rows remain contracts.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
@@ -231,6 +232,192 @@ PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS <- list(
   )
 )
 
+PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES <- data.frame(
+  value_key = c(
+    "water_aquatic", "wildlife_and_habitat",
+    "botanical_or_ecological", "cultural_archaeological_historic",
+    "scenic", "other_or_unresolved"
+  ),
+  label = c(
+    "Fish or aquatic resources", "Wildlife and habitat",
+    "Natural systems or processes", "Cultural or historic",
+    "Scenic", "Natural hazard or other"
+  ),
+  swatch_color = c(
+    "#3B82A0", "#7A9A4A", "#4F8C68",
+    "#A66A43", "#8A6DAA", "#B58A3D"
+  ),
+  sort_order = 1:6,
+  stringsAsFactors = FALSE
+)
+
+PT_LOCAL_REFERENCE_ACEC_VALUE_THEMATIC_STYLE <- list(
+  multiple_selection = "neutral",
+  fill_opacity = 0.22,
+  stroke_weight = 2,
+  stroke_darken = 0.28
+)
+
+## ACEC overlap colors are an identity aid only. The browser assigns them to
+## the fixed semantic graph once, then applies them only when both endpoints
+## of at least one reviewed overlap pair are currently visible.
+PT_LOCAL_REFERENCE_ACEC_OVERLAP_STYLE <- list(
+  palette = c(
+    "#0072B2", "#E69F00", "#009E73",
+    "#CC79A7", "#56B4E9", "#D55E00"
+  ),
+  fill_opacity = 0.27,
+  stroke_weight = 2.2,
+  stroke_darken = 0.30,
+  minimum_overlap_area_m2 = 1
+)
+
+PT_LOCAL_REFERENCE_ACEC_OVERLAP_METADATA <- list(
+  source_snapshot_sha256 =
+    "0e2658c269476fa629fa7da83b93097e76655042a56bc1cc9d96e10fa6193d00",
+  source_geometry_role = "current authoritative BLM geometry before display simplification",
+  geometry_processing = "sf::st_make_valid in EPSG:3310; no simplification",
+  area_criterion = "intersection area strictly greater than 1 square metre",
+  historical_geometry_role = "QA comparison only"
+)
+
+PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES_PATH <- file.path(
+  "00_config", "local_reference_acec_current_field_offices.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_PATH <- file.path(
+  "00_config", "local_reference_acec_field_office_context.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES <- utils::read.csv(
+  PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES_PATH,
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES <-
+  PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES[
+    order(PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES$sort_order),
+    , drop = FALSE
+  ]
+PT_LOCAL_REFERENCE_ACEC_FIELD_OFFICE_CONTEXT_METADATA <- list(
+  geometry_source = "BRIM field_office_outer_wgs84.rds",
+  geometry_source_sha256 =
+    "89884eb36cafda640ed13165b47beb18005ac086f0549bb5c0dbf1b46ef197c6",
+  boundary_snapshot_date = "2025-06-23",
+  geometry_processing = paste(
+    "existing unsimplified BRIM field-office derivative and authoritative ACEC",
+    "geometry repaired and intersected in EPSG:3310"
+  ),
+  minimum_intersection_area_m2 = 100,
+  complete_coverage_percent = 99.5,
+  presentation_additional_office_minimum_percent = 1,
+  presentation_rule = paste(
+    "show the largest office relationship and any additional relationship",
+    "covering at least 1 percent; retain all relationships in technical details"
+  ),
+  relationship_role = paste(
+    "spatial context only; does not establish administrative responsibility"
+  )
+)
+
+PT_LOCAL_REFERENCE_ACEC_AREA_PRESENTATION <- list(
+  primary_area = "current BLM source GIS acreage",
+  material_difference_minimum_acres = 10,
+  material_difference_minimum_percent = 0.5,
+  derived_area_default_location = "collapsed technical details"
+)
+
+PT_LOCAL_REFERENCE_ACEC_FACETS <- list(
+  list(
+    facet_key = "relevant_value_family",
+    label = "Relevant and important values",
+    record_field = "pt_acec_value_families",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = ";",
+    collapsible = TRUE,
+    open_default = TRUE,
+    thematic_style = PT_LOCAL_REFERENCE_ACEC_VALUE_THEMATIC_STYLE,
+    values = PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES
+  ),
+  list(
+    facet_key = "planning_framework",
+    label = "Planning framework",
+    record_field = "pt_acec_planning_framework",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "",
+    collapsible = TRUE,
+    open_default = FALSE,
+    values = data.frame(
+      value_key = c(
+        "drecp", "central_california_plan",
+        "northwest_california_integrated_plan",
+        "california_desert_other_plan", "northern_california_other_plan"
+      ),
+      label = c(
+        "DRECP", "Central California Plan",
+        "Northwest California Integrated Plan",
+        "California Desert other plan", "Northern California other plan"
+      ),
+      sort_order = 1:5,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "field_office_context",
+    label = "Field office context",
+    record_field = "pt_acec_field_office_context",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = ";",
+    collapsible = TRUE,
+    open_default = FALSE,
+    values = data.frame(
+      value_key = PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES$office_key,
+      label = PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES$current_official_name,
+      sort_order = as.integer(
+        PT_LOCAL_REFERENCE_ACEC_CURRENT_FIELD_OFFICES$sort_order
+      ),
+      stringsAsFactors = FALSE
+    )
+  )
+)
+
+PT_LOCAL_REFERENCE_ACEC_QUICK_VIEWS <- list(
+  list(
+    quick_view_key = "fish_aquatic",
+    label = "Fish / aquatic values",
+    facet_key = "relevant_value_family",
+    value_key = "water_aquatic"
+  ),
+  list(
+    quick_view_key = "drecp",
+    label = "DRECP ACECs",
+    facet_key = "planning_framework",
+    value_key = "drecp"
+  ),
+  list(
+    quick_view_key = "wildlife_habitat",
+    label = "Wildlife / habitat",
+    facet_key = "relevant_value_family",
+    value_key = "wildlife_and_habitat"
+  ),
+  list(
+    quick_view_key = "cultural_historic",
+    label = "Cultural / historic",
+    facet_key = "relevant_value_family",
+    value_key = "cultural_archaeological_historic"
+  ),
+  list(
+    quick_view_key = "scenic",
+    label = "Scenic",
+    facet_key = "relevant_value_family",
+    value_key = "scenic"
+  ),
+  list(
+    quick_view_key = "natural_systems",
+    label = "Natural systems",
+    facet_key = "relevant_value_family",
+    value_key = "botanical_or_ecological"
+  )
+)
+
 pt_local_reference_neutral_categories <- function(
   fill_color = "#D8D4C8",
   stroke_color = "#6B6963",
@@ -312,9 +499,17 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     fill_color = "#D8D0BE",
     stroke_color = "#756F63"
   ),
-  acec = pt_local_reference_neutral_categories(
-    fill_color = "#D8D0BE",
-    stroke_color = "#756F63"
+  acec = pt_local_reference_category_rows(
+    category_key = c("acec", "unknown"),
+    label = c("Area of Critical Environmental Concern", "Unknown / unresolved"),
+    source_values = c("ACEC", ""),
+    fill_color = c("#B86F52", "#B0B0B0"),
+    stroke_color = c("#7A3F2E", "#6B6B6B"),
+    fill_opacity = c(0.12, 0.08),
+    stroke_weight = c(1.6, 1.4),
+    dash_array = c("", "2,3"),
+    legend_swatch_style = c("polygon", "dotted_polygon"),
+    include_when_absent = c(TRUE, FALSE)
   ),
   grazing_allotments = pt_local_reference_category_rows(
     category_key = "unknown",
@@ -392,7 +587,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   implementation_status = c(
     "phase2_trails", "registry_contract", "registry_contract",
     "phase1_wsa", "phase3_federal_wilderness", "registry_contract",
-    "registry_contract", "registry_contract", "registry_contract",
+    "phase4_acec", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract"
   ),
   enrichment_depth = c(
@@ -432,20 +627,20 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   legend_mode = c(
     "interactive", "planned_interactive", "none", "interactive",
-    "interactive", "none", "none", "planned_interactive", "none",
+    "interactive", "none", "interactive", "planned_interactive", "none",
     "planned_interactive", "none"
   ),
   filter_mode = c(
     "category_search", "planned_category_search", "none",
-    "category_search", "faceted_category_search", "none", "none",
+    "category_search", "faceted_category_search", "none", "faceted_category_search",
     "planned_category_plus_feature_search", "none",
     "planned_category_search", "none"
   ),
   auto_supported = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE
   ),
   auto_default = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE
   ),
   count_mode = c(
     "semantic_feature",
@@ -454,7 +649,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "semantic_and_geometry_component",
     "semantic_and_geometry_component",
     "geometry_component",
-    "semantic_feature_deferred",
+    "semantic_and_geometry_component",
     "semantic_and_geometry_component",
     "semantic_feature",
     "semantic_feature",
@@ -468,7 +663,10 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
   ),
   show_component_count = c(FALSE, FALSE, FALSE, FALSE, TRUE, rep(FALSE, 6)),
-  show_category_count = c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+  show_category_count = c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
+  category_filter_visible = c(
+    TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
+  ),
   category_count_mode = c(
     "semantic_feature", "semantic_feature", "semantic_feature",
     "semantic_feature", "geometry_component", rep("semantic_feature", 6)
@@ -495,42 +693,45 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
       "Federal Wilderness boundaries and managing agencies are reference data.",
       "Verify current access, closures, permits, and agency direction."
     ),
-    "", "", "", "", "", ""
+    "", paste(
+      "An ACEC boundary is a BLM planning designation, not an ownership or",
+      "cadastral boundary and not proof of public access or site-specific uses."
+    ), "", "", "", ""
   ),
   popup_layout = ifelse(
     PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
       "national_scenic_historic_trails", "wilderness_study_areas",
-      "federal_wilderness"
+      "federal_wilderness", "acec"
     ),
     "tabbed_card",
     "standard"
   ),
   feature_selection_supported = c(
     TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
-    FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   feature_selection_mode = c(
     "semantic_feature_multi", "none", "none", "semantic_feature_multi",
-    "semantic_feature_multi", "none", "none", "none", "none", "none", "none"
+    "semantic_feature_multi", "none", "semantic_feature_multi", "none", "none", "none", "none"
   ),
   feature_display_field = c(
     "pt_trails_official_name", "NLCS_NAME", "NLCS_NAME", "pt_wsa_name",
-    "pt_fw_official_name", "", "ACEC_NAME", "ALLOT_NAME", "county_name",
+    "pt_fw_official_name", "", "pt_acec_official_name", "ALLOT_NAME", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
     TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
-    FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   auto_zoom_default = c(
     TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
-    FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
   preserve_view_on_reset = rep(TRUE, 11),
   retention_enabled = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   distinguish_units_supported = c(
     FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
@@ -551,7 +752,13 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
     "pt_fw_designation_year", "pt_fw_original_public_law"
   ),
   character(0),
-  c("ACEC_NAME", "LUP_NAME"),
+  c(
+    "pt_acec_official_name", "pt_acec_legacy_name", "pt_acec_aliases",
+    "pt_acec_governing_plan", "pt_acec_planning_framework",
+    "pt_acec_source_admin_unit", "pt_acec_field_office_context_names",
+    "acec_id", "component_id",
+    "pt_acec_global_id"
+  ),
   c("ALLOT_NAME", "ALLOT_NO"),
   "county_name",
   c("rwqcb_region_name", "rwqcb_region_num"),
@@ -573,12 +780,32 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[5]] <- c(
   "GlobalID", "FAU_ID", "pt_fw_agency_name", "pt_fw_alternate_names",
   "pt_fw_wilderness_abbreviation", "pt_fw_original_public_law"
 )
+LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[7]] <- c(
+  "pt_acec_official_name", "pt_acec_legacy_name", "pt_acec_aliases",
+  "pt_acec_governing_plan", "pt_acec_planning_framework",
+  "pt_acec_source_admin_unit", "pt_acec_field_office_context_names",
+  "acec_id", "component_id",
+  "pt_acec_global_id"
+)
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets <- I(lapply(
   PT_LOCAL_REFERENCE_LAYER_IDS,
   function(layer_id) {
     if (identical(layer_id, "federal_wilderness")) {
       return(PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS)
+    }
+    if (identical(layer_id, "acec")) {
+      return(PT_LOCAL_REFERENCE_ACEC_FACETS)
+    }
+    list()
+  }
+))
+
+LOCAL_REFERENCE_INTERACTION_REGISTRY$quick_views <- I(lapply(
+  PT_LOCAL_REFERENCE_LAYER_IDS,
+  function(layer_id) {
+    if (identical(layer_id, "acec")) {
+      return(PT_LOCAL_REFERENCE_ACEC_QUICK_VIEWS)
     }
     list()
   }
@@ -630,7 +857,90 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     gis_acres = c("GIS_Acres", "GISAcres", "GIS_ACRES"),
     modify_date = c("Modify_Dat", "Modify_Date", "MODIFY_DATE"),
     fau_id = c("FAU_ID")
+  ),
+  acec = list(
+    global_id = c("GlobalID", "GLOBALID", "globalid"),
+    name = c("ACEC_NAME"),
+    governing_plan = c("LUP_NAME"),
+    nepa_number = c("NEPA_NUM"),
+    rod_date = c("ROD_DATE"),
+    gis_acres = c("GIS_ACRES"),
+    admin_state = c("ADMIN_ST"),
+    admin_unit = c("CA_ADMIN_unit_code"),
+    modify_date = c("BLM_MODIFY_DATE"),
+    last_edited_date = c("last_edited_date"),
+    relevance_cultural = c("ACEC_RLVNCE_CUL"),
+    relevance_fish = c("ACEC_RLVNCE_FRSC"),
+    relevance_historic = c("ACEC_RLVNCE_HIS"),
+    relevance_hazard = c("ACEC_RLVNCE_NHAZ"),
+    relevance_natural_process = c("ACEC_RLVNCE_NPRO"),
+    relevance_natural_system = c("ACEC_RLVNCE_NSYS"),
+    relevance_scenic = c("ACEC_RLVNCE_SCE"),
+    relevance_wildlife = c("ACEC_RLVNCE_WRSC"),
+    management_protect = c("SPCL_MGMT_ATTN_RX_PRTCT"),
+    management_prevent = c("SPCL_MGMT_ATTN_RX_PRVNT")
   )
+)
+
+PT_LOCAL_REFERENCE_ACEC_COMPONENTS_PATH <- file.path(
+  "00_config", "local_reference_acec_components.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_REFERENCE_PATH <- file.path(
+  "00_config", "local_reference_acec_reference.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_VALUES_PATH <- file.path(
+  "00_config", "local_reference_acec_values.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_DOCUMENTS_PATH <- file.path(
+  "00_config", "local_reference_acec_documents.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_MANAGEMENT_PATH <- file.path(
+  "00_config", "local_reference_acec_management_prescriptions.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_PLANNING_PATH <- file.path(
+  "00_config", "local_reference_acec_planning_history.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_RELATIONSHIPS_PATH <- file.path(
+  "00_config", "local_reference_acec_relationships.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_SOURCES_PATH <- file.path(
+  "00_config", "local_reference_acec_source_register.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_OFFICES_PATH <- file.path(
+  "00_config", "local_reference_acec_office_assignments.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_ACCESS_PATH <- file.path(
+  "00_config", "local_reference_acec_access_land_status.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_OVERRIDES_PATH <- file.path(
+  "00_config", "local_reference_acec_curated_overrides.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_UI_FILTERS_PATH <- file.path(
+  "00_config", "local_reference_acec_ui_filter_lookup.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_WSA_NAME_CONTEXT_PATH <- file.path(
+  "00_config", "local_reference_acec_wsa_name_context.csv"
+)
+PT_LOCAL_REFERENCE_ACEC_OVERLAP_PAIRS_PATH <- file.path(
+  "00_config", "local_reference_acec_overlap_pairs.csv"
+)
+
+PT_LOCAL_REFERENCE_ACEC_SOURCE_URL <- paste0(
+  "https://gis.blm.gov/caarcgis/rest/services/Planning/",
+  "BLM_CA_ACEC/FeatureServer/0"
+)
+
+PT_LOCAL_REFERENCE_ACEC_BOUNDARY_CAVEAT <- paste(
+  "The mapped ACEC boundary is a BLM planning-designation boundary. It is not",
+  "an ownership or cadastral boundary and does not by itself establish public",
+  "access or site-specific allowable uses. Consult the governing land-use",
+  "plan and current authoritative BLM information for management decisions."
+)
+
+PT_LOCAL_REFERENCE_ACEC_MANAGEMENT_CAVEAT <- paste(
+  "Detailed travel management, grazing, minerals, recreation, access,",
+  "closures, rights-of-way, development, and exceptions are plan-specific",
+  "and may vary within the mapped area."
 )
 
 PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_COMPONENTS_PATH <- file.path(

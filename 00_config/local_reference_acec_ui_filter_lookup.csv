@@ -1,0 +1,28 @@
+filter_group_id,value_key,user_label,current_semantic_count,filter_scope,sort_order,default_selected,tooltip
+designation_status,currently_designated_source_layer,Currently mapped as designated,238,semantic,1,true,
+designation_type,ACEC,ACEC,238,semantic,1,true,
+relevant_value_family,water_aquatic,Fish or aquatic resources,34,semantic,1,true,
+relevant_value_family,wildlife_and_habitat,Wildlife and habitat,156,semantic,2,true,
+relevant_value_family,botanical_or_ecological,Natural systems or processes,192,semantic,3,true,
+relevant_value_family,cultural_archaeological_historic,Cultural or historic,126,semantic,4,true,
+relevant_value_family,scenic,Scenic,73,semantic,5,true,
+relevant_value_family,other_or_unresolved,Natural hazard or other,5,semantic,6,true,
+field_office_context,barstow_field_office,Barstow Field Office,46,semantic,1,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,el_centro_field_office,El Centro Field Office,21,semantic,2,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,needles_field_office,Needles Field Office,27,semantic,3,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,palm_springs_south_coast_field_office,Palm Springs-South Coast Field Office,29,semantic,4,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,ridgecrest_field_office,Ridgecrest Field Office,36,semantic,5,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,bakersfield_field_office,Bakersfield Field Office,26,semantic,6,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,bishop_field_office,Bishop Field Office,18,semantic,7,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,central_coast_field_office,Central Coast Field Office,5,semantic,8,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,mother_lode_field_office,Mother Lode Field Office,13,semantic,9,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,ukiah_field_office,Ukiah Field Office,9,semantic,10,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,applegate_field_office,Applegate Field Office,11,semantic,11,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,arcata_field_office,Arcata Field Office,11,semantic,12,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,eagle_lake_field_office,Eagle Lake Field Office,8,semantic,13,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+field_office_context,redding_field_office,Redding Field Office,16,semantic,14,true,Derived spatial context from verified current BLM field-office boundaries; not administrative responsibility.
+planning_framework,california_desert_other_plan,California Desert Other Plan,13,semantic,1,true,
+planning_framework,central_california_plan,Central California Plan,53,semantic,2,true,
+planning_framework,drecp,Drecp,128,semantic,3,true,
+planning_framework,northern_california_other_plan,Northern California Other Plan,19,semantic,4,true,
+planning_framework,northwest_california_integrated_plan,Northwest California Integrated Plan,25,semantic,5,true,

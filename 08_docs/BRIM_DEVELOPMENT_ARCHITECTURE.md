@@ -45,6 +45,8 @@ The accepted Local Reference framework supports layer-specific enablement of:
 - structured/tabbed popup cards;
 - semantic counts;
 - category filters;
+- single- and multi-valued facets with OR semantics within a facet;
+- optional layer-specific quick views that set an approved facet value;
 - autocomplete and removable named-feature chips;
 - staged Apply and immediate Auto modes;
 - separate Auto-zoom and Zoom to results;
@@ -52,6 +54,17 @@ The accepted Local Reference framework supports layer-specific enablement of:
 - idempotent layer-off/Clear Local/Clear All teardown.
 
 New Local Reference layers should extend the shared registry/controller/helpers rather than fork them. Category filters are added only when the source supports meaningful stable categories; search/selection may be the primary control for otherwise neutral layers.
+
+California ACECs use this same contract. Their category filter is intentionally
+hidden because all 238 current source records share one designation type;
+meaningful filtering instead uses value-family, planning-framework, and
+spatially derived current field-office-context facets. The unchanged ACEC
+source administrative-unit coding remains separately visible in the popup;
+field-office intersection is not presented as management responsibility. The
+six value-family colors are
+centralized in the ACEC facet registry: one applied family uses its thematic
+color, while the default, DRECP-only, and multi-family states use the neutral
+ACEC style. See `08_docs/features/ACEC.md`.
 
 ## Popup contract
 

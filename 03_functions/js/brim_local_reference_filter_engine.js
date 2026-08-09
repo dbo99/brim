@@ -140,13 +140,18 @@
       );
       record.facet_values = record.facet_values || {};
       facetKeys.forEach(function(facetKey) {
-        var facetValue = String(record.facet_values[facetKey] || '');
-        if (facetByKey[facetKey].value_keys.indexOf(facetValue) === -1) {
+        var inputValue = record.facet_values[facetKey];
+        var facetValues = unique((Array.isArray(inputValue) ? inputValue : [inputValue])
+          .map(function(value) { return String(value || ''); })
+          .filter(Boolean));
+        if (!facetValues.length || facetValues.some(function(facetValue) {
+          return facetByKey[facetKey].value_keys.indexOf(facetValue) === -1;
+        })) {
           throw new Error(
             'Local Reference record ' + index + ' has an unknown ' + facetKey + ' facet value.'
           );
         }
-        record.facet_values[facetKey] = facetValue;
+        record.facet_values[facetKey] = facetValues;
       });
     });
 
@@ -385,7 +390,9 @@
         return false;
       }
       return facetKeys.every(function(facetKey) {
-        return appliedFacetSelected[facetKey].has(record.facet_values[facetKey]);
+        return record.facet_values[facetKey].some(function(valueKey) {
+          return appliedFacetSelected[facetKey].has(valueKey);
+        });
       });
     }
 
@@ -447,10 +454,10 @@
         facet.values.forEach(function(value) {
           var valueKey = String(value.value_key);
           var totalRows = records.filter(function(record) {
-            return record.facet_values[facetKey] === valueKey;
+            return record.facet_values[facetKey].indexOf(valueKey) !== -1;
           });
           var showingRows = showing.filter(function(record) {
-            return record.facet_values[facetKey] === valueKey;
+            return record.facet_values[facetKey].indexOf(valueKey) !== -1;
           });
           valueCounts[valueKey] = {
             total: countRows(totalRows),
