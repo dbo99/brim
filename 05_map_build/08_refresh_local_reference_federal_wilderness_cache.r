@@ -106,16 +106,28 @@ federal_wilderness_map <- pt_prepare_local_reference_federal_wilderness(
 reference_after <- reference_before
 reference_after[[FEDERAL_WILDERNESS_NICKNAME]] <- federal_wilderness_map
 
-federal_wilderness_labels <- pt_make_polygon_labels(
+federal_wilderness_label_registration <-
+  pt_local_reference_label_registration(
+    source_nickname = FEDERAL_WILDERNESS_NICKNAME
+  )
+federal_wilderness_labels <- pt_make_local_reference_labels(
   federal_wilderness_map,
-  label_id = FEDERAL_WILDERNESS_NICKNAME,
-  label_field = LABEL_FIELDS[[FEDERAL_WILDERNESS_NICKNAME]]
+  federal_wilderness_label_registration
 )
 if (!inherits(federal_wilderness_labels, "sf") ||
     nrow(federal_wilderness_labels) != 197L ||
+    length(unique(federal_wilderness_labels$semantic_feature_key)) != 158L ||
     any(!nzchar(pt_local_reference_clean_chr(federal_wilderness_labels$label_text)))) {
-  stop("Federal Wilderness label child must retain 197 nonblank component labels.")
+  stop(
+    "Federal Wilderness label child must retain 197 component anchors for ",
+    "158 nonblank semantic wilderness labels."
+  )
 }
+pt_validate_local_reference_label_anchors(
+  federal_wilderness_labels,
+  federal_wilderness_map,
+  federal_wilderness_label_registration
+)
 labels_after <- labels_before
 labels_after[[FEDERAL_WILDERNESS_NICKNAME]] <- federal_wilderness_labels
 

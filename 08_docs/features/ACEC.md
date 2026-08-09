@@ -310,13 +310,13 @@ Clear Local; Clear All; narrow viewport behavior; and console output. Layer
 teardown and shared-layer regression tests also passed. Production was not
 modified.
 
-## Deferred shared follow-ups
+## Shared follow-ups
 
 The following work is intentionally outside this ACEC branch:
 
-1. Filter-aware Local Reference labels for ACEC, Federal Wilderness, WSA, and
-   Trails will be implemented in a separate shared Local Reference branch. The
-   current ACEC `lbl` behavior is accepted for this pull request.
+1. ACEC now registers with the shared Local Reference semantic-label system;
+   `lbl` follows the applied ACEC semantic result set without reacting to
+   staged filters or Distinguish overlaps.
 2. A BRIM-wide geometry-generalization/thinning disclosure framework remains a
    separate shared architecture task.
 3. Authoritative External companion boundary layers remain a later shared

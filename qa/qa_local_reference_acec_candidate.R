@@ -3,6 +3,8 @@
 suppressPackageStartupMessages(library(sf))
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 source("02_preprocess/69_acec_pipeline/build_acec_current_candidate.R")
 
@@ -53,7 +55,11 @@ stopifnot(
 prepared <- pt_prepare_local_reference_acec(
   candidate, validate_snapshot = TRUE, build_display = TRUE
 )
-payload <- pt_local_reference_controller_payload(list(acec = prepared))[[1]]
+acec_layers <- list(acec = prepared)
+payload <- pt_local_reference_controller_payload(
+  acec_layers,
+  pt_build_registered_local_reference_label_children(acec_layers)
+)[[1]]
 stopifnot(
   nrow(prepared) == 238L,
   sum(prepared$pt_local_reference_geometry_components) == 613L,

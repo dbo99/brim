@@ -4,6 +4,8 @@ suppressPackageStartupMessages({
 })
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 
 pt_validate_local_reference_config()
@@ -190,8 +192,17 @@ stopifnot(
   identical(PT_LOCAL_REFERENCE_ACEC_FACETS[[3]]$count_mode, "semantic_feature")
 )
 
-payload <- pt_local_reference_controller_payload(list(acec = prepared))
+acec_layers <- list(acec = prepared)
+payload <- pt_local_reference_controller_payload(
+  acec_layers,
+  pt_build_registered_local_reference_label_children(acec_layers)
+)
 acec_payload <- payload[[1]]$acec
+stopifnot(
+  payload[[1]]$semantic_labels$semantic_feature_count == 238L,
+  payload[[1]]$semantic_labels$anchor_count == 238L,
+  !isTRUE(payload[[1]]$semantic_labels$visible_component_aware)
+)
 first_value_facet <- payload[[1]]$records[[1]]$facet_values$relevant_value_family
 quick_view_keys <- vapply(
   payload[[1]]$quick_views, `[[`, character(1), "quick_view_key"

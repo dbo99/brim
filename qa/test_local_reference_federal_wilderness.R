@@ -4,6 +4,8 @@ suppressPackageStartupMessages({
 })
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 
 pt_validate_local_reference_config()
@@ -172,12 +174,19 @@ stopifnot(
   setequal(corrected_docs$publication_date, c("1989-12-05", "1978-02-24", "1984-09-28"))
 )
 
-payload <- pt_local_reference_controller_payload(list(fedwilderness = prepared))
+federal_layers <- list(fedwilderness = prepared)
+payload <- pt_local_reference_controller_payload(
+  federal_layers,
+  pt_build_registered_local_reference_label_children(federal_layers)
+)
 federal_payload <- payload[[1]]$federal_wilderness
 stopifnot(
   length(payload) == 1L,
   length(payload[[1]]$records) == 197L,
   length(payload[[1]]$features) == 158L,
+  payload[[1]]$semantic_labels$semantic_feature_count == 158L,
+  payload[[1]]$semantic_labels$anchor_count == 197L,
+  isTRUE(payload[[1]]$semantic_labels$visible_component_aware),
   length(payload[[1]]$facets) == 3L,
   identical(payload[[1]]$category_count_mode, "geometry_component"),
   isTRUE(payload[[1]]$distinguish_units_supported),

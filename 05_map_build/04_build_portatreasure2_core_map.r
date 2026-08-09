@@ -38,6 +38,7 @@ source("03_functions/leaflet_ops_live_helpers.r")
 source("03_functions/blm_pct_theme_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/leaflet_layer_helpers.r")
+source("03_functions/label_helpers.r")
 source("03_functions/leaflet_label_helpers.r")
 source("03_functions/leaflet_huc_theme_helpers.r")
 source("03_functions/leaflet_bulletin118_theme_helpers.r")
@@ -1049,7 +1050,8 @@ m <- pt_add_deltamapr_canals_layer(
 m <- pt_add_reference_layers(
   m = m,
   reference_layers = layers$reference_layers,
-  map_display = MAP_DISPLAY
+  map_display = MAP_DISPLAY,
+  labels_all = layers$labels_all
 )
 
 m <- pt_add_huc_layers(

@@ -37,6 +37,10 @@ suppressPackageStartupMessages({
   library(readr)
 })
 
+if (!requireNamespace("digest", quietly = TRUE)) {
+  stop("Canonical label-cache generation requires the digest package.")
+}
+
 # ==== 3. Run settings ========================================================
 
 RUN_TS <- make_timestamp()
@@ -292,29 +296,48 @@ if (isTRUE(LABEL_INCLUDE$field_office_outer)) {
   )
 }
 
-# ---- 8A. Build labels for selected manifest-driven reference layers ---------
+# ---- 8A. Build registered Local Reference semantic labels ------------------
 ##
-## Only these three are currently labeled:
-##   - fedwilderness
-##   - acec
-##   - allotments
+## The registry defines semantic identity, public label text, and the anchor
+## strategy. Federal Wilderness intentionally retains one precomputed anchor
+## per source component so the browser can select the largest currently visible
+## component while still rendering exactly one label per named wilderness.
 
-for (nm in c("fedwilderness", "acec", "allotments")) {
-  
-  if (!isTRUE(LABEL_INCLUDE[[nm]])) {
+local_reference_anchor_qa <- list()
+for (i in seq_len(nrow(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY))) {
+  registration <- LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY[i, , drop = FALSE]
+  nm <- as.character(registration$source_nickname[[1]])
+  if (!isTRUE(registration$lbl_available[[1]]) ||
+      !isTRUE(LABEL_INCLUDE[[nm]])) {
     next
   }
-  
   if (!nm %in% names(reference_layers)) {
-    message("Cached reference layer not found for labels: ", nm)
-    label_layers[[nm]] <- pt_empty_label_sf()
-    next
+    stop("Registered Local Reference label source is missing: ", nm)
   }
-  
+  labels <- pt_make_local_reference_labels(
+    reference_layers[[nm]],
+    registration
+  )
+  local_reference_anchor_qa[[nm]] <-
+    pt_validate_local_reference_label_anchors(
+      labels,
+      reference_layers[[nm]],
+      registration
+    )
+  label_layers[[nm]] <- labels
+}
+
+## Allotments remain outside the semantic-label controller until their planned
+## Local Reference upgrade is accepted. Preserve the legacy opt-in path only if
+## an explicit inclusion switch and source child are both present.
+if (isTRUE(LABEL_INCLUDE$allotments)) {
+  if (!"allotments" %in% names(reference_layers)) {
+    stop("Included allotment label source is missing from the reference cache.")
+  }
   label_layers <- add_polygon_label_layer(
-    label_layers = label_layers,
-    layer_id = nm,
-    x = reference_layers[[nm]]
+    label_layers,
+    "allotments",
+    reference_layers[["allotments"]]
   )
 }
 
@@ -372,6 +395,52 @@ if (isTRUE(LABEL_INCLUDE$usgs_streamgages)) {
   )
 }
 
+# ==== 9A. Canonical child-set and ordering contract ==========================
+
+expected_children <- c(
+  c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")[
+    vapply(
+      c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12"),
+      function(id) isTRUE(LABEL_INCLUDE[[id]]),
+      logical(1)
+    )
+  ],
+  c("gw_bull118", "county", "project_areas", "cnrfc_basins", "field_office_outer")[
+    vapply(
+      c("gw_bull118", "county", "project_areas", "cnrfc_basins", "field_office_outer"),
+      function(id) isTRUE(LABEL_INCLUDE[[id]]),
+      logical(1)
+    )
+  ],
+  LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$source_nickname[
+    LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$lbl_available &
+      vapply(
+        LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$source_nickname,
+        function(id) isTRUE(LABEL_INCLUDE[[id]]),
+        logical(1)
+      )
+  ],
+  if (isTRUE(LABEL_INCLUDE$allotments)) "allotments",
+  if (isTRUE(LABEL_INCLUDE$water_districts)) "water_districts",
+  c("cnrfc_stream", "cnrfc_precip", "usgs_streamgages")[
+    vapply(
+      c("cnrfc_stream", "cnrfc_precip", "usgs_streamgages"),
+      function(id) isTRUE(LABEL_INCLUDE[[id]]),
+      logical(1)
+    )
+  ]
+)
+if (!identical(names(label_layers), expected_children)) {
+  stop(
+    "Canonical label child-set/order contract failed. Expected: ",
+    paste(expected_children, collapse = ", "),
+    "; built: ", paste(names(label_layers), collapse = ", ")
+  )
+}
+if ("major_conveyance" %in% names(label_layers)) {
+  stop("Retired major_conveyance label child must not enter the canonical cache.")
+}
+
 # ==== 10. Save label cache ===================================================
 
 out_timestamped <- file.path(
@@ -393,15 +462,86 @@ save_rds_cached(
 # ==== 11. Save QA summary ====================================================
 
 if (WRITE_QA) {
+  local_registration_by_nickname <- stats::setNames(
+    seq_len(nrow(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY)),
+    LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$source_nickname
+  )
+  source_cache_paths <- c(
+    huc2 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    huc4 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    huc6 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    huc8 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    huc10 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    huc12 = file.path(DIR$cache_last, "huc_all_map.rds"),
+    gw_bull118 = file.path(DIR$cache_last, "gw_bull118_map.rds"),
+    county = file.path(DIR$cache_last, "county_map.rds"),
+    project_areas = file.path(DIR$cache_last, "project_areas_map.rds"),
+    cnrfc_basins = file.path(DIR$cache_last, "cnrfc_basins_map.rds"),
+    field_office_outer = file.path(DIR$cache_last, "field_office_outer_map.rds"),
+    acec = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    fedwilderness = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    wildernessstudyarea = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    trails = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    allotments = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    water_districts = file.path(DIR$cache_last, "water_districts_map.rds"),
+    cnrfc_stream = file.path(DIR$cache_last, "cnrfc_stream_map.rds"),
+    cnrfc_precip = file.path(DIR$cache_last, "cnrfc_precip_map.rds"),
+    usgs_streamgages = file.path(DIR$cache_last, "usgs_streamgages_map.rds")
+  )
+  source_hashes <- stats::setNames(
+    vapply(unique(source_cache_paths), function(path) {
+      digest::digest(path, algo = "sha256", serialize = FALSE, file = TRUE)
+    }, character(1)),
+    unique(source_cache_paths)
+  )
   
   qa <- tibble::tibble(
     label_id = names(label_layers),
+    status = purrr::map_chr(names(label_layers), function(id) {
+      if (id %in% names(local_registration_by_nickname)) {
+        "canonical_semantic_generated"
+      } else if (nrow(label_layers[[id]]) == 0L) {
+        "canonical_empty"
+      } else {
+        "canonical_generated"
+      }
+    }),
+    provenance = purrr::map_chr(names(label_layers), function(id) {
+      if (id %in% names(local_registration_by_nickname)) {
+        "registered Local Reference semantic labels from accepted reference cache"
+      } else {
+        "deterministic labels from accepted map-ready cache"
+      }
+    }),
     explicit_label_field = purrr::map_chr(names(label_layers), function(id) {
       field <- LABEL_FIELDS[[id]]
       if (is.null(field)) return(NA_character_)
       as.character(field)
     }),
     rows = purrr::map_int(label_layers, nrow),
+    semantic_features = purrr::map_int(label_layers, function(x) {
+      if (!"semantic_feature_key" %in% names(x)) return(NA_integer_)
+      length(unique(as.character(x$semantic_feature_key)))
+    }),
+    anchor_strategy = purrr::map_chr(label_layers, function(x) {
+      if (!"anchor_strategy" %in% names(x) || !nrow(x)) return(NA_character_)
+      as.character(x$anchor_strategy[[1]])
+    }),
+    visible_component_aware = purrr::map_lgl(names(label_layers), function(id) {
+      if (!id %in% names(local_registration_by_nickname)) return(FALSE)
+      isTRUE(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$
+        visible_component_aware[[local_registration_by_nickname[[id]]]])
+    }),
+    max_anchor_distance_m = purrr::map_dbl(names(label_layers), function(id) {
+      qa_row <- local_reference_anchor_qa[[id]]
+      if (is.null(qa_row)) return(NA_real_)
+      as.numeric(qa_row$max_anchor_distance_m[[1]])
+    }),
+    anchor_tolerance_m = purrr::map_dbl(names(label_layers), function(id) {
+      qa_row <- local_reference_anchor_qa[[id]]
+      if (is.null(qa_row)) return(NA_real_)
+      as.numeric(qa_row$tolerance_m[[1]])
+    }),
     parent_group = purrr::map_chr(label_layers, function(x) {
       if (nrow(x) == 0) return(NA_character_)
       as.character(x$parent_group[1])
@@ -418,7 +558,40 @@ if (WRITE_QA) {
       if (nrow(x) == 0) return(NA_real_)
       as.numeric(x$max_zoom[1])
     }),
+    child_object_sha256 = purrr::map_chr(
+      label_layers,
+      digest::digest,
+      algo = "sha256",
+      serialize = TRUE
+    ),
+    source_cache = unname(source_cache_paths[names(label_layers)]),
+    source_cache_sha256 = unname(source_hashes[
+      source_cache_paths[names(label_layers)]
+    ]),
     run_timestamp = RUN_TS
+  )
+  qa <- dplyr::bind_rows(
+    qa,
+    tibble::tibble(
+      label_id = "major_conveyance",
+      status = "retired_omitted",
+      provenance = "stale legacy child; renderer already excludes it",
+      explicit_label_field = NA_character_,
+      rows = 0L,
+      semantic_features = NA_integer_,
+      anchor_strategy = NA_character_,
+      visible_component_aware = FALSE,
+      max_anchor_distance_m = NA_real_,
+      anchor_tolerance_m = NA_real_,
+      parent_group = NA_character_,
+      label_group = NA_character_,
+      min_zoom = NA_real_,
+      max_zoom = NA_real_,
+      child_object_sha256 = NA_character_,
+      source_cache = NA_character_,
+      source_cache_sha256 = NA_character_,
+      run_timestamp = RUN_TS
+    )
   )
   
   out_qa <- file.path(

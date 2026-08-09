@@ -55,6 +55,12 @@ The accepted Local Reference framework supports layer-specific enablement of:
 
 New Local Reference layers should extend the shared registry/controller/helpers rather than fork them. Category filters are added only when the source supports meaningful stable categories; search/selection may be the primary control for otherwise neutral layers.
 
+Filter-aware Local Reference labels use the same applied semantic and geometry
+IDs as the rendered map; staged state is never a second visibility truth.
+Cache records supply stable semantic/component anchors, while the controller
+only selects among them. See
+`08_docs/features/LOCAL_REFERENCE_SEMANTIC_LABELS.md`.
+
 California ACECs use this same contract. Their category filter is intentionally
 hidden because all 238 current source records share one designation type;
 meaningful filtering instead uses value-family, planning-framework, and

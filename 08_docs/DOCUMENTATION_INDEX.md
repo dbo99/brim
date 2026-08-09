@@ -56,5 +56,7 @@ Discovery and historical evidence only. Never automatically controlling.
 - UIC pipeline: `/02_preprocess/67_uic_aquifer_exemptions_pipeline/README.md`
 - Federal Wilderness feature: `/08_docs/features/FEDERAL_WILDERNESS.md`
 - Federal Wilderness pipeline: `/02_preprocess/68_federal_wilderness_pipeline/README.md`
+- Local Reference semantic labels:
+  `/08_docs/features/LOCAL_REFERENCE_SEMANTIC_LABELS.md`
 
 Dated `PT2_STATUS_*`, `PortaTreasure2_handoff_*`, checkpoint, audit, and rollback documents must be read as historical/contextual unless current code explicitly still implements their contracts.
