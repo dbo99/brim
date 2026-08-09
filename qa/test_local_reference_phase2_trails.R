@@ -6,6 +6,8 @@ suppressPackageStartupMessages({
 })
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 
 expect_equal <- function(actual, expected, label) {
@@ -312,9 +314,20 @@ stopifnot(
   !grepl(reference$indigenous_context[[1]], trails$popup_html[[california_index]], fixed = TRUE)
 )
 
-payload <- pt_local_reference_controller_payload(list(trails = trails))
+trail_layers <- list(trails = trails)
+payload <- pt_local_reference_controller_payload(
+  trail_layers,
+  pt_build_registered_local_reference_label_children(trail_layers)
+)
 expect_equal(length(payload), 1L, "single Trails payload")
 trail_payload <- payload[[1]]
+expect_equal(trail_payload$semantic_labels$semantic_feature_count, 6L, "six Trail labels")
+expect_equal(trail_payload$semantic_labels$anchor_count, 6L, "six Trail anchors")
+expect_equal(
+  trail_payload$semantic_labels$anchor_strategy,
+  "line_semantic_longest_component_midpoint",
+  "Trail anchor strategy"
+)
 expect_equal(length(trail_payload$categories), 6L, "six visible category rows")
 expect_equal(length(trail_payload$features), 6L, "six semantic feature catalog rows")
 expect_equal(length(trail_payload$records), 6L, "six source records")

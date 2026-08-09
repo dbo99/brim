@@ -3537,7 +3537,96 @@ pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
   })
 }
 
-pt_local_reference_controller_payload <- function(reference_layers) {
+pt_local_reference_semantic_label_payload <- function(
+    labels_all,
+    x,
+    registry_row) {
+  layer_id <- as.character(registry_row$layer_id[[1]])
+  registration <- pt_local_reference_label_registration(layer_id = layer_id)
+  if (!isTRUE(registration$lbl_available[[1]])) return(NULL)
+  label_id <- as.character(registration$label_id[[1]])
+  if (!is.list(labels_all) || !label_id %in% names(labels_all)) {
+    stop(
+      registry_row$display_name[[1]],
+      " requires registered semantic label child `", label_id, "`."
+    )
+  }
+  labels <- labels_all[[label_id]]
+  required <- c(
+    "label_id", "label_group", "label_text", "semantic_feature_key",
+    "geometry_key", "label_record_key", "anchor_strategy",
+    "anchor_priority", "min_zoom", "max_zoom"
+  )
+  missing <- setdiff(required, names(labels))
+  if (!inherits(labels, "sf") || !nrow(labels) || length(missing)) {
+    stop(
+      registry_row$display_name[[1]],
+      " semantic label child is invalid; missing: ",
+      paste(missing, collapse = ", ")
+    )
+  }
+  expected_semantic <- unique(as.character(
+    x$pt_local_reference_semantic_key
+  ))
+  label_semantic <- unique(as.character(labels$semantic_feature_key))
+  if (!setequal(expected_semantic, label_semantic)) {
+    stop(
+      registry_row$display_name[[1]],
+      " semantic label IDs do not match the map cache."
+    )
+  }
+  visible_component_aware <- isTRUE(
+    registration$visible_component_aware[[1]]
+  )
+  if (visible_component_aware && !all(
+    labels$geometry_key %in% x$pt_local_reference_geometry_key
+  )) {
+    stop(
+      registry_row$display_name[[1]],
+      " label anchors contain unknown geometry-component IDs."
+    )
+  }
+  coords <- sf::st_coordinates(sf::st_transform(labels, 4326))
+  if (nrow(coords) != nrow(labels) || any(!is.finite(coords[, 1:2]))) {
+    stop(registry_row$display_name[[1]], " label anchors are not valid points.")
+  }
+  label_groups <- unique(as.character(labels$label_group))
+  strategies <- unique(as.character(labels$anchor_strategy))
+  min_zoom <- unique(as.numeric(labels$min_zoom))
+  max_zoom <- unique(as.numeric(labels$max_zoom))
+  if (length(label_groups) != 1L || length(strategies) != 1L ||
+      length(min_zoom) != 1L || length(max_zoom) != 1L) {
+    stop(registry_row$display_name[[1]], " label child metadata is inconsistent.")
+  }
+  records <- lapply(seq_len(nrow(labels)), function(index) {
+    list(
+      label_record_key = as.character(labels$label_record_key[[index]]),
+      semantic_feature_key =
+        as.character(labels$semantic_feature_key[[index]]),
+      geometry_key = as.character(labels$geometry_key[[index]]),
+      anchor_priority = as.integer(labels$anchor_priority[[index]])
+    )
+  })
+  list(
+    available = TRUE,
+    label_id = label_id,
+    label_group = sub(
+      "^Labels:\\s*", "Labels – ", label_groups[[1]],
+      perl = TRUE
+    ),
+    anchor_strategy = strategies[[1]],
+    visible_component_aware = visible_component_aware,
+    min_zoom = min_zoom[[1]],
+    max_zoom = max_zoom[[1]],
+    semantic_feature_count = length(label_semantic),
+    anchor_count = nrow(labels),
+    records = records
+  )
+}
+
+pt_local_reference_controller_payload <- function(
+    reference_layers,
+    labels_all = NULL) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
       "phase2_trails", "phase1_wsa", "phase3_federal_wilderness", "phase4_acec"
@@ -3699,6 +3788,11 @@ pt_local_reference_controller_payload <- function(reference_layers) {
         })
       )
     })
+    semantic_labels <- pt_local_reference_semantic_label_payload(
+      labels_all,
+      x,
+      row
+    )
     list(
       layer_id = row$layer_id,
       source_nickname = row$source_nickname,
@@ -3736,6 +3830,7 @@ pt_local_reference_controller_payload <- function(reference_layers) {
       quick_views = lapply(row$quick_views[[1]], identity),
       features = features,
       records = records,
+      semantic_labels = semantic_labels,
       federal_wilderness = if (is_federal_wilderness) {
         pt_local_reference_fw_popup_payload(
           fw_components, fw_reference, fw_designations, fw_documents,
@@ -3766,6 +3861,7 @@ pt_local_reference_controller_payload <- function(reference_layers) {
 pt_add_local_reference_controller <- function(
   m,
   reference_layers,
+  labels_all = NULL,
   engine_js_path = file.path(
     "03_functions", "js", "brim_local_reference_filter_engine.js"
   ),
@@ -3773,7 +3869,7 @@ pt_add_local_reference_controller <- function(
     "03_functions", "js", "brim_local_reference_controller.js"
   )
 ) {
-  payload <- pt_local_reference_controller_payload(reference_layers)
+  payload <- pt_local_reference_controller_payload(reference_layers, labels_all)
   if (!length(payload)) return(m)
   missing_js <- c(engine_js_path, controller_js_path)[
     !file.exists(c(engine_js_path, controller_js_path))

@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 
 expect_equal <- function(actual, expected, label) {
@@ -400,9 +402,20 @@ stopifnot(identical(wsa$fill_opacity, category$fill_opacity[style_match]))
 stopifnot(identical(wsa$line_weight, category$stroke_weight[style_match]))
 stopifnot(identical(wsa$line_dash, category$dash_array[style_match]))
 
-payload <- pt_local_reference_controller_payload(list(wildernessstudyarea = wsa))
+wsa_layers <- list(wildernessstudyarea = wsa)
+payload <- pt_local_reference_controller_payload(
+  wsa_layers,
+  pt_build_registered_local_reference_label_children(wsa_layers)
+)
 expect_equal(length(payload), 1L, "Phase 1 controller payload count")
 expect_equal(payload[[1]]$layer_id, "wilderness_study_areas", "WSA controller layer")
+expect_equal(payload[[1]]$semantic_labels$semantic_feature_count, 63L, "WSA semantic labels")
+expect_equal(payload[[1]]$semantic_labels$anchor_count, 63L, "WSA label anchors")
+expect_equal(
+  payload[[1]]$semantic_labels$anchor_strategy,
+  "polygon_semantic_point_on_surface",
+  "WSA anchor strategy"
+)
 stopifnot(isTRUE(payload[[1]]$auto_supported), isTRUE(payload[[1]]$auto_default))
 stopifnot(isTRUE(payload[[1]]$feature_selection_supported))
 expect_equal(payload[[1]]$feature_selection_mode, "semantic_feature_multi", "WSA payload selection mode")

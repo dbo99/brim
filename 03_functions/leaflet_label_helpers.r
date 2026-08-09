@@ -134,6 +134,13 @@ pt_label_disable_zoom <- function(label_id, label_sf) {
   )
 }
 
+pt_is_local_reference_semantic_label_layer <- function(label_sf) {
+  inherits(label_sf, "sf") && all(c(
+    "semantic_feature_key", "geometry_key", "label_record_key",
+    "anchor_strategy", "anchor_priority"
+  ) %in% names(label_sf))
+}
+
 # ==== 3. Add one label layer =================================================
 
 pt_add_single_label_layer <- function(m, label_sf) {
@@ -160,6 +167,33 @@ pt_add_single_label_layer <- function(m, label_sf) {
   )
   
   css_class <- paste0("pt-label pt-label-", label_id)
+
+  ## Registered Local Reference anchors remain individually addressable so the
+  ## shared controller can reconcile them against its applied semantic result
+  ## set. Zoom visibility is enforced by that controller; these modest layers
+  ## do not need a second cluster/filter implementation.
+  if (pt_is_local_reference_semantic_label_layer(label_sf)) {
+    return(m |>
+      leaflet::addLabelOnlyMarkers(
+        data = label_df,
+        lng = ~lng,
+        lat = ~lat,
+        group = label_group,
+        layerId = ~label_record_key,
+        label = ~label_text,
+        labelOptions = leaflet::labelOptions(
+          noHide = TRUE,
+          direction = "center",
+          textOnly = TRUE,
+          opacity = 1,
+          className = css_class
+        ),
+        options = leaflet::markerOptions(
+          pane = "pane_labels_poly",
+          interactive = FALSE
+        )
+      ))
+  }
   
   m |>
     leaflet::addLabelOnlyMarkers(

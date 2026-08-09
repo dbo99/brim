@@ -922,8 +922,20 @@ function(el, x, data) {
     var layerManager = map.layerManager || {};
     var groupTable = (layerManager._byGroup || {})[groupName] || {};
     var groupRoot = layerManager._groupContainers ? layerManager._groupContainers[groupName] : null;
+    var semanticLabelData = layerData.semantic_labels || null;
+    var labelGroupName = semanticLabelData ?
+      String(semanticLabelData.label_group || '') : '';
+    var labelGroupTable = labelGroupName ?
+      ((layerManager._byGroup || {})[labelGroupName] || {}) : {};
+    var labelGroupRoot = labelGroupName && layerManager._groupContainers ?
+      layerManager._groupContainers[labelGroupName] : null;
     var recordByGeometry = Object.create(null);
     var layerByGeometry = Object.create(null);
+    var labelRecordByKey = Object.create(null);
+    var labelLayerByKey = Object.create(null);
+    var labelRecordsBySemantic = Object.create(null);
+    var selectedLabelRecordKeys = Object.create(null);
+    var unresolvedVisibleLabelCount = 0;
     var card = null;
     var control = null;
     var detachable = null;
@@ -1067,6 +1079,48 @@ function(el, x, data) {
       var id = layerId(layer);
       if (recordByGeometry[id]) layerByGeometry[id] = layer;
     });
+    if (semanticLabelData) {
+      (semanticLabelData.records || []).forEach(function(record) {
+        var key = String(record.label_record_key || '');
+        var semanticKey = String(record.semantic_feature_key || '');
+        if (!key || !semanticKey || labelRecordByKey[key]) {
+          throw new Error(
+            'Local Reference semantic labels require unique record and semantic keys.'
+          );
+        }
+        record.label_record_key = key;
+        record.semantic_feature_key = semanticKey;
+        record.geometry_key = String(record.geometry_key || '');
+        record.anchor_priority = Math.max(
+          1, Number(record.anchor_priority) || 1
+        );
+        labelRecordByKey[key] = record;
+        if (!labelRecordsBySemantic[semanticKey]) {
+          labelRecordsBySemantic[semanticKey] = [];
+        }
+        labelRecordsBySemantic[semanticKey].push(record);
+      });
+      Object.keys(labelRecordsBySemantic).forEach(function(semanticKey) {
+        labelRecordsBySemantic[semanticKey].sort(function(left, right) {
+          return left.anchor_priority - right.anchor_priority ||
+            left.geometry_key.localeCompare(right.geometry_key) ||
+            left.label_record_key.localeCompare(right.label_record_key);
+        });
+      });
+      Object.keys(labelGroupTable).forEach(function(stamp) {
+        var labelLayer = labelGroupTable[stamp];
+        var labelKey = layerId(labelLayer);
+        if (labelRecordByKey[labelKey]) labelLayerByKey[labelKey] = labelLayer;
+      });
+      if (!labelGroupRoot ||
+          Object.keys(labelLayerByKey).length !==
+            Object.keys(labelRecordByKey).length) {
+        throw new Error(
+          'Local Reference semantic label layers did not resolve completely for ' +
+          String(layerData.display_name || layerData.layer_id || 'layer') + '.'
+        );
+      }
+    }
     if (federalData) {
       Object.keys(layerByGeometry).forEach(function(key) {
         var layer = layerByGeometry[key];
@@ -1126,6 +1180,86 @@ function(el, x, data) {
       return !!(groupRoot && groupRoot.hasLayer && groupRoot.hasLayer(layer));
     }
 
+    function labelRootHas(layer) {
+      return !!(
+        labelGroupRoot && labelGroupRoot.hasLayer &&
+        labelGroupRoot.hasLayer(layer)
+      );
+    }
+
+    function labelsEnabled() {
+      return !!(
+        labelGroupRoot && map.hasLayer && map.hasLayer(labelGroupRoot)
+      );
+    }
+
+    function labelZoomVisible() {
+      if (!semanticLabelData) return false;
+      var minZoom = semanticLabelData.min_zoom == null ?
+        -Infinity : Number(semanticLabelData.min_zoom);
+      var maxZoom = semanticLabelData.max_zoom == null ?
+        Infinity : Number(semanticLabelData.max_zoom);
+      var zoom = map && typeof map.getZoom === 'function' ?
+        Number(map.getZoom()) : minZoom;
+      if (!isFinite(zoom)) zoom = isFinite(minZoom) ? minZoom : 0;
+      return (!isFinite(minZoom) || zoom >= minZoom) &&
+        (!isFinite(maxZoom) || zoom <= maxZoom);
+    }
+
+    function semanticLabelMemberCount() {
+      return labelGroupRoot && typeof labelGroupRoot.getLayers === 'function' ?
+        labelGroupRoot.getLayers().length :
+        Object.keys(labelLayerByKey).filter(function(key) {
+          return labelRootHas(labelLayerByKey[key]);
+        }).length;
+    }
+
+    function renderedSemanticLabelCount() {
+      return labelsEnabled() && labelZoomVisible() ?
+        Object.keys(selectedLabelRecordKeys).length : 0;
+    }
+
+    function reconcileSemanticLabels(snapshot) {
+      if (!semanticLabelData || !labelGroupRoot) return;
+      var next = Object.create(null);
+      unresolvedVisibleLabelCount = 0;
+      if (active && labelZoomVisible() && snapshot) {
+        var visibleGeometry = Object.create(null);
+        (snapshot.visible_geometry_keys || []).forEach(function(key) {
+          visibleGeometry[String(key)] = true;
+        });
+        (snapshot.visible_semantic_feature_keys || []).forEach(
+          function(semanticKey) {
+            semanticKey = String(semanticKey);
+            var candidates = labelRecordsBySemantic[semanticKey] || [];
+            var chosen = null;
+            if (semanticLabelData.visible_component_aware === true) {
+              for (var index = 0; index < candidates.length; index += 1) {
+                if (visibleGeometry[candidates[index].geometry_key]) {
+                  chosen = candidates[index];
+                  break;
+                }
+              }
+            } else if (candidates.length) {
+              chosen = candidates[0];
+            }
+            if (chosen) next[chosen.label_record_key] = true;
+            else unresolvedVisibleLabelCount += 1;
+          }
+        );
+      }
+      Object.keys(labelLayerByKey).forEach(function(key) {
+        var labelLayer = labelLayerByKey[key];
+        if (next[key] && !labelRootHas(labelLayer)) {
+          labelGroupRoot.addLayer(labelLayer);
+        }
+        if (!next[key] && labelRootHas(labelLayer)) {
+          labelGroupRoot.removeLayer(labelLayer);
+        }
+      });
+      selectedLabelRecordKeys = next;
+    }
+
     function ownedLayers() {
       return Object.keys(layerByGeometry).map(function(key) {
         return layerByGeometry[key];
@@ -1159,6 +1293,23 @@ function(el, x, data) {
       el.setAttribute(diagnosticPrefix + 'attached-layer-count', String(attachedOwnedLayerCount()));
       el.setAttribute(diagnosticPrefix + 'group-member-count', String(groupMemberCount()));
       el.setAttribute(diagnosticPrefix + 'card-count', card ? '1' : '0');
+      if (semanticLabelData) {
+        el.setAttribute(
+          diagnosticPrefix + 'labels-enabled', labelsEnabled() ? 'true' : 'false'
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'visible-label-count',
+          String(renderedSemanticLabelCount())
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'label-group-member-count',
+          String(semanticLabelMemberCount())
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'unresolved-visible-label-count',
+          String(unresolvedVisibleLabelCount)
+        );
+      }
       el.setAttribute(
         diagnosticPrefix + 'distinguish-units', distinguishUnits ? 'true' : 'false'
       );
@@ -1194,7 +1345,9 @@ function(el, x, data) {
       [
         'active', 'semantic-count', 'component-count', 'attached-layer-count',
         'group-member-count', 'card-count', 'distinguish-units',
-        'pending-callback-count', 'value-style-mode', 'value-style-key',
+        'pending-callback-count', 'labels-enabled', 'visible-label-count',
+        'label-group-member-count', 'unresolved-visible-label-count',
+        'value-style-mode', 'value-style-key',
         'value-style-color', 'distinguish-overlaps',
         'active-overlap-pair-count', 'active-overlap-participant-count',
         'overlap-color-conflict-count'
@@ -1215,6 +1368,7 @@ function(el, x, data) {
         if (!visible[key] && rootHas(layer)) groupRoot.removeLayer(layer);
       });
       applyRecordStyles(snapshot);
+      reconcileSemanticLabels(snapshot);
     }
 
     function stableHash(value) {
@@ -1410,6 +1564,11 @@ function(el, x, data) {
 
     function eventMatches(event) {
       return !!event && String(event.name || '') === groupName;
+    }
+
+    function labelEventMatches(event) {
+      return !!event && !!labelGroupName &&
+        String(event.name || '') === labelGroupName;
     }
 
     function setCardVisible() {
@@ -2108,12 +2267,32 @@ function(el, x, data) {
       }
     }
 
+    function detachOwnedSemanticLabels() {
+      if (!semanticLabelData || !labelGroupRoot) return;
+      Object.keys(labelLayerByKey).forEach(function(key) {
+        var labelLayer = labelLayerByKey[key];
+        if (labelRootHas(labelLayer) && labelGroupRoot.removeLayer) {
+          labelGroupRoot.removeLayer(labelLayer);
+        }
+        if (map.hasLayer && map.hasLayer(labelLayer) && map.removeLayer) {
+          map.removeLayer(labelLayer);
+        }
+      });
+      if (labelGroupRoot && map.hasLayer && map.hasLayer(labelGroupRoot) &&
+          map.removeLayer) {
+        map.removeLayer(labelGroupRoot);
+      }
+      selectedLabelRecordKeys = Object.create(null);
+      unresolvedVisibleLabelCount = 0;
+    }
+
     function teardownInactiveLayer() {
       active = false;
       hiddenByClose = false;
       closeSuggestions();
       closeOwnedPresentation();
       detachOwnedGeometry();
+      detachOwnedSemanticLabels();
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
@@ -2136,6 +2315,11 @@ function(el, x, data) {
     }
 
     function onOverlayAdd(event) {
+      if (labelEventMatches(event)) {
+        reconcileSemanticLabels(engine.snapshot());
+        writeDiagnostics(engine.snapshot());
+        return;
+      }
       if (!eventMatches(event)) return;
       active = true;
       hiddenByClose = false;
@@ -2149,8 +2333,19 @@ function(el, x, data) {
     }
 
     function onOverlayRemove(event) {
+      if (labelEventMatches(event)) {
+        writeDiagnostics(engine.snapshot());
+        return;
+      }
       if (!eventMatches(event)) return;
       teardownInactiveLayer();
+    }
+
+    function onZoomEnd() {
+      if (!semanticLabelData) return;
+      var snapshot = engine.snapshot();
+      reconcileSemanticLabels(snapshot);
+      writeDiagnostics(snapshot);
     }
 
     function onPopupOpen(event) {
@@ -2178,6 +2373,7 @@ function(el, x, data) {
       destroy: destroy,
       onOverlayAdd: onOverlayAdd,
       onOverlayRemove: onOverlayRemove,
+      onZoomEnd: onZoomEnd,
       onPopupOpen: onPopupOpen,
       resolvedLayerCount: function() { return Object.keys(layerByGeometry).length; },
       expectedLayerCount: function() { return layerData.records.length; },
@@ -2196,6 +2392,11 @@ function(el, x, data) {
           card_count: card ? 1 : 0,
           pending_controller_callback_count: suggestionCloseTimer === null ? 0 : 1,
           controller_created_group_count: 0,
+          labels_enabled: labelsEnabled(),
+          visible_label_count: renderedSemanticLabelCount(),
+          label_group_member_count: semanticLabelMemberCount(),
+          label_anchor_count: Object.keys(labelRecordByKey).length,
+          unresolved_visible_label_count: unresolvedVisibleLabelCount,
           distinguish_units: distinguishUnits,
           distinguish_overlaps: acecDistinguishOverlaps,
           active_overlap_pair_count: acecActiveOverlapPairCount,
@@ -2233,6 +2434,9 @@ function(el, x, data) {
   listen(map, 'popupopen', function(event) {
     onAnyPopupOpen(event);
     controllers.forEach(function(controller) { controller.onPopupOpen(event); });
+  });
+  listen(map, 'zoomend', function() {
+    controllers.forEach(function(controller) { controller.onZoomEnd(); });
   });
 
   function destroy() {

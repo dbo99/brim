@@ -91,15 +91,23 @@ acec_map <- pt_prepare_local_reference_acec(
 reference_after <- reference_before
 reference_after[[ACEC_NICKNAME]] <- acec_map
 
-acec_labels <- pt_make_polygon_labels(
+acec_label_registration <- pt_local_reference_label_registration(
+  source_nickname = ACEC_NICKNAME
+)
+acec_labels <- pt_make_local_reference_labels(
   acec_map,
-  label_id = ACEC_NICKNAME,
-  label_field = LABEL_FIELDS[[ACEC_NICKNAME]]
+  acec_label_registration
 )
 if (!inherits(acec_labels, "sf") || nrow(acec_labels) != 238L ||
+    length(unique(acec_labels$semantic_feature_key)) != 238L ||
     any(!nzchar(pt_local_reference_clean_chr(acec_labels$label_text)))) {
   stop("ACEC label child must retain 238 nonblank semantic labels.")
 }
+pt_validate_local_reference_label_anchors(
+  acec_labels,
+  acec_map,
+  acec_label_registration
+)
 labels_after <- labels_before
 labels_after[[ACEC_NICKNAME]] <- acec_labels
 

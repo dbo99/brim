@@ -7,6 +7,8 @@ suppressPackageStartupMessages({
 })
 
 source("00_config/config_local_reference_interactions.r")
+source("00_config/config_labels.r")
+source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
 source("03_functions/leaflet_layer_local_core_helpers.r")
 source("03_functions/leaflet_layer_local_reference_helpers.r")
@@ -107,8 +109,13 @@ stopifnot(identical(processed$pt_local_reference_category_key[processed_index], 
 stopifnot(!any(sf::st_is_empty(processed[processed_index, ])))
 stopifnot(all(sf::st_is_valid(processed[processed_index, ])))
 
+map_ready_layers <- list(wildernessstudyarea = map_ready)
+map_ready_labels <- pt_build_registered_local_reference_label_children(
+  map_ready_layers
+)
 payload <- pt_local_reference_controller_payload(
-  list(wildernessstudyarea = map_ready)
+  map_ready_layers,
+  map_ready_labels
 )[[1]]
 stopifnot(isTRUE(payload$feature_selection_supported))
 stopifnot(identical(payload$feature_selection_mode, "semantic_feature_multi"))
@@ -198,7 +205,8 @@ probe <- leaflet::leaflet() |>
 probe <- pt_add_reference_layers(
   probe,
   list(wildernessstudyarea = map_ready),
-  list(add_reference_layers = TRUE, add_labels = FALSE)
+  list(add_reference_layers = TRUE, add_labels = FALSE),
+  labels_all = map_ready_labels
 )
 polygon_call <- which(vapply(
   probe$x$calls,

@@ -378,7 +378,7 @@ pt_add_layer_control_headers <- function(m) {
   )
   
   js <- r"---(
-function(el, x) {
+function(el, x, data) {
   
   function enhanceLayerControl() {
     
@@ -782,40 +782,10 @@ function(el, x) {
     }
 
     function installInlineLabelToggles(container, rowLabels) {
-      // Keep this registry deliberately tied to the actual companion rows
-      // that exist in the current Labels group.  Do not add future/config-only
-      // label candidates here until they are real visible label overlay rows.
-      // Keep current companion rows hidden behind their source-layer lbl toggle.
-      var pairs = [
-        {main: 'BLM Field Office Boundaries', label: 'BLM Field Office (outer)'},
-        {main: 'GW Basins, Bulletin 118', label: 'GW – Bull. 118'},
-        {main: 'Counties', label: 'Counties'},
-        {main: 'HUC2 – PRISM/BCMv8', label: 'HUC2'},
-        {main: 'HUC4 – PRISM/BCMv8', label: 'HUC4'},
-        {main: 'HUC6 – PRISM/BCMv8', label: 'HUC6'},
-        {main: 'HUC8 – PRISM/BCMv8', label: 'HUC8'},
-        {main: 'HUC10 – PRISM/BCMv8', label: 'HUC10'},
-        {main: 'HUC12 – PRISM/BCMv8', label: 'HUC12'},
-        {main: 'CNRFC Product Availability', label: 'CNRFC Product Availability'},
-        {main: 'CNRFC weather station catalog', label: 'CNRFC Precip Gages'},
-        {main: 'CNRFC river/reservoir catalog', label: 'CNRFC Stream Gages'},
-        {main: 'USGS streamgages', label: 'USGS streamgages'},
-        {main: 'BLM-drilled wells | NOC', label: 'BLM-drilled wells | NOC'},
-        {main: 'GW wells | 2025 Mojave-BLM limited field check', label: 'GW wells | 2025 Mojave-BLM limited field check'},
-        {main: 'Springs', label: 'Springs'},
-        {main: 'Water rights POD | SWRCB 2026 BLM list', label: 'Water rights POD | SWRCB 2026 BLM list'},
-        {main: 'Water rights POD | BRIM spatial BLM match', label: 'Water rights POD | BRIM spatial BLM match'},
-        {main: 'Water rights POD | BRIM name/text BLM candidate', label: 'Water rights POD | BRIM name/text BLM candidate'},
-        {main: 'CNRFC FNF Sha/Tri/west Sierra Basins', label: 'CNRFC FNF Sha/Tri/west Sierra Basins'},
-        {main: 'Groundwater Sustainability Plan Areas', label: 'Groundwater Sustainability Plan Areas'},
-        {main: 'Adjudicated Groundwater Basins', label: 'Adjudicated Groundwater Basins'},
-        {main: 'Federal Wilderness', label: 'Federal Wilderness'},
-        {main: 'ACECs', label: 'ACECs'},
-        {main: 'CalSim3.0', label: 'CalSim3.0'},
-        {main: 'Water conveyance | BRIM mapped', label: 'Water conveyance | BRIM mapped'},
-        {main: 'Water Districts', label: 'Water Districts'},
-        {main: 'RWQCB Regions', label: 'RWQCB Regions'}
-      ];
+      // config_labels.r is the single inline-pair registry. Keep current
+      // companion rows hidden behind their source-layer LBL toggle.
+      var pairs = data && Array.isArray(data.inlineLabelPairs) ?
+        data.inlineLabelPairs : [];
 
       pairs.forEach(function(pair) {
         var mainRow = findLayerRow(rowLabels, pair.main, false);
@@ -956,7 +926,21 @@ function(el, x) {
 }
 )---"
   
-  htmlwidgets::onRender(m, js)
+  inline_label_pairs <- if (exists("INLINE_LABEL_PAIRS")) {
+    lapply(seq_len(nrow(INLINE_LABEL_PAIRS)), function(i) {
+      list(
+        main = as.character(INLINE_LABEL_PAIRS$main_name[[i]]),
+        label = as.character(INLINE_LABEL_PAIRS$label_name[[i]])
+      )
+    })
+  } else {
+    list()
+  }
+  htmlwidgets::onRender(
+    m,
+    js,
+    data = list(inlineLabelPairs = inline_label_pairs)
+  )
 }
 
 

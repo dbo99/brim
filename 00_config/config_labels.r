@@ -83,6 +83,8 @@ LABEL_ZOOM <- tibble::tribble(
   "cnrfc_basins",         "CNRFC Product Availability", "Labels: CNRFC Product Availability", 7.0,       Inf,
   "acec",                 "ACECs",                 "Labels: ACECs",                  8.0,       Inf,
   "fedwilderness",        "Federal Wilderness",    "Labels: Federal Wilderness",     8.0,       Inf,
+  "wildernessstudyarea",  "Wilderness Study Areas", "Labels: Wilderness Study Areas", 8.0,       Inf,
+  "trails",               "National Scenic/Historic Trails", "Labels: National Scenic/Historic Trails", 7.0, Inf,
   "wilderness",           "Wilderness",            "Labels: Wilderness",             8.0,       Inf,
   "wild_scenic_corridor", "Wild & Scenic Rivers",  "Labels: Wild & Scenic Rivers",   8.5,       Inf,
   "wild_scenic_reaches",  "W&S River Reaches",     "Labels: W&S River Reaches",     10.0,       Inf,
@@ -131,6 +133,8 @@ LABEL_INCLUDE <- list(
   field_office_outer = TRUE,
   acec = TRUE,
   fedwilderness = TRUE,
+  wildernessstudyarea = TRUE,
+  trails = TRUE,
   wilderness = TRUE,
   wild_scenic_corridor = TRUE,
   wild_scenic_reaches = TRUE,
@@ -177,6 +181,8 @@ LABEL_FIELDS <- list(
   ## These fields must match the cached reference layer fields exactly.
   fedwilderness = "pt_reference_label_text",
   acec          = "pt_reference_label_text",
+  wildernessstudyarea = "pt_reference_label_text",
+  trails             = "pt_reference_label_text",
   allotments    = "ALLOT_NAME",
   
   ## Water districts are cached with a cleaned display field created during
@@ -247,7 +253,10 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Adjudicated Groundwater Basins",
     "Federal Wilderness",
     "ACECs",
+    "Wilderness Study Areas",
+    "National Scenic/Historic Trails",
     "CalSim3.0",
+    "Water conveyance | BRIM mapped",
     "Water Districts",
     "RWQCB Regions"
   ),
@@ -276,15 +285,55 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Adjudicated Groundwater Basins",
     "Federal Wilderness",
     "ACECs",
+    "Wilderness Study Areas",
+    "National Scenic/Historic Trails",
     "CalSim3.0",
+    "Water conveyance | BRIM mapped",
     "Water Districts",
     "RWQCB Regions"
   ),
   stringsAsFactors = FALSE
 )
 
-# ==== 6. Console confirmation ================================================
+# ==== 6. Local Reference semantic-label registry ============================
+##
+## This is the opt-in contract for filter-aware Local Reference labels. The
+## filter controller remains the sole owner of applied visibility. Registered
+## label records supply only public text, deterministic anchors, and the
+## optional geometry-component relationship needed to choose an anchor that is
+## still inside a visible component.
+
+LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY <- data.frame(
+  layer_id = c(
+    "acec", "federal_wilderness", "wilderness_study_areas",
+    "national_scenic_historic_trails"
+  ),
+  source_nickname = c(
+    "acec", "fedwilderness", "wildernessstudyarea", "trails"
+  ),
+  label_id = c(
+    "acec", "fedwilderness", "wildernessstudyarea", "trails"
+  ),
+  semantic_id_field = rep("pt_local_reference_semantic_key", 4),
+  geometry_id_field = rep("pt_local_reference_geometry_key", 4),
+  label_text_field = rep("pt_reference_label_text", 4),
+  anchor_strategy = c(
+    "polygon_semantic_point_on_surface",
+    "polygon_visible_component_point_on_surface",
+    "polygon_semantic_point_on_surface",
+    "line_semantic_longest_component_midpoint"
+  ),
+  visible_component_aware = c(FALSE, TRUE, FALSE, FALSE),
+  lbl_available = rep(TRUE, 4),
+  stringsAsFactors = FALSE
+)
+
+# ==== 7. Console confirmation ================================================
 
 message("PortaTreasure2 label configuration loaded.")
 message("Configured label zoom thresholds: ", nrow(LABEL_ZOOM))
 message("Configured inline lbl pairs: ", nrow(INLINE_LABEL_PAIRS))
+message(
+  "Configured Local Reference semantic labels: ",
+  nrow(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY)
+)

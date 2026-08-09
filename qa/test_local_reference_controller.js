@@ -166,7 +166,14 @@ const layers = {
   g3: fakeLayer('g3'),
   g4: fakeLayer('g4')
 };
+const labelLayers = {
+  l1: fakeLayer('synthetic::f1::g1'),
+  l2: fakeLayer('synthetic::f2::g2'),
+  l3g3: fakeLayer('synthetic::f3::g3'),
+  l3g4: fakeLayer('synthetic::f3::g4')
+};
 const rootMembers = new Set(Object.values(layers));
+const labelRootMembers = new Set(Object.values(labelLayers));
 const directMembers = new Set();
 const groupRoot = {
   hasLayer: layer => rootMembers.has(layer),
@@ -175,24 +182,44 @@ const groupRoot = {
   clearLayers: () => rootMembers.clear(),
   getLayers: () => Array.from(rootMembers)
 };
+const labelGroupRoot = {
+  hasLayer: layer => labelRootMembers.has(layer),
+  addLayer: layer => labelRootMembers.add(layer),
+  removeLayer: layer => labelRootMembers.delete(layer),
+  clearLayers: () => labelRootMembers.clear(),
+  getLayers: () => Array.from(labelRootMembers)
+};
 const mapListeners = Object.create(null);
 const map = {
   rootActive: true,
+  labelRootActive: true,
+  currentZoom: 8,
   fitBoundsCalls: [],
   closePopupCalls: 0,
   layerManager: {
-    _byGroup: {'Reference – Synthetic': layers},
-    _groupContainers: {'Reference – Synthetic': groupRoot}
+    _byGroup: {
+      'Reference – Synthetic': layers,
+      'Labels – Synthetic': labelLayers
+    },
+    _groupContainers: {
+      'Reference – Synthetic': groupRoot,
+      'Labels – Synthetic': labelGroupRoot
+    }
   },
   hasLayer: function(layer) {
     if (layer === groupRoot) return this.rootActive;
-    return directMembers.has(layer) || (this.rootActive && rootMembers.has(layer));
+    if (layer === labelGroupRoot) return this.labelRootActive;
+    return directMembers.has(layer) ||
+      (this.rootActive && rootMembers.has(layer)) ||
+      (this.labelRootActive && labelRootMembers.has(layer));
   },
   removeLayer: function(layer) {
     if (layer === groupRoot) this.rootActive = false;
+    else if (layer === labelGroupRoot) this.labelRootActive = false;
     else directMembers.delete(layer);
     return this;
   },
+  getZoom: function() { return this.currentZoom; },
   fitBounds: function(bounds, options) { this.fitBoundsCalls.push({bounds, options}); },
   closePopup: function() { this.closePopupCalls += 1; },
   on: function(names, handler) {
@@ -246,14 +273,31 @@ const payload = [{
   features: [
     {semantic_feature_key: 'f1', feature_key: 'f1', display_name: 'Alpha Ridge', category_keys: ['a'], search_text: 'alpha ridge nlcs-001', semantic_feature_bounds: [10, 10, 11, 11], geometry_component_count: 2},
     {semantic_feature_key: 'f2', feature_key: 'f2', display_name: 'Beta <script>alert(1)</script> Canyon', category_keys: ['a'], search_text: 'beta canyon nlcs-002', semantic_feature_bounds: [20, 20, 20.02, 20.02], geometry_component_count: 1},
-    {semantic_feature_key: 'f3', feature_key: 'f3', display_name: 'Gamma Mountain', category_keys: ['b'], search_text: 'gamma mountain nlcs-003', semantic_feature_bounds: [30, 30, 32, 34], geometry_component_count: 5}
+    {semantic_feature_key: 'f3', feature_key: 'f3', display_name: 'Gamma Mountain', category_keys: ['b', 'c'], search_text: 'gamma mountain nlcs-003', semantic_feature_bounds: [30, 30, 32, 34], geometry_component_count: 5}
   ],
   records: [
     {geometry_key: 'g1', feature_key: 'f1', semantic_feature_key: 'f1', feature_display_name: 'Alpha Ridge', category_key: 'a', search_text: 'alpha ridge', semantic_feature_bounds: [10, 10, 11, 11], geometry_component_count: 2},
     {geometry_key: 'g2', feature_key: 'f2', semantic_feature_key: 'f2', feature_display_name: 'Beta Canyon', category_key: 'a', search_text: 'beta canyon', semantic_feature_bounds: [20, 20, 20.02, 20.02], geometry_component_count: 1},
     {geometry_key: 'g3', feature_key: 'f3', semantic_feature_key: 'f3', feature_display_name: 'Gamma Mountain', category_key: 'b', search_text: 'gamma mountain', semantic_feature_bounds: [30, 30, 32, 34], geometry_component_count: 3},
-    {geometry_key: 'g4', feature_key: 'f3', semantic_feature_key: 'f3', feature_display_name: 'Gamma Mountain', category_key: 'b', search_text: 'gamma mountain', semantic_feature_bounds: [30, 30, 32, 34], geometry_component_count: 2}
-  ]
+    {geometry_key: 'g4', feature_key: 'f3', semantic_feature_key: 'f3', feature_display_name: 'Gamma Mountain', category_key: 'c', search_text: 'gamma mountain', semantic_feature_bounds: [30, 30, 32, 34], geometry_component_count: 2}
+  ],
+  semantic_labels: {
+    available: true,
+    label_id: 'synthetic',
+    label_group: 'Labels – Synthetic',
+    anchor_strategy: 'polygon_visible_component_point_on_surface',
+    visible_component_aware: true,
+    min_zoom: 8,
+    max_zoom: null,
+    semantic_feature_count: 3,
+    anchor_count: 4,
+    records: [
+      {label_record_key: 'synthetic::f1::g1', semantic_feature_key: 'f1', geometry_key: 'g1', label_text: 'Alpha Ridge', anchor_priority: 1, lng: 10, lat: 10},
+      {label_record_key: 'synthetic::f2::g2', semantic_feature_key: 'f2', geometry_key: 'g2', label_text: 'Beta Canyon', anchor_priority: 1, lng: 20, lat: 20},
+      {label_record_key: 'synthetic::f3::g4', semantic_feature_key: 'f3', geometry_key: 'g4', label_text: 'Gamma Mountain', anchor_priority: 1, lng: 31, lat: 31},
+      {label_record_key: 'synthetic::f3::g3', semantic_feature_key: 'f3', geometry_key: 'g3', label_text: 'Gamma Mountain', anchor_priority: 2, lng: 30, lat: 30}
+    ]
+  }
 }];
 
 const controllerSource = fs.readFileSync(
@@ -292,6 +336,15 @@ assert.deepStrictEqual(stats.counts.currently_showing, stats.counts.total);
 assert.strictEqual(stats.resolved_leaflet_layers, 4);
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '3');
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '8');
+assert.strictEqual(labelRootMembers.size, 3);
+assert.deepStrictEqual(
+  Array.from(labelRootMembers).map(layer => layer.options.layerId).sort(),
+  ['synthetic::f1::g1', 'synthetic::f2::g2', 'synthetic::f3::g4']
+);
+assert.strictEqual(stats.labels_enabled, true);
+assert.strictEqual(stats.visible_label_count, 3);
+assert.strictEqual(stats.label_anchor_count, 4);
+assert.strictEqual(stats.unresolved_visible_label_count, 0);
 
 // Distinguish mode is available for exactly one selected category, uses a
 // deterministic semantic fill, retains category stroke, and turns itself off
@@ -422,9 +475,14 @@ stats = window.BRIM.localReferenceController.stats()[0];
 assert.deepStrictEqual(stats.draft_feature_keys, ['f1', 'f2']);
 assert.deepStrictEqual(stats.applied_feature_keys, ['f1']);
 assert.deepStrictEqual(Array.from(rootMembers), [layers.g1]);
+assert.deepStrictEqual(Array.from(labelRootMembers), [labelLayers.l1]);
 assert.strictEqual(map.fitBoundsCalls.length, beforeStagedSelection);
 card.querySelector('.pt-lr-apply').dispatch('click');
 assert.deepStrictEqual(Array.from(rootMembers), [layers.g1, layers.g2]);
+assert.deepStrictEqual(
+  Array.from(labelRootMembers).map(layer => layer.options.layerId).sort(),
+  ['synthetic::f1::g1', 'synthetic::f2::g2']
+);
 assert.strictEqual(map.fitBoundsCalls.length, beforeStagedSelection + 1);
 
 // Auto-zoom is independent; explicit Zoom to results always fits applied data.
@@ -443,15 +501,41 @@ const beforeNoZoomActions = map.fitBoundsCalls.length;
 card.querySelector('.pt-lr-none').dispatch('click');
 card.querySelector('.pt-lr-apply').dispatch('click');
 assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
+assert.strictEqual(map.labelRootActive, true, 'zero results preserve logical LBL on');
 assert.strictEqual(card.querySelector('.pt-lr-zoom-results').disabled, true);
 assert.strictEqual(map.fitBoundsCalls.length, beforeNoZoomActions);
 card.querySelector('.pt-lr-reset').dispatch('click');
 assert.strictEqual(rootMembers.size, 4);
+assert.strictEqual(labelRootMembers.size, 3);
 assert.strictEqual(map.fitBoundsCalls.length, beforeNoZoomActions);
 assert.strictEqual(search.value, '');
 assert.strictEqual(chips.innerHTML, '');
 card.querySelector('.pt-lr-all').dispatch('click');
 assert.strictEqual(map.fitBoundsCalls.length, beforeNoZoomActions);
+
+// A semantic feature with two geometry records uses the highest-priority
+// currently visible component anchor, never an anchor in a filtered component.
+const categoryC = card.querySelector('[data-pt-lr-category="c"]');
+categoryC.checked = false;
+card.dispatch('change', categoryC);
+assert.ok(rootMembers.has(layers.g3));
+assert.ok(!rootMembers.has(layers.g4));
+assert.ok(labelRootMembers.has(labelLayers.l3g3));
+assert.ok(!labelRootMembers.has(labelLayers.l3g4));
+card.querySelector('.pt-lr-reset').dispatch('click');
+assert.ok(labelRootMembers.has(labelLayers.l3g4));
+assert.ok(!labelRootMembers.has(labelLayers.l3g3));
+
+// Zoom gating empties/restores the class-owned label membership without
+// changing the LBL preference or the applied semantic result set.
+map.currentZoom = 7;
+map.fire('zoomend');
+assert.strictEqual(labelRootMembers.size, 0);
+assert.strictEqual(window.BRIM.localReferenceController.stats()[0].labels_enabled, true);
+map.currentZoom = 8;
+map.fire('zoomend');
+assert.strictEqual(labelRootMembers.size, 3);
 
 // Layer teardown is idempotent and layer-on returns to one default controller.
 search.value = 'alpha';
@@ -464,6 +548,8 @@ map.rootActive = false;
 map.fire('overlayremove', {name: 'Reference – Synthetic'});
 map.fire('overlayremove', {name: 'Reference – Synthetic'});
 assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
+assert.strictEqual(map.labelRootActive, false);
 assert.strictEqual(directMembers.size, 0);
 stats = window.BRIM.localReferenceController.stats()[0];
 assert.deepStrictEqual(stats.draft_feature_keys, []);
@@ -479,16 +565,25 @@ assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'),
 map.rootActive = true;
 map.fire('overlayadd', {name: 'Reference – Synthetic'});
 assert.strictEqual(rootMembers.size, 4);
+assert.strictEqual(labelRootMembers.size, 3);
 stats = window.BRIM.localReferenceController.stats()[0];
 assert.strictEqual(stats.active, true);
 assert.strictEqual(stats.group_root_attached, true);
 assert.strictEqual(stats.group_member_layer_count, 4);
 assert.strictEqual(stats.attached_owned_layer_count, 4);
 assert.strictEqual(stats.card_count, 1);
+assert.strictEqual(stats.labels_enabled, false);
+assert.strictEqual(stats.visible_label_count, 0);
+assert.strictEqual(stats.label_group_member_count, 3);
 assert.deepStrictEqual(stats.draft_feature_keys, []);
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-semantic-count'), '3');
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-component-count'), '8');
 assert.strictEqual(controls.length, 1);
+
+// LBL remains an independent display preference after layer reactivation.
+map.labelRootActive = true;
+map.fire('overlayadd', {name: 'Labels – Synthetic'});
+assert.strictEqual(window.BRIM.localReferenceController.stats()[0].visible_label_count, 3);
 
 // Ten full off/on cycles remain exact, default, and duplicate-free.
 for (let cycle = 0; cycle < 10; cycle += 1) {
@@ -498,12 +593,15 @@ for (let cycle = 0; cycle < 10; cycle += 1) {
   assert.strictEqual(stats.group_member_layer_count, 0, 'off cycle ' + cycle);
   assert.strictEqual(stats.attached_owned_layer_count, 0, 'off cycle ' + cycle);
   assert.strictEqual(stats.card_count, 0, 'off cycle ' + cycle);
+  assert.strictEqual(stats.label_group_member_count, 0, 'label off cycle ' + cycle);
   map.rootActive = true;
   map.fire('overlayadd', {name: 'Reference – Synthetic'});
   stats = window.BRIM.localReferenceController.stats()[0];
   assert.strictEqual(stats.group_member_layer_count, 4, 'on cycle ' + cycle);
   assert.strictEqual(stats.attached_owned_layer_count, 4, 'on cycle ' + cycle);
   assert.strictEqual(stats.card_count, 1, 'on cycle ' + cycle);
+  assert.strictEqual(stats.label_group_member_count, 3, 'label on cycle ' + cycle);
+  assert.strictEqual(stats.labels_enabled, false, 'LBL stays off after layer cycle ' + cycle);
   assert.deepStrictEqual(stats.draft_feature_keys, [], 'default chips cycle ' + cycle);
 }
 
@@ -511,7 +609,8 @@ const tooltipCloseCountBeforePopup = layers.g1.closeTooltipCalls;
 map.fire('popupopen', {popup: {_source: layers.g1}});
 assert.strictEqual(layers.g1.closeTooltipCalls, tooltipCloseCountBeforePopup + 1);
 
-assert.ok(!/zoomstart|zoomend|movestart|moveend/.test(controllerSource));
+assert.ok(!/zoomstart|movestart|moveend/.test(controllerSource));
+assert.ok(controllerSource.includes("listen(map, 'zoomend'"));
 assert.ok(controllerSource.includes("action === 'typing'"));
 assert.ok(controllerSource.includes("action === 'none'"));
 assert.ok(controllerSource.includes("action === 'reset'"));
@@ -548,6 +647,8 @@ assert.ok(controllerSource.includes('state.popup._updateLayout'));
 assert.ok(controllerSource.includes("listenDom(el, 'toggle', onTabbedPopupDetailsToggle, true)"));
 assert.ok(controllerSource.includes('teardownInactiveLayer'));
 assert.ok(controllerSource.includes('detachOwnedGeometry'));
+assert.ok(controllerSource.includes('detachOwnedSemanticLabels'));
+assert.ok(controllerSource.includes('reconcileSemanticLabels'));
 assert.ok(!controllerSource.includes('cloneNode(true)'));
 assert.ok(controllerSource.includes('overflow-wrap:break-word!important'));
 assert.ok(!controllerSource.includes('overflow-wrap:anywhere'));
@@ -559,20 +660,26 @@ assert.ok(!controllerSource.includes("' geom'"));
 window.BRIM.localReferenceController.destroy();
 assert.strictEqual(controls[0].removed, true);
 assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
 assert.strictEqual(map.rootActive, false);
+assert.strictEqual(map.labelRootActive, false);
 assert.strictEqual(mapRoot.getAttribute('data-pt-lr-synthetic-active'), null);
 assert.strictEqual((mapListeners.overlayadd || []).length, 0);
 assert.strictEqual((mapListeners.overlayremove || []).length, 0);
 assert.strictEqual((mapListeners.popupopen || []).length, 0);
+assert.strictEqual((mapListeners.zoomend || []).length, 0);
 
 // An initially inactive source group is normalized to the same zero-owned
 // invariant before any layer-on event.
 Object.values(layers).forEach(layer => rootMembers.add(layer));
+Object.values(labelLayers).forEach(layer => labelRootMembers.add(layer));
 map.rootActive = false;
+map.labelRootActive = false;
 const inactiveMapRoot = new FakeElement('map');
 controller.call(map, inactiveMapRoot, null, payload);
 stats = window.BRIM.localReferenceController.stats()[0];
 assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
 assert.strictEqual(stats.active, false);
 assert.strictEqual(stats.group_member_layer_count, 0);
 assert.strictEqual(stats.attached_owned_layer_count, 0);

@@ -3133,7 +3133,11 @@ pt_reference_overlay_groups <- function(reference_layers) {
   unique(groups)
 }
 
-pt_add_reference_layers <- function(m, reference_layers, map_display) {
+pt_add_reference_layers <- function(
+    m,
+    reference_layers,
+    map_display,
+    labels_all = NULL) {
   
   if (!isTRUE(map_display$add_reference_layers)) {
     return(m)
@@ -3498,7 +3502,8 @@ pt_add_reference_layers <- function(m, reference_layers, map_display) {
 
   m <- pt_add_local_reference_controller(
     m,
-    reference_layers = reference_layers
+    reference_layers = reference_layers,
+    labels_all = labels_all
   )
 
   m

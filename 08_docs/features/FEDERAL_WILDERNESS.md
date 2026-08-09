@@ -78,9 +78,13 @@ selected agency’s stroke. It restyles existing Leaflet paths and creates no
 parallel geometry or large unit legend. Enabling a second agency turns the mode
 off and restores the agency fill; it does not turn itself back on.
 
-The existing inline `lbl` lifecycle is backed by the
-`Labels – Federal Wilderness` companion child. It remains independent of
-filter and distinguish state and uses the canonical official name.
+The inline `lbl` lifecycle is backed by the shared Local Reference semantic
+label system. It uses the canonical official name and renders one label per
+currently visible named wilderness. The cache retains one ranked point-on-
+surface anchor per source component; agency filters select an anchor from the
+largest currently visible component, so a shared wilderness never floats over
+a filtered-out agency component. `lbl` remains an independent display
+preference, and Distinguish named units does not change label membership.
 
 ## Hover and popup interpretation
 
