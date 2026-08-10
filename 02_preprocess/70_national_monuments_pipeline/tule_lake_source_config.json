@@ -1,0 +1,19 @@
+{
+  "pipeline_version": "1.0.0",
+  "output_crs": 4326,
+  "scope": "Focused current USFWS-administered Tule Lake National Monument special-designation geometry",
+  "sources": [
+    {
+      "source_key": "fws_tule_lake",
+      "agency": "USFWS",
+      "layer_url": "https://services.arcgis.com/QVENGdaPbd4LUkLV/arcgis/rest/services/SpecialDesignation201903/FeatureServer/0",
+      "discovery_where": "DESNAME = 'Tule Lake National Monument' AND DESTYPE = 'NATIONAL MONUMENT'",
+      "target_fields": ["GlobalID_2"],
+      "target_values": ["bd04754c-21fd-4e14-bcca-72d1d63a563f"],
+      "require_discovery_exact_target_set": true,
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "exact current Tule Lake National Monument special-designation record",
+      "geometry_role_to_review": "authoritative USFWS-administered Tule Lake National Monument geometry within Tule Lake National Wildlife Refuge"
+    }
+  ]
+}

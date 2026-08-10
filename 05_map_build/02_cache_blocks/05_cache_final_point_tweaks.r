@@ -850,6 +850,11 @@ for (nm in names(reference_layers_raw)) {
       x,
       validate_snapshot = TRUE
     )
+  } else if (nm == "monuments") {
+    x <- pt_prepare_local_reference_national_monuments(
+      x,
+      validate_snapshot = TRUE
+    )
   } else if (nm == "wildernessstudyarea") {
     x <- pt_prepare_local_reference_wsa(
       x,
@@ -867,7 +872,7 @@ for (nm in names(reference_layers_raw)) {
     )
   }
   
-  if (!nm %in% c("fedwilderness", "acec")) {
+  if (!nm %in% c("monuments", "fedwilderness", "acec")) {
     x <- x |>
       simplify_sf_for_web(
         keep = keep_val,
@@ -875,7 +880,7 @@ for (nm in names(reference_layers_raw)) {
       )
   }
   
-  if (!nm %in% c("trails", "wildernessstudyarea", "fedwilderness", "acec")) {
+  if (!nm %in% c("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec")) {
     x$popup_html <- pt_make_reference_layer_popups(
       x = x,
       popup_spec = popup_spec,
@@ -887,9 +892,10 @@ for (nm in names(reference_layers_raw)) {
   ##
   ## Normalize all local WSR line/corridor sources into shared display/filter
   ## fields while preserving source-specific layer names and popup attribution.
-  if (nm %in% c("trails", "wildernessstudyarea", "fedwilderness", "acec")) {
+  if (nm %in% c("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec")) {
 
-    ## Trails/WSA/Federal Wilderness/ACEC popup, hover, category, and style fields
+    ## Trails/National Monuments/WSA/Federal Wilderness/ACEC popup, hover,
+    ## category, and style fields
     ## were prepared above
     ## from the shared Local Reference definitions. Do not pass them through
     ## generic palette logic or replace source-backed popup content after
@@ -980,42 +986,7 @@ for (nm in names(reference_layers_raw)) {
     x$fill_opacity <- 0.045
     x$popup_html <- pt_make_wsr_corridor_popups(x)
 
-    # ---- Special case 2: National Monuments --------------------------------
-    ##
-    ## Color national monuments by agency using the actual observed values:
-    ##   AGENCY_COD = BLM
-    ##   AGENCY_COD = USFS
-  } else if (nm == "monuments" && "AGENCY_COD" %in% names(x)) {
-    
-    agency_vals <- toupper(trimws(as.character(x$AGENCY_COD)))
-    
-    x$agency_group <- dplyr::case_when(
-      agency_vals == "BLM"  ~ "BLM",
-      agency_vals == "USFS" ~ "USFS",
-      TRUE                  ~ "Other / unknown"
-    )
-    
-    x$line_col <- dplyr::case_when(
-      x$agency_group == "BLM"  ~ "#B8860B",  # dark yellow / gold
-      x$agency_group == "USFS" ~ "#228B22",  # forest green
-      TRUE                     ~ "#737373"   # neutral gray
-    )
-    
-    x$fill_col <- x$line_col
-    
-    message("National Monument colors by AGENCY_COD:")
-    print(
-      tibble::tibble(
-        AGENCY_COD = agency_vals,
-        agency_group = x$agency_group,
-        line_col = x$line_col
-      ) |>
-        dplyr::count(AGENCY_COD, agency_group, line_col, name = "n") |>
-        dplyr::arrange(AGENCY_COD),
-      n = Inf
-    )
-    
-    # ---- Special case 3: Federal Wilderness --------------------------------
+    # ---- Special case 2: Federal Wilderness --------------------------------
     ##
     ## Color federal wilderness by managing agency using stable, intentional
     ## colors. Use broad string matching because agency values can vary by

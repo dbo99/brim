@@ -1,0 +1,10 @@
+facet,category,expected_semantic_count,exposure,within_facet_semantics,across_facets_semantics,recommendation_note,verification_date
+Administering agency,BLM,9,Primary,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09
+Administering agency,USFS,7,Primary,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09
+Administering agency,NPS,7,Primary,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09
+Administering agency,USFWS,1,Required semantic addition,OR,AND,"Tule Lake is one NPS + USFWS semantic monument; expose USFWS in the next UI decision pass.",2026-08-10
+Designation authority,Presidential proclamation,17,Primary,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09
+Designation authority,Act of Congress,3,Primary,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09
+Management pattern,Multi-agency,4,Optional/Quick view,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-10
+Management pattern,Single agency,16,Optional/Quick view,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-10
+Designation history,Recent designation/major expansion 2024–2025,4,Optional/Quick view,OR,AND,"Use semantic monument membership, not source-row counts.",2026-08-09

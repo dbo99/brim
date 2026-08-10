@@ -236,7 +236,10 @@ layers <- list(
 
   water_districts     = readRDS(file.path(DIR$cache_last, "water_districts_map.rds")),
   rwqcb_regions       = readRDS(file.path(DIR$cache_last, "rwqcb_regions_map.rds")),
-  reference_layers    = readRDS(file.path(DIR$cache_last, "reference_layers_all_map.rds"))
+  reference_layers    = readRDS(file.path(DIR$cache_last, "reference_layers_all_map.rds")),
+  nps_park_preserve_context = readRDS(file.path(
+    DIR$cache_last, "nps_park_preserve_context_map.rds"
+  ))
 )
 
 message("Cached layers loaded.")
@@ -677,20 +680,37 @@ pt_count_swrcb_name_candidate_rows <- function(x) {
   sum(!flag & reason %in% c("Name match only"), na.rm = TRUE)
 }
 
-pt_count_reference_layer_rows <- function(reference_layers, layer_name) {
+pt_count_reference_layer_rows <- function(
+  reference_layers,
+  layer_name,
+  semantic_id_field = NULL
+) {
   if (!is.list(reference_layers) || length(reference_layers) == 0) {
     return(NA_real_)
   }
 
+  count_layer <- function(x) {
+    if (
+      !is.null(semantic_id_field) &&
+      length(semantic_id_field) == 1L &&
+      semantic_id_field %in% names(x)
+    ) {
+      values <- trimws(as.character(x[[semantic_id_field]]))
+      values <- values[!is.na(values) & values != ""]
+      if (length(values)) return(length(unique(values)))
+    }
+    nrow(x)
+  }
+
   if (layer_name %in% names(reference_layers) && inherits(reference_layers[[layer_name]], "sf")) {
-    return(nrow(reference_layers[[layer_name]]))
+    return(count_layer(reference_layers[[layer_name]]))
   }
 
   for (x in reference_layers) {
     if (!inherits(x, "sf") || nrow(x) == 0 || !"pt_display_name" %in% names(x)) next
     display <- as.character(x$pt_display_name[1])
     if (identical(display, layer_name)) {
-      return(nrow(x))
+      return(count_layer(x))
     }
   }
 
@@ -791,7 +811,11 @@ pt_register_local_layer_feature_counts(c(
     "facility_id"
   ),
   "Reference – National Scenic/Historic Trails" = pt_count_reference_layer_rows(layers$reference_layers, "trails"),
-  "Reference – National Monuments" = pt_count_reference_layer_rows(layers$reference_layers, "monuments"),
+  "Reference – National Monuments" = pt_count_reference_layer_rows(
+    layers$reference_layers,
+    "monuments",
+    semantic_id_field = "pt_feature_id"
+  ),
   "Reference – CA Desert National Conservation Lands" = pt_count_reference_layer_rows(layers$reference_layers, "cadesert_ncl"),
   "Reference – Wilderness Study Areas" = pt_count_reference_layer_rows(layers$reference_layers, "wildernessstudyarea"),
   "Reference – Federal Wilderness" = pt_count_reference_layer_rows(layers$reference_layers, "fedwilderness"),
@@ -1051,7 +1075,8 @@ m <- pt_add_reference_layers(
   m = m,
   reference_layers = layers$reference_layers,
   map_display = MAP_DISPLAY,
-  labels_all = layers$labels_all
+  labels_all = layers$labels_all,
+  nps_context = layers$nps_park_preserve_context
 )
 
 m <- pt_add_huc_layers(

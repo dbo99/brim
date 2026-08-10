@@ -83,6 +83,49 @@ Calculated area is not official acreage unless an authoritative source says so. 
 
 Canonical/full-resolution geometry must remain separate from display-optimized geometry. Simplification, clipping, dissolving, and repair must be deterministic, documented, and tested.
 
+### National Monuments data contract
+
+National Monuments uses four primary authoritative service layers: BLM current
+National Conservation Lands geometry, USFS current designated-area geometry,
+USFS designated-area legal status, and NPS official unit boundaries. Tule Lake
+also requires a focused authoritative USFWS National Realty
+`FWSSpecialDesignation` record because the NPS `TULE` boundary is only the
+Segregation Center component. The canonical primary acquisition is
+`02_preprocess/70_national_monuments_pipeline/acquire_authoritative_sources.R`.
+The focused addendum is acquired by
+`acquire_tule_lake_authoritative_source.R`. Both write only immutable external
+snapshots and must pass count, complete object-ID, target-ID,
+response-integrity, geometry, and hash gates before a candidate can be built.
+
+The BRIM semantic universe is 20 current National Monuments wholly or partly
+in California. Cross-state geometry is retained complete. Semantic monument
+ID, visible geometry/component ID, source OBJECTID/durable ID, agency
+relationship, and legal-status record are separate keys. Source publisher is
+not management authority, and duplicate agency-published whole boundaries are
+not independently rendered.
+
+The focused source-repair derivative has 22 visible geometry records because
+Sand to Snow and Tule Lake each use two verified administering-agency source
+records. Tule Lake remains one semantic monument: its NPS record contains the
+Segregation Center, while its USFWS two-part record contains Peninsula/Castle
+Rock and Camp Tulelake. Berryessa Snow Mountain /
+Molok Luyuk and Santa Rosa and San Jacinto Mountains use one reconciled shared
+whole boundary each. USFS legal-status geometries and duplicate/provisional
+source boundaries remain provenance/QA context. Exact current endpoints,
+queries, snapshots, hashes, source-role decisions, repair/simplification
+metrics, and external-product locations are documented in the focused pipeline
+README and `08_docs/features/NATIONAL_MONUMENTS.md`.
+
+National Parks and National Preserves are optional context, not National
+Monument semantic records. Their separate canonical R acquisition targets the
+official NPS Land Resources Division boundary layer 2 and tract layer 1 for the
+exact reviewed California unit-code set. Preserve untouched boundaries and
+tract responses externally. Never fill the legislative boundary as though it
+were ownership: derive the display fill only after documented `Interest`
+classification, conservative non-NPS masking, dissolve, hole retention, and
+geometry QA. The standalone context cache has no authority to change monument
+identity, filters, labels, search, or shared cache children.
+
 ## Cache ownership
 
 A shared cache is not a license to rewrite unrelated children.

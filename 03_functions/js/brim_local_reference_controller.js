@@ -653,13 +653,19 @@ function(el, x, data) {
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-summary{margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution>div{margin-top:2px;padding-top:3px;border-top:1px solid rgba(82,72,45,.2)}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="acec"]{width:330px;max-height:min(66vh,590px);padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-controls{gap:5px;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles{gap:5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles input{margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-suggestions{width:250px;max-width:100%}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar button,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:3px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views>span{grid-column:1/-1;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button{width:100%;min-height:20px;padding:1px 4px;font-size:9.5px;line-height:1.12;white-space:normal}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button[aria-pressed=true]{padding:0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-toolbar button{min-height:19px;padding:0 5px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 14px 46px;gap:4px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row input{justify-self:center;margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-value-swatch{justify-self:center}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-count{width:100%;text-align:right}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row:not(.pt-lr-facet-row-swatch) .pt-lr-facet-label{grid-column:2/4}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary{position:relative;display:flex;min-height:24px;box-sizing:border-box;align-items:center;margin:1px 0;padding:2px 4px 2px 25px;border-radius:4px;cursor:pointer;list-style:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::-webkit-details-marker,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::before{content:"▸";position:absolute;left:5px;display:flex;width:16px;height:18px;align-items:center;justify-content:center;font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible[open]>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details[open]>summary::before{content:"▾"}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:hover,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:focus-visible,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-summary{margin:3px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"]{width:330px;max-height:none;overflow:visible;padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-controls{gap:5px;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-toggles{gap:5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-toggles input{margin:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-suggestions{width:250px;max-width:100%}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:3px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views>span{grid-column:1/-1;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views button{width:100%;min-height:20px;padding:1px 4px;font-size:9.5px;line-height:1.12;white-space:normal}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views button[aria-pressed=true]{padding:0 3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-toolbar button{min-height:19px;padding:0 5px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 14px 36px;gap:4px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row input{justify-self:center;margin:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-value-swatch{justify-self:center}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-count{width:100%;text-align:right}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row:not(.pt-lr-facet-row-swatch) .pt-lr-facet-label{grid-column:2/4}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 7px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 30px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-label{grid-column:auto}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-summary{margin:3px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary{position:relative;display:flex;min-height:26px;box-sizing:border-box;align-items:center;margin:1px 0;padding:3px 4px 3px 29px;border-radius:4px;cursor:pointer;list-style:none}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary::-webkit-details-marker,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary::before{content:"▸";position:absolute;left:7px;display:flex;width:18px;height:20px;align-items:center;justify-content:center;font-size:14px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible[open]>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details[open]>summary::before{content:"▾"}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary:hover,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary:focus-visible,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}' +
+      '.pt-nm-count-cue{margin-left:4px;color:#756d60;font-size:9px;font-weight:400;white-space:nowrap}.pt-nm-shared-boundary-row{display:flex;align-items:center;gap:5px;min-height:17px;padding:1px 0;border-bottom:1px solid rgba(82,72,45,.12);color:#51493f;font-size:9.5px}.pt-nm-shared-boundary-row .pt-lr-swatch{width:16px;height:11px;flex:0 0 16px}.pt-nm-shared-boundary-label{font-weight:600}' +
+      '.pt-nm-nps-context-body{padding:1px 4px 4px 29px;color:#51493f;line-height:1.25}.pt-nm-context-toggle{display:flex;align-items:center;gap:5px;min-height:22px}.pt-nm-context-note{margin-top:2px;color:#5a5144;font-size:9.5px}' +
       '.pt-acec-map-display-body{padding:0 4px 3px 25px}.pt-acec-overlap-toggle{display:inline-flex;align-items:center;gap:4px;min-height:24px;font-weight:600;cursor:pointer}.pt-acec-overlap-toggle input{margin:0}.pt-acec-overlap-note{margin-top:1px;color:#5a5144;font-size:9px;line-height:1.25}' +
       '.pt-lr-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}' +
-      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
+      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
       '.pt-wsa-hover-lines{display:block;max-width:100%}.pt-wsa-hover-line{display:block;white-space:normal}.pt-wsa-hover-name{font-weight:600}' +
       '.pt-trails-hover-lines{display:block;max-width:100%}.pt-trails-hover-line{display:block;white-space:normal}.pt-trails-hover-name{font-weight:600}' +
       '.pt-fw-hover-lines{display:block;max-width:100%}.pt-fw-hover-line{display:block;white-space:normal}.pt-fw-hover-title{font-weight:700}.pt-fw-shared-cue,.pt-fw-nevada-cue,.pt-fw-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}' +
       '.pt-acec-hover-lines{display:block;max-width:100%}.pt-acec-hover-line{display:block;white-space:normal}.pt-acec-hover-title{font-weight:700}.pt-acec-caution,.pt-acec-research-cue,.pt-acec-wsa-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #9a5a3b}.pt-acec-research-cue{background:#f5ecff;border-left-color:#78509a}.pt-acec-wsa-current{background:#eef6e9;border-left-color:#4f8c68}.pt-acec-wsa-historical{background:#fff1df;border-left-color:#a66a43}' +
+      '.pt-nm-hover-lines{display:block;max-width:100%}.pt-nm-hover-line{display:block;white-space:normal}.pt-nm-hover-title{font-weight:700}' +
+      '.leaflet-tooltip.pt-nps-context-hover-tooltip{box-sizing:border-box;width:max-content!important;max-width:min(320px,calc(100vw - 32px))!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;line-height:1.3!important}.pt-nps-context-hover-lines{display:block;max-width:100%}.pt-nps-context-hover-title{display:block;font-weight:700}.pt-nps-context-hover-area{display:block;margin-top:2px;white-space:nowrap}' +
       '.pt-wsa-popup .pt-popup-subtitle{margin-top:2px;color:#555;font-size:12px}.pt-wsa-popup .pt-popup-section{margin-top:7px}.pt-wsa-popup .pt-wsa-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-wsa-source-anomaly{color:#8a2f1c}.pt-popup-technical{margin-top:7px;font-size:11px}' +
       '.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content-wrapper{padding:0;overflow:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{box-sizing:border-box;width:min(430px,calc(100vw - 72px))!important;min-width:min(400px,calc(100vw - 72px))!important;max-width:min(460px,calc(100vw - 72px))!important;margin:10px 12px 12px}' +
       '.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}' +
@@ -671,7 +677,7 @@ function(el, x, data) {
       '.pt-local-reference-tabbed-popup-card.pt-lr-popup-measuring{visibility:hidden!important}.pt-lr-popup-measuring .pt-lr-popup-panel-scroll{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}' +
       '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{max-height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
-      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
+      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
   }
 
@@ -969,6 +975,28 @@ function(el, x, data) {
     var diagnosticPrefix = 'data-pt-lr-' + safeLayerId + '-';
     var teardownCount = 0;
     var federalData = layerData.federal_wilderness || null;
+    var nationalMonuments = String(layerData.layer_id || '') ===
+      'national_monuments';
+    var npsContextData = nationalMonuments ? (layerData.nps_context || null) : null;
+    var npsContextGroups = Object.create(null);
+    var npsContextState = Object.create(null);
+    if (npsContextData) {
+      Object.keys(npsContextData).forEach(function(key) {
+        var row = npsContextData[key] || {};
+        var contextKey = String(row.context_key || key);
+        var contextGroupName = String(row.group_name || '');
+        var contextRoot = contextGroupName && layerManager._groupContainers ?
+          layerManager._groupContainers[contextGroupName] : null;
+        if (!contextRoot) {
+          throw new Error('Missing prebuilt NPS context group: ' + contextGroupName);
+        }
+        npsContextGroups[contextKey] = {
+          data: row,
+          root: contextRoot
+        };
+        npsContextState[contextKey] = false;
+      });
+    }
     var federalLookup = {
       semantic: Object.create(null),
       component: Object.create(null),
@@ -1277,6 +1305,78 @@ function(el, x, data) {
       }).length;
     }
 
+    function npsContextGroupMemberCount(key) {
+      var group = npsContextGroups[String(key)] || {};
+      return group.root && typeof group.root.getLayers === 'function' ?
+        group.root.getLayers().length : 0;
+    }
+
+    function npsContextAttachedMemberCount() {
+      return Object.keys(npsContextGroups).reduce(function(total, key) {
+        var group = npsContextGroups[key];
+        if (!group.root || !map.hasLayer || !map.hasLayer(group.root) ||
+            typeof group.root.getLayers !== 'function') return total;
+        return total + group.root.getLayers().filter(function(layer) {
+          return !!(map.hasLayer && map.hasLayer(layer));
+        }).length;
+      }, 0);
+    }
+
+    function npsContextAttachedRootCount() {
+      return Object.keys(npsContextGroups).filter(function(key) {
+        var root = npsContextGroups[key].root;
+        return !!(root && map.hasLayer && map.hasLayer(root));
+      }).length;
+    }
+
+    function closeNpsContextPopup(key) {
+      var popup = map._popup;
+      var source = popup && popup._source;
+      var keys = key ? [String(key)] : Object.keys(npsContextGroups);
+      if (!source || !map.closePopup) return;
+      var owned = keys.some(function(contextKey) {
+        var root = npsContextGroups[contextKey] && npsContextGroups[contextKey].root;
+        return !!(root && typeof root.hasLayer === 'function' && root.hasLayer(source));
+      });
+      if (owned) map.closePopup(popup);
+    }
+
+    function syncNpsContextInputs() {
+      if (!card || !card.querySelector) return;
+      Object.keys(npsContextState).forEach(function(key) {
+        var input = card.querySelector('[data-pt-nm-context="' + key + '"]');
+        if (input) input.checked = npsContextState[key] === true;
+      });
+    }
+
+    function setNpsContext(key, value) {
+      key = String(key);
+      var group = npsContextGroups[key];
+      if (!group) return false;
+      var enabled = active && value === true;
+      if (enabled) {
+        if (map.addLayer && (!map.hasLayer || !map.hasLayer(group.root))) {
+          map.addLayer(group.root);
+        }
+      } else {
+        closeNpsContextPopup(key);
+        if (map.removeLayer && map.hasLayer && map.hasLayer(group.root)) {
+          map.removeLayer(group.root);
+        }
+      }
+      npsContextState[key] = enabled;
+      syncNpsContextInputs();
+      writeDiagnostics(engine.snapshot());
+      return enabled;
+    }
+
+    function resetNpsContext() {
+      Object.keys(npsContextGroups).forEach(function(key) {
+        setNpsContext(key, false);
+      });
+      closeNpsContextPopup();
+    }
+
     function writeDiagnostics(snapshot) {
       if (!el || !el.setAttribute) return;
       var showing = snapshot && snapshot.counts ? snapshot.counts.currently_showing : null;
@@ -1293,6 +1393,24 @@ function(el, x, data) {
       el.setAttribute(diagnosticPrefix + 'attached-layer-count', String(attachedOwnedLayerCount()));
       el.setAttribute(diagnosticPrefix + 'group-member-count', String(groupMemberCount()));
       el.setAttribute(diagnosticPrefix + 'card-count', card ? '1' : '0');
+      if (npsContextData) {
+        el.setAttribute(
+          diagnosticPrefix + 'nps-context-park-enabled',
+          npsContextState.national_park === true ? 'true' : 'false'
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'nps-context-preserve-enabled',
+          npsContextState.national_preserve === true ? 'true' : 'false'
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'nps-context-attached-root-count',
+          String(npsContextAttachedRootCount())
+        );
+        el.setAttribute(
+          diagnosticPrefix + 'nps-context-attached-layer-count',
+          String(npsContextAttachedMemberCount())
+        );
+      }
       if (semanticLabelData) {
         el.setAttribute(
           diagnosticPrefix + 'labels-enabled', labelsEnabled() ? 'true' : 'false'
@@ -1350,7 +1468,9 @@ function(el, x, data) {
         'value-style-mode', 'value-style-key',
         'value-style-color', 'distinguish-overlaps',
         'active-overlap-pair-count', 'active-overlap-participant-count',
-        'overlap-color-conflict-count'
+        'overlap-color-conflict-count', 'nps-context-park-enabled',
+        'nps-context-preserve-enabled', 'nps-context-attached-root-count',
+        'nps-context-attached-layer-count'
       ].forEach(function(name) {
         el.removeAttribute(diagnosticPrefix + name);
       });
@@ -1759,6 +1879,7 @@ function(el, x, data) {
         setDistinguishUnits(false, snapshot);
       }
       if (reconcile) reconcileLayers(snapshot);
+      syncNpsContextInputs();
       var selected = Object.create(null);
       snapshot.draft_selected.forEach(function(key) { selected[key] = true; });
       layerData.categories.forEach(function(category) {
@@ -1799,12 +1920,12 @@ function(el, x, data) {
             var mode = String(facet.count_mode || primaryCountMode);
             var currentCount = primaryCount(count.currently_showing, mode);
             var totalCount = primaryCount(count.total, mode);
+            var countDescription = currentCount + ' matching current results; ' +
+              totalCount + ' total ' + String(value.label);
             countNode.textContent = currentCount === totalCount ? String(totalCount) :
               currentCount + ' of ' + totalCount;
-            countNode.setAttribute(
-              'aria-label',
-              currentCount + ' of ' + totalCount + ' matching ' + String(value.label)
-            );
+            countNode.setAttribute('aria-label', countDescription);
+            countNode.setAttribute('title', countDescription);
           }
         });
       });
@@ -1939,8 +2060,12 @@ function(el, x, data) {
     }
 
     function facetsHtml() {
-      return (layerData.facets || []).map(function(facet) {
-        var facetKey = escapeHtml(facet.facet_key);
+      return (layerData.facets || []).filter(function(facet) {
+        return facet.visible !== false;
+      }).map(function(facet) {
+        var rawFacetKey = String(facet.facet_key);
+        var facetKey = escapeHtml(rawFacetKey);
+        var twoColumn = Number(facet.layout_columns || 1) === 2;
         var values = (facet.values || []).map(function(value) {
           var valueKey = escapeHtml(value.value_key);
           var swatchColor = String(value.swatch_color || '').trim();
@@ -1954,23 +2079,35 @@ function(el, x, data) {
             '<span class="pt-lr-facet-count" data-pt-lr-facet-count="' + facetKey +
             '" data-pt-lr-facet-count-value="' + valueKey + '"></span></label>';
         }).join('');
-        var content =
+        var toolbar = facet.show_toolbar === false ? '' :
           '<div class="pt-lr-facet-toolbar">' +
           '<button type="button" data-pt-lr-facet-all="' + facetKey + '">All</button>' +
           '<button type="button" data-pt-lr-facet-none="' + facetKey + '">None</button>' +
-          '</div><div class="pt-lr-facet-values">' + values + '</div>';
+          '</div>';
+        var countCue = nationalMonuments && rawFacetKey === 'administering_agency' ?
+          '<span class="pt-nm-count-cue" title="Facet counts show matching current results / total in category.">' +
+          'counts: matching / total</span>' : '';
+        var sharedBoundaryRow = '';
+        if (nationalMonuments && rawFacetKey === 'administering_agency') {
+          var sharedCategory = categoryByKey.shared_multi || {};
+          sharedBoundaryRow = '<div class="pt-nm-shared-boundary-row" role="note" ' +
+            'aria-label="Shared whole boundary: BLM–USFS olive dashed map style">' +
+            '<span class="pt-nm-shared-boundary-label">Shared whole boundary:</span>' +
+            swatch(sharedCategory) + '<span>BLM–USFS</span></div>';
+        }
+        var content = toolbar + '<div class="pt-lr-facet-values">' + values + '</div>' +
+          sharedBoundaryRow;
+        var sectionClass = 'pt-lr-facet' + (twoColumn ? ' pt-lr-facet-two-column' : '');
         if (facet.collapsible === true) {
-          return '<details class="pt-lr-facet pt-lr-facet-collapsible" ' +
+          return '<details class="' + sectionClass + ' pt-lr-facet-collapsible" ' +
             'data-pt-lr-facet-section="' + facetKey + '"' +
             (facet.open_default === true ? ' open' : '') + '><summary class="pt-lr-facet-heading">' +
             escapeHtml(facet.label) + '</summary>' + content + '</details>';
         }
-        return '<section class="pt-lr-facet" data-pt-lr-facet-section="' + facetKey + '">' +
+        return '<section class="' + sectionClass + '" data-pt-lr-facet-section="' + facetKey + '">' +
           '<div class="pt-lr-facet-head"><div class="pt-lr-facet-heading" role="heading" aria-level="3">' +
-          escapeHtml(facet.label) + '</div><div class="pt-lr-facet-toolbar">' +
-          '<button type="button" data-pt-lr-facet-all="' + facetKey + '">All</button>' +
-          '<button type="button" data-pt-lr-facet-none="' + facetKey + '">None</button>' +
-          '</div></div><div class="pt-lr-facet-values">' + values + '</div></section>';
+          escapeHtml(facet.label) + countCue + '</div>' + toolbar + '</div>' +
+          '<div class="pt-lr-facet-values">' + values + '</div>' + sharedBoundaryRow + '</section>';
       }).join('');
     }
 
@@ -2024,24 +2161,25 @@ function(el, x, data) {
           '<label class="pt-lr-toggle pt-lr-auto-toggle"><input type="checkbox" class="pt-lr-auto"> Auto</label>' : '';
         var autoZoomToggleHtml = autoZoomSupported ?
           '<label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-auto-zoom"> Auto-zoom</label>' : '';
-        var headControlsHtml = acecData ?
+        var headControlsHtml = (acecData || nationalMonuments) ?
           '<div class="pt-lr-head-controls"><div class="pt-lr-head-toggles">' +
           autoToggleHtml + autoZoomToggleHtml + '</div>' + closeHtml + '</div>' : closeHtml;
         var toolbarItemsHtml =
           (categoryFilterVisible ? '<button type="button" class="pt-lr-all">All</button>' +
             '<button type="button" class="pt-lr-none">None</button>' : '') +
-          (acecData ? '' : autoToggleHtml + autoZoomToggleHtml);
+          ((acecData || nationalMonuments) ? '' :
+            autoToggleHtml + autoZoomToggleHtml);
         var toolbarHtml = toolbarItemsHtml ?
           '<div class="pt-lr-toolbar">' + toolbarItemsHtml + '</div>' : '';
         var categoryHeadingHtml = categoryFilterVisible && String(layerData.category_heading || '') ?
           '<div class="pt-lr-category-heading" role="heading" aria-level="3">' +
           escapeHtml(layerData.category_heading) + '</div>' : '';
-        var subtitleHtml = (federalData || acecData) ? '' : '<div>' +
+        var subtitleHtml = (federalData || acecData || nationalMonuments) ? '' : '<div>' +
           (featureSelectionSupported ?
             'Filter by category or select named features' : 'Filter by category') +
           '</div>';
-        var cautionHtml = federalData ? '' : acecData ?
-          '<details class="pt-lr-map-details pt-acec-layer-note"><summary>Boundary / use note</summary>' +
+        var cautionHtml = federalData ? '' : (acecData || nationalMonuments) ?
+          '<details class="pt-lr-map-details pt-lr-layer-note"><summary>Boundary / use note</summary>' +
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div></details>' :
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div>';
         var acecDisplayHtml = acecData ?
@@ -2054,6 +2192,19 @@ function(el, x, data) {
           'Give simultaneously visible overlapping ACECs contrasting colors.</span>' +
           '<div class="pt-acec-overlap-note">Only current overlap participants change; ' +
           'colors have no category meaning.</div></div></details>' : '';
+        var npsContextHtml = npsContextData ?
+          '<details class="pt-lr-map-details pt-nm-nps-context"><summary>NPS context</summary>' +
+          '<div class="pt-nm-nps-context-body">' +
+          Object.keys(npsContextGroups).map(function(key) {
+            var row = npsContextGroups[key].data || {};
+            return '<label class="pt-nm-context-toggle"><input type="checkbox" ' +
+              'data-pt-nm-context="' + escapeHtml(key) + '"> ' +
+              escapeHtml(row.label || key) + ' (' +
+              escapeHtml(String(row.unit_count || 0)) + ')</label>';
+          }).join('') +
+          '<div class="pt-nm-context-note">Optional official NPS legislative boundaries ' +
+          'with tract-based federal land/interest fill. Context only; it does not change ' +
+          'National Monument agency filters, counts, or labels.</div></div></details>' : '';
         var mapDetailsHtml = layerData.show_component_count ?
           (federalData ?
             '<details class="pt-lr-map-details"><summary>Map / layer note</summary>' +
@@ -2080,7 +2231,8 @@ function(el, x, data) {
             '<button type="button" class="pt-lr-zoom-results">Zoom to results</button>' : '') +
           '<span class="pt-lr-pending"></span></div>' +
           '<div class="pt-lr-summary" aria-live="polite"></div>' +
-          mapDetailsHtml + acecDisplayHtml + cautionHtml;
+          mapDetailsHtml + npsContextHtml +
+          acecDisplayHtml + cautionHtml;
         L.DomEvent.disableClickPropagation(card);
         L.DomEvent.disableScrollPropagation(card);
         wireFeaturePicker();
@@ -2118,6 +2270,11 @@ function(el, x, data) {
             var overlapSnapshot = engine.snapshot();
             setAcecDistinguishOverlaps(event.target.checked, overlapSnapshot);
             render(overlapSnapshot, false, '');
+          }
+          var npsContextKey = event.target.getAttribute &&
+            event.target.getAttribute('data-pt-nm-context');
+          if (npsContextKey) {
+            setNpsContext(npsContextKey, event.target.checked);
           }
         });
         if ((layerData.facets || []).length && card.querySelectorAll) {
@@ -2176,6 +2333,7 @@ function(el, x, data) {
           var resetSnapshot = engine.reset();
           setDistinguishUnits(false, resetSnapshot);
           setAcecDistinguishOverlaps(false, resetSnapshot);
+          resetNpsContext();
           render(resetSnapshot, true, 'reset');
         });
         var zoomButton = card.querySelector('.pt-lr-zoom-results');
@@ -2293,6 +2451,7 @@ function(el, x, data) {
       closeOwnedPresentation();
       detachOwnedGeometry();
       detachOwnedSemanticLabels();
+      resetNpsContext();
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
@@ -2311,6 +2470,7 @@ function(el, x, data) {
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
+      resetNpsContext();
       render(resetSnapshot, true, 'reset');
     }
 
@@ -2327,6 +2487,7 @@ function(el, x, data) {
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
+      resetNpsContext();
       createCard();
       render(engine.snapshot(), true, '');
       setCardVisible();
@@ -2406,6 +2567,14 @@ function(el, x, data) {
           value_style_mode: valueTheme.mode,
           value_style_key: valueTheme.value_key,
           value_style_color: valueTheme.fill_color,
+          nps_context_park_enabled: npsContextState.national_park === true,
+          nps_context_preserve_enabled: npsContextState.national_preserve === true,
+          nps_context_attached_root_count: npsContextAttachedRootCount(),
+          nps_context_attached_layer_count: npsContextAttachedMemberCount(),
+          nps_context_expected_park_layer_count:
+            npsContextGroupMemberCount('national_park'),
+          nps_context_expected_preserve_layer_count:
+            npsContextGroupMemberCount('national_preserve'),
           teardown_count: teardownCount
         };
       }

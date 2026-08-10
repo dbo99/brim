@@ -1,0 +1,25 @@
+monument_id,agency,management_role,current_managing_unit,official_unit_page,evidence_basis,confidence,note,verification_date
+nm_ca_berryessa_snow_mountain,BLM,administering agency,Ukiah Field Office,https://www.blm.gov/office/ukiah-field-office,BLM current detail table,High,,2026-08-09
+nm_ca_berryessa_snow_mountain,USFS,administering agency,Mendocino National Forest,https://www.fs.usda.gov/mendocino,Forest Service monument/current forest information,High,,2026-08-09
+nm_ca_cabrillo,NPS,administering agency,Cabrillo National Monument,https://www.nps.gov/cabr/,NPS current unit page,High,,2026-08-09
+nm_ca_california_coastal,BLM,administering agency,California Coastal National Monument / multiple coastal field-office contexts,https://www.blm.gov/ccnm,BLM current monument page,High,Do not assign one field office to all distributed units without unit-specific evidence.,2026-08-09
+nm_ca_carrizo_plain,BLM,administering agency,Bakersfield Field Office,https://www.blm.gov/office/bakersfield-field-office,BLM current detail table,High,,2026-08-09
+nm_ca_cascade_siskiyou,BLM,administering agency,Ashland Field Office / Medford District,https://www.blm.gov/office/medford-district-office,BLM detail table and current monument page,High,,2026-08-09
+nm_ca_castle_mountains,NPS,administering agency,Castle Mountains National Monument; administrative coordination with Mojave National Preserve,https://www.nps.gov/camo/,NPS current page and laws/policies,High,,2026-08-09
+nm_ca_cesar_e_chavez,NPS,federal administering agency,César E. Chávez National Monument,https://www.nps.gov/cech/,NPS current page,High,NPS states collaborative management with National Chavez Center; ownership is mixed.,2026-08-09
+nm_ca_chuckwalla,BLM,administering agency,Palm Springs-South Coast Field Office,https://www.blm.gov/palmspringssouthcoast,BLM current monument page/detail table,High,,2026-08-09
+nm_ca_devils_postpile,NPS,administering agency,Devils Postpile National Monument,https://www.nps.gov/depo/,NPS current unit page,High,,2026-08-09
+nm_ca_fort_ord,BLM,administering agency,Central Coast Field Office,https://www.blm.gov/office/central-coast-field-office,BLM current detail table,High,,2026-08-09
+nm_ca_giant_sequoia,USFS,administering agency,Sequoia National Forest,https://www.fs.usda.gov/sequoia,Forest Service current monument page,High,,2026-08-09
+nm_ca_lava_beds,NPS,administering agency,Lava Beds National Monument,https://www.nps.gov/labe/,NPS current unit page,High,,2026-08-09
+nm_ca_mojave_trails,BLM,administering agency,Needles Field Office,https://www.blm.gov/office/needles-field-office,BLM current detail table,High,,2026-08-09
+nm_ca_muir_woods,NPS,administering agency,Golden Gate National Recreation Area administration,https://www.nps.gov/muwo/,NPS current page,High,Muir Woods retains its National Monument identity while being administered within GGNRA.,2026-08-09
+nm_ca_san_gabriel_mountains,USFS,administering agency,Angeles National Forest,https://www.fs.usda.gov/r05/angeles,Forest Service current boundary map/page,High,,2026-08-09
+nm_ca_sand_to_snow,BLM,administering agency,Palm Springs-South Coast Field Office and Barstow Field Office contexts,https://www.blm.gov/programs/national-conservation-lands/california/sand-to-snow-national-monument,BLM current monument information,Medium-High,Production component-to-office assignment should be derived/verified against current authoritative boundaries.,2026-08-09
+nm_ca_sand_to_snow,USFS,administering agency,San Bernardino National Forest,https://www.fs.usda.gov/sbnf,Forest Service current monument page,High,,2026-08-09
+nm_ca_sattitla_highlands,USFS,administering agency,"Modoc, Shasta-Trinity, and Klamath National Forests",https://www.fs.usda.gov/visit/national-monuments/sattitla-highlands-national-monument,Forest Service current monument page,High,,2026-08-09
+nm_ca_saint_francis_dam_disaster,USFS,administering agency,Angeles National Forest,https://www.fs.usda.gov/r05/angeles,Forest Service plan/media and Land Areas Report,High,,2026-08-09
+nm_ca_santa_rosa_san_jacinto,BLM,administering agency,Palm Springs-South Coast Field Office,https://www.blm.gov/palmspringssouthcoast,BLM current monument page/detail table,High,,2026-08-09
+nm_ca_santa_rosa_san_jacinto,USFS,administering agency,San Bernardino National Forest — San Jacinto Ranger District,https://www.fs.usda.gov/wildflowers/regions/Pacific_Southwest/SantaRosaSanJacintoNM/index.shtml,Forest Service monument page,High,,2026-08-09
+nm_ca_tule_lake,NPS,administering agency for Segregation Center,Tule Lake National Monument,https://www.nps.gov/tule/,NPS current unit and management pages; NPS LRD geometry,High,NPS LRD TULE geometry covers the approximately 37-acre Segregation Center component rather than the complete semantic monument.,2026-08-10
+nm_ca_tule_lake,USFWS,administering agency for Peninsula/Castle Rock and Camp Tulelake,Tule Lake National Wildlife Refuge,https://www.fws.gov/refuge/tule-lake,USFWS National Monument information and National Realty special-designation GIS,High,USFWS administers the two monument areas within Tule Lake National Wildlife Refuge.,2026-08-10

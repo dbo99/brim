@@ -16,6 +16,7 @@ The initial registrations are:
 | Federal Wilderness | 158 | 197 | point on surface per source component; choose the largest currently visible component |
 | Wilderness Study Areas | 63 | 63 | point on surface of each semantic WSA geometry |
 | National Scenic/Historic Trails | 6 | 6 | midpoint of the longest line component for each semantic trail |
+| National Monuments | 20 | 22 | point on surface per reviewed visible geometry; choose an anchor from currently visible geometry |
 
 Federal Wilderness deliberately caches more anchors than labels. A shared
 named wilderness still receives exactly one label. When an agency filter hides
@@ -40,10 +41,12 @@ polygon point-on-surface, and semantic longest-line-component midpoint. A new
 strategy belongs in the shared label helper and must retain the same output
 schema; it must not introduce a layer-specific filter engine.
 
-National Monuments and California Desert National Conservation Lands must use
-this registration path when their semantic labeling models are approved. In
-particular, Desert NCL must first establish whether its public label represents
-an umbrella entity or a constituent feature. Neither layer is upgraded here.
+National Monuments now uses this registration path. Its 20 semantic monuments
+have 22 geometry-aware anchors because Sand to Snow and Tule Lake each have two
+reviewed visible agency records; the controller still renders one canonical label. California
+Desert National Conservation Lands must use this path when its semantic model
+is approved, but it must first establish whether its public label represents an
+umbrella entity or a constituent feature.
 
 ## Cache contract
 
@@ -123,6 +126,30 @@ The RDS cache, reconciliation CSVs, isolated QA outputs, rollback copy, and
 realistic HTML are generated downstream evidence and are not tracked source.
 Git tracks the generator, registration, controller, validation, and this
 lineage record.
+
+### National Monuments accepted extension
+
+The current isolated National Monuments candidate adds the `monuments` label
+child without changing any sibling. It contains 22 component-aware anchor rows
+for 20 semantic monuments, with zero unresolved anchors and a 0.5-metre maximum
+source-distance tolerance. Two focused executions were byte-identical:
+
+- Local Reference aggregate SHA-256
+  `f4b42087a87e6b9632ad88fbb582ead36ea229ecc18bdbf2404d5031dc2d0a64`;
+- label aggregate SHA-256
+  `439f60102df29138e2bbfeb46cf129984be2c566f5746a09e576bfad5e6778f0`.
+
+Human visual acceptance passed on 2026-08-10 for the corrected realistic
+National Monuments HTML. The accepted extension supersedes the earlier
+candidate hashes above; production remains protected by the post-merge release
+gates. The final release-gate rerun changed only aggregate list order so the
+focused cache matches the canonical full builder; all child object hashes are
+unchanged, and two focused executions produced the same aggregate hash.
+
+The card-owned National Park/Preserve context deliberately has no label child.
+Its optional legislative outlines and tract-derived land/interest fills are
+context only and cannot add to, duplicate, or filter the 20 National Monument
+semantic labels.
 
 ## Runtime and staged/applied behavior
 

@@ -8,8 +8,8 @@
 ##   This registry intentionally excludes Wild & Scenic Rivers, CalSim3.0,
 ##   uploads, External, Ops Live, and BRIM Live. Trails and Wilderness Study
 ##   Areas are executable in Phase 2. Federal Wilderness is the accepted
-##   Phase 3 implementation. ACECs are the focused Phase 4 implementation;
-##   the other seven rows remain contracts.
+##   Phase 3 implementation, ACECs are Phase 4, and National Monuments are
+##   the focused Phase 5 implementation. The other six rows remain contracts.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
@@ -127,6 +127,29 @@ pt_local_reference_category_rows <- function(
   )
 }
 
+## Accepted cross-layer agency cartography. Federal Wilderness and National
+## Monuments must consume these tokens directly so map styles and agency-facet
+## swatches cannot drift. The shared whole-boundary token is a display role,
+## never a fourth administering agency.
+PT_LOCAL_REFERENCE_ACCEPTED_AGENCY_STYLES <- data.frame(
+  category_key = c("blm", "usfs", "nps", "fws", "blm_usfs_shared"),
+  fill_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#92962A"),
+  stroke_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#766717"),
+  stringsAsFactors = FALSE
+)
+
+pt_local_reference_accepted_agency_color <- function(key, token = "fill_color") {
+  row <- PT_LOCAL_REFERENCE_ACCEPTED_AGENCY_STYLES[
+    match(key, PT_LOCAL_REFERENCE_ACCEPTED_AGENCY_STYLES$category_key),
+    , drop = FALSE
+  ]
+  if (nrow(row) != length(key) || anyNA(row$category_key) ||
+      !token %in% names(row)) {
+    stop("Unknown accepted Local Reference agency style token.")
+  }
+  as.character(row[[token]])
+}
+
 PT_LOCAL_REFERENCE_AGENCY_CATEGORIES <- pt_local_reference_category_rows(
   category_key = c(
     "blm", "usfs", "nps", "fws", "other_federal",
@@ -181,8 +204,16 @@ PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_AGENCY_CATEGORIES <-
       "Unknown / unverified"
     ),
     source_values = c("6|BLM", "8|USFS", "5|NPS", "4|FWS|USFWS", ""),
-    fill_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#737373"),
-    stroke_color = c("#B8860B", "#228B22", "#54278F", "#1F78B4", "#737373"),
+    fill_color = c(
+      pt_local_reference_accepted_agency_color(c("blm", "usfs", "nps", "fws")),
+      "#737373"
+    ),
+    stroke_color = c(
+      pt_local_reference_accepted_agency_color(
+        c("blm", "usfs", "nps", "fws"), "stroke_color"
+      ),
+      "#737373"
+    ),
     fill_opacity = c(0.18, 0.18, 0.18, 0.18, 0.12),
     stroke_weight = c(1.6, 1.6, 1.6, 1.6, 1.4),
     dash_array = c("", "", "", "", "2,3"),
@@ -229,6 +260,166 @@ PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS <- list(
       sort_order = 1:2,
       stringsAsFactors = FALSE
     )
+  )
+)
+
+## National Monument cartography reuses the accepted Federal Wilderness agency
+## colors only where the selected geometry is a defensible agency component or
+## a single-agency complete boundary. Shared whole boundaries remain one
+## balanced olive/dashed semantic monument; source publisher never selects a
+## color.
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_CATEGORIES <-
+  pt_local_reference_category_rows(
+    category_key = c("blm", "usfs", "nps", "fws", "shared_multi", "unknown"),
+    label = c(
+      "Bureau of Land Management",
+      "U.S. Forest Service",
+      "National Park Service",
+      "U.S. Fish and Wildlife Service",
+      "Shared BLM–USFS whole boundary",
+      "Unknown / unresolved"
+    ),
+    source_values = c(
+      "BLM", "USFS", "NPS", "FWS|USFWS", "SHARED|SHARED_MULTI", ""
+    ),
+    fill_color = c(
+      pt_local_reference_accepted_agency_color(c("blm", "usfs", "nps", "fws")),
+      pt_local_reference_accepted_agency_color("blm_usfs_shared"),
+      "#B0B0B0"
+    ),
+    stroke_color = c(
+      pt_local_reference_accepted_agency_color(
+        c("blm", "usfs", "nps", "fws"), "stroke_color"
+      ),
+      pt_local_reference_accepted_agency_color(
+        "blm_usfs_shared", "stroke_color"
+      ),
+      "#6B6B6B"
+    ),
+    fill_opacity = c(0.16, 0.16, 0.16, 0.16, 0.13, 0.10),
+    stroke_weight = c(1.8, 1.8, 1.8, 1.8, 1.8, 1.4),
+    dash_array = c("", "", "", "", "6,3", "2,3"),
+    legend_swatch_style = c(
+      "polygon", "polygon", "polygon", "polygon", "dashed_polygon",
+      "dotted_polygon"
+    ),
+    include_when_absent = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
+    provisional = FALSE
+  )
+
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_FACETS <- list(
+  list(
+    facet_key = "administering_agency",
+    label = "Administering agency",
+    record_field = "pt_nm_administering_agencies",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "|",
+    collapsible = FALSE,
+    open_default = TRUE,
+    show_toolbar = TRUE,
+    values = data.frame(
+      value_key = c("blm", "usfs", "nps", "usfws"),
+      label = c(
+        "Bureau of Land Management",
+        "U.S. Forest Service",
+        "National Park Service",
+        "U.S. Fish and Wildlife Service"
+      ),
+      swatch_color = pt_local_reference_accepted_agency_color(
+        c("blm", "usfs", "nps", "fws")
+      ),
+      sort_order = 1:4,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "designation_authority",
+    label = "Original designation authority",
+    record_field = "pt_nm_authority_key",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "",
+    collapsible = FALSE,
+    open_default = FALSE,
+    show_toolbar = FALSE,
+    layout_columns = 2L,
+    values = data.frame(
+      value_key = c("presidential_proclamation", "act_of_congress"),
+      label = c("Presidential proclamation", "Act of Congress"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "management_pattern",
+    label = "Management pattern",
+    record_field = "pt_nm_management_pattern",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "",
+    collapsible = FALSE,
+    open_default = FALSE,
+    show_toolbar = FALSE,
+    layout_columns = 2L,
+    values = data.frame(
+      value_key = c("single_agency", "shared_multi_agency"),
+      label = c("Single agency", "Shared / multi-agency"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "recent_change",
+    label = "Recent designation or major change",
+    record_field = "pt_nm_recent_change",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "",
+    collapsible = FALSE,
+    open_default = FALSE,
+    show_toolbar = FALSE,
+    layout_columns = 2L,
+    values = data.frame(
+      value_key = c("recent_2024_2025", "not_recent"),
+      label = c("2024–2025", "Earlier / no major change"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "blm_usfs_quick_view",
+    label = "BLM–USFS relationship",
+    record_field = "pt_nm_blm_usfs_quick_view",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "",
+    collapsible = FALSE,
+    open_default = FALSE,
+    show_toolbar = FALSE,
+    visible = FALSE,
+    values = data.frame(
+      value_key = c("shared_blm_usfs", "other"),
+      label = c("Shared BLM–USFS", "Other agency pattern"),
+      sort_order = 1:2,
+      stringsAsFactors = FALSE
+    )
+  )
+)
+
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_QUICK_VIEWS <- list(
+  list(
+    quick_view_key = "blm_involved",
+    label = "BLM involved",
+    facet_key = "administering_agency",
+    value_key = "blm"
+  ),
+  list(
+    quick_view_key = "shared_blm_usfs",
+    label = "Shared BLM–USFS",
+    facet_key = "blm_usfs_quick_view",
+    value_key = "shared_blm_usfs"
+  ),
+  list(
+    quick_view_key = "recent_2024_2025",
+    label = "Recent 2024–2025",
+    facet_key = "recent_change",
+    value_key = "recent_2024_2025"
   )
 )
 
@@ -467,7 +658,7 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     legend_swatch_style = rep("line", 7),
     include_when_absent = c(rep(TRUE, 6), FALSE)
   ),
-  national_monuments = PT_LOCAL_REFERENCE_AGENCY_CATEGORIES,
+  national_monuments = PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_CATEGORIES,
   ca_desert_ncl = pt_local_reference_neutral_categories(),
   wilderness_study_areas = pt_local_reference_category_rows(
     category_key = c(
@@ -585,7 +776,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "Water Districts"
   ),
   implementation_status = c(
-    "phase2_trails", "registry_contract", "registry_contract",
+    "phase2_trails", "phase5_national_monuments", "registry_contract",
     "phase1_wsa", "phase3_federal_wilderness", "registry_contract",
     "phase4_acec", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract"
@@ -596,7 +787,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   color_basis = c(
     "trail_identity",
-    "verified_managing_agency_component",
+    "verified_administering_agency_component_or_shared_boundary",
     "verified_unit_or_neutral",
     "normalized_recommendation_status",
     "verified_managing_agency_component",
@@ -608,11 +799,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "neutral_feature_context"
   ),
   color_source_field = c(
-    "NLCS_ID", "AGENCY_COD", "", "WSA_RCMND", "ManagingAg", "",
+    "NLCS_ID", "pt_nm_display_agency_key", "", "WSA_RCMND", "ManagingAg", "",
     "", "", "", "rwqcb_region_num", ""
   ),
   palette_key = c(
-    "trail_identity_v1", "agency_provisional_v1", "neutral_context_v1",
+    "trail_identity_v1", "national_monument_agency_accepted_v1", "neutral_context_v1",
     "wsa_recommendation_provisional_v1", "federal_wilderness_agency_accepted_v1",
     "neutral_context_v1", "neutral_context_v1", "allotment_status_deferred",
     "neutral_context_v1", "rwqcb_provider_provisional_v1",
@@ -626,12 +817,12 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "metadata_only", "metadata_only", "metadata_only"
   ),
   legend_mode = c(
-    "interactive", "planned_interactive", "none", "interactive",
+    "interactive", "interactive", "none", "interactive",
     "interactive", "none", "interactive", "planned_interactive", "none",
     "planned_interactive", "none"
   ),
   filter_mode = c(
-    "category_search", "planned_category_search", "none",
+    "category_search", "faceted_category_search", "none",
     "category_search", "faceted_category_search", "none", "faceted_category_search",
     "planned_category_plus_feature_search", "none",
     "planned_category_search", "none"
@@ -663,9 +854,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
   ),
   show_component_count = c(FALSE, FALSE, FALSE, FALSE, TRUE, rep(FALSE, 6)),
-  show_category_count = c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
+  show_category_count = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
   category_filter_visible = c(
-    TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
+    TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
   ),
   category_count_mode = c(
     "semantic_feature", "semantic_feature", "semantic_feature",
@@ -684,7 +875,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
       "Mapped trail lines are reference representations and do not imply",
       "a continuous maintained route, public access, or current passability."
     ),
-    "", "", paste(
+    paste(
+      "National Monument boundaries are legal-designation reference geometry,",
+      "not ownership, cadastral, or public-access determinations. Verify current",
+      "agency direction, closures, permits, and land status before field use."
+    ), "", paste(
       "Historical recommendation, not current WSA status.",
       "Management continues under the applicable FLPMA authority;",
       "verify current plans, closures, and field-office direction."
@@ -700,38 +895,39 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   popup_layout = ifelse(
     PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
-      "national_scenic_historic_trails", "wilderness_study_areas",
+      "national_scenic_historic_trails", "national_monuments",
+      "wilderness_study_areas",
       "federal_wilderness", "acec"
     ),
     "tabbed_card",
     "standard"
   ),
   feature_selection_supported = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   feature_selection_mode = c(
-    "semantic_feature_multi", "none", "none", "semantic_feature_multi",
+    "semantic_feature_multi", "semantic_feature_multi", "none", "semantic_feature_multi",
     "semantic_feature_multi", "none", "semantic_feature_multi", "none", "none", "none", "none"
   ),
   feature_display_field = c(
-    "pt_trails_official_name", "NLCS_NAME", "NLCS_NAME", "pt_wsa_name",
+    "pt_trails_official_name", "pt_nm_canonical_name", "NLCS_NAME", "pt_wsa_name",
     "pt_fw_official_name", "", "pt_acec_official_name", "ALLOT_NAME", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   auto_zoom_default = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
   preserve_view_on_reset = rep(TRUE, 11),
   retention_enabled = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE
+    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   distinguish_units_supported = c(
     FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
@@ -742,7 +938,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
   c("NLCS_NAME", "NLCS_ID", "NSHT_SGMNT_NO", "TRAIL_TYPE"),
-  c("NLCS_NAME", "AGENCY_COD"),
+  c(
+    "pt_nm_canonical_name", "pt_nm_aliases", "pt_nm_administering_agencies",
+    "pt_nm_original_authority", "pt_nm_source_identifiers",
+    "pt_nm_component_names", "monument_id", "component_id"
+  ),
   "NLCS_NAME",
   c("NLCS_NAME", "WSACODE_ca", "CASEFILE_N", "NLCS_ID", "GlobalID"),
   c(
@@ -775,6 +975,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[1]] <- c(
   "pt_trails_official_name", "pt_trails_common_name",
   "pt_trails_abbreviation", "pt_trails_alias_search", "pt_trails_nlcs_id"
 )
+LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[2]] <- c(
+  "pt_nm_canonical_name", "pt_nm_aliases", "pt_nm_administering_agencies",
+  "pt_nm_original_authority", "pt_nm_source_identifiers",
+  "pt_nm_component_names", "monument_id", "component_id"
+)
 LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[5]] <- c(
   "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
   "GlobalID", "FAU_ID", "pt_fw_agency_name", "pt_fw_alternate_names",
@@ -791,6 +996,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[7]] <- c(
 LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets <- I(lapply(
   PT_LOCAL_REFERENCE_LAYER_IDS,
   function(layer_id) {
+    if (identical(layer_id, "national_monuments")) {
+      return(PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_FACETS)
+    }
     if (identical(layer_id, "federal_wilderness")) {
       return(PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS)
     }
@@ -804,6 +1012,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets <- I(lapply(
 LOCAL_REFERENCE_INTERACTION_REGISTRY$quick_views <- I(lapply(
   PT_LOCAL_REFERENCE_LAYER_IDS,
   function(layer_id) {
+    if (identical(layer_id, "national_monuments")) {
+      return(PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_QUICK_VIEWS)
+    }
     if (identical(layer_id, "acec")) {
       return(PT_LOCAL_REFERENCE_ACEC_QUICK_VIEWS)
     }
@@ -831,6 +1042,18 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     condition_category = c("NHT_CND_CTGY", "NHT_CND_CT"),
     create_date = c("CREATE_DAT", "CREATE_DATE"),
     modify_date = c("MODIFY_DATE", "MODIFY_DAT")
+  ),
+  national_monuments = list(
+    monument_id = c("monument_id"),
+    component_id = c("component_id"),
+    canonical_name = c("canonical_name"),
+    source_key = c("source_key"),
+    source_object_id = c("source_object_id"),
+    source_identifier = c("source_identifier"),
+    source_name = c("source_name"),
+    source_boundary_status = c("source_boundary_status"),
+    source_gis_acres = c("source_gis_acres"),
+    geometry_role = c("geometry_role")
   ),
   wilderness_study_areas = list(
     nlcs_id = c("NLCS_ID"),
@@ -880,6 +1103,50 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     management_protect = c("SPCL_MGMT_ATTN_RX_PRTCT"),
     management_prevent = c("SPCL_MGMT_ATTN_RX_PRVNT")
   )
+)
+
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_REFERENCE_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_reference.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_ALIASES_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_aliases.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_COMPONENTS_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_components.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_HISTORY_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_designation_history.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_DOCUMENTS_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_documents.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_MANAGEMENT_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_management.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_RELATIONSHIPS_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_relationships.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCES_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_source_register.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_VALUES_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_values.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_UI_FILTERS_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_ui_filter_lookup.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_GEOMETRY_TRUST_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_geometry_trust_metadata.csv"
+)
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCE_GEOMETRY_ROLES_PATH <- file.path(
+  "00_config", "local_reference_national_monuments_source_geometry_roles.csv"
+)
+
+PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_BOUNDARY_CAVEAT <- paste(
+  "The mapped boundary is authoritative designation reference geometry.",
+  "It is not an ownership or cadastral boundary, does not establish public",
+  "access, and can include non-federal land or inholdings. Verify current",
+  "land status, closures, permits, and agency direction before field use."
 )
 
 PT_LOCAL_REFERENCE_ACEC_COMPONENTS_PATH <- file.path(

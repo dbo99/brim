@@ -56,6 +56,11 @@ Discovery and historical evidence only. Never automatically controlling.
 - UIC pipeline: `/02_preprocess/67_uic_aquifer_exemptions_pipeline/README.md`
 - Federal Wilderness feature: `/08_docs/features/FEDERAL_WILDERNESS.md`
 - Federal Wilderness pipeline: `/02_preprocess/68_federal_wilderness_pipeline/README.md`
+- National Monuments feature: `/08_docs/features/NATIONAL_MONUMENTS.md`
+- National Monuments pipeline:
+  `/02_preprocess/70_national_monuments_pipeline/README.md`
+- National Monuments 20-record agency/style audit:
+  `/qa/qa_local_reference_national_monument_agency_styles.R`
 - Local Reference semantic labels:
   `/08_docs/features/LOCAL_REFERENCE_SEMANTIC_LABELS.md`
 

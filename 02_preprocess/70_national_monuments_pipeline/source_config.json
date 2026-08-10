@@ -1,0 +1,76 @@
+{
+  "pipeline_version": "1.0.0",
+  "output_crs": 4326,
+  "sources": [
+    {
+      "source_key": "blm_current",
+      "agency": "BLM",
+      "layer_url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_Natl_NLCS_National_Monuments_National_Conservation_Areas_Polygons/FeatureServer/0",
+      "discovery_where": "NLCS_ID IN ('NLCS000315','NLCS000316','NLCS000320','NLCS000314','NLCS000318','NLCS002020','NLCS000317','NLCS000732','NLCS000321')",
+      "target_fields": ["NLCS_ID"],
+      "target_values": [
+        "NLCS000314",
+        "NLCS000315",
+        "NLCS000316",
+        "NLCS000317",
+        "NLCS000318",
+        "NLCS000320",
+        "NLCS000321",
+        "NLCS000732",
+        "NLCS002020"
+      ],
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "targeted durable IDs",
+      "geometry_role_to_review": "BLM-published National Monument boundary or BLM-administered component"
+    },
+    {
+      "source_key": "usfs_current",
+      "agency": "USFS",
+      "layer_url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_OtherNationalDesignatedArea_01/MapServer/0",
+      "discovery_where": "AREATYPE = 'National Monument'",
+      "target_fields": ["AREANAME", "FULLNAME"],
+      "target_values": [
+        "Berryessa Snow Mountain",
+        "Giant Sequoia",
+        "San Gabriel Mountains",
+        "Sand to Snow",
+        "Sáttítla Highlands",
+        "Saint Francis Dam",
+        "Santa Rosa and San Jacinto"
+      ],
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "National Monument attributes nationally; geometry only for reviewed target names",
+      "geometry_role_to_review": "current Forest Service designated-area boundary"
+    },
+    {
+      "source_key": "usfs_legal_status",
+      "agency": "USFS",
+      "layer_url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_OtherNationalDesignatedAreaStatus_01/MapServer/0",
+      "discovery_where": "AREATYPE = 'National Monument'",
+      "target_fields": ["AREANAME", "FULLNAME"],
+      "target_values": [
+        "Berryessa Snow Mountain",
+        "Giant Sequoia",
+        "San Gabriel Mountains",
+        "Sand to Snow",
+        "Sáttítla Highlands",
+        "Saint Francis Dam",
+        "Santa Rosa and San Jacinto"
+      ],
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "National Monument legal-status attributes nationally; geometry only for reviewed target names",
+      "geometry_role_to_review": "Forest Service legal-status transaction or boundary-history component"
+    },
+    {
+      "source_key": "nps_current",
+      "agency": "NPS",
+      "layer_url": "https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer/2",
+      "discovery_where": "UNIT_CODE IN ('CABR','CAMO','CECH','DEPO','LABE','MUWO','TULE') AND Status = 'Official'",
+      "target_fields": ["UNIT_CODE"],
+      "target_values": ["CABR", "CAMO", "CECH", "DEPO", "LABE", "MUWO", "TULE"],
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "targeted official NPS unit codes",
+      "geometry_role_to_review": "official NPS Land Resources Division unit boundary"
+    }
+  ]
+}

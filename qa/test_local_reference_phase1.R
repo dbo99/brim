@@ -43,8 +43,8 @@ expect_equal(wsa_registry$primary_count_label, "Wilderness Study Areas", "WSA pr
 expect_equal(wsa_registry$popup_layout, "tabbed_card", "WSA tabbed popup layout")
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$popup_layout == "tabbed_card"),
-  c(1L, 4L, 5L, 7L),
-  "active Trails, WSA, Federal Wilderness, and ACEC use the shared tabbed popup shell"
+  c(1L, 2L, 4L, 5L, 7L),
+  "active Trails, National Monuments, WSA, Federal Wilderness, and ACEC use the shared tabbed popup shell"
 )
 stopifnot(!isTRUE(wsa_registry$show_component_count))
 stopifnot(isTRUE(wsa_registry$feature_selection_supported))
@@ -62,12 +62,12 @@ expect_equal(wsa_registry$zoom_max, 12, "WSA maximum zoom")
 stopifnot(isTRUE(wsa_registry$preserve_view_on_reset))
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_selection_supported),
-  c(1L, 4L, 5L, 7L),
+  c(1L, 2L, 4L, 5L, 7L),
   "current selection-enabled rows"
 )
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$auto_zoom_supported),
-  c(1L, 4L, 5L, 7L),
+  c(1L, 2L, 4L, 5L, 7L),
   "current Auto-zoom-enabled rows"
 )
 expect_equal(

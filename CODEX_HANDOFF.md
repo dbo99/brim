@@ -18,6 +18,26 @@ Provide:
 
 Do not attach unrelated rollback folders or broad historical dumps unless the task specifically requires them.
 
+For National Monuments work, also read
+`08_docs/features/NATIONAL_MONUMENTS.md`,
+`02_preprocess/70_national_monuments_pipeline/README.md`, the tracked
+`local_reference_national_monuments_*` tables, and the focused phase-5 tests.
+Use `acquire_authoritative_sources.R` as the canonical acquisition entry point.
+The earlier Python acquisition script has been removed from tracked source; its
+retained immutable snapshot is QA evidence only and must not become a
+production dependency.
+For Tule Lake, also require the focused R-only
+`acquire_tule_lake_authoritative_source.R` addendum and its exact USFWS
+`FWSSpecialDesignation` `OBJECTID=135`/GlobalID contract. The NPS `TULE`
+feature is only the Segregation Center agency component; it must never be
+treated as the complete semantic monument.
+If the task includes National Park/Preserve context, use the separate targeted
+`acquire_nps_park_preserve_context.R` →
+`build_nps_park_preserve_context.R` →
+`05_map_build/11_refresh_local_reference_nps_context_cache.r` path. Preserve
+the legislative-boundary-versus-tract-interest distinction; context must not
+enter the 20-monument semantic universe.
+
 ## Environment roles
 
 - Source authoring: `BRIM_v0.38_source_repo`
@@ -70,6 +90,14 @@ Do not modify files if the base state or source reconciliation is materially inc
 Run focused source tests, sync an exact manifest to `codex_ship`, run only the required stage, prove sibling integrity, build a realistic HTML, run mounted browser tests, and report path/size/SHA plus manual review targets.
 
 Stop for human visual acceptance before staging or committing.
+
+For the current National Monuments work, the isolated realistic candidate is
+`06_output/html/PortaTreasure2_core_20260810_105524.html` (205,006,831 bytes;
+SHA-256 `09fb5b9567a90a88431f9b960de18becfdd4e7ca5639e1a3789144e94baf65a1`).
+It has passed the focused source/cache/browser contract and remains stopped at
+the release gate. Human visual acceptance passed on 2026-08-10; production
+remains untouched until the authorized merge and protected deployment gates
+complete.
 
 ## Git/release boundary
 
