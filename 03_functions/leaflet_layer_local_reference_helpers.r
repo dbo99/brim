@@ -3133,11 +3133,169 @@ pt_reference_overlay_groups <- function(reference_layers) {
   unique(groups)
 }
 
+pt_nps_context_popup_html <- function(x, geometry_role) {
+  vapply(seq_len(nrow(x)), function(index) {
+    unit_name <- htmltools::htmlEscape(as.character(x$unit_name[[index]]))
+    unit_type <- htmltools::htmlEscape(as.character(x$unit_type_label[[index]]))
+    official_page <- htmltools::htmlEscape(as.character(x$official_page[[index]]))
+    boundary_area <- format(
+      round(as.numeric(x$legislative_boundary_area_sq_mi[[index]]), 1),
+      big.mark = ",", trim = TRUE
+    )
+    land_area <- format(
+      round(as.numeric(x$displayed_land_interest_area_sq_mi[[index]]), 1),
+      big.mark = ",", trim = TRUE
+    )
+    role_explanation <- if (geometry_role == "legislative_boundary") {
+      paste0(
+        "This restrained outline is the official legislative/authorized NPS unit ",
+        "boundary. It is not an ownership polygon and may contain private, public, ",
+        "or other-federal inholdings."
+      )
+    } else {
+      paste0(
+        "The light fill combines NPS fee land (after conservative masking by ",
+        "authoritative non-NPS tract statuses) with explicit NPS less-than-fee ",
+        "interests. Less-than-fee interests are not represented as fee ownership."
+      )
+    }
+    paste0(
+      "<div class=\"pt-popup pt-nps-context-popup\">",
+      "<b>", unit_name, "</b><br>", unit_type,
+      "<br><span style=\"font-size:11px;color:#555;\">",
+      htmltools::htmlEscape(role_explanation), "</span>",
+      "<br><b>Legislative boundary:</b> approximately ", boundary_area, " mi²",
+      "<br><b>Displayed NPS land / interest:</b> approximately ", land_area, " mi²",
+      "<br><b>Tract classes:</b> fee ", x$nps_fee_tract_count[[index]],
+      "; less-than-fee ", x$nps_less_than_fee_tract_count[[index]],
+      "; private ", x$private_tract_count[[index]],
+      "; public ", x$public_nonfederal_tract_count[[index]],
+      "; other federal ", x$other_federal_tract_count[[index]],
+      "<br><a href=\"", official_page,
+      "\" target=\"_blank\" rel=\"noopener noreferrer\">NPS official unit page</a>",
+      "<br><span style=\"font-size:10px;color:#666;\">Source: NPS Land Resources ",
+      "Division Boundary and Tract Data Service (official boundary layer 2; ",
+      "tract/interest layer 1).</span></div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_nps_context_hover_html <- function(x) {
+  vapply(seq_len(nrow(x)), function(index) {
+    unit_name <- htmltools::htmlEscape(as.character(x$unit_name[[index]]))
+    area_sq_mi <- suppressWarnings(as.numeric(
+      x$legislative_boundary_area_sq_mi[[index]]
+    ))
+    area_html <- if (is.finite(area_sq_mi) && area_sq_mi > 0) {
+      area <- format(
+        round(area_sq_mi), big.mark = ",", scientific = FALSE, trim = TRUE
+      )
+      paste0(
+        "<div class=\"pt-nps-context-hover-area\">~", area, " mi²</div>"
+      )
+    } else {
+      ""
+    }
+    paste0(
+      "<div class=\"pt-nps-context-hover-lines\">",
+      "<div class=\"pt-nps-context-hover-title\"><strong>",
+      unit_name, "</strong></div>", area_html, "</div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_add_nps_park_preserve_context_layers <- function(m, nps_context = NULL) {
+  if (is.null(nps_context)) return(m)
+  pt_validate_local_reference_nps_context(nps_context)
+  nps_color <- pt_local_reference_accepted_agency_color("nps")
+  land <- nps_context$land_interest
+  boundary <- nps_context$boundaries
+  land$popup_html <- pt_nps_context_popup_html(land, "nps_land_or_interest")
+  boundary$popup_html <- pt_nps_context_popup_html(
+    boundary, "legislative_boundary"
+  )
+  land$hover_html <- pt_nps_context_hover_html(land)
+  boundary$hover_html <- pt_nps_context_hover_html(boundary)
+
+  for (type_key in c("national_park", "national_preserve")) {
+    group_name <- pt_local_reference_nps_context_group_name(type_key)
+    land_type <- land[land$unit_type_key == type_key, , drop = FALSE]
+    boundary_type <- boundary[
+      boundary$unit_type_key == type_key, , drop = FALSE
+    ]
+    m <- m |>
+      leaflet::addPolygons(
+        data = land_type,
+        group = group_name,
+        layerId = ~context_geometry_key,
+        fill = TRUE,
+        fillColor = nps_color,
+        fillOpacity = 0.065,
+        color = nps_color,
+        weight = 0.6,
+        opacity = 0.28,
+        popup = ~popup_html,
+        popupOptions = leaflet::popupOptions(maxWidth = 390, minWidth = 300),
+        label = lapply(land_type$hover_html, htmltools::HTML),
+        labelOptions = leaflet::labelOptions(
+          direction = "auto",
+          opacity = 0.9,
+          textsize = "11px",
+          className = "pt-nps-context-hover-tooltip",
+          style = list(
+            "white-space" = "normal",
+            "width" = "max-content",
+            "max-width" = "min(320px, calc(100vw - 32px))",
+            "overflow-wrap" = "normal",
+            "word-break" = "normal"
+          )
+        ),
+        options = leaflet::pathOptions(pane = "pane_huc"),
+        highlightOptions = leaflet::highlightOptions(
+          weight = 1.4, opacity = 0.55, bringToFront = FALSE
+        )
+      ) |>
+      leaflet::addPolygons(
+        data = boundary_type,
+        group = group_name,
+        layerId = ~context_geometry_key,
+        fill = FALSE,
+        color = nps_color,
+        weight = 1.2,
+        opacity = 0.68,
+        dashArray = "5,4",
+        popup = ~popup_html,
+        popupOptions = leaflet::popupOptions(maxWidth = 390, minWidth = 300),
+        label = lapply(boundary_type$hover_html, htmltools::HTML),
+        labelOptions = leaflet::labelOptions(
+          direction = "auto",
+          opacity = 0.9,
+          textsize = "11px",
+          className = "pt-nps-context-hover-tooltip",
+          style = list(
+            "white-space" = "normal",
+            "width" = "max-content",
+            "max-width" = "min(320px, calc(100vw - 32px))",
+            "overflow-wrap" = "normal",
+            "word-break" = "normal"
+          )
+        ),
+        options = leaflet::pathOptions(pane = "pane_huc"),
+        highlightOptions = leaflet::highlightOptions(
+          weight = 2, opacity = 0.9, bringToFront = FALSE
+        )
+      ) |>
+      leaflet::hideGroup(group_name)
+  }
+  m
+}
+
 pt_add_reference_layers <- function(
     m,
     reference_layers,
     map_display,
-    labels_all = NULL) {
+    labels_all = NULL,
+    nps_context = NULL) {
   
   if (!isTRUE(map_display$add_reference_layers)) {
     return(m)
@@ -3147,6 +3305,11 @@ pt_add_reference_layers <- function(
     message("No reference layers found; skipping.")
     return(m)
   }
+
+  ## The Park/Preserve context is owned by the National Monuments card but is
+  ## not itself a user-facing Local overlay or a monument semantic layer. Draw
+  ## it below monument polygons and keep both type groups hidden by default.
+  m <- pt_add_nps_park_preserve_context_layers(m, nps_context)
   
   ref_get_chr <- function(x, fields, fallback = "") {
     out <- rep(fallback, nrow(x))
@@ -3229,7 +3392,7 @@ pt_add_reference_layers <- function(
     special_ref <- FALSE
     interactive_local_reference <- FALSE
     if (
-      nm %in% c("trails", "wildernessstudyarea", "fedwilderness", "acec") &&
+      nm %in% c("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec") &&
       "pt_local_reference_geometry_key" %in% names(x) &&
       "pt_reference_hover_text" %in% names(x) &&
       "pt_reference_hover_html" %in% names(x)
@@ -3398,6 +3561,8 @@ pt_add_reference_layers <- function(
                 "pt-fw-hover-tooltip"
               } else if (identical(nm, "acec")) {
                 "pt-acec-hover-tooltip"
+              } else if (identical(nm, "monuments")) {
+                "pt-nm-hover-tooltip"
               } else {
                 "pt-wsa-hover-tooltip"
               },
@@ -3503,7 +3668,8 @@ pt_add_reference_layers <- function(
   m <- pt_add_local_reference_controller(
     m,
     reference_layers = reference_layers,
-    labels_all = labels_all
+    labels_all = labels_all,
+    nps_context = nps_context
   )
 
   m

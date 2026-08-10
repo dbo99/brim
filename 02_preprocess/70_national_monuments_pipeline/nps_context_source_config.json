@@ -1,0 +1,31 @@
+{
+  "pipeline_version": "1.0.0",
+  "output_crs": 4326,
+  "scope": "Current official National Parks and National Preserves wholly or partly in California; complete cross-border geometry retained",
+  "sources": [
+    {
+      "source_key": "nps_park_preserve_boundaries",
+      "agency": "NPS",
+      "layer_url": "https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer/2",
+      "discovery_where": "Status = 'Official' AND UNIT_TYPE IN ('National Parks','National Preserves') AND STATE LIKE '%CA%'",
+      "target_fields": ["UNIT_CODE"],
+      "target_values": ["CHIS", "DEVA", "JOTR", "KICA", "LAVO", "MOJA", "PINN", "REDW", "SEQU", "YOSE"],
+      "require_discovery_exact_target_set": true,
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "all official National Park and National Preserve unit boundaries with California in the authoritative STATE field",
+      "geometry_role_to_review": "official NPS Land Resources Division legislative or authorized unit boundary; not an ownership polygon"
+    },
+    {
+      "source_key": "nps_park_preserve_tracts",
+      "agency": "NPS",
+      "layer_url": "https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer/1",
+      "discovery_where": "ALPHA IN ('CHIS','DEVA','JOTR','KICA','LAVO','MOJA','PINN','REDW','SEQU','YOSE')",
+      "target_fields": ["ALPHA"],
+      "target_values": ["CHIS", "DEVA", "JOTR", "KICA", "LAVO", "MOJA", "PINN", "REDW", "SEQU", "YOSE"],
+      "require_discovery_exact_target_set": true,
+      "expected_geometry_type": "esriGeometryPolygon",
+      "discovery_scope": "all tract/interest records for the exact target unit-code set",
+      "geometry_role_to_review": "authoritative NPS Land Resources Division tract ownership and interest status; classification required before display"
+    }
+  ]
+}

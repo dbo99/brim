@@ -45,6 +45,66 @@ Use only when existing retained processed products are authoritative and the cor
 
 Use a layer-owned refresh entry point when one cache child can be updated without rewriting siblings. Record before/after child hashes and require unchanged sibling hashes.
 
+#### National Monuments focused reproduction
+
+National Monuments is owned by
+`02_preprocess/70_national_monuments_pipeline/`. Its canonical network
+acquisition is R-based. The earlier Python acquisition implementation has been
+removed from tracked source; only its immutable raw snapshot remains as
+independent QA evidence and no BRIM build step depends on Python.
+
+Run the following gates separately and only in the isolated build workspace:
+
+1. acquire a new immutable snapshot only when source refresh is actually
+   required:
+
+   ```bash
+   Rscript 02_preprocess/70_national_monuments_pipeline/acquire_authoritative_sources.R \
+     --output-root /path/to/external/national_monuments_authoritative_snapshots
+   ```
+
+2. require `COMPLETE.json`, no `FAILED.json`, exact four-source counts/IDs, and
+   the acquisition manifest before candidate work. Tule Lake additionally
+   requires the focused USFWS addendum acquired with
+   `acquire_tule_lake_authoritative_source.R`; require its exact one-record
+   `OBJECTID=135` / GlobalID contract and separate `COMPLETE.json`;
+3. if an independent snapshot is being reconciled, run
+   `qa_reconcile_acquisitions.R --reference ... --candidate ... --output ...`
+   and require the tiered report to pass;
+4. build a new external candidate with
+   `build_national_monuments_candidate.R --snapshot ... --tule-snapshot ...
+   --output-dir ...`
+   and review source roles, validity repair, simplification benchmarks, area
+   changes, overlaps, migration, and exact 20-semantic/22-display counts;
+5. promote only the explicitly reviewed candidate to the isolated processed
+   RDS using `promote_reviewed_candidate.R` with its expected SHA-256;
+6. run only
+   `Rscript 05_map_build/10_refresh_local_reference_national_monuments_cache.r`,
+   require every unrelated reference/label child hash to remain unchanged,
+   and rerun once to prove deterministic aggregates;
+7. run the focused R/JavaScript QA, then `build_final_map_only()` and mounted
+   browser QA.
+
+The optional National Park/Preserve context is a separate targeted child of
+this feature. When a source refresh is justified, acquire it with
+`acquire_nps_park_preserve_context.R`, build it with
+`build_nps_park_preserve_context.R`, review the immutable candidate and hash,
+then run `05_map_build/11_refresh_local_reference_nps_context_cache.r` with the
+explicit `BRIM_NPS_CONTEXT_CANDIDATE_RDS` and
+`BRIM_NPS_CONTEXT_CANDIDATE_SHA256` variables. This standalone cache must not
+rewrite the shared Local Reference or label caches. Require exact 10-unit and
+6,207-tract source counts, 20 display records, valid/nonempty geometry,
+inholding-hole retention, and a deterministic second cache run before the
+realistic build.
+
+Do not reacquire to force derived R JSON text to match an independent
+serializer. Corresponding untouched authoritative responses use exact hash
+parity; parsed numeric attributes and coordinates use the documented tiered
+tolerances. Raw snapshots, candidates, processed RDS/GPKG, caches, QA run
+outputs, and realistic HTML stay external. Exact source/query/count/hash and
+current candidate contracts are recorded in the pipeline README and
+`08_docs/features/NATIONAL_MONUMENTS.md`.
+
 ### 5. Focused preprocessor
 
 Run only after the preprocessor gate below passes.

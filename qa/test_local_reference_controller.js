@@ -805,6 +805,11 @@ assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wil
 assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-categories{display:block}'));
 assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-values{display:block}'));
 assert.ok(controllerSource.includes('[data-pt-local-reference-layer="federal_wilderness"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto'));
+assert.ok(controllerSource.includes('class="pt-nm-shared-boundary-row"'));
+assert.ok(controllerSource.includes('counts: matching / total'));
+assert.ok(controllerSource.includes("setAttribute('title', countDescription)"));
+assert.ok(!controllerSource.includes('Map colors'));
+assert.ok(!controllerSource.includes('pt-nm-map-key'));
 window.BRIM.localReferenceController.destroy();
 assert.strictEqual((layers.g1.listeners.click || []).length, 0);
 

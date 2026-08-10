@@ -1,0 +1,18 @@
+monument_id,relationship_id,relationship_type,target_name,evidence_basis,note,verification_date
+nm_ca_berryessa_snow_mountain,bsm_multi,administrative relationship,BLM + USDA Forest Service,Current official agency sources,Joint federal administration; no invented primary agency.,2026-08-09
+nm_ca_castle_mountains,camo_mojave,administrative relationship,Mojave National Preserve,NPS laws/policies,Castle Mountains is co-managed administratively with Mojave National Preserve but remains distinct.,2026-08-09
+nm_ca_cesar_e_chavez,cech_center,management/ownership relationship,National Chavez Center,NPS current management/compendium,NPS manages ~2.8 acres; other property in the 117-acre monument/NHL context is privately owned by the Center.,2026-08-09
+nm_ca_muir_woods,muwo_goga,administrative relationship,Golden Gate National Recreation Area,NPS current nature page,Muir Woods is administered within GGNRA while retaining National Monument identity.,2026-08-09
+nm_ca_sand_to_snow,sts_multi,administrative relationship,BLM + USDA Forest Service,Current official agency sources,Joint federal administration.,2026-08-09
+nm_ca_santa_rosa_san_jacinto,srsj_multi,administrative relationship,BLM + USDA Forest Service,Current official agency sources,Joint federal administration.,2026-08-09
+nm_ca_tule_lake,tule_predecessor,historical/legal relationship,World War II Valor in the Pacific National Monument — Tule Lake Unit,NPS current management/history + P.L. 116-9,Predecessor unit redesignated as current Tule Lake National Monument in 2019.,2026-08-09
+nm_ca_tule_lake,tule_segregation_center,constituent relationship,Segregation Center,NPS current management page,,2026-08-09
+nm_ca_tule_lake,tule_the_peninsula_castle_rock,constituent relationship,The Peninsula / Castle Rock,NPS current management page + USFWS National Realty special-designation GIS,USFWS-administered constituent within Tule Lake National Wildlife Refuge.,2026-08-10
+nm_ca_tule_lake,tule_camp_tulelake,constituent relationship,Camp Tulelake,NPS current management page + USFWS National Realty special-designation GIS,USFWS-administered constituent within Tule Lake National Wildlife Refuge.,2026-08-10
+nm_ca_california_coastal,ccnm_trinidad_head_lighthouse,constituent relationship,Trinidad Head Lighthouse,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_california_coastal,ccnm_waluplh_lighthouse_ranch,constituent relationship,Waluplh-Lighthouse Ranch,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_california_coastal,ccnm_lost_coast_headlands,constituent relationship,Lost Coast Headlands,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_california_coastal,ccnm_point_arena_stornetta,constituent relationship,Point Arena-Stornetta,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_california_coastal,ccnm_cotoni_coast_dairies,constituent relationship,Cotoni-Coast Dairies,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_california_coastal,ccnm_piedras_blancas,constituent relationship,Piedras Blancas,BLM current California Coastal National Monument page,,2026-08-09
+nm_ca_chuckwalla,chuck_wilderness,spatial/legal relationship,Congressionally designated Wilderness and ACECs within/bordering monument landscape,BLM current Chuckwalla page,Retain as descriptive relationship; production overlay should use BRIM authoritative layers if exposed.,2026-08-09

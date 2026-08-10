@@ -23,6 +23,11 @@ See `AGENTS.md` for mandatory workflow and safety rules.
 5. `08_docs/DOCUMENTATION_INDEX.md` — feature, pipeline, checkpoint, audit, and historical documents.
 6. `CODEX_HANDOFF.md` — reusable startup contract for a fresh Codex thread.
 
+Current Local Reference feature contracts include
+`08_docs/features/NATIONAL_MONUMENTS.md` and its focused canonical R pipeline at
+`02_preprocess/70_national_monuments_pipeline/README.md`, including the
+separate official NPS Park/Preserve boundary-plus-tract context path.
+
 ## Main entry point
 
 ```r

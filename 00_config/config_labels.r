@@ -85,6 +85,7 @@ LABEL_ZOOM <- tibble::tribble(
   "fedwilderness",        "Federal Wilderness",    "Labels: Federal Wilderness",     8.0,       Inf,
   "wildernessstudyarea",  "Wilderness Study Areas", "Labels: Wilderness Study Areas", 8.0,       Inf,
   "trails",               "National Scenic/Historic Trails", "Labels: National Scenic/Historic Trails", 7.0, Inf,
+  "monuments",            "National Monuments",    "Labels: National Monuments",      7.0,       Inf,
   "wilderness",           "Wilderness",            "Labels: Wilderness",             8.0,       Inf,
   "wild_scenic_corridor", "Wild & Scenic Rivers",  "Labels: Wild & Scenic Rivers",   8.5,       Inf,
   "wild_scenic_reaches",  "W&S River Reaches",     "Labels: W&S River Reaches",     10.0,       Inf,
@@ -135,6 +136,7 @@ LABEL_INCLUDE <- list(
   fedwilderness = TRUE,
   wildernessstudyarea = TRUE,
   trails = TRUE,
+  monuments = TRUE,
   wilderness = TRUE,
   wild_scenic_corridor = TRUE,
   wild_scenic_reaches = TRUE,
@@ -183,6 +185,7 @@ LABEL_FIELDS <- list(
   acec          = "pt_reference_label_text",
   wildernessstudyarea = "pt_reference_label_text",
   trails             = "pt_reference_label_text",
+  monuments          = "pt_reference_label_text",
   allotments    = "ALLOT_NAME",
   
   ## Water districts are cached with a cleaned display field created during
@@ -252,6 +255,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "Federal Wilderness",
+    "National Monuments",
     "ACECs",
     "Wilderness Study Areas",
     "National Scenic/Historic Trails",
@@ -284,6 +288,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
     "Federal Wilderness",
+    "National Monuments",
     "ACECs",
     "Wilderness Study Areas",
     "National Scenic/Historic Trails",
@@ -305,26 +310,27 @@ INLINE_LABEL_PAIRS <- data.frame(
 
 LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY <- data.frame(
   layer_id = c(
-    "acec", "federal_wilderness", "wilderness_study_areas",
+    "acec", "federal_wilderness", "national_monuments", "wilderness_study_areas",
     "national_scenic_historic_trails"
   ),
   source_nickname = c(
-    "acec", "fedwilderness", "wildernessstudyarea", "trails"
+    "acec", "fedwilderness", "monuments", "wildernessstudyarea", "trails"
   ),
   label_id = c(
-    "acec", "fedwilderness", "wildernessstudyarea", "trails"
+    "acec", "fedwilderness", "monuments", "wildernessstudyarea", "trails"
   ),
-  semantic_id_field = rep("pt_local_reference_semantic_key", 4),
-  geometry_id_field = rep("pt_local_reference_geometry_key", 4),
-  label_text_field = rep("pt_reference_label_text", 4),
+  semantic_id_field = rep("pt_local_reference_semantic_key", 5),
+  geometry_id_field = rep("pt_local_reference_geometry_key", 5),
+  label_text_field = rep("pt_reference_label_text", 5),
   anchor_strategy = c(
     "polygon_semantic_point_on_surface",
+    "polygon_visible_component_point_on_surface",
     "polygon_visible_component_point_on_surface",
     "polygon_semantic_point_on_surface",
     "line_semantic_longest_component_midpoint"
   ),
-  visible_component_aware = c(FALSE, TRUE, FALSE, FALSE),
-  lbl_available = rep(TRUE, 4),
+  visible_component_aware = c(FALSE, TRUE, TRUE, FALSE, FALSE),
+  lbl_available = rep(TRUE, 5),
   stringsAsFactors = FALSE
 )
 

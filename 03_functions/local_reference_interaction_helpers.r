@@ -1,9 +1,9 @@
 # ==== local_reference_interaction_helpers.r ================================
 ##
 ## Shared contracts for the bounded Local > Reference interaction framework.
-## Phase 4 executes California ACECs beside the accepted Trails, Wilderness
-## Study Areas, and Federal Wilderness implementations. The remaining seven
-## rows stay validation-only.
+## Phase 5 executes National Monuments beside the accepted Trails, Wilderness
+## Study Areas, Federal Wilderness, and ACEC implementations. The remaining
+## six rows stay validation-only.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -159,8 +159,8 @@ pt_validate_local_reference_config <- function() {
     stop("Default Local Reference visible counts must use semantic features.")
   }
   if (any(!registry$popup_layout %in% c("standard", "tabbed_card")) ||
-      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 4L, 5L, 7L))) {
-    stop("Tabbed Local Reference popup layout must remain Trails/WSA/Federal Wilderness/ACEC-only.")
+      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 2L, 4L, 5L, 7L))) {
+    stop("Tabbed Local Reference popup layout must remain Trails/National Monuments/WSA/Federal Wilderness/ACEC-only.")
   }
 
   expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE)
@@ -171,16 +171,17 @@ pt_validate_local_reference_config <- function() {
   }
   if (!identical(
     which(registry$implementation_status %in% c(
-      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness", "phase4_acec"
+      "phase2_trails", "phase5_national_monuments", "phase1_wsa",
+      "phase3_federal_wilderness", "phase4_acec"
     )),
-    c(1L, 4L, 5L, 7L)
+    c(1L, 2L, 4L, 5L, 7L)
   )) {
-    stop("Local Reference execution must remain limited to Trails, WSA, Federal Wilderness, and ACEC.")
+    stop("Local Reference execution must remain limited to Trails, National Monuments, WSA, Federal Wilderness, and ACEC.")
   }
-  if (!identical(which(registry$feature_selection_supported), c(1L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_supported), c(1L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_default), c(1L, 4L, 5L, 7L))) {
-    stop("Named-feature selection and Auto-zoom must remain Trails/WSA/Federal Wilderness/ACEC-only.")
+  if (!identical(which(registry$feature_selection_supported), c(1L, 2L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_supported), c(1L, 2L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_default), c(1L, 2L, 4L, 5L, 7L))) {
+    stop("Named-feature selection and Auto-zoom must remain Trails/National Monuments/WSA/Federal Wilderness/ACEC-only.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[1]], use.names = FALSE),
@@ -190,6 +191,16 @@ pt_validate_local_reference_config <- function() {
     )
   )) {
     stop("Phase 2 Trails named-feature search fields differ from the approved contract.")
+  }
+  if (!identical(
+    unlist(registry$feature_search_fields[[2]], use.names = FALSE),
+    c(
+      "pt_nm_canonical_name", "pt_nm_aliases", "pt_nm_administering_agencies",
+      "pt_nm_original_authority", "pt_nm_source_identifiers",
+      "pt_nm_component_names", "monument_id", "component_id"
+    )
+  )) {
+    stop("Phase 5 National Monuments named-feature search fields differ from the approved contract.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[4]], use.names = FALSE),
@@ -218,15 +229,22 @@ pt_validate_local_reference_config <- function() {
   )) {
     stop("ACEC named-feature search fields differ from the approved contract.")
   }
-  if (!identical(which(registry$retention_enabled), c(1L, 4L, 5L, 7L))) {
-    stop("Field retention must remain limited to Trails, WSA, Federal Wilderness, and ACEC.")
+  if (!identical(which(registry$retention_enabled), c(1L, 2L, 4L, 5L, 7L))) {
+    stop("Field retention must remain limited to Trails, National Monuments, WSA, Federal Wilderness, and ACEC.")
   }
   if (!identical(which(registry$distinguish_units_supported), 5L)) {
     stop("Distinguish named units must remain Federal Wilderness-only.")
   }
   facets <- unclass(registry$filter_facets)
   if (length(facets) != nrow(registry) ||
-      !identical(which(lengths(facets) > 0L), c(5L, 7L)) ||
+      !identical(which(lengths(facets) > 0L), c(2L, 5L, 7L)) ||
+      !identical(
+        vapply(facets[[2]], `[[`, character(1), "facet_key"),
+        c(
+          "administering_agency", "designation_authority",
+          "management_pattern", "recent_change", "blm_usfs_quick_view"
+        )
+      ) ||
       !identical(
         vapply(facets[[5]], `[[`, character(1), "facet_key"),
         c("management_pattern", "designation_history", "geographic_context")
@@ -235,11 +253,15 @@ pt_validate_local_reference_config <- function() {
         vapply(facets[[7]], `[[`, character(1), "facet_key"),
         c("relevant_value_family", "planning_framework", "field_office_context")
       )) {
-    stop("Federal Wilderness and ACEC must retain their exact approved filter facets.")
+    stop("National Monuments, Federal Wilderness, and ACEC must retain their exact approved filter facets.")
   }
   quick_views <- unclass(registry$quick_views)
   if (length(quick_views) != nrow(registry) ||
-      !identical(which(lengths(quick_views) > 0L), 7L) ||
+      !identical(which(lengths(quick_views) > 0L), c(2L, 7L)) ||
+      !identical(
+        vapply(quick_views[[2]], `[[`, character(1), "quick_view_key"),
+        c("blm_involved", "shared_blm_usfs", "recent_2024_2025")
+      ) ||
       !identical(
         vapply(quick_views[[7]], `[[`, character(1), "quick_view_key"),
         c(
@@ -247,7 +269,7 @@ pt_validate_local_reference_config <- function() {
           "scenic", "natural_systems"
         )
       )) {
-    stop("ACEC must retain its exact six approved quick views.")
+    stop("National Monuments and ACEC must retain their exact approved quick views.")
   }
   acec_value_styles <- facets[[7]][[1]]$values
   if (!identical(acec_value_styles, PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES) ||
@@ -308,8 +330,8 @@ pt_validate_local_reference_config <- function() {
     stop("ACEC current field-office lookup differs from the verified 14-office roster.")
   }
   if (anyNA(registry$category_filter_visible) ||
-      !identical(which(!registry$category_filter_visible), 7L)) {
-    stop("Only ACEC may hide the category filter in the active Local Reference matrix.")
+      !identical(which(!registry$category_filter_visible), c(2L, 7L))) {
+    stop("Only National Monuments and ACEC may hide the category filter in the active Local Reference matrix.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -389,8 +411,9 @@ pt_validate_local_reference_config <- function() {
     }
     if (identical(layer_id, "federal_wilderness")) {
       known <- definition$category_key %in% c("blm", "usfs", "nps", "fws")
-      expected_colors <- c(
-        blm = "#B8860B", usfs = "#228B22", nps = "#54278F", fws = "#1F78B4"
+      expected_colors <- stats::setNames(
+        pt_local_reference_accepted_agency_color(c("blm", "usfs", "nps", "fws")),
+        c("blm", "usfs", "nps", "fws")
       )
       actual_colors <- stats::setNames(
         definition$fill_color[known], definition$category_key[known]
@@ -398,6 +421,24 @@ pt_validate_local_reference_config <- function() {
       if (!identical(actual_colors[names(expected_colors)], expected_colors) ||
           any(definition$provisional)) {
         stop("Federal Wilderness must retain its accepted four-agency palette.")
+      }
+    } else if (identical(layer_id, "national_monuments")) {
+      expected_colors <- stats::setNames(
+        pt_local_reference_accepted_agency_color(c("blm", "usfs", "nps")),
+        c("blm", "usfs", "nps")
+      )
+      actual_colors <- stats::setNames(
+        definition$fill_color, definition$category_key
+      )
+      if (!identical(actual_colors[names(expected_colors)], expected_colors) ||
+          !identical(
+            unname(actual_colors[["shared_multi"]]),
+            pt_local_reference_accepted_agency_color("blm_usfs_shared")
+          ) ||
+          any(definition$provisional)) {
+        stop(
+          "National Monuments must reuse the accepted agency/shared palette."
+        )
       }
     } else if (any(!definition$provisional)) {
       stop(layer_id, " palette tokens must remain provisional until BRIM basemap review.")
@@ -2617,6 +2658,731 @@ pt_local_reference_fw_popup_payload <- function(
   )
 }
 
+pt_local_reference_nm_reference <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_REFERENCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "canonical_name", "states", "scope_basis",
+    "designation_status", "original_designation_date", "designation_year",
+    "original_authority_type", "original_authority_citation",
+    "administering_agencies", "primary_public_acres", "acreage_basis",
+    "current_official_page", "geometry_source_agencies",
+    "geometry_source_ids", "recent_material_change", "semantic_notes",
+    "confidence", "verification_date"
+  ))
+}
+
+pt_local_reference_nm_aliases <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_ALIASES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "alias", "alias_type", "note", "verification_date"
+  ))
+}
+
+pt_local_reference_nm_components <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_COMPONENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "component_key", "component_name", "component_type",
+    "agency", "managing_unit", "source_identifier",
+    "relationship_to_monument", "notes", "verification_date"
+  ))
+}
+
+pt_local_reference_nm_history <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_HISTORY_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "document_id", "instrument_type", "date", "title",
+    "official_citation", "president_or_congress", "relationship_to_monument",
+    "direct_official_url", "evidence_source_url", "verification_date",
+    "confidence", "explanatory_note"
+  ))
+}
+
+pt_local_reference_nm_documents <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_DOCUMENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "document_id", "document_type", "title", "direct_url",
+    "issuing_authority", "current_or_historical", "verification_date",
+    "validation_status", "note"
+  ))
+}
+
+pt_local_reference_nm_management <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_MANAGEMENT_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "agency", "management_role", "current_managing_unit",
+    "official_unit_page", "evidence_basis", "confidence", "note",
+    "verification_date"
+  ))
+}
+
+pt_local_reference_nm_relationships <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_RELATIONSHIPS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "relationship_id", "relationship_type", "target_name",
+    "evidence_basis", "note", "verification_date"
+  ))
+}
+
+pt_local_reference_nm_sources <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_id", "publisher", "service_title", "endpoint", "layer",
+    "geographic_scope", "source_update_date", "identifiers", "geometry_type",
+    "crs", "schema_summary", "source_role", "currentness", "suitability",
+    "caveat", "verification_date"
+  ))
+}
+
+pt_local_reference_nm_source_geometry_roles <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCE_GEOMETRY_ROLES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_key", "source_object_id", "source_identifier", "source_name",
+    "monument_id", "geometry_role", "use_for_semantic_display", "role_basis"
+  ))
+}
+
+pt_local_reference_nm_values <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_VALUES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "monument_id", "value_id", "raw_designation_object_or_purpose",
+    "normalized_value_family", "concise_public_description",
+    "evidence_document_id", "source_section_or_page", "confidence",
+    "verification_date"
+  ))
+}
+
+pt_local_reference_nm_ui_filters <- function(
+  path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_UI_FILTERS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "facet", "category", "expected_semantic_count", "exposure",
+    "within_facet_semantics", "across_facets_semantics",
+    "recommendation_note", "verification_date"
+  ))
+}
+
+pt_validate_local_reference_nm_research <- function(
+  reference = pt_local_reference_nm_reference(),
+  aliases = pt_local_reference_nm_aliases(),
+  components = pt_local_reference_nm_components(),
+  history = pt_local_reference_nm_history(),
+  documents = pt_local_reference_nm_documents(),
+  management = pt_local_reference_nm_management(),
+  relationships = pt_local_reference_nm_relationships(),
+  sources = pt_local_reference_nm_sources(),
+  values = pt_local_reference_nm_values(),
+  ui_filters = pt_local_reference_nm_ui_filters()
+) {
+  expected_ids <- sort(reference$monument_id)
+  if (nrow(reference) != 20L || anyDuplicated(reference$monument_id) ||
+      any(reference$designation_status != "Current") ||
+      !all(startsWith(reference$monument_id, "nm_ca_"))) {
+    stop("National Monuments reference must retain 20 unique current semantic records.")
+  }
+  expected_counts <- c(
+    aliases = 59L, components = 34L, history = 37L, documents = 62L,
+    management = 24L, relationships = 17L, sources = 27L, values = 74L,
+    ui_filters = 9L
+  )
+  actual_counts <- c(
+    aliases = nrow(aliases), components = nrow(components), history = nrow(history),
+    documents = nrow(documents), management = nrow(management),
+    relationships = nrow(relationships), sources = nrow(sources),
+    values = nrow(values), ui_filters = nrow(ui_filters)
+  )
+  if (!identical(actual_counts, expected_counts)) {
+    stop("National Monuments normalized-table counts differ from the reviewed contract.")
+  }
+  child_tables <- list(
+    aliases = aliases, components = components, history = history,
+    documents = documents, management = management,
+    values = values
+  )
+  incomplete <- vapply(child_tables, function(table) {
+    !all(table$monument_id %in% expected_ids) ||
+      !setequal(unique(table$monument_id), expected_ids)
+  }, logical(1))
+  if (any(incomplete)) {
+    stop(
+      "National Monuments child-table ID coverage is incomplete: ",
+      paste(names(incomplete)[incomplete], collapse = ", ")
+    )
+  }
+  if (!all(relationships$monument_id %in% expected_ids)) {
+    stop("National Monuments relationships contain an unknown semantic ID.")
+  }
+  agency_count <- function(agency) sum(grepl(
+    paste0("(^|\\|)", agency, "(\\||$)"),
+    reference$administering_agencies
+  ))
+  authority <- table(reference$original_authority_type)
+  if (!identical(
+        c(
+          BLM = agency_count("BLM"), USFS = agency_count("USFS"),
+          NPS = agency_count("NPS"), USFWS = agency_count("USFWS")
+        ),
+        c(BLM = 9L, USFS = 7L, NPS = 7L, USFWS = 1L)
+      ) ||
+      !identical(
+        as.integer(authority[c("Act of Congress", "Presidential proclamation")]),
+        c(3L, 17L)
+      ) ||
+      sum(grepl("\\|", reference$administering_agencies)) != 4L ||
+      sum(grepl("2024|2025", reference$recent_material_change)) != 4L) {
+    stop("National Monuments 9/7/7/1 agency, 17/3 authority, 4 shared, or 4 recent contract changed.")
+  }
+  filter_counts <- suppressWarnings(as.integer(ui_filters$expected_semantic_count))
+  if (!identical(filter_counts, c(9L, 7L, 7L, 1L, 17L, 3L, 4L, 16L, 4L)) ||
+      any(ui_filters$within_facet_semantics != "OR") ||
+      any(ui_filters$across_facets_semantics != "AND")) {
+    stop("National Monuments UI filter lookup differs from its reviewed OR/AND count contract.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_nm_aggregate <- function(table, id, field, collapse = " | ") {
+  values <- unique(pt_local_reference_clean_chr(
+    table[[field]][table$monument_id == id]
+  ))
+  paste(values[nzchar(values)], collapse = collapse)
+}
+
+pt_local_reference_nm_agency_labels <- function(value) {
+  labels <- c(
+    blm = "Bureau of Land Management",
+    usfs = "U.S. Forest Service",
+    nps = "National Park Service",
+    usfws = "U.S. Fish and Wildlife Service"
+  )
+  vapply(as.character(value), function(item) {
+    keys <- trimws(unlist(strsplit(tolower(item), "|", fixed = TRUE)))
+    keys <- keys[nzchar(keys)]
+    resolved <- unname(labels[keys])
+    if (length(resolved) != length(keys) || anyNA(resolved)) {
+      stop("National Monuments administration contains an unknown agency key.")
+    }
+    paste(resolved, collapse = " · ")
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_nm_html_list <- function(
+  values,
+  class_name = "",
+  escape_values = TRUE
+) {
+  values <- unique(pt_local_reference_clean_chr(values))
+  values <- values[nzchar(values)]
+  if (!length(values)) return("")
+  class_token <- if (nzchar(class_name)) paste0(" class=\"", class_name, "\"") else ""
+  rendered_values <- if (isTRUE(escape_values)) {
+    htmltools::htmlEscape(values)
+  } else {
+    values
+  }
+  paste0(
+    "<ul", class_token, ">",
+    paste0("<li>", rendered_values, "</li>", collapse = ""),
+    "</ul>"
+  )
+}
+
+pt_local_reference_nm_hover_html <- function(df) {
+  vapply(seq_len(nrow(df)), function(i) {
+    area <- pt_local_reference_format_square_miles_from_acres(
+      df$pt_nm_calculated_geometry_acres[[i]]
+    )
+    value_families <- strsplit(
+      pt_local_reference_clean_chr(df$pt_nm_value_families[[i]]),
+      " | ", fixed = TRUE
+    )[[1]]
+    value_families <- value_families[nzchar(value_families)]
+    cues <- c(
+      if (df$pt_nm_display_geometry_role[[i]] == "agency_component") {
+        paste0("Selected component: ", df$pt_nm_selected_component_label[[i]])
+      } else if (df$pt_nm_management_pattern[[i]] == "shared_multi_agency") {
+        "Complete shared monument boundary"
+      } else {
+        paste0("Administered by: ", df$pt_nm_administering_agency_label[[i]])
+      },
+      if (df$pt_nm_management_pattern[[i]] == "shared_multi_agency") {
+        paste0("Administering agencies: ", df$pt_nm_administering_agency_label[[i]])
+      } else "",
+      paste0("Designated ", df$pt_nm_designation_year[[i]]),
+      if (nzchar(area)) paste0("Approx. mapped area: ", sub("^~", "", area)) else "",
+      if (length(value_families)) {
+        paste0("Values: ", paste(utils::head(value_families, 3L), collapse = " · "))
+      } else "",
+      if (df$pt_nm_states[[i]] == "CA|OR") "Complete California–Oregon boundary" else ""
+    )
+    cues <- cues[nzchar(cues)]
+    paste0(
+      "<div class=\"pt-nm-hover-lines\"><div class=\"pt-nm-hover-line pt-nm-hover-title\">",
+      htmltools::htmlEscape(df$pt_nm_canonical_name[[i]]), "</div>",
+      paste0(
+        "<div class=\"pt-nm-hover-line\">",
+        htmltools::htmlEscape(cues), "</div>", collapse = ""
+      ),
+      "</div>"
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_nm_popup <- function(
+  df,
+  reference,
+  components,
+  history,
+  documents,
+  management,
+  relationships,
+  values
+) {
+  esc <- function(x, fallback = "Not stated") {
+    htmltools::htmlEscape(pt_local_reference_clean_chr(x, fallback))
+  }
+  vapply(seq_len(nrow(df)), function(i) {
+    row <- df[i, , drop = FALSE]
+    id <- row$monument_id[[1]]
+    ref <- reference[reference$monument_id == id, , drop = FALSE]
+    comp <- components[components$monument_id == id, , drop = FALSE]
+    hist <- history[history$monument_id == id, , drop = FALSE]
+    docs <- documents[documents$monument_id == id, , drop = FALSE]
+    mgmt <- management[management$monument_id == id, , drop = FALSE]
+    rel <- relationships[relationships$monument_id == id, , drop = FALSE]
+    vals <- values[values$monument_id == id, , drop = FALSE]
+
+    public_acres_numeric <- suppressWarnings(as.numeric(ref$primary_public_acres[[1]]))
+    public_acres <- if (is.finite(public_acres_numeric)) {
+      paste0(pt_local_reference_format_number(public_acres_numeric, 0), " acres")
+    } else {
+      pt_local_reference_clean_chr(ref$primary_public_acres[[1]])
+    }
+    mapped_area <- pt_local_reference_format_square_miles_from_acres(
+      row$pt_nm_calculated_geometry_acres[[1]]
+    )
+    overview <- c(
+      pt_local_reference_popup_section("Designation", c(
+        pt_local_reference_popup_row("Status", ref$designation_status[[1]]),
+        pt_local_reference_popup_row(
+          "Original designation",
+          paste(ref$original_designation_date[[1]], ref$original_authority_type[[1]], sep = " · ")
+        ),
+        pt_local_reference_popup_row("Authority", ref$original_authority_citation[[1]]),
+        pt_local_reference_popup_row("States", gsub("\\|", " + ", ref$states[[1]])),
+        pt_local_reference_popup_row(
+          "Administering agencies",
+          row$pt_nm_administering_agency_label[[1]]
+        ),
+        pt_local_reference_popup_row(
+          "Visible geometry",
+          if (row$pt_nm_display_geometry_role[[1]] == "agency_component") {
+            "Agency-administered component of one semantic National Monument"
+          } else {
+            "Complete semantic National Monument boundary"
+          }
+        ),
+        if (row$pt_nm_display_geometry_role[[1]] == "agency_component") {
+          pt_local_reference_popup_row(
+            "Selected component", row$pt_nm_selected_component_label[[1]]
+          )
+        } else ""
+      )),
+      pt_local_reference_popup_section("Area", c(
+        pt_local_reference_popup_row("Public reference", public_acres),
+        pt_local_reference_popup_row("Public acreage basis", ref$acreage_basis[[1]]),
+        pt_local_reference_popup_row("Mapped boundary", sub("^~", "Approx. ", mapped_area))
+      )),
+      pt_local_reference_popup_section("Context", c(
+        paste0("<p>", esc(ref$semantic_notes[[1]]), "</p>"),
+        if (nzchar(ref$recent_material_change[[1]])) {
+          paste0("<p><strong>Recent material change:</strong> ", esc(ref$recent_material_change[[1]]), "</p>")
+        } else ""
+      ))
+    )
+
+    value_items <- paste0(
+      esc(vals$normalized_value_family), ": ",
+      esc(vals$concise_public_description)
+    )
+    resources <- c(
+      pt_local_reference_popup_section(
+        "Objects and purposes",
+        pt_local_reference_nm_html_list(value_items, "pt-nm-values")
+      ),
+      pt_local_reference_popup_section("Official resources", c(
+        pt_local_reference_trails_link(ref$current_official_page[[1]], "Current official monument page"),
+        pt_local_reference_nm_html_list(vapply(seq_len(nrow(docs)), function(j) {
+          url <- pt_local_reference_clean_chr(docs$direct_url[[j]])
+          if (!nzchar(url)) return("")
+          pt_local_reference_trails_link(url, docs$title[[j]])
+        }, character(1)), "pt-nm-resource-links", escape_values = FALSE)
+      ))
+    )
+
+    management_items <- vapply(seq_len(nrow(mgmt)), function(j) {
+      unit <- pt_local_reference_clean_chr(mgmt$current_managing_unit[[j]])
+      role <- paste(mgmt$agency[[j]], mgmt$management_role[[j]], sep = " — ")
+      link <- pt_local_reference_trails_link(
+        mgmt$official_unit_page[[j]],
+        if (nzchar(unit)) unit else mgmt$agency[[j]]
+      )
+      paste0("<div class=\"pt-nm-management-row\"><strong>", esc(role),
+             "</strong>", if (nzchar(link)) paste0(": ", link) else "", "</div>")
+    }, character(1))
+    component_items <- paste0(
+      esc(comp$component_name), " — ", esc(comp$relationship_to_monument)
+    )
+    relationship_items <- paste0(
+      esc(rel$target_name), " — ", esc(rel$note)
+    )
+    management_html <- c(
+      pt_local_reference_popup_section("Administration", management_items),
+      pt_local_reference_popup_section(
+        "Named or agency components",
+        pt_local_reference_nm_html_list(component_items)
+      ),
+      if (nrow(rel)) pt_local_reference_popup_section(
+        "Relationships",
+        pt_local_reference_nm_html_list(relationship_items)
+      ) else "",
+      paste0("<div class=\"pt-lr-popup-note\">", esc(
+        PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_BOUNDARY_CAVEAT
+      ), "</div>")
+    )
+
+    history_items <- vapply(seq_len(nrow(hist)), function(j) {
+      url <- pt_local_reference_clean_chr(hist$direct_official_url[[j]])
+      if (!nzchar(url)) url <- pt_local_reference_clean_chr(hist$evidence_source_url[[j]])
+      title <- paste(
+        hist$date[[j]], hist$official_citation[[j]], hist$relationship_to_monument[[j]],
+        sep = " · "
+      )
+      link <- pt_local_reference_trails_link(url, hist$title[[j]])
+      paste0("<div class=\"pt-nm-history-row\"><strong>", esc(title),
+             "</strong>", if (nzchar(link)) paste0("<br>", link) else "", "</div>")
+    }, character(1))
+    geometry_note <- paste0(
+      "<details class=\"pt-popup-technical\"><summary>Mapped geometry</summary>",
+      pt_local_reference_popup_row(
+        "Display generalization",
+        "Topology-preserving, 1 metre in EPSG:3310"
+      ),
+      "</details>"
+    )
+    history_html <- c(
+      pt_local_reference_popup_section("Designation history", history_items),
+      geometry_note
+    )
+
+    pt_local_reference_tabbed_popup(
+      popup_key = id,
+      title = row$pt_nm_canonical_name[[1]],
+      designation_badge = "National Monument",
+      popup_class = "pt-nm-popup",
+      tablist_label = "National Monument details",
+      tabs = list(
+        list(key = "overview", label = "Overview", html = paste(overview[nzchar(overview)], collapse = "")),
+        list(key = "values", label = "Values & resources", html = paste(resources[nzchar(resources)], collapse = "")),
+        list(key = "management", label = "Management", html = paste(management_html[nzchar(management_html)], collapse = "")),
+        list(key = "history", label = "History", html = paste(history_html[nzchar(history_html)], collapse = ""))
+      )
+    )
+  }, character(1), USE.NAMES = FALSE)
+}
+
+pt_local_reference_nm_runtime_geometry <- function(x) {
+  sf_column <- attr(x, "sf_column")
+  if (is.null(sf_column) || !length(sf_column) || !sf_column %in% names(x)) {
+    sf_column <- names(x)[vapply(x, inherits, logical(1), what = "sfc")][[1]]
+  }
+  keep <- c(
+    "pt_nickname", "pt_display_name", "pt_geom_type", "monument_id", "component_id",
+    "pt_local_reference_feature_key", "pt_local_reference_semantic_key",
+    "pt_local_reference_geometry_key", "pt_local_reference_geometry_components",
+    "pt_local_reference_category_key", "pt_local_reference_category_label",
+    "fill_col", "line_col", "fill_opacity", "line_weight", "line_dash",
+    "pt_legend_swatch_style", "pt_nm_canonical_name", "pt_nm_aliases",
+    "pt_nm_display_agency_key", "pt_nm_display_agency_label",
+    "pt_nm_administering_agency_label", "pt_nm_selected_component_label",
+    "pt_nm_display_geometry_role", "pt_nm_selected_geometry_acres",
+    "pt_nm_administering_agencies", "pt_nm_authority_key",
+    "pt_nm_original_authority", "pt_nm_management_pattern",
+    "pt_nm_blm_usfs_quick_view", "pt_nm_recent_change",
+    "pt_nm_component_names", "pt_nm_source_identifiers",
+    "pt_nm_states", "pt_nm_designation_year", "pt_nm_calculated_geometry_acres",
+    "pt_nm_value_families", "pt_reference_label_text",
+    "pt_reference_hover_html", "pt_reference_hover_text", "popup_html", sf_column
+  )
+  missing <- setdiff(keep, names(x))
+  if (length(missing)) {
+    stop("National Monuments runtime geometry is missing: ", paste(missing, collapse = ", "))
+  }
+  out <- x[, keep, drop = FALSE]
+  attr(out, "pt_national_monuments_candidate_metadata") <-
+    attr(x, "pt_national_monuments_candidate_metadata")
+  out
+}
+
+pt_prepare_local_reference_national_monuments <- function(
+  x,
+  validate_snapshot = FALSE,
+  build_display = TRUE,
+  reference_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_REFERENCE_PATH,
+  aliases_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_ALIASES_PATH,
+  components_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_COMPONENTS_PATH,
+  history_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_HISTORY_PATH,
+  documents_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_DOCUMENTS_PATH,
+  management_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_MANAGEMENT_PATH,
+  relationships_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_RELATIONSHIPS_PATH,
+  sources_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCES_PATH,
+  values_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_VALUES_PATH,
+  ui_filters_path = PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_UI_FILTERS_PATH
+) {
+  pt_validate_local_reference_config()
+  if (!inherits(x, "sf") || !nrow(x)) {
+    stop("National Monuments preparation requires a non-empty sf object.")
+  }
+  required_source <- c(
+    "monument_id", "component_id", "canonical_name", "source_key",
+    "source_agency", "source_object_id", "source_identifier", "source_name",
+    "source_boundary_status", "source_gis_acres", "geometry_role",
+    "display_agency_key"
+  )
+  missing_source <- setdiff(required_source, names(x))
+  if (length(missing_source)) {
+    stop("National Monuments candidate is missing: ", paste(missing_source, collapse = ", "))
+  }
+  reference <- pt_local_reference_nm_reference(reference_path)
+  aliases <- pt_local_reference_nm_aliases(aliases_path)
+  components <- pt_local_reference_nm_components(components_path)
+  history <- pt_local_reference_nm_history(history_path)
+  documents <- pt_local_reference_nm_documents(documents_path)
+  management <- pt_local_reference_nm_management(management_path)
+  relationships <- pt_local_reference_nm_relationships(relationships_path)
+  sources <- pt_local_reference_nm_sources(sources_path)
+  values <- pt_local_reference_nm_values(values_path)
+  ui_filters <- pt_local_reference_nm_ui_filters(ui_filters_path)
+  pt_validate_local_reference_nm_research(
+    reference, aliases, components, history, documents, management,
+    relationships, sources, values, ui_filters
+  )
+
+  reference_index <- match(x$monument_id, reference$monument_id)
+  if (anyNA(reference_index) || anyDuplicated(x$component_id) ||
+      !setequal(x$monument_id, reference$monument_id)) {
+    stop(
+      "National Monuments geometry requires complete 20-ID semantic coverage ",
+      "and unique display-component IDs."
+    )
+  }
+  if (any(x$canonical_name != reference$canonical_name[reference_index])) {
+    stop("National Monuments candidate names differ from the reviewed canonical names.")
+  }
+  x$pt_nm_canonical_name <- reference$canonical_name[reference_index]
+  x$pt_nm_aliases <- vapply(x$monument_id, function(id) {
+    pt_local_reference_nm_aggregate(aliases, id, "alias")
+  }, character(1))
+  x$pt_nm_administering_agencies <- tolower(
+    reference$administering_agencies[reference_index]
+  )
+  x$pt_nm_original_authority <- paste(
+    reference$original_authority_type[reference_index],
+    reference$original_authority_citation[reference_index], sep = " · "
+  )
+  x$pt_nm_authority_key <- ifelse(
+    reference$original_authority_type[reference_index] == "Act of Congress",
+    "act_of_congress", "presidential_proclamation"
+  )
+  x$pt_nm_management_pattern <- ifelse(
+    grepl("\\|", reference$administering_agencies[reference_index]),
+    "shared_multi_agency", "single_agency"
+  )
+  x$pt_nm_blm_usfs_quick_view <- ifelse(
+    x$pt_nm_administering_agencies == "blm|usfs",
+    "shared_blm_usfs", "other"
+  )
+  x$pt_nm_administering_agency_label <- pt_local_reference_nm_agency_labels(
+    x$pt_nm_administering_agencies
+  )
+  x$pt_nm_recent_change <- ifelse(
+    grepl("2024|2025", reference$recent_material_change[reference_index]),
+    "recent_2024_2025", "not_recent"
+  )
+  x$pt_nm_states <- reference$states[reference_index]
+  x$pt_nm_designation_year <- as.integer(reference$designation_year[reference_index])
+  x$pt_nm_source_identifiers <- reference$geometry_source_ids[reference_index]
+  x$pt_nm_component_names <- vapply(x$monument_id, function(id) {
+    pt_local_reference_nm_aggregate(components, id, "component_name")
+  }, character(1))
+  x$pt_nm_value_families <- vapply(x$monument_id, function(id) {
+    pt_local_reference_nm_aggregate(values, id, "normalized_value_family")
+  }, character(1))
+  x$pt_nm_selected_geometry_acres <- pt_local_reference_geometry_acres(x)
+  x$pt_nm_calculated_geometry_acres <- ave(
+    x$pt_nm_selected_geometry_acres,
+    x$monument_id,
+    FUN = sum
+  )
+  is_agency_component <- x$geometry_role == "agency_component_primary"
+  x$pt_nm_display_geometry_role <- ifelse(
+    is_agency_component, "agency_component", "complete_semantic_boundary"
+  )
+  x$pt_nm_display_agency_key <- ifelse(
+    is_agency_component,
+    pt_local_reference_clean_chr(x$display_agency_key),
+    ifelse(
+      x$pt_nm_management_pattern == "shared_multi_agency",
+      "shared_multi",
+      x$pt_nm_administering_agencies
+    )
+  )
+  agency_labels <- c(
+    blm = "Bureau of Land Management",
+    usfs = "U.S. Forest Service",
+    nps = "National Park Service",
+    fws = "U.S. Fish and Wildlife Service",
+    shared_multi = "Shared BLM–USFS"
+  )
+  x$pt_nm_display_agency_label <- unname(
+    agency_labels[x$pt_nm_display_agency_key]
+  )
+  if (anyNA(x$pt_nm_display_agency_label)) {
+    stop("National Monuments display geometry has an unresolved agency style.")
+  }
+  component_agency <- c(blm = "BLM", usfs = "USFS", nps = "NPS", fws = "USFWS")
+  x$pt_nm_selected_component_label <- vapply(seq_len(nrow(x)), function(index) {
+    if (!is_agency_component[[index]]) return("")
+    agency <- unname(component_agency[x$pt_nm_display_agency_key[[index]]])
+    matched <- components[
+      components$monument_id == x$monument_id[[index]] &
+        components$agency == agency &
+        components$component_type != "agency management context",
+      , drop = FALSE
+    ]
+    component_names <- unique(pt_local_reference_clean_chr(matched$component_name))
+    component_names <- component_names[nzchar(component_names)]
+    if (length(component_names)) {
+      paste0(
+        paste(component_names, collapse = " · "), " — ",
+        x$pt_nm_display_agency_label[[index]]
+      )
+    } else {
+      x$pt_nm_display_agency_label[[index]]
+    }
+  }, character(1), USE.NAMES = FALSE)
+  x$pt_local_reference_feature_key <- x$monument_id
+  x$pt_local_reference_semantic_key <- x$monument_id
+  x$pt_local_reference_geometry_key <- x$component_id
+  x$pt_local_reference_geometry_components <-
+    pt_local_reference_geometry_components(x)
+  x <- pt_local_reference_apply_category_tokens(
+    x, "national_monuments", x$pt_nm_display_agency_key
+  )
+
+  if (isTRUE(build_display)) {
+    x$pt_reference_label_text <- x$pt_nm_canonical_name
+    x$pt_reference_hover_html <- pt_local_reference_nm_hover_html(x)
+    x$pt_reference_hover_text <- paste(
+      x$pt_nm_canonical_name,
+      gsub("\\|", " + ", toupper(x$pt_nm_administering_agencies)),
+      x$pt_nm_designation_year,
+      sep = " · "
+    )
+    x$popup_html <- pt_local_reference_nm_popup(
+      x, reference, components, history, documents, management,
+      relationships, values
+    )
+  }
+
+  if (isTRUE(validate_snapshot)) {
+    metadata <- attr(x, "pt_national_monuments_candidate_metadata")
+    semantic_count <- function(condition) length(unique(x$monument_id[condition]))
+    agency_membership <- c(
+      blm = semantic_count(grepl("(^|\\|)blm(\\||$)", x$pt_nm_administering_agencies)),
+      usfs = semantic_count(grepl("(^|\\|)usfs(\\||$)", x$pt_nm_administering_agencies)),
+      nps = semantic_count(grepl("(^|\\|)nps(\\||$)", x$pt_nm_administering_agencies)),
+      usfws = semantic_count(grepl("(^|\\|)usfws(\\||$)", x$pt_nm_administering_agencies))
+    )
+    if (nrow(x) != 22L || length(unique(x$monument_id)) != 20L ||
+        anyDuplicated(x$component_id) ||
+        !identical(
+          agency_membership,
+          c(blm = 9L, usfs = 7L, nps = 7L, usfws = 1L)
+        ) ||
+        semantic_count(x$pt_nm_authority_key == "presidential_proclamation") != 17L ||
+        semantic_count(x$pt_nm_authority_key == "act_of_congress") != 3L ||
+        semantic_count(x$pt_nm_management_pattern == "shared_multi_agency") != 4L ||
+        semantic_count(x$pt_nm_blm_usfs_quick_view == "shared_blm_usfs") != 3L ||
+        length(unique(x$monument_id[
+          x$pt_nm_recent_change == "recent_2024_2025"
+        ])) != 4L ||
+        sum(x$pt_nm_display_geometry_role == "agency_component") != 4L ||
+        !identical(
+          sort(x$pt_nm_display_agency_key[
+            x$monument_id == "nm_ca_sand_to_snow"
+          ]),
+          c("blm", "usfs")
+        ) ||
+        !identical(
+          sort(x$pt_nm_display_agency_key[
+            x$monument_id == "nm_ca_tule_lake"
+          ]),
+          c("fws", "nps")
+        ) ||
+        any(!sf::st_is_valid(x)) || any(sf::st_is_empty(x)) ||
+        is.null(metadata) ||
+        !identical(as.numeric(metadata$simplify_tolerance_m), 1) ||
+        !identical(as.integer(metadata$display_vertices), 175540L) ||
+        !identical(as.integer(metadata$display_polygon_parts), 24432L)) {
+      stop(
+        "National Monuments prepared snapshot differs from the accepted ",
+        "20 semantics / 22 display geometries / 24,432 parts / 175,540 vertices contract."
+      )
+    }
+  }
+  if (isTRUE(build_display)) pt_local_reference_nm_runtime_geometry(x) else x
+}
+
+pt_local_reference_nm_qa <- function(x) {
+  semantic_count <- function(condition) {
+    length(unique(x$pt_local_reference_semantic_key[condition]))
+  }
+  data.frame(
+    metric = c(
+      "semantic_monuments", "display_geometry_records", "polygon_parts",
+      "blm_involved", "usfs_involved", "nps_involved", "usfws_involved",
+      "presidential_proclamation", "act_of_congress",
+      "shared_multi_agency", "shared_blm_usfs", "recent_2024_2025",
+      "invalid", "empty"
+    ),
+    value = c(
+      length(unique(x$pt_local_reference_semantic_key)), nrow(x),
+      sum(x$pt_local_reference_geometry_components),
+      semantic_count(grepl("(^|\\|)blm(\\||$)", x$pt_nm_administering_agencies)),
+      semantic_count(grepl("(^|\\|)usfs(\\||$)", x$pt_nm_administering_agencies)),
+      semantic_count(grepl("(^|\\|)nps(\\||$)", x$pt_nm_administering_agencies)),
+      semantic_count(grepl("(^|\\|)usfws(\\||$)", x$pt_nm_administering_agencies)),
+      semantic_count(x$pt_nm_authority_key == "presidential_proclamation"),
+      semantic_count(x$pt_nm_authority_key == "act_of_congress"),
+      semantic_count(x$pt_nm_management_pattern == "shared_multi_agency"),
+      semantic_count(x$pt_nm_blm_usfs_quick_view == "shared_blm_usfs"),
+      semantic_count(x$pt_nm_recent_change == "recent_2024_2025"),
+      sum(!sf::st_is_valid(x)), sum(sf::st_is_empty(x))
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
 pt_local_reference_acec_components <- function(
   path = PT_LOCAL_REFERENCE_ACEC_COMPONENTS_PATH
 ) {
@@ -3624,12 +4390,85 @@ pt_local_reference_semantic_label_payload <- function(
   )
 }
 
+pt_validate_local_reference_nps_context <- function(x) {
+  if (is.null(x)) return(invisible(FALSE))
+  if (!is.list(x) || !identical(sort(names(x)), c("boundaries", "land_interest"))) {
+    stop("NPS Park/Preserve context must be a boundaries/land_interest list.")
+  }
+  required <- c(
+    "unit_code", "unit_name", "unit_type_key", "unit_type_label", "states",
+    "raw_tract_count", "nps_fee_tract_count",
+    "nps_less_than_fee_tract_count", "other_federal_tract_count",
+    "public_nonfederal_tract_count", "private_tract_count",
+    "legislative_boundary_area_sq_mi", "displayed_land_interest_area_sq_mi",
+    "official_page", "context_geometry_role", "context_geometry_key"
+  )
+  for (role in names(x)) {
+    layer <- x[[role]]
+    missing <- setdiff(required, names(layer))
+    if (!inherits(layer, "sf") || nrow(layer) != 10L || length(missing) ||
+        anyDuplicated(layer$unit_code) || anyDuplicated(layer$context_geometry_key) ||
+        any(sf::st_is_empty(layer)) || any(!sf::st_is_valid(layer))) {
+      stop(
+        "NPS Park/Preserve context `", role,
+        "` is invalid; missing fields: ", paste(missing, collapse = ", ")
+      )
+    }
+    if (!setequal(
+      as.character(layer$unit_code),
+      c("CHIS", "DEVA", "JOTR", "KICA", "LAVO", "MOJA", "PINN", "REDW", "SEQU", "YOSE")
+    ) || sum(layer$unit_type_key == "national_park") != 9L ||
+        sum(layer$unit_type_key == "national_preserve") != 1L) {
+      stop("NPS Park/Preserve context unit universe differs from 9 parks / 1 preserve.")
+    }
+  }
+  metadata <- attr(x, "pt_nps_context_candidate_metadata")
+  if (is.null(metadata) || as.integer(metadata$raw_tract_count) != 6207L ||
+      as.integer(metadata$total_display_feature_count) != 20L ||
+      !identical(as.numeric(metadata$selected_boundary_simplify_tolerance_m), 2) ||
+      !identical(as.numeric(metadata$selected_land_interest_simplify_tolerance_m), 5) ||
+      !isTRUE(metadata$exact_part_retention) ||
+      !isTRUE(metadata$exact_hole_retention) ||
+      isTRUE(metadata$production_release_authorized)) {
+    stop("NPS Park/Preserve context metadata differs from the reviewed candidate contract.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_nps_context_group_name <- function(unit_type_key) {
+  groups <- c(
+    national_park = "Reference – National Monuments – NPS context – National Parks",
+    national_preserve = "Reference – National Monuments – NPS context – National Preserves"
+  )
+  values <- unname(groups[as.character(unit_type_key)])
+  if (anyNA(values)) stop("Unknown NPS context unit type key.")
+  values
+}
+
+pt_local_reference_nps_context_payload <- function(x) {
+  if (is.null(x)) return(NULL)
+  pt_validate_local_reference_nps_context(x)
+  units <- sf::st_drop_geometry(x$boundaries)
+  groups <- lapply(c("national_park", "national_preserve"), function(key) {
+    list(
+      context_key = key,
+      label = if (key == "national_park") "National Parks" else "National Preserves",
+      group_name = pt_local_reference_nps_context_group_name(key),
+      unit_count = sum(units$unit_type_key == key),
+      expected_layer_count = 2L * sum(units$unit_type_key == key)
+    )
+  })
+  stats::setNames(groups, c("national_park", "national_preserve"))
+}
+
 pt_local_reference_controller_payload <- function(
     reference_layers,
-    labels_all = NULL) {
+    labels_all = NULL,
+    nps_context = NULL) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
-      "phase2_trails", "phase1_wsa", "phase3_federal_wilderness", "phase4_acec"
+      "phase2_trails", "phase5_national_monuments", "phase1_wsa",
+      "phase3_federal_wilderness", "phase4_acec"
     ),
     , drop = FALSE
   ]
@@ -3641,6 +4480,9 @@ pt_local_reference_controller_payload <- function(
       as.character(row$layer_id[[1]]), "federal_wilderness"
     )
     is_acec <- identical(as.character(row$layer_id[[1]]), "acec")
+    is_national_monuments <- identical(
+      as.character(row$layer_id[[1]]), "national_monuments"
+    )
     fw_components <- fw_reference <- fw_designations <- fw_documents <-
       fw_policy <- fw_sources <- NULL
     if (is_federal_wilderness) {
@@ -3778,6 +4620,17 @@ pt_local_reference_controller_payload <- function(
         count_mode = facet$count_mode,
         collapsible = isTRUE(facet$collapsible),
         open_default = isTRUE(facet$open_default),
+        visible = if (is.null(facet$visible)) TRUE else isTRUE(facet$visible),
+        show_toolbar = if (is.null(facet$show_toolbar)) {
+          TRUE
+        } else {
+          isTRUE(facet$show_toolbar)
+        },
+        layout_columns = if (is.null(facet$layout_columns)) {
+          1L
+        } else {
+          as.integer(facet$layout_columns)
+        },
         thematic_style = if (is.list(facet$thematic_style)) {
           facet$thematic_style
         } else {
@@ -3831,6 +4684,11 @@ pt_local_reference_controller_payload <- function(
       features = features,
       records = records,
       semantic_labels = semantic_labels,
+      nps_context = if (is_national_monuments) {
+        pt_local_reference_nps_context_payload(nps_context)
+      } else {
+        NULL
+      },
       federal_wilderness = if (is_federal_wilderness) {
         pt_local_reference_fw_popup_payload(
           fw_components, fw_reference, fw_designations, fw_documents,
@@ -3862,6 +4720,7 @@ pt_add_local_reference_controller <- function(
   m,
   reference_layers,
   labels_all = NULL,
+  nps_context = NULL,
   engine_js_path = file.path(
     "03_functions", "js", "brim_local_reference_filter_engine.js"
   ),
@@ -3869,7 +4728,11 @@ pt_add_local_reference_controller <- function(
     "03_functions", "js", "brim_local_reference_controller.js"
   )
 ) {
-  payload <- pt_local_reference_controller_payload(reference_layers, labels_all)
+  payload <- pt_local_reference_controller_payload(
+    reference_layers,
+    labels_all,
+    nps_context = nps_context
+  )
   if (!length(payload)) return(m)
   missing_js <- c(engine_js_path, controller_js_path)[
     !file.exists(c(engine_js_path, controller_js_path))
