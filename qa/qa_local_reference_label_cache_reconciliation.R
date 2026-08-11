@@ -31,7 +31,7 @@ expected_children <- c(
   "huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
   "gw_bull118", "county", "project_areas", "cnrfc_basins",
   "field_office_outer", "acec", "fedwilderness", "monuments",
-  "wildernessstudyarea", "trails", "water_districts",
+  "cadesert_ncl", "wildernessstudyarea", "trails", "water_districts",
   "cnrfc_stream", "cnrfc_precip"
 )
 expected_rows <- c(
@@ -39,7 +39,8 @@ expected_rows <- c(
   huc10 = 1128L, huc12 = 5065L, gw_bull118 = 515L,
   county = 58L, project_areas = 0L, cnrfc_basins = 345L,
   field_office_outer = 14L, acec = 238L, fedwilderness = 197L, monuments = 22L,
-  wildernessstudyarea = 63L, trails = 6L, water_districts = 3483L,
+  cadesert_ncl = 11L, wildernessstudyarea = 63L, trails = 6L,
+  water_districts = 3483L,
   cnrfc_stream = 2047L, cnrfc_precip = 3137L
 )
 if (!identical(names(canonical), expected_children)) {
@@ -51,14 +52,14 @@ if (!identical(actual_rows, expected_rows)) {
 }
 stopifnot(
   !"major_conveyance" %in% names(canonical),
-  identical(length(production), 18L),
-  identical(length(isolated_old), 18L)
+  identical(length(production), 19L),
+  identical(length(isolated_old), 19L)
 )
 
 target_children <- LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$source_nickname
 expected_semantics <- c(
   acec = 238L, fedwilderness = 158L, monuments = 20L,
-  wildernessstudyarea = 63L, trails = 6L
+  cadesert_ncl = 11L, wildernessstudyarea = 63L, trails = 6L
 )
 actual_semantics <- vapply(
   canonical[target_children],

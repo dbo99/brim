@@ -59,6 +59,9 @@ Discovery and historical evidence only. Never automatically controlling.
 - National Monuments feature: `/08_docs/features/NATIONAL_MONUMENTS.md`
 - National Monuments pipeline:
   `/02_preprocess/70_national_monuments_pipeline/README.md`
+- California Desert NCL feature: `/08_docs/features/CA_DESERT_NCL.md`
+- California Desert NCL pipeline:
+  `/02_preprocess/71_desert_ncl_pipeline/README.md`
 - National Monuments 20-record agency/style audit:
   `/qa/qa_local_reference_national_monument_agency_styles.R`
 - Local Reference semantic labels:

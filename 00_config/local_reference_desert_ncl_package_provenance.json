@@ -1,0 +1,21 @@
+{
+  "package_filename": "brim_ca_desert_ncl_enrichment_package_canonical_11units_20260804.zip",
+  "package_sha256": "5b9459bb474d441597960fe04ee8ffc3e8b1b7d5e594d31c19d0dc7ab1ab4b0b",
+  "package_date": "2026-08-04",
+  "canonical_unit_count": 11,
+  "ingested_tables": [
+    "local_reference_desert_ncl_reference.csv",
+    "local_reference_desert_ncl_source_identity.csv",
+    "local_reference_desert_ncl_aliases.csv",
+    "local_reference_desert_ncl_common_policy_language.csv",
+    "local_reference_desert_ncl_documents.csv",
+    "local_reference_desert_ncl_unit_documents.csv",
+    "local_reference_desert_ncl_source_register.csv",
+    "local_reference_desert_ncl_research_relationships.csv"
+  ],
+  "interpretive_limits": [
+    "Ten mapped units are DRECP ecoregion subarea allocations, not independently established legal conservation units.",
+    "Desert Lily Preserve is retained as the BLM source-layer identity and is not collapsed into the current Desert Lily ACEC or statutory Desert Lily Sanctuary identity.",
+    "Package office and placeholder spatial relationships are research evidence only; production context is re-derived from current accepted BRIM geometry."
+  ]
+}

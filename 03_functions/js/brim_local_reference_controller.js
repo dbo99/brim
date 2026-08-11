@@ -320,6 +320,148 @@ function(el, x, data) {
     return formatNumber(miles, digits) + ' mi²';
   }
 
+  function buildDesertNclPopup(record, data, lookup) {
+    var semantic = lookup.semantic[String(record.semantic_feature_key)] || {};
+    var component = lookup.component[String(record.geometry_key)] || {};
+    var nlcsId = cleanText(semantic.nlcs_id) || cleanText(record.semantic_feature_key);
+    var aliases = lookup.aliases[nlcsId] || [];
+    var officeContext = (lookup.officeContext[nlcsId] || []).slice().sort(function(a, b) {
+      return Number(b.percent_of_unit_area || 0) - Number(a.percent_of_unit_area || 0);
+    });
+    var displayedOffices = officeContext.filter(function(row) {
+      return row.display_context === true || /^true$/i.test(cleanText(row.display_context));
+    });
+    var related = (lookup.related[nlcsId] || []).filter(function(row) {
+      return row.normal_popup_suitable === true ||
+        /^true$/i.test(cleanText(row.normal_popup_suitable));
+    });
+    var research = lookup.research[nlcsId] || [];
+    var unitDocuments = lookup.unitDocuments[nlcsId] || [];
+    var documents = unitDocuments.map(function(link) {
+      return lookup.documents[String(link.document_id)] || null;
+    }).filter(Boolean);
+    var sourceAcres = Number(component.pt_cdncl_calculated_raw_area_acres);
+    var reportedAcres = Number(component.pt_cdncl_official_reported_acres);
+    var overview = '';
+    overview += '<p class="pt-lr-popup-summary">' +
+      escapeHtml(cleanText(semantic.mapped_unit_interpretation)) + '</p>';
+    overview += popupRow('Mapped-unit type', component.pt_cdncl_unit_type_label);
+    overview += popupRow('BLM source name', component.pt_cdncl_raw_name);
+    overview += popupRow('Stable semantic ID', nlcsId);
+    var aliasText = aliases.map(function(row) { return cleanText(row.alias); })
+      .filter(function(value, index, all) { return value && all.indexOf(value) === index; })
+      .join(' · ');
+    overview += popupRow('Reviewed aliases', aliasText);
+    var officeItems = displayedOffices.map(function(row) {
+      var office = lookup.offices[String(row.office_key)] || {};
+      var name = cleanText(office.office_name) || cleanText(row.office_name);
+      var percent = Number(row.percent_of_unit_area);
+      return '<strong>' + escapeHtml(name) + '</strong>' +
+        (isFinite(percent) ? ' — ' + formatNumber(percent, percent < 1 ? 2 : 1) +
+          '% of mapped unit area' : '');
+    });
+    overview += popupSection(
+      'Current field-office context',
+      officeItems.length ? '<ul class="pt-lr-popup-resource-list"><li>' +
+        officeItems.join('</li><li>') + '</li></ul>' : '<p>No retained context.</p>'
+    );
+    overview += '<div class="pt-cdncl-caution">' +
+      escapeHtml(cleanText(data.caveats && data.caveats.office)) + '</div>';
+    overview += popupRow('Calculated source-geometry area',
+      isFinite(sourceAcres) ? formatNumber(sourceAcres, 1) + ' acres (' +
+        formatSquareMilesFromAcres(sourceAcres) + ')' : '');
+    overview += popupRow('Published planning-document acreage',
+      isFinite(reportedAcres) ? formatNumber(reportedAcres, 0) + ' acres' : '');
+    if (nlcsId === 'NLCS002012') {
+      overview += '<div class="pt-cdncl-identity-cue"><strong>Identity caution:</strong> ' +
+        escapeHtml(cleanText(data.caveats && data.caveats.desert_lily)) + '</div>';
+    }
+    overview += '<div class="pt-cdncl-caution">' +
+      escapeHtml(cleanText(semantic.boundary_caveat)) + '</div>';
+
+    var planning = popupSection('Planning context',
+      '<p>' + escapeHtml(cleanText(semantic.planning_context)) + '</p>') +
+      popupSection('Geographic context',
+        '<p>' + escapeHtml(cleanText(semantic.geographic_description)) + '</p>') +
+      popupSection('Conservation values',
+        '<p>' + escapeHtml(cleanText(semantic.directly_supported_conservation_values)) + '</p>') +
+      popupSection('Management objectives',
+        '<p>' + escapeHtml(cleanText(semantic.directly_supported_management_objectives)) + '</p>') +
+      popupSection('BLM authority and scope',
+        '<p>' + escapeHtml(cleanText(semantic.blm_role_summary)) + '</p>' +
+        '<p class="pt-lr-popup-note">' +
+        escapeHtml(cleanText(lookup.policy.blm_authority_scope)) + '</p>') +
+      popupSection('Access and land status',
+        '<p>' + escapeHtml(cleanText(semantic.access_and_route_caveat)) + '</p>' +
+        '<p>' + escapeHtml(cleanText(semantic.land_status_caveat)) + '</p>');
+
+    var grouped = Object.create(null);
+    related.forEach(function(row) {
+      var key = cleanText(row.related_layer_label) || cleanText(row.related_layer_key);
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(row);
+    });
+    var relatedHtml = Object.keys(grouped).sort().map(function(groupLabel) {
+      var rows = grouped[groupLabel];
+      var names = rows.map(function(row) { return cleanText(row.related_feature_name); })
+        .filter(function(value, index, all) { return value && all.indexOf(value) === index; });
+      var shown = names.slice(0, 6);
+      var count = names.length || rows.length;
+      var more = names.length > shown.length ? ' · +' + (names.length - shown.length) + ' more' : '';
+      var itemLabel = count === 1 ? 'related mapped feature' : 'related mapped features';
+      return '<details class="pt-cdncl-related-group"><summary><strong>' +
+        escapeHtml(groupLabel) + '</strong> — ' + count + ' ' + itemLabel + '</summary>' +
+        '<p>' + escapeHtml(shown.join('; ') || String(rows.length) + ' mapped relationship(s)') +
+        escapeHtml(more) + '</p></details>';
+    });
+    var researchHtml = research.map(function(row) {
+      var name = cleanText(row.related_feature_name) || cleanText(row.related_brim_layer_family);
+      var link = popupLink(row.evidence_url, name);
+      return link || escapeHtml(name);
+    }).filter(Boolean);
+    var documentLinks = documents.map(function(document) {
+      return {
+        url: cleanText(document.direct_document_url) ||
+          cleanText(document.official_landing_page_url),
+        label: cleanText(document.exact_title)
+      };
+    });
+    var sourceLinks = (data.sources || []).filter(function(source) {
+      return /official/i.test(cleanText(source.authority_level));
+    }).map(function(source) {
+      return {url: source.url, label: source.source_title};
+    });
+    var relationships = popupSection(
+      'Current mapped relationships',
+      relatedHtml.length ? '<div class="pt-cdncl-related-groups">' +
+        relatedHtml.join('') + '</div>' :
+        '<p>No current mapped relationship passed the display threshold.</p>'
+    ) + '<div class="pt-cdncl-caution">' +
+      escapeHtml(cleanText(data.caveats && data.caveats.relationships)) + '</div>' +
+      popupSection('Legal and program relationships',
+        researchHtml.length ? '<ul class="pt-lr-popup-resource-list"><li>' +
+          researchHtml.join('</li><li>') + '</li></ul>' : '') +
+      popupSection('Official documents', uniqueResourceList(documentLinks)) +
+      popupSection('Source register', uniqueResourceList(sourceLinks)) +
+      '<details class="pt-popup-technical"><summary>Technical details and provenance</summary>' +
+      popupRow('NLCS ID', nlcsId) +
+      popupRow('Geometry lineage GlobalID', component.pt_cdncl_global_id) +
+      popupRow('Source OBJECTID (diagnostic only)', component.pt_cdncl_source_objectid) +
+      popupRow('Geometry component ID', component.component_id) +
+      popupRow('Source verified', component.pt_cdncl_last_verified) +
+      popupRow('Source limitations', semantic.source_limitations) + '</details>';
+
+    return tabbedPopup(component.component_id, semantic.standardized_display_name, [
+      {key: 'overview', label: 'Overview', html: overview},
+      {key: 'planning', label: 'Conservation & planning', html: planning},
+      {key: 'relationships', label: 'Related designations & sources', html: relationships}
+    ], {
+      badge: 'CA Desert NCL',
+      popupClass: 'pt-cdncl-popup',
+      tablistLabel: 'California Desert National Conservation Lands details'
+    });
+  }
+
   function buildAcecPopup(record, data, lookup) {
     var semantic = lookup.semantic[String(record.semantic_feature_key)] || {};
     var component = lookup.component[String(record.geometry_key)] || {};
@@ -637,9 +779,10 @@ function(el, x, data) {
       '.pt-lr-chip-remove{flex:0 0 auto;min-width:23px;min-height:23px;padding:0;border:0;border-radius:50%;background:transparent;color:#4d4030;font:bold 16px/1 Arial,sans-serif;cursor:pointer}.pt-lr-chip-remove:hover,.pt-lr-chip-remove:focus{background:#eadfc7;outline:2px solid #6f624c;outline-offset:1px}' +
       '.pt-lr-toolbar,.pt-lr-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:3px 0 6px}.pt-lr-toolbar button,.pt-lr-actions button{min-height:28px;padding:3px 8px;border:1px solid #817b6e;border-radius:4px;background:#fffdf8;color:#292929;cursor:pointer}.pt-lr-toolbar button:disabled,.pt-lr-actions button:disabled{cursor:default;opacity:.55}' +
       '.pt-lr-toolbar .pt-lr-toggle{display:inline-flex;align-items:center;gap:4px;margin-left:0}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:auto}' +
-      '.pt-lr-category-heading,.pt-lr-facet-heading{max-width:100%;margin:6px 0 3px;color:#544c3e;font-size:11px;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:break-word;word-break:normal}.pt-lr-categories,.pt-lr-facet-values{border-top:1px solid rgba(82,72,45,.23)}' +
+      '.pt-lr-category-heading,.pt-lr-facet-heading{max-width:100%;margin:6px 0 3px;color:#544c3e;font-size:11px;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:break-word;word-break:normal}.pt-lr-facet-cue{margin-left:5px;color:#756d60;font-size:9px;font-weight:400;white-space:nowrap}.pt-lr-categories,.pt-lr-facet-values{border-top:1px solid rgba(82,72,45,.23)}' +
       '.pt-lr-category{display:grid;grid-template-columns:18px 25px minmax(0,1fr) auto;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid rgba(82,72,45,.14)}' +
       '.pt-lr-facet{margin-top:7px}.pt-lr-facet-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.pt-lr-facet-collapsible>summary{cursor:pointer;list-style-position:outside}.pt-lr-facet-collapsible>.pt-lr-facet-toolbar{justify-content:flex-end;margin:2px 0}.pt-lr-facet-toolbar{display:flex;gap:3px}.pt-lr-facet-toolbar button{min-height:25px;padding:2px 6px;border:1px solid #817b6e;border-radius:4px;background:#fffdf8;color:#292929;cursor:pointer;font-size:10.5px}.pt-lr-facet-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(82,72,45,.12)}.pt-lr-facet-row-swatch{grid-template-columns:18px minmax(0,1fr) 13px auto}.pt-lr-facet-value-swatch{box-sizing:border-box;width:12px;height:12px;border:1px solid rgba(45,40,32,.45);border-radius:3px}.pt-lr-facet-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-distinguish-note{margin:-2px 0 5px;color:#5a5144;font-size:10.5px}.pt-lr-quick-views{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:3px 0}.pt-lr-quick-views>span{font-weight:700}.pt-lr-quick-views button{min-height:24px;padding:2px 6px;border:1px solid #8b654f;border-radius:12px;background:#fffaf3;color:#51382d;font-size:10px;cursor:pointer}.pt-lr-quick-views button[aria-pressed=true]{border:2px solid var(--pt-lr-quick-color,#6f624c);padding:1px 5px;background:color-mix(in srgb,var(--pt-lr-quick-color,#6f624c) 14%,#fffaf3);font-weight:700}.pt-lr-quick-views button[aria-pressed=true]::before{content:"\\2713";margin-right:3px}.pt-lr-thematic-state{display:flex;align-items:center;gap:4px;margin:2px 0;color:#4f493e;font-size:10px;font-weight:600}.pt-lr-thematic-state[hidden]{display:none}.pt-lr-thematic-state-swatch{box-sizing:border-box;width:12px;height:12px;border:1px solid rgba(45,40,32,.5);border-radius:3px}' +
+      '.pt-lr-facet-two-column .pt-lr-facet-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 7px}.pt-lr-facet-two-column .pt-lr-facet-row{grid-template-columns:18px minmax(0,1fr) 32px}.pt-lr-dashboard-summary{margin:2px 0 4px;color:#4f493e;font-size:10px;font-weight:600}.pt-lr-map-details>summary{position:relative;display:flex;min-height:26px;box-sizing:border-box;align-items:center;margin:1px 0;padding:3px 4px 3px 29px;border-radius:4px;cursor:pointer;list-style:none}.pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-lr-map-details>summary::before{content:"▸";position:absolute;left:7px;display:flex;width:18px;height:20px;align-items:center;justify-content:center;font-size:14px}.pt-lr-map-details[open]>summary::before{content:"▾"}.pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}' +
       '.pt-lr-swatch{display:inline-block;width:19px;height:13px;box-sizing:border-box}.pt-lr-swatch-line{height:0;border-left:0!important;border-right:0!important;border-bottom:0!important}' +
       '.pt-lr-category-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-summary{margin:6px 0;color:#3d3a35}.pt-lr-pending{font-weight:700;color:#8a4d00}' +
       '.pt-lr-caution{margin-top:7px;padding-top:6px;border-top:1px solid rgba(82,72,45,.26);color:#5a4634;font-size:11px}' +
@@ -652,6 +795,7 @@ function(el, x, data) {
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet{margin-top:2px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-toolbar{gap:2px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-toolbar button{min-height:18px;padding:0 4px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-values{display:block}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) auto;gap:3px;min-height:17px;padding:1px 0}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-summary{margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-caution>div{margin-top:2px;padding-top:3px;border-top:1px solid rgba(82,72,45,.2)}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"]{width:330px;max-height:none;overflow:visible;padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-toolbar,.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-toolbar button,.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-quick-views{margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 30px;gap:3px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet-two-column .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 24px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-facet-collapsible>summary{min-height:24px;padding:3px 4px;cursor:pointer}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-summary,.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"] .pt-lr-caution{margin:3px 0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="ca_desert_ncl"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="acec"]{width:330px;max-height:min(66vh,590px);padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-controls{gap:5px;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles{gap:5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-head-toggles input{margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-suggestions{width:250px;max-width:100%}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-toolbar button,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:3px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views>span{grid-column:1/-1;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button{width:100%;min-height:20px;padding:1px 4px;font-size:9.5px;line-height:1.12;white-space:normal}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button[aria-pressed=true]{padding:0 3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-toolbar button{min-height:19px;padding:0 5px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 14px 46px;gap:4px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row input{justify-self:center;margin:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-value-swatch{justify-self:center}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-count{width:100%;text-align:right}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-row:not(.pt-lr-facet-row-swatch) .pt-lr-facet-label{grid-column:2/4}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary{position:relative;display:flex;min-height:24px;box-sizing:border-box;align-items:center;margin:1px 0;padding:2px 4px 2px 25px;border-radius:4px;cursor:pointer;list-style:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::-webkit-details-marker,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary::before{content:"▸";position:absolute;left:5px;display:flex;width:16px;height:18px;align-items:center;justify-content:center;font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible[open]>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details[open]>summary::before{content:"▾"}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:hover,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-facet-collapsible>summary:focus-visible,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-summary{margin:3px 0}.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="acec"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"]{width:330px;max-height:none;overflow:visible;padding:6px 8px;font-size:10.5px;line-height:1.22}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head{align-items:center;margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-title{font-size:13px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-controls{gap:5px;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-toggles{gap:5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-head-toggles input{margin:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-feature-picker{margin:2px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-suggestions{width:250px;max-width:100%}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-search{min-height:27px;padding:3px 5px;font-size:11px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-actions{gap:4px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-actions button{min-height:23px;padding:1px 6px;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:3px;margin:2px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views>span{grid-column:1/-1;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views button{width:100%;min-height:20px;padding:1px 4px;font-size:9.5px;line-height:1.12;white-space:normal}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-quick-views button[aria-pressed=true]{padding:0 3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet{margin-top:3px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-heading{margin:2px 0;font-size:10px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-toolbar button{min-height:19px;padding:0 5px;font-size:9px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 14px 36px;gap:4px;min-height:18px;padding:1px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row input{justify-self:center;margin:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-label{min-width:0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-value-swatch{justify-self:center}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-count{width:100%;text-align:right}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-row:not(.pt-lr-facet-row-swatch) .pt-lr-facet-label{grid-column:2/4}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 7px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-row{grid-template-columns:15px minmax(0,1fr) 30px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-two-column .pt-lr-facet-label{grid-column:auto}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-summary{margin:3px 0}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-caution{margin:2px 0;padding:0;font-size:9.5px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"].pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary{position:relative;display:flex;min-height:26px;box-sizing:border-box;align-items:center;margin:1px 0;padding:3px 4px 3px 29px;border-radius:4px;cursor:pointer;list-style:none}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary::-webkit-details-marker,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary::-webkit-details-marker{display:none}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary::before{content:"▸";position:absolute;left:7px;display:flex;width:18px;height:20px;align-items:center;justify-content:center;font-size:14px}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible[open]>summary::before,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details[open]>summary::before{content:"▾"}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary:hover,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary:hover{background:rgba(139,101,79,.1)}.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-facet-collapsible>summary:focus-visible,.pt-local-reference-card[data-pt-local-reference-layer="national_monuments"] .pt-lr-map-details>summary:focus-visible{outline:2px solid #2b6cb0;outline-offset:1px}' +
@@ -659,25 +803,26 @@ function(el, x, data) {
       '.pt-nm-nps-context-body{padding:1px 4px 4px 29px;color:#51493f;line-height:1.25}.pt-nm-context-toggle{display:flex;align-items:center;gap:5px;min-height:22px}.pt-nm-context-note{margin-top:2px;color:#5a5144;font-size:9.5px}' +
       '.pt-acec-map-display-body{padding:0 4px 3px 25px}.pt-acec-overlap-toggle{display:inline-flex;align-items:center;gap:4px;min-height:24px;font-weight:600;cursor:pointer}.pt-acec-overlap-toggle input{margin:0}.pt-acec-overlap-note{margin-top:1px;color:#5a5144;font-size:9px;line-height:1.25}' +
       '.pt-lr-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}' +
-      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
+      '.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip,.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip,.leaflet-tooltip.pt-cdncl-hover-tooltip{white-space:normal!important;width:fit-content!important;min-width:min(220px,calc(100vw - 32px))!important;max-width:min(320px,calc(100vw - 32px))!important;overflow-wrap:break-word!important;word-break:normal!important;line-height:1.3!important;box-sizing:border-box}' +
       '.pt-wsa-hover-lines{display:block;max-width:100%}.pt-wsa-hover-line{display:block;white-space:normal}.pt-wsa-hover-name{font-weight:600}' +
       '.pt-trails-hover-lines{display:block;max-width:100%}.pt-trails-hover-line{display:block;white-space:normal}.pt-trails-hover-name{font-weight:600}' +
       '.pt-fw-hover-lines{display:block;max-width:100%}.pt-fw-hover-line{display:block;white-space:normal}.pt-fw-hover-title{font-weight:700}.pt-fw-shared-cue,.pt-fw-nevada-cue,.pt-fw-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}' +
       '.pt-acec-hover-lines{display:block;max-width:100%}.pt-acec-hover-line{display:block;white-space:normal}.pt-acec-hover-title{font-weight:700}.pt-acec-caution,.pt-acec-research-cue,.pt-acec-wsa-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #9a5a3b}.pt-acec-research-cue{background:#f5ecff;border-left-color:#78509a}.pt-acec-wsa-current{background:#eef6e9;border-left-color:#4f8c68}.pt-acec-wsa-historical{background:#fff1df;border-left-color:#a66a43}' +
       '.pt-nm-hover-lines{display:block;max-width:100%}.pt-nm-hover-line{display:block;white-space:normal}.pt-nm-hover-title{font-weight:700}' +
+      '.pt-cdncl-hover{display:block;max-width:100%;white-space:normal}.pt-cdncl-caution,.pt-cdncl-identity-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #8a6838}.pt-cdncl-identity-cue{background:#f5ecff;border-left-color:#78509a}.pt-cdncl-related-groups{display:grid;gap:5px}.pt-cdncl-related-group{padding:4px 6px;border:1px solid rgba(82,72,45,.18);border-radius:3px;background:rgba(250,248,242,.72)}.pt-cdncl-related-group summary{cursor:pointer;font-size:11.5px}.pt-cdncl-related-group p{margin:5px 0 1px;color:#5b5650;font-size:10.5px}' +
       '.leaflet-tooltip.pt-nps-context-hover-tooltip{box-sizing:border-box;width:max-content!important;max-width:min(320px,calc(100vw - 32px))!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;line-height:1.3!important}.pt-nps-context-hover-lines{display:block;max-width:100%}.pt-nps-context-hover-title{display:block;font-weight:700}.pt-nps-context-hover-area{display:block;margin-top:2px;white-space:nowrap}' +
       '.pt-wsa-popup .pt-popup-subtitle{margin-top:2px;color:#555;font-size:12px}.pt-wsa-popup .pt-popup-section{margin-top:7px}.pt-wsa-popup .pt-wsa-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-wsa-source-anomaly{color:#8a2f1c}.pt-popup-technical{margin-top:7px;font-size:11px}' +
       '.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content-wrapper{padding:0;overflow:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{box-sizing:border-box;width:min(430px,calc(100vw - 72px))!important;min-width:min(400px,calc(100vw - 72px))!important;max-width:min(460px,calc(100vw - 72px))!important;margin:10px 12px 12px}' +
       '.leaflet-container.pt-lr-tabbed-popup-open .leaflet-popup-pane{z-index:1100}' +
       '.pt-local-reference-tabbed-popup-card{display:flex;max-height:min(72vh,620px);min-height:0;flex-direction:column;overflow:hidden;color:#272727;font:12px/1.4 Arial,sans-serif}.pt-lr-popup-sticky{position:sticky;top:0;z-index:2;flex:0 0 auto;background:#fff}.pt-lr-popup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:2px 1px 9px}.pt-lr-popup-title{font-size:15px;font-weight:700;line-height:1.2}.pt-lr-popup-badge{flex:0 0 auto;padding:2px 6px;border:1px solid #8d8370;border-radius:10px;background:#f4eee1;color:#493f31;font-size:10px;line-height:1.25;white-space:nowrap}' +
       '.pt-lr-popup-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;border-bottom:1px solid #8f8778}.pt-lr-popup-tab{min-width:0;padding:6px 4px;border:1px solid transparent;border-bottom:0;border-radius:4px 4px 0 0;background:#eee8dc;color:#3d3933;font:600 11px/1.2 Arial,sans-serif;white-space:normal;cursor:pointer}.pt-lr-popup-tab[aria-selected=true]{border-color:#8f8778;background:#fff;color:#171717}.pt-lr-popup-tab:focus-visible{outline:3px solid #1d6fa5;outline-offset:-2px}' +
-      '.pt-fw-popup .pt-lr-popup-tabs,.pt-acec-popup .pt-lr-popup-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}' +
+      '.pt-fw-popup .pt-lr-popup-tabs,.pt-acec-popup .pt-lr-popup-tabs,.pt-cdncl-popup .pt-lr-popup-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}' +
       '.pt-local-reference-tabbed-popup-card button:enabled,.pt-local-reference-tabbed-popup-card summary{cursor:pointer}.pt-local-reference-tabbed-popup-card button:disabled{cursor:not-allowed}' +
       '.pt-lr-popup-panel-scroll{height:var(--pt-lr-popup-panel-height,auto);min-height:0;max-height:min(54vh,450px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.pt-lr-popup-panel{padding:9px 2px 4px}.pt-lr-popup-panel[hidden]{display:none!important}.pt-lr-popup-summary,.pt-lr-popup-panel p{margin:0 0 8px}.pt-lr-popup-row{margin:3px 0}.pt-lr-popup-label,.pt-lr-popup-evidence>span,.pt-trails-caution>span{font-weight:700}.pt-lr-popup-section{margin-top:10px}.pt-lr-popup-section h3{margin:0 0 4px;color:#3e392f;font-size:12px;line-height:1.25}.pt-lr-popup-narrative{padding-top:2px;border-top:1px solid rgba(82,72,45,.18)}.pt-lr-narrative-source{margin-top:3px;color:#5c574f;font-size:10.5px}.pt-lr-narrative-source span{font-weight:700}.pt-lr-popup-evidence{margin-top:7px}.pt-lr-popup-resource-list{margin:0;padding-left:19px}.pt-lr-popup-resource-list li{margin:4px 0}.pt-lr-popup-note{margin:1px 0 4px;color:#5b5650;font-size:10.5px}.pt-trails-popup .pt-trails-caution{margin-top:9px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-trails-popup .pt-popup-technical{margin-top:10px;padding-top:6px;border-top:1px solid rgba(82,72,45,.2)}' +
       '.pt-local-reference-tabbed-popup-card.pt-lr-popup-measuring{visibility:hidden!important}.pt-lr-popup-measuring .pt-lr-popup-panel-scroll{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}' +
       '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{max-height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
-      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
+      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip,.leaflet-tooltip.pt-cdncl-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
   }
 
@@ -975,6 +1120,7 @@ function(el, x, data) {
     var diagnosticPrefix = 'data-pt-lr-' + safeLayerId + '-';
     var teardownCount = 0;
     var federalData = layerData.federal_wilderness || null;
+    var desertNclData = layerData.desert_ncl || null;
     var nationalMonuments = String(layerData.layer_id || '') ===
       'national_monuments';
     var npsContextData = nationalMonuments ? (layerData.nps_context || null) : null;
@@ -1003,6 +1149,18 @@ function(el, x, data) {
       agency: Object.create(null),
       office: Object.create(null),
       policy: Object.create(null)
+    };
+    var desertNclLookup = {
+      semantic: Object.create(null),
+      component: Object.create(null),
+      aliases: Object.create(null),
+      policy: Object.create(null),
+      documents: Object.create(null),
+      unitDocuments: Object.create(null),
+      offices: Object.create(null),
+      officeContext: Object.create(null),
+      related: Object.create(null),
+      research: Object.create(null)
     };
     var acecData = layerData.acec || null;
     var acecLookup = {
@@ -1047,6 +1205,38 @@ function(el, x, data) {
       });
       (federalData.policy || []).forEach(function(row) {
         federalLookup.policy[String(row.topic)] = row.language;
+      });
+    }
+    if (desertNclData) {
+      (desertNclData.semantics || []).forEach(function(row) {
+        desertNclLookup.semantic[String(row.nlcs_id)] = row;
+      });
+      (desertNclData.components || []).forEach(function(row) {
+        desertNclLookup.component[String(row.component_id)] = row;
+      });
+      (desertNclData.aliases || []).forEach(function(row) {
+        appendLookup(desertNclLookup.aliases, row.nlcs_id, row);
+      });
+      (desertNclData.policy || []).forEach(function(row) {
+        desertNclLookup.policy[String(row.policy_id)] = row.recommended_language;
+      });
+      (desertNclData.documents || []).forEach(function(row) {
+        desertNclLookup.documents[String(row.document_id)] = row;
+      });
+      (desertNclData.unit_documents || []).forEach(function(row) {
+        appendLookup(desertNclLookup.unitDocuments, row.nlcs_id, row);
+      });
+      (desertNclData.offices || []).forEach(function(row) {
+        desertNclLookup.offices[String(row.office_key)] = row;
+      });
+      (desertNclData.field_office_context || []).forEach(function(row) {
+        appendLookup(desertNclLookup.officeContext, row.nlcs_id, row);
+      });
+      (desertNclData.related_context || []).forEach(function(row) {
+        appendLookup(desertNclLookup.related, row.nlcs_id, row);
+      });
+      (desertNclData.research_relationships || []).forEach(function(row) {
+        appendLookup(desertNclLookup.research, row.nlcs_id, row);
       });
     }
     if (acecData) {
@@ -1158,6 +1348,34 @@ function(el, x, data) {
           if (layer.closeTooltip) layer.closeTooltip();
           layer.bindPopup(
             buildFederalWildernessPopup(record, federalData, federalLookup),
+            {
+              maxWidth: 460,
+              minWidth: 400,
+              autoPan: true,
+              keepInView: true,
+              autoPanPaddingTopLeft: L.point(16, 84),
+              autoPanPaddingBottomRight: L.point(16, 24),
+              className: 'pt-local-reference-tabbed-popup'
+            }
+          );
+          layer.openPopup(event && event.latlng ? event.latlng : undefined);
+        });
+      });
+    }
+    if (desertNclData) {
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        listen(layer, 'mouseout', function() {
+          var record = recordByGeometry[key];
+          if (!record || !active || typeof layer.setStyle !== 'function') return;
+          layer.setStyle(styleForRecord(record, engine.snapshot()));
+        });
+        listen(layer, 'click', function(event) {
+          var record = recordByGeometry[key];
+          if (!record) return;
+          if (layer.closeTooltip) layer.closeTooltip();
+          layer.bindPopup(
+            buildDesertNclPopup(record, desertNclData, desertNclLookup),
             {
               maxWidth: 460,
               minWidth: 400,
@@ -1667,9 +1885,13 @@ function(el, x, data) {
       });
     }
 
+    function distinguishUnitsEligible(snapshot) {
+      return !!(distinguishUnitsSupported && snapshot &&
+        (desertNclData || snapshot.draft_selected.length === 1));
+    }
+
     function setDistinguishUnits(value, snapshot) {
-      var eligible = distinguishUnitsSupported && snapshot &&
-        snapshot.draft_selected.length === 1;
+      var eligible = distinguishUnitsEligible(snapshot);
       distinguishUnits = eligible && value === true;
       applyRecordStyles(snapshot);
     }
@@ -1875,7 +2097,7 @@ function(el, x, data) {
 
     function render(snapshot, reconcile, zoomAction) {
       if (!card) return;
-      if (distinguishUnits && snapshot.draft_selected.length !== 1) {
+      if (distinguishUnits && !distinguishUnitsEligible(snapshot)) {
         setDistinguishUnits(false, snapshot);
       }
       if (reconcile) reconcileLayers(snapshot);
@@ -1937,11 +2159,13 @@ function(el, x, data) {
       if (autoZoom) autoZoom.checked = snapshot.auto_zoom;
       var distinguish = card.querySelector('.pt-lr-distinguish');
       if (distinguish) {
-        var distinguishEligible = snapshot.draft_selected.length === 1;
+        var distinguishEligible = distinguishUnitsEligible(snapshot);
         distinguish.disabled = !distinguishEligible;
         distinguish.checked = distinguishUnits;
         distinguish.setAttribute(
           'aria-label',
+          desertNclData ?
+            'Distinguish mapped California Desert NCL units by stable identity' :
           distinguishEligible ?
             'Distinguish named wildernesses within the selected agency' :
             'Select exactly one managing agency before distinguishing named wildernesses'
@@ -2084,6 +2308,10 @@ function(el, x, data) {
           '<button type="button" data-pt-lr-facet-all="' + facetKey + '">All</button>' +
           '<button type="button" data-pt-lr-facet-none="' + facetKey + '">None</button>' +
           '</div>';
+        var contextCue = cleanText(facet.context_cue) ?
+          '<span class="pt-lr-facet-cue" title="' +
+            escapeHtml(cleanText(facet.context_title)) + '">' +
+            escapeHtml(cleanText(facet.context_cue)) + '</span>' : '';
         var countCue = nationalMonuments && rawFacetKey === 'administering_agency' ?
           '<span class="pt-nm-count-cue" title="Facet counts show matching current results / total in category.">' +
           'counts: matching / total</span>' : '';
@@ -2102,11 +2330,11 @@ function(el, x, data) {
           return '<details class="' + sectionClass + ' pt-lr-facet-collapsible" ' +
             'data-pt-lr-facet-section="' + facetKey + '"' +
             (facet.open_default === true ? ' open' : '') + '><summary class="pt-lr-facet-heading">' +
-            escapeHtml(facet.label) + '</summary>' + content + '</details>';
+            escapeHtml(facet.label) + contextCue + '</summary>' + content + '</details>';
         }
         return '<section class="' + sectionClass + '" data-pt-lr-facet-section="' + facetKey + '">' +
           '<div class="pt-lr-facet-head"><div class="pt-lr-facet-heading" role="heading" aria-level="3">' +
-          escapeHtml(facet.label) + countCue + '</div>' + toolbar + '</div>' +
+          escapeHtml(facet.label) + contextCue + countCue + '</div>' + toolbar + '</div>' +
           '<div class="pt-lr-facet-values">' + values + '</div>' + sharedBoundaryRow + '</section>';
       }).join('');
     }
@@ -2174,11 +2402,11 @@ function(el, x, data) {
         var categoryHeadingHtml = categoryFilterVisible && String(layerData.category_heading || '') ?
           '<div class="pt-lr-category-heading" role="heading" aria-level="3">' +
           escapeHtml(layerData.category_heading) + '</div>' : '';
-        var subtitleHtml = (federalData || acecData || nationalMonuments) ? '' : '<div>' +
+        var subtitleHtml = (federalData || acecData || nationalMonuments || desertNclData) ? '' : '<div>' +
           (featureSelectionSupported ?
             'Filter by category or select named features' : 'Filter by category') +
           '</div>';
-        var cautionHtml = federalData ? '' : (acecData || nationalMonuments) ?
+        var cautionHtml = federalData ? '' : (acecData || nationalMonuments || desertNclData) ?
           '<details class="pt-lr-map-details pt-lr-layer-note"><summary>Boundary / use note</summary>' +
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div></details>' :
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div>';
@@ -2212,6 +2440,16 @@ function(el, x, data) {
             escapeHtml(layerData.caution) + '</div></details>' :
             '<details class="pt-lr-map-details"><summary>Map details</summary>' +
             '<div class="pt-lr-map-details-text"></div></details>') : '';
+        var dashboardSummaryHtml = cleanText(layerData.dashboard_summary) ?
+          '<div class="pt-lr-dashboard-summary">' +
+            escapeHtml(cleanText(layerData.dashboard_summary)) + '</div>' : '';
+        var distinguishHtml = distinguishUnitsSupported ?
+          '<div class="pt-lr-toolbar pt-lr-distinguish-row"><label class="pt-lr-toggle">' +
+            '<input type="checkbox" class="pt-lr-distinguish"> ' +
+            (desertNclData ? 'Distinguish mapped units' : 'Distinguish named units') +
+            '</label>' +
+            (desertNclData ? '</div>' :
+              '<span class="pt-lr-distinguish-note" title="Available when exactly one managing agency is selected.">one agency only</span></div>') : '';
         card.innerHTML =
           '<div class="pt-lr-head pt-map-card-handle"><div><div class="pt-lr-title">' +
           escapeHtml(layerData.display_name) + '</div>' + subtitleHtml +
@@ -2219,9 +2457,7 @@ function(el, x, data) {
           featurePickerHtml() +
           toolbarHtml + categoryHeadingHtml +
           (categoryFilterVisible ? '<div class="pt-lr-categories">' + categoryRows + '</div>' : '') +
-          (distinguishUnitsSupported ?
-            '<div class="pt-lr-toolbar pt-lr-distinguish-row"><label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-distinguish"> Distinguish named units</label>' +
-            '<span class="pt-lr-distinguish-note" title="Available when exactly one managing agency is selected.">one agency only</span></div>' : '') +
+          distinguishHtml + dashboardSummaryHtml +
           quickViewsHtml() +
           (acecData ? '<div class="pt-lr-thematic-state" hidden aria-live="polite"></div>' : '') +
           facetsHtml() +

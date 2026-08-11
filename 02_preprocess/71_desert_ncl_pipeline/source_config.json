@@ -1,0 +1,32 @@
+{
+  "source_key": "blm_ca_cdncl",
+  "layer_url": "https://gis.blm.gov/caarcgis/rest/services/NCL/BLM_CA_CDNCL/FeatureServer/0",
+  "where": "1=1",
+  "out_fields": [
+    "OBJECTID",
+    "NLCS_ID",
+    "NLCS_NAME",
+    "CASEFILE_NO",
+    "GlobalID",
+    "ADMIN_ST",
+    "last_edited_date",
+    "Shape__Area",
+    "Shape__Length"
+  ],
+  "out_sr": 3310,
+  "expected_geometry_type": "esriGeometryPolygon",
+  "expected_record_count": 11,
+  "expected_nlcs_ids": [
+    "NLCS002009",
+    "NLCS002010",
+    "NLCS002011",
+    "NLCS002012",
+    "NLCS002013",
+    "NLCS002014",
+    "NLCS002015",
+    "NLCS002016",
+    "NLCS002017",
+    "NLCS002018",
+    "NLCS002019"
+  ]
+}

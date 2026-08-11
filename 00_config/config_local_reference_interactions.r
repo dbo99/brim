@@ -9,7 +9,8 @@
 ##   uploads, External, Ops Live, and BRIM Live. Trails and Wilderness Study
 ##   Areas are executable in Phase 2. Federal Wilderness is the accepted
 ##   Phase 3 implementation, ACECs are Phase 4, and National Monuments are
-##   the focused Phase 5 implementation. The other six rows remain contracts.
+##   the focused Phase 5 implementation. California Desert NCL is the focused
+##   Phase 6 implementation. The other five rows remain contracts.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
@@ -423,6 +424,86 @@ PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_QUICK_VIEWS <- list(
   )
 )
 
+## California Desert NCL is a program/planning-reference family. Its neutral
+## desert-gold treatment is intentionally distinct from legal-designation and
+## managing-agency palettes. Named-unit colors are an optional browser view,
+## not a semantic classification.
+PT_LOCAL_REFERENCE_DESERT_NCL_CATEGORIES <- pt_local_reference_category_rows(
+  category_key = c("ca_desert_ncl", "unknown"),
+  label = c("California Desert NCL mapped unit", "Unknown / unresolved"),
+  source_values = c("CA_DESERT_NCL", ""),
+  fill_color = c("#B89C6A", "#B0B0B0"),
+  stroke_color = c("#6F5632", "#6B6B6B"),
+  fill_opacity = c(0.10, 0.06),
+  stroke_weight = c(1.7, 1.4),
+  dash_array = c("", "2,3"),
+  legend_swatch_style = c("polygon", "dotted_polygon"),
+  include_when_absent = c(TRUE, FALSE),
+  provisional = TRUE
+)
+
+PT_LOCAL_REFERENCE_DESERT_NCL_FACETS <- list(
+  list(
+    facet_key = "field_office_context",
+    label = "BLM Field Office context",
+    record_field = "pt_cdncl_field_office_keys",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "|",
+    collapsible = FALSE,
+    open_default = TRUE,
+    show_toolbar = TRUE,
+    layout_columns = 2L,
+    context_cue = "spatial context only",
+    context_title = paste(
+      "Spatial intersection context; not a responsible-office or",
+      "management assignment."
+    ),
+    values = data.frame(
+      value_key = c(
+        "cac06000", "cad08000", "cac07000", "cad07000",
+        "cad09000", "cad06000", "cad05000"
+      ),
+      label = c(
+        "Bakersfield", "Barstow", "Bishop", "El Centro",
+        "Needles", "Palm Springs/S. Coast", "Ridgecrest"
+      ),
+      sort_order = 1:7,
+      stringsAsFactors = FALSE
+    )
+  ),
+  list(
+    facet_key = "related_designation_overlap",
+    label = "Related designation overlap",
+    record_field = "pt_cdncl_related_designation_facets",
+    count_mode = "semantic_feature",
+    multivalue_delimiter = "|",
+    collapsible = FALSE,
+    open_default = TRUE,
+    show_toolbar = TRUE,
+    layout_columns = 2L,
+    context_cue = "spatial context only",
+    context_title = paste(
+      "Current spatial overlap context; it does not transfer a related",
+      "designation to the Desert NCL mapped unit."
+    ),
+    values = data.frame(
+      value_key = c(
+        "acec", "federal_wilderness", "national_monuments",
+        "wilderness_study_areas", "national_trails", "wild_scenic_river"
+      ),
+      label = c(
+        "ACEC", "Federal Wilderness", "National Monument",
+        "WSA", "Scenic/Historic Trail", "Wild & Scenic River"
+      ),
+      sort_order = 1:6,
+      stringsAsFactors = FALSE
+    )
+  )
+)
+
+# Search plus the two screening facets are sufficient for this 11-unit layer.
+PT_LOCAL_REFERENCE_DESERT_NCL_QUICK_VIEWS <- list()
+
 PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES <- data.frame(
   value_key = c(
     "water_aquatic", "wildlife_and_habitat",
@@ -659,7 +740,7 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     include_when_absent = c(rep(TRUE, 6), FALSE)
   ),
   national_monuments = PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_CATEGORIES,
-  ca_desert_ncl = pt_local_reference_neutral_categories(),
+  ca_desert_ncl = PT_LOCAL_REFERENCE_DESERT_NCL_CATEGORIES,
   wilderness_study_areas = pt_local_reference_category_rows(
     category_key = c(
       "suitable", "non_suitable", "no_recommendation", "unknown"
@@ -776,7 +857,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "Water Districts"
   ),
   implementation_status = c(
-    "phase2_trails", "phase5_national_monuments", "registry_contract",
+    "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl",
     "phase1_wsa", "phase3_federal_wilderness", "registry_contract",
     "phase4_acec", "registry_contract", "registry_contract",
     "registry_contract", "registry_contract"
@@ -788,7 +869,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   color_basis = c(
     "trail_identity",
     "verified_administering_agency_component_or_shared_boundary",
-    "verified_unit_or_neutral",
+    "neutral_program_context_or_optional_unit_identity",
     "normalized_recommendation_status",
     "verified_managing_agency_component",
     "neutral_program_context",
@@ -803,7 +884,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "", "", "", "rwqcb_region_num", ""
   ),
   palette_key = c(
-    "trail_identity_v1", "national_monument_agency_accepted_v1", "neutral_context_v1",
+    "trail_identity_v1", "national_monument_agency_accepted_v1", "desert_ncl_neutral_accepted_v1",
     "wsa_recommendation_provisional_v1", "federal_wilderness_agency_accepted_v1",
     "neutral_context_v1", "neutral_context_v1", "allotment_status_deferred",
     "neutral_context_v1", "rwqcb_provider_provisional_v1",
@@ -817,21 +898,21 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "metadata_only", "metadata_only", "metadata_only"
   ),
   legend_mode = c(
-    "interactive", "interactive", "none", "interactive",
+    "interactive", "interactive", "interactive", "interactive",
     "interactive", "none", "interactive", "planned_interactive", "none",
     "planned_interactive", "none"
   ),
   filter_mode = c(
-    "category_search", "faceted_category_search", "none",
+    "category_search", "faceted_category_search", "faceted_category_search",
     "category_search", "faceted_category_search", "none", "faceted_category_search",
     "planned_category_plus_feature_search", "none",
     "planned_category_search", "none"
   ),
   auto_supported = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE
   ),
   auto_default = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE
   ),
   count_mode = c(
     "semantic_feature",
@@ -849,14 +930,14 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   primary_count_mode = rep("semantic_feature", 11),
   primary_count_label = c(
     "trails", "National Monuments",
-    "CA Desert National Conservation Lands", "Wilderness Study Areas",
+    "mapped units", "Wilderness Study Areas",
     "named wildernesses", "DRECP areas", "ACECs",
     "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
   ),
   show_component_count = c(FALSE, FALSE, FALSE, FALSE, TRUE, rep(FALSE, 6)),
-  show_category_count = c(FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
+  show_category_count = c(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
   category_filter_visible = c(
-    TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
+    TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
   ),
   category_count_mode = c(
     "semantic_feature", "semantic_feature", "semantic_feature",
@@ -879,7 +960,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
       "National Monument boundaries are legal-designation reference geometry,",
       "not ownership, cadastral, or public-access determinations. Verify current",
       "agency direction, closures, permits, and land status before field use."
-    ), "", paste(
+    ), paste(
+      "Most mapped units are DRECP ecoregion subarea allocations, not",
+      "independently established legal conservation units. Boundaries show",
+      "program and planning context, not ownership, cadastral limits, or access."
+    ), paste(
       "Historical recommendation, not current WSA status.",
       "Management continues under the applicable FLPMA authority;",
       "verify current plans, closures, and field-office direction."
@@ -895,7 +980,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   popup_layout = ifelse(
     PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
-      "national_scenic_historic_trails", "national_monuments",
+      "national_scenic_historic_trails", "national_monuments", "ca_desert_ncl",
       "wilderness_study_areas",
       "federal_wilderness", "acec"
     ),
@@ -903,37 +988,42 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "standard"
   ),
   feature_selection_supported = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   feature_selection_mode = c(
-    "semantic_feature_multi", "semantic_feature_multi", "none", "semantic_feature_multi",
+    "semantic_feature_multi", "semantic_feature_multi", "semantic_feature_multi", "semantic_feature_multi",
     "semantic_feature_multi", "none", "semantic_feature_multi", "none", "none", "none", "none"
   ),
   feature_display_field = c(
-    "pt_trails_official_name", "pt_nm_canonical_name", "NLCS_NAME", "pt_wsa_name",
+    "pt_trails_official_name", "pt_nm_canonical_name", "pt_cdncl_display_name", "pt_wsa_name",
     "pt_fw_official_name", "", "pt_acec_official_name", "ALLOT_NAME", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   auto_zoom_default = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE,
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
     TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
   preserve_view_on_reset = rep(TRUE, 11),
   retention_enabled = c(
-    TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE
   ),
   distinguish_units_supported = c(
-    FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+    FALSE, FALSE, TRUE, FALSE, TRUE, FALSE,
     FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   stringsAsFactors = FALSE
+)
+
+LOCAL_REFERENCE_INTERACTION_REGISTRY$dashboard_summary <- c(
+  "", "", "11 mapped units · 10 DRECP subareas + Desert Lily Preserve",
+  rep("", 8)
 )
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
@@ -943,7 +1033,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
     "pt_nm_original_authority", "pt_nm_source_identifiers",
     "pt_nm_component_names", "monument_id", "component_id"
   ),
-  "NLCS_NAME",
+  c(
+    "pt_cdncl_display_name", "pt_cdncl_raw_name", "pt_cdncl_aliases",
+    "NLCS_ID", "pt_cdncl_global_id", "pt_cdncl_unit_type_label",
+    "pt_cdncl_field_office_names"
+  ),
   c("NLCS_NAME", "WSACODE_ca", "CASEFILE_N", "NLCS_ID", "GlobalID"),
   c(
     "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
@@ -980,6 +1074,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[2]] <- c(
   "pt_nm_original_authority", "pt_nm_source_identifiers",
   "pt_nm_component_names", "monument_id", "component_id"
 )
+LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[3]] <- c(
+  "pt_cdncl_display_name", "pt_cdncl_raw_name", "pt_cdncl_aliases",
+  "NLCS_ID", "pt_cdncl_global_id", "pt_cdncl_unit_type_label",
+  "pt_cdncl_field_office_names"
+)
 LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_search_fields[[5]] <- c(
   "pt_fw_official_name", "NLCS_NAME", "wilderness_id", "component_id",
   "GlobalID", "FAU_ID", "pt_fw_agency_name", "pt_fw_alternate_names",
@@ -999,6 +1098,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets <- I(lapply(
     if (identical(layer_id, "national_monuments")) {
       return(PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_FACETS)
     }
+    if (identical(layer_id, "ca_desert_ncl")) {
+      return(PT_LOCAL_REFERENCE_DESERT_NCL_FACETS)
+    }
     if (identical(layer_id, "federal_wilderness")) {
       return(PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_FACETS)
     }
@@ -1014,6 +1116,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$quick_views <- I(lapply(
   function(layer_id) {
     if (identical(layer_id, "national_monuments")) {
       return(PT_LOCAL_REFERENCE_NATIONAL_MONUMENT_QUICK_VIEWS)
+    }
+    if (identical(layer_id, "ca_desert_ncl")) {
+      return(PT_LOCAL_REFERENCE_DESERT_NCL_QUICK_VIEWS)
     }
     if (identical(layer_id, "acec")) {
       return(PT_LOCAL_REFERENCE_ACEC_QUICK_VIEWS)
@@ -1054,6 +1159,16 @@ PT_LOCAL_REFERENCE_RETAINED_FIELD_ALIASES <- list(
     source_boundary_status = c("source_boundary_status"),
     source_gis_acres = c("source_gis_acres"),
     geometry_role = c("geometry_role")
+  ),
+  ca_desert_ncl = list(
+    nlcs_id = c("NLCS_ID"),
+    global_id = c("GlobalID", "GLOBALID", "globalid"),
+    name = c("NLCS_NAME"),
+    casefile = c("CASEFILE_NO", "CASEFILE_N"),
+    admin_state = c("ADMIN_ST"),
+    last_edited_date = c("last_edited_date"),
+    source_shape_area = c("Shape__Area"),
+    source_shape_length = c("Shape__Length")
   ),
   wilderness_study_areas = list(
     nlcs_id = c("NLCS_ID"),
@@ -1140,6 +1255,37 @@ PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_GEOMETRY_TRUST_PATH <- file.path(
 )
 PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_SOURCE_GEOMETRY_ROLES_PATH <- file.path(
   "00_config", "local_reference_national_monuments_source_geometry_roles.csv"
+)
+
+PT_LOCAL_REFERENCE_DESERT_NCL_REFERENCE_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_reference.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_ALIASES_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_aliases.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_POLICY_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_common_policy_language.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_DOCUMENTS_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_documents.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_UNIT_DOCUMENTS_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_unit_documents.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_SOURCES_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_source_register.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_RESEARCH_RELATIONSHIPS_PATH <- file.path(
+  "00_config", "local_reference_desert_ncl_research_relationships.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_FIELD_OFFICE_LOOKUP_PATH <- file.path(
+  "04_processed_data", "rds", "reference_cadesert_ncl_field_office_lookup.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_FIELD_OFFICE_CONTEXT_PATH <- file.path(
+  "04_processed_data", "rds", "reference_cadesert_ncl_field_office_context.csv"
+)
+PT_LOCAL_REFERENCE_DESERT_NCL_RELATED_CONTEXT_PATH <- file.path(
+  "04_processed_data", "rds", "reference_cadesert_ncl_related_designation_context.csv"
 )
 
 PT_LOCAL_REFERENCE_NATIONAL_MONUMENTS_BOUNDARY_CAVEAT <- paste(

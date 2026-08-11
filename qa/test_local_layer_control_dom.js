@@ -41,12 +41,20 @@ const mapBuildSource = fs.readFileSync(
   path.join(root, "05_map_build", "04_build_portatreasure2_core_map.r"),
   "utf8"
 );
+const labelConfigSource = fs.readFileSync(
+  path.join(root, "00_config", "config_labels.r"),
+  "utf8"
+);
 
 assert.strictEqual(
-  (coreSource.match(/\{main: 'CalSim3\.0', label: 'CalSim3\.0'\}/g) || [])
-    .length,
-  1,
-  "CalSim must have exactly one shared inline-label pair"
+  (labelConfigSource.match(/"CalSim3\.0"/g) || []).length,
+  2,
+  "CalSim must appear once in each side of the config-driven inline-label pair"
+);
+assert.match(
+  coreSource,
+  /exists\("INLINE_LABEL_PAIRS"\)[\s\S]*inlineLabelPairs = inline_label_pairs/,
+  "shared inline-label pairs must be supplied from the canonical label registry"
 );
 assert.match(
   coreSource,

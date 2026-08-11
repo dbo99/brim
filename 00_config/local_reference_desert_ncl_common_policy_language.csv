@@ -1,0 +1,10 @@
+policy_id,recommended_language,use,last_verified
+planning_vs_designation,"Most source records are DRECP ecoregion subarea allocations within the California Desert National Conservation Lands program, not independently established monuments or national conservation areas.",normal popup; expanded details; README,2026-08-04
+blm_authority_scope,BLM planning and management authority applies to BLM-administered public lands and applicable BLM interests; the broad mapped polygon is not proof that every acre is BLM-owned.,popup; management details; land-status caution,2026-08-04
+mapped_boundary,"The GIS boundary is a screening and reference geometry, not a legal survey, cadastral determination, or controlling designation map.",popup; technical provenance,2026-08-04
+related_designation,"An overlapping or similarly named monument, wilderness, WSA, ACEC, trail, river, or other designation retains its own authority, boundary, management, and BRIM layer identity.",popup; relationship details,2026-08-04
+geometry_area,Mapped area is geometry-calculated from the source Shape__Area in EPSG:3310. It is not legal or official acreage unless a separate official reported value and source are shown.,hover; popup; provenance,2026-08-04
+official_area_scope,DRECP-reported subarea acreages are rounded BLM-administered allocation figures and are not directly interchangeable with broad source-polygon geometry area.,popup; area details,2026-08-04
+office_context,A field office shown from a spatial intersection is contextual only unless a separate authoritative source directly documents responsibility.,management details,2026-08-04
+access_currency,"Access, route designation, closures, permits, fire restrictions, and land-status conditions change. Verify current information with the responsible land manager before travel or use.",popup; reusable caution,2026-08-04
+desert_lily_identity,The source layer uses “Desert Lily Preserve.” Official sources also identify a Desert Lily Preserve ACEC and a statutory Desert Lily Sanctuary. Do not assume the three records are identical or coterminous without boundary verification.,Desert Lily popup; relationship details,2026-08-04

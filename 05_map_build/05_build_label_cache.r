@@ -481,6 +481,7 @@ if (WRITE_QA) {
     acec = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     fedwilderness = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     monuments = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    cadesert_ncl = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     wildernessstudyarea = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     trails = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     allotments = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
