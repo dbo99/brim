@@ -7,7 +7,10 @@ suppressPackageStartupMessages({
 })
 
 source("00_config/config_labels.r")
+source("00_config/config_local_reference_interactions.r")
 source("03_functions/label_helpers.r")
+source("03_functions/leaflet_label_helpers.r")
+source("03_functions/local_reference_interaction_helpers.r")
 
 expect_identical <- function(actual, expected, label) {
   if (!identical(actual, expected)) {
@@ -41,20 +44,33 @@ expect_identical(
   LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$layer_id,
   c(
     "acec", "federal_wilderness", "national_monuments", "ca_desert_ncl",
-    "wilderness_study_areas", "national_scenic_historic_trails"
+    "wilderness_study_areas", "national_scenic_historic_trails",
+    "grazing_allotments", "counties", "rwqcb_regions", "water_districts"
   ),
   "registered Local Reference label layers"
 )
 stopifnot(
   all(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$lbl_available),
+  identical(as.numeric(pt_label_cfg("allotments")$min_zoom), 10),
+  identical(as.numeric(pt_label_cfg("water_districts")$min_zoom), 13),
+  identical(
+    INLINE_LABEL_PAIRS$min_zoom[
+      match(
+        c("Grazing Allotments", "Water Districts"),
+        INLINE_LABEL_PAIRS$main_name
+      )
+    ],
+    c(10, 13)
+  ),
   identical(
     LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$visible_component_aware,
-    c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE)
+    c(FALSE, TRUE, TRUE, FALSE, FALSE, rep(FALSE, 5))
   ),
   all(c(
     "National Monuments", "CA Desert National Conservation Lands",
     "Wilderness Study Areas",
-    "National Scenic/Historic Trails"
+    "National Scenic/Historic Trails", "Grazing Allotments", "Counties",
+    "RWQCB Regions", "Water Districts"
   ) %in% INLINE_LABEL_PAIRS$main_name)
 )
 
@@ -97,6 +113,23 @@ trails <- sf::st_sf(
   pt_reference_label_text = "Example National Historic Trail",
   geometry = sf::st_sfc(trail_geometry, crs = 4326)
 )
+allotments <- make_polygon_layer(
+  c("allotment-1", "allotment-1"), c("allotment-g1", "allotment-g2"),
+  c("Example Allotment", "Example Allotment"),
+  list(square(-117, 36, 0.1), square(-116.8, 36.2, 0.2))
+)
+county <- make_polygon_layer(
+  "county-1", "county-g1", "Example County", list(square(-116, 36, 0.4))
+)
+rwqcb <- make_polygon_layer(
+  "rwqcb-1", "rwqcb-g1", "Region 1 · North Coast",
+  list(square(-115, 36, 0.4))
+)
+water <- make_polygon_layer(
+  c("water-1", "water-1"), c("water-g1", "water-g2"),
+  c("Example Water District", "Example Water District"),
+  list(square(-114, 36, 0.1), square(-113.8, 36.2, 0.2))
+)
 
 layers <- list(
   acec = acec,
@@ -104,7 +137,11 @@ layers <- list(
   monuments = monuments,
   cadesert_ncl = desert_ncl,
   wildernessstudyarea = wsa,
-  trails = trails
+  trails = trails,
+  allotments = allotments,
+  county = county,
+  rwqcb_regions = rwqcb,
+  water_districts = water
 )
 warnings_seen <- character(0)
 labels <- withCallingHandlers(
@@ -120,7 +157,8 @@ expect_identical(
   vapply(labels, nrow, integer(1)),
   c(
     acec = 2L, fedwilderness = 3L, monuments = 1L, cadesert_ncl = 1L,
-    wildernessstudyarea = 1L, trails = 1L
+    wildernessstudyarea = 1L, trails = 1L, allotments = 1L, county = 1L,
+    rwqcb_regions = 1L, water_districts = 1L
   ),
   "anchor counts"
 )
@@ -128,7 +166,8 @@ expect_identical(
   vapply(labels, function(x) length(unique(x$semantic_feature_key)), integer(1)),
   c(
     acec = 2L, fedwilderness = 2L, monuments = 1L, cadesert_ncl = 1L,
-    wildernessstudyarea = 1L, trails = 1L
+    wildernessstudyarea = 1L, trails = 1L, allotments = 1L, county = 1L,
+    rwqcb_regions = 1L, water_districts = 1L
   ),
   "semantic label counts"
 )
@@ -157,6 +196,31 @@ stopifnot(
 
 labels_again <- pt_build_registered_local_reference_label_children(layers)
 stopifnot(identical(labels, labels_again))
+
+## Runtime threshold metadata comes from the shared registry, while the cached
+## anchor geometry is reused unchanged. This fixture deliberately simulates the
+## previously accepted Water cache metadata to prove no anchor rebuild is needed.
+stale_water_labels <- labels
+stale_water_labels$water_districts$min_zoom <- 12
+water_payload <- pt_local_reference_semantic_label_payload(
+  labels_all = stale_water_labels,
+  x = water,
+  registry_row = LOCAL_REFERENCE_INTERACTION_REGISTRY[
+    LOCAL_REFERENCE_INTERACTION_REGISTRY$layer_id == "water_districts",
+    , drop = FALSE
+  ]
+)
+stopifnot(
+  identical(water_payload$min_zoom, 13),
+  identical(
+    pt_label_disable_zoom(
+      "water_districts",
+      stale_water_labels$water_districts
+    ),
+    13
+  ),
+  identical(water_payload$anchor_count, nrow(labels$water_districts))
+)
 
 actual_reference_path <- Sys.getenv("BRIM_LABEL_REFERENCE_CACHE", unset = "")
 if (nzchar(actual_reference_path)) {

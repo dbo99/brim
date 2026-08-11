@@ -379,6 +379,8 @@ pt_add_layer_control_headers <- function(m) {
   
   js <- r"---(
 function(el, x, data) {
+
+  var map = this;
   
   function enhanceLayerControl() {
     
@@ -568,6 +570,10 @@ function(el, x, data) {
           box-sizing: border-box;
         }
 
+        .leaflet-control-layers label.pt-has-inline-lbl-zoom {
+          padding-right: 68px;
+        }
+
         .leaflet-control-layers label.pt-label-companion-hidden {
           display: none !important;
         }
@@ -615,6 +621,10 @@ function(el, x, data) {
     var list = root.querySelector('.leaflet-control-layers-list');
     
     if (list && !root.querySelector('.pt-main-layer-title')) {
+      var wasInitialized = root.getAttribute('data-pt-main-layer-initialized') === 'true';
+      var shouldBeCollapsed = wasInitialized ?
+        root.classList.contains('pt-main-layer-collapsed') : true;
+      root.setAttribute('data-pt-main-layer-initialized', 'true');
       
       var title = document.createElement('div');
       title.className = 'pt-main-layer-title';
@@ -653,12 +663,12 @@ function(el, x, data) {
       
       list.insertBefore(title, list.firstChild);
 
-      // Start collapsed so the map opens with more viewing space. Users can
-      // expand the Basemaps / Local Layers panel from the ribbon when needed.
-      root.classList.add('pt-main-layer-collapsed');
+      // Start collapsed on first load. If Leaflet later rebuilds its layer
+      // rows, preserve the user's current expanded/collapsed catalog state.
+      root.classList.toggle('pt-main-layer-collapsed', shouldBeCollapsed);
       var initialCaret = title.querySelector('.pt-main-layer-caret');
       if (initialCaret) {
-        initialCaret.textContent = '▸';
+        initialCaret.textContent = shouldBeCollapsed ? '▸' : '▾';
       }
     }
     
@@ -800,13 +810,19 @@ function(el, x, data) {
         labelRow.classList.add('pt-label-companion-hidden');
         labelRow.setAttribute('data-pt-inline-companion-label', 'true');
 
+        var minZoom = pair.minZoom == null ? NaN : Number(pair.minZoom);
+        var zoomSuffix = isFinite(minZoom) ?
+          ' (z' + (Math.round(minZoom) === minZoom ?
+            minZoom.toFixed(0) : String(minZoom)) + '+)' : '';
         var toggle = document.createElement('span');
         toggle.className = 'pt-inline-lbl-toggle';
-        toggle.title = 'Show/hide labels for this layer';
-        toggle.innerHTML = '<input type="checkbox" aria-label="Show labels"><span>lbl</span>';
+        toggle.title = 'Show/hide labels for this layer' + zoomSuffix;
+        toggle.innerHTML = '<input type="checkbox" aria-label="Show labels' +
+          zoomSuffix + '"><span>lbl' + zoomSuffix + '</span>';
 
         var inlineInput = toggle.querySelector('input');
         mainRow.classList.add('pt-has-inline-lbl');
+        if (zoomSuffix) mainRow.classList.add('pt-has-inline-lbl-zoom');
         mainRow.appendChild(toggle);
 
         function stop(e) {
@@ -919,6 +935,24 @@ function(el, x, data) {
   setTimeout(enhanceLayerControl, 250);
   setTimeout(enhanceLayerControl, 1000);
 
+  // Programmatic companion-label toggles make Leaflet rebuild the layer rows
+  // without replacing the outer control. Reinstall the config-driven inline
+  // controls only when that rebuild actually removed them.
+  function refreshRebuiltLayerControl() {
+    setTimeout(function() {
+      var root = el.querySelector('.leaflet-control-layers');
+      if (!root || (
+        root.querySelector('.pt-main-layer-title') &&
+        root.querySelector('.pt-inline-lbl-toggle')
+      )) return;
+      root.removeAttribute('data-pt-layer-headers');
+      enhanceLayerControl();
+    }, 0);
+  }
+  if (map && typeof map.on === 'function') {
+    map.on('overlayadd overlayremove', refreshRebuiltLayerControl);
+  }
+
   // Failsafe: if a future JS issue prevents enhancement, reveal the control
   // rather than leaving users with no table of contents.
   setTimeout(revealLayerControlFallback, 2500);
@@ -930,7 +964,11 @@ function(el, x, data) {
     lapply(seq_len(nrow(INLINE_LABEL_PAIRS)), function(i) {
       list(
         main = as.character(INLINE_LABEL_PAIRS$main_name[[i]]),
-        label = as.character(INLINE_LABEL_PAIRS$label_name[[i]])
+        label = as.character(INLINE_LABEL_PAIRS$label_name[[i]]),
+        minZoom = if (
+          "min_zoom" %in% names(INLINE_LABEL_PAIRS) &&
+          is.finite(INLINE_LABEL_PAIRS$min_zoom[[i]])
+        ) as.numeric(INLINE_LABEL_PAIRS$min_zoom[[i]]) else NULL
       )
     })
   } else {

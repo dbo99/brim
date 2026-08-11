@@ -3295,7 +3295,8 @@ pt_add_reference_layers <- function(
     reference_layers,
     map_display,
     labels_all = NULL,
-    nps_context = NULL) {
+    nps_context = NULL,
+    supplemental_reference_layers = list()) {
   
   if (!isTRUE(map_display$add_reference_layers)) {
     return(m)
@@ -3394,11 +3395,9 @@ pt_add_reference_layers <- function(
     if (
       nm %in% c(
         "trails", "monuments", "cadesert_ncl", "wildernessstudyarea",
-        "fedwilderness", "acec"
+        "fedwilderness", "acec", "drecp", "allotments"
       ) &&
-      "pt_local_reference_geometry_key" %in% names(x) &&
-      "pt_reference_hover_text" %in% names(x) &&
-      "pt_reference_hover_html" %in% names(x)
+      "pt_local_reference_geometry_key" %in% names(x)
     ) {
       special_ref <- TRUE
       interactive_local_reference <- TRUE
@@ -3463,7 +3462,11 @@ pt_add_reference_layers <- function(
               autoPanPaddingBottomRight = c(16, 24),
               className = "pt-local-reference-tabbed-popup"
             ),
-            label = lapply(x$pt_reference_hover_html, htmltools::HTML),
+            label = if ("pt_reference_hover_html" %in% names(x)) {
+              lapply(x$pt_reference_hover_html, htmltools::HTML)
+            } else {
+              NULL
+            },
             labelOptions = leaflet::labelOptions(
               direction = "auto",
               opacity = 0.9,
@@ -3555,7 +3558,11 @@ pt_add_reference_layers <- function(
               autoPanPaddingBottomRight = c(16, 24),
               className = "pt-local-reference-tabbed-popup"
             ),
-            label = lapply(x$pt_reference_hover_html, htmltools::HTML),
+            label = if ("pt_reference_hover_html" %in% names(x)) {
+              lapply(x$pt_reference_hover_html, htmltools::HTML)
+            } else {
+              NULL
+            },
             labelOptions = leaflet::labelOptions(
               direction = "auto",
               opacity = 0.9,
@@ -3672,7 +3679,7 @@ pt_add_reference_layers <- function(
 
   m <- pt_add_local_reference_controller(
     m,
-    reference_layers = reference_layers,
+    reference_layers = c(reference_layers, supplemental_reference_layers),
     labels_all = labels_all,
     nps_context = nps_context
   )
@@ -5293,8 +5300,8 @@ pt_add_brim_mapped_conveyance_legend <- function(m, map_display) {
 ##   - Polygons use the State Water Board service colors with a transparent fill.
 ##   - Hover is a one-line region identifier.
 ##   - Click popup is intentionally tiny and only provides the RWQCB page link.
-##   - Labels are a separate toggleable layer so the colored polygons can be
-##     used without text clutter.
+##   - Labels come from the shared semantic label cache/controller so this
+##     drawing path never creates a duplicate label state.
 
 pt_add_rwqcb_regions_layer <- function(m, rwqcb_regions, map_display) {
   
@@ -5310,16 +5317,10 @@ pt_add_rwqcb_regions_layer <- function(m, rwqcb_regions, map_display) {
   message("Adding RWQCB regions: ", nrow(rwqcb_regions))
   
   rwqcb_group <- pt_layer_group_name("RWQCB Regions")
-  rwqcb_label_group <- pt_layer_group_name("Labels: RWQCB Regions")
-  
-  ## Use a point guaranteed to be inside each polygon for labels.  This is
-  ## evaluated on the cached WGS84 layer at final map build time, not during
-  ## browser interaction, so the cost is trivial for nine regions.
-  rwqcb_label_pts <- suppressWarnings(sf::st_point_on_surface(rwqcb_regions))
-  
   m <- m |>
     leaflet::addPolygons(
       data = rwqcb_regions,
+      layerId = ~pt_local_reference_geometry_key,
       group = rwqcb_group,
       fill = TRUE,
       fillColor = ~rwqcb_fill_col,
@@ -5347,26 +5348,6 @@ pt_add_rwqcb_regions_layer <- function(m, rwqcb_regions, map_display) {
         bringToFront = TRUE
       )
     )
-  
-  if (isTRUE(map_display$add_labels)) {
-    m <- m |>
-      leaflet::addLabelOnlyMarkers(
-        data = rwqcb_label_pts,
-        group = rwqcb_label_group,
-        label = ~rwqcb_label_text,
-        labelOptions = leaflet::labelOptions(
-          noHide = TRUE,
-          direction = "center",
-          textOnly = TRUE,
-          opacity = 1,
-          className = "pt-label pt-label-rwqcb"
-        ),
-        options = leaflet::markerOptions(
-          pane = "pane_labels_poly",
-          interactive = FALSE
-        )
-      )
-  }
   
   m
 }
@@ -5400,7 +5381,7 @@ pt_add_water_districts_layer <- function(m, water_districts, map_display) {
   m |>
     leaflet::addPolygons(
       data = water_districts,
-      layerId = ~water_district_id,
+      layerId = ~pt_local_reference_geometry_key,
       group = pt_layer_group_name("Water Districts"),
       
       ## Reference-boundary style:

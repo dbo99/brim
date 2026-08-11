@@ -351,6 +351,25 @@ pt_make_semantic_polygon_anchors <- function(source, visible_component_aware) {
   )
 }
 
+pt_make_semantic_polygon_largest_component_anchors <- function(source) {
+  projected <- sf::st_transform(pt_label_geometry_only(source), 3310)
+  area <- as.numeric(sf::st_area(projected))
+  semantic_keys <- unique(source$semantic_feature_key)
+  selected <- vapply(semantic_keys, function(semantic_key) {
+    index <- which(source$semantic_feature_key == semantic_key)
+    ranked <- order(-area[index], source$geometry_key[index], method = "radix")
+    index[ranked[[1]]]
+  }, integer(1))
+  reduced <- source[selected, , drop = FALSE]
+  points <- suppressWarnings(sf::st_point_on_surface(projected[selected, , drop = FALSE]))
+  list(
+    source = reduced,
+    points = sf::st_transform(points, 4326),
+    priority = rep.int(1L, nrow(reduced)),
+    weight = area[selected]
+  )
+}
+
 pt_make_semantic_line_anchors <- function(source) {
   projected <- sf::st_transform(pt_label_geometry_only(source), 3310)
   semantic_keys <- unique(source$semantic_feature_key)
@@ -427,6 +446,8 @@ pt_make_local_reference_labels <- function(
       pt_make_semantic_polygon_anchors(source, FALSE),
     polygon_visible_component_point_on_surface =
       pt_make_semantic_polygon_anchors(source, TRUE),
+    polygon_semantic_largest_component_point_on_surface =
+      pt_make_semantic_polygon_largest_component_anchors(source),
     line_semantic_longest_component_midpoint =
       pt_make_semantic_line_anchors(source),
     stop("Unsupported Local Reference label anchor strategy: ", strategy)

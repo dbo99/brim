@@ -31,8 +31,8 @@ expected_children <- c(
   "huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
   "gw_bull118", "county", "project_areas", "cnrfc_basins",
   "field_office_outer", "acec", "fedwilderness", "monuments",
-  "cadesert_ncl", "wildernessstudyarea", "trails", "water_districts",
-  "cnrfc_stream", "cnrfc_precip"
+  "cadesert_ncl", "wildernessstudyarea", "trails", "allotments",
+  "rwqcb_regions", "water_districts", "cnrfc_stream", "cnrfc_precip"
 )
 expected_rows <- c(
   huc2 = 4L, huc4 = 16L, huc6 = 24L, huc8 = 140L,
@@ -40,7 +40,8 @@ expected_rows <- c(
   county = 58L, project_areas = 0L, cnrfc_basins = 345L,
   field_office_outer = 14L, acec = 238L, fedwilderness = 197L, monuments = 22L,
   cadesert_ncl = 11L, wildernessstudyarea = 63L, trails = 6L,
-  water_districts = 3483L,
+  allotments = 647L, rwqcb_regions = 9L,
+  water_districts = 3470L,
   cnrfc_stream = 2047L, cnrfc_precip = 3137L
 )
 if (!identical(names(canonical), expected_children)) {
@@ -52,14 +53,16 @@ if (!identical(actual_rows, expected_rows)) {
 }
 stopifnot(
   !"major_conveyance" %in% names(canonical),
-  identical(length(production), 19L),
-  identical(length(isolated_old), 19L)
+  identical(length(production), 20L),
+  identical(length(isolated_old), 20L)
 )
 
 target_children <- LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$source_nickname
 expected_semantics <- c(
   acec = 238L, fedwilderness = 158L, monuments = 20L,
-  cadesert_ncl = 11L, wildernessstudyarea = 63L, trails = 6L
+  cadesert_ncl = 11L, wildernessstudyarea = 63L, trails = 6L,
+  allotments = 647L, county = 58L, rwqcb_regions = 9L,
+  water_districts = 3470L
 )
 actual_semantics <- vapply(
   canonical[target_children],
@@ -73,8 +76,17 @@ if (!identical(actual_semantics, expected_semantics)) {
 for (index in seq_len(nrow(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY))) {
   registration <- LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY[index, , drop = FALSE]
   nickname <- as.character(registration$source_nickname[[1]])
+  source <- reference[[nickname]]
+  prepared_fields <- c(
+    "pt_local_reference_semantic_key",
+    "pt_local_reference_geometry_key",
+    "pt_reference_label_text"
+  )
+  if (is.null(source) || !all(prepared_fields %in% names(source))) {
+    next
+  }
   pt_validate_local_reference_label_anchors(
-    canonical[[nickname]], reference[[nickname]], registration
+    canonical[[nickname]], source, registration
   )
 }
 

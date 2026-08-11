@@ -810,6 +810,9 @@ function(el, x, data) {
       '.pt-acec-hover-lines{display:block;max-width:100%}.pt-acec-hover-line{display:block;white-space:normal}.pt-acec-hover-title{font-weight:700}.pt-acec-caution,.pt-acec-research-cue,.pt-acec-wsa-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #9a5a3b}.pt-acec-research-cue{background:#f5ecff;border-left-color:#78509a}.pt-acec-wsa-current{background:#eef6e9;border-left-color:#4f8c68}.pt-acec-wsa-historical{background:#fff1df;border-left-color:#a66a43}' +
       '.pt-nm-hover-lines{display:block;max-width:100%}.pt-nm-hover-line{display:block;white-space:normal}.pt-nm-hover-title{font-weight:700}' +
       '.pt-cdncl-hover{display:block;max-width:100%;white-space:normal}.pt-cdncl-caution,.pt-cdncl-identity-cue{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #8a6838}.pt-cdncl-identity-cue{background:#f5ecff;border-left-color:#78509a}.pt-cdncl-related-groups{display:grid;gap:5px}.pt-cdncl-related-group{padding:4px 6px;border:1px solid rgba(82,72,45,.18);border-radius:3px;background:rgba(250,248,242,.72)}.pt-cdncl-related-group summary{cursor:pointer;font-size:11.5px}.pt-cdncl-related-group p{margin:5px 0 1px;color:#5b5650;font-size:10.5px}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="drecp"],.pt-local-reference-card[data-pt-local-reference-layer="grazing_allotments"],.pt-local-reference-card[data-pt-local-reference-layer="counties"],.pt-local-reference-card[data-pt-local-reference-layer="rwqcb_regions"],.pt-local-reference-card[data-pt-local-reference-layer="water_districts"]{width:320px;max-height:none;overflow:visible;padding:7px 8px;font-size:11px;line-height:1.25}' +
+      '.pt-local-reference-card[data-pt-local-reference-layer="drecp"] .pt-lr-head,.pt-local-reference-card[data-pt-local-reference-layer="grazing_allotments"] .pt-lr-head,.pt-local-reference-card[data-pt-local-reference-layer="counties"] .pt-lr-head,.pt-local-reference-card[data-pt-local-reference-layer="rwqcb_regions"] .pt-lr-head,.pt-local-reference-card[data-pt-local-reference-layer="water_districts"] .pt-lr-head{align-items:center;margin-bottom:4px}.pt-lr-label-toggle-wrap{font-size:10px}.pt-lr-legend-rows{border-top:1px solid rgba(82,72,45,.23)}.pt-lr-legend-row{display:grid;grid-template-columns:25px minmax(0,1fr);align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(82,72,45,.12)}' +
+      '.pt-lr-numeric-theme{margin:5px 0;padding:5px 6px 6px;border:1px solid rgba(82,72,45,.28);border-radius:4px}.pt-lr-numeric-theme legend{padding:0 3px;font-weight:700}.pt-lr-numeric-theme>label{margin-right:9px}.pt-lr-ramp{height:11px;margin-top:6px;border:1px solid rgba(45,40,32,.45);background:linear-gradient(90deg,#FFF7E3 0%,#E8C56A 20%,#D69A39 40%,#BD672E 60%,#8F4130 80%,#5B2730 100%)}.pt-lr-ramp-ticks{display:flex;justify-content:space-between;color:#5a554d;font-size:9px}.pt-lr-numeric-label{display:block;margin-top:5px!important;font-weight:700}.pt-lr-numeric-slider{box-sizing:border-box;width:100%}.pt-local-reference-card.pt-map-card-undocked{max-height:calc(100vh - 8px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}' +
       '.leaflet-tooltip.pt-nps-context-hover-tooltip{box-sizing:border-box;width:max-content!important;max-width:min(320px,calc(100vw - 32px))!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;line-height:1.3!important}.pt-nps-context-hover-lines{display:block;max-width:100%}.pt-nps-context-hover-title{display:block;font-weight:700}.pt-nps-context-hover-area{display:block;margin-top:2px;white-space:nowrap}' +
       '.pt-wsa-popup .pt-popup-subtitle{margin-top:2px;color:#555;font-size:12px}.pt-wsa-popup .pt-popup-section{margin-top:7px}.pt-wsa-popup .pt-wsa-caution{margin-top:8px;padding:6px;background:#fff3cf;border-left:3px solid #a86f00}.pt-wsa-source-anomaly{color:#8a2f1c}.pt-popup-technical{margin-top:7px;font-size:11px}' +
       '.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content-wrapper{padding:0;overflow:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{box-sizing:border-box;width:min(430px,calc(100vw - 72px))!important;min-width:min(400px,calc(100vw - 72px))!important;max-width:min(460px,calc(100vw - 72px))!important;margin:10px 12px 12px}' +
@@ -822,7 +825,7 @@ function(el, x, data) {
       '.pt-local-reference-tabbed-popup-card.pt-lr-popup-measuring{visibility:hidden!important}.pt-lr-popup-measuring .pt-lr-popup-panel-scroll{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}' +
       '@media (max-width:520px){.leaflet-container.pt-lr-tabbed-popup-open .leaflet-control-container{visibility:hidden}.leaflet-popup.pt-local-reference-tabbed-popup .leaflet-popup-content{width:calc(100vw - 56px)!important;min-width:0!important;max-width:calc(100vw - 56px)!important;margin:9px 10px 11px}.pt-lr-popup-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pt-lr-popup-badge{max-width:42%;white-space:normal;text-align:center}.pt-lr-popup-panel-scroll{max-height:min(50vh,390px)}}' +
       '@media (max-width:420px){.pt-local-reference-card{width:calc(100vw - 28px)}.pt-lr-toolbar .pt-lr-auto-toggle{margin-left:0}.pt-lr-chip{width:100%;box-sizing:border-box}.pt-lr-chip-remove{margin-left:auto}}' +
-      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip,.leaflet-tooltip.pt-cdncl-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh}.pt-lr-chip-remove{min-width:38px}}';
+      '@media (pointer:coarse){.leaflet-tooltip.pt-wsa-hover-tooltip,.leaflet-tooltip.pt-trails-hover-tooltip{display:none!important}.leaflet-tooltip.pt-fw-hover-tooltip,.leaflet-tooltip.pt-acec-hover-tooltip,.leaflet-tooltip.pt-nm-hover-tooltip,.leaflet-tooltip.pt-cdncl-hover-tooltip{display:none!important}.pt-local-reference-card button,.pt-local-reference-card input{min-height:38px}.pt-lr-category{min-height:34px}.pt-local-reference-card{max-height:58vh;overflow-y:auto;overflow-x:hidden}.pt-lr-chip-remove{min-width:38px}}';
     document.head.appendChild(style);
   }
 
@@ -1082,6 +1085,7 @@ function(el, x, data) {
       layerManager._groupContainers[labelGroupName] : null;
     var recordByGeometry = Object.create(null);
     var layerByGeometry = Object.create(null);
+    var recordGeometryOrder = [];
     var labelRecordByKey = Object.create(null);
     var labelLayerByKey = Object.create(null);
     var labelRecordsBySemantic = Object.create(null);
@@ -1112,6 +1116,11 @@ function(el, x, data) {
     var preserveViewOnReset = layerData.preserve_view_on_reset !== false;
     var distinguishUnitsSupported = layerData.distinguish_units_supported === true;
     var distinguishUnits = false;
+    var runtimePresentation = layerData.runtime_presentation || {};
+    var numericFilter = layerData.numeric_filter || null;
+    var numericTheme = layerData.numeric_theme || null;
+    var numericDisplayMode = numericTheme ?
+      String(numericTheme.default_mode || 'boundaries') : '';
     var categoryByKey = Object.create(null);
     var safeLayerId = String(layerData.layer_id || 'layer').replace(/[^A-Za-z0-9_-]/g, '-');
     var searchId = 'pt-lr-search-' + safeLayerId;
@@ -1290,7 +1299,9 @@ function(el, x, data) {
     }
 
     layerData.records.forEach(function(record) {
-      recordByGeometry[String(record.geometry_key)] = record;
+      var geometryKey = String(record.geometry_key);
+      recordByGeometry[geometryKey] = record;
+      recordGeometryOrder.push(geometryKey);
     });
     Object.keys(groupTable).forEach(function(stamp) {
       var layer = groupTable[stamp];
@@ -1338,6 +1349,33 @@ function(el, x, data) {
           String(layerData.display_name || layerData.layer_id || 'layer') + '.'
         );
       }
+    }
+    if (numericTheme) {
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        listen(layer, 'mouseout', function() {
+          var record = recordByGeometry[key];
+          if (!record || !active || typeof layer.setStyle !== 'function') return;
+          layer.setStyle(styleForRecord(record, engine.snapshot()));
+        });
+      });
+    }
+    if (runtimePresentation.restore_style_on_mouseout === true) {
+      Object.keys(layerByGeometry).forEach(function(key) {
+        var layer = layerByGeometry[key];
+        listen(layer, 'mouseout', function() {
+          var record = recordByGeometry[key];
+          if (!record || !active || typeof layer.setStyle !== 'function') return;
+          var snapshot = engine.snapshot();
+          layer.setStyle(styleForRecord(record, snapshot));
+          if (runtimePresentation.bring_selected_to_front === true &&
+              snapshot.applied_feature_keys.indexOf(
+                String(record.semantic_feature_key)
+              ) !== -1 && typeof layer.bringToFront === 'function') {
+            layer.bringToFront();
+          }
+        });
+      });
     }
     if (federalData) {
       Object.keys(layerByGeometry).forEach(function(key) {
@@ -1437,6 +1475,20 @@ function(el, x, data) {
       return !!(
         labelGroupRoot && map.hasLayer && map.hasLayer(labelGroupRoot)
       );
+    }
+
+    function syncLegendLabelInput() {
+      if (!card) return;
+      var input = card.querySelector('.pt-lr-label-toggle');
+      if (input) input.checked = labelsEnabled();
+    }
+
+    function setLabelsEnabled(value) {
+      if (!semanticLabelData || !labelGroupRoot) return;
+      if (value && !labelsEnabled()) map.addLayer(labelGroupRoot);
+      if (!value && labelsEnabled()) map.removeLayer(labelGroupRoot);
+      reconcileSemanticLabels(engine.snapshot());
+      syncLegendLabelInput();
     }
 
     function labelZoomVisible() {
@@ -1706,6 +1758,7 @@ function(el, x, data) {
         if (!visible[key] && rootHas(layer)) groupRoot.removeLayer(layer);
       });
       applyRecordStyles(snapshot);
+      applyRecordOrder(snapshot);
       reconcileSemanticLabels(snapshot);
     }
 
@@ -1736,6 +1789,37 @@ function(el, x, data) {
           .toString(16).padStart(2, '0');
       };
       return ('#' + channel(1) + channel(3) + channel(5)).toUpperCase();
+    }
+
+    function interpolateThemeColor(value) {
+      var stops = numericTheme && Array.isArray(numericTheme.stops) ?
+        numericTheme.stops.slice() : [];
+      value = Number(value);
+      if (!isFinite(value) || !stops.length) {
+        return String((numericTheme && numericTheme.missing_color) || '#B7B0A5');
+      }
+      stops.sort(function(left, right) { return Number(left.value) - Number(right.value); });
+      if (value <= Number(stops[0].value)) return String(stops[0].color);
+      if (value >= Number(stops[stops.length - 1].value)) {
+        return String(stops[stops.length - 1].color);
+      }
+      for (var index = 1; index < stops.length; index += 1) {
+        var high = stops[index];
+        var low = stops[index - 1];
+        if (value > Number(high.value)) continue;
+        var proportion = (value - Number(low.value)) /
+          (Number(high.value) - Number(low.value));
+        var lowHex = String(low.color).replace('#', '');
+        var highHex = String(high.color).replace('#', '');
+        var channel = function(offset) {
+          var from = parseInt(lowHex.slice(offset, offset + 2), 16);
+          var to = parseInt(highHex.slice(offset, offset + 2), 16);
+          return Math.round(from + (to - from) * proportion)
+            .toString(16).padStart(2, '0');
+        };
+        return ('#' + channel(0) + channel(2) + channel(4)).toUpperCase();
+      }
+      return String(stops[stops.length - 1].color);
     }
 
     function initializeAcecOverlapGraph() {
@@ -1846,13 +1930,25 @@ function(el, x, data) {
 
     function styleForRecord(record, snapshot) {
       var category = categoryByKey[String(record.category_key)] || {};
+      if (numericTheme) {
+        var thematicNumeric = numericDisplayMode === 'blm_pct';
+        return {
+          fillColor: thematicNumeric ? interpolateThemeColor(record.numeric_value) :
+            String(category.fill_color || '#FFFFFF'),
+          color: String(numericTheme.boundary_color || category.stroke_color || '#666666'),
+          fillOpacity: thematicNumeric ? Number(numericTheme.fill_opacity || 0.58) :
+            Number(category.fill_opacity || 0.01),
+          weight: Number(numericTheme.boundary_weight || category.stroke_weight || 1),
+          dashArray: String(category.dash_array || '')
+        };
+      }
       var acecTheme = acecValueTheme(snapshot, 'applied_facets');
       var thematic = acecTheme.mode === 'single';
       var overlapColor = acecDistinguishOverlaps &&
         acecActiveOverlapParticipants[String(record.semantic_feature_key)] ?
         acecOverlapColorBySemantic[String(record.semantic_feature_key)] : '';
       var overlapping = validHexColor(overlapColor);
-      return {
+      var style = {
         fillColor: distinguishUnits ?
           semanticFillColor(record.semantic_feature_key) :
           (overlapping ? overlapColor :
@@ -1861,20 +1957,40 @@ function(el, x, data) {
           overlapColor,
           Number(acecOverlapStyle.stroke_darken || 0)
         ) : (thematic ? acecTheme.stroke_color : category.stroke_color),
-        fillOpacity: overlapping && isFinite(Number(acecOverlapStyle.fill_opacity)) ?
+        fillOpacity: distinguishUnits &&
+          isFinite(Number(runtimePresentation.distinguish_fill_opacity)) ?
+          Number(runtimePresentation.distinguish_fill_opacity) :
+          (overlapping && isFinite(Number(acecOverlapStyle.fill_opacity)) ?
           Number(acecOverlapStyle.fill_opacity) :
           (thematic && isFinite(acecTheme.fill_opacity) ?
-            acecTheme.fill_opacity : Number(category.fill_opacity || 0)),
+            acecTheme.fill_opacity : Number(category.fill_opacity || 0))),
         weight: overlapping && isFinite(Number(acecOverlapStyle.stroke_weight)) ?
           Number(acecOverlapStyle.stroke_weight) :
           (thematic && isFinite(acecTheme.stroke_weight) ?
             acecTheme.stroke_weight : Number(category.stroke_weight || 1)),
         dashArray: String(category.dash_array || '')
       };
+      var selected = snapshot &&
+        (snapshot.applied_feature_keys || []).indexOf(
+          String(record.semantic_feature_key)
+        ) !== -1;
+      if (selected && runtimePresentation.bring_selected_to_front === true) {
+        if (validHexColor(runtimePresentation.selected_color)) {
+          style.color = String(runtimePresentation.selected_color).toUpperCase();
+        }
+        if (isFinite(Number(runtimePresentation.selected_weight))) {
+          style.weight = Number(runtimePresentation.selected_weight);
+        }
+        if (isFinite(Number(runtimePresentation.selected_fill_opacity))) {
+          style.fillOpacity = Number(runtimePresentation.selected_fill_opacity);
+        }
+      }
+      return style;
     }
 
     function applyRecordStyles(snapshot) {
-      if (!distinguishUnitsSupported && !acecData) return;
+      if (!distinguishUnitsSupported && !acecData && !numericTheme &&
+          runtimePresentation.bring_selected_to_front !== true) return;
       if (acecData) updateAcecActiveOverlaps(snapshot);
       Object.keys(layerByGeometry).forEach(function(key) {
         var layer = layerByGeometry[key];
@@ -1885,6 +2001,38 @@ function(el, x, data) {
       });
     }
 
+    function applyRecordOrder(snapshot) {
+      if (!snapshot) return;
+      var visible = Object.create(null);
+      (snapshot.visible_geometry_keys || []).forEach(function(key) {
+        visible[String(key)] = true;
+      });
+      if (runtimePresentation.restore_input_order === true) {
+        recordGeometryOrder.forEach(function(key) {
+          var layer = layerByGeometry[key];
+          if (visible[key] && rootHas(layer) &&
+              typeof layer.bringToFront === 'function') {
+            layer.bringToFront();
+          }
+        });
+      }
+      if (runtimePresentation.bring_selected_to_front === true) {
+        var selected = Object.create(null);
+        (snapshot.applied_feature_keys || []).forEach(function(key) {
+          selected[String(key)] = true;
+        });
+        recordGeometryOrder.forEach(function(key) {
+          var record = recordByGeometry[key];
+          var layer = layerByGeometry[key];
+          if (record && selected[String(record.semantic_feature_key)] &&
+              visible[key] && rootHas(layer) &&
+              typeof layer.bringToFront === 'function') {
+            layer.bringToFront();
+          }
+        });
+      }
+    }
+
     function distinguishUnitsEligible(snapshot) {
       return !!(distinguishUnitsSupported && snapshot &&
         (desertNclData || snapshot.draft_selected.length === 1));
@@ -1892,16 +2040,23 @@ function(el, x, data) {
 
     function setDistinguishUnits(value, snapshot) {
       var eligible = distinguishUnitsEligible(snapshot);
-      distinguishUnits = eligible && value === true;
+      var next = eligible && value === true;
+      if (distinguishUnits === next) return false;
+      distinguishUnits = next;
       applyRecordStyles(snapshot);
+      applyRecordOrder(snapshot);
+      return true;
     }
 
     function setAcecDistinguishOverlaps(value, snapshot) {
-      acecDistinguishOverlaps = !!(
+      var next = !!(
         acecData && acecOverlapPairs.length && acecOverlapPalette.length &&
         value === true
       );
+      if (acecDistinguishOverlaps === next) return false;
+      acecDistinguishOverlaps = next;
       applyRecordStyles(snapshot);
+      return true;
     }
 
     function eventMatches(event) {
@@ -1930,7 +2085,9 @@ function(el, x, data) {
           (facet.values || []).length;
       });
       return !snapshot.applied_feature_keys.length && facetsWhole &&
-        snapshot.applied_selected.length === layerData.categories.length;
+        snapshot.applied_selected.length === layerData.categories.length &&
+        (!snapshot.numeric_filter_supported ||
+          snapshot.applied_numeric_minimum === Number(numericFilter.default));
     }
 
     function fitSnapshot(snapshot, explicit) {
@@ -2153,6 +2310,21 @@ function(el, x, data) {
       });
       renderChips(snapshot);
       renderQuickViewState(snapshot);
+      syncLegendLabelInput();
+      var numericSlider = card.querySelector('.pt-lr-numeric-slider');
+      if (numericSlider) numericSlider.value = String(snapshot.draft_numeric_minimum);
+      var numericValue = card.querySelector('.pt-lr-numeric-value');
+      if (numericValue && numericFilter) {
+        numericValue.textContent = String(snapshot.draft_numeric_minimum) +
+          String(numericFilter.unit || '');
+      }
+      Array.prototype.forEach.call(
+        card.querySelectorAll('[data-pt-lr-display-mode]'),
+        function(input) {
+          input.checked = input.getAttribute('data-pt-lr-display-mode') ===
+            numericDisplayMode;
+        }
+      );
       var auto = card.querySelector('.pt-lr-auto');
       if (auto) auto.checked = snapshot.auto;
       var autoZoom = card.querySelector('.pt-lr-auto-zoom');
@@ -2162,14 +2334,10 @@ function(el, x, data) {
         var distinguishEligible = distinguishUnitsEligible(snapshot);
         distinguish.disabled = !distinguishEligible;
         distinguish.checked = distinguishUnits;
-        distinguish.setAttribute(
-          'aria-label',
-          desertNclData ?
+        distinguish.setAttribute('aria-label', cleanText(layerData.distinguish_label) ||
+          (desertNclData ?
             'Distinguish mapped California Desert NCL units by stable identity' :
-          distinguishEligible ?
-            'Distinguish named wildernesses within the selected agency' :
-            'Select exactly one managing agency before distinguishing named wildernesses'
-        );
+            'Distinguish named units by stable identity'));
       }
       var distinguishOverlaps = card.querySelector('.pt-acec-distinguish-overlaps');
       if (distinguishOverlaps) {
@@ -2228,7 +2396,9 @@ function(el, x, data) {
         escapeHtml(namedFeatureLabel) + '</label>' +
         '<input id="' + searchId + '" class="pt-lr-search" type="search" role="combobox" ' +
         'aria-autocomplete="list" aria-expanded="false" aria-controls="' + listboxId + '" ' +
-        'autocomplete="off" placeholder="Type a name or identifier">' +
+        'autocomplete="off" placeholder="' + escapeHtml(
+          cleanText(layerData.search_placeholder) || 'Type a name or identifier'
+        ) + '">' +
         '<ul id="' + listboxId + '" class="pt-lr-suggestions" role="listbox" hidden></ul>' +
         '<div class="pt-lr-search-status pt-lr-visually-hidden" aria-live="polite"></div>' +
         '<div class="pt-lr-chips" role="list" aria-label="No selected ' +
@@ -2363,7 +2533,7 @@ function(el, x, data) {
     }
 
     function createCard() {
-      if (card) return;
+      if (card) return false;
       if (!control) control = L.control({position: 'bottomleft'});
       control.onAdd = function() {
         card = L.DomUtil.create(
@@ -2380,6 +2550,10 @@ function(el, x, data) {
               '<span class="pt-lr-category-count" data-pt-lr-count="' + key + '"></span>' : '') +
             '</label>';
         }).join('');
+        var legendRows = layerData.categories.map(function(category) {
+          return '<div class="pt-lr-legend-row">' + swatch(category) +
+            '<span>' + escapeHtml(category.label) + '</span></div>';
+        }).join('');
         var closeHtml = window.BRIM.legendCloseout ?
           window.BRIM.legendCloseout.actionsHtml(
             'pt-lr-dock', 'pt-lr-close', 'Local Reference filter'
@@ -2389,9 +2563,21 @@ function(el, x, data) {
           '<label class="pt-lr-toggle pt-lr-auto-toggle"><input type="checkbox" class="pt-lr-auto"> Auto</label>' : '';
         var autoZoomToggleHtml = autoZoomSupported ?
           '<label class="pt-lr-toggle"><input type="checkbox" class="pt-lr-auto-zoom"> Auto-zoom</label>' : '';
+        var configuredLabelZoom = semanticLabelData &&
+          semanticLabelData.min_zoom != null ? Number(semanticLabelData.min_zoom) : NaN;
+        var labelZoomSuffix = layerData.legend_lbl_zoom_visible &&
+          isFinite(configuredLabelZoom) ?
+          ' (z' + (Math.round(configuredLabelZoom) === configuredLabelZoom ?
+            configuredLabelZoom.toFixed(0) : String(configuredLabelZoom)) + '+)' : '';
+        var labelToggleHtml = layerData.legend_lbl_available && semanticLabelData ?
+          '<label class="pt-lr-toggle pt-lr-label-toggle-wrap" title="Show or hide the shared companion label layer">' +
+          '<input type="checkbox" class="pt-lr-label-toggle"> lbl' +
+          labelZoomSuffix + '</label>' : '';
         var headControlsHtml = (acecData || nationalMonuments) ?
           '<div class="pt-lr-head-controls"><div class="pt-lr-head-toggles">' +
-          autoToggleHtml + autoZoomToggleHtml + '</div>' + closeHtml + '</div>' : closeHtml;
+          autoToggleHtml + autoZoomToggleHtml + labelToggleHtml + '</div>' + closeHtml + '</div>' :
+          '<div class="pt-lr-head-controls"><div class="pt-lr-head-toggles">' +
+          labelToggleHtml + '</div>' + closeHtml + '</div>';
         var toolbarItemsHtml =
           (categoryFilterVisible ? '<button type="button" class="pt-lr-all">All</button>' +
             '<button type="button" class="pt-lr-none">None</button>' : '') +
@@ -2402,10 +2588,9 @@ function(el, x, data) {
         var categoryHeadingHtml = categoryFilterVisible && String(layerData.category_heading || '') ?
           '<div class="pt-lr-category-heading" role="heading" aria-level="3">' +
           escapeHtml(layerData.category_heading) + '</div>' : '';
-        var subtitleHtml = (federalData || acecData || nationalMonuments || desertNclData) ? '' : '<div>' +
-          (featureSelectionSupported ?
-            'Filter by category or select named features' : 'Filter by category') +
-          '</div>';
+        var subtitleHtml = (federalData || acecData || nationalMonuments || desertNclData ||
+          !categoryFilterVisible) ? '' : '<div>' + (featureSelectionSupported ?
+            'Filter by category or select named features' : 'Filter by category') + '</div>';
         var cautionHtml = federalData ? '' : (acecData || nationalMonuments || desertNclData) ?
           '<details class="pt-lr-map-details pt-lr-layer-note"><summary>Boundary / use note</summary>' +
           '<div class="pt-lr-caution">' + escapeHtml(layerData.caution) + '</div></details>' :
@@ -2446,10 +2631,36 @@ function(el, x, data) {
         var distinguishHtml = distinguishUnitsSupported ?
           '<div class="pt-lr-toolbar pt-lr-distinguish-row"><label class="pt-lr-toggle">' +
             '<input type="checkbox" class="pt-lr-distinguish"> ' +
-            (desertNclData ? 'Distinguish mapped units' : 'Distinguish named units') +
+            escapeHtml(cleanText(layerData.distinguish_label) ||
+              (desertNclData ? 'Distinguish mapped units' : 'Distinguish named units')) +
             '</label>' +
-            (desertNclData ? '</div>' :
+            (desertNclData || layerData.layer_id === 'grazing_allotments' ||
+              layerData.layer_id === 'water_districts' ? '</div>' :
               '<span class="pt-lr-distinguish-note" title="Available when exactly one managing agency is selected.">one agency only</span></div>') : '';
+        var numericHtml = numericFilter && numericTheme ?
+          '<fieldset class="pt-lr-numeric-theme"><legend>Display</legend>' +
+          (numericTheme.modes || []).map(function(mode) {
+            return '<label><input type="radio" name="pt-lr-display-' + safeLayerId +
+              '" data-pt-lr-display-mode="' + escapeHtml(mode.mode_key) + '"> ' +
+              escapeHtml(mode.label) + '</label>';
+          }).join('') +
+          '<div class="pt-lr-ramp" aria-label="BLM land percentage color ramp"></div>' +
+          '<div class="pt-lr-ramp-ticks"><span>0%</span><span>20</span><span>40</span>' +
+          '<span>60</span><span>80</span><span>100%</span></div>' +
+          '<label class="pt-lr-numeric-label">' + escapeHtml(numericFilter.label) +
+          ': <output class="pt-lr-numeric-value"></output></label>' +
+          '<input class="pt-lr-numeric-slider" type="range" min="' +
+          escapeHtml(numericFilter.min) + '" max="' + escapeHtml(numericFilter.max) +
+          '" step="' + escapeHtml(numericFilter.step) + '" value="' +
+          escapeHtml(numericFilter.default) + '"></fieldset>' : '';
+        var hasActions = categoryFilterVisible || featureSelectionSupported ||
+          !!numericFilter || (layerData.facets || []).length > 0;
+        var actionsHtml = hasActions ?
+          '<div class="pt-lr-actions"><button type="button" class="pt-lr-apply">Apply</button>' +
+          '<button type="button" class="pt-lr-reset">Reset</button>' +
+          (autoZoomSupported ?
+            '<button type="button" class="pt-lr-zoom-results">Zoom to results</button>' : '') +
+          '<span class="pt-lr-pending"></span></div>' : '';
         card.innerHTML =
           '<div class="pt-lr-head pt-map-card-handle"><div><div class="pt-lr-title">' +
           escapeHtml(layerData.display_name) + '</div>' + subtitleHtml +
@@ -2457,15 +2668,13 @@ function(el, x, data) {
           featurePickerHtml() +
           toolbarHtml + categoryHeadingHtml +
           (categoryFilterVisible ? '<div class="pt-lr-categories">' + categoryRows + '</div>' : '') +
+          (!categoryFilterVisible && layerData.legend_rows_visible ?
+            '<div class="pt-lr-legend-rows">' + legendRows + '</div>' : '') +
           distinguishHtml + dashboardSummaryHtml +
+          numericHtml +
           quickViewsHtml() +
           (acecData ? '<div class="pt-lr-thematic-state" hidden aria-live="polite"></div>' : '') +
-          facetsHtml() +
-          '<div class="pt-lr-actions"><button type="button" class="pt-lr-apply">Apply</button>' +
-          '<button type="button" class="pt-lr-reset">Reset</button>' +
-          (autoZoomSupported ?
-            '<button type="button" class="pt-lr-zoom-results">Zoom to results</button>' : '') +
-          '<span class="pt-lr-pending"></span></div>' +
+          facetsHtml() + actionsHtml +
           '<div class="pt-lr-summary" aria-live="polite"></div>' +
           mapDetailsHtml + npsContextHtml +
           acecDisplayHtml + cautionHtml;
@@ -2496,6 +2705,16 @@ function(el, x, data) {
           }
           if (event.target.classList.contains('pt-lr-auto-zoom')) {
             render(engine.setAutoZoom(event.target.checked), false, '');
+          }
+          if (event.target.classList.contains('pt-lr-label-toggle')) {
+            setLabelsEnabled(event.target.checked);
+          }
+          var displayMode = event.target.getAttribute &&
+            event.target.getAttribute('data-pt-lr-display-mode');
+          if (displayMode) {
+            numericDisplayMode = String(displayMode);
+            applyRecordStyles(engine.snapshot());
+            render(engine.snapshot(), false, '');
           }
           if (event.target.classList.contains('pt-lr-distinguish')) {
             var distinguishSnapshot = engine.snapshot();
@@ -2560,12 +2779,21 @@ function(el, x, data) {
           var next = engine.none();
           render(next, next.auto, 'none');
         });
-        card.querySelector('.pt-lr-apply').addEventListener('click', function() {
+        var numericSlider = card.querySelector('.pt-lr-numeric-slider');
+        if (numericSlider) numericSlider.addEventListener('input', function() {
+          var next = engine.setNumericMinimum(numericSlider.value);
+          render(next, next.auto, next.auto ? 'numeric' : '');
+        });
+        var applyButton = card.querySelector('.pt-lr-apply');
+        if (applyButton) applyButton.addEventListener('click', function() {
           var next = engine.apply();
           render(next, true, 'apply');
         });
-        card.querySelector('.pt-lr-reset').addEventListener('click', function() {
+        var resetButton = card.querySelector('.pt-lr-reset');
+        if (resetButton) resetButton.addEventListener('click', function() {
           clearFeaturePicker();
+          numericDisplayMode = numericTheme ?
+            String(numericTheme.default_mode || 'boundaries') : '';
           var resetSnapshot = engine.reset();
           setDistinguishUnits(false, resetSnapshot);
           setAcecDistinguishOverlaps(false, resetSnapshot);
@@ -2600,6 +2828,7 @@ function(el, x, data) {
         return card;
       };
       control.addTo(map);
+      return true;
     }
 
     function removeCard() {
@@ -2688,6 +2917,8 @@ function(el, x, data) {
       detachOwnedGeometry();
       detachOwnedSemanticLabels();
       resetNpsContext();
+      numericDisplayMode = numericTheme ?
+        String(numericTheme.default_mode || 'boundaries') : '';
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
@@ -2703,6 +2934,8 @@ function(el, x, data) {
       }
       closeOwnedPresentation();
       clearFeaturePicker();
+      numericDisplayMode = numericTheme ?
+        String(numericTheme.default_mode || 'boundaries') : '';
       var resetSnapshot = engine.reset();
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
@@ -2713,6 +2946,7 @@ function(el, x, data) {
     function onOverlayAdd(event) {
       if (labelEventMatches(event)) {
         reconcileSemanticLabels(engine.snapshot());
+        syncLegendLabelInput();
         writeDiagnostics(engine.snapshot());
         return;
       }
@@ -2724,13 +2958,13 @@ function(el, x, data) {
       setDistinguishUnits(false, resetSnapshot);
       setAcecDistinguishOverlaps(false, resetSnapshot);
       resetNpsContext();
-      createCard();
-      render(engine.snapshot(), true, '');
+      if (!createCard()) render(engine.snapshot(), true, '');
       setCardVisible();
     }
 
     function onOverlayRemove(event) {
       if (labelEventMatches(event)) {
+        syncLegendLabelInput();
         writeDiagnostics(engine.snapshot());
         return;
       }

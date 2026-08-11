@@ -244,6 +244,26 @@ layers <- list(
 
 message("Cached layers loaded.")
 
+## The closeout layers retain their cache geometry and raw source attributes.
+## Public identities, hover/popup content, controller keys, and style tokens are
+## added in memory so the realistic build does not require a broad core-cache
+## rebuild.
+layers$reference_layers$drecp <- pt_prepare_local_reference_closeout_layer(
+  layers$reference_layers$drecp, "drecp"
+)
+layers$reference_layers$allotments <- pt_prepare_local_reference_closeout_layer(
+  layers$reference_layers$allotments, "grazing_allotments"
+)
+layers$county <- pt_prepare_local_reference_closeout_layer(
+  layers$county, "counties"
+)
+layers$rwqcb_regions <- pt_prepare_local_reference_closeout_layer(
+  layers$rwqcb_regions, "rwqcb_regions"
+)
+layers$water_districts <- pt_prepare_local_reference_closeout_layer(
+  layers$water_districts, "water_districts"
+)
+
 # ---- 5.1 Enrich Local USGS streamgages with current Ops data flags ---------
 ##
 ## The Ops Live USGS streamflow GeoJSON intentionally uses the same station
@@ -768,7 +788,7 @@ REFERENCE_LAYER_FEATURE_COUNT_KEYS <- c(
   "Reference – CA Desert National Conservation Lands",
   "Reference – Wilderness Study Areas",
   "Reference – Federal Wilderness",
-  "Reference – DRECP",
+  "Reference – DRECP Planning Area Boundary",
   "Reference – ACECs",
   "Reference – Grazing Allotments",
   "Reference – Counties",
@@ -819,13 +839,16 @@ pt_register_local_layer_feature_counts(c(
   "Reference – CA Desert National Conservation Lands" = pt_count_reference_layer_rows(layers$reference_layers, "cadesert_ncl"),
   "Reference – Wilderness Study Areas" = pt_count_reference_layer_rows(layers$reference_layers, "wildernessstudyarea"),
   "Reference – Federal Wilderness" = pt_count_reference_layer_rows(layers$reference_layers, "fedwilderness"),
-  "Reference – DRECP" = pt_count_reference_layer_rows(layers$reference_layers, "drecp"),
+  "Reference – DRECP Planning Area Boundary" = pt_count_reference_layer_rows(layers$reference_layers, "drecp"),
   "Reference – ACECs" = pt_count_reference_layer_rows(layers$reference_layers, "acec"),
   "Reference – Grazing Allotments" = pt_count_reference_layer_rows(layers$reference_layers, "allotments"),
   "Reference – Counties" = pt_count_sf_rows(layers$county),
   "Reference – RWQCB Regions" = pt_count_sf_rows(layers$rwqcb_regions),
   "Reference – Water Districts" = pt_count_sf_rows(layers$water_districts)
-), exact_names = REFERENCE_LAYER_FEATURE_COUNT_KEYS)
+), exact_names = setdiff(
+  REFERENCE_LAYER_FEATURE_COUNT_KEYS,
+  "Reference – Water Districts"
+))
 
 # ==== 6. Build overlay group list ===========================================
 ##
@@ -926,8 +949,7 @@ LABEL_OVERLAY_GROUPS <- if (isTRUE(MAP_DISPLAY$add_labels)) {
       pt_has_data_rows(layers$brim_mapped_conveyance_labels)
     ) {
       "Labels: Water conveyance | BRIM mapped"
-    },
-    if (isTRUE(MAP_DISPLAY$add_rwqcb_regions)) "Labels: RWQCB Regions"
+    }
   )
 } else {
   character(0)
@@ -1076,7 +1098,12 @@ m <- pt_add_reference_layers(
   reference_layers = layers$reference_layers,
   map_display = MAP_DISPLAY,
   labels_all = layers$labels_all,
-  nps_context = layers$nps_park_preserve_context
+  nps_context = layers$nps_park_preserve_context,
+  supplemental_reference_layers = list(
+    county = layers$county,
+    rwqcb_regions = layers$rwqcb_regions,
+    water_districts = layers$water_districts
+  )
 )
 
 m <- pt_add_huc_layers(

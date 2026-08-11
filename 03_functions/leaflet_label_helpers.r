@@ -106,23 +106,17 @@ pt_label_cluster_options <- function(disable_at_zoom = 11) {
 ## DESIGN:
 ##   Most existing labels keep the previous hard-coded thresholds to avoid
 ##   changing unrelated map behavior. Water districts are the special case added
-##   here: their threshold is read from the cached label layer's min_zoom field,
-##   which is configured in 00_config/config_labels.r.
+##   here: their threshold is read from the shared LABEL_ZOOM configuration.
 
 pt_label_disable_zoom <- function(label_id, label_sf) {
   
   label_id <- as.character(label_id)
   
   ## Water districts are numerous and should not show at statewide/regional
-  ## zooms. Use the configured min_zoom when present, with 12 as a safe default.
+  ## zooms. Read the shared configuration directly so a threshold-only change
+  ## does not require label-anchor regeneration.
   if (identical(label_id, "water_districts")) {
-    if ("min_zoom" %in% names(label_sf)) {
-      z <- suppressWarnings(as.numeric(label_sf$min_zoom[1]))
-      if (is.finite(z)) {
-        return(z)
-      }
-    }
-    return(12)
+    return(as.numeric(pt_label_cfg(label_id)$min_zoom[[1]]))
   }
   
   ## Preserve existing behavior for current label layers.

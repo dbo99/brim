@@ -121,7 +121,7 @@ stopifnot(
   grepl('identical(nm, "fedwilderness")', drawing_source, fixed = TRUE)
 )
 stopifnot(grepl(
-  'label = lapply(x$pt_reference_hover_html, htmltools::HTML)',
+  'lapply(x$pt_reference_hover_html, htmltools::HTML)',
   drawing_source,
   fixed = TRUE
 ))
