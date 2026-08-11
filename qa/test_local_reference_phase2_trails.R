@@ -369,7 +369,7 @@ drawing_source <- paste(readLines(
 stopifnot(
   grepl("pt-trails-hover-tooltip", controller_source, fixed = TRUE),
   grepl("pt-trails-hover-tooltip", drawing_source, fixed = TRUE),
-  grepl('label = lapply(x$pt_reference_hover_html, htmltools::HTML)', drawing_source, fixed = TRUE),
+  grepl('lapply(x$pt_reference_hover_html, htmltools::HTML)', drawing_source, fixed = TRUE),
   grepl('layerId = ~pt_local_reference_geometry_key', drawing_source, fixed = TRUE),
   grepl('className = "pt-local-reference-tabbed-popup"', drawing_source, fixed = TRUE),
   grepl('autoPan = TRUE', drawing_source, fixed = TRUE),

@@ -85,6 +85,16 @@
     var records = Array.isArray(config.records) ? config.records.slice() : [];
     var configuredFeatures = Array.isArray(config.features) ? config.features.slice() : [];
     var facets = Array.isArray(config.facets) ? config.facets.slice() : [];
+    var numericFilter = config.numeric_filter && typeof config.numeric_filter === 'object' ?
+      config.numeric_filter : null;
+    var numericMin = numericFilter ? Number(numericFilter.min) : 0;
+    var numericMax = numericFilter ? Number(numericFilter.max) : 0;
+    var numericDefault = numericFilter ? Number(numericFilter.default) : 0;
+    if (numericFilter && (!isFinite(numericMin) || !isFinite(numericMax) ||
+        !isFinite(numericDefault) || numericMin > numericMax ||
+        numericDefault < numericMin || numericDefault > numericMax)) {
+      throw new Error('Local Reference numeric filter requires valid min/max/default values.');
+    }
     var categoryKeys = categories.map(function(category) {
       return String(category.category_key || '');
     });
@@ -139,6 +149,11 @@
         Number(record.geometry_component_count) || 1
       );
       record.facet_values = record.facet_values || {};
+      record.numeric_value = record.numeric_value === null ||
+        record.numeric_value === undefined ? null : Number(record.numeric_value);
+      if (record.numeric_value !== null && !isFinite(record.numeric_value)) {
+        record.numeric_value = null;
+      }
       facetKeys.forEach(function(facetKey) {
         var inputValue = record.facet_values[facetKey];
         var facetValues = unique((Array.isArray(inputValue) ? inputValue : [inputValue])
@@ -244,11 +259,14 @@
     var auto = autoSupported && config.auto_default === true;
     var autoZoomSupported = config.auto_zoom_supported === true;
     var autoZoom = autoZoomSupported && config.auto_zoom_default === true;
+    var draftNumericMinimum = numericDefault;
+    var appliedNumericMinimum = numericDefault;
 
     function apply() {
       appliedSelected = copySet(draftSelected);
       appliedFeatureKeys = copySet(draftFeatureKeys);
       appliedFacetSelected = copySetMap(draftFacetSelected);
+      appliedNumericMinimum = draftNumericMinimum;
       return snapshot();
     }
 
@@ -289,6 +307,16 @@
       }
       if (selected) draftFacetSelected[facetKey].add(valueKey);
       else draftFacetSelected[facetKey].delete(valueKey);
+      return maybeApply();
+    }
+
+    function setNumericMinimum(value) {
+      if (!numericFilter) {
+        throw new Error('Numeric filtering is unsupported for this Local Reference layer.');
+      }
+      value = Number(value);
+      if (!isFinite(value)) value = numericDefault;
+      draftNumericMinimum = Math.max(numericMin, Math.min(numericMax, value));
       return maybeApply();
     }
 
@@ -344,6 +372,8 @@
       appliedFeatureKeys = new Set();
       draftFacetSelected = copySetMap(defaultFacetSelected);
       appliedFacetSelected = copySetMap(defaultFacetSelected);
+      draftNumericMinimum = numericDefault;
+      appliedNumericMinimum = numericDefault;
       auto = autoSupported && config.auto_default === true;
       autoZoom = autoZoomSupported && config.auto_zoom_default === true;
       return snapshot();
@@ -386,6 +416,10 @@
 
     function recordMatches(record) {
       if (!appliedSelected.has(record.category_key)) return false;
+      if (numericFilter && appliedNumericMinimum > numericDefault &&
+          (record.numeric_value === null || record.numeric_value < appliedNumericMinimum)) {
+        return false;
+      }
       if (appliedFeatureKeys.size && !appliedFeatureKeys.has(record.semantic_feature_key)) {
         return false;
       }
@@ -499,10 +533,14 @@
         applied_features: selectedFeatureRows(appliedFeatureKeys),
         draft_facets: draftFacets,
         applied_facets: appliedFacets,
+        numeric_filter_supported: !!numericFilter,
+        draft_numeric_minimum: draftNumericMinimum,
+        applied_numeric_minimum: appliedNumericMinimum,
         has_pending_changes:
           setsDiffer(draftSelected, appliedSelected) ||
           setsDiffer(draftFeatureKeys, appliedFeatureKeys) ||
-          setMapsDiffer(draftFacetSelected, appliedFacetSelected),
+          setMapsDiffer(draftFacetSelected, appliedFacetSelected) ||
+          draftNumericMinimum !== appliedNumericMinimum,
         counts: {
           total: countRows(records),
           currently_showing: countRows(showing)
@@ -522,6 +560,7 @@
       setAuto: setAuto,
       setAutoZoom: setAutoZoom,
       setFacetValue: setFacetValue,
+      setNumericMinimum: setNumericMinimum,
       facetAll: facetAll,
       facetNone: facetNone,
       addFeature: addFeature,

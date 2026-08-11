@@ -72,6 +72,7 @@ pt_add_county_gw_layers <- function(m, county, gw, map_display) {
   m |>
     leaflet::addPolygons(
       data = county,
+      layerId = ~pt_local_reference_geometry_key,
       group = pt_layer_group_name("Counties"),
       fill = TRUE,
       fillColor = "#FFFFFF",
@@ -80,6 +81,13 @@ pt_add_county_gw_layers <- function(m, county, gw, map_display) {
       weight = 1,
       opacity = 0.9,
       popup = ~popup_html,
+      label = lapply(county$pt_reference_hover_html, htmltools::HTML),
+      labelOptions = leaflet::labelOptions(
+        direction = "auto",
+        textsize = "12px",
+        opacity = 0.95,
+        sticky = TRUE
+      ),
       options = leaflet::pathOptions(
         pane = "pane_county",
         interactive = TRUE

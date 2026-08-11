@@ -32,7 +32,8 @@ stopifnot(all(c(
   "feature_selection_supported", "feature_selection_mode",
   "feature_search_fields", "feature_display_field",
   "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
-  "preserve_view_on_reset", "distinguish_units_supported", "filter_facets", "quick_views"
+  "preserve_view_on_reset", "distinguish_units_supported", "filter_facets", "quick_views",
+  "legend_rows_visible", "legend_lbl_available", "numeric_filter", "numeric_theme"
 ) %in% names(LOCAL_REFERENCE_INTERACTION_REGISTRY)))
 stopifnot(all(LOCAL_REFERENCE_INTERACTION_REGISTRY$primary_count_mode == "semantic_feature"))
 wsa_registry <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
@@ -62,12 +63,12 @@ expect_equal(wsa_registry$zoom_max, 12, "WSA maximum zoom")
 stopifnot(isTRUE(wsa_registry$preserve_view_on_reset))
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$feature_selection_supported),
-  c(1L, 2L, 3L, 4L, 5L, 7L),
+  c(1L, 2L, 3L, 4L, 5L, 7L, 8L, 11L),
   "current selection-enabled rows"
 )
 expect_equal(
   which(LOCAL_REFERENCE_INTERACTION_REGISTRY$auto_zoom_supported),
-  c(1L, 2L, 3L, 4L, 5L, 7L),
+  c(1L, 2L, 3L, 4L, 5L, 7L, 8L, 11L),
   "current Auto-zoom-enabled rows"
 )
 expect_equal(

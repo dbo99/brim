@@ -33,7 +33,7 @@ render_helper_path <- file.path(
 render_helper <- paste(readLines(render_helper_path, warn = FALSE), collapse = "\n")
 stopifnot(
   grepl(
-    'nm %in% c\\(\\s*"trails", "monuments", "cadesert_ncl", "wildernessstudyarea",\\s*"fedwilderness", "acec"\\s*\\)',
+    'nm %in% c\\(\\s*"trails", "monuments", "cadesert_ncl", "wildernessstudyarea",\\s*"fedwilderness", "acec", "drecp", "allotments"\\s*\\)',
     render_helper
     , perl = TRUE
   ),

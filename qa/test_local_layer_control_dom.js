@@ -58,8 +58,28 @@ assert.match(
 );
 assert.match(
   coreSource,
+  /pair\.minZoom[\s\S]*<span>lbl['"]?\s*\+[\s\S]*zoomSuffix/,
+  "configured inline label thresholds must be rendered beside lbl"
+);
+assert.match(
+  coreSource,
+  /minZoom = if \([\s\S]*INLINE_LABEL_PAIRS\$min_zoom/,
+  "inline label thresholds must be supplied from the canonical label registry"
+);
+assert.match(
+  coreSource,
   /mainInput\.addEventListener\('change', syncInlineState\);[\s\S]*labelInput\.addEventListener\('change', syncInlineState\);/,
   "main and companion changes must reconcile inline state immediately"
+);
+assert.match(
+  coreSource,
+  /map\.on\('overlayadd overlayremove', refreshRebuiltLayerControl\)/,
+  "programmatic companion changes must restore synchronized inline controls after Leaflet rebuilds"
+);
+assert.match(
+  coreSource,
+  /data-pt-main-layer-initialized[\s\S]*shouldBeCollapsed[\s\S]*classList\.toggle\('pt-main-layer-collapsed', shouldBeCollapsed\)/,
+  "layer-control rebuilds must preserve the user's catalog expansion state"
 );
 assert.doesNotMatch(
   coreSource,

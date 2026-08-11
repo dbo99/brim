@@ -306,4 +306,38 @@ assert.deepStrictEqual(state.counts.currently_showing, {
   geometry_component_count: 3
 });
 
+const numericEngine = engineApi.create({
+  auto_supported: true,
+  auto_default: true,
+  feature_selection_supported: false,
+  feature_selection_mode: 'none',
+  categories: [{category_key: 'context'}],
+  numeric_filter: {min: 0, max: 100, step: 1, default: 0},
+  records: [
+    {geometry_key: 'county-a', semantic_feature_key: 'county-a',
+      category_key: 'context', numeric_value: 12.4},
+    {geometry_key: 'county-b', semantic_feature_key: 'county-b',
+      category_key: 'context', numeric_value: 64.8},
+    {geometry_key: 'county-missing', semantic_feature_key: 'county-missing',
+      category_key: 'context', numeric_value: null}
+  ]
+});
+state = numericEngine.snapshot();
+assert.strictEqual(state.numeric_filter_supported, true);
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 3);
+state = numericEngine.setNumericMinimum(40);
+assert.strictEqual(state.applied_numeric_minimum, 40);
+assert.deepStrictEqual(state.visible_geometry_keys, ['county-b']);
+state = numericEngine.setAuto(false);
+state = numericEngine.setNumericMinimum(70);
+assert.strictEqual(state.draft_numeric_minimum, 70);
+assert.strictEqual(state.applied_numeric_minimum, 40);
+assert.strictEqual(state.has_pending_changes, true);
+state = numericEngine.apply();
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 0);
+state = numericEngine.reset();
+assert.strictEqual(state.draft_numeric_minimum, 0);
+assert.strictEqual(state.counts.currently_showing.semantic_feature_count, 3);
+assert.throws(() => noSelection.setNumericMinimum(10), /unsupported/);
+
 console.log('Local Reference synthetic filter-engine selection/count tests passed.');

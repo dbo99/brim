@@ -24,9 +24,11 @@
 
 source("00_config/config_paths.r")
 source("00_config/config_labels.r")
+source("00_config/config_local_reference_interactions.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/label_helpers.r")
+source("03_functions/local_reference_interaction_helpers.r")
 
 # ==== 2. Load packages =======================================================
 
@@ -218,10 +220,32 @@ reference_layers <- read_rds_checked(
   "cached reference layers"
 )
 
-water_districts <- read_optional_cached_layer(
+water_districts <- read_rds_checked(
   file.path(DIR$cache_last, "water_districts_map.rds"),
   "water districts"
 )
+
+rwqcb_regions <- read_rds_checked(
+  file.path(DIR$cache_last, "rwqcb_regions_map.rds"),
+  "RWQCB regions"
+)
+
+reference_layers$drecp <- pt_prepare_local_reference_closeout_layer(
+  reference_layers$drecp, "drecp"
+)
+reference_layers$allotments <- pt_prepare_local_reference_closeout_layer(
+  reference_layers$allotments, "grazing_allotments"
+)
+county <- pt_prepare_local_reference_closeout_layer(county, "counties")
+rwqcb_regions <- pt_prepare_local_reference_closeout_layer(
+  rwqcb_regions, "rwqcb_regions"
+)
+water_districts <- pt_prepare_local_reference_closeout_layer(
+  water_districts, "water_districts"
+)
+reference_layers$county <- county
+reference_layers$rwqcb_regions <- rwqcb_regions
+reference_layers$water_districts <- water_districts
 
 # ==== 7. Build HUC labels ====================================================
 ##
@@ -327,45 +351,6 @@ for (i in seq_len(nrow(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY))) {
   label_layers[[nm]] <- labels
 }
 
-## Allotments remain outside the semantic-label controller until their planned
-## Local Reference upgrade is accepted. Preserve the legacy opt-in path only if
-## an explicit inclusion switch and source child are both present.
-if (isTRUE(LABEL_INCLUDE$allotments)) {
-  if (!"allotments" %in% names(reference_layers)) {
-    stop("Included allotment label source is missing from the reference cache.")
-  }
-  label_layers <- add_polygon_label_layer(
-    label_layers,
-    "allotments",
-    reference_layers[["allotments"]]
-  )
-}
-
-# ---- 8B. Build water district labels ---------------------------------------
-##
-## Water districts can be difficult to identify by polygon hover/click alone
-## because many districts overlap or contain smaller interior districts. A
-## separate high-zoom label layer gives users a practical identification tool
-## without requiring geometry surgery on the polygon layer.
-##
-## The layer remains toggleable through the Water Districts row's inline lbl
-## control. It is clustered with visually hidden cluster icons, so labels do
-## not appear until the configured high zoom threshold is reached.
-
-if (isTRUE(LABEL_INCLUDE$water_districts)) {
-  
-  if (inherits(water_districts, "sf") && nrow(water_districts) > 0) {
-    label_layers <- add_polygon_label_layer(
-      label_layers = label_layers,
-      layer_id = "water_districts",
-      x = water_districts
-    )
-  } else {
-    message("Water district label source is missing or empty; labels skipped.")
-    label_layers[["water_districts"]] <- pt_empty_label_sf()
-  }
-}
-
 # ==== 9. Build point labels ==================================================
 ##
 ## USGS wells and BLM offices are intentionally excluded in config_labels.r.
@@ -397,7 +382,7 @@ if (isTRUE(LABEL_INCLUDE$usgs_streamgages)) {
 
 # ==== 9A. Canonical child-set and ordering contract ==========================
 
-expected_children <- c(
+expected_children <- unique(c(
   c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")[
     vapply(
       c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12"),
@@ -420,8 +405,6 @@ expected_children <- c(
         logical(1)
       )
   ],
-  if (isTRUE(LABEL_INCLUDE$allotments)) "allotments",
-  if (isTRUE(LABEL_INCLUDE$water_districts)) "water_districts",
   c("cnrfc_stream", "cnrfc_precip", "usgs_streamgages")[
     vapply(
       c("cnrfc_stream", "cnrfc_precip", "usgs_streamgages"),
@@ -429,7 +412,7 @@ expected_children <- c(
       logical(1)
     )
   ]
-)
+))
 if (!identical(names(label_layers), expected_children)) {
   stop(
     "Canonical label child-set/order contract failed. Expected: ",
@@ -485,6 +468,7 @@ if (WRITE_QA) {
     wildernessstudyarea = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     trails = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     allotments = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
+    rwqcb_regions = file.path(DIR$cache_last, "rwqcb_regions_map.rds"),
     water_districts = file.path(DIR$cache_last, "water_districts_map.rds"),
     cnrfc_stream = file.path(DIR$cache_last, "cnrfc_stream_map.rds"),
     cnrfc_precip = file.path(DIR$cache_last, "cnrfc_precip_map.rds"),

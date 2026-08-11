@@ -362,8 +362,8 @@ pt_layer_group_name <- function(group_name) {
     group_name == "Federal Wilderness" ~
       "Reference – Federal Wilderness",
     
-    group_name == "DRECP" ~
-      "Reference – DRECP",
+    group_name %in% c("DRECP", "DRECP Planning Area Boundary") ~
+      "Reference – DRECP Planning Area Boundary",
     
     group_name == "ACECs" ~
       "Reference – ACECs",
@@ -1198,4 +1198,3 @@ function(el, x, data) {
     data = list(rows = popup_data)
   )
 }
-

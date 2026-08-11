@@ -132,6 +132,7 @@ function fakeLayer(id) {
     closePopupCalls: 0,
     tooltipOpen: false,
     styleCalls: [],
+    bringToFrontCalls: 0,
     listeners: Object.create(null),
     on: function(names, handler) {
       names.split(/\s+/).forEach(name => {
@@ -154,6 +155,7 @@ function fakeLayer(id) {
     },
     openPopup: function(latlng) { this.openPopupLatLng = latlng; return this; },
     setStyle: function(style) { this.styleCalls.push(style); this.style = style; },
+    bringToFront: function() { this.bringToFrontCalls += 1; return this; },
     closeTooltip: function() { this.tooltipOpen = false; this.closeTooltipCalls += 1; },
     closePopup: function() { this.closePopupCalls += 1; },
     isTooltipOpen: function() { return this.tooltipOpen; }
@@ -219,6 +221,12 @@ const map = {
     else directMembers.delete(layer);
     return this;
   },
+  addLayer: function(layer) {
+    if (layer === groupRoot) this.rootActive = true;
+    else if (layer === labelGroupRoot) this.labelRootActive = true;
+    else directMembers.add(layer);
+    return this;
+  },
   getZoom: function() { return this.currentZoom; },
   fitBounds: function(bounds, options) { this.fitBoundsCalls.push({bounds, options}); },
   closePopup: function() { this.closePopupCalls += 1; },
@@ -260,6 +268,17 @@ const payload = [{
   show_category_count: true,
   category_count_mode: 'semantic_feature',
   distinguish_units_supported: true,
+  runtime_presentation: {
+    restore_input_order: true,
+    bring_selected_to_front: true,
+    restore_style_on_mouseout: true,
+    distinguish_fill_opacity: 0.14,
+    selected_color: '#163E5A',
+    selected_weight: 3.2,
+    selected_fill_opacity: 0.14
+  },
+  legend_lbl_available: true,
+  legend_lbl_zoom_visible: true,
   facets: [],
   component_count_label: 'mapped components',
   category_heading: 'BLM recommendation for wilderness designation',
@@ -316,6 +335,9 @@ assert.ok(card.innerHTML.includes('role="combobox"'));
 assert.ok(card.innerHTML.includes('aria-autocomplete="list"'));
 assert.ok(card.innerHTML.includes('role="listbox"'));
 assert.ok(card.innerHTML.includes('Auto-zoom'));
+assert.ok(card.innerHTML.includes('pt-lr-label-toggle'));
+assert.ok(card.innerHTML.includes('pt-lr-label-toggle"> lbl (z8+)</label>'));
+assert.ok(!card.innerHTML.includes('pt-lr-label-toggle"> LBL</label>'));
 assert.ok(card.innerHTML.includes('Zoom to results'));
 assert.ok(card.innerHTML.includes('Select named Synthetic features'));
 assert.ok(!card.innerHTML.includes('Select named named'));
@@ -345,6 +367,14 @@ assert.strictEqual(stats.labels_enabled, true);
 assert.strictEqual(stats.visible_label_count, 3);
 assert.strictEqual(stats.label_anchor_count, 4);
 assert.strictEqual(stats.unresolved_visible_label_count, 0);
+
+const legendLabelToggle = card.querySelector('.pt-lr-label-toggle');
+legendLabelToggle.checked = false;
+card.dispatch('change', legendLabelToggle);
+assert.strictEqual(map.labelRootActive, false, 'legend LBL turns off shared label group');
+legendLabelToggle.checked = true;
+card.dispatch('change', legendLabelToggle);
+assert.strictEqual(map.labelRootActive, true, 'legend LBL turns on shared label group');
 
 // Distinguish mode is available for exactly one selected category, uses a
 // deterministic semantic fill, retains category stroke, and turns itself off
@@ -403,12 +433,21 @@ assert.strictEqual(rootMembers.size, 4);
 assert.strictEqual(map.fitBoundsCalls.length, 0);
 
 // Keyboard selection creates a safe, accessible chip and fits a small feature.
+Object.values(layers).forEach(layer => { layer.bringToFrontCalls = 0; });
 search.value = 'nlcs-002';
 search.dispatch('input');
 search.dispatch('keydown', search, {key: 'Enter'});
 stats = window.BRIM.localReferenceController.stats()[0];
 assert.deepStrictEqual(stats.applied_feature_keys, ['f2']);
 assert.deepStrictEqual(Array.from(rootMembers), [layers.g2]);
+assert.ok(layers.g2.bringToFrontCalls > 0, 'selected existing path is brought to front');
+assert.strictEqual(layers.g2.style.color, '#163E5A');
+assert.strictEqual(layers.g2.style.weight, 3.2);
+assert.strictEqual(layers.g2.style.fillOpacity, 0.14);
+const frontCallsBeforeMouseout = layers.g2.bringToFrontCalls;
+layers.g2.fire('mouseout');
+assert.ok(layers.g2.bringToFrontCalls > frontCallsBeforeMouseout);
+assert.strictEqual(layers.g2.style.color, '#163E5A');
 assert.strictEqual(search.value, '');
 assert.strictEqual(map.fitBoundsCalls.length, 1);
 assert.deepStrictEqual(map.fitBoundsCalls[0], {
@@ -584,6 +623,21 @@ assert.strictEqual(controls.length, 1);
 map.labelRootActive = true;
 map.fire('overlayadd', {name: 'Labels – Synthetic'});
 assert.strictEqual(window.BRIM.localReferenceController.stats()[0].visible_label_count, 3);
+
+// A normal off/on cycle performs only the single full-record presentation pass
+// needed by activation; unchanged Distinguish/ACEC resets do not repeat it.
+Object.values(layers).forEach(layer => {
+  layer.styleCalls = [];
+  layer.bringToFrontCalls = 0;
+});
+map.rootActive = false;
+map.fire('overlayremove', {name: 'Reference – Synthetic'});
+map.rootActive = true;
+map.fire('overlayadd', {name: 'Reference – Synthetic'});
+Object.values(layers).forEach(layer => {
+  assert.strictEqual(layer.styleCalls.length, 1, 'one activation style pass for ' + layer.options.layerId);
+  assert.strictEqual(layer.bringToFrontCalls, 1, 'one activation order pass for ' + layer.options.layerId);
+});
 
 // Ten full off/on cycles remain exact, default, and duplicate-free.
 for (let cycle = 0; cycle < 10; cycle += 1) {

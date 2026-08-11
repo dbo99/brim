@@ -3,7 +3,8 @@
 ## Shared contracts for the bounded Local > Reference interaction framework.
 ## Phase 6 executes California Desert NCL beside the accepted Trails, National
 ## Monuments, Wilderness Study Areas, Federal Wilderness, and ACEC
-## implementations. The remaining five rows stay validation-only.
+## implementations. The Reference closeout extends the same controller to the
+## five remaining rows without changing their authoritative source geometry.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -19,6 +20,165 @@ pt_local_reference_normalize_text <- function(x) {
   value <- gsub("\\bwilderness study area\\b", " ", value)
   value <- gsub("[^a-z0-9]+", " ", value)
   trimws(gsub("[[:space:]]+", " ", value))
+}
+
+pt_local_reference_slug <- function(x, fallback = "feature") {
+  value <- pt_local_reference_normalize_text(x)
+  value <- gsub("[[:space:]]+", "-", value)
+  value[!nzchar(value)] <- fallback
+  value
+}
+
+pt_prepare_local_reference_closeout_layer <- function(x, layer_id) {
+  if (!inherits(x, "sf") || !nrow(x)) return(x)
+  layer_id <- as.character(layer_id[[1]])
+  allowed <- c(
+    "drecp", "grazing_allotments", "counties", "rwqcb_regions",
+    "water_districts"
+  )
+  if (!layer_id %in% allowed) {
+    stop("Unsupported Local Reference closeout layer: ", layer_id)
+  }
+
+  esc <- function(value) as.character(htmltools::htmlEscape(value))
+  set_common <- function(
+      x, semantic_key, geometry_key, category_key, label_text,
+      display_name) {
+    x$pt_local_reference_semantic_key <- as.character(semantic_key)
+    x$pt_local_reference_feature_key <- as.character(semantic_key)
+    x$pt_local_reference_geometry_key <- as.character(geometry_key)
+    x$pt_local_reference_category_key <- as.character(category_key)
+    x$pt_local_reference_geometry_components <- 1L
+    x$pt_reference_label_text <- as.character(label_text)
+    x$pt_display_name <- as.character(display_name)
+    x$pt_geom_type <- "polygon"
+    x
+  }
+
+  if (identical(layer_id, "drecp")) {
+    semantic_key <- rep("drecp:planning-area-boundary", nrow(x))
+    geometry_key <- paste0(semantic_key, ":component:", seq_len(nrow(x)))
+    x <- set_common(
+      x, semantic_key, geometry_key, "context",
+      "DRECP Planning Area Boundary", "DRECP Planning Area Boundary"
+    )
+    x$line_col <- "#756F63"
+    x$line_weight <- 1.8
+    x$line_dash <- ""
+    x$fill_col <- "#D8D0BE"
+    x$fill_opacity <- 0.035
+    x$popup_html <- paste0(
+      '<div class="pt-popup"><b>DRECP Planning Area Boundary</b>',
+      '<br><span>This dissolved outer planning-area boundary is for screening. ',
+      'It does not depict all DRECP land-use allocations or designations.</span>',
+      '<br><a href="https://www.blm.gov/programs/planning-and-nepa/plans-in-development/california/desert-renewable-energy-conservation-plan" ',
+      'target="_blank" rel="noopener noreferrer">BLM DRECP planning page</a>',
+      '<br><a href="https://eplanning.blm.gov/eplanning-ui/project/66949/510" ',
+      'target="_blank" rel="noopener noreferrer">2016 ROD/LUPA and current project materials</a>',
+      '</div>'
+    )
+  } else if (identical(layer_id, "grazing_allotments")) {
+    name <- pt_local_reference_clean_chr(x$ALLOT_NAME, "Unnamed allotment")
+    number <- pt_local_reference_clean_chr(x$ALLOT_NO, "Unknown")
+    ## Two source allotment numbers are reused with different source names.
+    ## Preserve that exact source distinction; never fuzzy-merge the records.
+    semantic_key <- paste0(
+      "grazing-allotment:", pt_local_reference_slug(number), ":",
+      pt_local_reference_slug(name)
+    )
+    component <- ave(seq_along(semantic_key), semantic_key, FUN = seq_along)
+    geometry_key <- paste0(semantic_key, ":component:", component)
+    display <- paste0(name, " · #", number)
+    x <- set_common(
+      x, semantic_key, geometry_key, "allotment", name, "Grazing Allotments"
+    )
+    x$pt_reference_feature_display <- display
+    x$pt_reference_hover_text <- display
+    x$pt_reference_hover_html <- paste0(
+      "<b>", esc(name), "</b><br><span>Allotment #", esc(number), "</span>"
+    )
+    x$line_col <- "#75623F"
+    x$line_weight <- 1.25
+    x$line_dash <- ""
+    x$fill_col <- "#D9CDAE"
+    x$fill_opacity <- 0.055
+    x$popup_html <- paste0(
+      '<div class="pt-popup"><b>', esc(name), "</b>",
+      "<br>Allotment #", esc(number),
+      '<br><span style="font-size:11px;color:#555;">Reference boundary; verify current authorization and conditions with BLM.</span></div>'
+    )
+  } else if (identical(layer_id, "counties")) {
+    name <- pt_local_reference_clean_chr(x$county_name, "Unnamed county")
+    semantic_key <- paste0("county:", pt_local_reference_slug(name))
+    x <- set_common(
+      x, semantic_key, semantic_key, "context", name, "Counties"
+    )
+    pct <- suppressWarnings(as.numeric(x$percentBLMland))
+    pct_text <- ifelse(is.finite(pct), sprintf("%.1f%%", pct), "Not available")
+    x$pt_reference_hover_text <- paste0(name, " · BLM ", pct_text)
+    x$pt_reference_hover_html <- paste0(
+      "<b>", esc(name), "</b><br><span>BLM land: ", esc(pct_text), "</span>"
+    )
+    x$line_col <- "#666666"
+    x$line_weight <- 1
+    x$line_dash <- ""
+    x$fill_col <- "#FFFFFF"
+    x$fill_opacity <- 0.01
+  } else if (identical(layer_id, "rwqcb_regions")) {
+    number <- pt_local_reference_clean_chr(x$rwqcb_region_num, "unknown")
+    name <- pt_local_reference_clean_chr(
+      x$rwqcb_region_name, paste("RWQCB Region", number)
+    )
+    semantic_key <- paste0("rwqcb-region:", pt_local_reference_slug(number))
+    x <- set_common(
+      x, semantic_key, semantic_key, paste0("region_", number),
+      if ("rwqcb_label_text" %in% names(x)) x$rwqcb_label_text else name,
+      "RWQCB Regions"
+    )
+    x$pt_reference_hover_text <- if ("rwqcb_hover_text" %in% names(x)) {
+      as.character(x$rwqcb_hover_text)
+    } else {
+      paste0("Region ", number, " · ", name)
+    }
+    x$pt_reference_hover_html <- paste0("<b>", esc(name), "</b>")
+    x$line_col <- x$rwqcb_stroke_col
+    x$line_weight <- x$rwqcb_stroke_weight
+    x$line_dash <- ""
+    x$fill_col <- x$rwqcb_fill_col
+    x$fill_opacity <- x$rwqcb_fill_opacity
+  } else if (identical(layer_id, "water_districts")) {
+    name <- pt_local_reference_clean_chr(x$agency_display, "Unnamed water district")
+    semantic_key <- paste0(
+      "water-district:name:", utils::URLencode(name, reserved = TRUE)
+    )
+    geometry_key <- if ("water_district_id" %in% names(x)) {
+      as.character(x$water_district_id)
+    } else {
+      paste0(semantic_key, ":component:", ave(seq_along(semantic_key), semantic_key, FUN = seq_along))
+    }
+    x <- set_common(
+      x, semantic_key, geometry_key, "context", name, "Water Districts"
+    )
+    x$pt_reference_hover_text <- name
+    x$pt_reference_hover_html <- paste0("<b>", esc(name), "</b>")
+    x$hover_text <- name
+    x$popup_html <- paste0(
+      '<div class="pt-popup"><b>', esc(name), "</b>",
+      '<br><span style="font-size:11px;color:#555;">Water district reference boundary; districts may overlap.</span></div>'
+    )
+  }
+
+  required <- c(
+    "pt_local_reference_semantic_key", "pt_local_reference_feature_key",
+    "pt_local_reference_geometry_key", "pt_local_reference_category_key"
+  )
+  if (any(vapply(x[required], function(value) any(!nzchar(value)), logical(1)))) {
+    stop("Blank Local Reference closeout identity in ", layer_id, ".")
+  }
+  if (anyDuplicated(x$pt_local_reference_geometry_key)) {
+    stop("Duplicate Local Reference closeout geometry key in ", layer_id, ".")
+  }
+  x
 }
 
 pt_local_reference_config_row <- function(layer_id = NULL, source_nickname = NULL) {
@@ -80,7 +240,10 @@ pt_validate_local_reference_config <- function() {
     "auto_zoom_supported", "auto_zoom_default", "zoom_padding", "zoom_max",
     "preserve_view_on_reset", "retention_enabled",
     "distinguish_units_supported", "search_fields", "filter_facets",
-    "quick_views",
+    "quick_views", "legend_rows_visible", "legend_lbl_available",
+    "legend_lbl_zoom_visible",
+    "search_placeholder", "distinguish_label", "numeric_filter",
+    "numeric_theme", "runtime_presentation",
     "category_sort_order"
   )
   missing_registry <- setdiff(required_registry, names(registry))
@@ -163,8 +326,8 @@ pt_validate_local_reference_config <- function() {
     stop("Tabbed Local Reference popup layout differs from the six active focused layers.")
   }
 
-  expected_auto_supported <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE)
-  expected_auto_default <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
+  expected_auto_supported <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE)
+  expected_auto_default <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE)
   if (!identical(as.logical(registry$auto_supported), expected_auto_supported) ||
       !identical(as.logical(registry$auto_default), expected_auto_default)) {
     stop("Local Reference Auto support/default contract differs from the approved 11-layer matrix.")
@@ -172,16 +335,17 @@ pt_validate_local_reference_config <- function() {
   if (!identical(
     which(registry$implementation_status %in% c(
       "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl", "phase1_wsa",
-      "phase3_federal_wilderness", "phase4_acec"
+      "phase3_federal_wilderness", "phase4_acec", "reference_closeout"
     )),
-    c(1L, 2L, 3L, 4L, 5L, 7L)
+    seq_len(11L)
   )) {
-    stop("Local Reference execution differs from the six approved focused layers.")
+    stop("Local Reference execution differs from the approved 11-layer matrix.")
   }
-  if (!identical(which(registry$feature_selection_supported), c(1L, 2L, 3L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_supported), c(1L, 2L, 3L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_default), c(1L, 2L, 3L, 4L, 5L, 7L))) {
-    stop("Named-feature selection and Auto-zoom differ from the six approved focused layers.")
+  expected_selection <- c(1L, 2L, 3L, 4L, 5L, 7L, 8L, 11L)
+  if (!identical(which(registry$feature_selection_supported), expected_selection) ||
+      !identical(which(registry$auto_zoom_supported), expected_selection) ||
+      !identical(which(registry$auto_zoom_default), expected_selection)) {
+    stop("Named-feature selection and Auto-zoom differ from the approved layer matrix.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[1]], use.names = FALSE),
@@ -242,8 +406,16 @@ pt_validate_local_reference_config <- function() {
   if (!identical(which(registry$retention_enabled), c(1L, 2L, 3L, 4L, 5L, 7L))) {
     stop("Field retention differs from the six approved focused layers.")
   }
-  if (!identical(which(registry$distinguish_units_supported), c(3L, 5L))) {
-    stop("Distinguish named units must remain California Desert NCL/Federal Wilderness-only.")
+  if (!identical(which(registry$distinguish_units_supported), c(3L, 5L, 8L, 11L))) {
+    stop("Distinguish named units differ from the approved layer matrix.")
+  }
+  if (!identical(which(registry$legend_lbl_zoom_visible), c(8L, 11L))) {
+    stop("Visible Local Reference label thresholds must remain limited to Grazing and Water Districts.")
+  }
+  runtime_presentation <- unclass(registry$runtime_presentation)
+  if (length(runtime_presentation) != nrow(registry) ||
+      !identical(which(lengths(runtime_presentation) > 0L), 11L)) {
+    stop("Runtime path presentation differs from the Water District closeout contract.")
   }
   facets <- unclass(registry$filter_facets)
   if (length(facets) != nrow(registry) ||
@@ -344,8 +516,8 @@ pt_validate_local_reference_config <- function() {
     stop("ACEC current field-office lookup differs from the verified 14-office roster.")
   }
   if (anyNA(registry$category_filter_visible) ||
-      !identical(which(!registry$category_filter_visible), c(2L, 3L, 7L))) {
-    stop("National Monuments, California Desert NCL, and ACEC must hide redundant category filters.")
+      !identical(which(registry$category_filter_visible), c(1L, 4L, 5L))) {
+    stop("Only Trails, WSA, and Federal Wilderness expose category filters.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -404,7 +576,11 @@ pt_validate_local_reference_config <- function() {
         anyDuplicated(definition$sort_order)) {
       stop(layer_id, " category keys and sort orders must be non-empty and unique.")
     }
-    if (!"unknown" %in% definition$category_key) {
+    fixed_closeout_category <- layer_id %in% c(
+      "drecp", "grazing_allotments", "counties", "water_districts"
+    ) && nrow(definition) == 1L &&
+      !isTRUE(registry$category_filter_visible[registry$layer_id == layer_id])
+    if (!"unknown" %in% definition$category_key && !fixed_closeout_category) {
       stop(layer_id, " category definition must include an explicit unknown category.")
     }
     if (any(!grepl(color_pattern, definition$fill_color)) ||
@@ -4749,12 +4925,44 @@ pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
   })
 }
 
+pt_local_reference_compact_search_payload <- function(
+    layer_id,
+    features,
+    records) {
+  if (!as.character(layer_id) %in% c(
+    "grazing_allotments", "water_districts"
+  )) {
+    return(list(features = features, records = records))
+  }
+  list(
+    features = lapply(features, function(feature) {
+      feature[c(
+        "semantic_feature_key", "display_name", "category_keys",
+        "semantic_feature_bounds"
+      )]
+    }),
+    records = lapply(records, function(record) {
+      record[c(
+        "geometry_key", "semantic_feature_key", "category_key"
+      )]
+    })
+  )
+}
+
 pt_local_reference_semantic_label_payload <- function(
     labels_all,
     x,
-    registry_row) {
+  registry_row) {
   layer_id <- as.character(registry_row$layer_id[[1]])
-  registration <- pt_local_reference_label_registration(layer_id = layer_id)
+  registrations <- LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY[
+    LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$layer_id == layer_id,
+    , drop = FALSE
+  ]
+  if (!nrow(registrations)) return(NULL)
+  if (nrow(registrations) != 1L) {
+    stop("Duplicate Local Reference label registration for ", layer_id, ".")
+  }
+  registration <- registrations
   if (!isTRUE(registration$lbl_available[[1]])) return(NULL)
   label_id <- as.character(registration$label_id[[1]])
   if (!is.list(labels_all) || !label_id %in% names(labels_all)) {
@@ -4790,6 +4998,9 @@ pt_local_reference_semantic_label_payload <- function(
   visible_component_aware <- isTRUE(
     registration$visible_component_aware[[1]]
   )
+  compact_closeout_binding <- !visible_component_aware && layer_id %in% c(
+    "grazing_allotments", "counties", "rwqcb_regions", "water_districts"
+  )
   if (visible_component_aware && !all(
     labels$geometry_key %in% x$pt_local_reference_geometry_key
   )) {
@@ -4804,20 +5015,26 @@ pt_local_reference_semantic_label_payload <- function(
   }
   label_groups <- unique(as.character(labels$label_group))
   strategies <- unique(as.character(labels$anchor_strategy))
-  min_zoom <- unique(as.numeric(labels$min_zoom))
-  max_zoom <- unique(as.numeric(labels$max_zoom))
+  cached_min_zoom <- unique(as.numeric(labels$min_zoom))
+  cached_max_zoom <- unique(as.numeric(labels$max_zoom))
   if (length(label_groups) != 1L || length(strategies) != 1L ||
-      length(min_zoom) != 1L || length(max_zoom) != 1L) {
+      length(cached_min_zoom) != 1L || length(cached_max_zoom) != 1L) {
     stop(registry_row$display_name[[1]], " label child metadata is inconsistent.")
   }
+  configured_zoom <- pt_label_cfg(label_id)
+  min_zoom <- as.numeric(configured_zoom$min_zoom[[1]])
+  max_zoom <- as.numeric(configured_zoom$max_zoom[[1]])
   records <- lapply(seq_len(nrow(labels)), function(index) {
-    list(
+    record <- list(
       label_record_key = as.character(labels$label_record_key[[index]]),
       semantic_feature_key =
-        as.character(labels$semantic_feature_key[[index]]),
-      geometry_key = as.character(labels$geometry_key[[index]]),
-      anchor_priority = as.integer(labels$anchor_priority[[index]])
+        as.character(labels$semantic_feature_key[[index]])
     )
+    if (!compact_closeout_binding) {
+      record$geometry_key <- as.character(labels$geometry_key[[index]])
+      record$anchor_priority <- as.integer(labels$anchor_priority[[index]])
+    }
+    record
   })
   list(
     available = TRUE,
@@ -4828,8 +5045,8 @@ pt_local_reference_semantic_label_payload <- function(
     ),
     anchor_strategy = strategies[[1]],
     visible_component_aware = visible_component_aware,
-    min_zoom = min_zoom[[1]],
-    max_zoom = max_zoom[[1]],
+    min_zoom = min_zoom,
+    max_zoom = max_zoom,
     semantic_feature_count = length(label_semantic),
     anchor_count = nrow(labels),
     records = records
@@ -4914,7 +5131,7 @@ pt_local_reference_controller_payload <- function(
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
       "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl", "phase1_wsa",
-      "phase3_federal_wilderness", "phase4_acec"
+      "phase3_federal_wilderness", "phase4_acec", "reference_closeout"
     ),
     , drop = FALSE
   ]
@@ -4997,12 +5214,19 @@ pt_local_reference_controller_payload <- function(
       required <- c(required, as.character(row$feature_display_field))
     }
     facet_definitions <- row$filter_facets[[1]]
+    numeric_filter <- row$numeric_filter[[1]]
     facet_fields <- if (length(facet_definitions)) {
       vapply(facet_definitions, `[[`, character(1), "record_field")
     } else {
       character(0)
     }
-    required <- c(required, facet_fields)
+    numeric_field <- if (is.list(numeric_filter) &&
+                         nzchar(as.character(numeric_filter$record_field))) {
+      as.character(numeric_filter$record_field)
+    } else {
+      character(0)
+    }
+    required <- c(required, facet_fields, numeric_field)
     missing_fields <- setdiff(required, names(x))
     if (length(missing_fields)) {
       stop(
@@ -5054,9 +5278,21 @@ pt_local_reference_controller_payload <- function(
         semantic_feature_key = x$pt_local_reference_semantic_key[[j]],
         category_key = x$pt_local_reference_category_key[[j]],
         geometry_component_count = as.integer(x$pt_local_reference_geometry_components[[j]]),
-        facet_values = facet_values
+        facet_values = facet_values,
+        numeric_value = if (length(numeric_field)) {
+          suppressWarnings(as.numeric(x[[numeric_field]][[j]]))
+        } else {
+          NULL
+        }
       )
     })
+    compact_search <- pt_local_reference_compact_search_payload(
+      row$layer_id,
+      features,
+      records
+    )
+    features <- compact_search$features
+    records <- compact_search$records
     categories <- lapply(seq_len(nrow(definition)), function(j) {
       as.list(definition[j, c(
         "category_key", "label", "fill_color", "stroke_color",
@@ -5143,6 +5379,14 @@ pt_local_reference_controller_payload <- function(
       caution = row$card_caution,
       popup_layout = row$popup_layout,
       distinguish_units_supported = isTRUE(row$distinguish_units_supported),
+      distinguish_label = row$distinguish_label,
+      legend_rows_visible = isTRUE(row$legend_rows_visible),
+      legend_lbl_available = isTRUE(row$legend_lbl_available),
+      legend_lbl_zoom_visible = isTRUE(row$legend_lbl_zoom_visible),
+      search_placeholder = row$search_placeholder,
+      numeric_filter = numeric_filter,
+      numeric_theme = row$numeric_theme[[1]],
+      runtime_presentation = row$runtime_presentation[[1]],
       categories = categories,
       facets = facets,
       quick_views = lapply(row$quick_views[[1]], identity),

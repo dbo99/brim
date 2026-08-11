@@ -72,6 +72,8 @@ LABEL_ZOOM <- tibble::tribble(
   # ---- Other polygon labels -------------------------------------------------
   "gw_bull118",           "GW – Bull. 118",        "Labels: GW – Bull. 118",        7.0,       Inf,
   "county",               "Counties",              "Labels: Counties",              6.0,       Inf,
+  "allotments",           "Grazing Allotments",    "Labels: Grazing Allotments",    10.0,      Inf,
+  "rwqcb_regions",        "RWQCB Regions",         "Labels: RWQCB Regions",          4.0,       Inf,
   "project_areas",        "Project area(s)",       "Labels: Project area(s)",       7.0,       Inf,
   
   # ---- Point labels ---------------------------------------------------------
@@ -93,7 +95,7 @@ LABEL_ZOOM <- tibble::tribble(
   
   # Water districts are numerous, so labels should only appear at close zooms.
   # They are still added through clustered label-only markers for browser performance.
-  "water_districts",      "Water Districts",       "Labels: Water Districts",       12.0,       Inf,
+  "water_districts",      "Water Districts",       "Labels: Water Districts",       13.0,       Inf,
   
   "river_miles",          "River Miles",           "Labels: River Miles",           11.0,       Inf,
   "conservation_lands",   "Conservation Lands",    "Labels: Conservation Lands",     8.0,       Inf,
@@ -116,6 +118,8 @@ LABEL_INCLUDE <- list(
   
   gw_bull118 = TRUE,
   county = TRUE,
+  allotments = TRUE,
+  rwqcb_regions = TRUE,
   project_areas = TRUE,
   
   cnrfc_basins = TRUE,
@@ -189,12 +193,13 @@ LABEL_FIELDS <- list(
   trails             = "pt_reference_label_text",
   monuments          = "pt_reference_label_text",
   cadesert_ncl       = "pt_reference_label_text",
-  allotments    = "ALLOT_NAME",
+  allotments    = "pt_reference_label_text",
+  rwqcb_regions = "pt_reference_label_text",
   
   ## Water districts are cached with a cleaned display field created during
   ## core-cache building. This avoids labeling blanks/NA values and keeps the
   ## label text synchronized with hover/popup text.
-  water_districts = "agency_display",
+  water_districts = "pt_reference_label_text",
   
   # ---- Current point layers -------------------------------------------------
   cnrfc_stream     = "nwsid",
@@ -257,6 +262,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "CNRFC FNF Sha/Tri/west Sierra Basins",
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
+    "Grazing Allotments",
     "Federal Wilderness",
     "National Monuments",
     "CA Desert National Conservation Lands",
@@ -291,6 +297,7 @@ INLINE_LABEL_PAIRS <- data.frame(
     "CNRFC FNF Sha/Tri/west Sierra Basins",
     "Groundwater Sustainability Plan Areas",
     "Adjudicated Groundwater Basins",
+    "Grazing Allotments",
     "Federal Wilderness",
     "National Monuments",
     "CA Desert National Conservation Lands",
@@ -305,6 +312,26 @@ INLINE_LABEL_PAIRS <- data.frame(
   stringsAsFactors = FALSE
 )
 
+## Only the dense closeout layers expose their configured semantic-label zoom
+## threshold in the compact inline control. Resolve these values from the
+## shared LABEL_ZOOM registry so the catalog wording cannot drift from runtime.
+pt_inline_label_zoom_ids <- c(
+  "Grazing Allotments" = "allotments",
+  "Water Districts" = "water_districts"
+)
+pt_inline_label_zoom_rows <- match(
+  unname(pt_inline_label_zoom_ids),
+  LABEL_ZOOM$label_id
+)
+if (anyNA(pt_inline_label_zoom_rows)) {
+  stop("Inline label zoom display requires registered LABEL_ZOOM rows.")
+}
+INLINE_LABEL_PAIRS$min_zoom <- NA_real_
+INLINE_LABEL_PAIRS$min_zoom[
+  match(names(pt_inline_label_zoom_ids), INLINE_LABEL_PAIRS$main_name)
+] <- as.numeric(LABEL_ZOOM$min_zoom[pt_inline_label_zoom_rows])
+rm(pt_inline_label_zoom_ids, pt_inline_label_zoom_rows)
+
 # ==== 6. Local Reference semantic-label registry ============================
 ##
 ## This is the opt-in contract for filter-aware Local Reference labels. The
@@ -316,29 +343,36 @@ INLINE_LABEL_PAIRS <- data.frame(
 LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY <- data.frame(
   layer_id = c(
     "acec", "federal_wilderness", "national_monuments", "ca_desert_ncl",
-    "wilderness_study_areas", "national_scenic_historic_trails"
+    "wilderness_study_areas", "national_scenic_historic_trails",
+    "grazing_allotments", "counties", "rwqcb_regions", "water_districts"
   ),
   source_nickname = c(
     "acec", "fedwilderness", "monuments", "cadesert_ncl",
-    "wildernessstudyarea", "trails"
+    "wildernessstudyarea", "trails", "allotments", "county",
+    "rwqcb_regions", "water_districts"
   ),
   label_id = c(
     "acec", "fedwilderness", "monuments", "cadesert_ncl",
-    "wildernessstudyarea", "trails"
+    "wildernessstudyarea", "trails", "allotments", "county",
+    "rwqcb_regions", "water_districts"
   ),
-  semantic_id_field = rep("pt_local_reference_semantic_key", 6),
-  geometry_id_field = rep("pt_local_reference_geometry_key", 6),
-  label_text_field = rep("pt_reference_label_text", 6),
+  semantic_id_field = rep("pt_local_reference_semantic_key", 10),
+  geometry_id_field = rep("pt_local_reference_geometry_key", 10),
+  label_text_field = rep("pt_reference_label_text", 10),
   anchor_strategy = c(
     "polygon_semantic_point_on_surface",
     "polygon_visible_component_point_on_surface",
     "polygon_visible_component_point_on_surface",
     "polygon_semantic_point_on_surface",
     "polygon_semantic_point_on_surface",
-    "line_semantic_longest_component_midpoint"
+    "line_semantic_longest_component_midpoint",
+    "polygon_semantic_point_on_surface",
+    "polygon_semantic_point_on_surface",
+    "polygon_semantic_point_on_surface",
+    "polygon_semantic_largest_component_point_on_surface"
   ),
-  visible_component_aware = c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE),
-  lbl_available = rep(TRUE, 6),
+  visible_component_aware = c(FALSE, TRUE, TRUE, FALSE, FALSE, rep(FALSE, 5)),
+  lbl_available = rep(TRUE, 10),
   stringsAsFactors = FALSE
 )
 

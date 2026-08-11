@@ -10,7 +10,8 @@
 ##   Areas are executable in Phase 2. Federal Wilderness is the accepted
 ##   Phase 3 implementation, ACECs are Phase 4, and National Monuments are
 ##   the focused Phase 5 implementation. California Desert NCL is the focused
-##   Phase 6 implementation. The other five rows remain contracts.
+##   Phase 6 implementation. The five closeout rows use the same shared
+##   controller for compact legends, search, labels, and County % BLM display.
 ##
 ## IMPORTANT:
 ##   - color_basis is layer-specific. The agency palette is never a fallback.
@@ -767,9 +768,15 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     )
   ),
   federal_wilderness = PT_LOCAL_REFERENCE_FEDERAL_WILDERNESS_AGENCY_CATEGORIES,
-  drecp = pt_local_reference_neutral_categories(
+  drecp = pt_local_reference_category_rows(
+    category_key = "context",
+    label = "DRECP Planning Area Boundary",
+    source_values = "CONTEXT",
     fill_color = "#D8D0BE",
-    stroke_color = "#756F63"
+    stroke_color = "#756F63",
+    fill_opacity = 0.035,
+    stroke_weight = 1.8,
+    legend_swatch_style = "polygon"
   ),
   acec = pt_local_reference_category_rows(
     category_key = c("acec", "unknown"),
@@ -784,21 +791,24 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     include_when_absent = c(TRUE, FALSE)
   ),
   grazing_allotments = pt_local_reference_category_rows(
-    category_key = "unknown",
-    label = "Status not yet normalized",
-    source_values = "",
-    fill_color = "#D5CFBF",
-    stroke_color = "#6B6963",
-    fill_opacity = 0.04,
-    stroke_weight = 1.2,
-    dash_array = "2,3",
-    legend_swatch_style = "dotted_polygon"
+    category_key = "allotment",
+    label = "Grazing allotment boundary",
+    source_values = "ALLOTMENT",
+    fill_color = "#D9CDAE",
+    stroke_color = "#75623F",
+    fill_opacity = 0.055,
+    stroke_weight = 1.25,
+    legend_swatch_style = "polygon"
   ),
-  counties = pt_local_reference_neutral_categories(
+  counties = pt_local_reference_category_rows(
+    category_key = "context",
+    label = "County boundary",
+    source_values = "CONTEXT",
     fill_color = "#FFFFFF",
     stroke_color = "#666666",
     fill_opacity = 0.01,
-    stroke_weight = 1.0
+    stroke_weight = 1.0,
+    legend_swatch_style = "polygon"
   ),
   rwqcb_regions = pt_local_reference_category_rows(
     category_key = c(paste0("region_", 1:9), "unknown"),
@@ -826,13 +836,18 @@ PT_LOCAL_REFERENCE_CATEGORY_DEFINITIONS <- list(
     fill_opacity = c(rep(0.28, 9), 0.14),
     stroke_weight = c(rep(1.2, 9), 1.2),
     dash_array = c(rep("", 9), "2,3"),
-    legend_swatch_style = c(rep("polygon", 9), "dotted_polygon")
+    legend_swatch_style = c(rep("polygon", 9), "dotted_polygon"),
+    include_when_absent = c(rep(TRUE, 9), FALSE)
   ),
-  water_districts = pt_local_reference_neutral_categories(
+  water_districts = pt_local_reference_category_rows(
+    category_key = "context",
+    label = "Water district boundary",
+    source_values = "CONTEXT",
     fill_color = "#D9D9D9",
     stroke_color = "#737373",
     fill_opacity = 0.025,
-    stroke_weight = 1.2
+    stroke_weight = 1.2,
+    legend_swatch_style = "polygon"
   )
 )
 
@@ -849,7 +864,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
     "CA Desert National Conservation Lands",
     "Wilderness Study Areas",
     "Federal Wilderness",
-    "DRECP",
+    "DRECP Planning Area Boundary",
     "ACECs",
     "Grazing Allotments",
     "Counties",
@@ -858,9 +873,9 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   implementation_status = c(
     "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl",
-    "phase1_wsa", "phase3_federal_wilderness", "registry_contract",
-    "phase4_acec", "registry_contract", "registry_contract",
-    "registry_contract", "registry_contract"
+    "phase1_wsa", "phase3_federal_wilderness", "reference_closeout",
+    "phase4_acec", "reference_closeout", "reference_closeout",
+    "reference_closeout", "reference_closeout"
   ),
   enrichment_depth = c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -899,20 +914,20 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   legend_mode = c(
     "interactive", "interactive", "interactive", "interactive",
-    "interactive", "none", "interactive", "planned_interactive", "none",
-    "planned_interactive", "none"
+    "interactive", "compact", "interactive", "interactive", "interactive",
+    "compact", "interactive"
   ),
   filter_mode = c(
     "category_search", "faceted_category_search", "faceted_category_search",
     "category_search", "faceted_category_search", "none", "faceted_category_search",
-    "planned_category_plus_feature_search", "none",
-    "planned_category_search", "none"
+    "feature_search", "numeric_minimum",
+    "none", "feature_search"
   ),
   auto_supported = c(
-    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE
   ),
   auto_default = c(
-    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE
+    TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE
   ),
   count_mode = c(
     "semantic_feature",
@@ -931,13 +946,13 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   primary_count_label = c(
     "trails", "National Monuments",
     "mapped units", "Wilderness Study Areas",
-    "named wildernesses", "DRECP areas", "ACECs",
-    "Grazing Allotments", "Counties", "RWQCB Regions", "Water Districts"
+    "named wildernesses", "planning-area boundary", "ACECs",
+    "grazing allotments", "Counties", "RWQCB Regions", "water districts"
   ),
   show_component_count = c(FALSE, FALSE, FALSE, FALSE, TRUE, rep(FALSE, 6)),
-  show_category_count = c(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE),
+  show_category_count = c(FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
   category_filter_visible = c(
-    TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
+    TRUE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
   ),
   category_count_mode = c(
     "semantic_feature", "semantic_feature", "semantic_feature",
@@ -973,10 +988,21 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
       "Federal Wilderness boundaries and managing agencies are reference data.",
       "Verify current access, closures, permits, and agency direction."
     ),
-    "", paste(
+    paste(
+      "This is the dissolved outer DRECP planning-area boundary used for",
+      "screening. It does not depict DRECP land-use allocations or",
+      "designations."
+    ), paste(
       "An ACEC boundary is a BLM planning designation, not an ownership or",
       "cadastral boundary and not proof of public access or site-specific uses."
-    ), "", "", "", ""
+    ),
+    "Allotment boundaries are reference geometry; colors in Distinguish mode have no legal or status meaning.",
+    "County % BLM values are screening summaries from the existing BRIM county cache.",
+    "Regional boundaries and colors retain the accepted State Water Board reference presentation.",
+    paste(
+      "District boundaries are reference geometry and may overlap.",
+      "Distinguish colors are deterministic and have no legal or management meaning."
+    )
   ),
   popup_layout = ifelse(
     PT_LOCAL_REFERENCE_LAYER_IDS %in% c(
@@ -989,24 +1015,24 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   feature_selection_supported = c(
     TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
-    TRUE, FALSE, FALSE, FALSE, FALSE
+    TRUE, TRUE, FALSE, FALSE, TRUE
   ),
   feature_selection_mode = c(
     "semantic_feature_multi", "semantic_feature_multi", "semantic_feature_multi", "semantic_feature_multi",
-    "semantic_feature_multi", "none", "semantic_feature_multi", "none", "none", "none", "none"
+    "semantic_feature_multi", "none", "semantic_feature_multi", "semantic_feature_multi", "none", "none", "semantic_feature_multi"
   ),
   feature_display_field = c(
     "pt_trails_official_name", "pt_nm_canonical_name", "pt_cdncl_display_name", "pt_wsa_name",
-    "pt_fw_official_name", "", "pt_acec_official_name", "ALLOT_NAME", "county_name",
+    "pt_fw_official_name", "", "pt_acec_official_name", "pt_reference_feature_display", "county_name",
     "rwqcb_region_name", "agency_display"
   ),
   auto_zoom_supported = c(
     TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
-    TRUE, FALSE, FALSE, FALSE, FALSE
+    TRUE, TRUE, FALSE, FALSE, TRUE
   ),
   auto_zoom_default = c(
     TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
-    TRUE, FALSE, FALSE, FALSE, FALSE
+    TRUE, TRUE, FALSE, FALSE, TRUE
   ),
   zoom_padding = rep(36, 11),
   zoom_max = c(12, 11, 11, 12, 11, 9, 11, 12, 9, 9, 12),
@@ -1016,7 +1042,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY <- data.frame(
   ),
   distinguish_units_supported = c(
     FALSE, FALSE, TRUE, FALSE, TRUE, FALSE,
-    FALSE, FALSE, FALSE, FALSE, FALSE
+    FALSE, TRUE, FALSE, FALSE, TRUE
   ),
   stringsAsFactors = FALSE
 )
@@ -1025,6 +1051,95 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$dashboard_summary <- c(
   "", "", "11 mapped units · 10 DRECP subareas + Desert Lily Preserve",
   rep("", 8)
 )
+
+## Compact closeout-card presentation. Plain legend rows remain visible even
+## when their checkboxes are intentionally absent; the map layer itself is the
+## only visibility switch. LBL is a duplicate user control for the existing
+## companion group, never a second label state.
+LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_rows_visible <- c(
+  rep(FALSE, 5), TRUE, FALSE, TRUE, TRUE, TRUE, TRUE
+)
+LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_available <- c(
+  rep(FALSE, 7), TRUE, TRUE, TRUE, TRUE
+)
+LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_zoom_visible <- c(
+  rep(FALSE, 7), TRUE, FALSE, FALSE, TRUE
+)
+LOCAL_REFERENCE_INTERACTION_REGISTRY$search_placeholder <- c(
+  rep("Type a name or identifier", 7),
+  "Search allotment name or number…",
+  "", "", "Search district name…"
+)
+LOCAL_REFERENCE_INTERACTION_REGISTRY$distinguish_label <- c(
+  rep("", 7), "Distinguish allotments", "", "", "Distinguish districts"
+)
+
+## Small shared path-presentation extension for the Water District closeout.
+## The existing cache order is largest-to-smallest by pt_area_sqmi, so replaying
+## this order before fronting a selection keeps smaller nested districts above
+## larger districts without computing or copying geometry in the controller.
+LOCAL_REFERENCE_INTERACTION_REGISTRY$runtime_presentation <- I(lapply(
+  PT_LOCAL_REFERENCE_LAYER_IDS,
+  function(layer_id) {
+    if (!identical(layer_id, "water_districts")) return(NULL)
+    list(
+      restore_input_order = TRUE,
+      bring_selected_to_front = TRUE,
+      restore_style_on_mouseout = TRUE,
+      distinguish_fill_opacity = 0.14,
+      selected_color = "#163E5A",
+      selected_weight = 3.2,
+      selected_fill_opacity = 0.14
+    )
+  }
+))
+
+PT_LOCAL_REFERENCE_COUNTY_BLM_THEME <- list(
+  default_mode = "boundaries",
+  modes = list(
+    list(mode_key = "boundaries", label = "Boundaries only"),
+    list(mode_key = "blm_pct", label = "% BLM fill")
+  ),
+  stops = list(
+    list(value = 0, color = "#FFF7E3"),
+    list(value = 20, color = "#E8C56A"),
+    list(value = 40, color = "#D69A39"),
+    list(value = 60, color = "#BD672E"),
+    list(value = 80, color = "#8F4130"),
+    list(value = 100, color = "#5B2730")
+  ),
+  missing_color = "#B7B0A5",
+  fill_opacity = 0.58,
+  boundary_color = "#666666",
+  boundary_weight = 1
+)
+
+LOCAL_REFERENCE_INTERACTION_REGISTRY$numeric_filter <- I(lapply(
+  PT_LOCAL_REFERENCE_LAYER_IDS,
+  function(layer_id) {
+    if (!identical(layer_id, "counties")) return(NULL)
+    list(
+      record_field = "percentBLMland",
+      label = "Minimum BLM land",
+      unit = "%",
+      min = 0,
+      max = 100,
+      step = 1,
+      default = 0
+    )
+  }
+))
+
+LOCAL_REFERENCE_INTERACTION_REGISTRY$numeric_theme <- I(lapply(
+  PT_LOCAL_REFERENCE_LAYER_IDS,
+  function(layer_id) {
+    if (identical(layer_id, "counties")) {
+      PT_LOCAL_REFERENCE_COUNTY_BLM_THEME
+    } else {
+      NULL
+    }
+  }
+))
 
 LOCAL_REFERENCE_INTERACTION_REGISTRY$search_fields <- I(list(
   c("NLCS_NAME", "NLCS_ID", "NSHT_SGMNT_NO", "TRAIL_TYPE"),
