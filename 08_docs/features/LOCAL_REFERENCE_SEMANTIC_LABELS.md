@@ -17,6 +17,7 @@ The initial registrations are:
 | Wilderness Study Areas | 63 | 63 | point on surface of each semantic WSA geometry |
 | National Scenic/Historic Trails | 6 | 6 | midpoint of the longest line component for each semantic trail |
 | National Monuments | 20 | 22 | point on surface per reviewed visible geometry; choose an anchor from currently visible geometry |
+| California Desert NCL | 11 | 11 | point on surface of each semantic mapped unit |
 
 Federal Wilderness deliberately caches more anchors than labels. A shared
 named wilderness still receives exactly one label. When an agency filter hides
@@ -41,12 +42,13 @@ polygon point-on-surface, and semantic longest-line-component midpoint. A new
 strategy belongs in the shared label helper and must retain the same output
 schema; it must not introduce a layer-specific filter engine.
 
-National Monuments now uses this registration path. Its 20 semantic monuments
+National Monuments uses this registration path. Its 20 semantic monuments
 have 22 geometry-aware anchors because Sand to Snow and Tule Lake each have two
-reviewed visible agency records; the controller still renders one canonical label. California
-Desert National Conservation Lands must use this path when its semantic model
-is approved, but it must first establish whether its public label represents an
-umbrella entity or a constituent feature.
+reviewed visible agency records; the controller still renders one canonical
+label. California Desert NCL uses one anchor for each of its 11 stable
+`NLCS_ID` mapped units; labels follow applied named-unit, office-context, and
+related-designation filters and never represent the umbrella program as an
+additional feature.
 
 ## Cache contract
 
@@ -150,6 +152,26 @@ The card-owned National Park/Preserve context deliberately has no label child.
 Its optional legislative outlines and tract-derived land/interest fills are
 context only and cannot add to, duplicate, or filter the 20 National Monument
 semantic labels.
+
+### California Desert NCL candidate extension
+
+The focused Phase 6 path adds an 11-row `cadesert_ncl` semantic-label child.
+Its anchors are built from the accepted two-metre display derivative, one per
+stable `NLCS_ID`. The focused cache writer may add or replace only that child;
+all previously accepted label-child object hashes must remain unchanged. The
+accepted focused aggregates are:
+
+- Local Reference aggregate: 19,573,762 bytes, SHA-256
+  `f4f362a94d1a64ff052015ce2d261b3bb5e3d3fee58500adda098e1e9459c1cb`;
+- label aggregate: 440,702 bytes, SHA-256
+  `015943ace234f9f21f6d29b3a016e2aa5dd5aacedb2f6f82019baa9bbd7506d4`.
+
+Human visual acceptance passed on 2026-08-10 against
+`PortaTreasure2_core_20260810_214827.html`: 203,518,870 bytes, SHA-256
+`b732119b9e519915cb9957fdcbe78e451126e3ead89101715197bfdac0ca6739`.
+The normal public related-designation facet intentionally reports zero Federal
+Wilderness units: all 93 positive-area technical rows are below the reviewed
+display threshold and remain available only in the technical sidecar.
 
 ## Runtime and staged/applied behavior
 

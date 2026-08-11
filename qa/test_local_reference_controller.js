@@ -619,6 +619,8 @@ assert.ok(controllerSource.includes('.pt-lr-chip{display:inline-flex;max-width:1
 assert.ok(controllerSource.includes('.pt-local-reference-card{box-sizing:border-box;width:330px'));
 assert.ok(controllerSource.includes('.pt-lr-head-controls'));
 assert.ok(controllerSource.includes('.pt-lr-facet-value-swatch'));
+assert.ok(controllerSource.includes('.pt-lr-map-details>summary::before{content:"▸";position:absolute;left:7px'));
+assert.ok(controllerSource.includes('[data-pt-local-reference-layer="ca_desert_ncl"]{width:330px;max-height:none;overflow:visible'));
 assert.ok(controllerSource.includes('.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-search,.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-suggestions{width:250px'));
 assert.ok(controllerSource.includes('.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))'));
 assert.ok(controllerSource.includes('.pt-local-reference-card[data-pt-local-reference-layer="acec"] .pt-lr-quick-views button{width:100%;min-height:20px'));
@@ -1228,5 +1230,247 @@ assert.strictEqual(
 );
 window.BRIM.localReferenceController.destroy();
 assert.strictEqual(rootMembers.size, 0);
+
+// California Desert NCL uses the shared lifecycle/filter engine plus a compact
+// class-specific card and a normalized three-tab popup assembled only on click.
+rootMembers.clear();
+labelRootMembers.clear();
+[layers.g1, layers.g2].forEach(layer => rootMembers.add(layer));
+[labelLayers.l1, labelLayers.l2].forEach(layer => labelRootMembers.add(layer));
+map.rootActive = true;
+map.labelRootActive = true;
+map.currentZoom = 8;
+map.layerManager = {
+  _byGroup: {
+    'Reference – CA Desert National Conservation Lands': {g1: layers.g1, g2: layers.g2},
+    'Labels – CA Desert National Conservation Lands': {l1: labelLayers.l1, l2: labelLayers.l2}
+  },
+  _groupContainers: {
+    'Reference – CA Desert National Conservation Lands': groupRoot,
+    'Labels – CA Desert National Conservation Lands': labelGroupRoot
+  }
+};
+const desertPayload = [{
+  layer_id: 'ca_desert_ncl',
+  display_name: 'CA Desert National Conservation Lands',
+  group_name: 'Reference – CA Desert National Conservation Lands',
+  auto_supported: true,
+  auto_default: true,
+  feature_selection_supported: true,
+  feature_selection_mode: 'semantic_feature_multi',
+  feature_display_field: 'pt_cdncl_display_name',
+  auto_zoom_supported: true,
+  auto_zoom_default: true,
+  zoom_padding: 36,
+  zoom_max: 10,
+  preserve_view_on_reset: true,
+  popup_layout: 'tabbed_card',
+  primary_count_mode: 'semantic_feature',
+  primary_count_label: 'mapped units',
+  show_component_count: false,
+  show_category_count: false,
+  category_filter_visible: false,
+  category_count_mode: 'semantic_feature',
+  distinguish_units_supported: true,
+  component_count_label: 'source components',
+  category_heading: '',
+  dashboard_summary: '11 mapped units · 10 DRECP subareas + Desert Lily Preserve',
+  caution: 'Broad mapped units do not establish ownership or public access.',
+  categories: [{
+    category_key: 'ca_desert_ncl', label: 'California Desert NCL mapped unit',
+    fill_color: '#B89C6A', stroke_color: '#6F5632', fill_opacity: 0.10,
+    stroke_weight: 1.7, dash_array: '', legend_swatch_style: 'polygon'
+  }],
+  facets: [{
+    facet_key: 'field_office_context', label: 'BLM Field Office context',
+    count_mode: 'semantic_feature', collapsible: false, open_default: true,
+    layout_columns: 2, context_cue: 'spatial context only',
+    context_title: 'Spatial intersection context; not a responsible-office or management assignment.',
+    values: [
+      {value_key: 'cad08000', label: 'Barstow Field Office', sort_order: 1},
+      {value_key: 'cad06000', label: 'Palm Springs/S. Coast Field Office', sort_order: 2}
+    ]
+  }, {
+    facet_key: 'related_designation_overlap', label: 'Related designation overlap',
+    count_mode: 'semantic_feature', collapsible: false, open_default: true,
+    layout_columns: 2, context_cue: 'spatial context only',
+    context_title: 'Current spatial overlap context; it does not transfer a related designation.',
+    values: [
+      {value_key: 'acec', label: 'ACEC', sort_order: 1},
+      {value_key: 'federal_wilderness', label: 'Federal Wilderness', sort_order: 2},
+      {value_key: 'national_monuments', label: 'National Monument', sort_order: 3},
+      {value_key: 'wilderness_study_areas', label: 'WSA', sort_order: 4},
+      {value_key: 'national_trails', label: 'Scenic/Historic Trail', sort_order: 5},
+      {value_key: 'wild_scenic_river', label: 'Wild & Scenic River', sort_order: 6}
+    ]
+  }],
+  quick_views: [],
+  features: [
+    {semantic_feature_key: 'NLCS002009', feature_key: 'NLCS002009', display_name: 'Basin and Range', category_keys: ['ca_desert_ncl'], search_text: 'basin and range nlcs002009 barstow', semantic_feature_bounds: [34, -118, 36, -116], geometry_component_count: 21},
+    {semantic_feature_key: 'NLCS002012', feature_key: 'NLCS002012', display_name: 'Desert Lily Preserve', category_keys: ['ca_desert_ncl'], search_text: 'desert lily preserve nlcs002012 palm springs', semantic_feature_bounds: [32, -116, 33, -115], geometry_component_count: 1}
+  ],
+  records: [
+    {geometry_key: 'g1', semantic_feature_key: 'NLCS002009', category_key: 'ca_desert_ncl', geometry_component_count: 21, facet_values: {field_office_context: ['cad08000'], related_designation_overlap: ['national_monuments', 'national_trails']}},
+    {geometry_key: 'g2', semantic_feature_key: 'NLCS002012', category_key: 'ca_desert_ncl', geometry_component_count: 1, facet_values: {field_office_context: ['cad06000'], related_designation_overlap: ['acec']}}
+  ],
+  semantic_labels: {
+    available: true, label_id: 'cadesert_ncl',
+    label_group: 'Labels – CA Desert National Conservation Lands',
+    anchor_strategy: 'polygon_semantic_point_on_surface',
+    visible_component_aware: false, min_zoom: 7, max_zoom: null,
+    semantic_feature_count: 2, anchor_count: 2,
+    records: [
+      {label_record_key: 'synthetic::f1::g1', semantic_feature_key: 'NLCS002009', geometry_key: 'g1', label_text: 'Basin and Range', anchor_priority: 1, lng: -117, lat: 35},
+      {label_record_key: 'synthetic::f2::g2', semantic_feature_key: 'NLCS002012', geometry_key: 'g2', label_text: 'Desert Lily Preserve', anchor_priority: 1, lng: -115.5, lat: 32.5}
+    ]
+  },
+  desert_ncl: {
+    semantics: [
+      {nlcs_id: 'NLCS002009', standardized_display_name: 'Basin and Range', mapped_unit_interpretation: 'A DRECP mapped geographic and planning subarea.', planning_context: 'DRECP allocation context.', geographic_description: 'Northern California Desert context.', directly_supported_conservation_values: 'Landscape connectivity.', directly_supported_management_objectives: 'Conserve applicable BLM-administered lands and interests.', blm_role_summary: 'Program authority applies within scope.', boundary_caveat: 'Not an ownership or access boundary.', access_and_route_caveat: 'Access must be verified.', land_status_caveat: 'Land status varies.', source_limitations: 'Broad planning geometry.'},
+      {nlcs_id: 'NLCS002012', standardized_display_name: 'Desert Lily Preserve', mapped_unit_interpretation: 'A distinct BLM source-layer record requiring identity caution.', planning_context: 'California Desert NCL source context.', geographic_description: 'Imperial County desert context.', directly_supported_conservation_values: 'Desert lily resources.', directly_supported_management_objectives: 'Consult governing authorities.', blm_role_summary: 'Do not infer management from publication.', boundary_caveat: 'Not proven identical to the ACEC or statutory Sanctuary.', access_and_route_caveat: 'Access is not established.', land_status_caveat: 'Underlying status varies.', source_limitations: 'Identity remains qualified.'}
+    ],
+    components: [
+      {component_id: 'g1', nlcs_id: 'NLCS002009', pt_cdncl_unit_type_label: 'DRECP mapped subarea', pt_cdncl_raw_name: 'Basin and Range', pt_cdncl_calculated_raw_area_acres: 640000, pt_cdncl_official_reported_acres: 620000, pt_cdncl_global_id: '{GLOBAL-BASIN}', pt_cdncl_source_objectid: 1, pt_cdncl_last_verified: '2026-08-10'},
+      {component_id: 'g2', nlcs_id: 'NLCS002012', pt_cdncl_unit_type_label: 'Desert Lily source-layer record', pt_cdncl_raw_name: 'Desert Lily Preserve', pt_cdncl_calculated_raw_area_acres: 2300, pt_cdncl_official_reported_acres: '', pt_cdncl_global_id: '{GLOBAL-LILY}', pt_cdncl_source_objectid: 4, pt_cdncl_last_verified: '2026-08-10'}
+    ],
+    aliases: [{nlcs_id: 'NLCS002012', alias: 'Desert Lily NCL source record'}],
+    policy: [{policy_id: 'blm_authority_scope', recommended_language: 'The broad polygon does not establish BLM ownership or management of every parcel.'}],
+    documents: [{document_id: 'doc-1', exact_title: 'DRECP Record of Decision', direct_document_url: 'https://example.test/drecp'}],
+    unit_documents: [{nlcs_id: 'NLCS002012', document_id: 'doc-1'}],
+    offices: [{office_key: 'cad06000', office_name: 'Palm Springs/S. Coast Field Office'}],
+    field_office_context: [{nlcs_id: 'NLCS002012', office_key: 'cad06000', percent_of_unit_area: 99.7, display_context: true}],
+    related_context: [
+      {nlcs_id: 'NLCS002009', related_layer_key: 'national_monuments', related_layer_label: 'National Monuments', related_feature_name: 'Chuckwalla National Monument', normal_popup_suitable: true},
+      {nlcs_id: 'NLCS002012', related_layer_key: 'acec', related_layer_label: 'Areas of Critical Environmental Concern', related_feature_name: 'Desert Lily Preserve ACEC', normal_popup_suitable: true}
+    ],
+    research_relationships: [{nlcs_id: 'NLCS002012', related_brim_layer_family: 'Desert Lily Sanctuary', related_feature_name: 'Desert Lily Sanctuary statutory evidence', evidence_url: 'https://example.test/sanctuary'}],
+    sources: [{source_title: 'BLM California Desert NCL FeatureServer', authority_level: 'official primary GIS', url: 'https://example.test/featureserver'}],
+    caveats: {
+      office: 'Spatial context does not establish administrative responsibility.',
+      relationships: 'Spatial overlap does not establish legal identity or management.',
+      desert_lily: 'The NCL record, Desert Lily Preserve ACEC, and statutory Desert Lily Sanctuary are not assumed identical.'
+    }
+  }
+}];
+const desertMapRoot = new FakeElement('map');
+controller.call(map, desertMapRoot, null, desertPayload);
+const desertCard = controls.at(-1).card;
+assert.strictEqual(desertCard.getAttribute('data-pt-local-reference-layer'), 'ca_desert_ncl');
+assert.ok(!desertCard.innerHTML.includes('Mapped-unit type'));
+assert.ok(desertCard.innerHTML.includes('BLM Field Office context'));
+assert.ok(desertCard.innerHTML.includes('Related designation overlap'));
+assert.ok(desertCard.innerHTML.includes('11 mapped units · 10 DRECP subareas + Desert Lily Preserve'));
+assert.ok(desertCard.innerHTML.includes('Distinguish mapped units'));
+assert.ok(!desertCard.innerHTML.includes('off by default'));
+assert.ok(desertCard.innerHTML.includes('spatial context only'));
+assert.strictEqual((desertCard.innerHTML.match(/pt-lr-facet-two-column/g) || []).length, 2);
+assert.strictEqual((desertCard.innerHTML.match(/pt-lr-facet-collapsible/g) || []).length, 0);
+assert.strictEqual((desertCard.innerHTML.match(/<details class="pt-lr-map-details/g) || []).length, 1);
+assert.ok(desertCard.innerHTML.includes('<summary>Boundary / use note</summary>'));
+assert.ok(
+  desertCard.innerHTML.indexOf('class="pt-lr-search"') <
+    desertCard.innerHTML.indexOf('class="pt-lr-auto"') &&
+  desertCard.innerHTML.indexOf('class="pt-lr-auto"') <
+    desertCard.innerHTML.indexOf('Distinguish mapped units') &&
+  desertCard.innerHTML.indexOf('Distinguish mapped units') <
+    desertCard.innerHTML.indexOf('class="pt-lr-dashboard-summary"') &&
+  desertCard.innerHTML.indexOf('class="pt-lr-dashboard-summary"') <
+    desertCard.innerHTML.indexOf('BLM Field Office context') &&
+  desertCard.innerHTML.indexOf('BLM Field Office context') <
+    desertCard.innerHTML.indexOf('Related designation overlap') &&
+  desertCard.innerHTML.indexOf('Related designation overlap') <
+    desertCard.innerHTML.indexOf('class="pt-lr-actions"')
+);
+assert.ok(!desertCard.innerHTML.includes('Monument overlap'));
+assert.strictEqual(desertCard.querySelectorAll('[data-pt-lr-quick-view]').length, 0);
+assert.ok(!desertCard.innerHTML.includes('data-pt-lr-category='));
+assert.strictEqual(desertCard.querySelector('.pt-lr-distinguish').checked, false);
+assert.strictEqual(
+  desertCard.querySelector('[data-pt-lr-facet-count="related_designation_overlap"][data-pt-lr-facet-count-value="national_monuments"]').textContent,
+  '1'
+);
+assert.strictEqual(
+  desertCard.querySelector('[data-pt-lr-facet-count="related_designation_overlap"][data-pt-lr-facet-count-value="federal_wilderness"]').textContent,
+  '0'
+);
+
+const setDesertFacet = (facetKey, allValues, selectedValues) => {
+  allValues.forEach(valueKey => {
+    const input = desertCard.querySelector(
+      '[data-pt-lr-facet="' + facetKey + '"]' +
+      '[data-pt-lr-facet-value="' + valueKey + '"]'
+    );
+    input.checked = selectedValues.includes(valueKey);
+    desertCard.dispatch('change', input);
+  });
+};
+const relatedFacetValues = [
+  'acec', 'federal_wilderness', 'national_monuments',
+  'wilderness_study_areas', 'national_trails', 'wild_scenic_river'
+];
+setDesertFacet('related_designation_overlap', relatedFacetValues, ['national_monuments']);
+assert.deepStrictEqual(Array.from(rootMembers), [layers.g1]);
+assert.deepStrictEqual(Array.from(labelRootMembers), [labelLayers.l1]);
+setDesertFacet(
+  'related_designation_overlap', relatedFacetValues,
+  ['national_monuments', 'acec']
+);
+assert.strictEqual(rootMembers.size, 2);
+assert.strictEqual(labelRootMembers.size, 2);
+setDesertFacet('field_office_context', ['cad08000', 'cad06000'], ['cad06000']);
+assert.deepStrictEqual(Array.from(rootMembers), [layers.g2]);
+assert.deepStrictEqual(Array.from(labelRootMembers), [labelLayers.l2]);
+desertCard.querySelector('.pt-lr-reset').dispatch('click');
+assert.strictEqual(rootMembers.size, 2);
+assert.strictEqual(labelRootMembers.size, 2);
+
+const desertSearch = desertCard.querySelector('.pt-lr-search');
+desertSearch.value = 'Desert Lily';
+desertSearch.dispatch('input');
+desertSearch.dispatch('keydown', desertSearch, {key: 'Enter'});
+assert.deepStrictEqual(Array.from(rootMembers), [layers.g2]);
+assert.deepStrictEqual(Array.from(labelRootMembers), [labelLayers.l2]);
+desertCard.querySelector('.pt-lr-reset').dispatch('click');
+assert.strictEqual(rootMembers.size, 2);
+layers.g2.fire('click', {latlng: {lat: 32.5, lng: -115.5}});
+assert.strictEqual((layers.g2.popupHtml.match(/role="tab"/g) || []).length, 3);
+assert.ok(layers.g2.popupHtml.includes('Conservation &amp; planning'));
+assert.ok(layers.g2.popupHtml.includes('Related designations &amp; sources'));
+assert.ok(layers.g2.popupHtml.includes('Identity caution:'));
+assert.ok(layers.g2.popupHtml.includes('Desert Lily Preserve ACEC'));
+assert.ok(layers.g2.popupHtml.includes('pt-cdncl-related-group'));
+assert.ok(layers.g2.popupHtml.includes('Areas of Critical Environmental Concern</strong> — 1 related mapped feature'));
+assert.ok(!layers.g2.popupHtml.includes('<details class="pt-cdncl-related-group" open'));
+assert.ok(layers.g2.popupHtml.includes('99.7% of mapped unit area'));
+assert.ok(layers.g2.popupHtml.includes('Spatial overlap does not establish legal identity or management.'));
+const desertPrimaryPopup = layers.g2.popupHtml.split('<details class="pt-popup-technical">')[0];
+const desertTechnicalPopup = layers.g2.popupHtml.split('<details class="pt-popup-technical">')[1];
+assert.ok(!desertPrimaryPopup.includes('GLOBAL-LILY'));
+assert.ok(!desertPrimaryPopup.includes('Source OBJECTID'));
+assert.ok(desertTechnicalPopup.includes('GLOBAL-LILY'));
+assert.ok(desertTechnicalPopup.includes('Source OBJECTID (diagnostic only)'));
+layers.g1.fire('click', {latlng: {lat: 35, lng: -117}});
+assert.ok(layers.g1.popupHtml.includes('National Monuments</strong> — 1 related mapped feature'));
+assert.ok(layers.g1.popupHtml.includes('Chuckwalla National Monument'));
+const desertDistinguish = desertCard.querySelector('.pt-lr-distinguish');
+desertDistinguish.checked = true;
+desertCard.dispatch('change', desertDistinguish);
+assert.notStrictEqual(layers.g1.style.fillColor, layers.g2.style.fillColor);
+desertCard.querySelector('.pt-lr-reset').dispatch('click');
+assert.strictEqual(window.BRIM.localReferenceController.stats()[0].distinguish_units, false);
+assert.strictEqual(layers.g1.style.fillColor, '#B89C6A');
+map.rootActive = false;
+map.fire('overlayremove', {name: 'Reference – CA Desert National Conservation Lands'});
+map.fire('overlayremove', {name: 'Reference – CA Desert National Conservation Lands'});
+assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
+map.rootActive = true;
+map.fire('overlayadd', {name: 'Reference – CA Desert National Conservation Lands'});
+assert.strictEqual(rootMembers.size, 2);
+assert.strictEqual(controls.at(-1).card.querySelector('.pt-lr-distinguish').checked, false);
+assert.strictEqual((controls.at(-1).card.listeners.change || []).length, 1);
+window.BRIM.localReferenceController.destroy();
+assert.strictEqual(rootMembers.size, 0);
+assert.strictEqual(labelRootMembers.size, 0);
 
 console.log('Local Reference synthetic controller selection/zoom/lifecycle tests passed.');

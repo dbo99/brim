@@ -40,8 +40,8 @@ make_polygon_layer <- function(semantic, geometry_key, label, geometry) {
 expect_identical(
   LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$layer_id,
   c(
-    "acec", "federal_wilderness", "national_monuments", "wilderness_study_areas",
-    "national_scenic_historic_trails"
+    "acec", "federal_wilderness", "national_monuments", "ca_desert_ncl",
+    "wilderness_study_areas", "national_scenic_historic_trails"
   ),
   "registered Local Reference label layers"
 )
@@ -49,10 +49,11 @@ stopifnot(
   all(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$lbl_available),
   identical(
     LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$visible_component_aware,
-    c(FALSE, TRUE, TRUE, FALSE, FALSE)
+    c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE)
   ),
   all(c(
-    "National Monuments", "Wilderness Study Areas",
+    "National Monuments", "CA Desert National Conservation Lands",
+    "Wilderness Study Areas",
     "National Scenic/Historic Trails"
   ) %in% INLINE_LABEL_PAIRS$main_name)
 )
@@ -76,6 +77,10 @@ monuments <- make_polygon_layer(
   "nm-ca-example", "nmgeom-example", "Example National Monument",
   list(square(-117, 35, 0.25))
 )
+desert_ncl <- make_polygon_layer(
+  "NLCS002009", "geom:nlcs002009", "Basin and Range",
+  list(square(-116.5, 34.5, 0.2))
+)
 wsa_union <- sf::st_union(sf::st_sfc(
   square(-121, 35, 0.1), square(-120.5, 35.5, 0.2), crs = 4326
 ))[[1]]
@@ -97,6 +102,7 @@ layers <- list(
   acec = acec,
   fedwilderness = federal,
   monuments = monuments,
+  cadesert_ncl = desert_ncl,
   wildernessstudyarea = wsa,
   trails = trails
 )
@@ -113,7 +119,7 @@ expect_identical(names(labels), names(layers), "registered child order")
 expect_identical(
   vapply(labels, nrow, integer(1)),
   c(
-    acec = 2L, fedwilderness = 3L, monuments = 1L,
+    acec = 2L, fedwilderness = 3L, monuments = 1L, cadesert_ncl = 1L,
     wildernessstudyarea = 1L, trails = 1L
   ),
   "anchor counts"
@@ -121,7 +127,7 @@ expect_identical(
 expect_identical(
   vapply(labels, function(x) length(unique(x$semantic_feature_key)), integer(1)),
   c(
-    acec = 2L, fedwilderness = 2L, monuments = 1L,
+    acec = 2L, fedwilderness = 2L, monuments = 1L, cadesert_ncl = 1L,
     wildernessstudyarea = 1L, trails = 1L
   ),
   "semantic label counts"
@@ -164,7 +170,7 @@ if (nzchar(actual_reference_path)) {
   expect_identical(
     vapply(actual_labels, nrow, integer(1)),
     c(
-      acec = 238L, fedwilderness = 197L, monuments = 22L,
+      acec = 238L, fedwilderness = 197L, monuments = 22L, cadesert_ncl = 11L,
       wildernessstudyarea = 63L, trails = 6L
     ),
     "actual anchor counts"
@@ -176,7 +182,7 @@ if (nzchar(actual_reference_path)) {
       integer(1)
     ),
     c(
-      acec = 238L, fedwilderness = 158L, monuments = 20L,
+      acec = 238L, fedwilderness = 158L, monuments = 20L, cadesert_ncl = 11L,
       wildernessstudyarea = 63L, trails = 6L
     ),
     "actual semantic counts"
@@ -190,7 +196,8 @@ if (nzchar(actual_label_path)) {
   }
   canonical <- readRDS(actual_label_path)
   required_children <- c(
-    "acec", "fedwilderness", "monuments", "wildernessstudyarea", "trails"
+    "acec", "fedwilderness", "monuments", "cadesert_ncl",
+    "wildernessstudyarea", "trails"
   )
   stopifnot(
     all(required_children %in% names(canonical)),
@@ -199,7 +206,7 @@ if (nzchar(actual_label_path)) {
   expect_identical(
     vapply(canonical[required_children], nrow, integer(1)),
     c(
-      acec = 238L, fedwilderness = 197L, monuments = 22L,
+      acec = 238L, fedwilderness = 197L, monuments = 22L, cadesert_ncl = 11L,
       wildernessstudyarea = 63L, trails = 6L
     ),
     "canonical registered child counts"

@@ -870,9 +870,14 @@ for (nm in names(reference_layers_raw)) {
       x,
       validate_snapshot = TRUE
     )
+  } else if (nm == "cadesert_ncl") {
+    x <- pt_prepare_local_reference_desert_ncl(
+      x,
+      validate_snapshot = TRUE
+    )
   }
   
-  if (!nm %in% c("monuments", "fedwilderness", "acec")) {
+  if (!nm %in% c("monuments", "fedwilderness", "acec", "cadesert_ncl")) {
     x <- x |>
       simplify_sf_for_web(
         keep = keep_val,
@@ -880,7 +885,10 @@ for (nm in names(reference_layers_raw)) {
       )
   }
   
-  if (!nm %in% c("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec")) {
+  if (!nm %in% c(
+    "trails", "monuments", "cadesert_ncl", "wildernessstudyarea",
+    "fedwilderness", "acec"
+  )) {
     x$popup_html <- pt_make_reference_layer_popups(
       x = x,
       popup_spec = popup_spec,
@@ -892,9 +900,12 @@ for (nm in names(reference_layers_raw)) {
   ##
   ## Normalize all local WSR line/corridor sources into shared display/filter
   ## fields while preserving source-specific layer names and popup attribution.
-  if (nm %in% c("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec")) {
+  if (nm %in% c(
+    "trails", "monuments", "cadesert_ncl", "wildernessstudyarea",
+    "fedwilderness", "acec"
+  )) {
 
-    ## Trails/National Monuments/WSA/Federal Wilderness/ACEC popup, hover,
+    ## Trails/National Monuments/California Desert NCL/WSA/Federal Wilderness/ACEC popup, hover,
     ## category, and style fields
     ## were prepared above
     ## from the shared Local Reference definitions. Do not pass them through

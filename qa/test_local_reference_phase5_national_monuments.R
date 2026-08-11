@@ -33,8 +33,9 @@ render_helper_path <- file.path(
 render_helper <- paste(readLines(render_helper_path, warn = FALSE), collapse = "\n")
 stopifnot(
   grepl(
-    'nm %in% c\\("trails", "monuments", "wildernessstudyarea", "fedwilderness", "acec"\\)',
+    'nm %in% c\\(\\s*"trails", "monuments", "cadesert_ncl", "wildernessstudyarea",\\s*"fedwilderness", "acec"\\s*\\)',
     render_helper
+    , perl = TRUE
   ),
   grepl("pt_nps_context_hover_html <- function", render_helper, fixed = TRUE),
   grepl("legislative_boundary_area_sq_mi", render_helper, fixed = TRUE),

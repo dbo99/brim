@@ -1,0 +1,113 @@
+nlcs_id,document_id,relationship_type,applicability,unit_specific,normal_popup_suitable,evidence_locator,notes
+NLCS002009,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 38,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002009,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 38,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002010,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 38-39,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002011,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 29,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002012,DOC004,possible_same_area_statutory_relationship,related-designation-specific,true,true,Public Law 103-433 section 107,Exact geometry/name equivalence unresolved.
+NLCS002012,DOC011,same_name_acec_inventory_relationship,related-designation-specific,true,true,Desert Lily Preserve ACEC row,Do not merge ACEC and source-layer identities without geometry verification.
+NLCS002013,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 39,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002013,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 39,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002014,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 39-40,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002015,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 40,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002016,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 40,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002017,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 40-41,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002018,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC001,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC002,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC003,applies_by_program_or_geography,CDCA-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC005,applies_by_program_or_geography,DRECP-wide,false,true,DRECP LUPA pp. 41,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC006,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC007,applies_by_program_or_geography,California Desert-wide,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC008,applies_by_program_or_geography,source-layer,false,true,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC009,applies_by_program_or_geography,system-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC010,applies_by_program_or_geography,district-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.
+NLCS002019,DOC012,applies_by_program_or_geography,DRECP-wide,false,false,,Do not describe this as a unit-specific standalone page or plan.

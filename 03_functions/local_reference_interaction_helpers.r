@@ -1,9 +1,9 @@
 # ==== local_reference_interaction_helpers.r ================================
 ##
 ## Shared contracts for the bounded Local > Reference interaction framework.
-## Phase 5 executes National Monuments beside the accepted Trails, Wilderness
-## Study Areas, Federal Wilderness, and ACEC implementations. The remaining
-## six rows stay validation-only.
+## Phase 6 executes California Desert NCL beside the accepted Trails, National
+## Monuments, Wilderness Study Areas, Federal Wilderness, and ACEC
+## implementations. The remaining five rows stay validation-only.
 
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
@@ -159,29 +159,29 @@ pt_validate_local_reference_config <- function() {
     stop("Default Local Reference visible counts must use semantic features.")
   }
   if (any(!registry$popup_layout %in% c("standard", "tabbed_card")) ||
-      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 2L, 4L, 5L, 7L))) {
-    stop("Tabbed Local Reference popup layout must remain Trails/National Monuments/WSA/Federal Wilderness/ACEC-only.")
+      !identical(which(registry$popup_layout == "tabbed_card"), c(1L, 2L, 3L, 4L, 5L, 7L))) {
+    stop("Tabbed Local Reference popup layout differs from the six active focused layers.")
   }
 
-  expected_auto_supported <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE)
-  expected_auto_default <- c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
+  expected_auto_supported <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE)
+  expected_auto_default <- c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
   if (!identical(as.logical(registry$auto_supported), expected_auto_supported) ||
       !identical(as.logical(registry$auto_default), expected_auto_default)) {
     stop("Local Reference Auto support/default contract differs from the approved 11-layer matrix.")
   }
   if (!identical(
     which(registry$implementation_status %in% c(
-      "phase2_trails", "phase5_national_monuments", "phase1_wsa",
+      "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl", "phase1_wsa",
       "phase3_federal_wilderness", "phase4_acec"
     )),
-    c(1L, 2L, 4L, 5L, 7L)
+    c(1L, 2L, 3L, 4L, 5L, 7L)
   )) {
-    stop("Local Reference execution must remain limited to Trails, National Monuments, WSA, Federal Wilderness, and ACEC.")
+    stop("Local Reference execution differs from the six approved focused layers.")
   }
-  if (!identical(which(registry$feature_selection_supported), c(1L, 2L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_supported), c(1L, 2L, 4L, 5L, 7L)) ||
-      !identical(which(registry$auto_zoom_default), c(1L, 2L, 4L, 5L, 7L))) {
-    stop("Named-feature selection and Auto-zoom must remain Trails/National Monuments/WSA/Federal Wilderness/ACEC-only.")
+  if (!identical(which(registry$feature_selection_supported), c(1L, 2L, 3L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_supported), c(1L, 2L, 3L, 4L, 5L, 7L)) ||
+      !identical(which(registry$auto_zoom_default), c(1L, 2L, 3L, 4L, 5L, 7L))) {
+    stop("Named-feature selection and Auto-zoom differ from the six approved focused layers.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[1]], use.names = FALSE),
@@ -201,6 +201,16 @@ pt_validate_local_reference_config <- function() {
     )
   )) {
     stop("Phase 5 National Monuments named-feature search fields differ from the approved contract.")
+  }
+  if (!identical(
+    unlist(registry$feature_search_fields[[3]], use.names = FALSE),
+    c(
+      "pt_cdncl_display_name", "pt_cdncl_raw_name", "pt_cdncl_aliases",
+      "NLCS_ID", "pt_cdncl_global_id", "pt_cdncl_unit_type_label",
+      "pt_cdncl_field_office_names"
+    )
+  )) {
+    stop("California Desert NCL named-feature search fields differ from the approved contract.")
   }
   if (!identical(
     unlist(registry$feature_search_fields[[4]], use.names = FALSE),
@@ -229,21 +239,25 @@ pt_validate_local_reference_config <- function() {
   )) {
     stop("ACEC named-feature search fields differ from the approved contract.")
   }
-  if (!identical(which(registry$retention_enabled), c(1L, 2L, 4L, 5L, 7L))) {
-    stop("Field retention must remain limited to Trails, National Monuments, WSA, Federal Wilderness, and ACEC.")
+  if (!identical(which(registry$retention_enabled), c(1L, 2L, 3L, 4L, 5L, 7L))) {
+    stop("Field retention differs from the six approved focused layers.")
   }
-  if (!identical(which(registry$distinguish_units_supported), 5L)) {
-    stop("Distinguish named units must remain Federal Wilderness-only.")
+  if (!identical(which(registry$distinguish_units_supported), c(3L, 5L))) {
+    stop("Distinguish named units must remain California Desert NCL/Federal Wilderness-only.")
   }
   facets <- unclass(registry$filter_facets)
   if (length(facets) != nrow(registry) ||
-      !identical(which(lengths(facets) > 0L), c(2L, 5L, 7L)) ||
+      !identical(which(lengths(facets) > 0L), c(2L, 3L, 5L, 7L)) ||
       !identical(
         vapply(facets[[2]], `[[`, character(1), "facet_key"),
         c(
           "administering_agency", "designation_authority",
           "management_pattern", "recent_change", "blm_usfs_quick_view"
         )
+      ) ||
+      !identical(
+        vapply(facets[[3]], `[[`, character(1), "facet_key"),
+        c("field_office_context", "related_designation_overlap")
       ) ||
       !identical(
         vapply(facets[[5]], `[[`, character(1), "facet_key"),
@@ -253,7 +267,7 @@ pt_validate_local_reference_config <- function() {
         vapply(facets[[7]], `[[`, character(1), "facet_key"),
         c("relevant_value_family", "planning_framework", "field_office_context")
       )) {
-    stop("National Monuments, Federal Wilderness, and ACEC must retain their exact approved filter facets.")
+    stop("Active Local Reference filter facets differ from their approved contracts.")
   }
   quick_views <- unclass(registry$quick_views)
   if (length(quick_views) != nrow(registry) ||
@@ -269,7 +283,7 @@ pt_validate_local_reference_config <- function() {
           "scenic", "natural_systems"
         )
       )) {
-    stop("National Monuments and ACEC must retain their exact approved quick views.")
+    stop("National Monuments and ACEC quick views differ from their approved contracts, or California Desert NCL unexpectedly exposes one.")
   }
   acec_value_styles <- facets[[7]][[1]]$values
   if (!identical(acec_value_styles, PT_LOCAL_REFERENCE_ACEC_VALUE_FAMILY_STYLES) ||
@@ -330,8 +344,8 @@ pt_validate_local_reference_config <- function() {
     stop("ACEC current field-office lookup differs from the verified 14-office roster.")
   }
   if (anyNA(registry$category_filter_visible) ||
-      !identical(which(!registry$category_filter_visible), c(2L, 7L))) {
-    stop("Only National Monuments and ACEC may hide the category filter in the active Local Reference matrix.")
+      !identical(which(!registry$category_filter_visible), c(2L, 3L, 7L))) {
+    stop("National Monuments, California Desert NCL, and ACEC must hide redundant category filters.")
   }
   expected_depth <- c(
     "rich", "rich", "rich", "rich", "rich", "moderate",
@@ -4208,6 +4222,438 @@ pt_local_reference_acec_popup_payload <- function(
   )
 }
 
+# ---- California Desert National Conservation Lands -------------------------
+
+pt_local_reference_desert_ncl_reference <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_REFERENCE_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "nlcs_id", "semantic_unit_id", "raw_source_name",
+    "standardized_display_name", "mapped_unit_class",
+    "mapped_unit_interpretation", "semantic_interpretation_confidence",
+    "individual_establishment_status", "system_level_statutory_authority",
+    "drecp_decision_authority", "named_unit_or_boundary_authority",
+    "planning_context", "geographic_description",
+    "directly_supported_conservation_values",
+    "directly_supported_management_objectives", "administering_agency",
+    "blm_role", "blm_role_summary", "responsible_blm_district",
+    "responsible_blm_office", "responsible_office_status",
+    "intersecting_offices_summary", "official_reported_acres",
+    "official_reported_area_scope", "area_provenance", "program_page_url",
+    "unit_specific_page_url", "office_page_url", "primary_plan_title",
+    "primary_plan_url", "official_source_layer_url",
+    "access_and_route_caveat", "land_status_caveat", "boundary_caveat",
+    "relationship_summary", "source_limitations", "last_verification_date"
+  ))
+}
+
+pt_local_reference_desert_ncl_aliases <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_ALIASES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "nlcs_id", "alias", "alias_type", "source", "recommended_for_search",
+    "replaces_source_name", "confidence", "notes"
+  ))
+}
+
+pt_local_reference_desert_ncl_policy <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_POLICY_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "policy_id", "recommended_language", "use", "last_verified"
+  ))
+}
+
+pt_local_reference_desert_ncl_documents <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_DOCUMENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "document_id", "exact_title", "agency_or_publisher", "document_type",
+    "publication_date", "decision_date", "status", "direct_document_url",
+    "official_landing_page_url", "applicability", "verification_date",
+    "limitation_notes"
+  ))
+}
+
+pt_local_reference_desert_ncl_unit_documents <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_UNIT_DOCUMENTS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "nlcs_id", "document_id", "relationship_type", "applicability",
+    "unit_specific", "normal_popup_suitable", "evidence_locator", "notes"
+  ))
+}
+
+pt_local_reference_desert_ncl_sources <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_SOURCES_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "source_id", "source_title", "publisher", "source_type",
+    "authority_level", "url", "applicable_units", "claims_or_fields_supported",
+    "verification_date", "limitations"
+  ))
+}
+
+pt_local_reference_desert_ncl_research_relationships <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_RESEARCH_RELATIONSHIPS_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "relationship_id", "nlcs_id", "relationship_type",
+    "related_brim_layer_family", "related_feature_identifier",
+    "related_feature_name", "source_or_spatial_derivation_method",
+    "evidence_title", "evidence_url", "verification_date", "confidence",
+    "brim_should_calculate_from_current_local_data", "normal_popup_suitable",
+    "notes"
+  ))
+}
+
+pt_local_reference_desert_ncl_field_offices <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_FIELD_OFFICE_LOOKUP_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "office_key", "office_code", "office_name", "office_globalid"
+  ))
+}
+
+pt_local_reference_desert_ncl_field_office_context <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_FIELD_OFFICE_CONTEXT_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "nlcs_id", "office_key", "office_code", "office_name", "office_globalid",
+    "intersection_area_m2", "intersection_area_acres", "percent_of_unit_area",
+    "relationship_method", "context_only_not_management_assignment",
+    "display_context"
+  ))
+}
+
+pt_local_reference_desert_ncl_related_context <- function(
+  path = PT_LOCAL_REFERENCE_DESERT_NCL_RELATED_CONTEXT_PATH
+) {
+  pt_local_reference_read_csv(path, c(
+    "nlcs_id", "related_layer_key", "related_layer_label",
+    "related_feature_id", "related_feature_name", "relationship_type",
+    "overlap_area_m2", "overlap_area_acres", "percent_of_unit_area",
+    "intersection_length_m", "intersection_length_miles", "derivation_method",
+    "normal_popup_suitable", "identity_and_geometry_remain_in_related_layer",
+    "management_inference_prohibited"
+  ))
+}
+
+pt_validate_local_reference_desert_ncl_research <- function(
+  reference = pt_local_reference_desert_ncl_reference(),
+  aliases = pt_local_reference_desert_ncl_aliases(),
+  policy = pt_local_reference_desert_ncl_policy(),
+  documents = pt_local_reference_desert_ncl_documents(),
+  unit_documents = pt_local_reference_desert_ncl_unit_documents(),
+  sources = pt_local_reference_desert_ncl_sources(),
+  research_relationships = pt_local_reference_desert_ncl_research_relationships(),
+  offices = pt_local_reference_desert_ncl_field_offices(),
+  office_context = pt_local_reference_desert_ncl_field_office_context(),
+  related_context = pt_local_reference_desert_ncl_related_context()
+) {
+  expected_ids <- sprintf("NLCS%06d", 2009:2019)
+  if (nrow(reference) != 11L || anyDuplicated(reference$nlcs_id) ||
+      !identical(sort(reference$nlcs_id), expected_ids)) {
+    stop("California Desert NCL reference must retain the exact 11 semantic IDs.")
+  }
+  if (sum(reference$mapped_unit_class == "drecp_ecoregion_subarea_allocation") != 10L ||
+      reference$mapped_unit_class[reference$nlcs_id == "NLCS002012"] !=
+        "existing_ncl_component_candidate") {
+    stop("California Desert NCL must retain ten DRECP subareas and the separate Desert Lily source record.")
+  }
+  if (nrow(aliases) != 24L || nrow(policy) != 9L || nrow(documents) != 13L ||
+      nrow(unit_documents) != 112L || nrow(sources) != 19L ||
+      nrow(research_relationships) != 112L) {
+    stop("California Desert NCL canonical package lookup counts changed.")
+  }
+  if (anyDuplicated(aliases[c("nlcs_id", "alias", "alias_type")]) ||
+      anyDuplicated(documents$document_id) ||
+      anyDuplicated(unit_documents[c("nlcs_id", "document_id")]) ||
+      anyDuplicated(policy$policy_id) || anyDuplicated(sources$source_id) ||
+      anyDuplicated(research_relationships$relationship_id)) {
+    stop("California Desert NCL lookup keys are not unique at their declared grain.")
+  }
+  if (!all(aliases$nlcs_id %in% expected_ids) ||
+      !all(unit_documents$nlcs_id %in% expected_ids) ||
+      !all(unit_documents$document_id %in% documents$document_id) ||
+      !all(research_relationships$nlcs_id %in% expected_ids)) {
+    stop("California Desert NCL package lookup coverage is inconsistent.")
+  }
+  if (nrow(offices) != 7L || anyDuplicated(offices$office_key) ||
+      nrow(office_context) != 26L ||
+      !setequal(unique(office_context$nlcs_id), expected_ids) ||
+      any(suppressWarnings(as.numeric(office_context$intersection_area_m2)) <= 0) ||
+      !setequal(unique(office_context$office_key), offices$office_key)) {
+    stop("California Desert NCL current field-office context differs from the focused derivation.")
+  }
+  display_context <- tolower(pt_local_reference_clean_chr(
+    office_context$display_context
+  )) == "true"
+  if (!setequal(unique(office_context$nlcs_id[display_context]), expected_ids)) {
+    stop("Every California Desert NCL unit requires a displayed field-office context.")
+  }
+  management_prohibited <- tolower(pt_local_reference_clean_chr(
+    related_context$management_inference_prohibited
+  )) == "true"
+  if (nrow(related_context) != 277L ||
+      !setequal(unique(related_context$nlcs_id), expected_ids) ||
+      !all(management_prohibited)) {
+    stop("California Desert NCL related-layer context differs from the focused no-management-inference contract.")
+  }
+  desert_lily <- related_context[
+    related_context$nlcs_id == "NLCS002012" &
+      related_context$related_layer_key == "acec" &
+      grepl("^Desert Lily Preserve$", related_context$related_feature_name),
+    , drop = FALSE
+  ]
+  if (nrow(desert_lily) != 1L ||
+      suppressWarnings(as.numeric(desert_lily$percent_of_unit_area)) < 99) {
+    stop("Desert Lily source-record/ACEC spatial relationship changed unexpectedly.")
+  }
+  invisible(TRUE)
+}
+
+pt_local_reference_desert_ncl_part_count <- function(x) {
+  crs <- sf::st_crs(x)
+  vapply(sf::st_geometry(x), function(geometry) {
+    length(suppressWarnings(sf::st_cast(
+      sf::st_sfc(geometry, crs = crs), "POLYGON"
+    )))
+  }, integer(1))
+}
+
+pt_local_reference_desert_ncl_runtime_geometry <- function(x) {
+  sf_column <- attr(x, "sf_column")
+  if (is.null(sf_column) || !sf_column %in% names(x)) {
+    sf_column <- names(x)[vapply(x, inherits, logical(1), what = "sfc")][[1]]
+  }
+  keep <- c(
+    "pt_nickname", "pt_display_name", "pt_geom_type", "NLCS_ID",
+    "semantic_unit_id", "component_id", "pt_local_reference_feature_key",
+    "pt_local_reference_semantic_key", "pt_local_reference_geometry_key",
+    "pt_local_reference_geometry_components", "pt_local_reference_category_key",
+    "pt_local_reference_category_label", "fill_col", "line_col",
+    "fill_opacity", "line_weight", "line_dash", "pt_legend_swatch_style",
+    "pt_cdncl_display_name", "pt_cdncl_raw_name", "pt_cdncl_aliases",
+    "pt_cdncl_global_id", "pt_cdncl_source_objectid",
+    "pt_cdncl_unit_type_key", "pt_cdncl_unit_type_label",
+    "pt_cdncl_field_office_keys", "pt_cdncl_field_office_names",
+    "pt_cdncl_field_office_context_class", "pt_cdncl_relationship_families",
+    "pt_cdncl_related_designation_facets",
+    "pt_cdncl_monument_overlap", "pt_cdncl_source_shape_area_m2",
+    "pt_cdncl_calculated_raw_area_acres", "pt_cdncl_official_reported_acres",
+    "pt_cdncl_last_verified", "pt_reference_label_text",
+    "pt_reference_hover_html", "pt_reference_hover_text", sf_column
+  )
+  missing <- setdiff(keep, names(x))
+  if (length(missing)) {
+    stop("California Desert NCL runtime geometry is missing: ", paste(missing, collapse = ", "))
+  }
+  metadata <- attr(x, "pt_desert_ncl_candidate_metadata")
+  out <- x[, keep, drop = FALSE]
+  attr(out, "pt_desert_ncl_candidate_metadata") <- metadata
+  out
+}
+
+pt_local_reference_desert_ncl_related_facet_values <- function(
+  nlcs_ids,
+  related_context = pt_local_reference_desert_ncl_related_context()
+) {
+  required <- c(
+    "nlcs_id", "related_layer_key", "normal_popup_suitable"
+  )
+  missing <- setdiff(required, names(related_context))
+  if (length(missing)) {
+    stop(
+      "California Desert NCL related-facet context is missing: ",
+      paste(missing, collapse = ", ")
+    )
+  }
+  suitable <- tolower(pt_local_reference_clean_chr(
+    related_context$normal_popup_suitable
+  )) == "true"
+  rows <- related_context[suitable, , drop = FALSE]
+  keys <- pt_local_reference_clean_chr(rows$related_layer_key)
+  keys[grepl("^wsr_", keys)] <- "wild_scenic_river"
+  accepted_order <- c(
+    "acec", "federal_wilderness", "national_monuments",
+    "wilderness_study_areas", "national_trails", "wild_scenic_river"
+  )
+  unknown <- setdiff(unique(keys[nzchar(keys)]), accepted_order)
+  if (length(unknown)) {
+    stop(
+      "California Desert NCL related-facet context has unknown families: ",
+      paste(sort(unknown), collapse = ", ")
+    )
+  }
+  vapply(nlcs_ids, function(nlcs_id) {
+    present <- unique(keys[rows$nlcs_id == nlcs_id])
+    paste(accepted_order[accepted_order %in% present], collapse = "|")
+  }, character(1))
+}
+
+pt_prepare_local_reference_desert_ncl <- function(
+  x,
+  validate_snapshot = FALSE,
+  build_display = TRUE
+) {
+  pt_validate_local_reference_config()
+  if (!inherits(x, "sf") || nrow(x) != 11L) {
+    stop("California Desert NCL preparation requires the 11-row focused sf candidate.")
+  }
+  required <- c(
+    "NLCS_ID", "NLCS_NAME", "GlobalID", "OBJECTID", "semantic_unit_id",
+    "component_id", "pt_cdncl_display_name", "pt_cdncl_raw_name",
+    "pt_cdncl_aliases", "pt_cdncl_global_id", "pt_cdncl_source_objectid",
+    "pt_cdncl_unit_type_key", "pt_cdncl_unit_type_label",
+    "pt_cdncl_field_office_keys", "pt_cdncl_field_office_names",
+    "pt_cdncl_field_office_context_class", "pt_cdncl_relationship_families",
+    "pt_cdncl_monument_overlap", "pt_cdncl_source_shape_area_m2",
+    "pt_cdncl_calculated_raw_area_acres", "pt_cdncl_official_reported_acres",
+    "pt_cdncl_last_verified", "pt_reference_label_text",
+    "pt_reference_hover_text"
+  )
+  missing <- setdiff(required, names(x))
+  if (length(missing)) {
+    stop("California Desert NCL candidate is missing: ", paste(missing, collapse = ", "))
+  }
+  expected_ids <- sprintf("NLCS%06d", 2009:2019)
+  metadata <- attr(x, "pt_desert_ncl_candidate_metadata")
+  if (!identical(as.character(x$NLCS_ID), expected_ids) ||
+      anyDuplicated(x$component_id) || anyDuplicated(x$GlobalID) ||
+      is.null(metadata) || !identical(as.numeric(metadata$simplify_tolerance_m), 2) ||
+      !identical(as.integer(metadata$raw_polygon_parts), 173L) ||
+      !identical(as.integer(metadata$raw_holes), 32L) ||
+      !identical(as.integer(metadata$raw_vertices), 84155L) ||
+      !identical(as.integer(metadata$display_polygon_parts), 173L) ||
+      !identical(as.integer(metadata$display_holes), 32L) ||
+      !identical(as.integer(metadata$display_vertices), 32168L) ||
+      !isTRUE(metadata$exact_part_retention) ||
+      !isTRUE(metadata$exact_hole_retention) ||
+      any(!sf::st_is_valid(x)) || any(sf::st_is_empty(x))) {
+    stop("California Desert NCL candidate metadata or geometry differs from the accepted focused contract.")
+  }
+  if (isTRUE(validate_snapshot)) pt_validate_local_reference_desert_ncl_research()
+  categories <- pt_local_reference_categories("ca_desert_ncl")
+  category <- categories[categories$category_key == "ca_desert_ncl", , drop = FALSE]
+  x$pt_nickname <- "cadesert_ncl"
+  x$pt_display_name <- "CA Desert National Conservation Lands"
+  x$pt_geom_type <- "polygon"
+  x$pt_local_reference_feature_key <- x$NLCS_ID
+  x$pt_local_reference_semantic_key <- x$NLCS_ID
+  x$pt_local_reference_geometry_key <- x$component_id
+  x$pt_local_reference_geometry_components <- pt_local_reference_desert_ncl_part_count(x)
+  x$pt_local_reference_category_key <- "ca_desert_ncl"
+  x$pt_local_reference_category_label <- category$label[[1]]
+  x$fill_col <- category$fill_color[[1]]
+  x$line_col <- category$stroke_color[[1]]
+  x$fill_opacity <- category$fill_opacity[[1]]
+  x$line_weight <- category$stroke_weight[[1]]
+  x$line_dash <- category$dash_array[[1]]
+  x$pt_legend_swatch_style <- category$legend_swatch_style[[1]]
+  x$pt_cdncl_related_designation_facets <-
+    pt_local_reference_desert_ncl_related_facet_values(x$NLCS_ID)
+  x$pt_reference_hover_html <- paste0(
+    "<div class=\"pt-cdncl-hover\"><strong>",
+    htmltools::htmlEscape(x$pt_cdncl_display_name), "</strong><br>",
+    htmltools::htmlEscape(x$pt_cdncl_unit_type_label),
+    "<br>Field-office context: ",
+    htmltools::htmlEscape(x$pt_cdncl_field_office_names), "</div>"
+  )
+  attr(x, "pt_desert_ncl_candidate_metadata") <- metadata
+  if (isTRUE(build_display)) pt_local_reference_desert_ncl_runtime_geometry(x) else x
+}
+
+pt_local_reference_desert_ncl_qa <- function(x) {
+  required <- c(
+    "NLCS_ID", "component_id", "pt_cdncl_display_name",
+    "pt_cdncl_unit_type_key", "pt_cdncl_field_office_names",
+    "pt_cdncl_monument_overlap", "pt_cdncl_related_designation_facets",
+    "pt_local_reference_geometry_components"
+  )
+  missing <- setdiff(required, names(x))
+  if (!inherits(x, "sf") || length(missing)) {
+    stop("California Desert NCL QA requires prepared runtime geometry: ", paste(missing, collapse = ", "))
+  }
+  metadata <- attr(x, "pt_desert_ncl_candidate_metadata")
+  data.frame(
+    nlcs_id = x$NLCS_ID,
+    component_id = x$component_id,
+    display_name = x$pt_cdncl_display_name,
+    mapped_unit_type = x$pt_cdncl_unit_type_key,
+    field_office_context = x$pt_cdncl_field_office_names,
+    monument_overlap = x$pt_cdncl_monument_overlap,
+    related_designation_facets = x$pt_cdncl_related_designation_facets,
+    geometry_parts = x$pt_local_reference_geometry_components,
+    geometry_valid = sf::st_is_valid(x),
+    geometry_empty = sf::st_is_empty(x),
+    simplify_tolerance_m = as.numeric(metadata$simplify_tolerance_m),
+    raw_vertices = as.integer(metadata$raw_vertices),
+    display_vertices = as.integer(metadata$display_vertices),
+    stringsAsFactors = FALSE
+  )
+}
+
+pt_local_reference_desert_ncl_popup_payload <- function(
+  x,
+  reference = pt_local_reference_desert_ncl_reference(),
+  aliases = pt_local_reference_desert_ncl_aliases(),
+  policy = pt_local_reference_desert_ncl_policy(),
+  documents = pt_local_reference_desert_ncl_documents(),
+  unit_documents = pt_local_reference_desert_ncl_unit_documents(),
+  sources = pt_local_reference_desert_ncl_sources(),
+  research_relationships = pt_local_reference_desert_ncl_research_relationships(),
+  offices = pt_local_reference_desert_ncl_field_offices(),
+  office_context = pt_local_reference_desert_ncl_field_office_context(),
+  related_context = pt_local_reference_desert_ncl_related_context()
+) {
+  pt_validate_local_reference_desert_ncl_research(
+    reference, aliases, policy, documents, unit_documents, sources,
+    research_relationships, offices, office_context, related_context
+  )
+  to_records <- function(data, fields = names(data)) {
+    data <- data[, intersect(fields, names(data)), drop = FALSE]
+    lapply(seq_len(nrow(data)), function(i) as.list(data[i, , drop = FALSE]))
+  }
+  research_popup <- research_relationships[
+    grepl("^true", tolower(research_relationships$normal_popup_suitable)),
+    , drop = FALSE
+  ]
+  list(
+    semantics = to_records(reference),
+    components = to_records(sf::st_drop_geometry(x), c(
+      "component_id", "NLCS_ID", "pt_cdncl_global_id",
+      "pt_cdncl_source_objectid", "pt_cdncl_raw_name",
+      "pt_cdncl_calculated_raw_area_acres", "pt_cdncl_official_reported_acres",
+      "pt_cdncl_unit_type_key", "pt_cdncl_unit_type_label",
+      "pt_cdncl_last_verified"
+    )),
+    aliases = to_records(aliases),
+    policy = to_records(policy),
+    documents = to_records(documents),
+    unit_documents = to_records(unit_documents),
+    sources = to_records(sources),
+    research_relationships = to_records(research_popup),
+    offices = to_records(offices),
+    field_office_context = to_records(office_context),
+    related_context = to_records(related_context),
+    caveats = list(
+      office = paste(
+        "Field-office names are positive-area spatial context from current",
+        "accepted BRIM boundaries, not management assignments."
+      ),
+      relationships = paste(
+        "Spatial relationships do not merge designation identities, copy",
+        "related geometry, or infer management authority."
+      ),
+      desert_lily = paste(
+        "The BLM source record, current ACEC, and statutory Desert Lily",
+        "Sanctuary are related but remain separate identities."
+      )
+    )
+  )
+}
+
 pt_local_reference_semantic_feature_catalog <- function(x, registry_row) {
   if (!inherits(x, "sf")) {
     stop("Local Reference semantic-feature bounds require an sf object.")
@@ -4467,7 +4913,7 @@ pt_local_reference_controller_payload <- function(
     nps_context = NULL) {
   active <- LOCAL_REFERENCE_INTERACTION_REGISTRY[
     LOCAL_REFERENCE_INTERACTION_REGISTRY$implementation_status %in% c(
-      "phase2_trails", "phase5_national_monuments", "phase1_wsa",
+      "phase2_trails", "phase5_national_monuments", "phase6_desert_ncl", "phase1_wsa",
       "phase3_federal_wilderness", "phase4_acec"
     ),
     , drop = FALSE
@@ -4480,6 +4926,9 @@ pt_local_reference_controller_payload <- function(
       as.character(row$layer_id[[1]]), "federal_wilderness"
     )
     is_acec <- identical(as.character(row$layer_id[[1]]), "acec")
+    is_desert_ncl <- identical(
+      as.character(row$layer_id[[1]]), "ca_desert_ncl"
+    )
     is_national_monuments <- identical(
       as.character(row$layer_id[[1]]), "national_monuments"
     )
@@ -4529,6 +4978,15 @@ pt_local_reference_controller_payload <- function(
         wsa_name_context = acec_wsa_name_context,
         overlap_pairs = acec_overlap_pairs
       )
+    }
+    if (is_desert_ncl) {
+      pt_validate_local_reference_desert_ncl_research()
+      if (!"pt_cdncl_related_designation_facets" %in% names(x)) {
+        x$pt_cdncl_related_designation_facets <-
+          pt_local_reference_desert_ncl_related_facet_values(
+            x$pt_local_reference_semantic_key
+          )
+      }
     }
     required <- c(
       "pt_local_reference_feature_key", "pt_local_reference_geometry_key",
@@ -4631,6 +5089,12 @@ pt_local_reference_controller_payload <- function(
         } else {
           as.integer(facet$layout_columns)
         },
+        context_cue = if (is.null(facet$context_cue)) "" else {
+          as.character(facet$context_cue)
+        },
+        context_title = if (is.null(facet$context_title)) "" else {
+          as.character(facet$context_title)
+        },
         thematic_style = if (is.list(facet$thematic_style)) {
           facet$thematic_style
         } else {
@@ -4675,6 +5139,7 @@ pt_local_reference_controller_payload <- function(
       category_count_mode = row$category_count_mode,
       component_count_label = row$component_count_label,
       category_heading = row$category_heading,
+      dashboard_summary = row$dashboard_summary,
       caution = row$card_caution,
       popup_layout = row$popup_layout,
       distinguish_units_supported = isTRUE(row$distinguish_units_supported),
@@ -4708,6 +5173,11 @@ pt_local_reference_controller_payload <- function(
           wsa_name_context = acec_wsa_name_context,
           overlap_pairs = acec_overlap_pairs
         )
+      } else {
+        NULL
+      },
+      desert_ncl = if (is_desert_ncl) {
+        pt_local_reference_desert_ncl_popup_payload(x)
       } else {
         NULL
       }

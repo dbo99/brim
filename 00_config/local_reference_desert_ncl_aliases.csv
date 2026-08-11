@@ -1,0 +1,25 @@
+nlcs_id,alias,alias_type,source,recommended_for_search,replaces_source_name,confidence,notes
+NLCS002009,Basin and Range,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002009,Basin and Range Subarea,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact root name; DRECP adds the label “Subarea”.
+NLCS002010,Coachella Valley,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002010,Coachella Valley,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact name match.
+NLCS002011,Colorado Desert,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002011,Colorado Desert,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact name match.
+NLCS002012,Desert Lily Preserve,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002012,Desert Lily Sanctuary,related_statutory_name_not_confirmed_alias,Public Law 103-433 section 107,false,false,medium,Do not treat as a true alias until exact source-polygon equivalence is verified.
+NLCS002013,Kingston - Amargosa,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002013,Kingston–Amargosa,standardized_display_name,curated punctuation normalization,true,false,high,Raw source name remains preserved.
+NLCS002013,Kingston-Amargosa,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Reviewed punctuation-only match: source spaced hyphen; DRECP closed hyphen.
+NLCS002014,Lake Cahuilla,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002014,Lake Cahuilla,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact name match.
+NLCS002015,Mojave and Silurian Valley,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002015,Mojave and Silurian Valley,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact name match.
+NLCS002016,Pinto Lucerne Valley and Eastern Slopes,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002016,"Pinto, Lucerne Valley, and Eastern Slopes",official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Reviewed punctuation match; DRECP includes commas and separates Pinto from Lucerne Valley.
+NLCS002017,Piute Valley and Sacramento Mountains,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002017,Piute Valley and Sacramento Mountains,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Exact name match.
+NLCS002018,South Mojave - Amboy,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002018,South Mojave–Amboy,standardized_display_name,curated punctuation normalization,true,false,high,Raw source name remains preserved.
+NLCS002018,South Mojave-Amboy,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Reviewed punctuation-only match: source spaced hyphen; DRECP closed hyphen.
+NLCS002019,West Desert and Eastern Slopes,raw_source_name,current BLM source snapshot,true,false,high,
+NLCS002019,Western Desert and Eastern Slope,official_drecp_subarea_name,2016 DRECP LUPA,true,false,high,Reviewed semantic/name variant: source uses “West” and plural “Slopes”; DRECP uses “Western” and singular “Slope”.

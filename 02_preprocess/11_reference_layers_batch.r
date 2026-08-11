@@ -171,13 +171,16 @@ if (length(unknown_source_overrides)) {
 if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
   requested_nicknames <- unique(trimws(as.character(REFERENCE_LAYER_NICKNAMES)))
   requested_nicknames <- requested_nicknames[nzchar(requested_nicknames)]
-  focused_pipeline_rows <- intersect(requested_nicknames, c("fedwilderness", "acec"))
+  focused_pipeline_rows <- intersect(
+    requested_nicknames,
+    c("fedwilderness", "acec", "cadesert_ncl")
+  )
   if (length(focused_pipeline_rows)) {
     stop(
       paste(focused_pipeline_rows, collapse = ", "),
       " is fail-closed in the generic reference batch. Use its focused ",
       "02_preprocess/68_federal_wilderness_pipeline or ",
-      "02_preprocess/69_acec_pipeline builder instead."
+      "02_preprocess/69_acec_pipeline or 71_desert_ncl_pipeline builder instead."
     )
   }
   unknown_nicknames <- setdiff(requested_nicknames, manifest$nickname)
@@ -194,7 +197,10 @@ if (!is.null(REFERENCE_LAYER_NICKNAMES)) {
   )
 }
 
-focused_pipeline_rows <- intersect(manifest$nickname, c("fedwilderness", "acec"))
+focused_pipeline_rows <- intersect(
+  manifest$nickname,
+  c("fedwilderness", "acec", "cadesert_ncl")
+)
 if (length(focused_pipeline_rows)) {
   message(
     "Skipping ", paste(focused_pipeline_rows, collapse = ", "),
