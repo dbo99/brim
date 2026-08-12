@@ -1052,6 +1052,23 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$dashboard_summary <- c(
   rep("", 8)
 )
 
+## Public display-geometry disclosure for layers whose current BRIM cache is
+## simplified. Empty values are intentional: they prevent a false disclosure
+## on layers that retain their current source/repaired display geometry.
+LOCAL_REFERENCE_INTERACTION_REGISTRY$generalization_disclosure <- c(
+  "",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
+  "",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
+  "",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
+  "",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
+  "",
+  "Generalized display geometry. Check authoritative source for boundary-sensitive use."
+)
+
 ## Compact closeout-card presentation. Plain legend rows remain visible even
 ## when their checkboxes are intentionally absent; the map layer itself is the
 ## only visibility switch. LBL is a duplicate user control for the existing
@@ -1063,7 +1080,7 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_available <- c(
   rep(FALSE, 7), TRUE, TRUE, TRUE, TRUE
 )
 LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_zoom_visible <- c(
-  rep(FALSE, 7), TRUE, FALSE, FALSE, TRUE
+  rep(FALSE, 7), rep(TRUE, 4)
 )
 LOCAL_REFERENCE_INTERACTION_REGISTRY$search_placeholder <- c(
   rep("Type a name or identifier", 7),

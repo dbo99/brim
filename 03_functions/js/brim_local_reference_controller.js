@@ -786,6 +786,7 @@ function(el, x, data) {
       '.pt-lr-swatch{display:inline-block;width:19px;height:13px;box-sizing:border-box}.pt-lr-swatch-line{height:0;border-left:0!important;border-right:0!important;border-bottom:0!important}' +
       '.pt-lr-category-count{color:#555;font-variant-numeric:tabular-nums;white-space:nowrap}.pt-lr-summary{margin:6px 0;color:#3d3a35}.pt-lr-pending{font-weight:700;color:#8a4d00}' +
       '.pt-lr-caution{margin-top:7px;padding-top:6px;border-top:1px solid rgba(82,72,45,.26);color:#5a4634;font-size:11px}' +
+      '.pt-lr-generalization-disclosure{margin-top:6px;padding-top:4px;border-top:1px solid rgba(82,72,45,.23);color:#5a5144;font-size:10px;line-height:1.25}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"]{width:330px;max-height:none;overflow:visible;padding:5px 7px;font-size:10.5px;line-height:1.2}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-head{margin-bottom:2px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-title{font-size:13px}' +
       '.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-feature-picker{margin:1px 0 3px}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-feature-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.pt-local-reference-card[data-pt-local-reference-layer="federal_wilderness"] .pt-lr-search{min-height:25px;padding:3px 5px;font-size:11px}' +
@@ -2617,7 +2618,8 @@ function(el, x, data) {
           }).join('') +
           '<div class="pt-nm-context-note">Optional official NPS legislative boundaries ' +
           'with tract-based federal land/interest fill. Context only; it does not change ' +
-          'National Monument agency filters, counts, or labels.</div></div></details>' : '';
+          'National Monument agency filters, counts, or labels. Generalized display geometry. ' +
+          'Check authoritative source for boundary-sensitive use.</div></div></details>' : '';
         var mapDetailsHtml = layerData.show_component_count ?
           (federalData ?
             '<details class="pt-lr-map-details"><summary>Map / layer note</summary>' +
@@ -2628,6 +2630,9 @@ function(el, x, data) {
         var dashboardSummaryHtml = cleanText(layerData.dashboard_summary) ?
           '<div class="pt-lr-dashboard-summary">' +
             escapeHtml(cleanText(layerData.dashboard_summary)) + '</div>' : '';
+        var generalizationHtml = cleanText(layerData.generalization_disclosure) ?
+          '<div class="pt-lr-generalization-disclosure">' +
+            escapeHtml(cleanText(layerData.generalization_disclosure)) + '</div>' : '';
         var distinguishHtml = distinguishUnitsSupported ?
           '<div class="pt-lr-toolbar pt-lr-distinguish-row"><label class="pt-lr-toggle">' +
             '<input type="checkbox" class="pt-lr-distinguish"> ' +
@@ -2677,7 +2682,7 @@ function(el, x, data) {
           facetsHtml() + actionsHtml +
           '<div class="pt-lr-summary" aria-live="polite"></div>' +
           mapDetailsHtml + npsContextHtml +
-          acecDisplayHtml + cautionHtml;
+          acecDisplayHtml + cautionHtml + generalizationHtml;
         L.DomEvent.disableClickPropagation(card);
         L.DomEvent.disableScrollPropagation(card);
         wireFeaturePicker();

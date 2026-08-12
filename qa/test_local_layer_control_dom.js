@@ -48,8 +48,8 @@ const labelConfigSource = fs.readFileSync(
 
 assert.strictEqual(
   (labelConfigSource.match(/"CalSim3\.0"/g) || []).length,
-  2,
-  "CalSim must appear once in each side of the config-driven inline-label pair"
+  3,
+  "CalSim must appear in both sides of the inline pair and its existing runtime-minimum presentation map"
 );
 assert.match(
   coreSource,
@@ -65,6 +65,16 @@ assert.match(
   coreSource,
   /minZoom = if \([\s\S]*INLINE_LABEL_PAIRS\$min_zoom/,
   "inline label thresholds must be supplied from the canonical label registry"
+);
+assert.match(
+  labelConfigSource,
+  /match\([\s\S]*INLINE_LABEL_PAIRS\$label_name[\s\S]*LABEL_ZOOM\$min_zoom/,
+  "registered label thresholds must populate every matching Local inline control"
+);
+assert.match(
+  labelConfigSource,
+  /pt_inline_label_runtime_min_zoom <- c\([\s\S]*"CNRFC weather station catalog" = 12[\s\S]*"CalSim3\.0" = 11[\s\S]*"Water conveyance \| BRIM mapped" = 5/,
+  "browser-managed Local label minima must be exposed without changing runtime gates"
 );
 assert.match(
   coreSource,

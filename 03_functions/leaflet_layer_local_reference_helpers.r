@@ -232,7 +232,8 @@ function(el, x) {
       '.pt-blm-office-circle{display:inline-block;width:10px;height:10px;border-radius:50%;background:#555;border:1.4px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.45);box-sizing:border-box;flex:0 0 10px;}' +
       '.pt-blm-office-square{display:inline-block;width:11px;height:11px;background:#fff;border:2px solid #555;box-sizing:border-box;flex:0 0 11px;}' +
       '.pt-blm-office-combo{display:inline-block;position:relative;width:14px;height:14px;border:2px solid #555;background:#fff;box-sizing:border-box;flex:0 0 14px;}' +
-      '.pt-blm-office-combo span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:#555;border:1px solid #fff;}';
+      '.pt-blm-office-combo span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:#555;border:1px solid #fff;}' +
+      '.pt-blm-office-generalization-note{margin-top:5px;padding-top:3px;border-top:1px solid rgba(120,110,90,.25);color:#555;font-size:10.2px;line-height:1.25;}';
     document.head.appendChild(style);
   }
 
@@ -245,6 +246,7 @@ function(el, x) {
     html += '<div class="pt-blm-office-subhead">Field-office boundaries</div>';
     (rows || []).forEach(function(row) { html += boundaryRow(row); });
     html += symbolRows();
+    html += '<div class="pt-blm-office-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
     return html;
   }
 
@@ -1133,7 +1135,8 @@ function(el, x) {
       '.pt-cnrfc-basin-row{display:flex;align-items:center;gap:6px;margin:2px 0;}' +
       '.pt-cnrfc-basin-swatch{display:inline-block;width:14px;height:10px;border:1px solid rgba(0,0,0,0.35);flex:0 0 14px;}' +
       '.pt-cnrfc-basin-count{color:#666;}' +
-      '.pt-cnrfc-basin-small,.pt-cnrfc-basin-note{font-size:10.5px;color:#555;margin-top:5px;}';
+      '.pt-cnrfc-basin-small,.pt-cnrfc-basin-note{font-size:10.5px;color:#555;margin-top:5px;}' +
+      '.pt-cnrfc-basin-generalization-note{margin-top:5px;padding-top:3px;border-top:1px solid rgba(120,110,90,.25);color:#555;font-size:10.2px;line-height:1.25;}';
     document.head.appendChild(style);
   }
 
@@ -1210,7 +1213,8 @@ function(el, x) {
           '<option value="qpf_snow_level">6-day daily QPF/FrzingLvl</option>' +
           '<option value="temperature">Basin mean temp</option>' +
         '</select>' +
-        '<div class="pt-cnrfc-basin-legend"></div>';
+        '<div class="pt-cnrfc-basin-legend"></div>' +
+        '<div class="pt-cnrfc-basin-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
 
       var select = div.querySelector('.pt-cnrfc-basin-select');
       select.value = currentMode;
@@ -2871,7 +2875,7 @@ function(el, x, data) {
       '</div>';
     html += '</div>';
 
-    html += '<div class="pt-wsr-note">Counts are source features, not unique rivers. Gray sections are inactive until a matching source layer is on. Display vertices thinned; line-part endpoints retained.</div>';
+    html += '<div class="pt-wsr-note">Counts are source features, not unique rivers. Gray sections are inactive until a matching source layer is on. Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
     html += '<div class="pt-wsr-source-links">USFS downloads: ' +
       '<a href="https://data.fs.usda.gov/geodata/edw/edw_resources/shp/BdyDesg_WildScenicRiverSegment_LN.zip" target="_blank">segments</a> · ' +
       '<a href="https://data.fs.usda.gov/geodata/edw/edw_resources/shp/BdyDesg_LSRS_WildScenicRiver.zip" target="_blank">areas</a> · ' +

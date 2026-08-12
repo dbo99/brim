@@ -66,5 +66,9 @@ Discovery and historical evidence only. Never automatically controlling.
   `/qa/qa_local_reference_national_monument_agency_styles.R`
 - Local Reference semantic labels:
   `/08_docs/features/LOCAL_REFERENCE_SEMANTIC_LABELS.md`
+- Local display-geometry generalization and disclosure:
+  `/08_docs/features/LOCAL_GEOMETRY_GENERALIZATION.md`
+- Local display-geometry machine-readable inventory:
+  `/08_docs/features/local_geometry_generalization_inventory.csv`
 
 Dated `PT2_STATUS_*`, `PortaTreasure2_handoff_*`, checkpoint, audit, and rollback documents must be read as historical/contextual unless current code explicitly still implements their contracts.

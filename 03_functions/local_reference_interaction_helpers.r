@@ -409,8 +409,8 @@ pt_validate_local_reference_config <- function() {
   if (!identical(which(registry$distinguish_units_supported), c(3L, 5L, 8L, 11L))) {
     stop("Distinguish named units differ from the approved layer matrix.")
   }
-  if (!identical(which(registry$legend_lbl_zoom_visible), c(8L, 11L))) {
-    stop("Visible Local Reference label thresholds must remain limited to Grazing and Water Districts.")
+  if (!identical(which(registry$legend_lbl_zoom_visible), c(8L, 9L, 10L, 11L))) {
+    stop("Visible Local Reference label thresholds must cover every current closeout lbl control.")
   }
   runtime_presentation <- unclass(registry$runtime_presentation)
   if (length(runtime_presentation) != nrow(registry) ||
@@ -5376,6 +5376,7 @@ pt_local_reference_controller_payload <- function(
       component_count_label = row$component_count_label,
       category_heading = row$category_heading,
       dashboard_summary = row$dashboard_summary,
+      generalization_disclosure = row$generalization_disclosure,
       caution = row$card_caution,
       popup_layout = row$popup_layout,
       distinguish_units_supported = isTRUE(row$distinguish_units_supported),
