@@ -49,6 +49,14 @@ expect_identical(
   ),
   "registered Local Reference label layers"
 )
+expect_identical(
+  INLINE_LABEL_PAIRS$min_zoom,
+  c(
+    9, 9, 6, 9, 9, 9, 9, 10, 11, 9, 12, 12, 9, 9, 10, 12,
+    11, 11, 11, NA, NA, NA, 10, 8, 7, 7, 8, 8, 7, 11, 5, 13, 4
+  ),
+  "all current Local inline label minimum zoom presentations"
+)
 stopifnot(
   all(LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$lbl_available),
   identical(as.numeric(pt_label_cfg("allotments")$min_zoom), 10),
@@ -56,11 +64,15 @@ stopifnot(
   identical(
     INLINE_LABEL_PAIRS$min_zoom[
       match(
-        c("Grazing Allotments", "Water Districts"),
+        c(
+          "Grazing Allotments", "Water Districts", "Counties",
+          "RWQCB Regions", "National Monuments",
+          "National Scenic/Historic Trails"
+        ),
         INLINE_LABEL_PAIRS$main_name
       )
     ],
-    c(10, 13)
+    c(10, 13, 6, 4, 7, 7)
   ),
   identical(
     LOCAL_REFERENCE_SEMANTIC_LABEL_REGISTRY$visible_component_aware,

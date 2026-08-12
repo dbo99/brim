@@ -28,7 +28,7 @@ stopifnot(
   all(LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_available[c(8:11)]),
   identical(
     which(LOCAL_REFERENCE_INTERACTION_REGISTRY$legend_lbl_zoom_visible),
-    c(8L, 11L)
+    c(8L, 9L, 10L, 11L)
   ),
   length(LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_facets[[8]]) == 0L,
   identical(LOCAL_REFERENCE_INTERACTION_REGISTRY$filter_mode[9], "numeric_minimum"),

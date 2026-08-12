@@ -312,25 +312,59 @@ INLINE_LABEL_PAIRS <- data.frame(
   stringsAsFactors = FALSE
 )
 
-## Only the dense closeout layers expose their configured semantic-label zoom
-## threshold in the compact inline control. Resolve these values from the
-## shared LABEL_ZOOM registry so the catalog wording cannot drift from runtime.
-pt_inline_label_zoom_ids <- c(
-  "Grazing Allotments" = "allotments",
-  "Water Districts" = "water_districts"
+## Show every existing layer-level label minimum in the compact inline
+## control. Most values resolve directly from LABEL_ZOOM by companion-group
+## name. The overrides below mirror existing browser-managed label gates; they
+## are presentation metadata only and do not change label behavior.
+pt_inline_label_group_names <- sub(
+  "^Labels:\\s*", "", as.character(LABEL_ZOOM$label_group)
 )
 pt_inline_label_zoom_rows <- match(
-  unname(pt_inline_label_zoom_ids),
-  LABEL_ZOOM$label_id
+  INLINE_LABEL_PAIRS$label_name,
+  pt_inline_label_group_names
 )
-if (anyNA(pt_inline_label_zoom_rows)) {
-  stop("Inline label zoom display requires registered LABEL_ZOOM rows.")
-}
 INLINE_LABEL_PAIRS$min_zoom <- NA_real_
-INLINE_LABEL_PAIRS$min_zoom[
-  match(names(pt_inline_label_zoom_ids), INLINE_LABEL_PAIRS$main_name)
-] <- as.numeric(LABEL_ZOOM$min_zoom[pt_inline_label_zoom_rows])
-rm(pt_inline_label_zoom_ids, pt_inline_label_zoom_rows)
+pt_inline_label_zoom_registered <- !is.na(pt_inline_label_zoom_rows)
+INLINE_LABEL_PAIRS$min_zoom[pt_inline_label_zoom_registered] <- as.numeric(
+  LABEL_ZOOM$min_zoom[pt_inline_label_zoom_rows[pt_inline_label_zoom_registered]]
+)
+
+pt_inline_label_runtime_min_zoom <- c(
+  "BLM Field Office Boundaries" = 9,
+  "GW Basins, Bulletin 118" = 9,
+  "HUC2 – PRISM/BCMv8" = 9,
+  "HUC4 – PRISM/BCMv8" = 9,
+  "HUC6 – PRISM/BCMv8" = 9,
+  "HUC8 – PRISM/BCMv8" = 9,
+  "HUC10 – PRISM/BCMv8" = 10,
+  "HUC12 – PRISM/BCMv8" = 11,
+  "CNRFC Product Availability" = 9,
+  "CNRFC weather station catalog" = 12,
+  "CNRFC river/reservoir catalog" = 12,
+  "USGS streamgages" = 9,
+  "BLM-drilled wells | NOC" = 9,
+  "GW wells | 2025 Mojave-BLM limited field check" = 10,
+  "Springs" = 12,
+  "Water rights POD | SWRCB 2026 BLM list" = 11,
+  "Water rights POD | BRIM spatial BLM match" = 11,
+  "Water rights POD | BRIM name/text BLM candidate" = 11,
+  "CalSim3.0" = 11,
+  "Water conveyance | BRIM mapped" = 5
+)
+pt_inline_label_runtime_rows <- match(
+  names(pt_inline_label_runtime_min_zoom),
+  INLINE_LABEL_PAIRS$main_name
+)
+if (anyNA(pt_inline_label_runtime_rows)) {
+  stop("Inline label zoom display requires registered Local label pairs.")
+}
+INLINE_LABEL_PAIRS$min_zoom[pt_inline_label_runtime_rows] <-
+  unname(pt_inline_label_runtime_min_zoom)
+rm(
+  pt_inline_label_group_names, pt_inline_label_zoom_rows,
+  pt_inline_label_zoom_registered, pt_inline_label_runtime_min_zoom,
+  pt_inline_label_runtime_rows
+)
 
 # ==== 6. Local Reference semantic-label registry ============================
 ##

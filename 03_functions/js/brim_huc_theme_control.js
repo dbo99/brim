@@ -675,6 +675,9 @@ function(el, x, hucThemeData) {
         'font-variant-numeric:tabular-nums;}' +
       '.pt-huc-theme-status{display:none;margin-top:5px;color:#24527a;' +
         'font-size:10.5px;line-height:12px;align-items:center;gap:4px;}' +
+      '.pt-huc-theme-generalization-note{margin-top:5px;padding-top:4px;' +
+        'border-top:1px solid rgba(111,89,52,.23);color:#555;' +
+        'font-size:10px;line-height:1.25;}' +
       '.pt-huc-theme-status.is-loading{display:inline-flex;}' +
       '.pt-huc-theme-spinner-slot{display:inline-flex;align-items:center;' +
         'justify-content:center;width:12px;height:12px;flex:0 0 12px;}' +
@@ -904,7 +907,8 @@ function(el, x, hucThemeData) {
         '</div>' +
         '<div class="pt-huc-theme-context"></div>' +
         '<div class="pt-huc-theme-legend-body"></div>' +
-        '<div class="pt-huc-theme-status" aria-live="polite"></div>';
+        '<div class="pt-huc-theme-status" aria-live="polite"></div>' +
+        '<div class="pt-huc-theme-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
       return div;

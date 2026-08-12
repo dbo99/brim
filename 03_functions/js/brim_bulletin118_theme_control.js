@@ -254,7 +254,10 @@ function brimBulletin118ThemeController(el, x, bulletinData) {
       '.pt-bulletin118-theme-note{margin-top:5px;color:#555;font-size:10.5px;}' +
       '.pt-bulletin118-theme-note a{color:#5a381e;}' +
       '.pt-bulletin118-theme-status{display:none;margin-top:5px;color:#24527a;' +
-        'font-size:10.5px;}';
+        'font-size:10.5px;}' +
+      '.pt-bulletin118-generalization-note{margin-top:5px;padding-top:4px;' +
+        'border-top:1px solid rgba(111,89,52,.23);color:#555;' +
+        'font-size:10px;line-height:1.25;}';
     document.head.appendChild(style);
   }
 
@@ -687,7 +690,8 @@ function brimBulletin118ThemeController(el, x, bulletinData) {
           '</div>' +
         '</div>' +
         '<div class="pt-bulletin118-theme-legend"></div>' +
-        '<div class="pt-bulletin118-theme-status" aria-live="polite"></div>';
+        '<div class="pt-bulletin118-theme-status" aria-live="polite"></div>' +
+        '<div class="pt-bulletin118-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
       return div;
