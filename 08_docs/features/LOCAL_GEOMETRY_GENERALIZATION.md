@@ -1,138 +1,144 @@
-# Local geometry generalization and public disclosure
+# Polygon generalization portfolio V3
 
-## Scope and result
+## Scope and authority
 
-This document inventories BRIM-side vertex reduction for the 34 polygon and
-polyline layers currently rendered in the Local panel. It covers Core, Basins,
-Channels, Reference, and the optional NPS context nested under National
-Monuments. It excludes points, disabled/retired Local layers, External, Ops
-Live, uploads, and QA/sandbox geometry.
+BRIM uses high-fidelity/source geometry and fit-for-purpose browser display
+geometry as separate products. The authoritative source-owned V3 controls are:
 
-As of the source state recorded below:
+- `00_config/polygon_generalization_portfolio_v3.csv` — the complete 29-family
+  decision registry: 24 reviewed geometry replacements and 5 retained displays;
+- `00_config/polygon_generalization_source_row_crosswalk_v3.csv` — the explicit
+  8,971-row source/candidate identity crosswalk; and
+- `08_docs/features/local_geometry_generalization_inventory.csv` — the public
+  layer, method, parameter, weight, disclosure, and implementation inventory.
 
-- **34** current Local polygon/polyline layers were audited;
-- **23** use BRIM-generated generalized display geometry;
-- **11** do not use BRIM-generated generalized display geometry; and
-- **0** active paths remain at `REVIEW`.
+The current RWQCB runtime baseline is unsimplified/clean-only (`keep=1.00`
+means 100%, not 1%) with 9 regions and 212,739 vertices. The final RWQCB
+decision is the reviewed shared-coverage 100 m artifact with
+SHA-256
+`b7c263024b9c6cd296b063a9386d589b8d89e4fb4cc937c0e32aea9a37e3850e`:
+9 regions (RB 1–9), 32,031 vertices, and 1,178,655 browser-geometry bytes. The
+accepted comparison records a 6,646,188-byte browser-geometry reduction. The
+earlier 15% candidate is research history and is not a production input.
 
-The row-level machine-readable authority for this audit is
-[`local_geometry_generalization_inventory.csv`](local_geometry_generalization_inventory.csv).
+This portfolio does not generalize BLM-CA Managed or BLM held/managed
+difference geometry. It retains the currently accepted display products for
+BLM Field Offices, Counties, and Water Districts. It does not force a single
+algorithm across independent polygon families.
 
-## Interpretation contract
+The inventory's `geometry_bytes` and `browser_geometry_bytes` are measurements
+of the accepted geometry-only artifact and its browser serialization, not total
+enriched cache size. A study-prepared retained object can serialize a few bytes
+differently without representing a geometry change. Water Districts illustrate
+that distinction: the retained display still has 3,483 records and 387,387
+vertices; the accepted repackaged geometry-only measurements are 4,953,617 RDS
+bytes and 13,882,769 browser bytes, while the current-runtime comparison was
+4,953,391 and 13,882,602. The 226/167-byte differences are serialization
+effects, not a new Water District treatment.
 
-Generalization is only vertex reduction performed while producing or rendering
-a BRIM display product. It is not a claim about positional accuracy, legal
-status, survey quality, or source authority. A `keep=0.50` setting means the
-simplifier was asked to retain 50% of vertices, not that the result has 50%
-positional accuracy. Actual observed vertex ratios can differ because shape
-safeguards, multipart geometry, and endpoint retention apply.
+## Reviewed external bundle
 
-The inventory keeps these operations distinct:
+Large reviewed RDS artifacts remain outside Git under:
 
-- **source geometry** — the acquired or accepted input geometry;
-- **repair** — validity cleanup such as `st_make_valid()`;
-- **aggregation** — dissolve, union, classification, or masking;
-- **generalization** — genuine vertex reduction for display;
-- **reprojection** — coordinate reference system transformation; and
-- **clipping** — spatial cropping or intersection.
+`04_processed_data/rds/reviewed_polygon_geometry/portfolio_v3/`
 
-Repair, aggregation, reprojection, and clipping do not become generalization
-merely because they can change an `sf` object. The curated Water conveyance
-controller explicitly uses Leaflet `smoothFactor=1.5`; that is transient,
-per-zoom screen-path rendering and does not reduce the cached or embedded
-coordinate geometry. It is therefore recorded but not counted as BRIM cached
-display-geometry generalization. Ordinary Leaflet renderer defaults are treated
-the same way.
+`EXTERNAL_DATA_MANIFEST.csv` registers the bundle, all 24 geometry-only
+candidates, and the four reconstructed high-fidelity parents that are not
+otherwise available at stable source-repository-relative paths. Bundle files
+are copied only at the later reviewed-bundle gate; source implementation must
+not regenerate them. In particular, BRIM does not productionize or invoke the
+sandbox GEOS bridge.
 
-## Generalized layers
+Every required artifact is fail-closed. The implementation checks its path,
+SHA-256, schema (`study_id` plus geometry only), ordered study IDs, CRS,
+geometry type, validity, empties, row count, and vertex count before an output
+can be saved. Every high-fidelity parent is independently hash-pinned. Missing
+or changed bundle/parent inputs stop the build or refresh.
 
-Counts below were either already recorded by accepted feature QA/metadata or
-obtained by one read-only count of current source/display artifacts in the
-isolated build workspace. “Input” means the immediately comparable source or
-repaired geometry entering the active simplification step. Blank counts were
-not rebuilt merely to complete the table.
+## Identity and attribute preservation
 
-| Public layer(s) | Geometry | Method and active parameter | CRS | Input → display vertices | Public disclosure |
-|---|---|---|---|---:|---|
-| BLM Field Office Boundaries | polygon | `ms_simplify`, `keep=0.20` | EPSG:4326 | 345,154 → 80,899 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Bulletin 118 Groundwater Basins | polygon | `ms_simplify`, `keep=0.05` | EPSG:4326 | 707,212 → 36,993 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| CNRFC Product Availability | polygon | inherits CNRFC basin `ms_simplify`, `keep=0.12`; no second reduction | EPSG:4326 | not comparable → 35,059 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| CNRFC FNF Sha/Tri/west Sierra Basins | polygon | `ms_simplify`, `keep=0.80` | EPSG:4326 | 18,510 → 15,470 | None: no existing natural legend/card, so no new card was created. |
-| HUC2, HUC4, HUC6, HUC8, HUC10, HUC12 | polygon | `ms_simplify`, `keep=0.03` | EPSG:4326 | 641,429 → 19,878; 902,148 → 27,790; 883,018 → 27,584; 1,418,071 → 46,085; 3,611,843 → 123,190; 6,797,854 → 259,996 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Wild & Scenic Rivers: BLM-CA lines; USFS/interagency segments | polyline | `ms_simplify`, `keep=0.06` | EPSG:4326 | 135,402 → 8,812; 143,458 → 9,138 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| WSR corridors: BLM-CA; USFS/LSRS areas; USFS/LSRS legal status | polygon | `ms_simplify`, `keep=0.06` | EPSG:4326 | 197,351 → 16,093; 137,169 → 8,764; 138,236 → 8,763 | Same shared WSR footer as the line layers. |
-| National Monuments | polygon | `st_simplify`, 1 m tolerance | EPSG:3310 | 256,149 repaired → 175,540 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| California Desert National Conservation Lands | polygon | `st_simplify`, 2 m tolerance | EPSG:3310 | 84,155 repaired → 32,168 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Federal Wilderness | polygon | `ms_simplify`, `keep=0.50` | EPSG:3310 | not recorded → 390,055 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Areas of Critical Environmental Concern | polygon | `st_simplify`, 1 m tolerance | EPSG:3310 | 217,760 → 61,066 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Counties | polygon | `ms_simplify`, `keep=0.05` | EPSG:4326 | 1,010,950 → 72,534 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| Water Districts | polygon | `ms_simplify`, `keep=0.12` | EPSG:4326 | 2,255,585 → 389,000 | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
-| NPS National Parks context; NPS National Preserve context | polygon boundary and tract-based fill | `st_simplify`, 2 m boundary and 5 m land/interest tolerances | EPSG:3310 | combined 10-unit display: 46,433; source counts are not directly comparable after classification/masking/dissolve | Generalized display geometry. Check authoritative source for boundary-sensitive use. |
+`03_functions/polygon_generalization_helpers.r` owns
+`pt_apply_reviewed_polygon_geometry()`. The helper maps the prepared runtime
+object to the reviewed candidate through the tracked row crosswalk, then
+replaces only its `sf` geometry column. It proves that retained attributes and
+row order remain byte-for-byte equivalent as R values.
 
-All `ms_simplify` paths above use `keep_shapes=TRUE` and `explode=FALSE`.
-The shared helper performs validity cleanup before and after simplification.
-The fixed-tolerance paths use `preserveTopology=TRUE`. National Monuments,
-California Desert NCL, ACECs, and Federal Wilderness arrive in the shared
-Reference cache with their focused display generalization already complete;
-the shared cache does not reduce them a second time.
+Stable business identifiers are used where they are unique. Ambiguous families
+use this fingerprint:
 
-The NPS context has two genuine display reductions after tract-interest
-classification, masking, dissolve, and validity repair: 2 m for legislative
-boundaries and 5 m for land/interest fills. The technical settings remain in
-this inventory; both the context note and main National Monument footer use the
-common public disclosure sentence.
+`SHA256(layer_id + pinned parent SHA-256 + normalized retained business tuple + canonical source-geometry WKB)`
 
-## Investigated and not generalized
+The fingerprint is geometry identity, not semantic identity. The crosswalk
+retains both. It also contains a pinned baseline-display fingerprint only for
+the three legitimate writers that may supply an already prepared current
+display object (GSP Areas, BLM WSR corridors, and Grazing Allotments). Bare row
+position is never an identity contract, and fuzzy joins are not permitted.
 
-| Public layer | Geometry | Active finding |
-|---|---|---|
-| BLM-CA Managed | polygon | `keep=1.00`; shared helper performs cleanup but bypasses simplification. |
-| BLM Held/Managed Differences | polygon | `keep=1.00`; shared helper performs cleanup but bypasses simplification. |
-| Groundwater Sustainability Plan Areas | polygon | Reference manifest `simplify_keep=1`; bypassed. |
-| Adjudicated Groundwater Basins | polygon | Reference manifest `simplify_keep=1`; bypassed. |
-| Water conveyance \| BRIM mapped | polyline | Cached/embedded coordinates are not reduced; explicit Leaflet smoothing is renderer-only. |
-| CalSim3.0 arcs | polyline | `keep=1.00`; shared helper performs cleanup but bypasses simplification. |
-| National Scenic/Historic Trails | polyline | Reference manifest and accepted cache both use `simplify_keep=1`; bypassed. |
-| Wilderness Study Areas | polygon | Reference manifest and accepted cache both use `simplify_keep=1`; bypassed. |
-| DRECP Planning Area Boundary | polygon | Reference manifest `simplify_keep=1`; bypassed. |
-| Grazing Allotments | polygon | Reference manifest `simplify_keep=1`; bypassed. |
-| RWQCB Regions | polygon | `keep=1.00`; shared helper performs cleanup but bypasses simplification. |
+This geometry-only overlay preserves popup, hover, fill, classification,
+filter, selection, result-count, and label-key attributes already owned by
+BRIM. CNRFC Product Availability therefore retains `cnrfc_id` and all six fill
+fields. Its `labels_all_map.rds::cnrfc_basins` child is rebuilt from the exact
+reviewed Product display geometry while retaining `Basin = cnrfc_id`, the
+existing parent/label groups, and minimum zoom 7.
 
-No disclosure was added to these layers. Disabled Project Areas, standalone
-CNRFC Basins, Major Conveyance, and Deltamapr Conveyance were inspected only
-far enough to confirm that they are not current Local overlays; they are not
-inventory rows. The Ops Live Major Water Supply Basin product and all External
-layers are outside this task.
+NPS Park/Preserve context is applied independently to the reviewed 0 m
+post-mask parent. The helper does not simplify an already simplified display
+object as a new parent. It retains the 9-park/1-preserve semantic and tract
+classification contract and records the final 25 m reviewed artifact hashes in
+the cache metadata.
 
-## Active code ownership
+## Cache-writer ownership and reversion prevention
 
-The active generic fractional-retention helper is
-`03_functions/spatial_helpers.r::simplify_sf_for_web()`. Its current callers and
-settings are owned by `05_map_build/02_build_core_map_cache.r`, the sourced
-`02_cache_blocks/01_prepare_core_polygons.r`,
-`02_cache_blocks/04_cache_admin_water_reference_layers.r`, and
-`02_cache_blocks/05_cache_final_point_tweaks.r`. The Reference per-layer
-fractional settings originate in `00_config/reference_layers_manifest.csv`.
+The normal core map-cache builder applies the reviewed overlay immediately
+before saving these controlled outputs:
 
-Focused fixed-tolerance or accepted-candidate ownership is:
+- `gw_bull118_map.rds`;
+- `cnrfc_basin_product_availability_map.rds`;
+- `cnrfc_fnf_delta_map.rds`;
+- `huc_all_map.rds` (HUC2–HUC12);
+- `reference_layers_all_map.rds` (the 12 controlled children);
+- `rwqcb_regions_map.rds`; and
+- `nps_park_preserve_context_map.rds` through its focused owner.
 
-- National Monuments and NPS context:
-  `02_preprocess/70_national_monuments_pipeline/`;
-- California Desert NCL: `02_preprocess/71_desert_ncl_pipeline/`;
-- ACECs: `02_preprocess/69_acec_pipeline/`; and
-- Federal Wilderness: `02_preprocess/68_federal_wilderness_pipeline/`.
+The WSA, Federal Wilderness, ACEC, National Monuments, NPS context, and Desert
+NCL focused refresh scripts call the same reviewed overlay after their existing
+acquisition/enrichment behavior and before saving. They therefore cannot
+silently restore an older/default geometry.
 
-The public Local Reference disclosure field is registry-owned in
-`00_config/config_local_reference_interactions.r` and passed through the shared
-controller payload. Family cards for field offices, CNRFC product availability,
-HUCs, Bulletin 118, and WSR use their existing owning controllers. No new card
-or accordion was introduced.
+`05_map_build/13_refresh_polygon_generalization_portfolio_caches.r` is the
+narrow release refresh. It reads only existing map-ready caches, applies the
+reviewed bundle, rebuilds only the CNRFC Product label child, proves protected
+shared-cache and label siblings are unchanged, stages and verifies every
+result, preserves a rollback bundle, and atomically replaces the eight affected
+latest cache files. It has no remote-service behavior.
 
-## Audit state
+## Public disclosure ownership
 
-Audit baseline: branch `feature/local-geometry-generalization-disclosure`,
-starting commit `c42320cd7675467efb8aea5797f5b2af92b3cde4`, inspected
-2026-08-11. The inventory records current active code and the already available
-isolated-build artifacts; it does not promote historical QA output or rebuild
-source products. There are no unresolved active generalization paths at this
-baseline.
+Public disclosure text is registry-owned and layer-specific. Every disclosed
+note ends exactly:
+
+> Check authoritative source for boundary-sensitive use.
+
+The Local Reference controller receives its notes through the existing central
+registry payload. Bulletin 118, HUC, CNRFC Product, BLM field-office, WSR, and
+NPS context notes are injected into their existing cards. FNF, GSP Areas, and
+Adjudicated Groundwater Basins use one small shared lifecycle-aware disclosure
+control because they have no existing natural card owner. No blanket geometry
+footer is used. BLM-CA Managed and held/managed differences receive no note, as
+required by the accepted disclosure portfolio.
+
+## Acceptance boundary
+
+Source-only tests validate the registry/crosswalk, reviewed hashes and counts,
+fail-closed helper behavior, attribute/row-order retention, cache-writer guards,
+custom disclosures, CNRFC label lineage, and protected sibling logic. The
+external bundle and caches are intentionally absent from the lean source repo,
+so artifact-level geometry and browser acceptance occur only after a reviewed
+bundle is copied into `codex_ship` at a later gate.
+
+Realistic acceptance must exercise default and every relevant fill/display
+mode, filters and selected polygons, popup/hover, labels, repeated on/off,
+Clear Local, Clear All, duplicate card/listener absence, unrelated Local
+regression, and External/Ops Live smoke where shared lifecycle code is touched.
+The actual final HTML size must be compared. Sandbox combined HTML is weight
+evidence, not browser acceptance.

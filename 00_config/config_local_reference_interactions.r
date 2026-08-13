@@ -1052,21 +1052,11 @@ LOCAL_REFERENCE_INTERACTION_REGISTRY$dashboard_summary <- c(
   rep("", 8)
 )
 
-## Public display-geometry disclosure for layers whose current BRIM cache is
-## simplified. Empty values are intentional: they prevent a false disclosure
-## on layers that retain their current source/repaired display geometry.
-LOCAL_REFERENCE_INTERACTION_REGISTRY$generalization_disclosure <- c(
-  "",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
-  "",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
-  "",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
-  "",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use.",
-  "",
-  "Generalized display geometry. Check authoritative source for boundary-sensitive use."
+## Populated from the central polygon portfolio registry by the final-map
+## helper loader. Keeping this base registry blank prevents duplicate ownership
+## or stale generic wording in feature-specific configuration.
+LOCAL_REFERENCE_INTERACTION_REGISTRY$generalization_disclosure <- rep(
+  "", nrow(LOCAL_REFERENCE_INTERACTION_REGISTRY)
 )
 
 ## Compact closeout-card presentation. Plain legend rows remain visible even

@@ -6,6 +6,10 @@
 ## implementations. The Reference closeout extends the same controller to the
 ## five remaining rows without changing their authoritative source geometry.
 
+if (!exists("pt_polygon_generalization_public_note", mode = "function")) {
+  source("03_functions/polygon_generalization_helpers.r")
+}
+
 pt_local_reference_clean_chr <- function(x, fallback = "") {
   value <- trimws(as.character(x))
   value[
@@ -5086,13 +5090,38 @@ pt_validate_local_reference_nps_context <- function(x) {
     }
   }
   metadata <- attr(x, "pt_nps_context_candidate_metadata")
-  if (is.null(metadata) || as.integer(metadata$raw_tract_count) != 6207L ||
-      as.integer(metadata$total_display_feature_count) != 20L ||
-      !identical(as.numeric(metadata$selected_boundary_simplify_tolerance_m), 2) ||
-      !identical(as.numeric(metadata$selected_land_interest_simplify_tolerance_m), 5) ||
-      !isTRUE(metadata$exact_part_retention) ||
-      !isTRUE(metadata$exact_hole_retention) ||
-      isTRUE(metadata$production_release_authorized)) {
+  base_contract_ok <- !is.null(metadata) &&
+    as.integer(metadata$raw_tract_count) == 6207L &&
+    as.integer(metadata$total_display_feature_count) == 20L &&
+    !isTRUE(metadata$production_release_authorized)
+  portfolio_applied <- base_contract_ok &&
+    identical(
+      as.character(metadata$polygon_generalization_portfolio_version),
+      "3.1"
+    )
+  legacy_contract_ok <- base_contract_ok && !portfolio_applied &&
+    identical(as.numeric(metadata$selected_boundary_simplify_tolerance_m), 2) &&
+    identical(as.numeric(metadata$selected_land_interest_simplify_tolerance_m), 5) &&
+    isTRUE(metadata$exact_part_retention) &&
+    isTRUE(metadata$exact_hole_retention)
+  portfolio_contract_ok <- portfolio_applied &&
+    identical(
+      as.numeric(metadata$polygon_generalization_selected_tolerance_m),
+      25
+    ) &&
+    identical(
+      tolower(as.character(
+        metadata$polygon_generalization_park_artifact_sha256
+      )),
+      "cbcb9c2c537e6f0cd9b9b9b6574071f2eebc7d99fe015d266ec953c1df481646"
+    ) &&
+    identical(
+      tolower(as.character(
+        metadata$polygon_generalization_preserve_artifact_sha256
+      )),
+      "68c2d6e56791689dc12791187c7d2b6710a592b255de573951f40406b76197ea"
+    )
+  if (!legacy_contract_ok && !portfolio_contract_ok) {
     stop("NPS Park/Preserve context metadata differs from the reviewed candidate contract.")
   }
   invisible(TRUE)
@@ -5118,7 +5147,14 @@ pt_local_reference_nps_context_payload <- function(x) {
       label = if (key == "national_park") "National Parks" else "National Preserves",
       group_name = pt_local_reference_nps_context_group_name(key),
       unit_count = sum(units$unit_type_key == key),
-      expected_layer_count = 2L * sum(units$unit_type_key == key)
+      expected_layer_count = 2L * sum(units$unit_type_key == key),
+      generalization_disclosure = pt_polygon_generalization_public_note(
+        if (key == "national_park") {
+          "nps_national_parks_context"
+        } else {
+          "nps_national_preserve_context"
+        }
+      )
     )
   })
   stats::setNames(groups, c("national_park", "national_preserve"))

@@ -21,6 +21,11 @@
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
 source("00_config/config_local_reference_interactions.r")
+source("03_functions/polygon_generalization_helpers.r")
+LOCAL_REFERENCE_INTERACTION_REGISTRY <-
+  pt_apply_polygon_generalization_disclosures(
+    LOCAL_REFERENCE_INTERACTION_REGISTRY
+  )
 source("03_functions/local_reference_interaction_helpers.r")
 pt_validate_local_reference_config()
 

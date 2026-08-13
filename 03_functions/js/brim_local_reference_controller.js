@@ -2614,12 +2614,13 @@ function(el, x, data) {
             return '<label class="pt-nm-context-toggle"><input type="checkbox" ' +
               'data-pt-nm-context="' + escapeHtml(key) + '"> ' +
               escapeHtml(row.label || key) + ' (' +
-              escapeHtml(String(row.unit_count || 0)) + ')</label>';
+              escapeHtml(String(row.unit_count || 0)) + ')</label>' +
+              '<div class="pt-nm-context-note">' +
+                escapeHtml(cleanText(row.generalization_disclosure)) + '</div>';
           }).join('') +
           '<div class="pt-nm-context-note">Optional official NPS legislative boundaries ' +
           'with tract-based federal land/interest fill. Context only; it does not change ' +
-          'National Monument agency filters, counts, or labels. Generalized display geometry. ' +
-          'Check authoritative source for boundary-sensitive use.</div></div></details>' : '';
+          'National Monument agency filters, counts, or labels.</div></div></details>' : '';
         var mapDetailsHtml = layerData.show_component_count ?
           (federalData ?
             '<details class="pt-lr-map-details"><summary>Map / layer note</summary>' +

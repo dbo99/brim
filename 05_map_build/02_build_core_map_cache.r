@@ -34,6 +34,7 @@ source("03_functions/spatial_helpers.r")
 source("03_functions/bulletin118_data_helpers.r")
 source("03_functions/popup_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 # ==== 2. Load packages =======================================================
 
@@ -423,6 +424,85 @@ source("05_map_build/02_cache_blocks/04_cache_admin_water_reference_layers.r")
 ## to keep 02_build_core_map_cache.r shorter and easier to maintain.
 source("05_map_build/02_cache_blocks/05_cache_final_point_tweaks.r")
 
+# ==== 8A. Apply reviewed polygon display geometry ===========================
+##
+## This is an overlay-only gate. The accepted artifacts were produced and
+## reviewed outside BRIM; this normal cache builder must never regenerate them
+## or silently restore its historical simplification defaults.
+
+polygon_portfolio_registry <- pt_polygon_generalization_read_registry()
+polygon_portfolio_crosswalk <- pt_polygon_generalization_read_crosswalk()
+
+apply_portfolio_geometry <- function(layer_id, x) {
+  pt_apply_reviewed_polygon_geometry(
+    layer_id = layer_id,
+    prepared_layer = x,
+    require_reviewed = TRUE,
+    registry = polygon_portfolio_registry,
+    crosswalk = polygon_portfolio_crosswalk
+  )
+}
+
+huc_map <- purrr::imap(huc_map, function(x, layer_id) {
+  if (layer_id %in% paste0("huc", c(2, 4, 6, 8, 10, 12))) {
+    apply_portfolio_geometry(layer_id, x)
+  } else {
+    x
+  }
+})
+gw_map <- apply_portfolio_geometry("bulletin118", gw_map)
+cnrfc_fnf_delta_map <- apply_portfolio_geometry(
+  "cnrfc_fnf_delta", cnrfc_fnf_delta_map
+)
+rwqcb_regions_map <- apply_portfolio_geometry(
+  "rwqcb_regions", rwqcb_regions_map
+)
+
+portfolio_reference_children <- c(
+  gsp_areas = "gsps",
+  adjudicated_gw_basins = "gwbasins_adjd",
+  wsr_corridor_blm = "wsr_corridor_blm",
+  wsr_corridor_lsrs_area = "wsr_corridor_lsrs_area",
+  wsr_corridor_lsrs_status = "wsr_corridor_lsrs_status",
+  national_monuments = "monuments",
+  ca_desert_ncl = "cadesert_ncl",
+  wilderness_study_areas = "wildernessstudyarea",
+  federal_wilderness = "fedwilderness",
+  drecp = "drecp",
+  acec = "acec",
+  grazing_allotments = "allotments"
+)
+for (layer_id in names(portfolio_reference_children)) {
+  child <- portfolio_reference_children[[layer_id]]
+  if (!child %in% names(reference_layers_map)) {
+    stop("Shared reference cache is missing portfolio child `", child, "`.")
+  }
+  reference_layers_map[[child]] <- apply_portfolio_geometry(
+    layer_id,
+    reference_layers_map[[child]]
+  )
+}
+
+cnrfc_product_paths <- c(
+  file.path(DIR$cache_last, "cnrfc_basin_product_availability_map.rds"),
+  file.path(DIR$rds, "cnrfc_basin_product_availability_map.rds")
+)
+cnrfc_product_path <- cnrfc_product_paths[file.exists(cnrfc_product_paths)][1]
+if (is.na(cnrfc_product_path)) {
+  stop(
+    "CNRFC Product Availability is portfolio-controlled but no current ",
+    "map-ready product object is available for attribute-preserving overlay."
+  )
+}
+cnrfc_basin_product_availability_map <- read_rds_checked(
+  cnrfc_product_path,
+  "CNRFC Product Availability map-ready attributes"
+)
+cnrfc_basin_product_availability_map <- apply_portfolio_geometry(
+  "cnrfc_product_availability",
+  cnrfc_basin_product_availability_map
+)
+
 # ==== 9. Save map-ready cache outputs ========================================
 
 message("Saving map-ready cache outputs...")
@@ -452,6 +532,10 @@ save_map_cache(calsim3_nodes_map, "calsim3_nodes_map")
 save_map_cache(reference_layers_map, "reference_layers_all_map")
 save_map_cache(major_conveyance_map, "major_conveyance_map")
 save_map_cache(cnrfc_fnf_delta_map, "cnrfc_fnf_delta_map")
+save_map_cache(
+  cnrfc_basin_product_availability_map,
+  "cnrfc_basin_product_availability_map"
+)
 save_map_cache(x2_km_map, "x2_km_map")
 save_map_cache(deltamapr_canals_map, "deltamapr_canals_map")
 save_map_cache(water_districts_map, "water_districts_map")

@@ -36,6 +36,7 @@ function(el, x, hucThemeData) {
   var legendBody = null;
   var activeContext = null;
   var statusNode = null;
+  var generalizationNode = null;
   var hucThemeStatusMessage = '';
   var currentHucTooltip = null;
   var currentHucTooltipLayer = null;
@@ -368,6 +369,7 @@ function(el, x, hucThemeData) {
         name: levelName,
         label: row.huc_label ? String(row.huc_label) : levelName.toUpperCase(),
         groupName: groupName,
+        generalizationDisclosure: String(row.generalization_disclosure || ''),
         expectedCount: Number(row.expected_count) || 0,
         layers: layers,
         members: members,
@@ -864,6 +866,10 @@ function(el, x, hucThemeData) {
     }
     updateVisibleCount();
     renderHucThemeStatus();
+    if (generalizationNode) {
+      generalizationNode.textContent = focused ?
+        focused.generalizationDisclosure : '';
+    }
     diagnostics.legendUpdateCount += 1;
     if (levels.length) showCard();
     else hideCard();
@@ -908,7 +914,7 @@ function(el, x, hucThemeData) {
         '<div class="pt-huc-theme-context"></div>' +
         '<div class="pt-huc-theme-legend-body"></div>' +
         '<div class="pt-huc-theme-status" aria-live="polite"></div>' +
-        '<div class="pt-huc-theme-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
+        '<div class="pt-huc-theme-generalization-note"></div>';
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
       return div;
@@ -924,6 +930,9 @@ function(el, x, hucThemeData) {
     legendBody = card.querySelector('.pt-huc-theme-legend-body');
     activeContext = card.querySelector('.pt-huc-theme-context');
     statusNode = card.querySelector('.pt-huc-theme-status');
+    generalizationNode = card.querySelector(
+      '.pt-huc-theme-generalization-note'
+    );
     if (select) {
       select.value = currentFocusedTheme();
       listenDom(select, 'change', function(event) {
