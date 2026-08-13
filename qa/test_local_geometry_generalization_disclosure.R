@@ -16,6 +16,18 @@ inventory$public_disclosure[is.na(inventory$public_disclosure)] <- ""
 
 warning_text <- "Check authoritative source for boundary-sensitive use."
 disclosed <- registry$disclosure_required == "yes"
+meter_rows <- disclosed &
+  registry$parameter_type == "distance_tolerance_m" &
+  !registry$layer_id %in% c("huc8", "huc10", "huc12", "rwqcb_regions")
+meter_phrases <- paste0(
+  sprintf("%g", as.numeric(registry$parameter_value[meter_rows])),
+  " m tolerance"
+)
+vertex_rows <- disclosed & registry$parameter_type == "vertex_keep_fraction"
+vertex_phrases <- paste0(
+  sprintf("%g", 100 * as.numeric(registry$parameter_value[vertex_rows])),
+  "% vertex-retention setting"
+)
 stopifnot(
   nrow(registry) == 29L,
   nrow(inventory) == 29L,
@@ -26,11 +38,42 @@ stopifnot(
   identical(
     pt_polygon_generalization_public_note("rwqcb_regions"),
     paste(
-      "Regional Board boundaries are generalized for broad statewide",
-      "regulatory screening while keeping neighboring regions aligned.",
+      "Shared Regional Board boundaries generalized together at 100 m.",
       warning_text
     )
-  )
+  ),
+  all(mapply(grepl, meter_phrases, registry$public_disclosure[meter_rows],
+    MoreArgs = list(fixed = TRUE)
+  )),
+  all(mapply(grepl, vertex_phrases, registry$public_disclosure[vertex_rows],
+    MoreArgs = list(fixed = TRUE)
+  )),
+  identical(
+    pt_polygon_generalization_public_note("acec"),
+    paste("Display boundaries generalized with a 20 m tolerance.", warning_text)
+  ),
+  identical(
+    pt_polygon_generalization_public_note("federal_wilderness"),
+    paste("Display boundaries generalized with a 10 m tolerance.", warning_text)
+  ),
+  identical(
+    pt_polygon_generalization_public_note("drecp"),
+    paste("Display boundary generalized with a 100 m tolerance.", warning_text)
+  ),
+  all(vapply(c("huc8", "huc10", "huc12"), function(layer_id) {
+    identical(
+      pt_polygon_generalization_public_note(layer_id),
+      paste0(
+        "Shared ", toupper(layer_id), " boundaries generalized together at 200 m. ",
+        warning_text
+      )
+    )
+  }, logical(1))),
+  all(!grepl(
+    "retain detailed screening|optimized for responsive|retain useful local screening detail|reducing display complexity",
+    registry$public_disclosure[disclosed],
+    ignore.case = TRUE
+  ))
 )
 
 ui_text <- paste(
