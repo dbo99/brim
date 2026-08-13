@@ -28,6 +28,8 @@ vertex_phrases <- paste0(
   sprintf("%g", 100 * as.numeric(registry$parameter_value[vertex_rows])),
   "% vertex-retention setting"
 )
+undisclosed_ids <- c("blm_ca_managed", "blm_held_managed_differences")
+undisclosed_rows <- match(undisclosed_ids, registry$layer_id)
 stopifnot(
   nrow(registry) == 29L,
   nrow(inventory) == 29L,
@@ -35,6 +37,9 @@ stopifnot(
   identical(inventory$public_disclosure, registry$public_disclosure),
   all(endsWith(registry$public_disclosure[disclosed], warning_text)),
   all(!nzchar(registry$public_disclosure[!disclosed])),
+  identical(registry$layer_id[undisclosed_rows], undisclosed_ids),
+  identical(registry$disclosure_required[undisclosed_rows], c("no", "no")),
+  identical(registry$public_disclosure[undisclosed_rows], c("", "")),
   identical(
     pt_polygon_generalization_public_note("rwqcb_regions"),
     paste(
