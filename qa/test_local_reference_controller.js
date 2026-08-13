@@ -3,6 +3,10 @@
 const assert = require('assert');
 const fs = require('fs');
 
+function countSubstring(value, substring) {
+  return String(value).split(String(substring)).length - 1;
+}
+
 class FakeClassList {
   constructor(initial) { this.values = new Set(String(initial || '').split(/\s+/).filter(Boolean)); }
   add(value) { this.values.add(value); }
@@ -283,6 +287,7 @@ const payload = [{
   component_count_label: 'mapped components',
   category_heading: 'BLM recommendation for wilderness designation',
   caution: 'Historical recommendation, not current WSA status. Management continues under the applicable FLPMA authority; verify current plans, closures, and field-office direction.',
+  generalization_disclosure: 'Wilderness Study Area display boundaries generalized with a 20 m tolerance. Check authoritative source for boundary-sensitive use.',
   categories: [
     {category_key: 'a', label: 'Recommended suitable', fill_color: '#112233', stroke_color: '#010203', fill_opacity: 0.2, stroke_weight: 1, dash_array: '', legend_swatch_style: 'polygon'},
     {category_key: 'b', label: 'Recommended non-suitable', fill_color: '#445566', stroke_color: '#040506', fill_opacity: 0.2, stroke_weight: 1, dash_array: '2,3', legend_swatch_style: 'dotted_polygon'},
@@ -324,6 +329,15 @@ const controllerSource = fs.readFileSync(
   'utf8'
 );
 const controller = eval('(' + controllerSource + '\n)');
+assert.ok(controllerSource.includes(
+  '.pt-lr-compact-note{margin-top:4px;padding-top:3px;' +
+  'border-top:1px solid rgba(82,72,45,.23);color:#5a5144;font-size:10px'
+));
+assert.ok(controllerSource.includes(
+  '.pt-lr-map-details>.pt-lr-compact-note{margin:0;padding:1px 4px 3px 29px;' +
+  'border-top:0;font-size:9.5px}'
+));
+assert.ok(!controllerSource.includes('.pt-lr-generalization-disclosure{'));
 const mapRoot = new FakeElement('map');
 controller.call(map, mapRoot, null, payload);
 
@@ -346,6 +360,9 @@ assert.ok(!card.innerHTML.includes('Select named named'));
 });
 assert.ok(!/<span>Suitable<\/span>|<span>Non-suitable<\/span>/.test(card.innerHTML));
 assert.ok(card.innerHTML.includes(payload[0].caution));
+assert.strictEqual(countSubstring(card.innerHTML, 'class="pt-lr-compact-note"'), 1);
+assert.strictEqual(countSubstring(card.innerHTML, payload[0].generalization_disclosure), 1);
+assert.ok(!card.innerHTML.includes('pt-lr-generalization-disclosure'));
 assert.ok(!card.innerHTML.includes('protections continue pending Congressional action'));
 assert.strictEqual(rootMembers.size, 4);
 let stats = window.BRIM.localReferenceController.stats()[0];
@@ -775,6 +792,7 @@ const federalPayload = [{
   component_count_label: 'mapped components',
   category_heading: 'Managing agency',
   caution: 'Verify current access and agency direction.',
+  generalization_disclosure: 'Display boundaries generalized with a 10 m tolerance. Check authoritative source for boundary-sensitive use.',
   categories: [
     {category_key: 'usfs', label: 'U.S. Forest Service', fill_color: '#228B22', stroke_color: '#228B22', fill_opacity: 0.18, stroke_weight: 1.6, dash_array: '', legend_swatch_style: 'polygon'}
   ],
@@ -838,6 +856,12 @@ controller.call(map, federalMapRoot, null, federalPayload);
 const federalCard = controls.at(-1).card;
 assert.strictEqual(federalCard.getAttribute('data-pt-local-reference-layer'), 'federal_wilderness');
 assert.ok(federalCard.innerHTML.includes('<details class="pt-lr-map-details"><summary>Map / layer note</summary>'));
+assert.strictEqual(countSubstring(federalCard.innerHTML, 'class="pt-lr-compact-note"'), 1);
+assert.strictEqual(countSubstring(federalCard.innerHTML, federalPayload[0].caution), 1);
+assert.strictEqual(
+  countSubstring(federalCard.innerHTML, federalPayload[0].generalization_disclosure), 1
+);
+assert.ok(!federalCard.innerHTML.includes('pt-lr-generalization-disclosure'));
 assert.ok(!federalCard.innerHTML.includes('Filter by category or select named features'));
 assert.strictEqual(federalCard.querySelector('.pt-lr-summary').textContent, '1/1 wildernesses · 1/1 components');
 const federalTooltipCloseBefore = layers.g1.closeTooltipCalls;
@@ -909,6 +933,7 @@ const acecPayload = [{
   component_count_label: 'parts',
   category_heading: 'Designation',
   caution: 'Planning-designation boundary; verify current direction.',
+  generalization_disclosure: 'Display boundaries generalized with a 20 m tolerance. Check authoritative source for boundary-sensitive use.',
   categories: [{
     category_key: 'acec', label: 'Area of Critical Environmental Concern',
     fill_color: '#B86F52', stroke_color: '#7A3F2E', fill_opacity: 0.12,
@@ -1092,6 +1117,10 @@ assert.ok(
   acecCard.innerHTML.indexOf('<summary>Map / display</summary>') <
     acecCard.innerHTML.indexOf('<summary>Boundary / use note</summary>')
 );
+assert.strictEqual(countSubstring(acecCard.innerHTML, 'class="pt-lr-compact-note"'), 1);
+assert.strictEqual(countSubstring(acecCard.innerHTML, acecPayload[0].caution), 1);
+assert.strictEqual(countSubstring(acecCard.innerHTML, acecPayload[0].generalization_disclosure), 1);
+assert.ok(!acecCard.innerHTML.includes('pt-lr-generalization-disclosure'));
 assert.ok(!/<details class="pt-lr-map-details pt-acec-map-display"[^>]*\sopen/.test(acecCard.innerHTML));
 assert.ok(acecCard.innerHTML.includes(
   'title="Give simultaneously visible overlapping ACECs contrasting colors."'
@@ -1330,6 +1359,7 @@ const desertPayload = [{
   category_heading: '',
   dashboard_summary: '11 mapped units · 10 DRECP subareas + Desert Lily Preserve',
   caution: 'Broad mapped units do not establish ownership or public access.',
+  generalization_disclosure: 'California Desert conservation-land display boundaries generalized with a 20 m tolerance. Check authoritative source for boundary-sensitive use.',
   categories: [{
     category_key: 'ca_desert_ncl', label: 'California Desert NCL mapped unit',
     fill_color: '#B89C6A', stroke_color: '#6F5632', fill_opacity: 0.10,
@@ -1421,6 +1451,12 @@ assert.strictEqual((desertCard.innerHTML.match(/pt-lr-facet-two-column/g) || [])
 assert.strictEqual((desertCard.innerHTML.match(/pt-lr-facet-collapsible/g) || []).length, 0);
 assert.strictEqual((desertCard.innerHTML.match(/<details class="pt-lr-map-details/g) || []).length, 1);
 assert.ok(desertCard.innerHTML.includes('<summary>Boundary / use note</summary>'));
+assert.strictEqual(countSubstring(desertCard.innerHTML, 'class="pt-lr-compact-note"'), 1);
+assert.strictEqual(countSubstring(desertCard.innerHTML, desertPayload[0].caution), 1);
+assert.strictEqual(
+  countSubstring(desertCard.innerHTML, desertPayload[0].generalization_disclosure), 1
+);
+assert.ok(!desertCard.innerHTML.includes('pt-lr-generalization-disclosure'));
 assert.ok(
   desertCard.innerHTML.indexOf('class="pt-lr-search"') <
     desertCard.innerHTML.indexOf('class="pt-lr-auto"') &&
@@ -1526,5 +1562,112 @@ assert.strictEqual((controls.at(-1).card.listeners.change || []).length, 1);
 window.BRIM.localReferenceController.destroy();
 assert.strictEqual(rootMembers.size, 0);
 assert.strictEqual(labelRootMembers.size, 0);
+
+// Every disclosed Local Reference polygon card uses the same compact
+// composition path. Rich National Monument guidance remains in its existing
+// Boundary / use note, while simple cards render one small footer region.
+rootMembers.add(layers.g1);
+map.rootActive = true;
+const compactNoteFixtures = [
+  {
+    layer_id: 'national_monuments', display_name: 'National Monuments',
+    caution: 'National Monument boundaries are legal-designation reference geometry.',
+    disclosure: 'National Monument display boundaries generalized with a 20 m tolerance. Check authoritative source for boundary-sensitive use.',
+    details: true
+  }, {
+    layer_id: 'wilderness_study_areas', display_name: 'Wilderness Study Areas',
+    caution: 'Historical recommendation; verify current direction.',
+    disclosure: 'Wilderness Study Area display boundaries generalized with a 20 m tolerance. Check authoritative source for boundary-sensitive use.'
+  }, {
+    layer_id: 'drecp', display_name: 'DRECP Planning Area Boundary',
+    caution: 'Planning-area screening boundary.',
+    disclosure: 'Display boundary generalized with a 100 m tolerance. Check authoritative source for boundary-sensitive use.'
+  }, {
+    layer_id: 'grazing_allotments', display_name: 'Grazing Allotments',
+    caution: 'Allotment boundaries are reference geometry.',
+    disclosure: 'Grazing allotment display boundaries generalized with a 25 m tolerance. Check authoritative source for boundary-sensitive use.'
+  }, {
+    layer_id: 'counties', display_name: 'Counties',
+    caution: 'County values are screening summaries.',
+    disclosure: 'County display boundaries generalized using a 5% vertex-retention setting. Check authoritative source for boundary-sensitive use.'
+  }, {
+    layer_id: 'rwqcb_regions', display_name: 'RWQCB Regions',
+    caution: 'Regional boundaries retain the accepted reference presentation.',
+    disclosure: 'Shared Regional Board boundaries generalized together at 100 m. Check authoritative source for boundary-sensitive use.'
+  }, {
+    layer_id: 'water_districts', display_name: 'Water Districts',
+    caution: 'District boundaries are reference geometry and may overlap.',
+    disclosure: 'Water district display boundaries generalized using a 12% vertex-retention setting. Check authoritative source for boundary-sensitive use.'
+  }
+];
+map.layerManager = {_byGroup: {}, _groupContainers: {}};
+const compactPayload = compactNoteFixtures.map(function(fixture) {
+  const groupName = 'Reference – ' + fixture.display_name;
+  map.layerManager._byGroup[groupName] = {g1: layers.g1};
+  map.layerManager._groupContainers[groupName] = groupRoot;
+  return {
+    layer_id: fixture.layer_id,
+    display_name: fixture.display_name,
+    group_name: groupName,
+    auto_supported: false,
+    auto_default: false,
+    feature_selection_supported: false,
+    auto_zoom_supported: false,
+    primary_count_mode: 'semantic_feature',
+    primary_count_label: 'features',
+    show_component_count: false,
+    show_category_count: false,
+    category_filter_visible: false,
+    category_count_mode: 'semantic_feature',
+    component_count_label: 'components',
+    category_heading: '',
+    caution: fixture.caution,
+    generalization_disclosure: fixture.disclosure,
+    legend_rows_visible: true,
+    distinguish_units_supported: false,
+    facets: [],
+    quick_views: [],
+    categories: [{
+      category_key: 'context', label: 'Reference boundary',
+      fill_color: '#D9D9D9', stroke_color: '#737373', fill_opacity: 0.05,
+      stroke_weight: 1.2, dash_array: '', legend_swatch_style: 'polygon'
+    }],
+    features: [{
+      semantic_feature_key: 'f1', feature_key: 'f1', display_name: 'Fixture',
+      category_keys: ['context'], geometry_component_count: 1
+    }],
+    records: [{
+      geometry_key: 'g1', semantic_feature_key: 'f1', category_key: 'context',
+      geometry_component_count: 1, facet_values: {}
+    }]
+  };
+});
+const compactControlStart = controls.length;
+controller.call(map, new FakeElement('map'), null, compactPayload);
+const compactCards = controls.slice(compactControlStart).map(control => control.card);
+assert.strictEqual(compactCards.length, compactNoteFixtures.length);
+compactNoteFixtures.forEach(function(fixture) {
+  const fixtureCard = compactCards.find(function(candidate) {
+    return candidate.getAttribute('data-pt-local-reference-layer') === fixture.layer_id;
+  });
+  assert.ok(fixtureCard, 'missing compact-note fixture card: ' + fixture.layer_id);
+  assert.strictEqual(countSubstring(fixtureCard.innerHTML, 'class="pt-lr-compact-note"'), 1);
+  assert.strictEqual(countSubstring(fixtureCard.innerHTML, fixture.caution), 1);
+  assert.strictEqual(countSubstring(fixtureCard.innerHTML, fixture.disclosure), 1);
+  assert.strictEqual(
+    countSubstring(
+      fixtureCard.innerHTML,
+      'Check authoritative source for boundary-sensitive use.'
+    ),
+    1
+  );
+  assert.ok(!fixtureCard.innerHTML.includes('pt-lr-generalization-disclosure'));
+  assert.strictEqual(
+    fixtureCard.innerHTML.includes('<summary>Boundary / use note</summary>'),
+    fixture.details === true
+  );
+});
+window.BRIM.localReferenceController.destroy();
+assert.strictEqual(rootMembers.size, 0);
 
 console.log('Local Reference synthetic controller selection/zoom/lifecycle tests passed.');
