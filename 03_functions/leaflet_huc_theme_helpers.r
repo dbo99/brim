@@ -2,6 +2,10 @@
 ##
 ## PURPOSE:
 ##   Build and inject the payload for the unified HUC thematic card.
+
+if (!exists("pt_polygon_generalization_public_note", mode = "function")) {
+  source("03_functions/polygon_generalization_helpers.r")
+}
 ##
 ## DESIGN:
 ##   The final map builder should assemble the map, not carry hundreds of
@@ -242,7 +246,9 @@ pt_build_huc_theme_data <- function(huc_all) {
       huc_layer = as.character(nm),
       huc_label = toupper(as.character(nm)),
       group_name = pt_huc_group_name(nm),
-      expected_count = nrow(x)
+      expected_count = nrow(x),
+      generalization_disclosure =
+        pt_polygon_generalization_public_note(as.character(nm))
     )
   })
 

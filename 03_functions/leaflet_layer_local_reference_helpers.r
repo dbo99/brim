@@ -7,6 +7,10 @@
 ##   Extracted from leaflet_layer_helpers.r as a maintainability-only split.
 ##   Function names and behavior are intentionally unchanged.
 
+if (!exists("pt_polygon_generalization_public_note", mode = "function")) {
+  source("03_functions/polygon_generalization_helpers.r")
+}
+
 # ==== 4.x SCAN stations and snow pillows =====================================
 
 pt_add_snow_soil_station_layers <- function(m, scan_stations, snow_pillows, map_display) {
@@ -166,12 +170,17 @@ pt_add_blm_office_reference_legend <- function(m, field_office_outer = NULL) {
 
   rows_js <- jsonlite::toJSON(legend_rows, dataframe = "rows", auto_unbox = TRUE, null = "null")
   groups_js <- jsonlite::toJSON(c(office_group, fo_group), auto_unbox = TRUE)
+  disclosure_js <- jsonlite::toJSON(
+    pt_polygon_generalization_public_note("blm_field_office_boundaries"),
+    auto_unbox = TRUE
+  )
 
   js <- r"---(
 function(el, x) {
   var map = this;
   var targetGroups = __TARGET_GROUPS__;
   var rows = __DISTRICT_ROWS__;
+  var generalizationDisclosure = __GENERALIZATION_DISCLOSURE__;
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -246,7 +255,8 @@ function(el, x) {
     html += '<div class="pt-blm-office-subhead">Field-office boundaries</div>';
     (rows || []).forEach(function(row) { html += boundaryRow(row); });
     html += symbolRows();
-    html += '<div class="pt-blm-office-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
+    html += '<div class="pt-blm-office-generalization-note">' +
+      esc(generalizationDisclosure) + '</div>';
     return html;
   }
 
@@ -338,6 +348,12 @@ function(el, x) {
 
   js <- gsub("__TARGET_GROUPS__", groups_js, js, fixed = TRUE)
   js <- gsub("__DISTRICT_ROWS__", rows_js, js, fixed = TRUE)
+  js <- gsub(
+    "__GENERALIZATION_DISCLOSURE__",
+    as.character(disclosure_js),
+    js,
+    fixed = TRUE
+  )
   htmlwidgets::onRender(m, js)
 }
 
@@ -859,12 +875,17 @@ pt_add_cnrfc_basin_product_availability_control <- function(m, group_name, cnrfc
     auto_unbox = TRUE,
     na = "null"
   )
+  disclosure_js <- jsonlite::toJSON(
+    pt_polygon_generalization_public_note("cnrfc_product_availability"),
+    auto_unbox = TRUE
+  )
 
   js <- r"---(
 function(el, x) {
   var map = this;
   var targetGroup = '__TARGET_GROUP__';
   var records = __CNRFC_RECORDS__ || [];
+  var generalizationDisclosure = __GENERALIZATION_DISCLOSURE__;
   var recordsById = {};
   records.forEach(function(r) {
     if (r && r.cnrfc_id != null) recordsById[String(r.cnrfc_id)] = r;
@@ -1214,7 +1235,8 @@ function(el, x) {
           '<option value="temperature">Basin mean temp</option>' +
         '</select>' +
         '<div class="pt-cnrfc-basin-legend"></div>' +
-        '<div class="pt-cnrfc-basin-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
+        '<div class="pt-cnrfc-basin-generalization-note">' +
+          esc(generalizationDisclosure) + '</div>';
 
       var select = div.querySelector('.pt-cnrfc-basin-select');
       select.value = currentMode;
@@ -1330,6 +1352,12 @@ function(el, x) {
 
   js <- gsub("__TARGET_GROUP__", group_js, js, fixed = TRUE)
   js <- gsub("__CNRFC_RECORDS__", as.character(records_js), js, fixed = TRUE)
+  js <- gsub(
+    "__GENERALIZATION_DISCLOSURE__",
+    as.character(disclosure_js),
+    js,
+    fixed = TRUE
+  )
   htmlwidgets::onRender(m, js)
 }
 
@@ -2112,6 +2140,150 @@ pt_wsr_local_layer_keys <- c(
   "wsr_corridor_lsrs_status"
 )
 
+pt_add_polygon_generalization_disclosure_control <- function(
+    m,
+    group_name,
+    layer_id,
+    title = NULL) {
+  row <- pt_polygon_generalization_registry_row(layer_id)
+  note <- pt_polygon_generalization_public_note(layer_id)
+  if (is.null(title) || !nzchar(as.character(title))) {
+    title <- as.character(row$brim_layer_name)
+  }
+  controller_data <- list(
+    layer_id = as.character(layer_id),
+    group_name = as.character(group_name),
+    title = as.character(title),
+    note = note
+  )
+
+  js <- r"---(
+function(el, x, data) {
+  var map = this;
+  data = data || {};
+  var controllerKey = String(data.layer_id || 'polygon');
+  var targetGroup = String(data.group_name || '');
+  var destroyed = false;
+  var hiddenByUser = false;
+  var control = null;
+  var card = null;
+
+  map.__brimPolygonDisclosureControllers =
+    map.__brimPolygonDisclosureControllers || {};
+  var prior = map.__brimPolygonDisclosureControllers[controllerKey];
+  if (prior && typeof prior.destroy === 'function') prior.destroy();
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function targetVisible() {
+    var manager = map.layerManager || {};
+    var root = manager._groupContainers ?
+      manager._groupContainers[targetGroup] : null;
+    return !!(root && map.hasLayer && map.hasLayer(root));
+  }
+
+  function update() {
+    if (destroyed || !card) return;
+    card.style.display = targetVisible() && !hiddenByUser ? 'block' : 'none';
+    if (window.BRIM_SCHEDULE_CARD_LAYOUT) {
+      window.BRIM_SCHEDULE_CARD_LAYOUT();
+    }
+  }
+
+  function close(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    hiddenByUser = true;
+    update();
+  }
+
+  function onOverlayAdd(event) {
+    if (event && event.name === targetGroup) hiddenByUser = false;
+    window.setTimeout(update, 0);
+  }
+
+  function onOverlayRemove() {
+    window.setTimeout(function() {
+      if (!targetVisible()) hiddenByUser = false;
+      update();
+    }, 0);
+  }
+
+  function destroy() {
+    if (destroyed) return;
+    destroyed = true;
+    map.off('overlayadd', onOverlayAdd);
+    map.off('overlayremove', onOverlayRemove);
+    map.off('unload', destroy);
+    if (control) map.removeControl(control);
+    control = null;
+    card = null;
+    if (map.__brimPolygonDisclosureControllers &&
+        map.__brimPolygonDisclosureControllers[controllerKey] === api) {
+      delete map.__brimPolygonDisclosureControllers[controllerKey];
+    }
+  }
+
+  control = L.control({position: 'bottomleft'});
+  control.onAdd = function() {
+    var div = L.DomUtil.create(
+      'div',
+      'leaflet-control pt-polygon-generalization-card ' +
+        'pt-map-legend-card pt-map-legend-local'
+    );
+    div.style.display = 'none';
+    div.innerHTML =
+      '<div class="pt-polygon-generalization-head">' +
+        '<strong>' + esc(data.title) + '</strong>' +
+        '<button type="button" class="pt-polygon-generalization-close" ' +
+          'aria-label="Hide geometry note" title="Hide geometry note">&times;</button>' +
+      '</div>' +
+      '<div class="pt-polygon-generalization-note">' + esc(data.note) + '</div>';
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+    var closeButton = div.querySelector('.pt-polygon-generalization-close');
+    if (closeButton) closeButton.addEventListener('click', close, false);
+    card = div;
+    return div;
+  };
+  control.addTo(map);
+
+  if (!document.getElementById('pt-polygon-generalization-card-style')) {
+    var style = document.createElement('style');
+    style.id = 'pt-polygon-generalization-card-style';
+    style.textContent =
+      '.pt-polygon-generalization-card{background:rgba(246,239,222,.96);' +
+        'border:1px solid rgba(112,103,83,.55);border-radius:7px;' +
+        'box-shadow:0 1px 5px rgba(0,0,0,.25);padding:7px 8px;' +
+        'max-width:285px;font:11px/1.28 Arial,sans-serif;color:#333;}' +
+      '.pt-polygon-generalization-head{display:flex;justify-content:space-between;' +
+        'gap:8px;align-items:flex-start;margin-bottom:3px;}' +
+      '.pt-polygon-generalization-close{border:0;background:transparent;' +
+        'color:#776f61;font-size:17px;line-height:1;padding:0 1px;cursor:pointer;}' +
+      '.pt-polygon-generalization-note{color:#555;}';
+    document.head.appendChild(style);
+  }
+
+  var api = {destroy: destroy, update: update};
+  map.__brimPolygonDisclosureControllers[controllerKey] = api;
+  map.on('overlayadd', onOverlayAdd);
+  map.on('overlayremove', onOverlayRemove);
+  map.on('unload', destroy);
+  window.setTimeout(update, 0);
+  window.setTimeout(update, 300);
+  return api;
+}
+)---"
+
+  htmlwidgets::onRender(m, js, data = controller_data)
+}
+
 pt_add_wsr_reference_browser_layers <- function(m, wsr_layers) {
 
   if (!is.list(wsr_layers) || length(wsr_layers) == 0) {
@@ -2192,11 +2364,26 @@ pt_add_wsr_reference_browser_layers <- function(m, wsr_layers) {
       geojson = geojson_text(x)
     )
   }))
+  disclosures <- lapply(
+    c(
+      wsr_corridor_blm = "wsr_corridor_blm",
+      wsr_corridor_lsrs_area = "wsr_corridor_lsrs_area",
+      wsr_corridor_lsrs_status = "wsr_corridor_lsrs_status"
+    ),
+    function(layer_id) {
+      list(
+        key = layer_id,
+        label = wsr_source_label(layer_id),
+        note = pt_polygon_generalization_public_note(layer_id)
+      )
+    }
+  )
 
   js <- r"---(
 function(el, x, data) {
   var map = this;
   data = data || {};
+  var disclosures = rowsToArray(data.disclosures);
 
   function rowsToArray(rows) {
     if (!rows) return [];
@@ -2875,7 +3062,13 @@ function(el, x, data) {
       '</div>';
     html += '</div>';
 
-    html += '<div class="pt-wsr-note">Counts are source features, not unique rivers. Gray sections are inactive until a matching source layer is on. Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
+    html += '<div class="pt-wsr-note">Counts are source features, not unique rivers. Gray sections are inactive until a matching source layer is on.</div>';
+    disclosures.forEach(function(row) {
+      html += '<div class="pt-wsr-note pt-wsr-generalization-note" ' +
+        'data-wsr-disclosure-source="' + esc(row.key) + '" style="display:none">' +
+        '<strong>' + esc(row.label) + ':</strong> ' +
+        esc(row.note) + '</div>';
+    });
     html += '<div class="pt-wsr-source-links">USFS downloads: ' +
       '<a href="https://data.fs.usda.gov/geodata/edw/edw_resources/shp/BdyDesg_WildScenicRiverSegment_LN.zip" target="_blank">segments</a> · ' +
       '<a href="https://data.fs.usda.gov/geodata/edw/edw_resources/shp/BdyDesg_LSRS_WildScenicRiver.zip" target="_blank">areas</a> · ' +
@@ -3029,6 +3222,11 @@ function(el, x, data) {
     subblock('.pt-wsr-status-blm-block', sup.statusBlm);
     subblock('.pt-wsr-status-boundary-block', sup.statusBoundary);
 
+    div.querySelectorAll('[data-wsr-disclosure-source]').forEach(function(node) {
+      var key = node.getAttribute('data-wsr-disclosure-source') || '';
+      node.style.display = activeState[key] ? 'block' : 'none';
+    });
+
     setCheckMap(div, 'cls', CLASS_VALUES, filters.cls);
     setCheckMap(div, 'orv', ORV_VALUES, filters.orv);
     setCheckMap(div, 'statusBlm', BLM_STATUS_VALUES, filters.statusBlm);
@@ -3099,7 +3297,7 @@ function(el, x, data) {
   htmlwidgets::onRender(
     m,
     js,
-    data = list(sources = sources)
+    data = list(sources = sources, disclosures = unname(disclosures))
   )
 }
 
@@ -3674,6 +3872,22 @@ pt_add_reference_layers <- function(
           leaflet::hideGroup(special_label_group)
       }
     }
+
+    if (identical(nm, "gsps")) {
+      m <- pt_add_polygon_generalization_disclosure_control(
+        m,
+        group_name,
+        "gsp_areas",
+        "Groundwater Sustainability Plan Areas"
+      )
+    } else if (identical(nm, "gwbasins_adjd")) {
+      m <- pt_add_polygon_generalization_disclosure_control(
+        m,
+        group_name,
+        "adjudicated_gw_basins",
+        "Adjudicated Groundwater Basins"
+      )
+    }
   }
   
   m <- pt_add_wsr_reference_browser_layers(
@@ -3953,7 +4167,12 @@ pt_add_cnrfc_fnf_delta_layer <- function(m, cnrfc_fnf_delta, map_display) {
     }
   }
   
-  m
+  pt_add_polygon_generalization_disclosure_control(
+    m,
+    group_name,
+    "cnrfc_fnf_delta",
+    "CNRFC FNF Sha/Tri/west Sierra Basins"
+  )
 }
 
 # ==== 11. CVP/SWP X2 km point layer =========================================

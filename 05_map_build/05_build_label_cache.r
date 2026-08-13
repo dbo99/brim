@@ -190,9 +190,17 @@ project_areas <- read_rds_checked(
   "cached project areas"
 )
 
-cnrfc_basins <- read_rds_checked(
-  file.path(DIR$cache_last, "cnrfc_basins_map.rds"),
-  "cached CNRFC basins"
+cnrfc_product_availability <- read_rds_checked(
+  file.path(DIR$cache_last, "cnrfc_basin_product_availability_map.rds"),
+  "cached CNRFC Product Availability basins"
+)
+if (!"cnrfc_id" %in% names(cnrfc_product_availability)) {
+  stop("CNRFC Product Availability labels require stable cnrfc_id values.")
+}
+## Preserve the established label field/text contract while taking anchors
+## from the exact Product Availability display geometry.
+cnrfc_product_availability$Basin <- as.character(
+  cnrfc_product_availability$cnrfc_id
 )
 
 field_office_outer <- read_rds_checked(
@@ -308,7 +316,7 @@ if (isTRUE(LABEL_INCLUDE$cnrfc_basins)) {
   label_layers <- add_polygon_label_layer(
     label_layers = label_layers,
     layer_id = "cnrfc_basins",
-    x = cnrfc_basins
+    x = cnrfc_product_availability
   )
 }
 
@@ -459,7 +467,9 @@ if (WRITE_QA) {
     gw_bull118 = file.path(DIR$cache_last, "gw_bull118_map.rds"),
     county = file.path(DIR$cache_last, "county_map.rds"),
     project_areas = file.path(DIR$cache_last, "project_areas_map.rds"),
-    cnrfc_basins = file.path(DIR$cache_last, "cnrfc_basins_map.rds"),
+    cnrfc_basins = file.path(
+      DIR$cache_last, "cnrfc_basin_product_availability_map.rds"
+    ),
     field_office_outer = file.path(DIR$cache_last, "field_office_outer_map.rds"),
     acec = file.path(DIR$cache_last, "reference_layers_all_map.rds"),
     fedwilderness = file.path(DIR$cache_last, "reference_layers_all_map.rds"),

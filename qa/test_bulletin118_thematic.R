@@ -381,6 +381,8 @@ assert_true(
 
 county <- sf::st_sf(
   county_name = "Fixture",
+  pt_local_reference_geometry_key = "county:fixture",
+  pt_reference_hover_html = "Fixture county",
   popup_html = "Fixture county",
   geometry = sf::st_sfc(fixture_polygon, crs = 4326)
 )

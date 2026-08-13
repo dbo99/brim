@@ -10,6 +10,7 @@ source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages({
   library(sf)
@@ -87,6 +88,9 @@ if (!identical(as.integer(metadata$processed_geometry_parts), 613L) ||
 
 acec_map <- pt_prepare_local_reference_acec(
   source_layer, validate_snapshot = TRUE, build_display = TRUE
+)
+acec_map <- pt_apply_reviewed_polygon_geometry(
+  "acec", acec_map, require_reviewed = TRUE
 )
 reference_after <- reference_before
 reference_after[[ACEC_NICKNAME]] <- acec_map

@@ -4,6 +4,10 @@
 ##   Build the compact browser payload and inject the unified thematic card for
 ##   the Local Bulletin 118 groundwater-basin layer.
 
+if (!exists("pt_polygon_generalization_public_note", mode = "function")) {
+  source("03_functions/polygon_generalization_helpers.r")
+}
+
 pt_build_bulletin118_theme_data <- function(gw) {
   required <- c(
     "subbasin_num",
@@ -155,6 +159,8 @@ pt_build_bulletin118_theme_data <- function(gw) {
       sgma_2019 = list(fill_opacity = 0.48),
       blm_pct = list(fill_opacity = 0.58)
     ),
+    generalization_disclosure =
+      pt_polygon_generalization_public_note("bulletin118"),
     source_url = PT_BULLETIN118_SGMA_SOURCE_PAGE
   )
 }

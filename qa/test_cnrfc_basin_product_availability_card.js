@@ -64,7 +64,14 @@ const records = [
 ];
 const controllerSource = embeddedController(referenceSource)
   .replace("__TARGET_GROUP__", targetGroup)
-  .replace("__CNRFC_RECORDS__", JSON.stringify(records));
+  .replace("__CNRFC_RECORDS__", JSON.stringify(records))
+  .replace(
+    "__GENERALIZATION_DISCLOSURE__",
+    JSON.stringify(
+      "Forecast-basin boundaries are generalized for statewide screening. " +
+      "Check authoritative source for boundary-sensitive use."
+    )
+  );
 const installController = new Function(`return (${controllerSource}\n);`)();
 
 assert.match(controllerSource, /L\.control\(\{position: 'bottomleft'\}\)/);
@@ -590,13 +597,23 @@ assert.strictEqual(cards().length, 1);
 card = cards()[0];
 assert.strictEqual(card.style.display, "block", "fresh activation did not restore card");
 const select = card.querySelector(".pt-cnrfc-basin-select");
-select.value = "forecast_group";
-select.dispatchEvent({type: "change", target: select});
-assert.strictEqual(
-  layer.styleCalls[layer.styleCalls.length - 1].fillColor,
-  "#377eb8",
-  "mode selector no longer controls product-availability styling"
-);
+const expectedModeColors = {
+  product_availability: "#4daf4a",
+  forecast_group: "#377eb8",
+  water_supply: "#984ea3",
+  ensemble: "#ff7f00",
+  qpf_snow_level: "#ffff33",
+  temperature: "#a65628"
+};
+Object.entries(expectedModeColors).forEach(([mode, color]) => {
+  select.value = mode;
+  select.dispatchEvent({type: "change", target: select});
+  assert.strictEqual(
+    layer.styleCalls[layer.styleCalls.length - 1].fillColor,
+    color,
+    `${mode} no longer controls Product Availability styling`
+  );
+});
 assert.strictEqual(layer.totalListenerCount(), 4, "hover cleanup listeners duplicated");
 
 const replacedState = card.__brimDetachableState;

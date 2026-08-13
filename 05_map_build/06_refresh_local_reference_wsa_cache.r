@@ -16,6 +16,7 @@ source("00_config/config_local_reference_interactions.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages({
   library(sf)
@@ -97,6 +98,9 @@ wsa_map <- simplify_sf_for_web(
   wsa_map,
   keep = keep_value,
   layer_label = display_name
+)
+wsa_map <- pt_apply_reviewed_polygon_geometry(
+  "wilderness_study_areas", wsa_map, require_reviewed = TRUE
 )
 
 reference_layers_after <- reference_layers_before

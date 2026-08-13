@@ -10,6 +10,7 @@ source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages({
   library(sf)
@@ -91,6 +92,9 @@ desert_ncl_map <- pt_prepare_local_reference_desert_ncl(
   source_layer,
   validate_snapshot = TRUE,
   build_display = TRUE
+)
+desert_ncl_map <- pt_apply_reviewed_polygon_geometry(
+  "ca_desert_ncl", desert_ncl_map, require_reviewed = TRUE
 )
 reference_after <- reference_before
 reference_after[[DESERT_NCL_NICKNAME]] <- desert_ncl_map

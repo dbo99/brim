@@ -691,7 +691,8 @@ function brimBulletin118ThemeController(el, x, bulletinData) {
         '</div>' +
         '<div class="pt-bulletin118-theme-legend"></div>' +
         '<div class="pt-bulletin118-theme-status" aria-live="polite"></div>' +
-        '<div class="pt-bulletin118-generalization-note">Generalized display geometry. Check authoritative source for boundary-sensitive use.</div>';
+        '<div class="pt-bulletin118-generalization-note">' +
+          escapeHtml(bulletinData.generalization_disclosure || '') + '</div>';
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
       return div;

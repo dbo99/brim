@@ -10,6 +10,7 @@ source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages({
   library(sf)
@@ -106,6 +107,9 @@ monuments_map <- pt_prepare_local_reference_national_monuments(
   source_layer,
   validate_snapshot = TRUE,
   build_display = TRUE
+)
+monuments_map <- pt_apply_reviewed_polygon_geometry(
+  "national_monuments", monuments_map, require_reviewed = TRUE
 )
 reference_after <- reference_before
 reference_after[[MONUMENTS_NICKNAME]] <- monuments_map

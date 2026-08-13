@@ -9,6 +9,7 @@ source("00_config/config_paths.r")
 source("00_config/config_local_reference_interactions.r")
 source("03_functions/cache_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages(library(sf))
 
@@ -49,6 +50,10 @@ if (!identical(sort(as.character(metadata$target_codes)), c(
 )) || !identical(as.character(metadata$cross_border_units_retained_whole), "DEVA")) {
   stop("NPS context target universe or whole-unit cross-border contract differs.")
 }
+candidate <- pt_apply_reviewed_polygon_geometry_to_nps_context(
+  candidate,
+  require_reviewed = TRUE
+)
 
 run_ts <- make_timestamp()
 timestamped_path <- file.path(
@@ -88,14 +93,21 @@ qa <- data.frame(
   land_interest_feature_count = 1L,
   candidate_file_sha256 = actual_sha256,
   acquisition_snapshot_id = as.character(metadata$acquisition_snapshot_id),
-  boundary_simplify_tolerance_m = as.numeric(
+  acquisition_boundary_simplify_tolerance_m = as.numeric(
     metadata$selected_boundary_simplify_tolerance_m
   ),
-  land_interest_simplify_tolerance_m = as.numeric(
+  acquisition_land_interest_simplify_tolerance_m = as.numeric(
     metadata$selected_land_interest_simplify_tolerance_m
   ),
-  exact_part_retention = isTRUE(metadata$exact_part_retention),
-  exact_hole_retention = isTRUE(metadata$exact_hole_retention),
+  reviewed_portfolio_tolerance_m = as.numeric(
+    metadata$polygon_generalization_selected_tolerance_m
+  ),
+  reviewed_park_artifact_sha256 = as.character(
+    metadata$polygon_generalization_park_artifact_sha256
+  ),
+  reviewed_preserve_artifact_sha256 = as.character(
+    metadata$polygon_generalization_preserve_artifact_sha256
+  ),
   production_release_authorized = isTRUE(metadata$production_release_authorized),
   status = "PASS",
   stringsAsFactors = FALSE

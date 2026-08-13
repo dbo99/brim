@@ -11,6 +11,7 @@ source("03_functions/cache_helpers.r")
 source("03_functions/spatial_helpers.r")
 source("03_functions/label_helpers.r")
 source("03_functions/local_reference_interaction_helpers.r")
+source("03_functions/polygon_generalization_helpers.r")
 
 suppressPackageStartupMessages({
   library(sf)
@@ -102,6 +103,9 @@ federal_wilderness_map <- pt_prepare_local_reference_federal_wilderness(
   source_layer,
   validate_snapshot = TRUE,
   build_display = TRUE
+)
+federal_wilderness_map <- pt_apply_reviewed_polygon_geometry(
+  "federal_wilderness", federal_wilderness_map, require_reviewed = TRUE
 )
 reference_after <- reference_before
 reference_after[[FEDERAL_WILDERNESS_NICKNAME]] <- federal_wilderness_map
