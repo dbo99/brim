@@ -101,6 +101,12 @@ MAP_DISPLAY <- list(
   add_ops_nbm_wind_guidance = TRUE,
   ops_nbm_wind_guidance_manifest_url = brim_live_feed_url("data/wind/nbm_wind_guidance_feed_manifest.json"),
 
+  ## NOAA/NBM modeled snow-level contours are a separate Ops Live forecast
+  ## product. The browser fetches the two-cycle manifest and only the selected
+  ## content-addressed GeoJSON target after the user enables the layer.
+  add_ops_nbm_snow_levels = TRUE,
+  ops_nbm_snow_levels_manifest_url = brim_live_feed_url("data/winter-storm-levels/winter_storm_levels_manifest.json"),
+
   add_ops_asos_awos_wind = TRUE,
   ops_asos_awos_wind_url = brim_live_feed_url("data/wind/asos_awos_wind_latest.geojson"),
   ops_asos_awos_wind_summary_url = brim_live_feed_url("data/wind/asos_awos_wind_latest_summary.json"),

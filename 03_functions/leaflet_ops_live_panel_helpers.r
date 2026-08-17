@@ -75,6 +75,12 @@ pt_ops_live_panel_helpers_js <- function() {
       var bsg = ptOpsSubgroupOrder(b.def.category, b.def.subgroup || '');
       if (asg !== bsg) return asg - bsg;
 
+      // Optional, narrowly scoped row placement within an existing subgroup.
+      // Definitions without a value preserve their long-standing insertion order.
+      var ao = isFinite(Number(a.def.panelOrder)) ? Number(a.def.panelOrder) : 0;
+      var bo = isFinite(Number(b.def.panelOrder)) ? Number(b.def.panelOrder) : 0;
+      if (ao !== bo) return ao - bo;
+
       return a.idx - b.idx;
     });
 
@@ -411,6 +417,18 @@ pt_ops_live_panel_helpers_js <- function() {
 
 
     body.addEventListener('click', function(e) {
+      var snowCardLink = e.target && e.target.closest ? e.target.closest('[data-pt-ops-action="nbm-snow-card"]') : null;
+      if (snowCardLink && body.contains(snowCardLink)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!activeLayers['NBM Snow Levels']) {
+          recordStatus('NBM Snow Levels', 'Turn this Ops layer on before using lgnd.', 'pt-ops-warn');
+        } else if (window.ptNbmSnowLevelsShowCard && typeof window.ptNbmSnowLevelsShowCard === 'function') {
+          window.ptNbmSnowLevelsShowCard();
+        }
+        return;
+      }
+
       var deltaZoomLink = e.target && e.target.closest ? e.target.closest('[data-pt-ops-action="delta-ops-zoom"]') : null;
       if (deltaZoomLink && body.contains(deltaZoomLink)) {
         e.preventDefault();
@@ -480,6 +498,16 @@ pt_ops_live_panel_helpers_js <- function() {
     });
 
     body.addEventListener('change', function(e) {
+      var snowLabelToggle = e.target && e.target.closest ? e.target.closest('[data-pt-ops-action="nbm-snow-labels"]') : null;
+      if (snowLabelToggle && body.contains(snowLabelToggle)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.ptNbmSnowLevelsSetLabelsVisible && typeof window.ptNbmSnowLevelsSetLabelsVisible === 'function') {
+          window.ptNbmSnowLevelsSetLabelsVisible(!!snowLabelToggle.checked);
+        }
+        return;
+      }
+
       var deltaLabelToggle = e.target && e.target.closest ? e.target.closest('[data-pt-ops-action="delta-labels"]') : null;
       if (!deltaLabelToggle || !body.contains(deltaLabelToggle)) return;
       e.preventDefault();

@@ -49,6 +49,7 @@ pt_ops_live_source_module("leaflet_ops_live_layer_definition_helpers.r", "Ops Li
 pt_ops_live_source_module("leaflet_ops_live_wind_helpers.r", "Ops Live GFS wind/vector-field helper")
 pt_ops_live_source_module("leaflet_ops_live_hrrr_wind_helpers.r", "Ops Live HRRR wind/vector-field helper")
 pt_ops_live_source_module("leaflet_ops_live_nbm_wind_helpers.r", "Ops Live NBM blended wind-guidance helper")
+pt_ops_live_source_module("leaflet_ops_live_nbm_snow_levels_helpers.r", "Ops Live NBM Snow Levels consumer helper")
 pt_ops_live_source_module("leaflet_ops_live_observed_wind_helpers.r", "Ops Live observed-wind helper")
 pt_ops_live_source_module("leaflet_ops_live_panel_helpers.r", "Ops Live panel helper")
 
@@ -313,6 +314,8 @@ function(el, x, data) {
   var HRRR_SURFACE_WIND_MANIFEST_URL = data && data.hrrrSurfaceWindManifestUrl ? String(data.hrrrSurfaceWindManifestUrl) : '';
   var includeNbmWindGuidance = !!(data && data.includeNbmWindGuidance);
   var NBM_WIND_GUIDANCE_MANIFEST_URL = data && data.nbmWindGuidanceManifestUrl ? String(data.nbmWindGuidanceManifestUrl) : '';
+  var includeNbmSnowLevels = !!(data && data.includeNbmSnowLevels);
+  var NBM_SNOW_LEVELS_MANIFEST_URL = data && data.nbmSnowLevelsManifestUrl ? String(data.nbmSnowLevelsManifestUrl) : '';
   var includeAsosAwosWind = !!(data && data.includeAsosAwosWind);
   var ASOS_AWOS_WIND_URL = data && data.asosAwosWindUrl ? String(data.asosAwosWindUrl) : '';
   var ASOS_AWOS_WIND_SUMMARY_URL = data && data.asosAwosWindSummaryUrl ? String(data.asosAwosWindSummaryUrl) : '';
@@ -346,6 +349,8 @@ __PT_OPS_LIVE_HRRR_WIND_HELPERS_JS__
 
 __PT_OPS_LIVE_NBM_WIND_HELPERS_JS__
 
+__PT_OPS_LIVE_NBM_SNOW_LEVELS_HELPERS_JS__
+
 __PT_OPS_LIVE_OBSERVED_WIND_HELPERS_JS__
 
 __PT_OPS_LIVE_PANEL_HELPERS_JS__
@@ -373,6 +378,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     "__PT_OPS_LIVE_WIND_HELPERS_JS__" = "pt_ops_live_wind_js",
     "__PT_OPS_LIVE_HRRR_WIND_HELPERS_JS__" = "pt_ops_live_hrrr_wind_js",
     "__PT_OPS_LIVE_NBM_WIND_HELPERS_JS__" = "pt_ops_live_nbm_wind_js",
+    "__PT_OPS_LIVE_NBM_SNOW_LEVELS_HELPERS_JS__" = "pt_ops_live_nbm_snow_levels_js",
     "__PT_OPS_LIVE_OBSERVED_WIND_HELPERS_JS__" = "pt_ops_live_observed_wind_js",
     "__PT_OPS_LIVE_PANEL_HELPERS_JS__" = "pt_ops_live_panel_helpers_js"
   )
@@ -654,6 +660,16 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
         map_display$ops_nbm_wind_guidance_manifest_url
       } else {
         pt_ops_live_default_feed_url("data/wind/nbm_wind_guidance_feed_manifest.json")
+      },
+      includeNbmSnowLevels = if (!is.null(map_display$add_ops_nbm_snow_levels)) {
+        isTRUE(map_display$add_ops_nbm_snow_levels)
+      } else {
+        TRUE
+      },
+      nbmSnowLevelsManifestUrl = if (!is.null(map_display$ops_nbm_snow_levels_manifest_url)) {
+        map_display$ops_nbm_snow_levels_manifest_url
+      } else {
+        pt_ops_live_default_feed_url("data/winter-storm-levels/winter_storm_levels_manifest.json")
       },
       includeAsosAwosWind = if (!is.null(map_display$add_ops_asos_awos_wind)) {
         isTRUE(map_display$add_ops_asos_awos_wind)
