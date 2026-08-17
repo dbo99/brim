@@ -34,3 +34,36 @@ document or a small interface-version file.
 - Main BRIM repo: fetch/read artifacts, render layers, manage UI and fallback.
 - Sample feed fixtures may be added under `sample_data/`; production feed
   snapshots should remain outside this repository.
+
+## NBM Snow Levels consumer
+
+Ops Live consumes the external `winter_storm_levels` contract at runtime from:
+
+`https://dbo99.github.io/brim-live-data-feeds/data/winter-storm-levels/winter_storm_levels_manifest.json`
+
+The `NBM Snow Levels` row is lazy: initial BRIM HTML contains the consumer
+code but no manifest, target, or contour geometry. Enabling the row fetches and
+validates the two-cycle `1.0.0` manifest, then fetches only the selected
+content-addressed GeoJSON target. Selected immutable targets use a bounded
+in-memory cache; the changing manifest is rechecked without relying on a stale
+browser cache.
+
+BRIM preserves `cycle_time_utc`, `valid_time_utc`, and `lead_hours` as the
+canonical controller state. User-facing time is derived in the browser with
+the `America/Los_Angeles` timezone. The public producer and its publication,
+retention, schema, and source logic remain external to BRIM.
+
+The active consumer registers a narrow controller seam at
+`BRIM.opsLiveTimeControllers.nbmSnowLevels`. Its public selection state and
+step/select methods are keyed by the actual UTC cycle and valid time, and a
+committed selection emits `brim:nbm-time-selection`. This permits a future
+paired NBM product to follow the selected valid time without reaching into
+Snow Levels DOM controls or geometry internals; it is not a generic product
+framework and does not implement paired-product synchronization.
+
+Future NBM QPF pairing must define its accumulation interval separately.
+Snow Level is effectively instantaneous at `valid_time_utc`, while a paired
+QPF slice may represent an interval ending at that same valid time (for
+example, a preceding six-hour accumulation). This consumer does not choose or
+implement that QPF contract, and shared selection must not infer it from
+integer forecast lead alone.
