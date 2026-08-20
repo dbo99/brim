@@ -49,8 +49,11 @@ pt_add_panes <- function(m) {
     ## Its dedicated visual pane is kept out of DOM hit targeting by the
     ## CalSim controller, which forwards only background map events.
     leaflet::addMapPane("pane_calsim3",      zIndex = 525) |>
-    ## Live operational raster/image overlays.
-    ## Kept above normal polygons/points and below labels/offices.
+    ## NBM QPF is an Ops surface beneath the Snow Level contour/vector pane.
+    ## Its WebP grid is already EPSG:3857 and is displayed without reprojection.
+    leaflet::addMapPane("pane_ops_qpf",    zIndex = 555) |>
+    ## Live operational contour/vector/image overlays.
+    ## Kept above the QPF surface and below labels/offices.
     leaflet::addMapPane("pane_ops",         zIndex = 560) |>
     ## Delta Ops uses browser-side vector/canvas layers.  Give it dedicated
     ## panes so its renderer cannot leave an invisible high-z canvas over

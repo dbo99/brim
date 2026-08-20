@@ -316,6 +316,8 @@ function(el, x, data) {
   var NBM_WIND_GUIDANCE_MANIFEST_URL = data && data.nbmWindGuidanceManifestUrl ? String(data.nbmWindGuidanceManifestUrl) : '';
   var includeNbmSnowLevels = !!(data && data.includeNbmSnowLevels);
   var NBM_SNOW_LEVELS_MANIFEST_URL = data && data.nbmSnowLevelsManifestUrl ? String(data.nbmSnowLevelsManifestUrl) : '';
+  var includeNbmQpf = !!(data && data.includeNbmQpf);
+  var NBM_QPF_MANIFEST_URL = data && data.nbmQpfManifestUrl ? String(data.nbmQpfManifestUrl) : '';
   var includeAsosAwosWind = !!(data && data.includeAsosAwosWind);
   var ASOS_AWOS_WIND_URL = data && data.asosAwosWindUrl ? String(data.asosAwosWindUrl) : '';
   var ASOS_AWOS_WIND_SUMMARY_URL = data && data.asosAwosWindSummaryUrl ? String(data.asosAwosWindSummaryUrl) : '';
@@ -670,6 +672,16 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
         map_display$ops_nbm_snow_levels_manifest_url
       } else {
         pt_ops_live_default_feed_url("data/winter-storm-levels/winter_storm_levels_manifest.json")
+      },
+      includeNbmQpf = if (!is.null(map_display$add_ops_nbm_qpf)) {
+        isTRUE(map_display$add_ops_nbm_qpf)
+      } else {
+        TRUE
+      },
+      nbmQpfManifestUrl = if (!is.null(map_display$ops_nbm_qpf_manifest_url)) {
+        map_display$ops_nbm_qpf_manifest_url
+      } else {
+        pt_ops_live_default_feed_url("data/nbm-qpf/nbm_qpf_manifest.json")
       },
       includeAsosAwosWind = if (!is.null(map_display$add_ops_asos_awos_wind)) {
         isTRUE(map_display$add_ops_asos_awos_wind)

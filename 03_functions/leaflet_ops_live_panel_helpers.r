@@ -183,15 +183,16 @@ pt_ops_live_panel_helpers_js <- function() {
     // can occasionally leave a stale <img> behind if the remote image finishes
     // loading during the same moment the layer is being removed. This final DOM
     // sweep runs only during Clear Ops, when no Ops overlay should remain.
-    var pane = map.getPane && map.getPane('pane_ops');
-    if (!pane) return;
-
-    Array.prototype.slice.call(
-      pane.querySelectorAll('.leaflet-image-layer, .leaflet-tile-container, .leaflet-tile')
-    ).forEach(function(el) {
-      try {
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-      } catch(e) {}
+    ['pane_ops_qpf', 'pane_ops'].forEach(function(paneName) {
+      var pane = map.getPane && map.getPane(paneName);
+      if (!pane) return;
+      Array.prototype.slice.call(
+        pane.querySelectorAll('.leaflet-image-layer, .leaflet-tile-container, .leaflet-tile')
+      ).forEach(function(el) {
+        try {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        } catch(e) {}
+      });
     });
   }
 
@@ -421,8 +422,8 @@ pt_ops_live_panel_helpers_js <- function() {
       if (snowCardLink && body.contains(snowCardLink)) {
         e.preventDefault();
         e.stopPropagation();
-        if (!activeLayers['NBM Snow Levels']) {
-          recordStatus('NBM Snow Levels', 'Turn this Ops layer on before using lgnd.', 'pt-ops-warn');
+        if (!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']) {
+          recordStatus('NBM Snow Levels', 'Turn on an NBM forecast layer before using lgnd.', 'pt-ops-warn');
         } else if (window.ptNbmSnowLevelsShowCard && typeof window.ptNbmSnowLevelsShowCard === 'function') {
           window.ptNbmSnowLevelsShowCard();
         }
