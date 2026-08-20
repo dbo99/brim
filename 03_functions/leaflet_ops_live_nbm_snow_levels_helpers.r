@@ -2828,8 +2828,8 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       infoUrl: NBM_SNOW_LEVELS_MANIFEST_URL,
       infoLabel: 'feed manifest',
       refreshable: true,
-      extraRowHtml: '<label class="pt-ops-row-mini-toggle" title="Show/hide NBM Snow Levels contour labels"><input type="checkbox" data-pt-ops-action="nbm-snow-labels" checked>lbl</label><a href="#" class="pt-ops-row-mini-action" data-pt-ops-action="nbm-snow-card" title="Show the shared NBM Forecast Guidance card">lgnd</a>',
-      helperText: 'NOAA/NBM modeled snow-level elevation. Uses the shared exact cycle + valid-time inventory; +1 h remains Snow-only.',
+      extraRowHtml: '<label class="pt-ops-row-mini-toggle" title="Show/hide NBM Snow Levels contour labels"><input type="checkbox" data-pt-ops-action="nbm-snow-labels" checked>lbl</label>',
+      helperText: 'NOAA/NBM forecast snow-level elevation. +1 h is Snow-only.',
       layer: new PtOpsNbmProductLayer(ptNbmForecastController, 'snow')
     });
   }
@@ -2844,8 +2844,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       infoUrl: NBM_QPF_MANIFEST_URL,
       infoLabel: 'feed manifest',
       refreshable: true,
-      extraRowHtml: '<a href="#" class="pt-ops-row-mini-action" data-pt-ops-action="nbm-snow-card" title="Show the shared NBM Forecast Guidance card">lgnd</a>',
-      helperText: 'NOAA/NBM native preceding-six-hour QPF. Uses only an exact same-cycle lead + valid-time target; default opacity 55%.',
+      helperText: 'NOAA/NBM precipitation forecast for the preceding six hours.',
       layer: new PtOpsNbmProductLayer(ptNbmForecastController, 'qpf')
     });
   }
