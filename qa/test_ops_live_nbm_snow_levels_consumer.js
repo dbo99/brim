@@ -8,6 +8,7 @@ const zlib = require("zlib");
 const repoRoot = path.join(__dirname, "..");
 const helperSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_nbm_snow_levels_helpers.r"), "utf8");
 const panelSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_panel_helpers.r"), "utf8");
+const sharedSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_shared_helpers.r"), "utf8");
 const configSource = fs.readFileSync(path.join(repoRoot, "00_config", "config_map_display.r"), "utf8");
 const coreSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_core_helpers.r"), "utf8");
 
@@ -21,6 +22,14 @@ function embeddedRawJs(source) {
 }
 function includesAll(source, values) {
   values.forEach((value) => assert(source.includes(value), `missing source contract: ${value}`));
+}
+function opsLayerRegistration(source, nameToken) {
+  const nameIndex = source.indexOf(`name: ${nameToken},`);
+  assert(nameIndex >= 0, `missing Ops registration: ${nameToken}`);
+  const start = source.lastIndexOf("addOpsLayer({", nameIndex);
+  const end = source.indexOf("\n    });", nameIndex);
+  assert(start >= 0 && end > nameIndex, `incomplete Ops registration: ${nameToken}`);
+  return source.slice(start, end);
 }
 
 includesAll(helperSource, [
@@ -45,6 +54,29 @@ includesAll(panelSource, ["Number(a.def.panelOrder)", 'data-pt-ops-action="nbm-s
 includesAll(panelSource, ["!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']"]);
 includesAll(configSource, ["add_ops_nbm_snow_levels = TRUE", "add_ops_nbm_qpf = TRUE"]);
 assert(coreSource.indexOf('addMapPane("pane_ops_qpf"') < coreSource.indexOf('addMapPane("pane_ops"'));
+
+const snowRowSource = opsLayerRegistration(helperSource, "PT_SNOW_PRODUCT_NAME");
+const qpfRowSource = opsLayerRegistration(helperSource, "PT_QPF_PRODUCT_NAME");
+includesAll(snowRowSource, [
+  "refreshable: true",
+  "sourceUrl: 'https://vlab.noaa.gov/web/mdl/nbm-weather-elements'",
+  'data-pt-ops-action="nbm-snow-labels"',
+  "NOAA/NBM forecast snow-level elevation. +1 h is Snow-only."
+]);
+includesAll(qpfRowSource, [
+  "refreshable: true",
+  "sourceUrl: 'https://vlab.noaa.gov/web/mdl/nbm-weather-elements'",
+  "NOAA/NBM precipitation forecast for the preceding six hours."
+]);
+assert(!snowRowSource.includes("nbm-snow-card"), "Snow row must not expose lgnd");
+assert(!snowRowSource.includes(">lgnd</a>"), "Snow row must not render lgnd");
+assert(!qpfRowSource.includes("extraRowHtml"), "QPF row must not append controls after srce");
+assert(!qpfRowSource.includes(">lgnd</a>"), "QPF row must not render lgnd");
+includesAll(sharedSource, [
+  "if (def.refreshable === true || opts.refreshable === true) return true",
+  "pushUnique('srce', sourceUrl, 'Open source')",
+  "pushUnique('lgnd', legendUrl, 'Open legend')"
+]);
 
 const documentListeners = new Map();
 const documentStub = {
