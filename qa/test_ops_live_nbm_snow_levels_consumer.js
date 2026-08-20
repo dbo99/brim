@@ -1,184 +1,139 @@
+
 const assert = require("assert");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const zlib = require("zlib");
 
 const repoRoot = path.join(__dirname, "..");
-const helperSource = fs.readFileSync(
-  path.join(repoRoot, "03_functions", "leaflet_ops_live_nbm_snow_levels_helpers.r"),
-  "utf8"
-);
-const panelSource = fs.readFileSync(
-  path.join(repoRoot, "03_functions", "leaflet_ops_live_panel_helpers.r"),
-  "utf8"
-);
-const configSource = fs.readFileSync(
-  path.join(repoRoot, "00_config", "config_map_display.r"),
-  "utf8"
-);
+const helperSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_nbm_snow_levels_helpers.r"), "utf8");
+const panelSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_panel_helpers.r"), "utf8");
+const configSource = fs.readFileSync(path.join(repoRoot, "00_config", "config_map_display.r"), "utf8");
+const coreSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_core_helpers.r"), "utf8");
 
 function embeddedRawJs(source) {
   const startToken = 'r"---(';
   const endToken = ')---"';
   const start = source.indexOf(startToken);
   const end = source.lastIndexOf(endToken);
-  assert(start >= 0 && end > start, "embedded R raw JavaScript was not found");
+  assert(start >= 0 && end > start);
   return source.slice(start + startToken.length, end);
 }
-
-function includesAll(source, values, label) {
-  values.forEach((value) => {
-    assert(source.includes(value), `${label} is missing: ${value}`);
-  });
+function includesAll(source, values) {
+  values.forEach((value) => assert(source.includes(value), `missing source contract: ${value}`));
 }
 
-includesAll(
-  helperSource,
-  [
-    "var PT_SNOW_TARGET_CACHE_LIMIT = 4",
-    "cache: 'no-store'",
-    "cache: 'force-cache'",
-    "window.crypto.subtle.digest('SHA-256'",
-    "cycle_utc: entry.cycle_time_utc",
-    "valid_time_utc: entry.valid_time_utc",
-    "lead_hours: entry.lead_hours",
-    "getSelectionState: function()",
-    "stepValidTime: function(delta)",
-    "brim:nbm-time-selection",
-    "panelOrder: -100",
-    'data-pt-ops-action="nbm-snow-labels"',
-    'data-pt-ops-action="nbm-snow-card"',
-    "Snow level (ft MSL)",
-    "Fixed scale",
-    "America/Los_Angeles",
-    "unifiedCard: true"
-  ],
-  "NBM Snow Levels source contract"
-);
-includesAll(
-  panelSource,
-  [
-    "Number(a.def.panelOrder)",
-    'data-pt-ops-action="nbm-snow-labels"',
-    'data-pt-ops-action="nbm-snow-card"'
-  ],
-  "Ops panel integration"
-);
-assert(
-  panelSource.indexOf("panelOrder") < panelSource.indexOf("return a.idx - b.idx"),
-  "explicit subgroup placement must be evaluated before insertion order"
-);
-includesAll(
-  configSource,
-  [
-    "add_ops_nbm_snow_levels = TRUE",
-    'data/winter-storm-levels/winter_storm_levels_manifest.json'
-  ],
-  "Snow Levels configuration"
-);
+includesAll(helperSource, [
+  "var PtOpsNbmForecastController", "var PtOpsNbmProductLayer",
+  "NBM Forecast Guidance", "NBM Snow Levels", "NBM 6-Hour QPF",
+  "panelOrder: -100", "panelOrder: -99",
+  "window.BRIM.opsLiveTimeControllers.nbmForecast = this",
+  "window.BRIM.opsLiveTimeControllers.nbmSnowLevels = this",
+  "brim:nbm-time-selection", "ptNbmBuildInventory", "ptNbmHorizonLabel",
+  "interactive: false", "attachSelectedFrame",
+  "palette colors are never reverse-mapped", "u16le", "forecast_state_id",
+  "new window.DecompressionStream('gzip')", "ptQpfLngLatToCell",
+  "pt-ops-nbm-qpf-hover-tooltip",
+  "No exact QPF target exists for this cycle + lead + valid time. No substitute is used."
+]);
+assert(!helperSource.includes("var PT_QPF_LEADS"));
+assert(!helperSource.includes("var PT_SNOW_LEADS"));
+assert(!helperSource.includes('data-pt-ops-action="nbm-qpf"'));
+assert(!helperSource.includes("pt-ops-nbm-qpf-toggle"));
+assert(!panelSource.includes('data-pt-ops-action="nbm-qpf"'));
+includesAll(panelSource, ["Number(a.def.panelOrder)", 'data-pt-ops-action="nbm-snow-labels"', 'data-pt-ops-action="nbm-snow-card"']);
+includesAll(panelSource, ["!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']"]);
+includesAll(configSource, ["add_ops_nbm_snow_levels = TRUE", "add_ops_nbm_qpf = TRUE"]);
+assert(coreSource.indexOf('addMapPane("pane_ops_qpf"') < coreSource.indexOf('addMapPane("pane_ops"'));
 
 const documentListeners = new Map();
 const documentStub = {
   visibilityState: "visible",
   head: {appendChild() {}},
-  createElement() {
-    return {id: "", textContent: "", style: {}};
-  },
-  getElementById() {
-    return null;
-  },
-  querySelectorAll() {
-    return [];
-  },
-  addEventListener(name, handler) {
-    documentListeners.set(name, handler);
-  },
+  createElement() { return {id: "", textContent: "", style: {}, appendChild() {}}; },
+  getElementById() { return null; },
+  querySelectorAll() { return []; },
+  addEventListener(name, handler) { documentListeners.set(name, handler); },
   removeEventListener(name, handler) {
     if (documentListeners.get(name) === handler) documentListeners.delete(name);
   }
 };
-
-function extendLayer(methods) {
-  function Layer(options) {
-    if (typeof methods.initialize === "function") methods.initialize.call(this, options);
+function extend(methods) {
+  function Klass(...args) {
+    if (typeof methods.initialize === "function") methods.initialize.apply(this, args);
   }
-  Layer.prototype = Object.assign({constructor: Layer}, methods);
-  return Layer;
+  Klass.prototype = Object.assign({constructor: Klass}, methods);
+  return Klass;
 }
-
-function emptyLayerGroup() {
-  return {
-    addTo() {
-      return this;
-    },
-    clearLayers() {},
-    addLayer() {}
-  };
-}
-
 const windowEvents = [];
 const windowStub = {
   BRIM: {},
   CustomEvent: class CustomEvent {
-    constructor(type, options) {
-      this.type = type;
-      this.detail = options && options.detail;
-    }
+    constructor(type, options) { this.type = type; this.detail = options && options.detail; }
   },
-  dispatchEvent(event) {
-    windowEvents.push(event);
-    return true;
-  },
+  dispatchEvent(event) { windowEvents.push(event); return true; },
   performance: {now: () => 0},
   setInterval: () => 101,
   clearInterval() {},
-  requestAnimationFrame(callback) {
-    callback();
-  }
+  setTimeout,
+  clearTimeout,
+  requestAnimationFrame(callback) { callback(); },
+  URL,
+  Blob,
+  Response,
+  DecompressionStream,
+  crypto: crypto.webcrypto
 };
 const LStub = {
-  Layer: {extend: extendLayer},
-  layerGroup: emptyLayerGroup
+  Class: {extend},
+  Layer: {extend},
+  layerGroup() { return {addTo() { return this; }, clearLayers() {}, addLayer() {}}; }
 };
-
-const api = new Function(
-  "window",
-  "document",
-  "L",
-  `
-    var includeNbmSnowLevels = false;
-    var NBM_SNOW_LEVELS_MANIFEST_URL = '';
-    var activeLegendDefs = {};
-    function redrawLegend() {}
-    function setOpsLayerLoading() {}
-    function recordStatus() {}
-    function escapeHtml(value) {
-      return String(value).replace(/[&<>"']/g, function(character) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[character];
-      });
-    }
-    ${embeddedRawJs(helperSource)}
-    return {
-      validateManifest: ptSnowValidateManifest,
-      validateGeoJson: ptSnowValidateGeoJson,
-      freshness: ptSnowFreshness,
-      defaultTargetIndex: ptSnowDefaultTargetIndex,
-      closestTargetIndex: ptSnowClosestTargetIndex,
-      formatPacific: ptSnowFormatPacific,
-      formatPacificCompact: function(value) { return ptSnowFormatPacific(value, true); },
-      utcHour: ptSnowUtcHour,
-      color: ptSnowLevelColor,
-      gradient: ptSnowLegendGradient,
-      featureHtml: ptSnowFeatureHtml,
-      cacheGet: ptSnowCacheGet,
-      cacheSet: ptSnowCacheSet,
-      cacheClear: ptSnowCacheClear,
-      cacheSize: function() { return ptSnowTargetCache.size; },
-      Layer: PtOpsNbmSnowLevelsLayer,
-      activeLegendDefs: activeLegendDefs
-    };
-  `
-)(windowStub, documentStub, LStub);
+const api = new Function("window", "document", "L", `
+  var includeNbmSnowLevels = false;
+  var includeNbmQpf = false;
+  var NBM_SNOW_LEVELS_MANIFEST_URL = '';
+  var NBM_QPF_MANIFEST_URL = '';
+  var activeLegendDefs = {};
+  function addOpsLayer() {}
+  function redrawLegend() {}
+  function setOpsLayerLoading() {}
+  function recordStatus() {}
+  function escapeHtml(value) { return String(value); }
+  ${embeddedRawJs(helperSource)}
+  return {
+    validateManifest: ptSnowValidateManifest,
+    validateGeoJson: ptSnowValidateGeoJson,
+    freshness: ptSnowFreshness,
+    defaultTargetIndex: ptSnowDefaultTargetIndex,
+    formatPacific: ptSnowFormatPacific,
+    color: ptSnowLevelColor,
+    cacheGet: ptSnowCacheGet, cacheSet: ptSnowCacheSet,
+    cacheClear: ptSnowCacheClear, cacheSize: function() { return ptSnowTargetCache.size; },
+    validateQpfManifest: ptQpfValidateManifest,
+    validateQpfTarget: ptQpfValidateTarget,
+    findQpfPair: ptQpfFindPair,
+    qpfTargetUrl: ptQpfTargetUrl,
+    qpfNumericUrl: ptQpfNumericUrl,
+    forecastStateText: ptQpfForecastStateText,
+    verifyForecastState: ptQpfVerifyForecastState,
+    decodeNumeric: ptQpfDecodeNumericPayload,
+    fetchNumericFrame: ptQpfFetchNumericFrame,
+    numericAcquire: ptQpfNumericAcquire,
+    numericCacheClear: ptQpfNumericCacheClear,
+    numericCacheSize: function() { return ptQpfNumericCache.size; },
+    numericInflightSize: function() { return ptQpfNumericInflight.size; },
+    lngLatToCell: ptQpfLngLatToCell,
+    numericValueAt: ptQpfNumericValueAt,
+    createNumericProvider: ptQpfCreateDefaultNumericHoverProvider,
+    buildInventory: ptNbmBuildInventory,
+    horizonLabel: ptNbmHorizonLabel,
+    horizonCue: ptNbmHorizonCue,
+    Controller: PtOpsNbmForecastController,
+    ProductLayer: PtOpsNbmProductLayer,
+    activeLegendDefs
+  };
+`)(windowStub, documentStub, LStub);
 
 const leads = [1, 6, 12, 18, 24, 30, 36, 42, 48, 60, 72];
 const currentCycle = "2026-01-15T12:00:00Z";
@@ -220,7 +175,13 @@ function target(cycleUtc, lead) {
   };
 }
 
-function manifestFixture() {
+function manifestFixture(snowLeads = leads, retainedCycles = 2) {
+  const cycleTargets = retainedCycles === 1
+    ? snowLeads.map((lead) => target(currentCycle, lead))
+    : [
+        ...snowLeads.map((lead) => target(previousCycle, lead)),
+        ...snowLeads.map((lead) => target(currentCycle, lead))
+      ];
   return {
     product_id: "winter_storm_levels",
     schema_version: "1.0.0",
@@ -261,322 +222,667 @@ function manifestFixture() {
     cycle_time_utc: currentCycle,
     retrieval_time_utc: "2026-01-15T12:30:00Z",
     publication_time_utc: null,
-    target_count: 22,
+    target_count: cycleTargets.length,
     diagnostics: {
-      expected_current_cycle_target_count: 11,
-      actual_current_cycle_target_count: 11,
-      retained_cycle_count: 2,
+      expected_current_cycle_target_count: snowLeads.length,
+      actual_current_cycle_target_count: snowLeads.length,
+      retained_cycle_count: retainedCycles,
       complete_bundle_validated: true
     },
-    targets: [
-      ...leads.map((lead) => target(previousCycle, lead)),
-      ...leads.map((lead) => target(currentCycle, lead))
-    ]
+    targets: cycleTargets
   };
 }
 
-const manifest = api.validateManifest(manifestFixture());
-assert.strictEqual(manifest._ptSnowCycles.length, 2);
-assert.strictEqual(manifest._ptSnowCycles[0].cycle_time_utc, currentCycle);
-assert.strictEqual(manifest._ptSnowCycles[1].cycle_time_utc, previousCycle);
-assert.deepStrictEqual(
-  manifest._ptSnowCycles[0].targets.map((entry) => entry.lead_hours),
-  leads,
-  "the current run must expose the exact discrete lead set"
-);
+const qpfLeads = [6, 12, 18, 24, 30, 36, 42, 48, 60, 72];
+const qpfClassTriples = [
+  [0.01, 0.1, "#D9F0D3"], [0.1, 0.25, "#A6DBA0"],
+  [0.25, 0.5, "#62BD73"], [0.5, 1, "#2F9E55"],
+  [1, 1.5, "#146B38"], [1.5, 2, "#FFF59D"],
+  [2, 2.5, "#FFE066"], [2.5, 3, "#FDBE55"],
+  [3, 3.5, "#F79441"], [3.5, 4, "#F05A3C"],
+  [4, 4.5, "#D73027"], [4.5, 5, "#BD1F2D"],
+  [5, 5.5, "#9E1737"], [5.5, 6, "#7A123D"],
+  [6, 7, "#5B0B55"], [7, 8, "#480A6A"],
+  [8, 10, "#5F0A87"], [10, 12, "#7D1A9A"],
+  [12, 15, "#A542B0"], [15, 20, "#CD86CF"],
+  [20, null, "#F1C6E7"]
+];
 
-const currentTargets = manifest._ptSnowCycles[0].targets;
-assert.strictEqual(
-  api.defaultTargetIndex(currentTargets, Date.parse(currentCycle) + 6 * 3600000),
-  1,
-  "the active f006 target must be selected at its valid time"
-);
-assert.strictEqual(
-  api.closestTargetIndex(
-    manifest._ptSnowCycles[1].targets,
-    target(previousCycle, 24).valid_time_utc,
-    Date.parse(currentCycle)
-  ),
-  4,
-  "previous-run target selection must preserve an exact valid time when available"
-);
+function qpfTarget(cycleUtc, lead) {
+  const cycleMs = Date.parse(cycleUtc);
+  const validMs = cycleMs + lead * 3600000;
+  const cycleToken = cycleUtc.replace(/[-:]/g, "");
+  const imagePath = `docs/data/nbm-qpf/nbm/qpf/nbm_qpf_${cycleToken}_f${String(lead).padStart(3, "0")}_bbbbbbbbbbbb.webp`;
+  const numericPath = `docs/data/nbm-qpf/nbm/qpf/nbm_qpf_${cycleToken}_f${String(lead).padStart(3, "0")}_cccccccccccc.u16le.gz`;
+  const entry = {
+    product_id: "nbm_qpf",
+    forecast_state_id: "",
+    source_id: "noaa_nbm_core_conus_apcp",
+    parameter: "APCP",
+    level: "surface",
+    cycle_utc: cycleUtc,
+    lead_hours: lead,
+    lead_end_hours: lead,
+    accumulation_start_utc: iso(validMs - 6 * 3600000),
+    accumulation_end_utc: iso(validMs),
+    valid_time_utc: iso(validMs),
+    accumulation_hours: 6,
+    source_parameter: "APCP",
+    source_level: "surface",
+    source_inventory_semantics: `${lead - 6}-${lead} hour acc fcst`,
+    native_units: "kg/m^2",
+    normalized_units: "mm",
+    stored_numeric_units: "in",
+    display_units: "in",
+    grid_contract_id: "nbm_qpf_lossless_webp_v1",
+    columns: 720,
+    rows: 733,
+    crs: "EPSG:3857",
+    extent_m: [-14471533.8031256, 3503549.84350437, -12467782.9688466, 5543147.2038618],
+    row_order: "north_to_south",
+    column_order: "west_to_east",
+    pixel_is_area: true,
+    image_path: imagePath,
+    image_media_type: "image/webp",
+    image_encoding: "lossless_vp8l_rgba8",
+    image_width: 720,
+    image_height: 733,
+    bounds_wgs84: [-130, 30, -112, 44.5],
+    bytes: 100 + lead,
+    sha256: "b".repeat(64),
+    image: {
+      path: imagePath,
+      media_type: "image/webp",
+      encoding: "lossless_vp8l_rgba8",
+      bytes: 100 + lead,
+      sha256: "b".repeat(64)
+    },
+    numeric: {
+      path: numericPath,
+      media_type: "application/octet-stream",
+      encoding: "uint16_le",
+      compression: "gzip",
+      stored_units: "in",
+      scale: 0.001,
+      offset: 0,
+      nodata: 65535,
+      compressed_bytes: 200 + lead,
+      uncompressed_bytes: 1055520,
+      sha256: "c".repeat(64)
+    },
+    palette_id: "brim_nbm_qpf_6h_west_v1",
+    palette_version: 1
+  };
+  entry.forecast_state_id = crypto.createHash("sha256")
+    .update(api.forecastStateText(entry), "utf8").digest("hex");
+  return entry;
+}
 
-assert.strictEqual(api.freshness(manifest, Date.parse(currentCycle) + 6 * 3600000), "current");
-assert.strictEqual(api.freshness(manifest, Date.parse(currentCycle) + 10 * 3600000), "delayed_but_usable");
-assert.strictEqual(api.freshness(manifest, Date.parse(currentCycle) + 16 * 3600000), "stale_last_known_good");
-assert.strictEqual(api.freshness(manifest, Date.parse(currentCycle) + 25 * 3600000), "expired");
+function qpfCycle(cycleUtc, maximum = 0.4, cycleLeads = qpfLeads) {
+  return {
+    cycle_utc: cycleUtc,
+    cycle_status: "complete",
+    cycle_max_qpf_in: maximum,
+    legend_cap_in: maximum <= 3 ? 3 : maximum <= 4 ? 4 : maximum <= 6 ? 6 :
+      maximum <= 8 ? 8 : maximum <= 10 ? 10 : maximum <= 12 ? 12 : maximum <= 15 ? 15 : 20,
+    legend_overflow: maximum > 20,
+    target_count: cycleLeads.length,
+    complete_required_leads_hours: cycleLeads.slice(),
+    targets: cycleLeads.map((lead) => qpfTarget(cycleUtc, lead))
+  };
+}
 
-assert(api.formatPacific("2026-07-15T12:00:00Z").includes("5:00 AM PDT"));
-assert(api.formatPacific("2026-01-15T12:00:00Z").includes("4:00 AM PST"));
-assert(api.formatPacificCompact("2026-07-15T12:00:00Z").includes("5 AM PDT"));
-assert(!api.formatPacificCompact("2026-07-15T12:00:00Z").includes("5:00 AM PDT"));
-assert(api.formatPacificCompact("2026-07-15T12:30:00Z").includes("5:30 AM PDT"));
-assert.strictEqual(api.utcHour("2026-07-15T12:00:00Z"), "12Z");
-assert.strictEqual(api.color(0), "#2c5aa0");
-assert.strictEqual(api.color(10000), "#ece08b");
-assert.strictEqual(api.color(20000), "#a52347");
-assert(api.gradient().includes("#2c5aa0 0.0%"));
-assert(api.gradient().includes("#a52347 100.0%"));
+function qpfManifestFixture(cycles = [qpfCycle(currentCycle)]) {
+  return {
+    schema_version: "1.0.0",
+    product_id: "nbm_qpf",
+    generated_at_utc: "2026-01-15T12:45:00Z",
+    source: {
+      source_id: "noaa_nbm_core_conus_apcp",
+      agency: "NOAA/NWS/NCEP/MDL",
+      dataset: "National Blend of Models",
+      family: "core",
+      domain: "conus",
+      parameter: "APCP",
+      level: "surface",
+      field_kind: "deterministic accumulated precipitation",
+      native_units: "kg/m^2",
+      normalized_units: "mm",
+      display_units: "in"
+    },
+    palette: {
+      palette_id: "brim_nbm_qpf_6h_west_v1",
+      palette_version: 1,
+      display_units: "in",
+      class_interval: "lower-inclusive upper-exclusive",
+      below_0_01_in: "transparent",
+      nodata: "transparent",
+      overflow: ">=20 in uses the final fixed class",
+      classes: qpfClassTriples.map(([lower, upper, color]) => ({
+        lower_inclusive_in: lower,
+        upper_exclusive_in: upper,
+        color_hex: color,
+        alpha_u8: 255
+      }))
+    },
+    spatial_representation: {
+      contract_id: "nbm_qpf_lossless_webp_v1",
+      media_type: "image/webp",
+      encoding: "lossless VP8L RGBA8 WebP",
+      crs: "EPSG:3857",
+      bounds_wgs84: [-130, 30, -112, 44.5],
+      extent_m: [-14471533.8031256, 3503549.84350437, -12467782.9688466, 5543147.2038618],
+      image_width: 720,
+      image_height: 733,
+      pixel_size_m: [2782.98726983229, 2782.53391590372],
+      row_order: "north_to_south",
+      column_order: "west_to_east",
+      pixel_is_area: true,
+      leaflet_bounds: [[30, -130], [44.5, -112]],
+      default_leaflet_opacity: 0.55
+    },
+    numeric_representation: {
+      contract_id: "nbm_qpf_uint16_le_gzip_v1",
+      media_type: "application/octet-stream",
+      encoding: "uint16_le",
+      compression: "gzip",
+      stored_units: "in",
+      scale: 0.001,
+      offset: 0,
+      nodata: 65535,
+      valid_stored_min: 0,
+      valid_stored_max: 65534,
+      represented_min: 0,
+      represented_max: 65.534,
+      uncompressed_bytes: 1055520,
+      grid_contract_id: "nbm_qpf_lossless_webp_v1",
+      columns: 720,
+      rows: 733,
+      crs: "EPSG:3857",
+      bounds_wgs84: [-130, 30, -112, 44.5],
+      extent_m: [-14471533.8031256, 3503549.84350437, -12467782.9688466, 5543147.2038618],
+      row_order: "north_to_south",
+      column_order: "west_to_east",
+      pixel_is_area: true
+    },
+    forecast_state_binding: {
+      algorithm: "nbm_qpf_forecast_state_sha256_v1",
+      digest: "sha256",
+      canonicalization: "ordered UTF-8 key=value lines",
+      binds: ["forecast metadata", "image path and SHA-256", "numeric path and SHA-256"]
+    },
+    freshness: {
+      basis: "source_cycle_age",
+      current_through_hours: 9,
+      delayed_through_hours: 15,
+      stale_through_hours: 24,
+      expired_after_hours: 24,
+      product_status_independent_from_snow: true
+    },
+    retention_mode: cycles.length === 1 ? "bootstrap" : "steady",
+    current_cycle_utc: cycles[0].cycle_utc,
+    previous_cycle_utc: cycles.length === 1 ? null : cycles[1].cycle_utc,
+    cycles
+  };
+}
 
-const entry = target(currentCycle, 6);
-const feature = {
-  type: "Feature",
-  id: "2026011512_f006_06000_001",
-  properties: {
-    product_id: "winter_storm_levels",
-    source_id: "nbm_snow_level",
-    parameter: "snow_level",
-    definition: "height of the wet-bulb 0.5 degree C surface",
-    level_ft_msl: 6000,
-    label: "6,000 ft",
-    unit: "ft_msl",
-    cycle_time_utc: entry.cycle_time_utc,
-    valid_time_utc: entry.valid_time_utc,
-    lead_hours: entry.lead_hours,
-    segment: 1,
-    length_m: 100000
+
+const longSnowLeads = [1, ...Array.from({length: 40}, (_, index) => (index + 1) * 6)];
+const longQpfLeads = longSnowLeads.filter((lead) => lead !== 1);
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+const numericDependencies = {
+  digestHex(buffer) {
+    return crypto.createHash("sha256").update(Buffer.from(buffer)).digest("hex");
   },
-  geometry: {
-    type: "LineString",
-    coordinates: [[-125, 40], [-124, 41]]
+  gunzip(buffer) {
+    return zlib.gunzipSync(Buffer.from(buffer));
   }
 };
-assert.deepStrictEqual(
-  api.validateGeoJson(
-    {type: "FeatureCollection", contract_version: "1.0.0", bbox: entry.output_bbox_wgs84, features: [feature]},
-    entry
-  ),
-  {featureCount: 1, vertexCount: 2}
-);
-const tooltip = api.featureHtml(feature, entry, false);
-assert(tooltip.includes("6,000 ft MSL"));
-assert(tooltip.includes('pt-nbm-snow-tooltip-label">Valid</span>'));
-assert(tooltip.includes('pt-nbm-snow-tooltip-label">Run</span>'));
-assert(tooltip.includes("10 AM PST"));
-assert(tooltip.includes("4 AM PST · +6 h"));
-assert(!tooltip.includes("10:00 AM PST"));
-assert(!tooltip.includes("National Blend of Models"));
-const popup = api.featureHtml(feature, entry, true);
-assert(popup.includes("Modeled snow level"));
-assert(popup.includes("Forecast lead"));
-assert(popup.includes("NOAA / National Blend of Models"));
-assert(popup.includes("10:00 AM PST"));
-assert(helperSource.includes(".leaflet-tooltip.pt-nbm-snow-tooltip"));
-assert(helperSource.includes("width:max-content;min-width:236px;max-width:300px"));
-assert(helperSource.includes(".pt-nbm-snow-tooltip-row"));
-assert(helperSource.includes("white-space:nowrap"));
 
-assert.throws(
-  () => api.validateManifest({...manifestFixture(), product_id: "wrong_product"}),
-  /product_id/
-);
-assert.throws(
-  () => api.validateManifest({...manifestFixture(), contract_version: "2.0.0"}),
-  /contract version/
-);
-assert.throws(
-  () => api.validateManifest({...manifestFixture(), targets: manifestFixture().targets.slice(1)}),
-  /exactly 22 retained targets/
-);
-assert.throws(
-  () => api.validateGeoJson(
-    {type: "FeatureCollection", contract_version: "1.0.0", bbox: entry.output_bbox_wgs84, features: [{...feature, id: "bad"}]},
-    entry
-  ),
-  /feature ID/
-);
+function numericPayloadFixture(lead = 54) {
+  const raw = Buffer.alloc(1055520);
+  const values = new Uint16Array(raw.buffer, raw.byteOffset, raw.byteLength / 2);
+  values[0] = 123;
+  values[366 * 720 + 360] = 456;
+  values[100 * 720 + 200] = 65535;
+  values[732 * 720 + 719] = 789;
+  const gzip = zlib.gzipSync(raw, {level: 9, mtime: 0});
+  const entry = qpfTarget(currentCycle, lead);
+  const sha = crypto.createHash("sha256").update(gzip).digest("hex");
+  const cycleToken = currentCycle.replace(/[-:]/g, "");
+  entry.numeric.compressed_bytes = gzip.byteLength;
+  entry.numeric.sha256 = sha;
+  entry.numeric.path = `docs/data/nbm-qpf/nbm/qpf/nbm_qpf_${cycleToken}_f${String(lead).padStart(3, "0")}_${sha.slice(0, 12)}.u16le.gz`;
+  entry.forecast_state_id = crypto.createHash("sha256")
+    .update(api.forecastStateText(entry), "utf8").digest("hex");
+  return {entry, gzip};
+}
 
-api.cacheClear();
-for (let index = 1; index <= 4; index += 1) api.cacheSet(`target-${index}`, {index});
-assert.deepStrictEqual(api.cacheGet("target-1"), {index: 1});
-api.cacheSet("target-5", {index: 5});
-assert.strictEqual(api.cacheSize(), 4);
-assert.strictEqual(api.cacheGet("target-2"), null, "least-recently-used target must be evicted");
-assert.deepStrictEqual(api.cacheGet("target-1"), {index: 1}, "recently touched immutable target must remain cached");
+function arrayBuffer(buffer) {
+  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+}
 
-const lifecycleLayer = new api.Layer({manifestUrl: "https://example.test/manifest.json"});
-lifecycleLayer._createCard = function() {};
-lifecycleLayer.refreshCurrentView = function() {};
-const mapEvents = new Map();
-let removedLayerCount = 0;
-let removedControlCount = 0;
-let destroyedCardCount = 0;
-const fakeMap = {
-  on(name, handler) {
-    mapEvents.set(name, handler);
-  },
-  off(name, handler) {
-    if (mapEvents.get(name) === handler) mapEvents.delete(name);
-  },
-  getZoom() {
-    return 6;
-  },
-  removeLayer() {
-    removedLayerCount += 1;
-  },
-  removeControl() {
-    removedControlCount += 1;
-  }
-};
-lifecycleLayer.onAdd(fakeMap);
-lifecycleLayer.onAdd(fakeMap);
-assert.strictEqual(lifecycleLayer.getDiagnostics().activations, 1, "repeated ON must be idempotent");
-assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmSnowLevels, lifecycleLayer);
-lifecycleLayer._cardControl = {};
-lifecycleLayer._card = {};
-lifecycleLayer._detachable = {destroy() { destroyedCardCount += 1; }};
-lifecycleLayer.forceRemove(fakeMap);
-lifecycleLayer.forceRemove(fakeMap);
-assert.strictEqual(lifecycleLayer.getDiagnostics().removals, 1, "repeated OFF must be idempotent");
-assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmSnowLevels, undefined);
-assert.strictEqual(documentListeners.size, 0, "OFF must remove document listeners");
-assert.strictEqual(removedLayerCount, 1, "OFF must remove the owned label group exactly once");
-assert.strictEqual(removedControlCount, 1, "OFF must remove the owned card control exactly once");
-assert.strictEqual(destroyedCardCount, 1, "OFF must destroy detachable-card state exactly once");
+function cellCenterLatLng(row, column) {
+  const extent = [-14471533.8031256, 3503549.84350437, -12467782.9688466, 5543147.2038618];
+  const x = extent[0] + (column + 0.5) * (extent[2] - extent[0]) / 720;
+  const y = extent[3] - (row + 0.5) * (extent[3] - extent[1]) / 733;
+  const radius = 6378137;
+  return {
+    lng: x / radius * 180 / Math.PI,
+    lat: (2 * Math.atan(Math.exp(y / radius)) - Math.PI / 2) * 180 / Math.PI
+  };
+}
 
-const seamLayer = new api.Layer({manifestUrl: "https://example.test/manifest.json"});
-seamLayer._removed = false;
-seamLayer._cycles = manifest._ptSnowCycles;
-seamLayer._cycleIndex = 0;
-seamLayer._targetIndex = 1;
-seamLayer._timeState = {
-  cycle_utc: currentCycle,
-  valid_time_utc: currentTargets[1].valid_time_utc,
-  lead_hours: currentTargets[1].lead_hours
-};
-const seamRequests = [];
-seamLayer._requestTarget = function(cycleIndex, targetIndex, reason) {
-  seamRequests.push({cycleIndex, targetIndex, reason});
-  return true;
-};
-assert.deepStrictEqual(seamLayer.getSelectionState(), {
-  cycle_utc: currentCycle,
-  valid_time_utc: currentTargets[1].valid_time_utc,
-  lead_hours: currentTargets[1].lead_hours,
-  cycle_index: 0,
-  target_index: 1,
-  cycle_role: "current"
-});
-assert.strictEqual(seamLayer.stepValidTime(1), true);
-assert.deepStrictEqual(seamRequests.pop(), {cycleIndex: 0, targetIndex: 2, reason: "step valid time"});
-assert.strictEqual(seamLayer.stepValidTime(-2), false, "stepping before the first target must be rejected");
-assert.strictEqual(seamLayer.selectTarget(1, 4, "paired product action"), true);
-assert.deepStrictEqual(seamRequests.pop(), {cycleIndex: 1, targetIndex: 4, reason: "paired product action"});
-seamLayer._displayedEntry = currentTargets[1];
-assert.strictEqual(seamLayer.selectCycle(1), true);
-assert.strictEqual(seamRequests.pop().cycleIndex, 1, "cycle selection must use the public target seam");
-seamLayer._emitTimeSelection("fixture selection");
-assert.strictEqual(windowEvents.at(-1).type, "brim:nbm-time-selection");
-assert.strictEqual(windowEvents.at(-1).detail.valid_time_utc, currentTargets[1].valid_time_utc);
-assert.strictEqual(windowEvents.at(-1).detail.product_id, "winter_storm_levels");
+async function main() {
+  const snowShort = api.validateManifest(manifestFixture());
+  const qpfShort = api.validateQpfManifest(qpfManifestFixture());
+  assert.deepStrictEqual(snowShort._ptSnowCycles[0].targets.map((entry) => entry.lead_hours), leads);
+  assert.deepStrictEqual(qpfShort._ptQpfCycles[0].targets.map((entry) => entry.lead_hours), qpfLeads);
 
-const inFlightLayer = new api.Layer({manifestUrl: "https://example.test/manifest.json"});
-inFlightLayer._createCard = function() {};
-inFlightLayer.refreshCurrentView = function() {};
-inFlightLayer.onAdd(fakeMap);
-inFlightLayer._cycles = manifest._ptSnowCycles;
-inFlightLayer._fetchTarget = function() {
-  return Promise.resolve({
-    payload: {type: "FeatureCollection", features: []},
-    cacheHit: false,
-    bytes: 100,
-    fetchMs: 1,
-    hashMs: 1,
-    parseMs: 1,
-    featureCount: 0,
-    vertexCount: 0
-  });
-};
-const inFlightRequest = inFlightLayer.selectTarget(0, 1, "toggle-off fixture");
-inFlightLayer.forceRemove(fakeMap);
-
-const targetErrorLayer = new api.Layer({manifestUrl: "https://example.test/manifest.json"});
-targetErrorLayer._removed = false;
-targetErrorLayer._map = fakeMap;
-targetErrorLayer._cycles = manifest._ptSnowCycles;
-targetErrorLayer._displayedEntry = currentTargets[1];
-targetErrorLayer._timeState = {
-  cycle_utc: currentCycle,
-  valid_time_utc: currentTargets[1].valid_time_utc,
-  lead_hours: currentTargets[1].lead_hours
-};
-targetErrorLayer._ui.banner = {className: "", textContent: ""};
-targetErrorLayer._fetchTarget = function() { return Promise.reject(new Error("fixture target failure")); };
-
-const manifestErrorLayer = new api.Layer({manifestUrl: "https://example.test/manifest.json"});
-manifestErrorLayer._removed = false;
-manifestErrorLayer._ui.banner = {className: "", textContent: ""};
-manifestErrorLayer._fetchManifest = function() { return Promise.reject(new Error("fixture manifest failure")); };
-
-if (process.env.BRIM_SNOW_LIVE_MANIFEST) {
-  const liveManifestBytes = fs.readFileSync(process.env.BRIM_SNOW_LIVE_MANIFEST);
-  const liveManifest = api.validateManifest(JSON.parse(liveManifestBytes.toString("utf8")));
-  const currentIndex = api.defaultTargetIndex(liveManifest._ptSnowCycles[0].targets, Date.now());
-  assert(currentIndex >= 0, "the live manifest must expose a currently active target");
-  const currentEntry = liveManifest._ptSnowCycles[0].targets[currentIndex];
-  const previousIndex = api.closestTargetIndex(
-    liveManifest._ptSnowCycles[1].targets,
-    currentEntry.valid_time_utc,
-    Date.now()
+  const snowLong = api.validateManifest(manifestFixture(longSnowLeads));
+  const snowBootstrap = api.validateManifest(manifestFixture(longSnowLeads, 1));
+  const qpfLong = api.validateQpfManifest(qpfManifestFixture([qpfCycle(currentCycle, 0.4, longQpfLeads)]));
+  assert.strictEqual(snowLong._ptSnowCycles[0].targets.length, 41);
+  assert.strictEqual(snowLong._ptSnowCycles[0].targets.at(-1).lead_hours, 240);
+  assert.strictEqual(snowBootstrap._ptSnowCycles.length, 1);
+  assert.deepStrictEqual(
+    snowBootstrap._ptSnowCycles[0].targets.filter((entry) => [54, 66, 240].includes(entry.lead_hours))
+      .map((entry) => entry.lead_hours),
+    [54, 66, 240]
   );
-  const previousEntry = liveManifest._ptSnowCycles[1].targets[previousIndex];
+  assert.strictEqual(qpfLong._ptQpfCycles[0].targets.length, 40);
+  assert.strictEqual(qpfLong._ptQpfCycles[0].targets.at(-1).lead_hours, 240);
+  assert.strictEqual(api.horizonLabel(240), "Day 10 · +240 h");
+  assert(api.horizonCue(240).includes("lower confidence"));
+  assert.deepStrictEqual(
+    qpfLong._ptQpfCycles[0].targets.filter((entry) => [54, 66, 240].includes(entry.lead_hours))
+      .map((entry) => entry.lead_hours),
+    [54, 66, 240]
+  );
 
-  function validateLiveTarget(filename, liveEntry) {
-    const started = performance.now();
-    const bytes = fs.readFileSync(filename);
-    assert.strictEqual(bytes.byteLength, liveEntry.bytes, "live target bytes must match the manifest");
-    assert.strictEqual(
-      crypto.createHash("sha256").update(bytes).digest("hex"),
-      liveEntry.sha256,
-      "live target SHA-256 must match the manifest"
+  const snowOnly = api.buildInventory(snowLong._ptSnowCycles, [], true, false);
+  const qpfOnly = api.buildInventory([], qpfLong._ptQpfCycles, false, true);
+  const combined = api.buildInventory(snowLong._ptSnowCycles, qpfLong._ptQpfCycles, true, true);
+  assert.strictEqual(snowOnly[0].targets.length, 41);
+  assert.strictEqual(qpfOnly[0].targets.length, 40);
+  assert.strictEqual(combined[0].targets.length, 41);
+  assert(combined[0].targets[0].snowTarget && !combined[0].targets[0].qpfTarget);
+  assert(combined[0].targets[1].snowTarget && combined[0].targets[1].qpfTarget);
+
+  const pair = api.findQpfPair(qpfShort, {
+    cycle_utc: currentCycle,
+    valid_time_utc: iso(Date.parse(currentCycle) + 6 * 3600000),
+    lead_hours: 6
+  }, Date.parse(currentCycle) + 8 * 3600000);
+  assert.strictEqual(pair.status, "paired");
+  assert.strictEqual(api.findQpfPair(qpfShort, {
+    cycle_utc: previousCycle,
+    valid_time_utc: iso(Date.parse(previousCycle) + 6 * 3600000),
+    lead_hours: 6
+  }, Date.parse(currentCycle)).status, "no_same_cycle");
+  assert.strictEqual(api.findQpfPair(qpfShort, {
+    cycle_utc: currentCycle,
+    valid_time_utc: iso(Date.parse(currentCycle) + 3600000),
+    lead_hours: 1
+  }, Date.parse(currentCycle)).status, "snow_only");
+
+  const duplicateQpf = qpfManifestFixture([qpfCycle(currentCycle, 0.4, longQpfLeads)]);
+  duplicateQpf.cycles[0].complete_required_leads_hours[2] = 12;
+  assert.throws(() => api.validateQpfManifest(duplicateQpf), /unique ordered/);
+  const badSnow = manifestFixture(longSnowLeads);
+  badSnow.targets.pop();
+  assert.throws(() => api.validateManifest(badSnow), /target_count|coherent|retained/);
+
+  const {entry: numericEntry, gzip: numericGzip} = numericPayloadFixture(54);
+  await api.verifyForecastState(numericEntry, numericDependencies);
+  const numericFrame = await api.decodeNumeric(arrayBuffer(numericGzip), numericEntry, numericDependencies);
+  assert.strictEqual(numericFrame.values.length, 720 * 733);
+  assert.deepStrictEqual(api.lngLatToCell(cellCenterLatLng(0, 0), numericFrame), {
+    row: 0, column: 0, index: 0
+  });
+  assert.deepStrictEqual(api.lngLatToCell(cellCenterLatLng(366, 360), numericFrame), {
+    row: 366, column: 360, index: 366 * 720 + 360
+  });
+  assert.deepStrictEqual(api.lngLatToCell({lat: 44.5, lng: -130}, numericFrame), {
+    row: 0, column: 0, index: 0
+  });
+  assert.deepStrictEqual(api.lngLatToCell({lat: 30, lng: -112}, numericFrame), {
+    row: 732, column: 719, index: 732 * 720 + 719
+  });
+  assert.strictEqual(api.lngLatToCell({lat: 29.99, lng: -120}, numericFrame), null);
+  assert.strictEqual(api.lngLatToCell({lat: 35, lng: -130.01}, numericFrame), null);
+  assert.strictEqual(api.numericValueAt(numericFrame, cellCenterLatLng(0, 0)).value_in, 0.123);
+  assert.strictEqual(api.numericValueAt(numericFrame, cellCenterLatLng(366, 360)).value_in, 0.456);
+  assert.strictEqual(api.numericValueAt(numericFrame, cellCenterLatLng(100, 200)), null);
+  assert.strictEqual(api.numericValueAt(numericFrame, cellCenterLatLng(732, 719)).value_in, 0.789);
+
+  const wrongCompressedBytes = clone(numericEntry);
+  wrongCompressedBytes.numeric.compressed_bytes += 1;
+  await assert.rejects(
+    api.decodeNumeric(arrayBuffer(numericGzip), wrongCompressedBytes, numericDependencies),
+    /compressed byte count/
+  );
+
+  const wrongSha = clone(numericEntry);
+  wrongSha.numeric.sha256 = "d".repeat(64);
+  wrongSha.numeric.path = wrongSha.numeric.path.replace(/_[0-9a-f]{12}\.u16le\.gz$/, "_dddddddddddd.u16le.gz");
+  wrongSha.forecast_state_id = crypto.createHash("sha256")
+    .update(api.forecastStateText(wrongSha), "utf8").digest("hex");
+  await assert.rejects(
+    api.decodeNumeric(arrayBuffer(numericGzip), wrongSha, numericDependencies),
+    /numeric SHA-256/
+  );
+
+  const corruptBytes = Buffer.from([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00]);
+  const corrupt = clone(numericEntry);
+  corrupt.numeric.compressed_bytes = corruptBytes.byteLength;
+  corrupt.numeric.sha256 = crypto.createHash("sha256").update(corruptBytes).digest("hex");
+  corrupt.numeric.path = corrupt.numeric.path.replace(
+    /_[0-9a-f]{12}\.u16le\.gz$/,
+    `_${corrupt.numeric.sha256.slice(0, 12)}.u16le.gz`
+  );
+  corrupt.forecast_state_id = crypto.createHash("sha256")
+    .update(api.forecastStateText(corrupt), "utf8").digest("hex");
+  await assert.rejects(
+    api.decodeNumeric(arrayBuffer(corruptBytes), corrupt, numericDependencies),
+    /gzip payload is corrupt/
+  );
+
+  const shortGzip = zlib.gzipSync(Buffer.alloc(4), {mtime: 0});
+  const wrongUncompressed = clone(numericEntry);
+  wrongUncompressed.numeric.compressed_bytes = shortGzip.byteLength;
+  wrongUncompressed.numeric.sha256 = crypto.createHash("sha256").update(shortGzip).digest("hex");
+  wrongUncompressed.numeric.path = wrongUncompressed.numeric.path.replace(
+    /_[0-9a-f]{12}\.u16le\.gz$/,
+    `_${wrongUncompressed.numeric.sha256.slice(0, 12)}.u16le.gz`
+  );
+  wrongUncompressed.forecast_state_id = crypto.createHash("sha256")
+    .update(api.forecastStateText(wrongUncompressed), "utf8").digest("hex");
+  await assert.rejects(
+    api.decodeNumeric(arrayBuffer(shortGzip), wrongUncompressed, numericDependencies),
+    /uncompressed byte count/
+  );
+
+  const wrongState = clone(numericEntry);
+  wrongState.forecast_state_id = "e".repeat(64);
+  await assert.rejects(
+    api.decodeNumeric(arrayBuffer(numericGzip), wrongState, numericDependencies),
+    /forecast_state_id/
+  );
+  const swappedLead = clone(numericEntry);
+  swappedLead.lead_hours = 60;
+  assert.throws(() => api.validateQpfTarget(swappedLead, swappedLead.cycle_utc, 0), /identity|preceding-six-hour|path/);
+  const swappedCycle = clone(numericEntry);
+  swappedCycle.cycle_utc = previousCycle;
+  assert.throws(() => api.validateQpfTarget(swappedCycle, swappedCycle.cycle_utc, 0), /identity|preceding-six-hour|path/);
+  const wrongGrid = clone(numericEntry);
+  wrongGrid.columns = 721;
+  assert.throws(() => api.validateQpfTarget(wrongGrid, wrongGrid.cycle_utc, 0), /grid/);
+  const wrongDimensions = clone(numericEntry);
+  wrongDimensions.image_width = 721;
+  assert.throws(() => api.validateQpfTarget(wrongDimensions, wrongDimensions.cycle_utc, 0), /grid/);
+
+  const manifestUrl = "https://example.test/data/nbm-qpf/nbm_qpf_manifest.json";
+  const originalFetch = global.fetch;
+  global.fetch = async () => ({ok: false, status: 503, headers: {get() { return null; }}});
+  await assert.rejects(api.fetchNumericFrame(numericEntry, manifestUrl, null), /HTTP 503/);
+
+  api.numericCacheClear();
+  let numericFetches = 0;
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: {get() { return null; }},
+    async arrayBuffer() { numericFetches += 1; return arrayBuffer(numericGzip); }
+  });
+  const firstAcquire = api.numericAcquire(numericEntry, manifestUrl);
+  const secondAcquire = api.numericAcquire(numericEntry, manifestUrl);
+  assert.strictEqual(firstAcquire.promise, secondAcquire.promise);
+  await Promise.all([firstAcquire.promise, secondAcquire.promise]);
+  assert.strictEqual(numericFetches, 1);
+  assert.strictEqual(api.numericCacheSize(), 1);
+  firstAcquire.release();
+  secondAcquire.release();
+
+  api.numericCacheClear();
+  let abortedSignal = null;
+  global.fetch = (url, options) => new Promise((resolve, reject) => {
+    abortedSignal = options.signal;
+    options.signal.addEventListener("abort", () => {
+      const error = new Error("aborted");
+      error.name = "AbortError";
+      reject(error);
+    });
+  });
+  const abortAcquire = api.numericAcquire(numericEntry, manifestUrl);
+  const abortedPromise = abortAcquire.promise.catch((error) => error);
+  abortAcquire.release();
+  const abortError = await abortedPromise;
+  assert.strictEqual(abortError.name, "AbortError");
+  assert.strictEqual(abortedSignal.aborted, true);
+  assert.strictEqual(api.numericInflightSize(), 0);
+
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: {get() { return null; }},
+    async arrayBuffer() { return arrayBuffer(numericGzip); }
+  });
+  const primeAcquire = api.numericAcquire(numericEntry, manifestUrl);
+  await primeAcquire.promise;
+  primeAcquire.release();
+  const numericCycle = qpfCycle(currentCycle, 0.4, [54]);
+  numericCycle.targets = [numericEntry];
+  const numericManifest = api.validateQpfManifest(qpfManifestFixture([numericCycle]));
+  const providerEvents = new Map();
+  const providerClasses = new Set();
+  const providerStatuses = [];
+  const providerMap = {
+    on(name, handler) { providerEvents.set(name, handler); },
+    off(name, handler) { if (providerEvents.get(name) === handler) providerEvents.delete(name); },
+    removeLayer() {},
+    getContainer() {
+      return {classList: {
+        add(name) { providerClasses.add(name); },
+        remove(name) { providerClasses.delete(name); }
+      }};
+    }
+  };
+  const provider = api.createNumericProvider();
+  const providerHandle = provider.attachSelectedFrame({
+    map: providerMap,
+    manifest: numericManifest,
+    manifest_url: manifestUrl,
+    target: numericEntry,
+    target_url: api.qpfTargetUrl(numericEntry, manifestUrl),
+    exact_identity: {
+      cycle_utc: numericEntry.cycle_utc,
+      valid_time_utc: numericEntry.valid_time_utc,
+      lead_hours: numericEntry.lead_hours
+    },
+    onStatus(kind, text) { providerStatuses.push({kind, text}); }
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.strictEqual(providerHandle.isReady(), true);
+  assert.strictEqual(providerStatuses.at(-1).kind, "ready");
+  assert(providerEvents.has("mousemove"));
+  assert(providerClasses.has("pt-ops-nbm-qpf-numeric-hover-on"));
+  providerHandle.setSuppressed(true);
+  providerHandle.setSuppressed(false);
+  providerHandle.detach();
+  providerHandle.detach();
+  assert.strictEqual(providerHandle.isReady(), false);
+  assert.strictEqual(providerEvents.size, 0);
+  assert.strictEqual(providerClasses.size, 0);
+  provider.clearCache();
+  global.fetch = originalFetch;
+
+  assert.strictEqual(api.freshness(snowShort, Date.parse(currentCycle) + 6 * 3600000), "current");
+  assert.strictEqual(api.freshness(snowShort, Date.parse(currentCycle) + 25 * 3600000), "expired");
+  assert(api.formatPacific("2026-07-15T12:00:00Z").includes("5:00 AM PDT"));
+  assert.strictEqual(api.color(0), "#2c5aa0");
+  assert.strictEqual(api.color(20000), "#a52347");
+
+  api.cacheClear();
+  for (let index = 1; index <= 4; index += 1) api.cacheSet(`target-${index}`, {index});
+  api.cacheGet("target-1");
+  api.cacheSet("target-5", {index: 5});
+  assert.strictEqual(api.cacheSize(), 4);
+  assert.strictEqual(api.cacheGet("target-2"), null);
+
+  const controller = new api.Controller({
+    qpfManifestUrl: "https://example.test/data/nbm-qpf/nbm_qpf_manifest.json"
+  });
+  controller._removed = false;
+  controller._snowActive = true;
+  controller._qpfActive = true;
+  controller._inventoryCycles = combined;
+  const loaded = [];
+  controller._loadSnowSelection = async (state) => loaded.push(["snow", state.lead_hours]);
+  controller._loadQpfSelection = async (state) => loaded.push(["qpf", state.lead_hours]);
+  await controller.selectTarget(0, 1, "fixture selection");
+  assert.deepStrictEqual(loaded, [["snow", 6], ["qpf", 6]]);
+  assert.strictEqual(windowEvents.at(-1).type, "brim:nbm-time-selection");
+  assert.strictEqual(windowEvents.at(-1).detail.product_id, "nbm_forecast_guidance");
+  assert.strictEqual(windowEvents.at(-1).detail.snow_available, true);
+  assert.strictEqual(windowEvents.at(-1).detail.qpf_available, true);
+
+  let attached = 0;
+  let detached = 0;
+  let suppressed = null;
+  controller._qpfManifest = qpfShort;
+  controller._qpfDisplayedEntry = qpfShort.cycles[0].targets[0];
+  controller.setQpfNumericHoverProvider({
+    attachSelectedFrame(context) {
+      attached += 1;
+      assert.deepStrictEqual(context.exact_identity, {
+        cycle_utc: currentCycle,
+        valid_time_utc: iso(Date.parse(currentCycle) + 6 * 3600000),
+        lead_hours: 6
+      });
+      return {detach() { detached += 1; }, setSuppressed(value) { suppressed = value; }};
+    }
+  });
+  controller._setSnowHoverOwned(true);
+  assert.strictEqual(attached, 1);
+  assert.strictEqual(suppressed, true);
+  controller.setQpfNumericHoverProvider(null);
+  assert.strictEqual(detached, 1);
+
+  const mapEvents = new Map();
+  let removedLayers = 0;
+  const fakeMap = {
+    on(name, handler) { mapEvents.set(name, handler); },
+    off(name, handler) { if (mapEvents.get(name) === handler) mapEvents.delete(name); },
+    removeLayer() { removedLayers += 1; },
+    removeControl() {},
+    getZoom() { return 6; }
+  };
+  const lifecycle = new api.Controller({});
+  lifecycle._createCard = function() {};
+  lifecycle.refreshProduct = function() { return Promise.resolve(); };
+  lifecycle.activateProduct("snow", fakeMap);
+  lifecycle.activateProduct("snow", fakeMap);
+  lifecycle.activateProduct("qpf", fakeMap);
+  assert.strictEqual(lifecycle.getDiagnostics().activations.snow, 1);
+  assert.strictEqual(lifecycle.getDiagnostics().activations.qpf, 1);
+  assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, lifecycle);
+  assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmSnowLevels, lifecycle);
+  lifecycle.deactivateProduct("snow", fakeMap);
+  assert.strictEqual(lifecycle._qpfActive, true);
+  assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, lifecycle);
+  lifecycle.deactivateProduct("snow", fakeMap);
+  lifecycle.deactivateProduct("qpf", fakeMap);
+  lifecycle.deactivateProduct("qpf", fakeMap);
+  assert.strictEqual(lifecycle.getDiagnostics().removals.snow, 1);
+  assert.strictEqual(lifecycle.getDiagnostics().removals.qpf, 1);
+  assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, undefined);
+  assert.strictEqual(documentListeners.size, 0);
+  assert.strictEqual(mapEvents.size, 0);
+  assert(removedLayers >= 1);
+
+  let activations = 0;
+  let removals = 0;
+  const proxy = new api.ProductLayer({
+    activateProduct() { activations += 1; },
+    deactivateProduct() { removals += 1; },
+    refreshProduct() {}
+  }, "qpf");
+  proxy.onAdd(fakeMap);
+  proxy.onAdd(fakeMap);
+  proxy.forceRemove(fakeMap);
+  proxy.forceRemove(fakeMap);
+  assert.strictEqual(activations, 1);
+  assert.strictEqual(removals, 1);
+
+  if (process.env.BRIM_SNOW_LIVE_MANIFEST) {
+    const bytes = fs.readFileSync(process.env.BRIM_SNOW_LIVE_MANIFEST);
+    const live = api.validateManifest(JSON.parse(bytes.toString("utf8")));
+    assert.strictEqual(live._ptSnowCycles.length, 1);
+    assert.deepStrictEqual(
+      live._ptSnowCycles[0].targets.map((entry) => entry.lead_hours),
+      longSnowLeads
     );
-    const parsed = JSON.parse(bytes.toString("utf8"));
-    const geometry = api.validateGeoJson(parsed, liveEntry);
-    return {
-      path: liveEntry.path,
-      bytes: bytes.byteLength,
+    const index = api.defaultTargetIndex(live._ptSnowCycles[0].targets, Date.now());
+    assert(index >= 0 && process.env.BRIM_SNOW_LIVE_CURRENT);
+    const entry = live._ptSnowCycles[0].targets[index];
+    const targetBytes = fs.readFileSync(process.env.BRIM_SNOW_LIVE_CURRENT);
+    assert.strictEqual(targetBytes.byteLength, entry.bytes);
+    assert.strictEqual(crypto.createHash("sha256").update(targetBytes).digest("hex"), entry.sha256);
+    const geometry = api.validateGeoJson(JSON.parse(targetBytes.toString("utf8")), entry);
+    console.log(`LIVE_SMOKE ${JSON.stringify({
+      manifestBytes: bytes.byteLength, currentCycleUtc: live._ptSnowCycles[0].cycle_time_utc,
+      leadCount: live._ptSnowCycles[0].targets.length, currentLeadHours: entry.lead_hours,
       featureCount: geometry.featureCount,
-      vertexCount: geometry.vertexCount,
-      parseValidateMs: Number((performance.now() - started).toFixed(2))
-    };
+      vertexCount: geometry.vertexCount
+    })}`);
   }
 
-  assert(process.env.BRIM_SNOW_LIVE_CURRENT, "current live target file is required");
-  assert(process.env.BRIM_SNOW_LIVE_PREVIOUS, "previous live target file is required");
-  const liveSummary = {
-    manifestBytes: liveManifestBytes.byteLength,
-    currentCycleUtc: liveManifest._ptSnowCycles[0].cycle_time_utc,
-    previousCycleUtc: liveManifest._ptSnowCycles[1].cycle_time_utc,
-    currentValidPacific: api.formatPacific(currentEntry.valid_time_utc),
-    currentValidUtc: api.utcHour(currentEntry.valid_time_utc),
-    currentTarget: validateLiveTarget(process.env.BRIM_SNOW_LIVE_CURRENT, currentEntry),
-    previousTarget: validateLiveTarget(process.env.BRIM_SNOW_LIVE_PREVIOUS, previousEntry)
-  };
-  console.log(`LIVE_SMOKE ${JSON.stringify(liveSummary)}`);
-}
+  if (process.env.BRIM_QPF_LIVE_MANIFEST) {
+    const bytes = fs.readFileSync(process.env.BRIM_QPF_LIVE_MANIFEST);
+    const live = api.validateQpfManifest(JSON.parse(bytes.toString("utf8")));
+    assert.strictEqual(live.retention_mode, "bootstrap");
+    assert.strictEqual(live.cycles.length, 1);
+    assert.deepStrictEqual(live.cycles[0].targets.map((entry) => entry.lead_hours), longQpfLeads);
+    live.cycles[0].targets.forEach((target) => {
+      assert(target.forecast_state_id && target.numeric.path.endsWith(".u16le.gz"));
+      assert.strictEqual(target.numeric.uncompressed_bytes, 1055520);
+      assert.strictEqual(target.numeric.encoding, "uint16_le");
+      assert.strictEqual(target.numeric.compression, "gzip");
+    });
+    const entry = live.cycles[0].targets[0];
+    assert(process.env.BRIM_QPF_LIVE_TARGET);
+    const targetBytes = fs.readFileSync(process.env.BRIM_QPF_LIVE_TARGET);
+    assert.strictEqual(targetBytes.byteLength, entry.bytes);
+    assert.strictEqual(crypto.createHash("sha256").update(targetBytes).digest("hex"), entry.sha256);
+    assert.strictEqual(targetBytes.subarray(0, 4).toString("ascii"), "RIFF");
+    assert.strictEqual(targetBytes.subarray(8, 12).toString("ascii"), "WEBP");
+    const numericResults = [];
+    for (const lead of [6, 54, 66, 240]) {
+      const envName = `BRIM_QPF_LIVE_NUMERIC_F${String(lead).padStart(3, "0")}`;
+      assert(process.env[envName], `${envName} is required for the f240 live smoke`);
+      const numericEntry = live.cycles[0].targets.find((target) => target.lead_hours === lead);
+      const numericBytes = fs.readFileSync(process.env[envName]);
+      const frame = await api.decodeNumeric(arrayBuffer(numericBytes), numericEntry, numericDependencies);
+      numericResults.push({
+        leadHours: lead,
+        compressedBytes: numericBytes.byteLength,
+        cells: frame.values.length,
+        forecastStateId: frame.forecast_state_id
+      });
+    }
+    console.log(`QPF_LIVE_SMOKE ${JSON.stringify({
+      manifestBytes: bytes.byteLength, retentionMode: live.retention_mode,
+      currentCycleUtc: live.current_cycle_utc, leadCount: live.cycles[0].targets.length,
+      targetPath: entry.image_path, targetBytes: targetBytes.byteLength,
+      numericResults
+    })}`);
+  }
 
-Promise.resolve(inFlightRequest)
-  .then(() => {
-    assert.deepStrictEqual(inFlightLayer.getTimeState(), {
-      cycle_utc: null,
-      valid_time_utc: null,
-      lead_hours: null
-    }, "toggle OFF during target load must prevent a late state commit");
-    assert.strictEqual(inFlightLayer._displayGroup, null, "toggle OFF during target load must not add late geometry");
-    return targetErrorLayer.selectTarget(0, 2, "target error fixture");
-  })
-  .then(() => {
-    assert.strictEqual(targetErrorLayer.getDiagnostics().errors.length, 1);
-    assert(targetErrorLayer._ui.banner.textContent.includes("fixture target failure"));
-    assert.strictEqual(targetErrorLayer._displayedEntry, currentTargets[1], "target failure must retain prior validated geometry state");
-    return manifestErrorLayer.refreshCurrentView();
-  })
-  .then(() => {
-    assert.strictEqual(manifestErrorLayer.getDiagnostics().errors.length, 1);
-    assert(manifestErrorLayer._ui.banner.textContent.includes("fixture manifest failure"));
-    console.log("NBM Snow Levels deterministic consumer tests passed.");
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+  console.log("NBM Snow Levels + QPF peer-layer deterministic consumer tests passed.");
+}
+main().catch((error) => { console.error(error); process.exitCode = 1; });
