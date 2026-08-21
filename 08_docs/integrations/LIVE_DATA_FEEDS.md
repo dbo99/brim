@@ -35,16 +35,19 @@ document or a small interface-version file.
 - Sample feed fixtures may be added under `sample_data/`; production feed
   snapshots should remain outside this repository.
 
-## NBM Snow Levels and QPF peer consumers
+## NBM Snow Levels, six-hour QPF, and accumulated-QPF consumers
 
 Ops Live consumes the external `winter_storm_levels` contract at runtime from:
 
 `https://dbo99.github.io/brim-live-data-feeds/data/winter-storm-levels/winter_storm_levels_manifest.json`
 
-`NBM Snow Levels` and `NBM 6-Hour QPF` are separate, lazy Ops Live rows. The
+`NBM Snow Levels`, `NBM 6-Hour QPF`, and `NBM Accumulated QPF (0–10 d)` are separate,
+lazy Ops Live rows. The
 initial BRIM HTML contains their consumer code but no manifest, target,
-contour geometry, or QPF image. Enabling either row fetches only that product's
-manifest and selected immutable target. A failure or unavailable state in one
+contour geometry, QPF image, or numeric grid. Enabling any row fetches only its
+required manifest; snapshot rows fetch one selected immutable target, while the
+accumulator fetches the exact required existing numeric intervals. A failure or
+unavailable state in one
 feed does not turn off, replace, or reinterpret the other product.
 
 The Snow consumer validates a complete one-cycle bootstrap or two-cycle steady
@@ -150,3 +153,30 @@ product's in-flight work and removes only its resources. The shared card,
 controller aliases, visibility listener, move/zoom listener, and refresh timer
 remain until the final active NBM peer is removed; final teardown removes them
 idempotently.
+
+### NBM accumulated-QPF zero-storage contract
+
+`NBM Accumulated QPF (0–10 d)` is a browser-only consumer of the numeric companions
+already listed by the selected exact-cycle QPF manifest. It introduces no feed
+endpoint, producer request, public asset, or stored accumulation product. For
+an exact six-hour-boundary window `[a,b]`, it requires every existing interval
+ending at `a+6, a+12, ..., b`; one missing, corrupt, identity-mismatched, or
+NoData-mask-disagreeing interval removes the accumulated surface and reports
+the window unavailable. Partial totals are never rendered.
+
+The consumer keeps a selected-cycle cache of verified compressed numeric
+ArrayBuffers and uses six bounded concurrent requests. One cycle-scoped Worker
+decompresses intervals sequentially, sums stored uint16 thousandths directly
+into a uint32 result, verifies the common NoData mask, and applies a fixed
+nonlinear accumulated-precipitation palette. A persistent canvas layer on
+`pane_ops_qpf` replaces the prior window atomically. One-boundary changes use
+exact integer add/subtract in the Worker; larger jumps recompute from verified
+compressed inputs. The numeric result—not palette inversion—owns exact hover.
+
+The shared NBM run selector remains the sole cycle control. Snow and six-hour
+QPF retain the single-valid-time controls; accumulated QPF has independent
+start/end leads, calendar-first Pacific endpoint labels, Day/6-hour display
+density, and Next 24 h / Next 72 h / Next 10 days actions. Scientific duration
+is forecast elapsed time, including across daylight-saving transitions. NBM
+six-hour QPF and accumulated QPF are mutually exclusive precipitation rasters;
+Snow remains independently compatible above either raster.

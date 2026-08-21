@@ -30,6 +30,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
   var PT_SNOW_REFRESH_MS = 15 * 60 * 1000;
   var PT_SNOW_DOMAIN = [-130, 30, -112, 44.5];
   var PT_QPF_PRODUCT_NAME = 'NBM 6-Hour QPF';
+  var PT_ACCUM_PRODUCT_NAME = 'NBM Accumulated QPF (0–10 d)';
   var PT_QPF_PRODUCT_ID = 'nbm_qpf';
   var PT_QPF_SOURCE_ID = 'noaa_nbm_core_conus_apcp';
   var PT_QPF_SCHEMA_VERSION = '1.0.0';
@@ -237,6 +238,27 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     var clock = out.hour + (compactZeroMinutes && out.minute === '00' ? '' : ':' + out.minute);
     return [out.weekday, out.month, out.day].join(' ') + ' \u00b7 ' +
       clock + ' ' + out.dayPeriod + ' ' + out.timeZoneName;
+  }
+
+  function ptSnowFormatPacificHoverEndpoint(value) {
+    var date = ptSnowDate(value, 'QPF hover endpoint');
+    var parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: PT_SNOW_PACIFIC_ZONE,
+      weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true,
+      timeZoneName: 'short'
+    }).formatToParts(date);
+    var out = {};
+    parts.forEach(function(part) {
+      if (part.type !== 'literal') out[part.type] = part.value;
+    });
+    var clock = out.hour + (out.minute === '00' ? '' : ':' + out.minute);
+    return [out.weekday, clock, out.dayPeriod, out.timeZoneName].join(' ');
+  }
+
+  function ptSnowFormatCompactUtcEndpoint(value) {
+    var date = ptSnowDate(value, 'QPF UTC hover endpoint');
+    return String(date.getUTCDate()).padStart(2, '0') + '/' +
+      String(date.getUTCHours()).padStart(2, '0') + 'Z';
   }
 
   function ptSnowUtcHour(value) {
@@ -964,13 +986,13 @@ pt_ops_live_nbm_snow_levels_js <- function() {
           }
           var html = '<div class="pt-ops-nbm-qpf-hover-card">' +
             '<div class="pt-ops-nbm-qpf-hover-title">NBM 6-Hour QPF</div>' +
-            '<div class="pt-ops-nbm-qpf-hover-amount">' +
-              escapeHtml(sample.value_in.toFixed(3)) + ' in</div>' +
-            '<div class="pt-ops-nbm-qpf-hover-period">Preceding six hours</div>' +
-            '<div class="pt-ops-nbm-qpf-hover-valid">Valid ' +
-              escapeHtml(ptSnowFormatPacific(target.valid_time_utc, true)) + '</div>' +
-            '<div class="pt-ops-nbm-qpf-hover-meta">+' + escapeHtml(target.lead_hours) +
-              ' h · exact selected grid cell</div></div>';
+            '<div class="pt-ops-nbm-qpf-hover-summary">' +
+              escapeHtml(sample.value_in.toFixed(3)) + ' in <span aria-hidden="true">·</span> 6 hr</div>' +
+            '<div class="pt-ops-nbm-qpf-hover-local">Ending ' +
+              escapeHtml(ptSnowFormatPacificHoverEndpoint(target.valid_time_utc)) + '</div>' +
+            '<div class="pt-ops-nbm-qpf-hover-utc">(' +
+              escapeHtml(ptSnowFormatCompactUtcEndpoint(target.valid_time_utc)) + ')</div>' +
+            '<div class="pt-ops-nbm-qpf-hover-meta">exact grid cell</div></div>';
           if (!tooltip) {
             tooltip = L.tooltip({
               permanent: true, direction: 'top', offset: [8, -10], opacity: 0.97,
@@ -1375,9 +1397,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       .pt-ops-nbm-snow-state{margin:0 0 7px;padding:6px 7px;border:1px solid;border-radius:5px;font-size:11px;font-weight:700}
       .pt-ops-nbm-snow-state-current{color:#175538;background:#eef8f1;border-color:#8eb9a0}.pt-ops-nbm-snow-state-loading{color:#704900;background:#fff5dc;border-color:#d2b16c}
       .pt-ops-nbm-snow-state-delayed,.pt-ops-nbm-snow-state-previous{color:#77500d;background:#fff8e8;border-color:#d8ba79}.pt-ops-nbm-snow-state-stale,.pt-ops-nbm-snow-state-expired,.pt-ops-nbm-snow-state-error{color:#862c2b;background:#fff0ef;border-color:#d8a3a0}
-      .pt-ops-nbm-snow-time{padding:8px;border:1px solid rgba(54,84,86,.24);border-radius:6px;background:rgba(255,255,255,.72)}
+      .pt-ops-nbm-shared-cycle,.pt-ops-nbm-snow-time{padding:8px;border:1px solid rgba(54,84,86,.24);border-radius:6px;background:rgba(255,255,255,.72)}.pt-ops-nbm-snow-time{margin-top:7px}.pt-ops-nbm-snow-time[hidden]{display:none}
       .pt-ops-nbm-snow-kicker{color:#66757a;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}.pt-ops-nbm-snow-valid{font-size:18px;font-weight:750;margin-top:1px}
-      .pt-ops-nbm-snow-valid-utc,.pt-ops-nbm-snow-cycle-line{color:#617076;font-size:10.5px;margin-top:1px}.pt-ops-nbm-snow-cycle-line{margin:5px 0 4px}
+      .pt-ops-nbm-snow-valid-utc,.pt-ops-nbm-snow-cycle-line{color:#617076;font-size:10.5px;margin-top:1px}.pt-ops-nbm-snow-cycle-line{margin:3px 0 4px}
       .pt-ops-nbm-snow-cycle-select,.pt-ops-nbm-snow-target-select{width:100%;min-width:0;height:30px;border:1px solid #aab8bc;border-radius:4px;background:#fff;color:#202a2e;font:11px Arial,Helvetica,sans-serif}
       .pt-ops-nbm-snow-nav{display:grid;grid-template-columns:32px 1fr 32px;gap:4px;margin-top:5px}.pt-ops-nbm-snow-nav button{height:30px;margin:0!important;padding:0!important;font-size:17px!important}
       .pt-ops-nbm-snow-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.pt-ops-nbm-snow-controls label{display:inline-flex;align-items:center;margin:0!important;font-size:11px}
@@ -1390,9 +1412,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       .pt-ops-nbm-snow-note{margin-top:7px;color:#58686d;font-size:10.5px}.pt-ops-nbm-snow-details{margin-top:7px;padding-top:6px;border-top:1px solid rgba(54,84,86,.18);font-size:10px;color:#596a70}.pt-ops-nbm-snow-details summary{cursor:pointer;color:#315d6e;font-weight:700}
       .pt-ops-nbm-snow-metrics{margin-top:5px;overflow-wrap:anywhere}.pt-nbm-snow-label-wrap{background:transparent;border:0}.pt-nbm-snow-label{display:inline-block;transform:translate(-50%,-50%);padding:1px 3px;border:1px solid rgba(76,94,105,.48);border-radius:2px;color:#203e4d;background:rgba(255,255,255,.88);box-shadow:0 1px 2px rgba(0,0,0,.18);font:700 10px/1.1 Arial,Helvetica,sans-serif;white-space:nowrap}
       .leaflet-tooltip.pt-nbm-snow-tooltip{box-sizing:border-box;width:max-content;min-width:236px;max-width:300px;padding:6px 8px;white-space:normal;font:11px/1.24 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}.pt-nbm-snow-tooltip-title{color:#20343d;font-size:13px;font-weight:700;line-height:1.15;margin-bottom:3px}.pt-nbm-snow-tooltip-row{display:grid;grid-template-columns:30px auto;align-items:baseline;column-gap:6px;color:#405158;white-space:nowrap}.pt-nbm-snow-tooltip-row+.pt-nbm-snow-tooltip-row{margin-top:1px}.pt-nbm-snow-tooltip-label{color:#69777c;font-weight:600}.pt-nbm-snow-tooltip-value{color:#35484f}
-      .leaflet-container.pt-ops-nbm-qpf-numeric-hover-on{cursor:crosshair}.leaflet-tooltip.pt-ops-nbm-qpf-hover-tooltip{box-sizing:border-box;min-width:218px;max-width:280px;padding:7px 9px;white-space:normal;font:11px/1.24 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}.pt-ops-nbm-qpf-hover-title{color:#20343d;font-size:12px;font-weight:700}.pt-ops-nbm-qpf-hover-amount{margin:2px 0;color:#123b28;font-size:20px;font-weight:800;line-height:1.05}.pt-ops-nbm-qpf-hover-period{color:#405158;font-weight:700}.pt-ops-nbm-qpf-hover-valid{margin-top:2px;color:#35484f}.pt-ops-nbm-qpf-hover-meta{margin-top:2px;color:#69777c;font-size:9.5px}
+      .leaflet-container.pt-ops-nbm-qpf-numeric-hover-on{cursor:crosshair}.leaflet-tooltip.pt-ops-nbm-qpf-hover-tooltip{box-sizing:border-box;width:max-content;min-width:0;max-width:min(236px,calc(100vw - 24px));padding:5px 7px;white-space:normal;font:10.5px/1.22 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}.pt-ops-nbm-qpf-hover-title{color:#20343d;font-size:11.5px;font-weight:700}.pt-ops-nbm-qpf-hover-summary{margin-top:2px;color:#123b28;font-size:12.5px;font-weight:700;line-height:1.15;white-space:nowrap}.pt-ops-nbm-qpf-hover-local{margin-top:2px;color:#35484f;font-weight:600;white-space:nowrap}.pt-ops-nbm-qpf-hover-utc{color:#69777c;font-size:9.5px;white-space:nowrap}.pt-ops-nbm-qpf-hover-meta{margin-top:1px;color:#778489;font-size:8.75px;letter-spacing:.01em}
       .pt-nbm-snow-popup{min-width:240px;max-width:320px;font:11px/1.32 Arial,Helvetica,sans-serif}.pt-nbm-snow-popup-kicker{color:#586970;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.pt-nbm-snow-popup-title{font-size:16px;font-weight:700;margin:1px 0 6px}.pt-nbm-snow-popup-row{margin-top:5px}.pt-nbm-snow-popup-label{font-weight:700}.pt-nbm-snow-popup-secondary{color:#68777c;font-size:10px}.pt-nbm-snow-popup-note{margin-top:7px;padding-top:6px;border-top:1px solid #d5dddd;color:#5d6b70}
-      .pt-ops-nbm-product-section{margin-top:8px;padding:7px 8px;border:1px solid rgba(54,84,86,.22);border-radius:6px;background:rgba(255,255,255,.58)}.pt-ops-nbm-product-section[hidden]{display:none}.pt-ops-nbm-product-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;font-weight:700}.pt-ops-nbm-product-head button{font-size:10px!important;padding:2px 6px!important}.pt-ops-nbm-horizon{margin-top:3px;color:#5d6c71;font-size:10px}.pt-ops-nbm-hover-note{margin-top:5px;color:#5d6c71;font-size:9.5px}\n      @media(max-width:720px){.pt-ops-nbm-snow-card{width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:62vh}.pt-ops-nbm-snow-card-body{max-height:calc(62vh - 48px)}.pt-ops-nbm-qpf-controls{grid-template-columns:auto minmax(72px,1fr) auto}}
+      .pt-ops-nbm-product-section{margin-top:8px;padding:7px 8px;border:1px solid rgba(54,84,86,.22);border-radius:6px;background:rgba(255,255,255,.58)}.pt-ops-nbm-product-section[hidden]{display:none}.pt-ops-nbm-product-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;font-weight:700}.pt-ops-nbm-product-head button{font-size:10px!important;padding:2px 6px!important}.pt-ops-nbm-horizon{margin-top:3px;color:#5d6c71;font-size:10px}.pt-ops-nbm-hover-note{margin-top:5px;color:#5d6c71;font-size:9.5px}\n      @media(max-width:720px){.pt-ops-nbm-snow-card{box-sizing:border-box;width:calc(100vw - 16px);max-width:calc(100vw - 16px);height:min(62vh,var(--pt-map-legend-max-height,62vh));max-height:min(62vh,var(--pt-map-legend-max-height,62vh))}.pt-ops-nbm-snow-card-body{height:calc(100% - 61px);max-height:none}.pt-ops-nbm-qpf-controls{grid-template-columns:auto minmax(72px,1fr) auto}}
     `;
     document.head.appendChild(style);
   }
@@ -1474,6 +1496,8 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       this._removed = true;
       this._snowActive = false;
       this._qpfActive = false;
+      this._accumActive = false;
+      this._accumConsumer = null;
       this._manifest = null;
       this._cycles = [];
       this._freshness = null;
@@ -1518,16 +1542,22 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         manifestLoads: [], targetLoads: [], qpfManifestLoads: [], qpfTargetLoads: [],
         qpfNumericStates: [],
         qpfOverlayReplacements: 0, qpfOverlayRemovals: 0, errors: [],
-        activations: {snow: 0, qpf: 0}, removals: {snow: 0, qpf: 0},
+        activations: {snow: 0, qpf: 0, accum: 0}, removals: {snow: 0, qpf: 0, accum: 0},
         inventoryBuilds: 0, selections: 0
       };
     },
 
     getTimeState: function() {
+      var accumState = this._accumConsumer && typeof this._accumConsumer.getState === 'function'
+        ? this._accumConsumer.getState() : null;
       return {
         cycle_utc: this._timeState.cycle_utc,
         valid_time_utc: this._timeState.valid_time_utc,
-        lead_hours: this._timeState.lead_hours
+        lead_hours: this._timeState.lead_hours,
+        shared_cycle_utc: this._timeState.cycle_utc,
+        single_lead_hours: this._timeState.lead_hours,
+        accum_start_lead_hours: accumState ? accumState.start_lead_hours : null,
+        accum_end_lead_hours: accumState ? accumState.end_lead_hours : null
       };
     },
 
@@ -1544,7 +1574,11 @@ pt_ops_live_nbm_snow_levels_js <- function() {
           (this._cycleIndex === 1 ? 'previous' : 'retained')),
         snow_available: !!(target && target.snowTarget),
         qpf_available: !!(target && target.qpfTarget),
-        active_products: {snow_levels: this._snowActive, qpf_6_hour: this._qpfActive}
+        active_products: {
+          snow_levels: this._snowActive,
+          qpf_6_hour: this._qpfActive,
+          accumulated_qpf: this._accumActive
+        }
       };
     },
 
@@ -1567,6 +1601,27 @@ pt_ops_live_nbm_snow_levels_js <- function() {
           typeof this._qpfNumericHoverHandle.isReady === 'function' &&
           this._qpfNumericHoverHandle.isReady())
       };
+    },
+
+    getAccumulatedQpfState: function() {
+      return this._accumConsumer && typeof this._accumConsumer.getState === 'function'
+        ? this._accumConsumer.getState()
+        : {active: false, cycle_utc: null, start_lead_hours: null, end_lead_hours: null};
+    },
+
+    setAccumulatedQpfConsumer: function(consumer) {
+      if (consumer !== null && (!consumer || typeof consumer.activate !== 'function' ||
+          typeof consumer.deactivate !== 'function' || typeof consumer.selectCycle !== 'function')) {
+        throw new Error('Accumulated QPF consumer must expose activate, deactivate, and selectCycle methods.');
+      }
+      if (this._accumConsumer && this._accumConsumer !== consumer &&
+          typeof this._accumConsumer.destroy === 'function') {
+        this._accumConsumer.destroy();
+      }
+      this._accumConsumer = consumer;
+      if (consumer && typeof consumer.bindController === 'function') consumer.bindController(this);
+      if (consumer && this._card && typeof consumer.mountCard === 'function') consumer.mountCard(this._card);
+      return true;
     },
 
     _emitTimeSelection: function(reason) {
@@ -1600,18 +1655,21 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         div.innerHTML =
           '<div class="pt-ops-nbm-snow-card-head pt-map-card-handle">' +
             '<div><div class="pt-ops-nbm-snow-card-title">NBM Forecast Guidance</div>' +
-            '<div class="pt-ops-nbm-snow-card-subtitle">One exact cycle + valid-time state for active NBM products</div></div>' +
+            '<div class="pt-ops-nbm-snow-card-subtitle">One exact NBM run · independent snapshot and accumulation times</div></div>' +
             '<span class="pt-map-card-actions"><button type="button" class="pt-map-card-dock pt-ops-nbm-snow-dock" aria-label="Undock NBM Forecast Guidance card" title="Undock NBM Forecast Guidance card">&#x2197;</button>' +
             '<button type="button" class="pt-map-legend-close pt-ops-nbm-snow-close" aria-label="Hide NBM Forecast Guidance card" title="Hide NBM Forecast Guidance card">&times;</button></span>' +
           '</div>' +
           '<div class="pt-ops-nbm-snow-card-body">' +
             '<div class="pt-ops-nbm-snow-state pt-ops-nbm-snow-state-loading" role="status" aria-live="polite">Loading active NBM feed…</div>' +
+            '<div class="pt-ops-nbm-shared-cycle">' +
+              '<div class="pt-ops-nbm-snow-kicker">Shared NBM run · Pacific</div>' +
+              '<div class="pt-ops-nbm-snow-cycle-line">NBM cycle unavailable</div>' +
+              '<select class="pt-ops-nbm-snow-cycle-select" aria-label="Shared NBM cycle" disabled></select>' +
+            '</div>' +
             '<div class="pt-ops-nbm-snow-time">' +
               '<div class="pt-ops-nbm-snow-kicker">Forecast valid time · Pacific</div>' +
               '<div class="pt-ops-nbm-snow-valid">—</div>' +
               '<div class="pt-ops-nbm-snow-valid-utc">Valid UTC and lead unavailable</div>' +
-              '<div class="pt-ops-nbm-snow-cycle-line">NBM cycle unavailable</div>' +
-              '<select class="pt-ops-nbm-snow-cycle-select" aria-label="NBM cycle" disabled></select>' +
               '<div class="pt-ops-nbm-snow-nav">' +
                 '<button type="button" class="pt-ops-nbm-snow-prev" aria-label="Previous forecast target" title="Previous forecast target" disabled>&#x2039;</button>' +
                 '<select class="pt-ops-nbm-snow-target-select" aria-label="Forecast valid time" disabled></select>' +
@@ -1650,6 +1708,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         self._card = div;
         self._captureUi();
         self._wireCard();
+        if (self._accumConsumer && typeof self._accumConsumer.mountCard === 'function') {
+          self._accumConsumer.mountCard(div);
+        }
         self._updateProductSections();
         self._renderSelectors();
         return div;
@@ -1678,6 +1739,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         previous: this._card.querySelector('.pt-ops-nbm-snow-prev'),
         next: this._card.querySelector('.pt-ops-nbm-snow-next'),
         horizon: this._card.querySelector('.pt-ops-nbm-horizon'),
+        snapshotTime: this._card.querySelector('.pt-ops-nbm-snow-time'),
         snowSection: this._card.querySelector('.pt-ops-nbm-snow-section'),
         qpfSection: this._card.querySelector('.pt-ops-nbm-qpf-section'),
         snowState: this._card.querySelector('.pt-ops-nbm-snow-product-state'),
@@ -1725,6 +1787,10 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     _updateProductSections: function() {
       if (this._ui.snowSection) this._ui.snowSection.hidden = !this._snowActive;
       if (this._ui.qpfSection) this._ui.qpfSection.hidden = !this._qpfActive;
+      if (this._ui.snapshotTime) this._ui.snapshotTime.hidden = !this._snowActive && !this._qpfActive;
+      if (this._accumConsumer && typeof this._accumConsumer.setVisible === 'function') {
+        this._accumConsumer.setVisible(this._accumActive);
+      }
     },
 
     _setControlsBusy: function(busy) {
@@ -1782,8 +1848,13 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       var parts = [];
       if (this._snowActive) parts.push(entry.snowTarget ? 'Snow exact' : 'Snow unavailable');
       if (this._qpfActive) parts.push(entry.qpfTarget ? 'QPF exact' : 'QPF unavailable');
-      var incomplete = (this._snowActive && !entry.snowTarget) || (this._qpfActive && !entry.qpfTarget);
-      this._setBanner(incomplete ? 'delayed' : 'current', parts.join(' · ') + ' · ' + ptNbmHorizonLabel(entry.lead_hours));
+      if (this._accumActive) parts.push(entry.qpfCycle ? 'Accumulation cycle exact' : 'Accumulation unavailable');
+      var incomplete = (this._snowActive && !entry.snowTarget) ||
+        (this._qpfActive && !entry.qpfTarget) || (this._accumActive && !entry.qpfCycle);
+      var suffix = (!this._snowActive && !this._qpfActive && this._accumActive)
+        ? ' · select the independent forecast window below'
+        : ' · ' + ptNbmHorizonLabel(entry.lead_hours);
+      this._setBanner(incomplete ? 'delayed' : 'current', parts.join(' · ') + suffix);
     },
 
     _updateMetrics: function(metrics) {
@@ -2238,6 +2309,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       if (this._qpfNumericHoverHandle && typeof this._qpfNumericHoverHandle.setSuppressed === 'function') {
         this._qpfNumericHoverHandle.setSuppressed(this._snowHoverOwned);
       }
+      if (this._accumConsumer && typeof this._accumConsumer.setSnowHoverOwned === 'function') {
+        this._accumConsumer.setSnowHoverOwned(this._snowHoverOwned);
+      }
     },
 
     _removeSnowDisplayed: function() {
@@ -2438,7 +2512,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       var prior = this.getTimeState();
       this._inventoryCycles = ptNbmBuildInventory(
         this._cycles, this._qpfManifest ? this._qpfManifest._ptQpfCycles : [],
-        this._snowActive, this._qpfActive
+        this._snowActive, this._qpfActive || this._accumActive
       );
       this._diagnostics.inventoryBuilds += 1;
       var selected = prior.cycle_utc
@@ -2475,6 +2549,10 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       this._updateIdentity(state);
       this._updateBanner();
       this._emitTimeSelection(reason);
+      if (this._accumActive && this._accumConsumer) {
+        this._accumConsumer.selectCycle(state.cycle_utc, state.qpfCycle,
+          reason || 'shared NBM cycle selection');
+      }
       return Promise.all([
         this._loadSnowSelection(state, reason),
         this._loadQpfSelection(state, reason)
@@ -2528,12 +2606,17 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     },
 
     _applyQpfManifest: function(loaded, reason) {
-      if (!loaded || this._removed || !this._qpfActive) return Promise.resolve(null);
+      if (!loaded || this._removed || (!this._qpfActive && !this._accumActive)) return Promise.resolve(null);
       this._qpfManifest = loaded.manifest;
       var cycles = loaded.manifest._ptQpfCycles;
-      this._setQpfState('paired', 'QPF manifest validated · ' + cycles.length + ' cycle' +
-        (cycles.length === 1 ? '' : 's') + ' · ' +
-        cycles[0].targets.length + ' manifest-declared leads.');
+      if (this._qpfActive) {
+        this._setQpfState('paired', 'QPF manifest validated · ' + cycles.length + ' cycle' +
+          (cycles.length === 1 ? '' : 's') + ' · ' +
+          cycles[0].targets.length + ' manifest-declared leads.');
+      }
+      if (this._accumConsumer && typeof this._accumConsumer.applyManifest === 'function') {
+        this._accumConsumer.applyManifest(loaded.manifest, loaded);
+      }
       return this._rebuildInventory(reason || 'QPF manifest refresh');
     },
 
@@ -2560,30 +2643,48 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     },
 
     _refreshQpfManifest: function(reason) {
-      if (this._removed || !this._qpfActive || !this.options.qpfManifestUrl) return Promise.resolve(null);
+      if (this._removed || (!this._qpfActive && !this._accumActive) ||
+          !this.options.qpfManifestUrl) return Promise.resolve(null);
       var self = this;
       var token = ++this._qpfManifestToken;
-      this._clearQpfNumericHover();
-      this._setQpfState('loading', 'Fetching and validating the public QPF manifest…');
-      setOpsLayerLoading(PT_QPF_PRODUCT_NAME, true);
+      if (this._qpfActive) {
+        this._clearQpfNumericHover();
+        this._setQpfState('loading', 'Fetching and validating the public QPF manifest…');
+        setOpsLayerLoading(PT_QPF_PRODUCT_NAME, true);
+      }
+      if (this._accumActive && this._accumConsumer &&
+          typeof this._accumConsumer.setManifestLoading === 'function') {
+        this._accumConsumer.setManifestLoading();
+        setOpsLayerLoading(PT_ACCUM_PRODUCT_NAME, true);
+      }
       return this._fetchQpfManifest(token).then(function(loaded) {
-        if (!loaded || self._removed || !self._qpfActive || token !== self._qpfManifestToken) return null;
-        setOpsLayerLoading(PT_QPF_PRODUCT_NAME, false);
+        if (!loaded || self._removed || (!self._qpfActive && !self._accumActive) ||
+            token !== self._qpfManifestToken) return null;
+        if (self._qpfActive) setOpsLayerLoading(PT_QPF_PRODUCT_NAME, false);
         return self._applyQpfManifest(loaded, reason);
       }).catch(function(error) {
-        if (self._removed || !self._qpfActive || token !== self._qpfManifestToken ||
+        if (self._removed || (!self._qpfActive && !self._accumActive) ||
+            token !== self._qpfManifestToken ||
             (error && error.name === 'AbortError')) return null;
         self._recordError(error);
-        self._setQpfState('error', 'QPF manifest unavailable or invalid.' +
-          (self._qpfDisplayedEntry ? ' Previously validated exact QPF remains displayed.' : ''));
-        setOpsLayerLoading(PT_QPF_PRODUCT_NAME, false);
-        recordStatus(PT_QPF_PRODUCT_NAME, 'QPF manifest unavailable or invalid.', 'pt-ops-bad');
+        if (self._qpfActive) {
+          self._setQpfState('error', 'QPF manifest unavailable or invalid.' +
+            (self._qpfDisplayedEntry ? ' Previously validated exact QPF remains displayed.' : ''));
+          setOpsLayerLoading(PT_QPF_PRODUCT_NAME, false);
+          recordStatus(PT_QPF_PRODUCT_NAME, 'QPF manifest unavailable or invalid.', 'pt-ops-bad');
+        }
+        if (self._accumActive && self._accumConsumer &&
+            typeof self._accumConsumer.failManifest === 'function') {
+          self._accumConsumer.failManifest(error);
+          setOpsLayerLoading(PT_ACCUM_PRODUCT_NAME, false);
+          recordStatus(PT_ACCUM_PRODUCT_NAME, 'QPF manifest unavailable or invalid.', 'pt-ops-bad');
+        }
         return null;
       });
     },
 
     refreshProduct: function(product, reason) {
-      return product === 'qpf'
+      return product === 'qpf' || product === 'accum'
         ? this._refreshQpfManifest(reason || 'QPF layer refresh')
         : this._refreshSnowManifest(reason || 'Snow layer refresh');
     },
@@ -2591,7 +2692,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     refreshCurrentView: function() {
       var requests = [];
       if (this._snowActive) requests.push(this._refreshSnowManifest('shared scheduled refresh'));
-      if (this._qpfActive) requests.push(this._refreshQpfManifest('shared scheduled refresh'));
+      if (this._qpfActive || this._accumActive) {
+        requests.push(this._refreshQpfManifest('shared scheduled refresh'));
+      }
       return Promise.all(requests);
     },
 
@@ -2600,6 +2703,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       window.BRIM.opsLiveTimeControllers = window.BRIM.opsLiveTimeControllers || {};
       window.BRIM.opsLiveTimeControllers.nbmForecast = this;
       window.BRIM.opsLiveTimeControllers.nbmSnowLevels = this;
+      window.BRIM.opsLiveTimeControllers.nbmAccumulatedQpf = this;
     },
 
     _unregisterTimeController: function() {
@@ -2607,6 +2711,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       if (!controllers) return;
       if (controllers.nbmForecast === this) delete controllers.nbmForecast;
       if (controllers.nbmSnowLevels === this) delete controllers.nbmSnowLevels;
+      if (controllers.nbmAccumulatedQpf === this) delete controllers.nbmAccumulatedQpf;
     },
 
     _startSharedLifecycle: function(mapObj) {
@@ -2626,7 +2731,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
     },
 
     activateProduct: function(product, mapObj) {
-      if (product !== 'snow' && product !== 'qpf') return false;
+      if (product !== 'snow' && product !== 'qpf' && product !== 'accum') return false;
       this._startSharedLifecycle(mapObj);
       if (product === 'snow') {
         if (this._snowActive) return true;
@@ -2641,7 +2746,7 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         };
         this.setLabelsVisible(ptSnowLabelsVisible);
         recordStatus(PT_SNOW_PRODUCT_NAME, 'Fetching the public Snow manifest…', 'pt-ops-warn');
-      } else {
+      } else if (product === 'qpf') {
         if (this._qpfActive) return true;
         this._qpfActive = true;
         this._diagnostics.activations.qpf += 1;
@@ -2653,6 +2758,18 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         };
         this.setQpfOpacity(ptQpfOpacity);
         recordStatus(PT_QPF_PRODUCT_NAME, 'Fetching the public QPF manifest…', 'pt-ops-warn');
+      } else {
+        if (this._accumActive || !this._accumConsumer) return !!this._accumConsumer;
+        this._accumActive = true;
+        this._diagnostics.activations.accum += 1;
+        activeLegendDefs[PT_ACCUM_PRODUCT_NAME] = {
+          unifiedCard: true, legendType: 'nbm_accumulated_qpf',
+          note: 'NOAA/NBM precipitation total for a selected forecast window. Exact selected-cycle numeric intervals only.',
+          sourceUrl: this.options.sourceUrl || '', infoUrl: this.options.qpfManifestUrl || '',
+          infoLabel: 'feed manifest'
+        };
+        this._accumConsumer.activate(mapObj);
+        recordStatus(PT_ACCUM_PRODUCT_NAME, 'Fetching and validating the public QPF manifest…', 'pt-ops-warn');
       }
       this._updateProductSections();
       redrawLegend();
@@ -2700,12 +2817,20 @@ pt_ops_live_nbm_snow_levels_js <- function() {
         delete activeLegendDefs[PT_QPF_PRODUCT_NAME];
         setOpsLayerLoading(PT_QPF_PRODUCT_NAME, false);
         recordStatus(PT_QPF_PRODUCT_NAME, 'Layer turned off.', 'pt-ops-muted');
+      } else if (product === 'accum') {
+        if (!this._accumActive) return true;
+        this._accumActive = false;
+        this._diagnostics.removals.accum += 1;
+        if (this._accumConsumer) this._accumConsumer.deactivate(mapObj || this._map);
+        delete activeLegendDefs[PT_ACCUM_PRODUCT_NAME];
+        setOpsLayerLoading(PT_ACCUM_PRODUCT_NAME, false);
+        recordStatus(PT_ACCUM_PRODUCT_NAME, 'Layer turned off.', 'pt-ops-muted');
       } else {
         return false;
       }
       this._updateProductSections();
       redrawLegend();
-      if (this._snowActive || this._qpfActive) {
+      if (this._snowActive || this._qpfActive || this._accumActive) {
         this._rebuildInventory(product + ' deactivation');
       } else {
         this._stopSharedLifecycle(mapObj || this._map);
@@ -2730,6 +2855,9 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       this._removeSnowDisplayed();
       this._removeQpfOverlay();
       this._clearQpfNumericHover();
+      if (this._accumConsumer && typeof this._accumConsumer.destroy === 'function') {
+        this._accumConsumer.destroy();
+      }
       if (this._qpfNumericHoverProvider &&
           typeof this._qpfNumericHoverProvider.clearCache === 'function') {
         this._qpfNumericHoverProvider.clearCache();
@@ -2776,6 +2904,11 @@ pt_ops_live_nbm_snow_levels_js <- function() {
       if (this._active) return;
       this._active = true;
       this._map = mapObj;
+      if (this._product === 'qpf' && window.ptOpsDeactivateLayerByName) {
+        window.ptOpsDeactivateLayerByName(PT_ACCUM_PRODUCT_NAME);
+      } else if (this._product === 'accum' && window.ptOpsDeactivateLayerByName) {
+        window.ptOpsDeactivateLayerByName(PT_QPF_PRODUCT_NAME);
+      }
       this._controller.activateProduct(this._product, mapObj);
     },
     onRemove: function(mapObj) {
@@ -2792,7 +2925,8 @@ pt_ops_live_nbm_snow_levels_js <- function() {
 
   var ptNbmForecastController = null;
   if ((includeNbmSnowLevels && NBM_SNOW_LEVELS_MANIFEST_URL) ||
-      (includeNbmQpf && NBM_QPF_MANIFEST_URL)) {
+      (includeNbmQpf && NBM_QPF_MANIFEST_URL) ||
+      (includeNbmAccumQpf && NBM_QPF_MANIFEST_URL)) {
     ptNbmForecastController = new PtOpsNbmForecastController({
       manifestUrl: NBM_SNOW_LEVELS_MANIFEST_URL,
       qpfManifestUrl: NBM_QPF_MANIFEST_URL,

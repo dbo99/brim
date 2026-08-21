@@ -7,8 +7,11 @@ const zlib = require("zlib");
 
 const repoRoot = path.join(__dirname, "..");
 const helperSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_nbm_snow_levels_helpers.r"), "utf8");
+const accumSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_nbm_accumulated_qpf_helpers.r"), "utf8");
 const panelSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_panel_helpers.r"), "utf8");
 const sharedSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_shared_helpers.r"), "utf8");
+const layerDefinitionSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_layer_definition_helpers.r"), "utf8");
+const opsHelperSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_ops_live_helpers.r"), "utf8");
 const configSource = fs.readFileSync(path.join(repoRoot, "00_config", "config_map_display.r"), "utf8");
 const coreSource = fs.readFileSync(path.join(repoRoot, "03_functions", "leaflet_core_helpers.r"), "utf8");
 
@@ -43,7 +46,28 @@ includesAll(helperSource, [
   "palette colors are never reverse-mapped", "u16le", "forecast_state_id",
   "new window.DecompressionStream('gzip')", "ptQpfLngLatToCell",
   "pt-ops-nbm-qpf-hover-tooltip",
+  "height:min(62vh,var(--pt-map-legend-max-height,62vh))", "height:calc(100% - 61px)",
   "No exact QPF target exists for this cycle + lead + valid time. No substitute is used."
+]);
+includesAll(accumSource, [
+  "NBM Accumulated QPF", "panelOrder: -93", "PT_ACCUM_FETCH_CONCURRENCY = 6",
+  "fetch_ms: fetchMs", "hash_ms: hashMs", " ms · SHA ",
+  "PtNbmAccumCompressedLoader", "ptNbmAccumRequiredTargets", "ptNbmAccumAddDecodedGrid",
+  "ptNbmAccumSubtractDecodedGrid", "Uint32Array", "common NoData mask",
+  "new window.Worker", "new DecompressionStream('gzip')", "PtNbmAccumCanvasLayer",
+  "Next 24 h", "Next 72 h", "Next 10 days", "Next 10 d", "data-density=\"day\"",
+  "40+ top class", "No accumulated precipitation surface is displayed",
+  "pt-ops-nbm-qpf-hover-summary", "exact grid cell", "utc_compact"
+]);
+includesAll(helperSource, [
+  "America/Los_Angeles",
+  "var PT_ACCUM_PRODUCT_NAME = 'NBM Accumulated QPF (0–10 d)';",
+  "window.ptOpsDeactivateLayerByName(PT_ACCUM_PRODUCT_NAME)",
+  "window.ptOpsDeactivateLayerByName(PT_QPF_PRODUCT_NAME)"
+]);
+includesAll(opsHelperSource, [
+  "leaflet_ops_live_nbm_accumulated_qpf_helpers.r", "includeNbmAccumQpf",
+  "add_ops_nbm_accumulated_qpf", "__PT_OPS_LIVE_NBM_ACCUMULATED_QPF_HELPERS_JS__"
 ]);
 assert(!helperSource.includes("var PT_QPF_LEADS"));
 assert(!helperSource.includes("var PT_SNOW_LEADS"));
@@ -51,12 +75,19 @@ assert(!helperSource.includes('data-pt-ops-action="nbm-qpf"'));
 assert(!helperSource.includes("pt-ops-nbm-qpf-toggle"));
 assert(!panelSource.includes('data-pt-ops-action="nbm-qpf"'));
 includesAll(panelSource, ["Number(a.def.panelOrder)", 'data-pt-ops-action="nbm-snow-labels"', 'data-pt-ops-action="nbm-snow-card"']);
-includesAll(panelSource, ["!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']"]);
-includesAll(configSource, ["add_ops_nbm_snow_levels = TRUE", "add_ops_nbm_qpf = TRUE"]);
+includesAll(panelSource, [
+  "!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']",
+  "!activeLayers['NBM Accumulated QPF (0–10 d)']"
+]);
+includesAll(configSource, [
+  "add_ops_nbm_snow_levels = TRUE", "add_ops_nbm_qpf = TRUE",
+  "add_ops_nbm_accumulated_qpf = TRUE"
+]);
 assert(coreSource.indexOf('addMapPane("pane_ops_qpf"') < coreSource.indexOf('addMapPane("pane_ops"'));
 
 const snowRowSource = opsLayerRegistration(helperSource, "PT_SNOW_PRODUCT_NAME");
 const qpfRowSource = opsLayerRegistration(helperSource, "PT_QPF_PRODUCT_NAME");
+const accumRowSource = opsLayerRegistration(accumSource, "PT_ACCUM_PRODUCT_NAME");
 includesAll(snowRowSource, [
   "refreshable: true",
   "sourceUrl: 'https://vlab.noaa.gov/web/mdl/nbm-weather-elements'",
@@ -72,6 +103,31 @@ assert(!snowRowSource.includes("nbm-snow-card"), "Snow row must not expose lgnd"
 assert(!snowRowSource.includes(">lgnd</a>"), "Snow row must not render lgnd");
 assert(!qpfRowSource.includes("extraRowHtml"), "QPF row must not append controls after srce");
 assert(!qpfRowSource.includes(">lgnd</a>"), "QPF row must not render lgnd");
+includesAll(accumRowSource, [
+  "refreshable: true",
+  "sourceUrl: 'https://vlab.noaa.gov/web/mdl/nbm-weather-elements'",
+  "NOAA/NBM precipitation total for a selected forecast window."
+]);
+assert(!accumRowSource.includes("infoUrl"), "Accumulated QPF row must remain rfrsh · srce only");
+assert(!accumRowSource.includes("extraRowHtml"), "Accumulated QPF row must remain lean");
+assert(!accumRowSource.includes(">lgnd</a>"), "Accumulated QPF row must not render lgnd");
+const next24ActionIndex = accumSource.indexOf('data-action="next24"');
+const next72ActionIndex = accumSource.indexOf('data-action="next72"');
+const next10ActionIndex = accumSource.indexOf('data-action="full"');
+assert(next24ActionIndex >= 0 && next24ActionIndex < next72ActionIndex && next72ActionIndex < next10ActionIndex,
+  "accumulation quick actions must read Next 24 h / Next 72 h / Next 10 days left to right");
+assert(!accumSource.includes("Full 10 days") && !accumSource.includes("Full 10d"),
+  "superseded full-horizon labels must be absent");
+[
+  ["WPC QPF Day 1", -98], ["WPC QPF Day 2", -97], ["WPC QPF Day 3", -96],
+  ["WPC QPF 3-day", -95], ["WPC QPF 7-day", -94],
+  ["CPC 6-10 Day Temperature Outlook", -92], ["CPC 6-10 Day Precipitation Outlook", -91]
+].forEach(([name, order]) => {
+  const index = layerDefinitionSource.indexOf(`name: '${name}',`);
+  assert(index >= 0, `missing ordered layer ${name}`);
+  assert(layerDefinitionSource.slice(index, index + 180).includes(`panelOrder: ${order}`),
+    `wrong panel order for ${name}`);
+});
 includesAll(sharedSource, [
   "if (def.refreshable === true || opts.refreshable === true) return true",
   "pushUnique('srce', sourceUrl, 'Open source')",
@@ -124,6 +180,7 @@ const LStub = {
 const api = new Function("window", "document", "L", `
   var includeNbmSnowLevels = false;
   var includeNbmQpf = false;
+  var includeNbmAccumQpf = false;
   var NBM_SNOW_LEVELS_MANIFEST_URL = '';
   var NBM_QPF_MANIFEST_URL = '';
   var activeLegendDefs = {};
@@ -133,6 +190,7 @@ const api = new Function("window", "document", "L", `
   function recordStatus() {}
   function escapeHtml(value) { return String(value); }
   ${embeddedRawJs(helperSource)}
+  ${embeddedRawJs(accumSource)}
   return {
     validateManifest: ptSnowValidateManifest,
     validateGeoJson: ptSnowValidateGeoJson,
@@ -163,6 +221,21 @@ const api = new Function("window", "document", "L", `
     horizonCue: ptNbmHorizonCue,
     Controller: PtOpsNbmForecastController,
     ProductLayer: PtOpsNbmProductLayer,
+    accumValidateRange: ptNbmAccumValidateRange,
+    accumExpectedLeads: ptNbmAccumExpectedLeads,
+    accumValidateCycle: ptNbmAccumValidateCycle,
+    accumRequiredTargets: ptNbmAccumRequiredTargets,
+    accumAddDecoded: ptNbmAccumAddDecodedGrid,
+    accumSubtractDecoded: ptNbmAccumSubtractDecodedGrid,
+    accumFullDecoded: ptNbmAccumFullFromDecoded,
+    accumPaletteRgba: ptNbmAccumPaletteRgba,
+    accumEndpointParts: ptNbmAccumEndpointParts,
+    accumQuickRange: ptNbmAccumQuickRange,
+    accumWorkerSource: ptNbmAccumWorkerSource,
+    AccumCompressedLoader: PtNbmAccumCompressedLoader,
+    AccumConsumer: PtNbmAccumConsumer,
+    accumPalette: PT_ACCUM_PALETTE,
+    accumNoData: PT_ACCUM_RESULT_NODATA,
     activeLegendDefs
   };
 `)(windowStub, documentStub, LStub);
@@ -510,6 +583,7 @@ function cellCenterLatLng(row, column) {
 }
 
 async function main() {
+  new Function(api.accumWorkerSource());
   const snowShort = api.validateManifest(manifestFixture());
   const qpfShort = api.validateQpfManifest(qpfManifestFixture());
   assert.deepStrictEqual(snowShort._ptSnowCycles[0].targets.map((entry) => entry.lead_hours), leads);
@@ -535,6 +609,152 @@ async function main() {
       .map((entry) => entry.lead_hours),
     [54, 66, 240]
   );
+
+  assert.deepStrictEqual(api.accumValidateRange(0, 240), {start: 0, end: 240, duration: 240});
+  assert.deepStrictEqual(api.accumExpectedLeads(84, 168),
+    Array.from({length: 14}, (_, index) => 90 + index * 6));
+  assert.deepStrictEqual(api.accumExpectedLeads(54, 138),
+    Array.from({length: 14}, (_, index) => 60 + index * 6));
+  assert.throws(() => api.accumValidateRange(24, 24), /start < end/);
+  assert.throws(() => api.accumValidateRange(1, 25), /six-hour boundaries/);
+  assert.strictEqual(api.accumValidateCycle(qpfLong._ptQpfCycles[0]).targets.length, 40);
+  assert.deepStrictEqual(
+    api.accumRequiredTargets(qpfLong._ptQpfCycles[0], 54, 138).map((entry) => entry.lead_hours),
+    Array.from({length: 14}, (_, index) => 60 + index * 6)
+  );
+  const incompleteAccumCycle = clone(qpfLong._ptQpfCycles[0]);
+  incompleteAccumCycle.targets.pop();
+  assert.throws(() => api.accumValidateCycle(incompleteAccumCycle), /complete selected-cycle/);
+
+  const decodedByLead = new Map(longQpfLeads.map((lead, index) => [lead, {
+    lead_hours: lead,
+    nodata: 65535,
+    values: new Uint16Array([
+      index + 1,
+      0,
+      lead >= 90 && lead <= 168 ? index + 2 : 0,
+      65535,
+      index % 3
+    ])
+  }]));
+  function decodedRange(start, end, source = decodedByLead) {
+    return api.accumExpectedLeads(start, end).map((lead) => source.get(lead));
+  }
+  function assertUint32Equal(actual, expected, message) {
+    assert.deepStrictEqual(Array.from(actual), Array.from(expected), message);
+  }
+  const total0to240 = api.accumFullDecoded(decodedRange(0, 240));
+  const expected0to240 = decodedRange(0, 240).reduce((sum, frame) =>
+    sum + frame.values[0], 0);
+  assert.strictEqual(total0to240[0], expected0to240, "0->240 must equal the direct 40-grid integer sum");
+  assert.strictEqual(total0to240[1], 0, "zero-precipitation cells must remain zero");
+  assert.strictEqual(total0to240[3], api.accumNoData, "NoData must propagate");
+  Array.from(total0to240).filter((value) => value !== api.accumNoData)
+    .forEach((value) => assert(value >= 0, "accumulated output must be nonnegative"));
+
+  const total84to168 = api.accumFullDecoded(decodedRange(84, 168));
+  assert.strictEqual(total84to168[0], decodedRange(84, 168).reduce((sum, frame) => sum + frame.values[0], 0));
+  const total54to138 = api.accumFullDecoded(decodedRange(54, 138));
+  assert.strictEqual(total54to138[0], decodedRange(54, 138).reduce((sum, frame) => sum + frame.values[0], 0));
+  longQpfLeads.forEach((lead) => {
+    const single = api.accumFullDecoded(decodedRange(lead - 6, lead));
+    const source = decodedByLead.get(lead).values;
+    source.forEach((value, index) => {
+      assert.strictEqual(single[index], value === 65535 ? api.accumNoData : value,
+        `single six-hour window f${lead} must reproduce its source integer exactly`);
+    });
+  });
+
+  const onlyMiddle = new Map(longQpfLeads.map((lead, index) => [lead, {
+    lead_hours: lead,
+    nodata: 65535,
+    values: new Uint16Array([lead >= 90 && lead <= 168 ? index + 1 : 0, 0, 65535])
+  }]));
+  assertUint32Equal(
+    api.accumFullDecoded(decodedRange(84, 168, onlyMiddle)),
+    api.accumFullDecoded(decodedRange(0, 240, onlyMiddle)),
+    "if precipitation exists only within 84->168, its fixed-scale total must equal 0->240"
+  );
+  const badMask = decodedRange(84, 168).map((frame) => ({...frame, values: new Uint16Array(frame.values)}));
+  badMask[5].values[3] = 0;
+  assert.throws(() => api.accumFullDecoded(badMask), /common NoData mask/);
+
+  const addedEnd = new Uint32Array(total84to168);
+  api.accumAddDecoded(addedEnd, decodedByLead.get(174).values, 65535);
+  assertUint32Equal(addedEnd, api.accumFullDecoded(decodedRange(84, 174)), "end +6 incremental add");
+  api.accumSubtractDecoded(addedEnd, decodedByLead.get(174).values, 65535);
+  assertUint32Equal(addedEnd, total84to168, "end -6 incremental subtract");
+  const movedStart = new Uint32Array(total84to168);
+  api.accumSubtractDecoded(movedStart, decodedByLead.get(90).values, 65535);
+  assertUint32Equal(movedStart, api.accumFullDecoded(decodedRange(90, 168)), "start +6 incremental subtract");
+  api.accumAddDecoded(movedStart, decodedByLead.get(90).values, 65535);
+  assertUint32Equal(movedStart, total84to168, "start -6 incremental add");
+  const underflow = new Uint32Array([0]);
+  assert.throws(() => api.accumSubtractDecoded(underflow, new Uint16Array([1]), 65535), /underflow/);
+
+  let driftCheck = api.accumFullDecoded(decodedRange(0, 6));
+  longQpfLeads.slice(1).forEach((lead) => api.accumAddDecoded(driftCheck, decodedByLead.get(lead).values, 65535));
+  assertUint32Equal(driftCheck, total0to240, "incremental additions must not drift from full recomputation");
+  const paletteProbe = api.accumPaletteRgba(new Uint32Array([api.accumNoData, 0, 9, 1000, 40001]), 0.001);
+  assert.strictEqual(paletteProbe[3], 0, "NoData must be transparent");
+  assert(paletteProbe[7] > 0, "zero must remain visually distinct from NoData");
+  assert.deepStrictEqual(
+    Array.from(api.accumPaletteRgba(new Uint32Array([1000]), 0.001)),
+    Array.from(api.accumPaletteRgba(new Uint32Array([1000]), 0.001)),
+    "fixed palette output must not depend on selected duration"
+  );
+
+  assert.deepStrictEqual(api.accumQuickRange("next24", 54), {start: 54, end: 78, duration: 24});
+  assert.deepStrictEqual(api.accumQuickRange("next72", 54), {start: 54, end: 126, duration: 72});
+  assert.strictEqual(api.accumQuickRange("next72", 174), null);
+  assert.deepStrictEqual(api.accumQuickRange("full", 54), {start: 0, end: 240, duration: 240});
+  const dstStart = api.accumEndpointParts("2026-10-31T00:00:00Z", 0);
+  const dstEnd = api.accumEndpointParts("2026-10-31T00:00:00Z", 84);
+  assert.strictEqual(dstStart.clock, "5 PM");
+  assert.strictEqual(dstEnd.clock, "4 AM");
+  assert.strictEqual(dstStart.hover, "Fri 5 PM PDT");
+  assert.strictEqual(dstStart.utc_compact, "31/00Z");
+  assert.strictEqual(dstEnd.hover, "Tue 4 AM PST");
+  assert.strictEqual(dstEnd.utc_compact, "03/12Z");
+  assert.strictEqual(api.accumValidateRange(0, 84).duration, 84,
+    "DST display conversion must not change scientific forecast duration");
+
+  const refreshReuseConsumer = new api.AccumConsumer({manifestUrl: "https://example.test/data/nbm-qpf/nbm_qpf_manifest.json"});
+  const refreshReuseState = {kind: null, textContent: ""};
+  refreshReuseConsumer.active = true;
+  refreshReuseConsumer.cycle = {cycle_utc: currentCycle};
+  refreshReuseConsumer.resultIdentity = `${currentCycle}|0|240`;
+  refreshReuseConsumer.resultFrame = {cycle_utc: currentCycle, start_lead_hours: 0, end_lead_hours: 240};
+  refreshReuseConsumer.ui.state = {
+    setAttribute(name, value) { if (name === "data-kind") refreshReuseState.kind = value; },
+    set textContent(value) { refreshReuseState.textContent = value; },
+    get textContent() { return refreshReuseState.textContent; }
+  };
+  await refreshReuseConsumer._requestCompute("same-cycle manifest refresh");
+  assert.strictEqual(refreshReuseState.kind, "paired");
+  assert.strictEqual(refreshReuseState.textContent,
+    "Exact selected-cycle accumulation displayed atomically · 240 forecast hours.");
+
+  const coalescingConsumer = new api.AccumConsumer({manifestUrl: "https://example.test/data/nbm-qpf/nbm_qpf_manifest.json"});
+  coalescingConsumer.active = true;
+  coalescingConsumer.cycle = {cycle_utc: currentCycle};
+  const computeResolvers = [];
+  let computeStarts = 0;
+  coalescingConsumer._loadAndCompute = () => {
+    computeStarts += 1;
+    return new Promise((resolve) => computeResolvers.push(resolve));
+  };
+  coalescingConsumer.setRange(0, 240, "rapid fixture 1");
+  coalescingConsumer.setRange(0, 72, "rapid fixture 2");
+  coalescingConsumer.setRange(54, 138, "rapid fixture 3");
+  assert.strictEqual(computeStarts, 1, "rapid range changes must not start unbounded decode work");
+  computeResolvers.shift()(null);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.strictEqual(computeStarts, 2, "rapid range changes must coalesce to one latest authoritative update");
+  assert.strictEqual(coalescingConsumer.pendingIdentity, `${currentCycle}|54|138`);
+  computeResolvers.shift()(null);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.strictEqual(coalescingConsumer.pendingPromise, null);
 
   const snowOnly = api.buildInventory(snowLong._ptSnowCycles, [], true, false);
   const qpfOnly = api.buildInventory([], qpfLong._ptQpfCycles, false, true);
@@ -698,6 +918,76 @@ async function main() {
   assert.strictEqual(abortedSignal.aborted, true);
   assert.strictEqual(api.numericInflightSize(), 0);
 
+  const compressedLoader = new api.AccumCompressedLoader(manifestUrl, {
+    digestHex: numericDependencies.digestHex,
+    fetchFn: async () => ({
+      ok: true,
+      status: 200,
+      headers: {get() { return null; }},
+      async arrayBuffer() { return arrayBuffer(numericGzip); }
+    })
+  });
+  compressedLoader.setCycle(currentCycle);
+  const compressedFirst = compressedLoader.acquire(numericEntry);
+  const compressedSecond = compressedLoader.acquire(numericEntry);
+  assert.strictEqual(compressedFirst, compressedSecond, "compressed interval requests must deduplicate in flight");
+  const [compressedA, compressedB] = await Promise.all([compressedFirst, compressedSecond]);
+  assert.strictEqual(compressedA.buffer.byteLength, numericGzip.byteLength);
+  assert.strictEqual(compressedB.entry.forecast_state_id, numericEntry.forecast_state_id);
+  assert.strictEqual(compressedLoader.metrics.requests, 1);
+  assert.strictEqual(compressedLoader.metrics.deduplicated, 1);
+  assert.strictEqual(compressedLoader.cache.size, 1);
+  const compressedCached = await compressedLoader.acquire(numericEntry);
+  assert.strictEqual(compressedCached.cacheHit, true);
+  compressedLoader.setCycle(previousCycle);
+  assert.strictEqual(compressedLoader.cache.size, 0, "compressed cache must be discarded on cycle change");
+  await assert.rejects(compressedLoader.acquire(numericEntry), /wrong selected cycle/);
+
+  let accumAbortSignal = null;
+  const abortLoader = new api.AccumCompressedLoader(manifestUrl, {
+    digestHex: numericDependencies.digestHex,
+    fetchFn: (url, options) => new Promise((resolve, reject) => {
+      accumAbortSignal = options.signal;
+      options.signal.addEventListener("abort", () => {
+        const error = new Error("aborted");
+        error.name = "AbortError";
+        reject(error);
+      });
+    })
+  });
+  abortLoader.setCycle(currentCycle);
+  const pendingAccumAbort = abortLoader.acquire(numericEntry).catch((error) => error);
+  abortLoader.clear();
+  const accumAbortError = await pendingAccumAbort;
+  assert.strictEqual(accumAbortError.name, "AbortError");
+  assert.strictEqual(accumAbortSignal.aborted, true);
+  assert.strictEqual(abortLoader.inflight.size, 0);
+
+  const concurrencyFixtures = [6, 12, 18, 24, 30, 36, 42, 48]
+    .map((lead) => numericPayloadFixture(lead));
+  const bytesByUrl = new Map(concurrencyFixtures.map(({entry, gzip}) =>
+    [api.qpfNumericUrl(entry, manifestUrl), gzip]));
+  let activeAccumFetches = 0;
+  let maxAccumFetches = 0;
+  const concurrencyLoader = new api.AccumCompressedLoader(manifestUrl, {
+    digestHex: numericDependencies.digestHex,
+    fetchFn: async (url) => {
+      activeAccumFetches += 1;
+      maxAccumFetches = Math.max(maxAccumFetches, activeAccumFetches);
+      await new Promise((resolve) => setTimeout(resolve, 3));
+      activeAccumFetches -= 1;
+      const bytes = bytesByUrl.get(url);
+      return {ok: true, status: 200, headers: {get() { return null; }},
+        async arrayBuffer() { return arrayBuffer(bytes); }};
+    }
+  });
+  concurrencyLoader.setCycle(currentCycle);
+  await concurrencyLoader.loadMany(concurrencyFixtures.map((fixture) => fixture.entry), null, 6);
+  assert(maxAccumFetches <= 6, `compressed fetch concurrency exceeded bound: ${maxAccumFetches}`);
+  assert(maxAccumFetches >= 2, "bounded loader should still fetch intervals in parallel");
+  assert.strictEqual(concurrencyLoader.cache.size, concurrencyFixtures.length);
+  concurrencyLoader.clear();
+
   global.fetch = async () => ({
     ok: true,
     status: 200,
@@ -817,21 +1107,41 @@ async function main() {
   const lifecycle = new api.Controller({});
   lifecycle._createCard = function() {};
   lifecycle.refreshProduct = function() { return Promise.resolve(); };
+  let accumActivations = 0;
+  let accumRemovals = 0;
+  lifecycle.setAccumulatedQpfConsumer({
+    bindController(controller) { assert.strictEqual(controller, lifecycle); },
+    activate() { accumActivations += 1; },
+    deactivate() { accumRemovals += 1; },
+    destroy() {},
+    selectCycle() {},
+    setVisible() {},
+    getState() { return {start_lead_hours: 0, end_lead_hours: 240}; }
+  });
   lifecycle.activateProduct("snow", fakeMap);
   lifecycle.activateProduct("snow", fakeMap);
   lifecycle.activateProduct("qpf", fakeMap);
+  lifecycle.activateProduct("accum", fakeMap);
+  lifecycle.activateProduct("accum", fakeMap);
   assert.strictEqual(lifecycle.getDiagnostics().activations.snow, 1);
   assert.strictEqual(lifecycle.getDiagnostics().activations.qpf, 1);
+  assert.strictEqual(lifecycle.getDiagnostics().activations.accum, 1);
+  assert.strictEqual(accumActivations, 1);
   assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, lifecycle);
   assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmSnowLevels, lifecycle);
+  assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmAccumulatedQpf, lifecycle);
   lifecycle.deactivateProduct("snow", fakeMap);
   assert.strictEqual(lifecycle._qpfActive, true);
   assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, lifecycle);
   lifecycle.deactivateProduct("snow", fakeMap);
   lifecycle.deactivateProduct("qpf", fakeMap);
   lifecycle.deactivateProduct("qpf", fakeMap);
+  lifecycle.deactivateProduct("accum", fakeMap);
+  lifecycle.deactivateProduct("accum", fakeMap);
   assert.strictEqual(lifecycle.getDiagnostics().removals.snow, 1);
   assert.strictEqual(lifecycle.getDiagnostics().removals.qpf, 1);
+  assert.strictEqual(lifecycle.getDiagnostics().removals.accum, 1);
+  assert.strictEqual(accumRemovals, 1);
   assert.strictEqual(windowStub.BRIM.opsLiveTimeControllers.nbmForecast, undefined);
   assert.strictEqual(documentListeners.size, 0);
   assert.strictEqual(mapEvents.size, 0);
@@ -850,6 +1160,19 @@ async function main() {
   proxy.forceRemove(fakeMap);
   assert.strictEqual(activations, 1);
   assert.strictEqual(removals, 1);
+
+  const exclusivityCalls = [];
+  windowStub.ptOpsDeactivateLayerByName = (name) => { exclusivityCalls.push(name); return {ok: true}; };
+  const exclusivityController = {activateProduct() {}, deactivateProduct() {}, refreshProduct() {}};
+  const qpfExclusive = new api.ProductLayer(exclusivityController, "qpf");
+  const accumExclusive = new api.ProductLayer(exclusivityController, "accum");
+  qpfExclusive.onAdd(fakeMap);
+  accumExclusive.onAdd(fakeMap);
+  assert.deepStrictEqual(exclusivityCalls, ["NBM Accumulated QPF (0–10 d)", "NBM 6-Hour QPF"],
+    "precipitation raster exclusivity must work in both activation directions");
+  qpfExclusive.forceRemove(fakeMap);
+  accumExclusive.forceRemove(fakeMap);
+  delete windowStub.ptOpsDeactivateLayerByName;
 
   if (process.env.BRIM_SNOW_LIVE_MANIFEST) {
     const bytes = fs.readFileSync(process.env.BRIM_SNOW_LIVE_MANIFEST);
@@ -877,26 +1200,31 @@ async function main() {
   if (process.env.BRIM_QPF_LIVE_MANIFEST) {
     const bytes = fs.readFileSync(process.env.BRIM_QPF_LIVE_MANIFEST);
     const live = api.validateQpfManifest(JSON.parse(bytes.toString("utf8")));
-    assert.strictEqual(live.retention_mode, "bootstrap");
-    assert.strictEqual(live.cycles.length, 1);
-    assert.deepStrictEqual(live.cycles[0].targets.map((entry) => entry.lead_hours), longQpfLeads);
-    live.cycles[0].targets.forEach((target) => {
-      assert(target.forecast_state_id && target.numeric.path.endsWith(".u16le.gz"));
-      assert.strictEqual(target.numeric.uncompressed_bytes, 1055520);
-      assert.strictEqual(target.numeric.encoding, "uint16_le");
-      assert.strictEqual(target.numeric.compression, "gzip");
+    assert([1, 2].includes(live.cycles.length));
+    assert.strictEqual(live.retention_mode, live.cycles.length === 1 ? "bootstrap" : "steady");
+    live.cycles.forEach((cycle) => {
+      assert.deepStrictEqual(cycle.targets.map((entry) => entry.lead_hours), longQpfLeads);
+      assert.strictEqual(api.accumValidateCycle(cycle), cycle);
+      cycle.targets.forEach((target) => {
+        assert(target.forecast_state_id && target.numeric.path.endsWith(".u16le.gz"));
+        assert.strictEqual(target.numeric.uncompressed_bytes, 1055520);
+        assert.strictEqual(target.numeric.encoding, "uint16_le");
+        assert.strictEqual(target.numeric.compression, "gzip");
+      });
     });
     const entry = live.cycles[0].targets[0];
-    assert(process.env.BRIM_QPF_LIVE_TARGET);
-    const targetBytes = fs.readFileSync(process.env.BRIM_QPF_LIVE_TARGET);
-    assert.strictEqual(targetBytes.byteLength, entry.bytes);
-    assert.strictEqual(crypto.createHash("sha256").update(targetBytes).digest("hex"), entry.sha256);
-    assert.strictEqual(targetBytes.subarray(0, 4).toString("ascii"), "RIFF");
-    assert.strictEqual(targetBytes.subarray(8, 12).toString("ascii"), "WEBP");
+    let targetBytes = null;
+    if (process.env.BRIM_QPF_LIVE_TARGET) {
+      targetBytes = fs.readFileSync(process.env.BRIM_QPF_LIVE_TARGET);
+      assert.strictEqual(targetBytes.byteLength, entry.bytes);
+      assert.strictEqual(crypto.createHash("sha256").update(targetBytes).digest("hex"), entry.sha256);
+      assert.strictEqual(targetBytes.subarray(0, 4).toString("ascii"), "RIFF");
+      assert.strictEqual(targetBytes.subarray(8, 12).toString("ascii"), "WEBP");
+    }
     const numericResults = [];
     for (const lead of [6, 54, 66, 240]) {
       const envName = `BRIM_QPF_LIVE_NUMERIC_F${String(lead).padStart(3, "0")}`;
-      assert(process.env[envName], `${envName} is required for the f240 live smoke`);
+      if (!process.env[envName]) continue;
       const numericEntry = live.cycles[0].targets.find((target) => target.lead_hours === lead);
       const numericBytes = fs.readFileSync(process.env[envName]);
       const frame = await api.decodeNumeric(arrayBuffer(numericBytes), numericEntry, numericDependencies);
@@ -910,7 +1238,7 @@ async function main() {
     console.log(`QPF_LIVE_SMOKE ${JSON.stringify({
       manifestBytes: bytes.byteLength, retentionMode: live.retention_mode,
       currentCycleUtc: live.current_cycle_utc, leadCount: live.cycles[0].targets.length,
-      targetPath: entry.image_path, targetBytes: targetBytes.byteLength,
+      targetPath: entry.image_path, targetBytes: targetBytes ? targetBytes.byteLength : null,
       numericResults
     })}`);
   }

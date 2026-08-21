@@ -422,7 +422,8 @@ pt_ops_live_panel_helpers_js <- function() {
       if (snowCardLink && body.contains(snowCardLink)) {
         e.preventDefault();
         e.stopPropagation();
-        if (!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF']) {
+        if (!activeLayers['NBM Snow Levels'] && !activeLayers['NBM 6-Hour QPF'] &&
+            !activeLayers['NBM Accumulated QPF (0–10 d)']) {
           recordStatus('NBM Snow Levels', 'Turn on an NBM forecast layer before using lgnd.', 'pt-ops-warn');
         } else if (window.ptNbmSnowLevelsShowCard && typeof window.ptNbmSnowLevelsShowCard === 'function') {
           window.ptNbmSnowLevelsShowCard();

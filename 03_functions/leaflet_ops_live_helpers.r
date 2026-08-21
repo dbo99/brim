@@ -50,6 +50,7 @@ pt_ops_live_source_module("leaflet_ops_live_wind_helpers.r", "Ops Live GFS wind/
 pt_ops_live_source_module("leaflet_ops_live_hrrr_wind_helpers.r", "Ops Live HRRR wind/vector-field helper")
 pt_ops_live_source_module("leaflet_ops_live_nbm_wind_helpers.r", "Ops Live NBM blended wind-guidance helper")
 pt_ops_live_source_module("leaflet_ops_live_nbm_snow_levels_helpers.r", "Ops Live NBM Snow Levels consumer helper")
+pt_ops_live_source_module("leaflet_ops_live_nbm_accumulated_qpf_helpers.r", "Ops Live NBM accumulated QPF consumer helper")
 pt_ops_live_source_module("leaflet_ops_live_observed_wind_helpers.r", "Ops Live observed-wind helper")
 pt_ops_live_source_module("leaflet_ops_live_panel_helpers.r", "Ops Live panel helper")
 
@@ -318,6 +319,7 @@ function(el, x, data) {
   var NBM_SNOW_LEVELS_MANIFEST_URL = data && data.nbmSnowLevelsManifestUrl ? String(data.nbmSnowLevelsManifestUrl) : '';
   var includeNbmQpf = !!(data && data.includeNbmQpf);
   var NBM_QPF_MANIFEST_URL = data && data.nbmQpfManifestUrl ? String(data.nbmQpfManifestUrl) : '';
+  var includeNbmAccumQpf = !!(data && data.includeNbmAccumQpf);
   var includeAsosAwosWind = !!(data && data.includeAsosAwosWind);
   var ASOS_AWOS_WIND_URL = data && data.asosAwosWindUrl ? String(data.asosAwosWindUrl) : '';
   var ASOS_AWOS_WIND_SUMMARY_URL = data && data.asosAwosWindSummaryUrl ? String(data.asosAwosWindSummaryUrl) : '';
@@ -353,6 +355,8 @@ __PT_OPS_LIVE_NBM_WIND_HELPERS_JS__
 
 __PT_OPS_LIVE_NBM_SNOW_LEVELS_HELPERS_JS__
 
+__PT_OPS_LIVE_NBM_ACCUMULATED_QPF_HELPERS_JS__
+
 __PT_OPS_LIVE_OBSERVED_WIND_HELPERS_JS__
 
 __PT_OPS_LIVE_PANEL_HELPERS_JS__
@@ -381,6 +385,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     "__PT_OPS_LIVE_HRRR_WIND_HELPERS_JS__" = "pt_ops_live_hrrr_wind_js",
     "__PT_OPS_LIVE_NBM_WIND_HELPERS_JS__" = "pt_ops_live_nbm_wind_js",
     "__PT_OPS_LIVE_NBM_SNOW_LEVELS_HELPERS_JS__" = "pt_ops_live_nbm_snow_levels_js",
+    "__PT_OPS_LIVE_NBM_ACCUMULATED_QPF_HELPERS_JS__" = "pt_ops_live_nbm_accumulated_qpf_js",
     "__PT_OPS_LIVE_OBSERVED_WIND_HELPERS_JS__" = "pt_ops_live_observed_wind_js",
     "__PT_OPS_LIVE_PANEL_HELPERS_JS__" = "pt_ops_live_panel_helpers_js"
   )
@@ -675,6 +680,11 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
       },
       includeNbmQpf = if (!is.null(map_display$add_ops_nbm_qpf)) {
         isTRUE(map_display$add_ops_nbm_qpf)
+      } else {
+        TRUE
+      },
+      includeNbmAccumQpf = if (!is.null(map_display$add_ops_nbm_accumulated_qpf)) {
+        isTRUE(map_display$add_ops_nbm_accumulated_qpf)
       } else {
         TRUE
       },
