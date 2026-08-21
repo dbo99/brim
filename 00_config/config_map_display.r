@@ -101,11 +101,13 @@ MAP_DISPLAY <- list(
   add_ops_nbm_wind_guidance = TRUE,
   ops_nbm_wind_guidance_manifest_url = brim_live_feed_url("data/wind/nbm_wind_guidance_feed_manifest.json"),
 
-  ## NOAA/NBM modeled Snow Levels and six-hour QPF are independent Ops rows
-  ## sharing one exact forecast-time controller. The browser fetches only the
-  ## active products' manifests and selected content-addressed targets.
+  ## NOAA/NBM modeled Snow Levels, six-hour QPF, and consumer-computed
+  ## accumulated QPF are independent Ops rows sharing one exact cycle
+  ## controller. Accumulated QPF uses only the existing numeric six-hour
+  ## sidecars and creates no public product or stored forecast asset.
   add_ops_nbm_snow_levels = TRUE,
   add_ops_nbm_qpf = TRUE,
+  add_ops_nbm_accumulated_qpf = TRUE,
   ops_nbm_snow_levels_manifest_url = brim_live_feed_url("data/winter-storm-levels/winter_storm_levels_manifest.json"),
   ops_nbm_qpf_manifest_url = brim_live_feed_url("data/nbm-qpf/nbm_qpf_manifest.json"),
 
