@@ -778,15 +778,6 @@ function(el, x) {
     elevMax: null
   };
 
-  // BRIM_USGS_SW_042J:
-  //   Filters must redraw the MarkerClusterGroup, not merely hide SVG paths.
-  //   Hiding child circle markers leaves cluster counts/centroids unchanged until
-  //   zoomed far enough to decluster.  Keep a stable marker index and add/remove
-  //   markers from their cluster group so the visible map responds immediately.
-  var markerById = {};
-  var markerClusterById = {};
-  var indexedClusterGroups = {};
-
   function fmt(n) {
     if (n == null || isNaN(Number(n))) return '—';
     return Number(n).toLocaleString();
@@ -995,44 +986,6 @@ function(el, x) {
         fillOpacity: layer.options && layer.options.fillOpacity
       }
     };
-  }
-
-  function targetClusterGroups() {
-    var out = [];
-    var seen = {};
-    if (!(map && map.eachLayer)) return out;
-    map.eachLayer(function(layer) {
-      if (!layer || typeof layer.getAllChildMarkers !== 'function') return;
-      var markers = [];
-      try { markers = layer.getAllChildMarkers() || []; } catch(e) { markers = []; }
-      var hasTarget = false;
-      for (var i = 0; i < markers.length; i++) {
-        if (getSiteId(markers[i]) != null) { hasTarget = true; break; }
-      }
-      if (hasTarget) {
-        var id = L.stamp(layer);
-        if (!seen[id]) { seen[id] = true; out.push(layer); }
-      }
-    });
-    return out;
-  }
-
-  function indexClusterMarkers() {
-    targetClusterGroups().forEach(function(group) {
-      var gid = L.stamp(group);
-      if (indexedClusterGroups[gid]) return;
-      indexedClusterGroups[gid] = true;
-      var markers = [];
-      try { markers = group.getAllChildMarkers() || []; } catch(e) { markers = []; }
-      markers.forEach(function(marker) {
-        var sid = getSiteId(marker);
-        if (sid == null) return;
-        sid = String(sid);
-        rememberOriginal(marker);
-        markerById[sid] = marker;
-        markerClusterById[sid] = group;
-      });
-    });
   }
 
   function restoreMarkerStyle(marker) {
