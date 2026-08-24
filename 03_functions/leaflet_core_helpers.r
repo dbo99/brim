@@ -274,28 +274,6 @@ pt_base_groups <- function() {
   )
 }
 
-# ==== 3b. Add radar ===========================================================
-
-pt_add_radar <- function(m, map_display) {
-  
-  if (!isTRUE(map_display$add_radar)) {
-    return(m)
-  }
-  
-  m |>
-    leaflet::addWMSTiles(
-      baseUrl = "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi?",
-      layers  = "nexrad-n0q-900913",
-      options = leaflet::WMSTileOptions(
-        format = "image/png",
-        transparent = TRUE,
-        zIndex = 700
-      ),
-      attribution = "Weather radar © Iowa Environmental Mesonet",
-      group = pt_layer_group_name("NEXRAD Radar")
-    )
-}
-
 # ==== 3c. Add California geology overlay ====================================
 ##
 ## PURPOSE:
