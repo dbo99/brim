@@ -35,6 +35,57 @@ Keep changes coherent and as small as practicable.
 - Keep cleanup proportional to the task; record broad refactors separately.
 - Remove temporary diagnostics and superseded code introduced by the current change before checkpointing.
 
+## Documentation maintenance
+
+Every source-changing modernization or cleanup batch must assess whether its durable change makes existing authoritative BRIM documentation inaccurate or materially incomplete. Report:
+
+```text
+DOCUMENTATION_IMPACT: YES | NONE | UNRESOLVED
+AUTHORITATIVE_DOCS_AFFECTED: <exact existing paths or NONE>
+DOCUMENTATION_ACTION: UPDATED_IN_BATCH | NONE_REQUIRED | BLOCKED
+REASON: <short durable-fact explanation>
+```
+
+- Prefer updating existing authoritative documents over creating new planning documents.
+- When a change establishes or retires a durable architectural fact, update the relevant existing documentation in the same implementation sequence or report `DOCUMENTATION_IMPACT: NONE` with a defensible reason.
+- Treat `DOCUMENTATION_IMPACT: UNRESOLVED` as a stop-before-commit condition.
+- Describe current authority, not planned future behavior.
+- Do not update durable documentation merely to narrate branches, worktrees, audit identifiers, temporary implementation process, or transient test/debug history.
+- Modify `SOURCE_MANIFEST.csv` only when its actual repository contract requires it; it is not a generic documentation checklist.
+- Handle documentation impact incrementally within normal modernization and cleanup batches rather than accumulating a final documentation phase.
+
+## Bounded autonomy
+
+After the maintainer approves the objective, baseline, maximum scope, and relevant protected boundaries for a non-production cleanup or modernization batch, Codex may autonomously complete the normal development-to-PR sequence:
+
+1. verify repository, `main`, worktree authority, and collisions;
+2. inspect exact current source and implement only the approved scope;
+3. run the approved validation and assess documentation impact;
+4. update affected durable documentation in the same batch;
+5. stage and create exactly one validated commit;
+6. push the exact feature branch normally and open exactly one non-draft pull request;
+7. stop before merge.
+
+Separate human approvals are not required for staging, that single validated commit, the normal branch push, or pull-request creation.
+
+Merge remains an explicit human-review checkpoint. After explicit merge approval, Codex may perform fresh repository, pull-request, and control checks; merge using the approved normal method; preserve the branch and worktree unless cleanup was separately authorized; refresh authoritative local `main` to the exact merged authority; run the narrow required post-merge authority/integration checks; and stop before deployment or production synchronization. The local-`main` refresh and narrow post-merge verification do not require separate approval.
+
+Bounded autonomy does not permit improvisation. Stop for maintainer review on:
+
+- scope expansion or an unexpected changed path;
+- ambiguous or contradictory runtime authority;
+- failed validation requiring source changes beyond approved scope;
+- a new dependency or material dependency change;
+- preprocessor execution or modification;
+- generated or protected-cache regeneration or mutation;
+- an unresolved `SOURCE_MANIFEST.csv` contract or `DOCUMENTATION_IMPACT: UNRESOLVED`;
+- a BRIM Live machine-facing contract, path, schema, or freshness change outside explicitly approved scope;
+- force-push, rebase/history rewriting, or administrator bypass;
+- repository controls that do not permit the intended merge;
+- deployment, production synchronization, or production access not explicitly authorized.
+
+Production remains explicitly approval-gated.
+
 ## Production safety
 
 Production is fail-closed.
@@ -78,7 +129,7 @@ Prefer, in order:
 
 ## Git and review
 
-- Do not stage, commit, push, rebase, merge, open a PR, or delete a branch unless the user authorizes that gate.
+- Do not stage, commit, push, open a PR, merge, delete a branch, or modify production unless the current task explicitly authorizes it. An approved bounded-autonomy batch supplies that authorization only for its stated development-to-PR sequence; merge, branch/worktree cleanup, deployment, and production remain separate gates.
 - Use coherent checkpoint commits; do not mix unrelated documentation, feature, or cleanup work.
 - Never force-push unless explicitly authorized for a known recovery case.
 - Human visual acceptance is required for user-facing map changes before checkpoint/release.

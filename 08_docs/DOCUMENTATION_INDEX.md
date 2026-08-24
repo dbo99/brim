@@ -50,6 +50,9 @@ Discovery and historical evidence only. Never automatically controlling.
 - Data governance: `/DATA.md`
 - Codex template: `/CODEX_HANDOFF.md`
 - Architecture: `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md`
+- Descriptive-only six-HUC layer catalog:
+  `/08_docs/catalog/BRIM_LAYER_CATALOG.csv`
+- Descriptive catalog parity test: `/qa/test_descriptive_layer_catalog.R`
 - Backup/recovery: `/08_docs/operations/BACKUP_AND_RECOVERY.md`
 - Live feeds: `/08_docs/integrations/LIVE_DATA_FEEDS.md`
 - UIC feature: `/08_docs/features/UIC_AQUIFER_EXEMPTIONS.md`
