@@ -31,6 +31,12 @@ A user-facing layer should have one maintained definition for:
 
 Map styling, legend swatches, filter ordering, category labels, and counts should derive from the same definition. Avoid duplicate constants and geometry-order-dependent styling.
 
+## Descriptive layer catalog boundary
+
+`08_docs/catalog/BRIM_LAYER_CATALOG.csv` is currently a descriptive metadata mirror only (`CATALOG_AUTHORITY=DESCRIPTIVE_ONLY`). Current runtime, build, and controller source does not consume the catalog; the existing R/Leaflet/htmlwidgets/JavaScript construction remains authoritative (`RUNTIME_AUTHORITY=UNCHANGED`).
+
+The current catalog and `qa/test_descriptive_layer_catalog.R` parity test cover only six HUC records: `huc2`, `huc4`, `huc6`, `huc8`, `huc10`, and `huc12`. This proves the descriptive-catalog mechanism for that slice only. It does not establish that the schema applies unchanged to all 276 visible BRIM layers.
+
 ## Semantic features and geometry components
 
 Normal UI counts represent semantic user-facing features unless a layer contract explicitly chooses another primary unit. Geometry components/parts remain internal QA and rendering detail.
