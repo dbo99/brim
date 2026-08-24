@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
 
-## Source-only parity checks for the descriptive ten-record catalog mirror:
-## the retained six-layer HUC proof and four heterogeneous proof roles.
+## Source-only parity checks for the descriptive 26-record catalog mirror:
+## the retained six-layer HUC proof, four heterogeneous proof roles, and the
+## 16-record diversity expansion across Local, External, and Ops Live.
 ## This test reads current authored source and the catalog. It does not read
 ## retained caches, build BRIM, access a network, or execute a preprocessor.
 
@@ -42,8 +43,8 @@ project_root <- normalizePath(
 old_wd <- setwd(project_root)
 on.exit(setwd(old_wd), add = TRUE)
 
-expected_head <- "26175854a77654e3a454ec060915f357c4a2c9d1"
-expected_tree <- "2561e86af2aeda2f8f970926cfe682b160ca76de"
+expected_head <- "354f9371def60731f754eb8c242236d5373ca125"
+expected_tree <- "eb0ad97f8fa34b257ae6a4fa86700d58564f4470"
 expected_huc_ids <- c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")
 proof_ids <- c(
   ordinary_local = "gw_bull118",
@@ -51,7 +52,25 @@ proof_ids <- c(
   ops_live = "ops_u_s_drought_monitor",
   custom_controller = "usgs_streamgages"
 )
-expected_ids <- c(expected_huc_ids, unname(proof_ids))
+diversity_ids <- c(
+  "blm_offices",
+  "acec",
+  "calsim3_network",
+  "swrcb_wr_list_official",
+  "springs",
+  "county",
+  "EPA_NPL_BOUNDARIES",
+  "USFS_INVASIVE_SPECIES_CURRENT",
+  "CGS_GEOLOGY_MAP_TILED",
+  "DWR_TRE_ALTAMIRA_ANNUAL_RATE_MOSAIC",
+  "UIC_EPA_LIVE",
+  "ops_alertcalifornia_cameras",
+  "ops_radar_noaa_mrms",
+  "ops_streamflow_multi_agency_nat_l",
+  "ops_cnrfc_forecast_points_river_reservoir",
+  "ops_wpc_qpf_day_1"
+)
+expected_ids <- c(expected_huc_ids, unname(proof_ids), diversity_ids)
 expected_counts <- c(4L, 16L, 24L, 140L, 1128L, 5065L)
 names(expected_counts) <- expected_huc_ids
 expected_columns <- c(
@@ -73,7 +92,6 @@ expected_columns <- c(
 )
 allowed_changed_paths <- c(
   "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md",
-  "08_docs/DOCUMENTATION_INDEX.md",
   "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
   "qa/test_descriptive_layer_catalog.R"
 )
@@ -91,11 +109,11 @@ git_value <- function(args, label) {
 }
 
 assert_identical(git_value(c("rev-parse", "HEAD"), "HEAD"), expected_head,
-                 "M02 baseline HEAD changed")
+                 "M03 baseline HEAD changed")
 assert_identical(
   git_value(c("rev-parse", "HEAD^{tree}"), "tree"),
   expected_tree,
-  "M02 baseline tree changed"
+  "M03 baseline tree changed"
 )
 
 status_lines <- system2(
@@ -109,11 +127,11 @@ status_paths <- if (length(status_lines)) substring(status_lines, 4L) else chara
 assert_identical(
   sort(status_paths),
   sort(allowed_changed_paths),
-  "M02 changed-path scope is not exactly the four authorized files"
+  "M03 changed-path scope is not exactly the three changed files"
 )
 assert_true(
   all(substr(status_lines, 1L, 1L) %in% c(" ", "?")),
-  "M02 files must remain unstaged"
+  "M03 files must remain unstaged"
 )
 
 # ---- Exact CSV serialization and schema ------------------------------------
@@ -154,7 +172,7 @@ if (length(field_counts) && tail(field_counts, 1L) == 0L &&
     endsWith(catalog_text, "\n")) {
   field_counts <- head(field_counts, -1L)
 }
-assert_identical(field_counts, rep(15L, 11L),
+assert_identical(field_counts, rep(15L, 27L),
                  "Catalog records do not each contain exactly 15 fields")
 
 catalog <- utils::read.csv(
@@ -171,7 +189,7 @@ catalog <- utils::read.csv(
   fill = FALSE
 )
 assert_identical(names(catalog), expected_columns, "Catalog header changed")
-assert_true(nrow(catalog) == 10L, "Catalog must contain exactly ten data rows")
+assert_true(nrow(catalog) == 26L, "Catalog must contain exactly 26 data rows")
 assert_identical(catalog$candidate_stable_id, expected_ids,
                  "Catalog IDs or deterministic row order changed")
 assert_true(!anyDuplicated(catalog$candidate_stable_id), "Catalog IDs are not unique")
@@ -191,9 +209,16 @@ catalog_proof <- catalog[
   ,
   drop = FALSE
 ]
+catalog_diversity <- catalog[
+  match(diversity_ids, catalog$candidate_stable_id),
+  ,
+  drop = FALSE
+]
 assert_true(!anyNA(catalog_huc$candidate_stable_id), "A retained HUC row is missing")
 assert_true(!anyNA(catalog_proof$candidate_stable_id),
             "A heterogeneous proof row is missing")
+assert_true(!anyNA(catalog_diversity$candidate_stable_id),
+            "A diversity-expansion row is missing")
 
 catalog_values <- unlist(catalog, use.names = FALSE)
 assert_true(!anyNA(catalog_values), "Catalog contains parser-generated NA")
@@ -851,6 +876,383 @@ assert_true(
   "A USGS runtime-scaffolding anchor became a catalog record"
 )
 
+# ---- Sixteen-record behavioral-diversity expansion -------------------------
+
+local_diversity_ids <- diversity_ids[seq_len(6L)]
+external_diversity_ids <- diversity_ids[7:11]
+ops_diversity_ids <- diversity_ids[12:16]
+
+catalog_local_diversity <- catalog_diversity[
+  match(local_diversity_ids, catalog_diversity$candidate_stable_id),
+  ,
+  drop = FALSE
+]
+catalog_external_diversity <- catalog_diversity[
+  match(external_diversity_ids, catalog_diversity$candidate_stable_id),
+  ,
+  drop = FALSE
+]
+catalog_ops_diversity <- catalog_diversity[
+  match(ops_diversity_ids, catalog_diversity$candidate_stable_id),
+  ,
+  drop = FALSE
+]
+
+assert_identical(catalog_diversity$candidate_stable_id, diversity_ids,
+                 "Diversity-expansion IDs or deterministic order changed")
+assert_true(all(catalog_diversity$confidence == "HIGH"),
+            "Diversity-expansion mechanical confidence changed")
+assert_true(
+  all(catalog_diversity$domain_review_fields ==
+        "purpose|audience|suitability|scientific_limitations_beyond_current_source"),
+  "Diversity-expansion domain-review semantics changed"
+)
+
+# All descriptive evidence references must resolve to current tracked source,
+# an explicitly external generated-cache contract, or an established root file.
+for (row_index in seq_len(nrow(catalog_diversity))) {
+  id <- catalog_diversity$candidate_stable_id[[row_index]]
+  for (column in authority_columns) {
+    value <- catalog_diversity[[column]][[row_index]]
+    if (value %in% reserved_nulls) next
+    references <- extract_reference_paths(value)
+    assert_true(
+      length(references) > 0L,
+      paste(id, column, "contains no parseable authority path")
+    )
+    for (reference in references) {
+      generated_contract <- endsWith(reference, ".rds")
+      resolved_reference <- if (identical(reference, "external_service_catalog.csv")) {
+        file.path("00_config", reference)
+      } else {
+        reference
+      }
+      assert_true(
+        generated_contract || file.exists(resolved_reference),
+        paste(id, column, "references missing current path", reference)
+      )
+    }
+  }
+}
+
+# Local identities remain current registry/helper/controller facts.  CalSim3 is
+# deliberately one visible catalog identity assembled from two registry children.
+expected_local_display_names <- c(
+  "Core – BLM Offices",
+  "Reference – ACECs (238)",
+  "Channels – CalSim3.0 (~3.7k)",
+  "Points – Water rights POD | SWRCB 2026 BLM list (~2.3k)",
+  "Points – Springs (~27.3k)",
+  "Reference – Counties (58)"
+)
+expected_local_paths <- c(
+  "Local/Administrative/BLM",
+  "Local/Reference/Planning",
+  "Local/Water/Models",
+  "Local/Water/Water rights",
+  "Local/Water/Springs",
+  "Local/Reference/Administrative"
+)
+assert_identical(catalog_local_diversity$runtime_display_name,
+                 expected_local_display_names,
+                 "Selected Local display-name parity failed")
+assert_identical(catalog_local_diversity$catalog_path, expected_local_paths,
+                 "Selected Local catalog-path parity failed")
+
+direct_local_registry_ids <- c(
+  "blm_offices", "acec", "swrcb_wr_list_official", "springs", "county"
+)
+assert_true(
+  all(direct_local_registry_ids %in% registry$layer_id),
+  "A selected Local identity is absent from LOCAL_LAYER_REGISTRY"
+)
+assert_true(
+  all(c("calsim3_nodes", "calsim3_arcs") %in% registry$layer_id),
+  "The selected CalSim3 identity lost a registry child"
+)
+assert_contains(catalog_local_diversity$definition_authority[[3]],
+                "LOCAL_LAYER_REGISTRY[layer_id=calsim3_nodes]",
+                "CalSim3 catalog authority lost its node child")
+assert_contains(catalog_local_diversity$definition_authority[[3]],
+                "LOCAL_LAYER_REGISTRY[layer_id=calsim3_arcs]",
+                "CalSim3 catalog authority lost its arc child")
+expected_local_assembly_symbols <- c(
+  "pt_add_blm_office_layer",
+  "pt_add_reference_layers",
+  "pt_add_calsim3_cluster_controller",
+  "pt_add_swrcb_pod_wr_layer",
+  "pt_add_springs_layer",
+  "pt_add_reference_layers"
+)
+for (index in seq_along(expected_local_assembly_symbols)) {
+  assert_contains(
+    catalog_local_diversity$assembly_authority[[index]],
+    expected_local_assembly_symbols[[index]],
+    paste("Selected Local assembly authority lost",
+          expected_local_assembly_symbols[[index]])
+  )
+}
+
+local_reference_text <- read_source_text(
+  "03_functions/leaflet_layer_local_reference_helpers.r"
+)
+local_reference_js_text <- read_source_text(
+  "03_functions/js/brim_local_reference_controller.js"
+)
+local_reference_config_text <- read_source_text(
+  "00_config/config_local_reference_interactions.r"
+)
+swrcb_text <- read_source_text(
+  "03_functions/leaflet_layer_local_swrcb_helpers.r"
+)
+spring_r_text <- read_source_text(
+  "03_functions/leaflet_layer_local_well_spring_helpers.r"
+)
+spring_js_text <- read_source_text(
+  "03_functions/js/leaflet_springs_local_virtualized.js"
+)
+for (symbol in c(
+  "pt_add_blm_office_layer", "pt_add_blm_office_reference_legend",
+  "pt_add_calsim3_arc_layer", "pt_add_calsim3_node_layer",
+  "pt_add_calsim3_label_companion", "pt_add_calsim3_cluster_controller",
+  "pt_add_local_reference_controller"
+)) {
+  assert_contains(local_reference_text, symbol,
+                  paste("Selected Local authority lost", symbol))
+}
+for (symbol in c(
+  "acec", "county", "facets", "search_fields"
+)) {
+  assert_contains(local_reference_config_text, symbol,
+                  paste("Local Reference config lost", symbol))
+}
+for (symbol in c(
+  "buildAcecPopup", "applyRecordStyles", "function destroy()"
+)) {
+  assert_contains(local_reference_js_text, symbol,
+                  paste("Local Reference controller lost", symbol))
+}
+for (symbol in c(
+  "pt_add_swrcb_pod_wr_layer", "pt_add_swrcb_pod_wr_shared_legend",
+  "window.BRIM_SWRCB_POD_LOCAL", "makePopup", "makeTooltip"
+)) {
+  assert_contains(swrcb_text, symbol,
+                  paste("SWRCB controller authority lost", symbol))
+}
+for (symbol in c(
+  "pt_add_springs_layer", "pt_add_springs_browser_layer",
+  "pt_springs_dummy", "pt_springs_label_dummy"
+)) {
+  assert_contains(spring_r_text, symbol,
+                  paste("Springs assembly authority lost", symbol))
+}
+for (symbol in c(
+  "window.BRIM_SPRINGS_LOCAL", "applyFilters", "function destroy()"
+)) {
+  assert_contains(spring_js_text, symbol,
+                  paste("Springs controller authority lost", symbol))
+}
+for (name in c(
+  "BLM Offices", "Reference – ACECs", "Channels – CalSim3.0",
+  "Points – Water rights POD | SWRCB 2026 BLM list", "Points – Springs",
+  "Reference – Counties"
+)) {
+  assert_contains(builder_text, name,
+                  paste("Current builder lost selected Local group", name))
+}
+
+ordinary_local_architecture <- paste(
+  c(
+    "LOCAL", "LOCAL_STANDARD_LEAFLET", "ACTIVE_CURRENT_RUNTIME",
+    "USER_VISIBLE", "ORDINARY_LEAFLET", "NON_GENERIC_RENDERER"
+  ),
+  collapse = ";"
+)
+custom_local_architecture <- paste(
+  c(
+    "LOCAL", "LOCAL_CUSTOM_CONTROLLER", "ACTIVE_CURRENT_RUNTIME",
+    "USER_VISIBLE", "CUSTOM_CONTROLLER", "NON_GENERIC_RENDERER"
+  ),
+  collapse = ";"
+)
+assert_identical(
+  catalog_local_diversity$architecture,
+  c(ordinary_local_architecture, rep(custom_local_architecture, 5L)),
+  "Selected Local architecture/custom-marker parity failed"
+)
+assert_true(
+  !any(catalog$candidate_stable_id %in%
+         c("pt_springs_dummy", "pt_springs_label_dummy")),
+  "Springs runtime-scaffolding anchors became catalog records"
+)
+
+# External identities, display names, paths, service shapes, and load modes are
+# derived mechanically from the current executable External source catalog.
+external_diversity_rows <- external_catalog[
+  match(external_diversity_ids, external_catalog$external_layer_id),
+  ,
+  drop = FALSE
+]
+assert_true(!anyNA(external_diversity_rows$external_layer_id),
+            "A selected External source row is missing")
+assert_true(!anyDuplicated(external_diversity_rows$external_layer_id),
+            "A selected External source row is duplicated")
+assert_true(all(external_diversity_rows$primary_panel == "external"),
+            "A selected External row is not currently panel-visible")
+assert_identical(catalog_external_diversity$runtime_display_name,
+                 external_diversity_rows$display_name,
+                 "Selected External display-name parity failed")
+assert_identical(
+  catalog_external_diversity$catalog_path,
+  paste(
+    "External",
+    external_diversity_rows$external_group,
+    external_diversity_rows$external_subgroup,
+    sep = "/"
+  ),
+  "Selected External catalog-path parity failed"
+)
+assert_identical(
+  external_diversity_rows$service_type,
+  c("feature", "map", "map", "image", "feature"),
+  "Selected External service-type diversity changed"
+)
+assert_identical(
+  external_diversity_rows$default_load_mode,
+  c("current_view", "current_view", "tiled", "visual", "live_snapshot"),
+  "Selected External load-mode diversity changed"
+)
+for (symbol in c(
+  "window.ptOpsExternalCatalogBridge", "ptExternalFeatureCollectionLayer",
+  "ptIsParentMapServerUrl", "ptIdentifyImageServerAtLatLng",
+  "window.BRIM.uicExplorer", "UIC_EPA_LIVE"
+)) {
+  assert_contains(external_js_text, symbol,
+                  paste("Selected External controller authority lost", symbol))
+}
+assert_true(
+  all(grepl("SHARED_CONTROLLER", catalog_external_diversity$architecture[1:4],
+            fixed = TRUE)),
+  "An ordinary selected External row lost its shared-controller marker"
+)
+assert_true(
+  grepl("CUSTOM_LOADER", catalog_external_diversity$architecture[[5]],
+        fixed = TRUE) &&
+    grepl("NON_GENERIC_RENDERER", catalog_external_diversity$architecture[[5]],
+          fixed = TRUE),
+  "UIC selected External row lost its custom/non-generic markers"
+)
+assert_true(
+  all(grepl("LC-GAP-001", catalog_external_diversity$gap, fixed = TRUE)) &&
+    all(grepl("LC-GAP-002", catalog_external_diversity$gap, fixed = TRUE)),
+  "Selected External shared destroy/cancellation gaps changed"
+)
+
+# Ops Live parity asserts only BRIM-side source truths.  Candidate stable IDs
+# remain descriptive; producer cadence/schema/health guarantees are not inferred.
+expected_ops_display_names <- c(
+  "ALERTCalifornia Cameras",
+  "Radar | NOAA MRMS",
+  "Streamflow | multi-agency | Nat'l",
+  "CNRFC forecast points | river/reservoir",
+  "WPC QPF Day 1"
+)
+expected_ops_paths <- c(
+  "Ops Live/Cameras",
+  "Ops Live/Hydro Observations",
+  "Ops Live/Hydro Observations",
+  "Ops Live/Forecasts / Outlooks",
+  "Ops Live/Forecasts / Outlooks"
+)
+ops_architecture <- paste(
+  c(
+    "OPS_LIVE", "OPS_LIVE_CUSTOM_CONTROLLER", "ACTIVE_CURRENT_RUNTIME",
+    "USER_VISIBLE", "CUSTOM_CONTROLLER", "NON_GENERIC_RENDERER"
+  ),
+  collapse = ";"
+)
+assert_identical(catalog_ops_diversity$runtime_display_name,
+                 expected_ops_display_names,
+                 "Selected Ops Live display-name parity failed")
+assert_identical(catalog_ops_diversity$catalog_path, expected_ops_paths,
+                 "Selected Ops Live catalog-path parity failed")
+assert_true(all(catalog_ops_diversity$architecture == ops_architecture),
+            "Selected Ops Live custom/non-generic architecture changed")
+ops_display_source_needles <- c(
+  "name: 'ALERTCalifornia Cameras'",
+  "name: 'Radar | NOAA MRMS'",
+  "name: 'Streamflow | multi-agency | Nat\\'l'",
+  "name: 'CNRFC forecast points | river/reservoir'",
+  "name: 'WPC QPF Day 1'"
+)
+for (index in seq_along(expected_ops_display_names)) {
+  assert_contains(
+    ops_text,
+    ops_display_source_needles[[index]],
+    paste("Current Ops definitions lost", expected_ops_display_names[[index]])
+  )
+}
+
+cnrfc_forecast_text <- read_source_text(
+  "03_functions/leaflet_ops_live_cnrfc_forecast_points_helpers.r"
+)
+wpc_hover_text <- read_source_text(
+  "03_functions/leaflet_ops_live_wpc_qpf_hover_helpers.r"
+)
+for (symbol in c(
+  "CatalogPromotedExternalLayer", "ops_alertcalifornia_cameras",
+  "ops_live_agency_streamflow_gages", "ArcGISExportLayer",
+  "checkNoaaRadar", "checkWpcQpf"
+)) {
+  assert_contains(ops_text, symbol,
+                  paste("Selected Ops definition authority lost", symbol))
+}
+for (symbol in c(
+  "CnrfcRiverReservoirForecastLayer", "forecast", "onRemove", "forceRemove"
+)) {
+  assert_contains(cnrfc_forecast_text, symbol,
+                  paste("CNRFC forecast controller lost", symbol))
+}
+for (symbol in c("activateWpcQpfHover", "deactivateWpcQpfHover")) {
+  assert_contains(wpc_hover_text, symbol,
+                  paste("WPC QPF hover authority lost", symbol))
+}
+assert_true(all(catalog_ops_diversity$label_authority == "NOT_APPLICABLE"),
+            "A selected Ops row invented label ownership")
+assert_true(
+  all(grepl("producer confirmation=NOT_APPLICABLE",
+            catalog_ops_diversity$lifecycle_summary,
+            fixed = TRUE)),
+  "A selected Ops row inferred a producer-side guarantee"
+)
+assert_true(
+  all(grepl("PRODUCER_SIDE_CONFIRMATION_NOT_APPLICABLE",
+            catalog_ops_diversity$gap,
+            fixed = TRUE)),
+  "A selected Ops row lost its producer-side nonclaim"
+)
+assert_contains(builder_text, "m <- pt_add_ops_live_layers(",
+                "Final builder lost selected Ops Live assembly")
+
+assert_true(
+  all(grepl("Clear Local/Clear All",
+            catalog_local_diversity$lifecycle_summary,
+            fixed = TRUE)),
+  "A selected Local row lost clear/reset ownership"
+)
+assert_true(
+  all(grepl("External Remove", catalog_external_diversity$lifecycle_summary,
+            fixed = TRUE)) &&
+    all(grepl("Clear All", catalog_external_diversity$lifecycle_summary,
+              fixed = TRUE)),
+  "A selected External row lost clear/reset ownership"
+)
+assert_true(
+  all(grepl("Clear Ops/Clear All", catalog_ops_diversity$lifecycle_summary,
+            fixed = TRUE)),
+  "A selected Ops row lost clear/reset ownership"
+)
+
 # ---- Scaffolding, executable-content, and path-safety exclusions ------------
 
 scaffolding_pattern <- paste(
@@ -961,8 +1363,10 @@ assert_true(
   "SOURCE_MANIFEST.csv must remain byte-for-byte unchanged for NOT_REQUIRED"
 )
 
-message("Descriptive ten-record layer catalog parity passed.")
-message("HETEROGENEOUS_DESCRIPTIVE_MECHANISM_PROVEN_FOR_SELECTED_RECORDS")
+message("Descriptive 26-record layer catalog parity passed.")
+message("SCHEMA_DIVERSITY_PROVEN=YES")
+message("SCHEMA=UNCHANGED_15_FIELD")
+message("DIVERSITY_TESTED_DESCRIPTIVE_SCHEMA_FOR_SELECTED_RECORDS")
 message("CATALOG_AUTHORITY=DESCRIPTIVE_ONLY")
 message("RUNTIME_AUTHORITY=UNCHANGED")
 message("RUNTIME_CATALOG_CONSUMPTION=NONE")

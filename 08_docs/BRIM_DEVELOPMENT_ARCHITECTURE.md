@@ -35,9 +35,11 @@ Map styling, legend swatches, filter ordering, category labels, and counts shoul
 
 `08_docs/catalog/BRIM_LAYER_CATALOG.csv` is currently a descriptive metadata mirror only (`CATALOG_AUTHORITY=DESCRIPTIVE_ONLY`). Current runtime, build, and controller source does not consume the catalog; the existing R/Leaflet/htmlwidgets/JavaScript construction remains authoritative (`RUNTIME_AUTHORITY=UNCHANGED`).
 
-The current catalog and `qa/test_descriptive_layer_catalog.R` parity test retain the six-record HUC proof (`huc2`, `huc4`, `huc6`, `huc8`, `huc10`, and `huc12`) and add a small heterogeneous proof: ordinary Local `gw_bull118`, External `EXT143`, Ops Live `ops_u_s_drought_monitor`, and custom-controller `usgs_streamgages`. The proof-role classification is separate from each record's catalog architecture.
+The current catalog and `qa/test_descriptive_layer_catalog.R` parity test retain the six-record HUC proof (`huc2`, `huc4`, `huc6`, `huc8`, `huc10`, and `huc12`) and the four-record heterogeneous proof: ordinary Local `gw_bull118`, External `EXT143`, Ops Live `ops_u_s_drought_monitor`, and custom-controller `usgs_streamgages`. The tested descriptive population also includes 16 diversity-selected records spanning ordinary and custom Local layers, shared and custom-loader External resources, and hosted-vector, raster/image, observational, and forecast Ops Live products.
 
-This ten-record boundary proves the descriptive mechanism only for those tested records and architectures. It does not establish that the 15-field schema applies unchanged to all 276 visible BRIM layers, authorize catalog-driven rendering, or imply that current custom controllers, External lifecycle gaps, or Ops Live status semantics are standardized.
+The resulting 26-record population exercises the unchanged 15-field descriptive schema across simple overlays, shared search/filter/card behavior, combined and virtualized custom controllers, tiled and image services, bespoke External loading, product-specific status/error lifecycles, and nontrivial clear/reset ownership. This establishes `SCHEMA_DIVERSITY_PROVEN=YES` for the selected records and permits future descriptive population to proceed incrementally without another proof-only schema worker.
+
+This boundary does not claim that all 276 visible BRIM layers are cataloged or validated, authorize catalog-driven rendering, replace custom controllers, resolve External lifecycle gaps, normalize Ops Live status semantics, or confirm producer-side contracts. The proof-role classification remains separate from each record's catalog architecture.
 
 ## Semantic features and geometry components
 
