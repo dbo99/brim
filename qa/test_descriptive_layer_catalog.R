@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
-## Source-only parity checks for the descriptive six-layer HUC catalog mirror.
+## Source-only parity checks for the descriptive ten-record catalog mirror:
+## the retained six-layer HUC proof and four heterogeneous proof roles.
 ## This test reads current authored source and the catalog. It does not read
 ## retained caches, build BRIM, access a network, or execute a preprocessor.
 
@@ -41,11 +42,18 @@ project_root <- normalizePath(
 old_wd <- setwd(project_root)
 on.exit(setwd(old_wd), add = TRUE)
 
-expected_head <- "3d262c6523e5d87f1d47fab99758f7045f12a062"
-expected_tree <- "b7e68df7c09561625991c65182bbe2855162641a"
-expected_ids <- c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")
+expected_head <- "26175854a77654e3a454ec060915f357c4a2c9d1"
+expected_tree <- "2561e86af2aeda2f8f970926cfe682b160ca76de"
+expected_huc_ids <- c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")
+proof_ids <- c(
+  ordinary_local = "gw_bull118",
+  external = "EXT143",
+  ops_live = "ops_u_s_drought_monitor",
+  custom_controller = "usgs_streamgages"
+)
+expected_ids <- c(expected_huc_ids, unname(proof_ids))
 expected_counts <- c(4L, 16L, 24L, 140L, 1128L, 5065L)
-names(expected_counts) <- expected_ids
+names(expected_counts) <- expected_huc_ids
 expected_columns <- c(
   "candidate_stable_id",
   "runtime_display_name",
@@ -64,10 +72,12 @@ expected_columns <- c(
   "gap"
 )
 allowed_changed_paths <- c(
+  "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md",
+  "08_docs/DOCUMENTATION_INDEX.md",
   "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
   "qa/test_descriptive_layer_catalog.R"
 )
-catalog_path <- allowed_changed_paths[[1]]
+catalog_path <- "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
 
 # ---- Baseline and exact working-scope gate ---------------------------------
 
@@ -81,11 +91,11 @@ git_value <- function(args, label) {
 }
 
 assert_identical(git_value(c("rev-parse", "HEAD"), "HEAD"), expected_head,
-                 "M01 baseline HEAD changed")
+                 "M02 baseline HEAD changed")
 assert_identical(
   git_value(c("rev-parse", "HEAD^{tree}"), "tree"),
   expected_tree,
-  "M01 baseline tree changed"
+  "M02 baseline tree changed"
 )
 
 status_lines <- system2(
@@ -99,11 +109,11 @@ status_paths <- if (length(status_lines)) substring(status_lines, 4L) else chara
 assert_identical(
   sort(status_paths),
   sort(allowed_changed_paths),
-  "M01 changed-path scope is not exactly the two authorized files"
+  "M02 changed-path scope is not exactly the four authorized files"
 )
 assert_true(
   all(substr(status_lines, 1L, 1L) %in% c(" ", "?")),
-  "M01 files must remain unstaged"
+  "M02 files must remain unstaged"
 )
 
 # ---- Exact CSV serialization and schema ------------------------------------
@@ -144,7 +154,7 @@ if (length(field_counts) && tail(field_counts, 1L) == 0L &&
     endsWith(catalog_text, "\n")) {
   field_counts <- head(field_counts, -1L)
 }
-assert_identical(field_counts, rep(15L, 7L),
+assert_identical(field_counts, rep(15L, 11L),
                  "Catalog records do not each contain exactly 15 fields")
 
 catalog <- utils::read.csv(
@@ -161,14 +171,29 @@ catalog <- utils::read.csv(
   fill = FALSE
 )
 assert_identical(names(catalog), expected_columns, "Catalog header changed")
-assert_true(nrow(catalog) == 6L, "Catalog must contain exactly six data rows")
+assert_true(nrow(catalog) == 10L, "Catalog must contain exactly ten data rows")
 assert_identical(catalog$candidate_stable_id, expected_ids,
-                 "Catalog HUC IDs or deterministic row order changed")
+                 "Catalog IDs or deterministic row order changed")
 assert_true(!anyDuplicated(catalog$candidate_stable_id), "Catalog IDs are not unique")
 assert_true(
-  all(grepl("^huc(2|4|6|8|10|12)$", catalog$candidate_stable_id)),
-  "Catalog contains an invalid HUC stable ID"
+  identical(catalog$candidate_stable_id[seq_along(expected_huc_ids)],
+            expected_huc_ids),
+  "The retained HUC rows changed identity or order"
 )
+
+catalog_huc <- catalog[
+  match(expected_huc_ids, catalog$candidate_stable_id),
+  ,
+  drop = FALSE
+]
+catalog_proof <- catalog[
+  match(unname(proof_ids), catalog$candidate_stable_id),
+  ,
+  drop = FALSE
+]
+assert_true(!anyNA(catalog_huc$candidate_stable_id), "A retained HUC row is missing")
+assert_true(!anyNA(catalog_proof$candidate_stable_id),
+            "A heterogeneous proof row is missing")
 
 catalog_values <- unlist(catalog, use.names = FALSE)
 assert_true(!anyNA(catalog_values), "Catalog contains parser-generated NA")
@@ -243,13 +268,13 @@ registry_huc <- registry[
   ,
   drop = FALSE
 ]
-assert_identical(registry_huc$layer_id, expected_ids,
+assert_identical(registry_huc$layer_id, expected_huc_ids,
                  "Current registry HUC family is not the exact six-layer scope")
 assert_true(nrow(registry_huc) == 6L, "A seventh registry HUC layer was found")
 assert_true(all(registry_huc$category == "Basins"), "HUC registry category changed")
 assert_identical(
   registry_huc$canonical_group,
-  paste0("Basins – ", toupper(expected_ids), " – PRISM/BCMv8"),
+  paste0("Basins – ", toupper(expected_huc_ids), " – PRISM/BCMv8"),
   "HUC canonical groups changed"
 )
 assert_true(all(registry_huc$cache_file == "huc_all_map.rds"),
@@ -296,7 +321,7 @@ fixture_counts <- vapply(count_rows, function(line) {
   sum(values)
 }, integer(1))
 names(fixture_counts) <- fixture_ids
-fixture_counts <- fixture_counts[expected_ids]
+fixture_counts <- fixture_counts[expected_huc_ids]
 assert_identical(fixture_counts, expected_counts,
                  "Current HUC supporting counts changed")
 
@@ -309,7 +334,7 @@ runtime_display_names <- paste(
   )
 )
 assert_identical(
-  catalog$runtime_display_name,
+  catalog_huc$runtime_display_name,
   unname(runtime_display_names),
   "Catalog display names do not match the current registry/count formatter"
 )
@@ -347,10 +372,10 @@ overlay_matches <- regmatches(
   gregexpr('"HUC(2|4|6|8|10|12)"', overlay_block, perl = TRUE)
 )[[1]]
 overlay_ids <- tolower(gsub('"', "", overlay_matches, fixed = TRUE))
-assert_identical(overlay_ids, expected_ids,
+assert_identical(overlay_ids, expected_huc_ids,
                  "CORE_OVERLAY_GROUPS HUC membership/order changed")
 
-for (id in expected_ids) {
+for (id in expected_huc_ids) {
   level <- toupper(id)
   count_line <- paste0(
     '"Basins – ', level,
@@ -386,7 +411,7 @@ visible_source_huc_ids <- registry$layer_id[registry$layer_id %in% source_huc_ma
 visible_source_huc_ids <- visible_source_huc_ids[
   grepl("^huc[0-9]+$", visible_source_huc_ids)
 ]
-assert_identical(visible_source_huc_ids, expected_ids,
+assert_identical(visible_source_huc_ids, expected_huc_ids,
                  "Scoped runtime source and registry no longer agree on six HUC layers")
 
 # ---- Architecture and authority-reference parity ----------------------------
@@ -398,9 +423,9 @@ expected_architecture <- paste(
   ),
   collapse = ";"
 )
-assert_true(all(catalog$architecture == expected_architecture),
+assert_true(all(catalog_huc$architecture == expected_architecture),
             "Catalog HUC architecture changed")
-architecture_tokens <- strsplit(catalog$architecture, ";", fixed = TRUE)
+architecture_tokens <- strsplit(catalog_huc$architecture, ";", fixed = TRUE)
 assert_true(
   all(vapply(architecture_tokens, function(tokens) {
     sum(tokens == "CUSTOM_CONTROLLER") == 1L &&
@@ -422,21 +447,22 @@ assert_contains(source_text$theme_js, "function destroy()",
 assert_contains(compact_theme_js, "L.canvas({pane:'pane_huc'})",
                 "Current shared HUC Canvas renderer is missing")
 
-assert_true(all(catalog$catalog_path == "Local/Water/Hydrologic units"),
+assert_true(all(catalog_huc$catalog_path == "Local/Water/Hydrologic units"),
             "Catalog path changed")
-catalog_path_segments <- strsplit(catalog$catalog_path, "/", fixed = TRUE)
 assert_true(
-  all(vapply(catalog_path_segments, function(parts) {
-    length(parts) == 3L && all(nzchar(parts)) && all(parts == trimws(parts))
-  }, logical(1))),
-  "Catalog path has an empty or untrimmed segment"
+  all(nzchar(catalog$catalog_path)) &&
+    all(catalog$catalog_path == trimws(catalog$catalog_path)) &&
+    !any(startsWith(catalog$catalog_path, "/")) &&
+    !any(endsWith(catalog$catalog_path, "/")) &&
+    !any(grepl("//", catalog$catalog_path, fixed = TRUE)),
+  "Catalog path is empty, untrimmed, or has an invalid boundary/separator"
 )
 
 extract_reference_paths <- function(value) {
   tokens <- unlist(strsplit(value, "[[:space:];,]+", perl = TRUE), use.names = FALSE)
   tokens <- sub(":.*$", "", tokens)
   tokens <- gsub("^[('\\\"]+|[)'\\\"]+$", "", tokens, perl = TRUE)
-  unique(tokens[grepl("\\.(r|R|js|md|rds)$", tokens)])
+  unique(tokens[grepl("\\.(r|R|js|md|rds|csv)$", tokens)])
 }
 
 authority_columns <- c(
@@ -444,10 +470,10 @@ authority_columns <- c(
   "label_authority", "popup_authority", "filter_authority",
   "notes_or_resources"
 )
-for (row_index in seq_len(nrow(catalog))) {
-  id <- catalog$candidate_stable_id[[row_index]]
+for (row_index in seq_len(nrow(catalog_huc))) {
+  id <- catalog_huc$candidate_stable_id[[row_index]]
   for (column in authority_columns) {
-    references <- extract_reference_paths(catalog[[column]][[row_index]])
+    references <- extract_reference_paths(catalog_huc[[column]][[row_index]])
     assert_true(
       length(references) > 0L,
       paste(id, column, "contains no parseable authority path")
@@ -466,48 +492,48 @@ for (row_index in seq_len(nrow(catalog))) {
   }
 
   assert_contains(
-    catalog$definition_authority[[row_index]],
+    catalog_huc$definition_authority[[row_index]],
     paste0("LOCAL_LAYER_REGISTRY[layer_id=", id, "]"),
     paste(id, "definition authority lost its registry key")
   )
   assert_contains(
-    catalog$definition_authority[[row_index]],
+    catalog_huc$definition_authority[[row_index]],
     paste0("pt_add_huc_layer(code_col=", id, ")"),
     paste(id, "definition authority lost its construction key")
   )
   assert_contains(
-    catalog$assembly_authority[[row_index]],
+    catalog_huc$assembly_authority[[row_index]],
     "pt_register_local_layer_feature_counts",
     paste(id, "assembly authority does not name the current count owner")
   )
   assert_contains(
-    catalog$assembly_authority[[row_index]],
+    catalog_huc$assembly_authority[[row_index]],
     paste0("pt_count_huc_rows key ", id),
     paste(id, "assembly authority lost its current count key")
   )
   assert_contains(
-    catalog$assembly_authority[[row_index]],
+    catalog_huc$assembly_authority[[row_index]],
     paste0("CORE_OVERLAY_GROUPS ", if (id %in% c("huc10", "huc12")) "conditional " else "",
            toupper(id), " entry"),
     paste(id, "assembly authority lost its overlay entry")
   )
   assert_contains(
-    catalog$legend_authority[[row_index]],
+    catalog_huc$legend_authority[[row_index]],
     "PT_HUC_THEME_REGISTRY",
     paste(id, "legend authority lost the HUC theme registry")
   )
   assert_contains(
-    catalog$label_authority[[row_index]],
+    catalog_huc$label_authority[[row_index]],
     paste0("LABEL_ZOOM/LABEL_INCLUDE/LABEL_FIELDS[", id, "]"),
     paste(id, "label authority lost its label key")
   )
   assert_contains(
-    catalog$popup_authority[[row_index]],
+    catalog_huc$popup_authority[[row_index]],
     paste0("popup_html for ", id),
     paste(id, "popup authority lost its cache key")
   )
   assert_contains(
-    catalog$filter_authority[[row_index]],
+    catalog_huc$filter_authority[[row_index]],
     paste0("theme payload ", id),
     paste(id, "filter authority lost its theme key")
   )
@@ -518,7 +544,7 @@ for (row_index in seq_len(nrow(catalog))) {
     "network=NOT_APPLICABLE", "live=NOT_APPLICABLE"
   )) {
     assert_contains(
-      catalog$lifecycle_summary[[row_index]],
+      catalog_huc$lifecycle_summary[[row_index]],
       phase,
       paste(id, "lifecycle summary lost", phase)
     )
@@ -556,10 +582,10 @@ label_child_ids <- unique(regmatches(
   gregexpr('"huc[0-9]+"', label_child_slice, perl = TRUE)
 )[[1]])
 label_child_ids <- gsub('"', "", label_child_ids, fixed = TRUE)
-assert_identical(label_child_ids, expected_ids,
+assert_identical(label_child_ids, expected_huc_ids,
                  "Label-cache expected HUC child set changed")
 
-for (id in expected_ids) {
+for (id in expected_huc_ids) {
   assert_true(
     grepl(paste0('"', id, '"'), source_text$labels, fixed = TRUE),
     paste("LABEL_ZOOM lost", id)
@@ -575,31 +601,271 @@ for (id in expected_ids) {
 }
 
 assert_true(
-  all(catalog$domain_review_fields ==
+  all(catalog_huc$domain_review_fields ==
         "purpose|audience|suitability|scientific_limitations_beyond_current_source"),
   "Domain-review field list changed"
 )
-assert_true(all(catalog$confidence == "HIGH"),
+assert_true(all(catalog_huc$confidence == "HIGH"),
             "HUC mechanical confidence changed")
 assert_true(
-  all(catalog$gap ==
+  all(catalog_huc$gap ==
         "A02_CONTROLLER_RENDERER_DESCRIPTION_CORRECTED_BY_CURRENT_SOURCE"),
   "Current-source controller/renderer correction was not preserved"
+)
+
+# ---- Four-role heterogeneous proof parity ----------------------------------
+
+expected_proof_display_names <- c(
+  "Basins – GW Basins, Bulletin 118 (515)",
+  "CARB air districts",
+  "U.S. Drought Monitor",
+  "Points – USGS streamgages (~2.4k)"
+)
+expected_proof_architectures <- c(
+  "LOCAL;LOCAL_STANDARD_LEAFLET;ACTIVE_CURRENT_RUNTIME;USER_VISIBLE;ORDINARY_LEAFLET;NON_GENERIC_RENDERER",
+  "EXTERNAL;EXTERNAL_CATALOG_BRIDGE;ACTIVE_ENABLED;USER_VISIBLE;SHARED_CONTROLLER;GENERIC_CATEGORICAL_RENDERER",
+  "OPS_LIVE;OPS_LIVE_CUSTOM_CONTROLLER;ACTIVE_CURRENT_RUNTIME;USER_VISIBLE;CUSTOM_CONTROLLER;NON_GENERIC_RENDERER",
+  "LOCAL;LOCAL_CUSTOM_CONTROLLER;ACTIVE_CURRENT_RUNTIME;USER_VISIBLE;CUSTOM_CONTROLLER;NON_GENERIC_RENDERER"
+)
+expected_proof_paths <- c(
+  "Local/Water/Groundwater basins",
+  "External/Air / Smoke/CARB context",
+  "Ops Live/Drought",
+  "Local/Water/Monitoring"
+)
+assert_identical(catalog_proof$candidate_stable_id, unname(proof_ids),
+                 "Heterogeneous proof role IDs or order changed")
+assert_identical(catalog_proof$runtime_display_name,
+                 expected_proof_display_names,
+                 "Heterogeneous display-name parity failed")
+assert_identical(catalog_proof$architecture, expected_proof_architectures,
+                 "Heterogeneous architecture parity failed")
+assert_identical(catalog_proof$catalog_path, expected_proof_paths,
+                 "Heterogeneous catalog-path parity failed")
+assert_true(all(catalog_proof$confidence == "HIGH"),
+            "Heterogeneous proof confidence changed")
+assert_true(
+  all(catalog_proof$domain_review_fields ==
+        "purpose|audience|suitability|scientific_limitations_beyond_current_source"),
+  "Heterogeneous domain-review semantics changed"
+)
+
+for (row_index in seq_len(nrow(catalog_proof))) {
+  id <- catalog_proof$candidate_stable_id[[row_index]]
+  for (column in authority_columns) {
+    value <- catalog_proof[[column]][[row_index]]
+    if (value %in% reserved_nulls) next
+    references <- extract_reference_paths(value)
+    assert_true(
+      length(references) > 0L,
+      paste(id, column, "contains no parseable authority path")
+    )
+    for (reference in references) {
+      generated_contract <- startsWith(reference, "04_processed_data/") ||
+        identical(reference, "labels_all_map.rds")
+      assert_true(
+        generated_contract || file.exists(reference),
+        paste(id, column, "references missing current path", reference)
+      )
+    }
+  }
+}
+
+local_proof_registry <- registry[
+  match(c("gw_bull118", "usgs_streamgages"), registry$layer_id),
+  ,
+  drop = FALSE
+]
+assert_identical(local_proof_registry$layer_id,
+                 c("gw_bull118", "usgs_streamgages"),
+                 "Selected Local proof registry IDs changed")
+assert_identical(
+  local_proof_registry$canonical_group,
+  c("Basins – GW Basins, Bulletin 118", "Points – USGS streamgages"),
+  "Selected Local proof canonical groups changed"
+)
+assert_identical(
+  local_proof_registry$cache_file,
+  c("gw_bull118_map.rds", "usgs_streamgages_map.rds"),
+  "Selected Local proof cache contracts changed"
+)
+assert_identical(local_proof_registry$geometry_family, c("polygon", "point"),
+                 "Selected Local proof geometry families changed")
+
+assert_contains(
+  builder_text,
+  '"Basins – GW Basins, Bulletin 118" = pt_count_sf_rows(layers$gw)',
+  "Bulletin 118 count authority changed"
+)
+assert_contains(
+  builder_text,
+  '"Points – USGS streamgages" = pt_count_sf_rows(layers$usgs_sw)',
+  "USGS streamgage count authority changed"
+)
+for (symbol in c(
+  '"GW – Bull. 118"', "pt_add_county_gw_layers(",
+  '"USGS streamgages"', "pt_add_usgs_layers(",
+  "pt_add_usgs_streamgage_catalog_legend("
+)) {
+  assert_contains(builder_text, symbol,
+                  paste("Selected Local assembly lost", symbol))
+}
+
+bulletin_text <- read_source_text("03_functions/bulletin118_data_helpers.r")
+assert_contains(bulletin_text, "PT_BULLETIN118_EXPECTED_ROWS <- 515L",
+                "Bulletin 118 exact current count contract changed")
+assert_contains(source_text$polygon, "pt_add_county_gw_layers <- function",
+                "Bulletin 118 construction helper is missing")
+assert_contains(source_text$polygon, "r._brimBulletin118=true",
+                "Bulletin 118 non-generic Canvas feature renderer is missing")
+assert_contains(source_text$polygon, "popup = ~popup_html",
+                "Bulletin 118 popup binding is missing")
+assert_contains(source_text$polygon, "label = ~pt_gw_hover_html",
+                "Bulletin 118 hover binding is missing")
+
+external_catalog <- utils::read.csv(
+  "00_config/external_service_catalog.csv",
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+external_row <- external_catalog[
+  external_catalog$external_layer_id == proof_ids[["external"]],
+  ,
+  drop = FALSE
+]
+assert_true(nrow(external_row) == 1L, "EXT143 source row is not unique")
+assert_identical(external_row$display_name, "CARB air districts",
+                 "EXT143 display name changed")
+assert_identical(external_row$external_group, "Air / Smoke",
+                 "EXT143 External group changed")
+assert_identical(external_row$external_subgroup, "CARB context",
+                 "EXT143 External subgroup changed")
+assert_identical(external_row$service_type, "feature",
+                 "EXT143 service type changed")
+assert_identical(external_row$default_load_mode, "current_view",
+                 "EXT143 load mode changed")
+assert_identical(external_row$default_style_method, "categorical_distinct",
+                 "EXT143 style method changed")
+assert_identical(tolower(external_row$supports_popups), "true",
+            "EXT143 popup capability changed")
+
+external_r_text <- read_source_text("03_functions/leaflet_tools_adddata_helpers.r")
+external_js_text <- read_source_text("03_functions/js/leaflet_tools_adddata_panel.js")
+assert_contains(external_r_text, "pt_add_tools_adddata_panel <- function",
+                "External catalog assembly helper is missing")
+assert_contains(external_r_text,
+                'catalog_path <- file.path("00_config", "external_service_catalog.csv")',
+                "External catalog source embedding changed")
+for (symbol in c(
+  "window.ptOpsExternalCatalogBridge", "ptRenderCustomLayerList",
+  "generic_categorical", "ptGenericCategoricalLegendHtml",
+  "ptExternalFeatureCollectionLayer", "ptOnEachFeature",
+  "ptTooltipFromProperties", "ptPopupFromProperties"
+)) {
+  assert_contains(external_js_text, symbol,
+                  paste("EXT143 shared External authority lost", symbol))
+}
+
+ops_text <- read_source_text(
+  "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+)
+drought_start <- regexpr("name: 'U.S. Drought Monitor'", ops_text, fixed = TRUE)[[1]]
+assert_true(drought_start > 0L, "Ops Live Drought Monitor definition is missing")
+drought_slice <- substr(
+  ops_text,
+  drought_start,
+  min(nchar(ops_text), drought_start + 1400L)
+)
+for (symbol in c(
+  "CatalogPromotedExternalLayer", "ops_us_drought_monitor_current",
+  "U.S. Drought Monitor (current)",
+  "USDM_current/FeatureServer/0"
+)) {
+  assert_contains(drought_slice, symbol,
+                  paste("Ops Live Drought Monitor lost", symbol))
+}
+for (symbol in c(
+  "onAdd: function", "onRemove: function", "forceRemove: function",
+  "window.ptOpsExternalCatalogBridge", "ptOpsClearPromotedSlowTimers",
+  "activeLegendDefs"
+)) {
+  assert_contains(ops_text, symbol,
+                  paste("Ops Live controller authority lost", symbol))
+}
+assert_contains(builder_text, "m <- pt_add_ops_live_layers(",
+                "Final builder lost Ops Live assembly")
+
+usgs_text <- read_source_text("03_functions/leaflet_layer_local_usgs_helpers.r")
+for (symbol in c(
+  "pt_add_usgs_streamgage_catalog_legend <- function",
+  "pt_add_usgs_streamgage_browser_layer <- function",
+  "window.BRIM_USGS_SW_LOCAL", "applyFilters: function",
+  "setActive: function", "makePopup", "makeTooltip",
+  "pt_usgs_streamgages_dummy", "pt_usgs_streamgages_label_dummy"
+)) {
+  assert_contains(usgs_text, symbol,
+                  paste("USGS custom-controller authority lost", symbol))
+}
+assert_true(
+  grepl("CUSTOM_CONTROLLER", catalog_proof$architecture[[4]], fixed = TRUE) &&
+    grepl("NON_GENERIC_RENDERER", catalog_proof$architecture[[4]], fixed = TRUE),
+  "USGS custom/non-generic catalog markers are missing"
+)
+assert_true(
+  !grepl("CUSTOM_CONTROLLER", catalog_proof$architecture[[1]], fixed = TRUE),
+  "Ordinary Local proof was incorrectly marked as a custom controller"
+)
+assert_true(
+  grepl("SHARED_CONTROLLER", catalog_proof$architecture[[2]], fixed = TRUE) &&
+    grepl("GENERIC_CATEGORICAL_RENDERER",
+          catalog_proof$architecture[[2]], fixed = TRUE),
+  "External shared/generic catalog markers are missing"
+)
+assert_true(
+  grepl("CUSTOM_CONTROLLER", catalog_proof$architecture[[3]], fixed = TRUE) &&
+    grepl("NON_GENERIC_RENDERER", catalog_proof$architecture[[3]], fixed = TRUE),
+  "Ops Live custom/non-generic catalog markers are missing"
+)
+
+assert_identical(
+  c(
+    catalog_proof$legend_authority[[1]],
+    catalog_proof$filter_authority[[1]],
+    catalog_proof$label_authority[[2]],
+    catalog_proof$label_authority[[3]]
+  ),
+  rep("NOT_APPLICABLE", 4L),
+  "Selected proof null/not-applicable semantics changed"
+)
+assert_contains(catalog_proof$gap[[3]], "NORMALIZED_LIVE_STATUS_UNKNOWN",
+                "Ops Live unknown status gap was lost")
+assert_contains(catalog_proof$lifecycle_summary[[3]],
+                "producer confirmation=NOT_APPLICABLE",
+                "Ops Live producer-side nonclaim was lost")
+assert_contains(catalog_proof$gap[[4]],
+                "DUMMY_ANCHORS_EXCLUDED_RUNTIME_SCAFFOLDING",
+                "USGS scaffolding exclusion was lost")
+assert_true(
+  !any(catalog$candidate_stable_id %in%
+         c("pt_usgs_streamgages_dummy", "pt_usgs_streamgages_label_dummy")),
+  "A USGS runtime-scaffolding anchor became a catalog record"
 )
 
 # ---- Scaffolding, executable-content, and path-safety exclusions ------------
 
 scaffolding_pattern <- paste(
-  c("dummy", "placeholder", "pt_empty_", "label_dummy", "scaffolding only"),
+  c("dummy", "placeholder", "pt_empty_", "label_dummy"),
   collapse = "|"
 )
 assert_true(
-  !any(grepl(scaffolding_pattern, catalog_values, ignore.case = TRUE)),
-  "Catalog maps a runtime-scaffolding construct"
+  !any(grepl(scaffolding_pattern,
+             catalog$candidate_stable_id,
+             ignore.case = TRUE)),
+  "Catalog maps a runtime-scaffolding construct as a stable record"
 )
 assert_true(
-  all(catalog$candidate_stable_id %in% registry_huc$layer_id) &&
-    all(catalog$candidate_stable_id %in% overlay_ids),
+  all(catalog_huc$candidate_stable_id %in% registry_huc$layer_id) &&
+    all(catalog_huc$candidate_stable_id %in% overlay_ids),
   "A catalog row does not map to current visible runtime evidence"
 )
 
@@ -695,6 +961,8 @@ assert_true(
   "SOURCE_MANIFEST.csv must remain byte-for-byte unchanged for NOT_REQUIRED"
 )
 
-message("Descriptive HUC layer catalog parity passed.")
+message("Descriptive ten-record layer catalog parity passed.")
+message("HETEROGENEOUS_DESCRIPTIVE_MECHANISM_PROVEN_FOR_SELECTED_RECORDS")
 message("CATALOG_AUTHORITY=DESCRIPTIVE_ONLY")
-message("RUNTIME_AUTHORITY=UNCHANGED_CURRENT_SOURCE")
+message("RUNTIME_AUTHORITY=UNCHANGED")
+message("RUNTIME_CATALOG_CONSUMPTION=NONE")
