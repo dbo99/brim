@@ -35,7 +35,9 @@ Map styling, legend swatches, filter ordering, category labels, and counts shoul
 
 `08_docs/catalog/BRIM_LAYER_CATALOG.csv` is currently a descriptive metadata mirror only (`CATALOG_AUTHORITY=DESCRIPTIVE_ONLY`). Current runtime, build, and controller source does not consume the catalog; the existing R/Leaflet/htmlwidgets/JavaScript construction remains authoritative (`RUNTIME_AUTHORITY=UNCHANGED`).
 
-The current catalog and `qa/test_descriptive_layer_catalog.R` parity test cover only six HUC records: `huc2`, `huc4`, `huc6`, `huc8`, `huc10`, and `huc12`. This proves the descriptive-catalog mechanism for that slice only. It does not establish that the schema applies unchanged to all 276 visible BRIM layers.
+The current catalog and `qa/test_descriptive_layer_catalog.R` parity test retain the six-record HUC proof (`huc2`, `huc4`, `huc6`, `huc8`, `huc10`, and `huc12`) and add a small heterogeneous proof: ordinary Local `gw_bull118`, External `EXT143`, Ops Live `ops_u_s_drought_monitor`, and custom-controller `usgs_streamgages`. The proof-role classification is separate from each record's catalog architecture.
+
+This ten-record boundary proves the descriptive mechanism only for those tested records and architectures. It does not establish that the 15-field schema applies unchanged to all 276 visible BRIM layers, authorize catalog-driven rendering, or imply that current custom controllers, External lifecycle gaps, or Ops Live status semantics are standardized.
 
 ## Semantic features and geometry components
 
