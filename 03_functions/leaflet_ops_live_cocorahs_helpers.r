@@ -297,54 +297,6 @@ pt_ops_live_cocorahs_js <- function() {
     return d.toISOString().slice(0, 10);
   }
 
-  function ptCocoApiUrl(opts) {
-    opts = opts || {};
-
-    var startDate = opts.startDate || ptCocoDatePartLosAngeles(-1);
-    var endDate = opts.endDate || ptCocoDatePartLosAngeles(0);
-    var limit = Math.max(1, Math.min(5000, Number(opts.limit || 2000)));
-    var offset = Math.max(0, Number(opts.offset || 0));
-    var country = opts.country || 'US';
-    var subdiv1 = opts.subdiv1 || 'CA';
-    var units = opts.units || 'english';
-
-    var params = new URLSearchParams();
-    params.set('offset', String(offset));
-    params.set('limit', String(limit));
-    params.set('startDate', startDate);
-    params.set('endDate', endDate);
-    params.set('sortField', 'obsDateTime');
-    params.set('sortDir', 'desc');
-    params.set('country', country);
-    params.set('subdiv1', subdiv1);
-    params.set('units', units);
-
-    return 'https://api2.cocorahs.org/api/DailyPrecipObs?' + params.toString();
-  }
-
-  function ptCocoFmtDateTime(value) {
-    var raw = ptCocoTrim(value);
-    if (!raw) return 'time not reported';
-
-    var d = new Date(raw);
-    if (!isNaN(d.getTime())) {
-      try {
-        return d.toLocaleString([], {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          timeZoneName: 'short'
-        });
-      } catch(e) {
-        return d.toLocaleString();
-      }
-    }
-
-    return raw.replace('T', ' ');
-  }
-
   function ptCocoReportedLocalParts(value) {
     var raw = ptCocoTrim(value);
     if (!raw) return null;
@@ -508,18 +460,6 @@ pt_ops_live_cocorahs_js <- function() {
     base.weight = key === 'trace' ? 1.25 : 1.05;
     base.fillOpacity = 0.76;
     return base;
-  }
-
-  function ptCocoRadius(obs) {
-    return ptCocoStyleForObs(obs).radius;
-  }
-
-  function ptCocoFillColor(obs) {
-    return ptCocoStyleForObs(obs).fill;
-  }
-
-  function ptCocoStrokeColor(obs) {
-    return ptCocoStyleForObs(obs).stroke;
   }
 
   function ptCocoPopupLink(label, url) {

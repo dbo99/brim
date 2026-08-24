@@ -54,11 +54,6 @@ MAP_DISPLAY <- list(
   
   # ---- Radar and basemaps ---------------------------------------------------
   ##
-  ## USGS Hydrography is the default startup base layer so first-time users
-  ## see stream/river context immediately. add_radar now controls the CONUS
-  ## radar checkbox in the separate Ops panel. It is no longer listed in the
-  ## main Leaflet overlay checkbox list.
-  add_radar = TRUE,
   add_ops_live_layers = TRUE,
   # Delta Ops Daily Summary / CVP-SWP snapshot
   add_ops_delta_ops_daily_summary = TRUE,
