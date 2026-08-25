@@ -43,8 +43,8 @@ project_root <- normalizePath(
 old_wd <- setwd(project_root)
 on.exit(setwd(old_wd), add = TRUE)
 
-expected_head <- "354f9371def60731f754eb8c242236d5373ca125"
-expected_tree <- "eb0ad97f8fa34b257ae6a4fa86700d58564f4470"
+expected_head <- "c7d21b2006aed0c6bb8f8cd999984f6c6de05cfd"
+expected_tree <- "35b8923f9becf250f21160b14930b5baff22ba57"
 expected_huc_ids <- c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")
 proof_ids <- c(
   ordinary_local = "gw_bull118",
@@ -92,8 +92,10 @@ expected_columns <- c(
 )
 allowed_changed_paths <- c(
   "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md",
-  "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
-  "qa/test_descriptive_layer_catalog.R"
+  "03_functions/js/leaflet_tools_adddata_panel.js",
+  "03_functions/leaflet_tools_adddata_helpers.r",
+  "qa/test_descriptive_layer_catalog.R",
+  "qa/test_layer_explorer.js"
 )
 catalog_path <- "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
 
@@ -109,11 +111,11 @@ git_value <- function(args, label) {
 }
 
 assert_identical(git_value(c("rev-parse", "HEAD"), "HEAD"), expected_head,
-                 "M03 baseline HEAD changed")
+                 "M04 baseline HEAD changed")
 assert_identical(
   git_value(c("rev-parse", "HEAD^{tree}"), "tree"),
   expected_tree,
-  "M03 baseline tree changed"
+  "M04 baseline tree changed"
 )
 
 status_lines <- system2(
@@ -127,11 +129,11 @@ status_paths <- if (length(status_lines)) substring(status_lines, 4L) else chara
 assert_identical(
   sort(status_paths),
   sort(allowed_changed_paths),
-  "M03 changed-path scope is not exactly the three changed files"
+  "M04 changed-path scope is not exactly the five approved project files"
 )
 assert_true(
   all(substr(status_lines, 1L, 1L) %in% c(" ", "?")),
-  "M03 files must remain unstaged"
+  "M04 files must remain unstaged"
 )
 
 # ---- Exact CSV serialization and schema ------------------------------------
@@ -198,6 +200,86 @@ assert_true(
             expected_huc_ids),
   "The retained HUC rows changed identity or order"
 )
+
+# ---- Approved read-only Layer Explorer projection --------------------------
+
+layer_explorer_env <- new.env(parent = baseenv())
+sys.source(
+  "03_functions/leaflet_tools_adddata_helpers.r",
+  envir = layer_explorer_env
+)
+layer_explorer <- layer_explorer_env$pt_build_layer_explorer_metadata(catalog_path)
+assert_identical(layer_explorer$coverage, "PARTIAL",
+                 "Layer Explorer coverage is not explicitly partial")
+assert_identical(layer_explorer$catalogAuthority, "DESCRIPTIVE_ONLY",
+                 "Layer Explorer changed catalog authority")
+assert_identical(layer_explorer$uiConsumption, "READ_ONLY_METADATA",
+                 "Layer Explorer is not declared read-only metadata consumption")
+assert_identical(layer_explorer$runtimeControl, "NONE",
+                 "Layer Explorer claims runtime control")
+assert_identical(layer_explorer$runtimeAuthority, "UNCHANGED",
+                 "Layer Explorer changed runtime authority")
+assert_true(length(layer_explorer$records) == 26L,
+            "Layer Explorer must embed exactly 26 records")
+
+embedded_ids <- vapply(
+  layer_explorer$records,
+  `[[`,
+  character(1),
+  "stableId"
+)
+assert_identical(embedded_ids, catalog$candidate_stable_id,
+                 "Layer Explorer changed stable IDs or deterministic row order")
+assert_true(!anyDuplicated(embedded_ids),
+            "Layer Explorer embedded duplicate stable IDs")
+assert_identical(
+  names(layer_explorer$records[[1]]),
+  c(
+    "stableId", "displayName", "architecture", "catalogPath",
+    "implementation", "renderer", "domainReview", "confidence"
+  ),
+  "Layer Explorer projection contains an unexpected metadata field"
+)
+assert_identical(
+  unique(vapply(layer_explorer$records, `[[`, character(1), "architecture")),
+  c("Local", "External", "Ops Live"),
+  "Layer Explorer architecture families or deterministic order changed"
+)
+assert_true(
+  all(vapply(layer_explorer$records, `[[`, character(1), "domainReview") %in%
+        c("DOMAIN_REVIEW_REQUIRED", "NOT_APPLICABLE", "UNKNOWN")),
+  "Layer Explorer manufactured domain-review prose"
+)
+
+embedded_values <- unname(unlist(
+  layer_explorer$records,
+  recursive = TRUE,
+  use.names = FALSE
+))
+assert_true(
+  !any(grepl(
+    "(^|[[:space:];=])/(Users|home|private|tmp|var|opt|Volumes)/|[A-Za-z]:[\\\\/]|BRIM_rehabilitation_(audit_staging|worktrees|builds)",
+    embedded_values,
+    perl = TRUE
+  )),
+  "Layer Explorer embedded machine-local path content"
+)
+assert_true(
+  !any(grepl(
+    "<script|javascript:|source[[:space:]]*\\(|sys\\.source[[:space:]]*\\(|eval[[:space:]]*\\(|function[[:space:]]*\\(|=>|on(click|load)[[:space:]]*=",
+    embedded_values,
+    ignore.case = TRUE,
+    perl = TRUE
+  )),
+  "Layer Explorer embedded executable content"
+)
+
+# Shared descriptive references are valid. The UI projection neither requires
+# uniqueness nor clones the shared catalog fields into layer-specific copies.
+assert_true(anyDuplicated(catalog$legend_authority) > 0L,
+            "Shared legend references are no longer represented in the catalog")
+assert_true(anyDuplicated(catalog$notes_or_resources) > 0L,
+            "Shared resource references are no longer represented in the catalog")
 
 catalog_huc <- catalog[
   match(expected_huc_ids, catalog$candidate_stable_id),
@@ -1313,7 +1395,7 @@ assert_true(
   "Catalog contains an internal evidence-staging path"
 )
 
-# ---- Mandatory descriptive-only/no-runtime-consumption proof ----------------
+# ---- Precise read-only consumer allowlist and runtime-control exclusion ------
 
 runtime_dirs <- c("00_config", "02_preprocess", "03_functions", "05_map_build")
 runtime_files <- c(
@@ -1333,13 +1415,48 @@ runtime_catalog_references <- runtime_files[vapply(runtime_files, function(path)
   grepl("BRIM_LAYER_CATALOG", text, fixed = TRUE) ||
     grepl("08_docs/catalog", text, fixed = TRUE)
 }, logical(1))]
-assert_true(
-  length(runtime_catalog_references) == 0L,
-  paste(
-    "Production/runtime source consumes or references the descriptive catalog:",
-    paste(runtime_catalog_references, collapse = ", ")
-  )
+approved_read_only_consumer <- "03_functions/leaflet_tools_adddata_helpers.r"
+assert_identical(
+  sort(runtime_catalog_references),
+  approved_read_only_consumer,
+  "Catalog consumer allowlist changed or a forbidden runtime consumer appeared"
 )
+
+consumer_text <- read_source_text(approved_read_only_consumer)
+adapter_start <- regexpr(
+  "pt_build_layer_explorer_metadata <- function",
+  consumer_text,
+  fixed = TRUE
+)[[1]]
+adapter_end <- regexpr(
+  "# ==== 1. Add left-side tools / add-data panel",
+  consumer_text,
+  fixed = TRUE
+)[[1]]
+assert_true(adapter_start > 0L && adapter_end > adapter_start,
+            "Could not isolate the approved Layer Explorer adapter")
+adapter_text <- substr(consumer_text, adapter_start, adapter_end - 1L)
+outside_adapter_text <- paste0(
+  substr(consumer_text, 1L, adapter_start - 1L),
+  substr(consumer_text, adapter_end, nchar(consumer_text))
+)
+assert_contains(adapter_text, "BRIM_LAYER_CATALOG.csv",
+                "Approved adapter lost its exact descriptive catalog input")
+assert_true(
+  !grepl("BRIM_LAYER_CATALOG|08_docs/catalog", outside_adapter_text),
+  "Catalog reference escaped the exact approved read-only adapter"
+)
+assert_true(
+  !grepl(
+    "leaflet::|htmlwidgets::|addLayer|removeLayer|overlayadd|overlayremove|clearAll|reset",
+    adapter_text,
+    ignore.case = TRUE,
+    perl = TRUE
+  ),
+  "Approved catalog adapter contains a runtime-control hook"
+)
+assert_contains(consumer_text, "layer_explorer = layer_explorer_metadata",
+                "Approved adapter output is not injected as read-only Tools metadata")
 
 runtime_auto_interpreters <- runtime_files[vapply(runtime_files, function(path) {
   text <- read_source_text(path)
@@ -1350,6 +1467,10 @@ runtime_auto_interpreters <- runtime_files[vapply(runtime_files, function(path) 
     perl = TRUE
   )
 }, logical(1))]
+runtime_auto_interpreters <- setdiff(
+  runtime_auto_interpreters,
+  approved_read_only_consumer
+)
 assert_true(
   length(runtime_auto_interpreters) == 0L,
   paste(
@@ -1368,5 +1489,8 @@ message("SCHEMA_DIVERSITY_PROVEN=YES")
 message("SCHEMA=UNCHANGED_15_FIELD")
 message("DIVERSITY_TESTED_DESCRIPTIVE_SCHEMA_FOR_SELECTED_RECORDS")
 message("CATALOG_AUTHORITY=DESCRIPTIVE_ONLY")
+message("CATALOG_UI_CONSUMPTION=READ_ONLY_METADATA")
+message("CATALOG_RUNTIME_CONTROL=NONE")
 message("RUNTIME_AUTHORITY=UNCHANGED")
-message("RUNTIME_CATALOG_CONSUMPTION=NONE")
+message("APPROVED_READ_ONLY_UI_CONSUMER=03_functions/leaflet_tools_adddata_helpers.r")
+message("FORBIDDEN_RUNTIME_CONTROL_CONSUMER=NONE")
