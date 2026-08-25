@@ -24,6 +24,173 @@
 ##   these failures rather than silently failing.
 ##
 
+# ==== 1. Build the read-only descriptive Layer Explorer payload =============
+
+pt_build_layer_explorer_metadata <- function(
+  catalog_path = file.path("08_docs", "catalog", "BRIM_LAYER_CATALOG.csv")
+) {
+  expected_columns <- c(
+    "candidate_stable_id",
+    "runtime_display_name",
+    "architecture",
+    "catalog_path",
+    "definition_authority",
+    "assembly_authority",
+    "legend_authority",
+    "label_authority",
+    "popup_authority",
+    "filter_authority",
+    "lifecycle_summary",
+    "notes_or_resources",
+    "domain_review_fields",
+    "confidence",
+    "gap"
+  )
+
+  if (!file.exists(catalog_path)) {
+    stop("Missing descriptive Layer Explorer catalog: ", catalog_path, call. = FALSE)
+  }
+
+  catalog_df <- utils::read.csv(
+    catalog_path,
+    stringsAsFactors = FALSE,
+    check.names = FALSE,
+    na.strings = character(),
+    colClasses = "character",
+    fileEncoding = "UTF-8",
+    comment.char = "",
+    quote = "\"",
+    strip.white = FALSE,
+    blank.lines.skip = FALSE,
+    fill = FALSE
+  )
+
+  if (!identical(names(catalog_df), expected_columns)) {
+    stop(
+      "Descriptive Layer Explorer catalog schema changed; expected the maintained 15-field schema.",
+      call. = FALSE
+    )
+  }
+  if (nrow(catalog_df) != 26L) {
+    stop("Descriptive Layer Explorer requires exactly 26 current catalog rows.", call. = FALSE)
+  }
+
+  stable_ids <- trimws(catalog_df$candidate_stable_id)
+  stable_ids[is.na(stable_ids)] <- ""
+  if (any(stable_ids == "") || anyDuplicated(stable_ids)) {
+    stop("Descriptive Layer Explorer stable IDs must be nonblank and unique.", call. = FALSE)
+  }
+
+  architecture_tokens <- strsplit(catalog_df$architecture, ";", fixed = TRUE)
+  architecture_family <- vapply(architecture_tokens, function(tokens) {
+    family <- intersect(tokens, c("LOCAL", "EXTERNAL", "OPS_LIVE"))
+    if (length(family) != 1L) {
+      stop("Layer Explorer record has an unknown architecture family.", call. = FALSE)
+    }
+    switch(
+      family,
+      LOCAL = "Local",
+      EXTERNAL = "External",
+      OPS_LIVE = "Ops Live"
+    )
+  }, character(1))
+
+  implementation_marker <- vapply(architecture_tokens, function(tokens) {
+    markers <- intersect(
+      tokens,
+      c("CUSTOM_CONTROLLER", "CUSTOM_LOADER", "SHARED_CONTROLLER", "ORDINARY_LEAFLET")
+    )
+    if (length(markers) != 1L) {
+      stop("Layer Explorer record has an unknown implementation marker.", call. = FALSE)
+    }
+    switch(
+      markers,
+      CUSTOM_CONTROLLER = "Custom controller",
+      CUSTOM_LOADER = "Custom loader",
+      SHARED_CONTROLLER = "Shared controller",
+      ORDINARY_LEAFLET = "Ordinary Leaflet"
+    )
+  }, character(1))
+
+  renderer_marker <- vapply(architecture_tokens, function(tokens) {
+    markers <- intersect(
+      tokens,
+      c(
+        "NON_GENERIC_RENDERER",
+        "GENERIC_CATEGORICAL_RENDERER",
+        "GENERIC_FEATURE_RENDERER",
+        "OFFICIAL_MAPSERVER_RENDERER",
+        "IMAGE_SERVER_RENDERER"
+      )
+    )
+    if (length(markers) != 1L) {
+      stop("Layer Explorer record has an unknown renderer marker.", call. = FALSE)
+    }
+    switch(
+      markers,
+      NON_GENERIC_RENDERER = "Non-generic renderer",
+      GENERIC_CATEGORICAL_RENDERER = "Generic categorical renderer",
+      GENERIC_FEATURE_RENDERER = "Generic feature renderer",
+      OFFICIAL_MAPSERVER_RENDERER = "Official MapServer renderer",
+      IMAGE_SERVER_RENDERER = "ImageServer renderer"
+    )
+  }, character(1))
+
+  domain_review_status <- vapply(catalog_df$domain_review_fields, function(value) {
+    value <- trimws(value)
+    if (is.na(value) || value == "") return("UNKNOWN")
+    if (identical(value, "NOT_APPLICABLE")) return("NOT_APPLICABLE")
+    "DOMAIN_REVIEW_REQUIRED"
+  }, character(1))
+
+  records <- lapply(seq_len(nrow(catalog_df)), function(i) {
+    list(
+      stableId = stable_ids[[i]],
+      displayName = trimws(catalog_df$runtime_display_name[[i]]),
+      architecture = architecture_family[[i]],
+      catalogPath = trimws(catalog_df$catalog_path[[i]]),
+      implementation = implementation_marker[[i]],
+      renderer = renderer_marker[[i]],
+      domainReview = domain_review_status[[i]],
+      confidence = trimws(catalog_df$confidence[[i]])
+    )
+  })
+  records <- unname(records)
+
+  embedded_values <- unname(unlist(records, recursive = TRUE, use.names = FALSE))
+  executable_patterns <- c(
+    "<script", "javascript:", "source[[:space:]]*\\(",
+    "sys\\.source[[:space:]]*\\(", "eval[[:space:]]*\\(",
+    "function[[:space:]]*\\(", "=>", "on(click|load)[[:space:]]*="
+  )
+  for (pattern in executable_patterns) {
+    if (any(grepl(pattern, embedded_values, ignore.case = TRUE, perl = TRUE))) {
+      stop("Layer Explorer metadata contains executable content.", call. = FALSE)
+    }
+  }
+
+  machine_path_patterns <- c(
+    "(^|[[:space:];=])/(Users|home|private|tmp|var|opt|Volumes)/",
+    "[A-Za-z]:[\\\\/]",
+    "^\\\\\\\\",
+    "BRIM_rehabilitation_(audit_staging|worktrees|builds)"
+  )
+  for (pattern in machine_path_patterns) {
+    if (any(grepl(pattern, embedded_values, perl = TRUE))) {
+      stop("Layer Explorer metadata contains a machine-local path.", call. = FALSE)
+    }
+  }
+
+  list(
+    coverage = "PARTIAL",
+    catalogAuthority = "DESCRIPTIVE_ONLY",
+    uiConsumption = "READ_ONLY_METADATA",
+    runtimeControl = "NONE",
+    runtimeAuthority = "UNCHANGED",
+    records = records
+  )
+}
+
 # ==== 1. Add left-side tools / add-data panel =================================
 
 pt_add_tools_adddata_panel <- function(m, map_display) {
@@ -33,6 +200,7 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
   }
 
   add_blm_sma <- isTRUE(map_display$add_blm_sma_context_overlay)
+  layer_explorer_metadata <- pt_build_layer_explorer_metadata()
 
   ## Pass small R configuration values through htmlwidgets data rather than
   ## interpolating them into the JavaScript string with sprintf().
@@ -459,6 +627,7 @@ pt_add_tools_adddata_panel <- function(m, map_display) {
   tools_data <- list(
     enable_blm_sma = add_blm_sma,
     catalog = catalog_records,
+    layer_explorer = layer_explorer_metadata,
     capability_definitions = capability_definitions,
     capability_coverage = capability_coverage_records
   )

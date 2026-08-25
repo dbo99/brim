@@ -12,6 +12,61 @@ function(el, x, toolsData) {
   var PT2_CAPABILITY_DEFINITIONS = toolsData.capability_definitions || {};
   var PT2_CAPABILITY_COVERAGE = Array.isArray(toolsData.capability_coverage) ?
     toolsData.capability_coverage : [];
+  var PT2_LAYER_EXPLORER = toolsData.layer_explorer || {};
+
+  // --------------------------------------------------------------------------
+  // Layer Explorer read-only model
+  // --------------------------------------------------------------------------
+
+  function ptCreateLayerExplorerReadOnlyModel(payload) {
+    payload = payload || {};
+
+    var sourceRecords = Array.isArray(payload.records) ? payload.records : [];
+    var records = sourceRecords.map(function(record) {
+      record = record || {};
+      return Object.freeze({
+        stableId: String(record.stableId || ''),
+        displayName: String(record.displayName || ''),
+        architecture: String(record.architecture || 'UNKNOWN'),
+        catalogPath: String(record.catalogPath || 'UNKNOWN'),
+        implementation: String(record.implementation || 'UNKNOWN'),
+        renderer: String(record.renderer || 'UNKNOWN'),
+        domainReview: String(record.domainReview || 'UNKNOWN'),
+        confidence: String(record.confidence || 'UNKNOWN')
+      });
+    });
+
+    var architectures = [];
+    records.forEach(function(record) {
+      if (architectures.indexOf(record.architecture) === -1) {
+        architectures.push(record.architecture);
+      }
+    });
+
+    function filterRecords(query, architecture) {
+      var needle = String(query || '').trim().toLowerCase();
+      var family = String(architecture || 'ALL');
+
+      return records.filter(function(record) {
+        var architectureMatch = family === 'ALL' || record.architecture === family;
+        var searchText = (record.displayName + ' ' + record.stableId).toLowerCase();
+        return architectureMatch && (!needle || searchText.indexOf(needle) !== -1);
+      });
+    }
+
+    return Object.freeze({
+      coverage: String(payload.coverage || 'UNKNOWN'),
+      catalogAuthority: String(payload.catalogAuthority || 'UNKNOWN'),
+      uiConsumption: String(payload.uiConsumption || 'UNKNOWN'),
+      runtimeControl: String(payload.runtimeControl || 'UNKNOWN'),
+      runtimeAuthority: String(payload.runtimeAuthority || 'UNKNOWN'),
+      records: Object.freeze(records.slice()),
+      architectures: Object.freeze(architectures.slice()),
+      filterRecords: filterRecords
+    });
+  }
+
+  var ptLayerExplorerModel = ptCreateLayerExplorerReadOnlyModel(PT2_LAYER_EXPLORER);
 
   // Keep a stable browser-side index for quick-add catalog rows.
   PT2_CATALOG.forEach(function(rec, idx) {
@@ -11369,6 +11424,233 @@ function(el, x, toolsData) {
   }
 
   // --------------------------------------------------------------------------
+  // Layer Explorer read-only modal
+  // --------------------------------------------------------------------------
+
+  function ptLayerExplorerElement(tagName, className, textValue) {
+    var node = document.createElement(tagName);
+    if (className) node.className = className;
+    if (textValue !== undefined && textValue !== null) {
+      node.textContent = String(textValue);
+    }
+    return node;
+  }
+
+  function ptLayerExplorerDetailRow(list, label, value) {
+    var term = ptLayerExplorerElement('dt', 'pt-layer-explorer-detail-label', label);
+    var description = ptLayerExplorerElement(
+      'dd',
+      'pt-layer-explorer-detail-value',
+      value || 'UNKNOWN'
+    );
+    list.appendChild(term);
+    list.appendChild(description);
+  }
+
+  function ptOpenLayerExplorer() {
+    var old = document.getElementById('pt-layer-explorer-overlay');
+    if (old) return;
+    var previouslyFocused = document.activeElement;
+
+    var overlay = ptLayerExplorerElement(
+      'div',
+      'pt-source-links-overlay pt-layer-explorer-overlay'
+    );
+    overlay.id = 'pt-layer-explorer-overlay';
+
+    var panel = ptLayerExplorerElement(
+      'section',
+      'pt-source-links-panel pt-layer-explorer-panel'
+    );
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-labelledby', 'pt-layer-explorer-title');
+
+    var close = ptLayerExplorerElement(
+      'button',
+      'pt-source-links-close pt-layer-explorer-close',
+      'Close'
+    );
+    close.type = 'button';
+
+    var content = ptLayerExplorerElement('div', 'pt-layer-explorer-content');
+    var title = ptLayerExplorerElement('h1', '', 'Layer Explorer');
+    title.id = 'pt-layer-explorer-title';
+
+    var coverageNotice = ptLayerExplorerElement(
+      'p',
+      'pt-layer-explorer-notice',
+      'Partial catalog: all 26 currently cataloged records are shown, but these records do not represent every BRIM layer.'
+    );
+    coverageNotice.id = 'pt-layer-explorer-coverage-notice';
+
+    var isolationNotice = ptLayerExplorerElement(
+      'p',
+      'pt-layer-explorer-isolation',
+      'Read-only metadata only. Layer Explorer cannot turn layers on or off or change map behavior.'
+    );
+
+    var controls = ptLayerExplorerElement('div', 'pt-layer-explorer-controls');
+    var searchLabel = ptLayerExplorerElement('label', '', 'Search display name or stable ID');
+    searchLabel.setAttribute('for', 'pt-layer-explorer-search');
+    var search = ptLayerExplorerElement('input', 'pt-tools-input');
+    search.id = 'pt-layer-explorer-search';
+    search.type = 'search';
+    search.placeholder = 'Search 26 catalog records…';
+
+    var architectureLabel = ptLayerExplorerElement('label', '', 'Architecture');
+    architectureLabel.setAttribute('for', 'pt-layer-explorer-architecture');
+    var architectureSelect = ptLayerExplorerElement('select', 'pt-tools-select');
+    architectureSelect.id = 'pt-layer-explorer-architecture';
+    var allOption = ptLayerExplorerElement('option', '', 'All architectures');
+    allOption.value = 'ALL';
+    architectureSelect.appendChild(allOption);
+    ptLayerExplorerModel.architectures.forEach(function(architecture) {
+      var option = ptLayerExplorerElement('option', '', architecture);
+      option.value = architecture;
+      architectureSelect.appendChild(option);
+    });
+
+    var searchWrap = ptLayerExplorerElement('div', 'pt-layer-explorer-control');
+    searchWrap.appendChild(searchLabel);
+    searchWrap.appendChild(search);
+    var architectureWrap = ptLayerExplorerElement('div', 'pt-layer-explorer-control');
+    architectureWrap.appendChild(architectureLabel);
+    architectureWrap.appendChild(architectureSelect);
+    controls.appendChild(searchWrap);
+    controls.appendChild(architectureWrap);
+
+    var count = ptLayerExplorerElement('div', 'pt-layer-explorer-count');
+    count.id = 'pt-layer-explorer-count';
+    count.setAttribute('aria-live', 'polite');
+
+    var layout = ptLayerExplorerElement('div', 'pt-layer-explorer-layout');
+    var list = ptLayerExplorerElement('div', 'pt-layer-explorer-list');
+    list.id = 'pt-layer-explorer-list';
+    list.setAttribute('role', 'listbox');
+    list.setAttribute('aria-label', 'Partial BRIM layer catalog records');
+    var detail = ptLayerExplorerElement('article', 'pt-layer-explorer-detail');
+    detail.id = 'pt-layer-explorer-detail';
+    layout.appendChild(list);
+    layout.appendChild(detail);
+
+    content.appendChild(title);
+    content.appendChild(coverageNotice);
+    content.appendChild(isolationNotice);
+    content.appendChild(controls);
+    content.appendChild(count);
+    content.appendChild(layout);
+    panel.appendChild(close);
+    panel.appendChild(content);
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+
+    var selectedId = ptLayerExplorerModel.records.length ?
+      ptLayerExplorerModel.records[0].stableId : '';
+
+    function renderDetail(record) {
+      detail.textContent = '';
+      if (!record) {
+        detail.appendChild(ptLayerExplorerElement(
+          'p',
+          'pt-tools-muted',
+          'No catalog record matches the current search and architecture filter.'
+        ));
+        return;
+      }
+
+      detail.appendChild(ptLayerExplorerElement(
+        'h2',
+        'pt-layer-explorer-detail-title',
+        record.displayName
+      ));
+      var metadata = ptLayerExplorerElement('dl', 'pt-layer-explorer-detail-list');
+      ptLayerExplorerDetailRow(metadata, 'Stable ID', record.stableId);
+      ptLayerExplorerDetailRow(metadata, 'Architecture', record.architecture);
+      ptLayerExplorerDetailRow(metadata, 'Catalog category', record.catalogPath);
+      ptLayerExplorerDetailRow(metadata, 'Implementation', record.implementation);
+      ptLayerExplorerDetailRow(metadata, 'Renderer', record.renderer);
+      ptLayerExplorerDetailRow(metadata, 'Domain metadata', record.domainReview);
+      ptLayerExplorerDetailRow(metadata, 'Catalog confidence', record.confidence);
+      detail.appendChild(metadata);
+      detail.appendChild(ptLayerExplorerElement(
+        'p',
+        'pt-layer-explorer-detail-boundary',
+        'Catalog authority: descriptive only · Runtime authority: unchanged'
+      ));
+    }
+
+    function render() {
+      var records = ptLayerExplorerModel.filterRecords(
+        search.value,
+        architectureSelect.value
+      );
+      var selectedRecord = null;
+
+      records.forEach(function(record) {
+        if (record.stableId === selectedId) selectedRecord = record;
+      });
+      if (!selectedRecord && records.length) {
+        selectedRecord = records[0];
+        selectedId = selectedRecord.stableId;
+      }
+
+      count.textContent = records.length + ' of ' +
+        ptLayerExplorerModel.records.length + ' catalog records shown';
+      list.textContent = '';
+
+      records.forEach(function(record) {
+        var button = ptLayerExplorerElement('button', 'pt-layer-explorer-record');
+        button.type = 'button';
+        button.setAttribute('role', 'option');
+        button.setAttribute('data-pt-layer-explorer-id', record.stableId);
+        button.setAttribute('aria-selected', record.stableId === selectedId ? 'true' : 'false');
+        if (record.stableId === selectedId) {
+          button.classList.add('pt-layer-explorer-record-selected');
+        }
+        button.appendChild(ptLayerExplorerElement(
+          'span',
+          'pt-layer-explorer-record-name',
+          record.displayName
+        ));
+        button.appendChild(ptLayerExplorerElement(
+          'span',
+          'pt-layer-explorer-record-id',
+          record.stableId + ' · ' + record.architecture
+        ));
+        button.addEventListener('click', function() {
+          selectedId = record.stableId;
+          render();
+        });
+        list.appendChild(button);
+      });
+
+      renderDetail(selectedRecord);
+    }
+
+    function closeExplorer() {
+      document.removeEventListener('keydown', onKeydown);
+      overlay.remove();
+      if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus();
+    }
+
+    function onKeydown(event) {
+      if (event.key === 'Escape') closeExplorer();
+    }
+
+    close.addEventListener('click', closeExplorer);
+    overlay.addEventListener('click', function(event) {
+      if (event.target === overlay) closeExplorer();
+    });
+    document.addEventListener('keydown', onKeydown);
+    search.addEventListener('input', render);
+    architectureSelect.addEventListener('change', render);
+
+    render();
+    search.focus();
+  }
+
+  // --------------------------------------------------------------------------
   // Build UI
   // --------------------------------------------------------------------------
 
@@ -11482,6 +11764,12 @@ function(el, x, toolsData) {
     '<div class="pt-tools-body">' +
 
       '<div id="pt-tools-status" class="pt-tools-status"></div>' +
+
+      '<div class="pt-tools-section pt-layer-explorer-entry">' +
+        '<div class="pt-tools-heading">BRIM layer metadata</div>' +
+        '<button type="button" id="pt-layer-explorer-btn" class="pt-tools-btn pt-layer-explorer-open">Layer Explorer</button>' +
+        '<div class="pt-tools-muted">Read-only descriptive metadata. Partial catalog: 26 records, not every BRIM layer.</div>' +
+      '</div>' +
 
       '<div class="pt-tools-section pt-active-external-section" id="pt-active-external-section">' +
         '<button type="button" id="pt-active-external-toggle" class="pt-active-external-toggle" aria-expanded="false" title="Expand/collapse active external overlay details">' +
@@ -13252,6 +13540,223 @@ function(el, x, toolsData) {
         background: #f7f7f7;
         cursor: pointer;
       }
+
+      .pt-layer-explorer-entry {
+        background: rgba(255, 255, 255, 0.45);
+        border-radius: 5px;
+        padding: 7px;
+      }
+
+      .pt-layer-explorer-open {
+        width: 100%;
+        margin-bottom: 5px;
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .pt-layer-explorer-close {
+        align-self: flex-end;
+        flex: 0 0 auto;
+        width: auto;
+      }
+
+      .pt-layer-explorer-content {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .pt-layer-explorer-content h1 {
+        margin: 0 80px 4px 0;
+      }
+
+      .pt-layer-explorer-notice {
+        margin: 4px 0 6px 0;
+        border: 1px solid #b78218;
+        border-radius: 6px;
+        background: #fff4cf;
+        color: #5b3b00;
+        padding: 8px 10px;
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-isolation {
+        margin: 0 0 10px 0;
+        color: #4c5860;
+        font-size: 13px;
+      }
+
+      .pt-layer-explorer-controls {
+        display: grid;
+        grid-template-columns: minmax(240px, 1fr) minmax(180px, 0.45fr);
+        gap: 10px;
+        margin-bottom: 7px;
+      }
+
+      .pt-layer-explorer-control label {
+        display: block;
+        margin-bottom: 3px;
+        color: #263943;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-control .pt-tools-input,
+      .pt-layer-explorer-control .pt-tools-select {
+        width: 100%;
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .pt-layer-explorer-count {
+        margin-bottom: 6px;
+        color: #4d5a61;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-layout {
+        display: grid;
+        flex: 1 1 auto;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(340px, 1.15fr);
+        gap: 12px;
+        min-height: 0;
+      }
+
+      .pt-layer-explorer-list,
+      .pt-layer-explorer-detail {
+        min-height: 0;
+        overflow: auto;
+        border: 1px solid #c7d2d8;
+        border-radius: 7px;
+        background: #f8fafb;
+        padding: 8px;
+      }
+
+      .pt-layer-explorer-record {
+        display: block;
+        width: 100%;
+        margin: 0 0 6px 0;
+        border: 1px solid #b8c9d2;
+        border-radius: 5px;
+        background: #fff;
+        color: #1f3039;
+        padding: 8px 9px;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .pt-layer-explorer-record:hover,
+      .pt-layer-explorer-record:focus {
+        border-color: #37708d;
+        background: #edf7fb;
+        outline: none;
+      }
+
+      .pt-layer-explorer-record-selected {
+        border-color: #245c78;
+        background: #dceff8;
+        box-shadow: inset 3px 0 0 #245c78;
+      }
+
+      .pt-layer-explorer-record-name,
+      .pt-layer-explorer-record-id {
+        display: block;
+      }
+
+      .pt-layer-explorer-record-name {
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-record-id {
+        margin-top: 2px;
+        color: #5d6b72;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+      }
+
+      .pt-layer-explorer-detail {
+        background: #fff;
+        padding: 14px 16px;
+      }
+
+      .pt-layer-explorer-detail-title {
+        margin: 0 0 12px 0;
+        color: #1f3039;
+        font-size: 20px;
+        line-height: 1.25;
+      }
+
+      .pt-layer-explorer-detail-list {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.42fr) minmax(180px, 1fr);
+        gap: 0;
+        margin: 0;
+        border-top: 1px solid #d8e0e4;
+      }
+
+      .pt-layer-explorer-detail-label,
+      .pt-layer-explorer-detail-value {
+        margin: 0;
+        border-bottom: 1px solid #d8e0e4;
+        padding: 8px 6px;
+      }
+
+      .pt-layer-explorer-detail-label {
+        color: #40535d;
+        font-weight: 700;
+      }
+
+      .pt-layer-explorer-detail-value {
+        overflow-wrap: anywhere;
+      }
+
+      .pt-layer-explorer-detail-boundary {
+        margin: 12px 0 0 0;
+        color: #435760;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        .pt-layer-explorer-overlay {
+          padding: 10px;
+        }
+
+        .pt-layer-explorer-panel {
+          overflow: auto;
+          padding: 16px;
+        }
+
+        .pt-layer-explorer-controls,
+        .pt-layer-explorer-layout {
+          display: block;
+        }
+
+        .pt-layer-explorer-control,
+        .pt-layer-explorer-list {
+          margin-bottom: 10px;
+        }
+
+        .pt-layer-explorer-list {
+          max-height: 38vh;
+        }
+
+        .pt-layer-explorer-detail-list {
+          grid-template-columns: 1fr;
+        }
+
+        .pt-layer-explorer-detail-label {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+      }
     `;
 
     document.head.appendChild(style);
@@ -13755,6 +14260,10 @@ function(el, x, toolsData) {
 
   ptBind('pt-custom-clear-btn', 'click', function() {
     ptClearCustomLayers();
+  });
+
+  ptBind('pt-layer-explorer-btn', 'click', function() {
+    ptOpenLayerExplorer();
   });
 
   ptBind('pt-source-links-btn', 'click', function() {
