@@ -24,6 +24,9 @@ source(file.path("03_functions", "leaflet_core_helpers.r"))
 source(file.path("03_functions", "leaflet_loading_helpers.r"))
 source(file.path("03_functions", "leaflet_ops_live_layer_definition_helpers.r"))
 source(file.path("03_functions", "leaflet_tools_adddata_helpers.r"))
+source(file.path("03_functions", "bulletin118_data_helpers.r"))
+source(file.path("03_functions", "leaflet_huc_theme_helpers.r"))
+source(file.path("03_functions", "leaflet_bulletin118_theme_helpers.r"))
 source(file.path("03_functions", "leaflet_guide_helpers.r"))
 
 flag_enabled <- function(flag) {
@@ -61,8 +64,20 @@ product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
 assert_identical(bundle$profileId, "default", "Default profile ID changed")
+assert_identical(bundle$schemaVersion, 2L, "Structured Guide schema version changed")
+assert_identical(
+  bundle$authority$coverage,
+  "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_CURATED_QUICK_ACCESS_CONTENT_FLOOR",
+  "Guide coverage authority no longer declares the curated Quick Access floor"
+)
 assert_identical(bundle$counts$products, 280L,
                  "Current default build should derive 280 included Products")
+assert_identical(bundle$counts$articles, 7L,
+                 "Current Guide must include the seven maintained Methods")
+assert_identical(bundle$counts$resources, 9L,
+                 "Current Guide must include the nine maintained Resources")
+assert_identical(bundle$counts$updates, 3L,
+                 "Current Guide must include the three verified Updates")
 assert_identical(sum(product_subsystems == "External Layers"), 175L,
                  "External visible Product projection changed")
 assert_identical(sum(product_subsystems == "Ops Live"), 47L,
@@ -87,6 +102,57 @@ assert_true(sum(grepl("^wild_scenic_river", product_ids)) == 5L,
             "Five current Wild & Scenic River control Products were not reconciled")
 assert_true(!any(grepl("^Labels", product_paths)),
             "Label-only overlay rows must remain explicit non-Products")
+
+method_ids <- vapply(bundle$articles, `[[`, character(1), "id")
+method_titles <- vapply(bundle$articles, `[[`, character(1), "title")
+assert_identical(
+  method_ids,
+  c(
+    "method_how_brim_works",
+    "method_display_geometry_generalization",
+    "method_scan_soil_moisture_statistical_context",
+    "method_snow_pillow_swe_statistical_context",
+    "method_usgs_groundwater_history_summaries",
+    "method_brim_live_update_timing",
+    "method_brim_under_the_hood"
+  ),
+  "Initial Method IDs/order changed"
+)
+assert_identical(
+  method_titles,
+  c(
+    "How BRIM Works",
+    "Display Geometry & Generalization",
+    "SCAN Soil-Moisture Statistical Context",
+    "Snow-Pillow SWE Statistical Context",
+    "USGS Groundwater History Summaries",
+    "BRIM Live Update Timing",
+    "BRIM Under the Hood"
+  ),
+  "Initial Method titles/order changed"
+)
+assert_true(all(vapply(bundle$articles, function(article) {
+  length(article$sections) > 0L && all(vapply(article$sections, function(section) {
+    nzchar(section$title) &&
+      (length(section$paragraphs) > 0L || length(section$items) > 0L || !is.null(section$table))
+  }, logical(1)))
+}, logical(1))), "Every maintained Method needs substantive structured content")
+
+update_ids <- vapply(bundle$updates, `[[`, character(1), "id")
+update_titles <- vapply(bundle$updates, `[[`, character(1), "title")
+update_dates <- vapply(bundle$updates, `[[`, character(1), "date")
+assert_identical(
+  update_ids,
+  c("update_read_only_layer_explorer", "update_nbm_accumulated_qpf", "update_nbm_legend_links"),
+  "Verified Update IDs/order changed"
+)
+assert_identical(
+  update_titles,
+  c("Read-only Layer Explorer added", "NBM accumulated QPF forecast windows added", "NBM legend links simplified"),
+  "Verified Update titles/order changed"
+)
+assert_identical(update_dates, c("2026-08-24", "2026-08-20", "2026-08-19"),
+                 "Verified Updates are not reverse chronological")
 
 markers <- pt_guide_descriptive_markers()
 without_enrichment <- c(
@@ -118,11 +184,109 @@ quick_product_ids <- unlist(lapply(bundle$quickAccess, `[[`, "productIds"), use.
 assert_true(all(quick_product_ids %in% product_ids),
             "Quick Access references an unavailable Product")
 assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "label"),
-                 c("HUC8 watersheds", "Groundwater basins", "Fire Perimeters"),
+                 c("HUC8 – PRISM/BCMv8", "Groundwater Basins – Bulletin 118", "Fire Perimeters"),
                  "Verified Quick Access configuration changed")
 fire <- bundle$quickAccess[[which(vapply(bundle$quickAccess, `[[`, character(1), "id") == "quick_fire_perimeters")]]
 assert_identical(fire$productIds, c("EXT070", "EXT074"),
                  "Fire Perimeters collection must use explicit stable IDs")
+assert_true(all(vapply(bundle$quickAccess, function(item) nzchar(item$summary), logical(1))),
+            "Every curated Quick Access entry requires a useful summary")
+assert_true(grepl("complementary perimeter Products", fire$summary, fixed = TRUE) &&
+              grepl("coverage and currency differ", fire$summary, fixed = TRUE),
+            "Fire Perimeters collection does not explain why its two Products differ")
+
+record_by_id <- function(records, id) {
+  records[[match(id, vapply(records, `[[`, character(1), "id"))]]
+}
+section_by_id <- function(record, id) {
+  record$sections[[match(id, vapply(record$sections, `[[`, character(1), "id"))]]
+}
+section_text <- function(record) {
+  paste(unlist(lapply(record$sections, function(section) {
+    c(section$title, section$paragraphs, section$items)
+  }), use.names = FALSE), collapse = " ")
+}
+
+huc8 <- record_by_id(bundle$products, "huc8")
+assert_identical(huc8$contentTier, "curated", "HUC8 lost curated Guide detail")
+assert_true(nzchar(huc8$summary) && length(huc8$sections) == 6L,
+            "HUC8 curated summary/section floor is incomplete")
+assert_identical(
+  section_by_id(huc8, "huc8_display_modes")$items,
+  unname(vapply(PT_HUC_THEME_REGISTRY, `[[`, character(1), "label")),
+  "HUC8 display modes drifted from current theme authority"
+)
+huc8_text <- section_text(huc8)
+assert_true(all(vapply(
+  c("EPSG:3310", "exact polygon weights", "Geometry-free climate/recharge tables",
+    "200 m distance tolerance", "1991–2020 precipitation normal vM5", "BCMv8"),
+  function(probe) grepl(probe, huc8_text, fixed = TRUE),
+  logical(1)
+)), "HUC8 processing, geometry, or provenance content is incomplete")
+assert_identical(
+  huc8$relatedArticleIds,
+  c("method_how_brim_works", "method_display_geometry_generalization"),
+  "HUC8 Method relationships changed"
+)
+assert_identical(
+  huc8$relatedResourceIds,
+  c("resource_prism_normals", "resource_usgs_bcmv8", "resource_blm_california"),
+  "HUC8 Resource relationships changed"
+)
+assert_identical(
+  vapply(huc8$relatedResources, `[[`, character(1), "role"),
+  c("Precipitation source", "Recharge model and source", "BLM program context"),
+  "HUC8 Resource roles changed"
+)
+prism_resource <- record_by_id(bundle$resources, "resource_prism_normals")
+bcm_resource <- record_by_id(bundle$resources, "resource_usgs_bcmv8")
+assert_identical(prism_resource$url, "https://prism.oregonstate.edu/normals/",
+                 "HUC8 PRISM link changed")
+assert_identical(bcm_resource$url, "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
+                 "HUC8 BCMv8 ScienceBase link changed")
+
+bulletin118 <- record_by_id(bundle$products, "gw_bull118")
+assert_identical(bulletin118$contentTier, "curated", "Bulletin 118 lost curated Guide detail")
+assert_true(nzchar(bulletin118$summary) && length(bulletin118$sections) == 5L,
+            "Bulletin 118 curated summary/section floor is incomplete")
+assert_identical(
+  section_by_id(bulletin118, "bulletin118_display_modes")$items,
+  c("Basins only", "DWR SGMA 2019 Basin Prioritization", "BLM-managed land — %"),
+  "Bulletin 118 display modes changed"
+)
+bulletin_text <- section_text(bulletin118)
+assert_true(all(vapply(
+  c("515 retained basin records", "exact basin/subbasin code", "20 m distance tolerance",
+    "final 2019 SGMA categories", "authoritative sources"),
+  function(probe) grepl(probe, bulletin_text, fixed = TRUE),
+  logical(1)
+)), "Bulletin 118 controls, processing, geometry, or limitations are incomplete")
+assert_identical(
+  bulletin118$relatedArticleIds,
+  c("method_how_brim_works", "method_display_geometry_generalization"),
+  "Bulletin 118 Method relationships changed"
+)
+
+fire_recent <- record_by_id(bundle$products, "EXT070")
+fire_current <- record_by_id(bundle$products, "EXT074")
+assert_true(all(c(fire_recent$contentTier, fire_current$contentTier) == "curated"),
+            "Fire Perimeters Products lost curated Guide detail")
+assert_true(grepl("CAL FIRE", section_text(fire_recent), fixed = TRUE) &&
+              grepl("current-view WFIGS", section_text(fire_current), fixed = TRUE) &&
+              grepl("prescribed-fire records are excluded", section_text(fire_current), fixed = TRUE),
+            "Fire Products do not retain distinct source, processing, and limitation content")
+assert_identical(fire_recent$relatedResourceIds, "resource_calfire_fire_perimeters",
+                 "CAL FIRE perimeter Resource relationship changed")
+assert_identical(fire_current$relatedResourceIds, "resource_nifc_wfigs_current",
+                 "NIFC current perimeter Resource relationship changed")
+
+generalization_method <- record_by_id(bundle$articles, "method_display_geometry_generalization")
+generalization_table <- section_by_id(generalization_method, "current_portfolio")$table
+assert_identical(length(generalization_table$rows), 27L,
+                 "Generalization Method must expose all 27 current public disclosure rows")
+assert_true(all(vapply(generalization_table$rows, function(row) {
+  nzchar(row$layer) && nzchar(row$parameter) && nzchar(row$disclosure)
+}, logical(1))), "Generalization Method table contains an incomplete public row")
 
 duplicate_id <- bundle
 duplicate_id$products[[2]]$id <- duplicate_id$products[[1]]$id
@@ -137,7 +301,7 @@ assert_error(pt_validate_guide_bundle(duplicate_path),
 
 excluded <- c(
   "huc8", "EXT070", "resource_usgs_water_dashboard",
-  "article_getting_started", "update_guide_foundation", "quick_groundwater_basins"
+  "method_how_brim_works", "update_read_only_layer_explorer", "quick_groundwater_basins"
 )
 projected <- pt_project_guide_bundle(bundle, excluded, profile_id = "synthetic_projection_test")
 pt_validate_guide_bundle(projected)
@@ -156,12 +320,22 @@ assert_identical(vapply(projected$products, `[[`, character(1), "id"), retained_
 assert_true(all(!vapply(projected$products, function(product) {
   "resource_usgs_water_dashboard" %in% product$relatedResourceIds
 }, logical(1))), "Excluded Resource relationships leaked into Products")
+assert_true(all(!vapply(projected$products, function(product) {
+  "method_how_brim_works" %in% product$relatedArticleIds
+}, logical(1))), "Excluded Method relationships leaked into Products")
+assert_true(all(vapply(projected$products, function(product) {
+  identical(
+    unname(product$relatedResourceIds),
+    unname(vapply(product$relatedResources, `[[`, character(1), "id"))
+  )
+}, logical(1))), "Projected role-labeled Resource relationships became inconsistent")
 
 guide_js <- paste(readLines(file.path("03_functions", "js", "leaflet_brim_guide.js"), warn = FALSE), collapse = "\n")
 guide_css <- paste(readLines(file.path("03_functions", "css", "leaflet_brim_guide.css"), warn = FALSE), collapse = "\n")
 guide_r <- paste(readLines(file.path("03_functions", "leaflet_guide_helpers.r"), warn = FALSE), collapse = "\n")
 loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.r"), warn = FALSE), collapse = "\n")
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
+panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
 
 assert_true(!grepl("fetch\\s*\\(", guide_js, perl = TRUE),
             "Guide browser source must not request Guide data at runtime")
@@ -186,16 +360,65 @@ assert_true(grepl("function asArray", guide_js, fixed = TRUE) &&
 assert_true(grepl("preventScroll: true", guide_js, fixed = TRUE) &&
               grepl("main.scrollTop = desiredScroll", guide_js, fixed = TRUE),
             "Guide focus can displace the current mobile view")
-assert_true(grepl("open_legacy_notes", guide_js, fixed = TRUE) &&
-              grepl("pt-map-notes-btn", guide_js, fixed = TRUE),
-            "Legacy Notes is not reachable from Guide")
-assert_true(grepl("renderResults(searchResults", guide_js, fixed = TRUE) &&
-              grepl("renderResults(filtered", guide_js, fixed = TRUE),
+assert_true(!grepl("legacy_notes|open_legacy_notes|openPtNotes|pt-map-notes|map-notes-overlay",
+                   paste(guide_js, guide_r, map_r, panel_js), ignore.case = TRUE, perl = TRUE),
+            "Retired Notes runtime content or wiring remains in the current build")
+assert_true(grepl("pt-map-guide-btn", map_r, fixed = TRUE) &&
+              grepl("Open BRIM Guide", map_r, fixed = TRUE) &&
+              grepl("guideButton.textContent = 'Guide'", map_r, fixed = TRUE),
+            "Upper-left Guide control identity is incomplete")
+assert_identical(length(gregexpr("window.BRIM_GUIDE.open(guideButton)", map_r, fixed = TRUE)[[1]]), 1L,
+                 "Current map build must contain exactly one primary Guide opener")
+assert_true(!grepl("pt-layer-explorer-btn|window.BRIM_GUIDE.open", panel_js, perl = TRUE),
+            "External Layers retains a duplicate Guide entry or handler")
+assert_true(grepl("searchResults", guide_js, fixed = TRUE) &&
+              grepl("filtered", guide_js, fixed = TRUE) &&
+              grepl("function renderResults", guide_js, fixed = TRUE),
             "Search and browse do not share one result renderer")
 assert_true(grepl("brim-guide__close--left", guide_js, fixed = TRUE) &&
               grepl("brim-guide__close--right", guide_js, fixed = TRUE) &&
               grepl(".brim-guide__close--left", guide_css, fixed = TRUE),
             "Accepted desktop/mobile close treatment is incomplete")
+assert_true(grepl("brim-guide__rail", guide_js, fixed = TRUE) &&
+              grepl("brim-guide__utility", guide_js, fixed = TRUE) &&
+              grepl("width: 96vw", guide_css, fixed = TRUE) &&
+              grepl("height: 94vh", guide_css, fixed = TRUE) &&
+              !grepl("brim-guide__header|brim-guide__footer", guide_js, perl = TRUE),
+            "Accepted V4 rail-and-utility shell contract is incomplete")
+assert_true(grepl("https://www.doi.gov/", guide_js, fixed = TRUE) &&
+              grepl("https://www.blm.gov/california", guide_js, fixed = TRUE) &&
+              grepl("link.title = definition[2]", guide_js, fixed = TRUE) &&
+              grepl("link.setAttribute('aria-label', definition[2])", guide_js, fixed = TRUE),
+            "Lower-rail DOI/BLM image-link accessibility contract is incomplete")
+assert_true(grepl("Find in layer list", guide_js, fixed = TRUE) &&
+              grepl("products.slice(0, 10)", guide_js, fixed = TRUE),
+            "Product locator or initial compact Product index is missing")
+assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &&
+              grepl("product.sections", guide_js, fixed = TRUE) &&
+              grepl("article.title", guide_js, fixed = TRUE) &&
+              grepl("relationship.role", guide_js, fixed = TRUE) &&
+              grepl("quickDefinition.summary", guide_js, fixed = TRUE),
+            "Generic structured content, Method, Resource-role, or Quick summary rendering is incomplete")
+assert_true(!grepl("huc8|gw_bull118|EXT070|EXT074|PRISM/BCMv8|Bulletin 118", guide_js,
+                   perl = TRUE),
+            "Product-specific Guide content leaked into the generic browser renderer")
+assert_true(grepl("--guide-ui: Inter", guide_css, fixed = TRUE) &&
+              grepl("--guide-condensed:", guide_css, fixed = TRUE) &&
+              grepl("--guide-reading: Garamond", guide_css, fixed = TRUE),
+            "Accepted V4 typography stacks are incomplete")
+assert_true(grepl(".brim-guide__page-heading--product h1", guide_css, fixed = TRUE) &&
+              grepl("font-family: var(--guide-ui)", guide_css, fixed = TRUE) &&
+              grepl(".brim-guide__result-title", guide_css, fixed = TRUE) &&
+              grepl(".brim-guide__path", guide_css, fixed = TRUE),
+            "Product titles, result titles, or paths are not assigned to ordinary UI typography")
+assert_identical(
+  length(gregexpr("var(--guide-reading)", guide_css, fixed = TRUE)[[1]]),
+  1L,
+  "Serif reading stack must be used only for maintained Method paragraphs"
+)
+assert_true(grepl(".brim-guide__method-body .brim-guide__structured-section p", guide_css, fixed = TRUE) &&
+              !grepl("@font-face|SFMono-Regular|monospace", guide_css, perl = TRUE),
+            "Serif scope or no-webfont/no-monospace UI boundary changed")
 assert_true(grepl("record.title], 1200", guide_js, fixed = TRUE) &&
               grepl("aliases, 1100", guide_js, fixed = TRUE) &&
               grepl("path, 800", guide_js, fixed = TRUE) &&

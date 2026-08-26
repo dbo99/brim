@@ -10,23 +10,6 @@ function(el, x, data) {
   var oldRoot = document.getElementById('brim-guide-root');
   if (oldRoot) oldRoot.remove();
 
-  var state = {
-    section: 'explore',
-    view: 'landing',
-    query: '',
-    browseDimension: '',
-    browseValue: '',
-    selectedId: '',
-    previousFocus: null,
-    history: []
-  };
-
-  var resourcesById = {};
-  bundle.resources.forEach(function(resource) { resourcesById[resource.id] = resource; });
-  var records = bundle.products.concat(bundle.articles, bundle.resources, bundle.updates);
-  var recordsById = {};
-  records.forEach(function(record) { recordsById[record.id] = record; });
-
   function node(tag, className, text) {
     var result = document.createElement(tag);
     if (className) result.className = className;
@@ -47,6 +30,37 @@ function(el, x, data) {
     if (label) result.setAttribute('aria-label', label);
     return result;
   }
+
+  var products = asArray(bundle.products);
+  var articles = asArray(bundle.articles);
+  var resources = asArray(bundle.resources);
+  var updates = asArray(bundle.updates);
+  var quickAccess = asArray(bundle.quickAccess);
+  var resourcesById = {};
+  resources.forEach(function(resource) { resourcesById[resource.id] = resource; });
+  var articlesById = {};
+  articles.forEach(function(article) { articlesById[article.id] = article; });
+  var productsById = {};
+  products.forEach(function(product) { productsById[product.id] = product; });
+  var quickAccessById = {};
+  quickAccess.forEach(function(item) { quickAccessById[item.id] = item; });
+  var records = products.concat(articles, resources, updates);
+  var recordsById = {};
+  records.forEach(function(record) { recordsById[record.id] = record; });
+
+  var state = {
+    section: 'explore',
+    view: 'landing',
+    query: '',
+    browseDimension: '',
+    browseValue: '',
+    selectedId: '',
+    quickIds: [],
+    quickId: '',
+    quickLabel: '',
+    previousFocus: null,
+    history: []
+  };
 
   function normalize(value) {
     return String(value || '')
@@ -101,6 +115,22 @@ function(el, x, data) {
     return score;
   }
 
+  function structuredText(record) {
+    var values = [];
+    asArray(record.sections).forEach(function(section) {
+      values.push(section.title);
+      values = values.concat(asArray(section.paragraphs), asArray(section.items));
+      if (section.table) {
+        values.push(section.table.caption);
+        asArray(section.table.columns).forEach(function(column) { values.push(column.label); });
+        asArray(section.table.rows).forEach(function(row) {
+          Object.keys(row || {}).forEach(function(key) { values.push(row[key]); });
+        });
+      }
+    });
+    return values.join(' ');
+  }
+
   function scoreRecord(record, rawQuery) {
     var query = normalize(rawQuery);
     if (!query) return 0;
@@ -120,6 +150,7 @@ function(el, x, data) {
     score = Math.max(score, maxFieldScore(query, [record.family], 550, 520, 360));
     score = Math.max(score, maxFieldScore(query, [record.provider].concat(searchTerms), 420, 390, 260));
     score = Math.max(score, maxFieldScore(query, [record.summary], 250, 220, 150));
+    score = Math.max(score, maxFieldScore(query, [structuredText(record)], 210, 190, 140));
 
     asArray(record.relatedResourceIds).forEach(function(resourceId) {
       var resource = resourcesById[resourceId];
@@ -137,7 +168,8 @@ function(el, x, data) {
         record.family,
         record.provider,
         searchTerms.join(' '),
-        record.summary
+        record.summary,
+        structuredText(record)
       ].join(' '));
       if (queryWords.every(function(token) { return searchable.indexOf(token) >= 0; })) {
         score = Math.max(score, 340 + queryWords.length);
@@ -162,7 +194,8 @@ function(el, x, data) {
       })
       .filter(function(item) { return item.score > 0; })
       .sort(function(a, b) {
-        return b.score - a.score || a.sourceOrder - b.sourceOrder || a.record.title.localeCompare(b.record.title);
+        return b.score - a.score || a.sourceOrder - b.sourceOrder ||
+          a.record.title.localeCompare(b.record.title);
       })
       .slice(0, 60)
       .map(function(item) { return item.record; });
@@ -179,39 +212,18 @@ function(el, x, data) {
   shell.setAttribute('aria-modal', 'true');
   shell.setAttribute('aria-labelledby', 'brim-guide-title');
 
-  var header = node('header', 'brim-guide__header');
-  var leftClose = button('brim-guide__close brim-guide__close--left', '×', 'close', 'Close BRIM Guide');
+  var rail = node('aside', 'brim-guide__rail');
+  var leftClose = button(
+    'brim-guide__close brim-guide__close--left',
+    '×',
+    'close',
+    'Close BRIM Guide'
+  );
   var home = button('brim-guide__home', '', 'home', 'BRIM Guide Home');
-  var homeEyebrow = node('span', 'brim-guide__home-eyebrow', bundle.identity.guide_name);
-  var homeName = node('span', 'brim-guide__home-name', bundle.identity.expanded_name);
-  home.appendChild(homeEyebrow);
-  home.appendChild(homeName);
-  var marks = node('div', 'brim-guide__marks');
-  var doiLink = node('a', 'brim-guide__mark');
-  doiLink.href = 'https://www.doi.gov/';
-  doiLink.target = '_blank';
-  doiLink.rel = 'noopener noreferrer';
-  doiLink.setAttribute('aria-label', 'U.S. Department of the Interior');
-  var doiImg = node('img');
-  doiImg.src = assets.doi || '';
-  doiImg.alt = 'U.S. Department of the Interior';
-  doiLink.appendChild(doiImg);
-  var blmLink = node('a', 'brim-guide__mark');
-  blmLink.href = 'https://www.blm.gov/california';
-  blmLink.target = '_blank';
-  blmLink.rel = 'noopener noreferrer';
-  blmLink.setAttribute('aria-label', 'Bureau of Land Management California');
-  var blmImg = node('img');
-  blmImg.src = assets.blm || '';
-  blmImg.alt = 'Bureau of Land Management';
-  blmLink.appendChild(blmImg);
-  marks.appendChild(doiLink);
-  marks.appendChild(blmLink);
-  var rightClose = button('brim-guide__close brim-guide__close--right', '×', 'close', 'Close BRIM Guide');
-  header.appendChild(leftClose);
-  header.appendChild(home);
-  header.appendChild(marks);
-  header.appendChild(rightClose);
+  home.appendChild(node('span', 'brim-guide__home-name', bundle.identity.guide_name));
+  home.appendChild(node('span', 'brim-guide__home-subtitle', 'Home'));
+  rail.appendChild(leftClose);
+  rail.appendChild(home);
 
   var nav = node('nav', 'brim-guide__nav');
   nav.setAttribute('aria-label', 'BRIM Guide sections');
@@ -227,21 +239,74 @@ function(el, x, data) {
     item.appendChild(node('span', 'brim-guide__nav-label', definition[2]));
     nav.appendChild(item);
   });
+  rail.appendChild(nav);
+
+  var quick = node('section', 'brim-guide__quick');
+  quick.appendChild(node('h2', 'brim-guide__rail-heading', 'Quick Access'));
+  var quickList = node('div', 'brim-guide__quick-list');
+  quickAccess.forEach(function(item) {
+    var quickButton = button('brim-guide__quick-item', item.label, 'quick');
+    quickButton.setAttribute('data-guide-quick', item.id);
+    quickButton.setAttribute('data-guide-products', asArray(item.productIds).join(','));
+    quickList.appendChild(quickButton);
+  });
+  quick.appendChild(quickList);
+  rail.appendChild(quick);
+
+  var railLower = node('div', 'brim-guide__rail-lower');
+  railLower.appendChild(button('brim-guide__about-link', 'About / Contact', 'about'));
+  var marks = node('div', 'brim-guide__marks');
+  [
+    ['https://www.doi.gov/', assets.doi, 'U.S. Department of the Interior'],
+    ['https://www.blm.gov/california', assets.blm, 'Bureau of Land Management California']
+  ].forEach(function(definition) {
+    var link = node('a', 'brim-guide__mark');
+    link.href = definition[0];
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.title = definition[2];
+    link.setAttribute('aria-label', definition[2]);
+    var image = node('img');
+    image.src = definition[1] || '';
+    image.alt = definition[2];
+    link.appendChild(image);
+    marks.appendChild(link);
+  });
+  railLower.appendChild(marks);
+  rail.appendChild(railLower);
+
+  var workspace = node('div', 'brim-guide__workspace');
+  var utility = node('div', 'brim-guide__utility');
+  var searchLabel = node(
+    'label',
+    'brim-guide__search-label',
+    'Search Products, methods, resources, and updates'
+  );
+  searchLabel.htmlFor = 'brim-guide-search';
+  var searchInput = node('input', 'brim-guide__search');
+  searchInput.type = 'search';
+  searchInput.id = 'brim-guide-search';
+  searchInput.autocomplete = 'off';
+  searchInput.placeholder = 'Search Products, methods, resources, and updates';
+  searchInput.setAttribute('data-guide-search', 'true');
+  var rightClose = button(
+    'brim-guide__close brim-guide__close--right',
+    '×',
+    'close',
+    'Close BRIM Guide'
+  );
+  utility.appendChild(searchLabel);
+  utility.appendChild(searchInput);
+  utility.appendChild(rightClose);
+  workspace.appendChild(utility);
 
   var main = node('main', 'brim-guide__main');
   main.id = 'brim-guide-main';
   main.tabIndex = -1;
+  workspace.appendChild(main);
 
-  var footer = node('footer', 'brim-guide__footer');
-  var footerStatus = node('p', 'brim-guide__footer-status', 'All included visible Products receive a basic Guide entry. Rich documentation remains selective.');
-  var aboutButton = button('brim-guide__text-button', 'About BRIM', 'about');
-  footer.appendChild(footerStatus);
-  footer.appendChild(aboutButton);
-
-  shell.appendChild(header);
-  shell.appendChild(nav);
-  shell.appendChild(main);
-  shell.appendChild(footer);
+  shell.appendChild(rail);
+  shell.appendChild(workspace);
   root.appendChild(shell);
   document.body.appendChild(root);
 
@@ -253,6 +318,9 @@ function(el, x, data) {
       browseDimension: state.browseDimension,
       browseValue: state.browseValue,
       selectedId: state.selectedId,
+      quickIds: state.quickIds.slice(),
+      quickId: state.quickId,
+      quickLabel: state.quickLabel,
       scrollTop: main.scrollTop
     };
   }
@@ -261,6 +329,7 @@ function(el, x, data) {
     Object.keys(saved).forEach(function(key) {
       if (key !== 'scrollTop') state[key] = saved[key];
     });
+    searchInput.value = state.query;
     render();
     main.scrollTop = saved.scrollTop || 0;
   }
@@ -272,20 +341,90 @@ function(el, x, data) {
 
   function activeNav() {
     nav.querySelectorAll('[data-guide-section]').forEach(function(item) {
-      var active = item.getAttribute('data-guide-section') === state.section;
+      var active = item.getAttribute('data-guide-section') === state.section &&
+        state.view !== 'about';
       item.classList.toggle('is-active', active);
       if (active) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
     });
   }
 
-  function heading(eyebrow, title, description) {
+  function pageHeading(eyebrow, title, description, modifier) {
     var wrap = node('div', 'brim-guide__page-heading');
+    if (modifier) wrap.classList.add('brim-guide__page-heading--' + modifier);
     wrap.appendChild(node('p', 'brim-guide__eyebrow', eyebrow));
-    var h1 = node('h1', '', title);
-    h1.id = 'brim-guide-title';
-    wrap.appendChild(h1);
+    var heading = node('h1', '', title);
+    heading.id = 'brim-guide-title';
+    wrap.appendChild(heading);
     if (description) wrap.appendChild(node('p', 'brim-guide__lede', description));
+    return wrap;
+  }
+
+  function renderStructuredSections(sections, modifier) {
+    var wrap = node('div', 'brim-guide__structured-sections');
+    if (modifier) wrap.classList.add('brim-guide__structured-sections--' + modifier);
+    asArray(sections).forEach(function(section) {
+      var block = node('section', 'brim-guide__structured-section');
+      if (section.id) block.setAttribute('data-guide-section-id', section.id);
+      block.appendChild(node('h2', '', section.title));
+      asArray(section.paragraphs).forEach(function(paragraph) {
+        block.appendChild(node('p', '', paragraph));
+      });
+      var items = asArray(section.items);
+      if (items.length) {
+        var list = node('ul', '');
+        items.forEach(function(item) { list.appendChild(node('li', '', item)); });
+        block.appendChild(list);
+      }
+      if (section.table) {
+        var tableWrap = node('div', 'brim-guide__table-wrap');
+        var table = node('table', 'brim-guide__table');
+        if (section.table.caption) table.appendChild(node('caption', '', section.table.caption));
+        var columns = asArray(section.table.columns);
+        if (columns.length) {
+          var head = node('thead');
+          var headRow = node('tr');
+          columns.forEach(function(column) { headRow.appendChild(node('th', '', column.label)); });
+          head.appendChild(headRow);
+          table.appendChild(head);
+        }
+        var body = node('tbody');
+        asArray(section.table.rows).forEach(function(row) {
+          var tableRow = node('tr');
+          columns.forEach(function(column) {
+            tableRow.appendChild(node('td', '', row && row[column.key]));
+          });
+          body.appendChild(tableRow);
+        });
+        table.appendChild(body);
+        tableWrap.appendChild(table);
+        block.appendChild(tableWrap);
+      }
+      wrap.appendChild(block);
+    });
+    return wrap;
+  }
+
+  function renderRelatedProducts(record) {
+    var relatedProducts = asArray(record.relatedProductIds).map(function(productId) {
+      return productsById[productId];
+    }).filter(Boolean);
+    if (!relatedProducts.length) return null;
+    var related = node('section', 'brim-guide__related brim-guide__related--products');
+    related.appendChild(node('h2', '', 'Related Products'));
+    relatedProducts.forEach(function(product) {
+      var relatedButton = button('brim-guide__related-item', product.title, 'record');
+      relatedButton.setAttribute('data-guide-record', product.id);
+      related.appendChild(relatedButton);
+    });
+    return related;
+  }
+
+  function sectionHeading(number, title, detail) {
+    var wrap = node('div', 'brim-guide__section-heading');
+    wrap.appendChild(node('span', 'brim-guide__section-number', number));
+    wrap.appendChild(node('h2', '', title));
+    if (detail) wrap.appendChild(node('span', 'brim-guide__section-detail', detail));
     return wrap;
   }
 
@@ -293,109 +432,113 @@ function(el, x, data) {
     return record.kind || 'Product';
   }
 
-  function resultCard(record) {
-    var card = button('brim-guide__result', '', 'record');
-    card.setAttribute('data-guide-record', record.id);
-    card.appendChild(node('span', 'brim-guide__result-kind', recordType(record)));
-    card.appendChild(node('strong', 'brim-guide__result-title', record.title));
-    var context = record.kind === 'Product' ? record.pathLabel : (record.section || record.provider || record.date || 'BRIM Guide');
-    card.appendChild(node('span', 'brim-guide__result-path', context));
-    if (record.summary) card.appendChild(node('span', 'brim-guide__result-summary', record.summary));
-    return card;
+  function resultRow(record) {
+    var row = button('brim-guide__result', '', 'record');
+    row.setAttribute('data-guide-record', record.id);
+    row.appendChild(node('span', 'brim-guide__result-kind', recordType(record)));
+    row.appendChild(node('strong', 'brim-guide__result-title', record.title));
+    var context = record.kind === 'Product'
+      ? record.pathLabel
+      : (record.section || record.provider || record.date || 'BRIM Guide');
+    row.appendChild(node('span', 'brim-guide__result-path', context));
+    if (record.summary) row.appendChild(node('span', 'brim-guide__result-summary', record.summary));
+    return row;
   }
 
   function renderResults(recordsToRender, emptyMessage) {
     var list = node('div', 'brim-guide__results');
     if (!recordsToRender.length) {
-      list.appendChild(node('p', 'brim-guide__empty', emptyMessage || 'No Guide records match this view.'));
+      list.appendChild(node(
+        'p',
+        'brim-guide__empty',
+        emptyMessage || 'No Guide records match this view.'
+      ));
       return list;
     }
-    recordsToRender.forEach(function(record) { list.appendChild(resultCard(record)); });
+    recordsToRender.forEach(function(record) { list.appendChild(resultRow(record)); });
     return list;
   }
 
-  function renderQuickAccess() {
-    var section = node('section', 'brim-guide__quick');
-    section.appendChild(node('p', 'brim-guide__eyebrow', 'Quick Access'));
-    var grid = node('div', 'brim-guide__quick-grid');
-    bundle.quickAccess.forEach(function(item) {
-      var quick = button('brim-guide__quick-item', item.label, 'quick');
-      quick.setAttribute('data-guide-quick', item.id);
-      quick.setAttribute('data-guide-products', asArray(item.productIds).join(','));
-      grid.appendChild(quick);
-    });
-    section.appendChild(grid);
-    return section;
+  function renderIntro() {
+    var intro = node('section', 'brim-guide__intro');
+    var identity = node('div', 'brim-guide__identity');
+    identity.appendChild(node('p', 'brim-guide__eyebrow', bundle.identity.expanded_name));
+    var title = node('h1', '', bundle.identity.guide_name);
+    title.id = 'brim-guide-title';
+    identity.appendChild(title);
+    identity.appendChild(node('p', 'brim-guide__identity-line', 'Products, Methods & Sources'));
+    intro.appendChild(identity);
+    intro.appendChild(node('p', 'brim-guide__intro-description', bundle.identity.description));
+    return intro;
   }
 
-  function renderExplore() {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(heading(
-      'A · Explore',
-      bundle.identity.guide_name,
-      bundle.identity.description
-    ));
-
-    var searchWrap = node('div', 'brim-guide__search-wrap');
-    var label = node('label', 'brim-guide__search-label', 'Search Products, methods, resources, and updates');
-    label.htmlFor = 'brim-guide-search';
-    var searchInput = node('input', 'brim-guide__search');
-    searchInput.type = 'search';
-    searchInput.id = 'brim-guide-search';
-    searchInput.autocomplete = 'off';
-    searchInput.placeholder = 'Try HUC8, MRMS, groundwater, or an exact BRIM path';
-    searchInput.value = state.query;
-    searchInput.setAttribute('data-guide-search', 'true');
-    searchWrap.appendChild(label);
-    searchWrap.appendChild(searchInput);
-    fragment.appendChild(searchWrap);
-
-    if (state.query) {
-      var searchResults = search(state.query);
-      var searchHeader = node('div', 'brim-guide__section-heading');
-      searchHeader.appendChild(node('h2', '', 'Search results'));
-      searchHeader.appendChild(node('span', 'brim-guide__count', searchResults.length + ' shown'));
-      fragment.appendChild(searchHeader);
-      fragment.appendChild(renderResults(searchResults, 'No Guide records match that search. Try a shorter source-supported term.'));
-      return fragment;
-    }
-
-    if (state.browseDimension && state.browseValue) {
-      var key = state.browseDimension === 'subject' ? 'subject' : 'mode';
-      var filtered = bundle.products.filter(function(product) { return product[key] === state.browseValue; });
-      var browseHeading = node('div', 'brim-guide__section-heading');
-      var backBrowse = button('brim-guide__text-button', '← All browse options', 'browse-clear');
-      browseHeading.appendChild(node('h2', '', state.browseValue));
-      browseHeading.appendChild(backBrowse);
-      fragment.appendChild(browseHeading);
-      fragment.appendChild(renderResults(filtered));
-      return fragment;
-    }
-
-    fragment.appendChild(renderQuickAccess());
+  function renderBrowse() {
     var browse = node('section', 'brim-guide__browse');
-    browse.appendChild(node('p', 'brim-guide__eyebrow', 'Browse'));
+    browse.appendChild(sectionHeading('01', 'Browse BRIM Products', products.length + ' included'));
     var browseColumns = node('div', 'brim-guide__browse-columns');
     [
       ['subject', 'Primary subject'],
       ['mode', 'Data / guidance mode']
     ].forEach(function(definition) {
       var column = node('div', 'brim-guide__browse-column');
-      column.appendChild(node('h2', '', definition[1]));
-      var values = Array.from(new Set(bundle.products.map(function(product) { return product[definition[0]]; }))).sort();
+      column.appendChild(node('h3', '', definition[1]));
+      var grid = node('div', 'brim-guide__browse-grid');
+      var values = Array.from(new Set(products.map(function(product) {
+        return product[definition[0]];
+      }))).sort();
       values.forEach(function(value) {
-        var count = bundle.products.filter(function(product) { return product[definition[0]] === value; }).length;
+        var count = products.filter(function(product) {
+          return product[definition[0]] === value;
+        }).length;
         var browseButton = button('brim-guide__browse-item', '', 'browse');
         browseButton.setAttribute('data-guide-dimension', definition[0]);
         browseButton.setAttribute('data-guide-value', value);
         browseButton.appendChild(node('span', '', value));
         browseButton.appendChild(node('span', 'brim-guide__browse-count', count));
-        column.appendChild(browseButton);
+        grid.appendChild(browseButton);
       });
+      column.appendChild(grid);
       browseColumns.appendChild(column);
     });
     browse.appendChild(browseColumns);
-    fragment.appendChild(browse);
+    return browse;
+  }
+
+  function renderExplore() {
+    var fragment = document.createDocumentFragment();
+
+    if (state.query) {
+      var searchResults = search(state.query);
+      fragment.appendChild(pageHeading('A · Explore', 'Search results', state.query));
+      fragment.appendChild(renderResults(
+        searchResults,
+        'No Guide records match that search. Try a shorter source-supported term.'
+      ));
+      return fragment;
+    }
+
+    if (state.browseDimension && state.browseValue) {
+      var key = state.browseDimension === 'subject' ? 'subject' : 'mode';
+      var filtered = products.filter(function(product) {
+        return product[key] === state.browseValue;
+      });
+      var browseHeader = node('div', 'brim-guide__filtered-heading');
+      browseHeader.appendChild(pageHeading('A · Explore', state.browseValue, filtered.length + ' Products'));
+      browseHeader.appendChild(button('brim-guide__text-button', '← All browse options', 'browse-clear'));
+      fragment.appendChild(browseHeader);
+      fragment.appendChild(renderResults(filtered));
+      return fragment;
+    }
+
+    fragment.appendChild(renderIntro());
+    fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
+    fragment.appendChild(renderBrowse());
+
+    var initialProducts = products.slice(0, 10);
+    var productSection = node('section', 'brim-guide__product-index');
+    productSection.appendChild(sectionHeading('02', 'Find a Product', 'First ' + initialProducts.length + ' in build order'));
+    productSection.appendChild(renderResults(initialProducts));
+    fragment.appendChild(productSection);
     return fragment;
   }
 
@@ -410,46 +553,72 @@ function(el, x, data) {
   function renderProductDetail(product) {
     var fragment = document.createDocumentFragment();
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
-    fragment.appendChild(heading(product.subsystem, product.title, product.summary));
-    var layout = node('div', 'brim-guide__detail-layout');
-    var primary = node('article', 'brim-guide__detail-primary');
-    primary.appendChild(node('p', 'brim-guide__eyebrow', 'Exact BRIM path'));
-    primary.appendChild(node('p', 'brim-guide__path', product.pathLabel));
-    var actionNotice = node('div', 'brim-guide__action-notice');
-    actionNotice.appendChild(node('strong', '', 'Map actions arrive in Guide I2.'));
-    actionNotice.appendChild(node('p', '', 'For now, use the exact path above in the existing BRIM map controls. This Guide does not turn layers on or change map state.'));
-    primary.appendChild(actionNotice);
-    var relatedResourceIds = asArray(product.relatedResourceIds);
-    if (relatedResourceIds.length) {
-      primary.appendChild(node('h2', '', 'Related resources'));
-      var links = node('div', 'brim-guide__related');
-      relatedResourceIds.forEach(function(resourceId) {
-        var resource = resourcesById[resourceId];
-        if (!resource) return;
-        var related = button('brim-guide__related-item', resource.title, 'record');
-        related.setAttribute('data-guide-record', resource.id);
-        links.appendChild(related);
-      });
-      primary.appendChild(links);
+    fragment.appendChild(pageHeading(product.subsystem, product.title, product.summary, 'product'));
+
+    var locator = node('section', 'brim-guide__locator');
+    locator.appendChild(node('h2', '', 'Find in layer list'));
+    locator.appendChild(node('p', 'brim-guide__path', product.pathLabel));
+    locator.appendChild(node(
+      'p',
+      'brim-guide__boundary',
+      'Use this exact path in the existing map controls. Guide I1 does not change map state.'
+    ));
+    fragment.appendChild(locator);
+
+    if (asArray(product.sections).length) {
+      fragment.appendChild(renderStructuredSections(product.sections, 'product'));
     }
-    var aside = node('aside', 'brim-guide__detail-aside');
+
+    var detailLayout = node('div', 'brim-guide__detail-layout');
     var dl = node('dl', 'brim-guide__detail-list');
     [
-      ['Stable Product ID', product.id],
       ['Subsystem', product.subsystem],
       ['Provider / program', product.provider],
       ['Primary subject', product.subject],
       ['Data / guidance mode', product.mode],
       ['Product family', product.family],
-      ['Implementation note', product.customOrNonGeneric ? 'Custom or non-generic presentation' : 'Basic Guide coverage']
+      ['Coverage', product.contentTier === 'curated'
+        ? 'Curated Guide detail'
+        : (product.customOrNonGeneric ? 'Custom or non-generic presentation' : 'Basic Guide entry')]
     ].forEach(function(definition) {
       var row = detailRow(definition[0], definition[1]);
       if (row) dl.appendChild(row);
     });
-    aside.appendChild(dl);
-    layout.appendChild(primary);
-    layout.appendChild(aside);
-    fragment.appendChild(layout);
+    detailLayout.appendChild(dl);
+
+    var relatedArticleIds = asArray(product.relatedArticleIds);
+    var relationships = asArray(product.relatedResources);
+    if (relatedArticleIds.length || relationships.length) {
+      var relatedColumn = node('div', 'brim-guide__related-column');
+      if (relatedArticleIds.length) {
+        var methods = node('section', 'brim-guide__related');
+        methods.appendChild(node('h2', '', 'Related Methods'));
+        relatedArticleIds.forEach(function(articleId) {
+          var article = articlesById[articleId];
+          if (!article) return;
+          var methodButton = button('brim-guide__related-item', article.title, 'record');
+          methodButton.setAttribute('data-guide-record', article.id);
+          methods.appendChild(methodButton);
+        });
+        relatedColumn.appendChild(methods);
+      }
+      if (relationships.length) {
+        var related = node('section', 'brim-guide__related');
+        related.appendChild(node('h2', '', 'Related Resources'));
+        relationships.forEach(function(relationship) {
+          var resource = resourcesById[relationship.id];
+          if (!resource) return;
+          var relatedButton = button('brim-guide__related-item', '', 'record');
+          relatedButton.setAttribute('data-guide-record', resource.id);
+          relatedButton.appendChild(node('span', 'brim-guide__related-title', resource.title));
+          relatedButton.appendChild(node('span', 'brim-guide__related-role', relationship.role));
+          related.appendChild(relatedButton);
+        });
+        relatedColumn.appendChild(related);
+      }
+      detailLayout.appendChild(relatedColumn);
+    }
+    fragment.appendChild(detailLayout);
     return fragment;
   }
 
@@ -457,66 +626,98 @@ function(el, x, data) {
     if (record.kind === 'Product') return renderProductDetail(record);
     var fragment = document.createDocumentFragment();
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
-    fragment.appendChild(heading(record.kind, record.title, record.summary));
-    var card = node('article', 'brim-guide__prose-card');
-    if (record.action === 'open_legacy_notes') {
-      card.appendChild(node('p', '', 'Legacy Notes remains an independent BRIM surface during the Guide transition.'));
-      card.appendChild(button('brim-guide__primary-button', 'Open legacy Notes', 'legacy-notes'));
-    } else if (record.kind === 'Resource' && record.url) {
-      var link = node('a', 'brim-guide__primary-button', 'Open official resource ↗');
+    fragment.appendChild(pageHeading(record.kind, record.title, record.summary));
+    var detail = node('article', 'brim-guide__prose');
+    if (record.kind === 'Article') {
+      detail.classList.add('brim-guide__method-body');
+      detail.appendChild(renderStructuredSections(record.sections, 'method'));
+    }
+    if (record.kind === 'Resource' && record.url) {
+      var link = node('a', 'brim-guide__resource-link', 'Open official resource ↗');
       link.href = record.url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      card.appendChild(link);
+      detail.appendChild(link);
     } else if (record.kind === 'Update') {
-      card.appendChild(node('p', 'brim-guide__date', record.date));
+      var updateMeta = node('p', 'brim-guide__date');
+      updateMeta.appendChild(node('time', '', record.date));
+      if (record.updateType) updateMeta.appendChild(node('span', '', ' · ' + record.updateType));
+      detail.appendChild(updateMeta);
     }
-    fragment.appendChild(card);
+    var relatedProducts = renderRelatedProducts(record);
+    if (relatedProducts) detail.appendChild(relatedProducts);
+    fragment.appendChild(detail);
     return fragment;
   }
 
-  function sectionRecordCard(record) {
-    var card = node('article', 'brim-guide__content-card');
-    card.appendChild(node('p', 'brim-guide__eyebrow', record.kind));
-    card.appendChild(node('h2', '', record.title));
-    if (record.date) card.appendChild(node('p', 'brim-guide__date', record.date));
-    if (record.summary) card.appendChild(node('p', '', record.summary));
-    var open = button('brim-guide__text-button', record.kind === 'Resource' ? 'View resource →' : 'Read →', 'record');
-    open.setAttribute('data-guide-record', record.id);
-    card.appendChild(open);
-    return card;
+  function contentRow(record) {
+    var row = button('brim-guide__content-row', '', 'record');
+    row.setAttribute('data-guide-record', record.id);
+    row.appendChild(node('span', 'brim-guide__result-kind', record.kind));
+    row.appendChild(node('strong', '', record.title));
+    row.appendChild(node('span', '', record.date || record.summary || 'Open'));
+    row.appendChild(node('span', 'brim-guide__row-arrow', '→'));
+    return row;
   }
 
   function renderSection(sectionName) {
     var definitions = {
-      methods: ['B · Methods & Guides', 'Methods & Guides', 'Initial guidance for interpreting and finding BRIM Products. Rich content migration is intentionally deferred.'],
-      resources: ['C · Resources', 'Resources', 'A small set of verified reusable agency resources.'],
-      updates: ['D · Updates', 'Updates', 'Verified user-facing changes to BRIM Guide.']
+      methods: ['B · Methods & Guides', 'Methods & Guides', 'Compact guidance for interpreting and finding BRIM Products.'],
+      resources: ['C · Resources', 'Resources', 'Verified reusable agency resources.'],
+      updates: ['D · Updates', 'Updates', 'Verified user-facing Guide changes.']
     };
     var definition = definitions[sectionName];
-    var collection = sectionName === 'methods' ? bundle.articles : sectionName === 'resources' ? bundle.resources : bundle.updates;
+    var collection = sectionName === 'methods'
+      ? articles
+      : sectionName === 'resources' ? resources : updates;
     var fragment = document.createDocumentFragment();
-    fragment.appendChild(heading(definition[0], definition[1], definition[2]));
-    var grid = node('div', 'brim-guide__content-grid');
-    collection.forEach(function(record) { grid.appendChild(sectionRecordCard(record)); });
-    fragment.appendChild(grid);
+    fragment.appendChild(pageHeading(definition[0], definition[1], definition[2]));
+    var list = node('div', 'brim-guide__content-list');
+    collection.forEach(function(record) { list.appendChild(contentRow(record)); });
+    fragment.appendChild(list);
+    return fragment;
+  }
+
+  function renderQuickResults() {
+    var quickRecords = state.quickIds.map(function(id) {
+      return recordsById[id];
+    }).filter(Boolean);
+    var fragment = document.createDocumentFragment();
+    var quickDefinition = quickAccessById[state.quickId];
+    fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
+    fragment.appendChild(pageHeading(
+      'Quick Access',
+      state.quickLabel,
+      quickDefinition && quickDefinition.summary
+        ? quickDefinition.summary
+        : 'Verified Products in this collection.'
+    ));
+    fragment.appendChild(renderResults(quickRecords));
     return fragment;
   }
 
   function renderAbout() {
     var fragment = document.createDocumentFragment();
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
-    fragment.appendChild(heading('About / Contact', bundle.identity.expanded_name, bundle.identity.description));
-    var grid = node('div', 'brim-guide__about-grid');
-    var purpose = node('article', 'brim-guide__prose-card');
+    fragment.appendChild(pageHeading(
+      'About / Contact',
+      bundle.identity.expanded_name,
+      bundle.identity.description
+    ));
+    var about = node('div', 'brim-guide__about');
+    var purpose = node('section', 'brim-guide__prose');
     purpose.appendChild(node('h2', '', 'Purpose and scope'));
     purpose.appendChild(node('p', '', bundle.identity.scope_note));
-    var contact = node('article', 'brim-guide__prose-card');
+    var contact = node('section', 'brim-guide__prose');
     contact.appendChild(node('h2', '', 'Organization'));
-    contact.appendChild(node('p', '', 'BRIM is maintained for Bureau of Land Management California water-resource screening and resource-review support. No contact form or server endpoint is embedded in this standalone map.'));
-    grid.appendChild(purpose);
-    grid.appendChild(contact);
-    fragment.appendChild(grid);
+    contact.appendChild(node(
+      'p',
+      '',
+      'BRIM is maintained for Bureau of Land Management California water-resource screening and resource-review support. This standalone map does not embed a contact form or server endpoint.'
+    ));
+    about.appendChild(purpose);
+    about.appendChild(contact);
+    fragment.appendChild(about);
     return fragment;
   }
 
@@ -533,6 +734,8 @@ function(el, x, data) {
       }
     } else if (state.view === 'about') {
       main.appendChild(renderAbout());
+    } else if (state.view === 'quick') {
+      main.appendChild(renderQuickResults());
     } else if (state.section === 'explore') {
       main.appendChild(renderExplore());
     } else {
@@ -558,33 +761,29 @@ function(el, x, data) {
     state.browseDimension = '';
     state.browseValue = '';
     state.selectedId = '';
+    state.quickIds = [];
+    state.quickId = '';
+    state.quickLabel = '';
     state.history = [];
+    searchInput.value = '';
     render();
-    if (focusSearch) {
-      var input = document.getElementById('brim-guide-search');
-      if (input) input.focus();
-    }
+    if (focusSearch) searchInput.focus();
   }
 
   function openGuide(trigger) {
-    if (!root.hidden) return;
-    state.previousFocus = trigger || document.activeElement;
+    if (trigger) state.previousFocus = trigger;
+    else if (root.hidden) state.previousFocus = document.activeElement;
     root.hidden = false;
     root.setAttribute('aria-hidden', 'false');
     resetHome(false);
-    window.setTimeout(function() {
-      var input = document.getElementById('brim-guide-search');
-      if (input) input.focus();
-      else rightClose.focus();
-    }, 0);
+    window.setTimeout(function() { searchInput.focus(); }, 0);
   }
 
-  function closeGuide(options) {
+  function closeGuide() {
     if (root.hidden) return;
     root.hidden = true;
     root.setAttribute('aria-hidden', 'true');
-    var restoreFocus = !(options && options.restoreFocus === false);
-    if (restoreFocus && state.previousFocus && typeof state.previousFocus.focus === 'function') {
+    if (state.previousFocus && typeof state.previousFocus.focus === 'function') {
       state.previousFocus.focus();
     }
   }
@@ -602,23 +801,33 @@ function(el, x, data) {
     var target = event.target.closest('[data-guide-action]');
     if (!target || !root.contains(target)) return;
     var action = target.getAttribute('data-guide-action');
-    if (action === 'close') closeGuide();
-    else if (action === 'home') resetHome(true);
-    else if (action === 'section') {
+    if (action === 'close') {
+      closeGuide();
+    } else if (action === 'home') {
+      resetHome(true);
+    } else if (action === 'section') {
       state.section = target.getAttribute('data-guide-section');
       state.view = 'landing';
       state.query = '';
       state.browseDimension = '';
       state.browseValue = '';
       state.selectedId = '';
+      state.quickIds = [];
+      state.quickId = '';
+      state.quickLabel = '';
       state.history = [];
+      searchInput.value = '';
       render();
       focusMain(false);
     } else if (action === 'record') {
       openRecord(target.getAttribute('data-guide-record'));
     } else if (action === 'browse') {
+      state.section = 'explore';
+      state.view = 'landing';
+      state.query = '';
       state.browseDimension = target.getAttribute('data-guide-dimension');
       state.browseValue = target.getAttribute('data-guide-value');
+      searchInput.value = '';
       render();
       focusMain(false);
     } else if (action === 'browse-clear') {
@@ -626,18 +835,23 @@ function(el, x, data) {
       state.browseValue = '';
       render();
     } else if (action === 'quick') {
-      var ids = String(target.getAttribute('data-guide-products') || '').split(',').filter(Boolean);
-      if (ids.length === 1) openRecord(ids[0]);
-      else {
+      var quickIds = String(target.getAttribute('data-guide-products') || '')
+        .split(',')
+        .filter(Boolean);
+      if (quickIds.length === 1) {
+        openRecord(quickIds[0]);
+      } else {
+        pushHistory();
+        state.section = 'explore';
+        state.view = 'quick';
+        state.query = '';
         state.browseDimension = '';
         state.browseValue = '';
-        state.query = '';
-        var quickRecords = ids.map(function(id) { return recordsById[id]; }).filter(Boolean);
-        main.replaceChildren();
-        var fragment = document.createDocumentFragment();
-        fragment.appendChild(heading('Quick Access', target.textContent, 'Verified Products in this collection.'));
-        fragment.appendChild(renderResults(quickRecords));
-        main.appendChild(fragment);
+        state.quickIds = quickIds;
+        state.quickId = target.getAttribute('data-guide-quick') || '';
+        state.quickLabel = target.textContent;
+        searchInput.value = '';
+        render();
         focusMain(false);
       }
     } else if (action === 'about') {
@@ -650,27 +864,21 @@ function(el, x, data) {
       if (saved) restore(saved);
       else resetHome(false);
       focusMain(true);
-    } else if (action === 'legacy-notes') {
-      closeGuide({ restoreFocus: false });
-      window.setTimeout(function() {
-        var notesButton = document.getElementById('pt-map-notes-btn');
-        if (notesButton) notesButton.click();
-      }, 0);
     }
   });
 
-  root.addEventListener('input', function(event) {
-    if (!event.target.matches('[data-guide-search]')) return;
+  searchInput.addEventListener('input', function(event) {
+    state.section = 'explore';
+    state.view = 'landing';
     state.query = event.target.value;
     state.browseDimension = '';
     state.browseValue = '';
-    var position = event.target.selectionStart;
+    state.selectedId = '';
+    state.quickIds = [];
+    state.quickId = '';
+    state.quickLabel = '';
+    state.history = [];
     render();
-    var nextInput = document.getElementById('brim-guide-search');
-    if (nextInput) {
-      nextInput.focus();
-      nextInput.setSelectionRange(position, position);
-    }
   });
 
   root.addEventListener('keydown', function(event) {
@@ -704,6 +912,8 @@ function(el, x, data) {
         return { id: record.id, title: record.title, kind: record.kind };
       });
     },
-    getState: function() { return Object.assign({}, snapshot(), { open: !root.hidden }); }
+    getState: function() {
+      return Object.assign({}, snapshot(), { open: !root.hidden });
+    }
   });
 }

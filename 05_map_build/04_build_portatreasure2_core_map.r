@@ -1282,205 +1282,59 @@ m <- pt_startup_loading_mark(
 )
 
 
-# ==== 9a.1 Add full-page map-notes control ==================================
+# ==== 9a.1 Add the sole BRIM Guide entry control =============================
 ##
-## PURPOSE:
-##   Add one expandable map-notes panel for numbered layer notes.
-##
-## WHY:
-##   The old "*" and "**" alert boxes were too cramped and do not scale well as
-##   more layer-specific notes are added. This full-page overlay is easier to
-##   read and can grow over time.
+## The upper-left map toolbar is the only primary Guide entry. The compiled
+## Guide host resets to Explore/Home, focuses search, and restores focus here
+## when its dialog closes.
 
 m <- htmlwidgets::onRender(
   m,
   "
 function(el, x) {
-
   var map = this;
+  var guideControl = L.control({position: 'topleft'});
 
-  function openPtNotes() {
+  guideControl.onAdd = function(map) {
+    var guideButton = L.DomUtil.create('button', 'leaflet-bar pt-map-guide-btn');
+    guideButton.id = 'pt-map-guide-btn';
+    guideButton.type = 'button';
+    guideButton.title = 'Open BRIM Guide';
+    guideButton.setAttribute('aria-label', 'Open BRIM Guide');
+    guideButton.textContent = 'Guide';
+    guideButton.style.position = 'absolute';
+    guideButton.style.top = '84px';
+    guideButton.style.left = '8px';
+    guideButton.style.background = 'rgba(239, 239, 236, 0.97)';
+    guideButton.style.cursor = 'pointer';
+    guideButton.style.width = '82px';
+    guideButton.style.height = '22px';
+    guideButton.style.lineHeight = '20px';
+    guideButton.style.textAlign = 'center';
+    guideButton.style.fontWeight = '700';
+    guideButton.style.fontSize = '12px';
+    guideButton.style.border = '1px solid rgba(108, 108, 98, 0.76)';
+    guideButton.style.borderRadius = '5px';
+    guideButton.style.boxShadow = '0 1px 4px rgba(0,0,0,0.26)';
+    guideButton.style.color = '#222';
+    guideButton.style.boxSizing = 'border-box';
+    guideButton.style.margin = '0';
+    guideButton.style.padding = '0';
+    guideButton.style.zIndex = '10060';
 
-    var old = document.getElementById('pt-map-notes-overlay');
-    if (old) old.remove();
-
-    var overlay = document.createElement('div');
-    overlay.id = 'pt-map-notes-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.62)';
-    overlay.style.zIndex = '999999';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'stretch';
-    overlay.style.justifyContent = 'center';
-    overlay.style.boxSizing = 'border-box';
-    overlay.style.padding = '34px';
-
-    var panel = document.createElement('div');
-    panel.style.background = '#ffffff';
-    panel.style.color = '#222';
-    panel.style.width = '100%';
-    panel.style.height = '100%';
-    panel.style.maxWidth = '1180px';
-    panel.style.borderRadius = '10px';
-    panel.style.boxShadow = '0 8px 30px rgba(0,0,0,0.35)';
-    panel.style.overflow = 'auto';
-    panel.style.boxSizing = 'border-box';
-    panel.style.padding = '28px 34px';
-    panel.style.fontFamily = 'Arial, sans-serif';
-    panel.style.fontSize = '14px';
-    panel.style.lineHeight = '1.45';
-
-    var close = document.createElement('button');
-    close.innerHTML = 'Close';
-    close.style.position = 'sticky';
-    close.style.top = '0';
-    close.style.float = 'right';
-    close.style.zIndex = '2';
-    close.style.padding = '8px 14px';
-    close.style.border = '1px solid #777';
-    close.style.borderRadius = '6px';
-    close.style.background = '#f7f7f7';
-    close.style.cursor = 'pointer';
-    close.onclick = function() {
-      overlay.remove();
-    };
-
-    var content = document.createElement('div');
-    content.innerHTML =
-      '<h1 style=\"margin-top:0;\">PortaTreasure2 map notes</h1>' +
-
-      '<p style=\"margin:-8px 0 12px 0;font-size:12px;color:#777;font-style:italic;\">' +
-      'Incomplete / in-progress notes' +
-      '</p>' +
-
-      '<p style=\"font-size:13px;color:#555;max-width:900px;\">' +
-      'These notes provide screening-level interpretation of map layers, data sources, and symbology.' +
-      '</p>' +
-
-      '<hr/>' +
-
-      '<h2>SWRCB / CalWATRS BLM-relevant POD/WR screening layers</h2>' +
-      '<p>' +
-      'The SWRCB / CalWATRS point layers are intended as screening-level tools for identifying points of diversion and water-right records that may be relevant to BLM. ' +
-      'The layers are split by provenance so users can distinguish official SWRCB-provided BLM water-right records from additional BRIM screening candidates.' +
-      '</p>' +
-      '<p>' +
-      '<b>Water rights POD | SWRCB 2026 BLM list:</b> records whose water-right/claim ID appears in the SWRCB-provided 2026 BLM water-right list. For matching rights, BRIM uses the face value supplied in that SWRCB export because the public POD/WR service can contain incomplete zero values; POD geometry and other mapped details still come from the public SWRCB/CalWATRS data. This is the best layer to use when asking, \"What did SWRCB tell BLM is ours or relevant to BLM reporting/review?\"' +
-      '</p>' +
-      '<p>' +
-      '<b>Water rights POD | BRIM spatial BLM match:</b> additional CalWATRS POD points whose mapped coordinate falls on current BLM-managed land, but whose water-right/claim ID does not appear in the SWRCB-provided 2026 BLM list.' +
-      '</p>' +
-      '<p>' +
-      '<b>Water rights POD | BRIM name/text BLM candidate:</b> additional records inferred from owner/holder/name text matching in the SWRCB/CalWATRS data. These are useful QA/context candidates but should be treated as analyst-derived screening records. This layer is hidden by default.' +
-      '</p>' +
-      '<p>' +
-      '<b>Point size:</b> circle radius is scaled by face value in acre-feet per year (AFY). The scaling is intentionally capped so large rights do not dominate the map.' +
-      '</p>' +
-      '<p>' +
-      '<b>Point fill color:</b> blue = SWRCB 2026 BLM WR list record; gold/tan = additional spatial POD match; purple = additional BLM name/text-match candidate.' +
-      '</p>' +
-      '<p>' +
-      '<b>Marker ring color:</b> bright green = active/recognized status; orange = pending; red = inactive/cancelled/revoked/rejected; gray = unknown or unmatched status.' +
-      '</p>' +
-      '<p>' +
-      '<b>Location and interpretation note:</b> POD coordinates are screening-level GIS locations and may not plot exactly on the physical diversion, stream reach, parcel, or land-status boundary. ' +
-      'A SWRCB-provided BLM water-right/list match does not necessarily mean every mapped POD coordinate for that water right is spatially on BLM-managed land. ' +
-      'Popup fields report the BLM relevance basis, spatial BLM match, POD feature ID, and POD/WR-list ID to support QA.' +
-      '</p>' +
-
-      '<h2>HUC climate and recharge summaries</h2>' +
-      '<p>' +
-      'HUC popups and optional thematic fills use existing summarized PRISM precipitation and BCMv8 recharge values joined to the HUC layers. ' +
-      'The HUC geometries are not duplicated for the thematic fill control; the map restyles existing HUC polygons using precomputed color fields.' +
-      '</p>' +
-      '<p>' +
-      '<b>Precipitation:</b> PRISM Group, Oregon State University, PRISM 1991–2020 precipitation normal vM5, accessed 24 April 2026. https://prism.oregonstate.edu' +
-      '</p>' +
-      '<p>' +
-      '<b>Recharge:</b> Flint, L.E., Flint, A.L., Stern, M.A., and Seymour, W.A., 2021, The Basin Characterization Model—A monthly regional water balance software package (BCMv8) data release and model archive for hydrologic California (version 5.0, June 2025): U.S. Geological Survey data release. https://doi.org/10.5066/P9PT36UI' +
-      '</p>' +
-      '<p>' +
-      '<b>Interpretation:</b> inches are area-normalized depth values. KAF/year values are total volume estimates and are strongly influenced by polygon area. ' +
-      'PRISM and BCMv8 thematic colors are scaled separately by HUC level so HUC12 patterns remain readable. ' +
-      'BLM-managed-land percentages use one fixed absolute classification shared across all HUC levels and Bulletin 118 groundwater basins.' +
-      '</p>' +
-
-      '<h2>BLM-focused reference / conservation layers</h2>' +
-      '<p>' +
-      'These reference layers generally represent BLM GIS-based coverage, BLM-focused subsets, or agency-specific source datasets. ' +
-      'They are useful for screening and context but should not be assumed to be complete statewide inventories unless the source documentation says so.' +
-      '</p>' +
-      '<p>' +
-      'This note currently applies to layers such as Wild & Scenic Rivers, Federal Wilderness, Wilderness Study Areas, National Monuments, and National Scenic/Historic Trails.' +
-      '</p>' +
-
-      '<h2>Future notes</h2>' +
-      '<p>' +
-      'Additional layer notes can be added here as more PT2 layers are finalized, including springs, wells, gages, live-data services, and other water-resource layers.' +
-      '</p>';
-
-    panel.appendChild(close);
-    panel.appendChild(content);
-    overlay.appendChild(panel);
-    document.body.appendChild(overlay);
-
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) {
-        overlay.remove();
+    L.DomEvent.disableClickPropagation(guideButton);
+    L.DomEvent.disableScrollPropagation(guideButton);
+    L.DomEvent.on(guideButton, 'click', function(event) {
+      L.DomEvent.preventDefault(event);
+      if (window.BRIM_GUIDE && typeof window.BRIM_GUIDE.open === 'function') {
+        window.BRIM_GUIDE.open(guideButton);
       }
     });
 
-    document.addEventListener('keydown', function escClose(e) {
-      if (e.key === 'Escape') {
-        var ov = document.getElementById('pt-map-notes-overlay');
-        if (ov) ov.remove();
-        document.removeEventListener('keydown', escClose);
-      }
-    });
-  }
-
-  var notesControl = L.control({position: 'topleft'});
-
-  notesControl.onAdd = function(map) {
-
-    var div = L.DomUtil.create('div', 'leaflet-bar pt-map-notes-btn');
-    div.id = 'pt-map-notes-btn';
-    div.style.position = 'absolute';
-    div.style.top = '84px';
-    div.style.left = '8px';
-    div.style.background = 'rgba(239, 239, 236, 0.97)';
-    div.style.cursor = 'pointer';
-    div.style.width = '82px';
-    div.style.height = '22px';
-    div.style.lineHeight = '22px';
-    div.style.textAlign = 'center';
-    div.style.fontWeight = '700';
-    div.style.fontSize = '12px';
-    div.style.border = '1px solid rgba(108, 108, 98, 0.76)';
-    div.style.borderRadius = '5px';
-    div.style.boxShadow = '0 1px 4px rgba(0,0,0,0.26)';
-    div.style.color = '#222';
-    div.style.boxSizing = 'border-box';
-    div.style.margin = '0';
-    div.style.padding = '0';
-    div.style.zIndex = '10060';
-    div.title = 'Map notes';
-
-    div.innerHTML = 'notes';
-
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
-
-    div.onclick = openPtNotes;
-
-    return div;
+    return guideButton;
   };
 
-  notesControl.addTo(map);
+  guideControl.addTo(map);
 }
 "
 )
