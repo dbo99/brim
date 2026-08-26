@@ -45,6 +45,7 @@ source("03_functions/leaflet_bulletin118_theme_helpers.r")
 source("03_functions/layer_capability_helpers.r")
 source("03_functions/leaflet_tools_adddata_helpers.r")
 source("03_functions/leaflet_local_upload_helpers.r")
+source("03_functions/leaflet_guide_helpers.r")
 
 # ==== 3. Load packages =======================================================
 
@@ -1263,6 +1264,16 @@ m <- pt_add_local_upload_panel(
   m = m,
   map_display = MAP_DISPLAY
 )
+
+## Compile the Guide only after the actual build's visible Local groups and
+## MAP_DISPLAY projection are known.  The resulting payload is embedded in the
+## standalone HTML; Guide never becomes a second runtime layer authority.
+BRIM_GUIDE_BUNDLE <- pt_build_guide_bundle(
+  overlay_groups = OVERLAY_GROUPS,
+  map_display = MAP_DISPLAY,
+  profile_id = "default"
+)
+m <- pt_add_brim_guide(m, BRIM_GUIDE_BUNDLE)
 
 m <- pt_startup_loading_mark(
   m = m,

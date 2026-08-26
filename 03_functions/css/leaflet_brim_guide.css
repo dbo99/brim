@@ -1,0 +1,825 @@
+#brim-guide-root {
+  --guide-ink: #163238;
+  --guide-muted: #567077;
+  --guide-paper: #fbf7ee;
+  --guide-paper-deep: #f1eadc;
+  --guide-teal: #0d6f79;
+  --guide-teal-dark: #064f57;
+  --guide-line: rgba(20, 66, 73, 0.18);
+  --guide-shadow: 0 28px 80px rgba(3, 20, 24, 0.42);
+  position: fixed;
+  inset: 0;
+  z-index: 2147482500;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 22px;
+  overflow: hidden;
+  color: var(--guide-ink);
+  background:
+    radial-gradient(circle at 15% 18%, rgba(55, 131, 139, 0.24), transparent 34%),
+    radial-gradient(circle at 88% 10%, rgba(19, 82, 92, 0.22), transparent 30%),
+    linear-gradient(145deg, rgba(9, 31, 37, 0.96), rgba(13, 48, 54, 0.97));
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+#brim-guide-root[hidden] {
+  display: none !important;
+}
+
+#brim-guide-root::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-image: var(--brim-guide-topo);
+  background-position: center;
+  background-size: cover;
+  opacity: 0.22;
+}
+
+#brim-guide-root *,
+#brim-guide-root *::before,
+#brim-guide-root *::after {
+  box-sizing: border-box;
+}
+
+#brim-guide-root button,
+#brim-guide-root input,
+#brim-guide-root a {
+  font: inherit;
+}
+
+#brim-guide-root button,
+#brim-guide-root a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#brim-guide-root button:focus-visible,
+#brim-guide-root input:focus-visible,
+#brim-guide-root a:focus-visible,
+#brim-guide-root [tabindex]:focus-visible {
+  outline: 3px solid #d99c48;
+  outline-offset: 3px;
+}
+
+#brim-guide-root .brim-guide__shell {
+  position: relative;
+  width: min(1420px, calc(100vw - 44px));
+  height: min(940px, calc(100vh - 44px));
+  height: min(940px, calc(100dvh - 44px));
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  border-radius: 24px;
+  background: var(--guide-paper);
+  box-shadow: var(--guide-shadow);
+}
+
+#brim-guide-root .brim-guide__header {
+  grid-column: 1 / -1;
+  min-height: 104px;
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) auto 68px;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--guide-line);
+  background: rgba(255, 253, 247, 0.84);
+}
+
+#brim-guide-root .brim-guide__close {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  padding: 0 0 4px;
+  border: 1px solid var(--guide-line);
+  border-radius: 50%;
+  color: var(--guide-ink);
+  background: transparent;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__close:hover {
+  border-color: var(--guide-teal);
+  color: #fff;
+  background: var(--guide-teal);
+}
+
+#brim-guide-root .brim-guide__home {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__home-eyebrow,
+#brim-guide-root .brim-guide__eyebrow,
+#brim-guide-root .brim-guide__result-kind {
+  color: var(--guide-teal-dark);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+#brim-guide-root .brim-guide__home-name {
+  max-width: 700px;
+  overflow: hidden;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#brim-guide-root .brim-guide__marks {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+#brim-guide-root .brim-guide__mark {
+  width: 50px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+}
+
+#brim-guide-root .brim-guide__mark img {
+  max-width: 48px;
+  max-height: 52px;
+  object-fit: contain;
+}
+
+#brim-guide-root .brim-guide__nav {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 0;
+  padding: 24px 16px;
+  border-right: 1px solid var(--guide-line);
+  background:
+    linear-gradient(180deg, rgba(18, 89, 98, 0.08), transparent 46%),
+    var(--guide-paper-deep);
+}
+
+#brim-guide-root .brim-guide__nav-item {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 35px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--guide-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__nav-item:hover {
+  border-color: var(--guide-line);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+#brim-guide-root .brim-guide__nav-item.is-active {
+  color: #fff;
+  background: var(--guide-teal-dark);
+  box-shadow: 0 8px 20px rgba(6, 79, 87, 0.18);
+}
+
+#brim-guide-root .brim-guide__nav-letter {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+#brim-guide-root .brim-guide__nav-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#brim-guide-root .brim-guide__main {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(28px, 4vw, 58px) clamp(28px, 5vw, 72px) 68px;
+  scroll-behavior: smooth;
+}
+
+#brim-guide-root .brim-guide__main > * {
+  max-width: 1050px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+#brim-guide-root .brim-guide__footer {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--guide-line);
+  background: rgba(255, 253, 247, 0.9);
+}
+
+#brim-guide-root .brim-guide__footer-status {
+  margin: 0;
+  color: var(--guide-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+#brim-guide-root .brim-guide__page-heading {
+  margin-bottom: 30px;
+}
+
+#brim-guide-root .brim-guide__page-heading h1 {
+  margin: 7px 0 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.2rem, 4.5vw, 4.7rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+#brim-guide-root .brim-guide__lede {
+  max-width: 830px;
+  margin: 0;
+  color: var(--guide-muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.03rem, 1.8vw, 1.28rem);
+  line-height: 1.5;
+}
+
+#brim-guide-root .brim-guide__search-wrap {
+  margin-bottom: 30px;
+}
+
+#brim-guide-root .brim-guide__search-label {
+  display: block;
+  margin: 0 0 8px;
+  color: var(--guide-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+#brim-guide-root .brim-guide__search {
+  width: 100%;
+  min-height: 58px;
+  padding: 14px 18px 14px 48px;
+  border: 1px solid rgba(13, 111, 121, 0.36);
+  border-radius: 14px;
+  color: var(--guide-ink);
+  background:
+    linear-gradient(90deg, transparent 0 46px, rgba(13, 111, 121, 0.14) 46px 47px, transparent 47px),
+    #fffdf8;
+  box-shadow: 0 8px 26px rgba(23, 68, 73, 0.08);
+  font-size: 1rem;
+}
+
+#brim-guide-root .brim-guide__search::placeholder {
+  color: #72868b;
+}
+
+#brim-guide-root .brim-guide__quick,
+#brim-guide-root .brim-guide__browse {
+  margin-top: 34px;
+}
+
+#brim-guide-root .brim-guide__quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+#brim-guide-root .brim-guide__quick-item {
+  min-height: 78px;
+  padding: 16px 18px;
+  border: 1px solid var(--guide-line);
+  border-radius: 14px;
+  color: var(--guide-ink);
+  background: rgba(255, 255, 255, 0.62);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__quick-item:hover {
+  border-color: var(--guide-teal);
+  color: var(--guide-teal-dark);
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+#brim-guide-root .brim-guide__browse-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 12px;
+}
+
+#brim-guide-root .brim-guide__browse-column {
+  padding: 20px;
+  border: 1px solid var(--guide-line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+#brim-guide-root .brim-guide__browse-column h2,
+#brim-guide-root .brim-guide__content-card h2,
+#brim-guide-root .brim-guide__prose-card h2,
+#brim-guide-root .brim-guide__detail-primary h2 {
+  margin: 0 0 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.28rem;
+  font-weight: 600;
+}
+
+#brim-guide-root .brim-guide__browse-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(20, 66, 73, 0.1);
+  color: var(--guide-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__browse-item:hover {
+  color: var(--guide-teal-dark);
+  background: rgba(13, 111, 121, 0.06);
+}
+
+#brim-guide-root .brim-guide__browse-count,
+#brim-guide-root .brim-guide__count {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--guide-teal-dark);
+  background: rgba(13, 111, 121, 0.1);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+#brim-guide-root .brim-guide__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 26px 0 14px;
+}
+
+#brim-guide-root .brim-guide__section-heading h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55rem;
+}
+
+#brim-guide-root .brim-guide__results {
+  display: grid;
+  gap: 10px;
+}
+
+#brim-guide-root .brim-guide__result {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 115px minmax(0, 1fr);
+  gap: 3px 16px;
+  padding: 15px 18px;
+  border: 1px solid var(--guide-line);
+  border-radius: 13px;
+  color: var(--guide-ink);
+  background: rgba(255, 255, 255, 0.65);
+  text-align: left;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__result:hover {
+  border-color: rgba(13, 111, 121, 0.65);
+  background: #fff;
+}
+
+#brim-guide-root .brim-guide__result-kind {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  padding-top: 3px;
+}
+
+#brim-guide-root .brim-guide__result-title {
+  grid-column: 2;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+#brim-guide-root .brim-guide__result-path,
+#brim-guide-root .brim-guide__result-summary {
+  grid-column: 2;
+  color: var(--guide-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+#brim-guide-root .brim-guide__result-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+#brim-guide-root .brim-guide__empty {
+  padding: 26px;
+  border: 1px dashed var(--guide-line);
+  border-radius: 14px;
+  color: var(--guide-muted);
+  text-align: center;
+}
+
+#brim-guide-root .brim-guide__back,
+#brim-guide-root .brim-guide__text-button {
+  padding: 6px 0;
+  border: 0;
+  color: var(--guide-teal-dark);
+  background: transparent;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__back {
+  margin-bottom: 22px;
+}
+
+#brim-guide-root .brim-guide__back:hover,
+#brim-guide-root .brim-guide__text-button:hover {
+  color: var(--guide-teal);
+  text-decoration: underline;
+}
+
+#brim-guide-root .brim-guide__detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.8fr);
+  gap: 22px;
+}
+
+#brim-guide-root .brim-guide__detail-primary,
+#brim-guide-root .brim-guide__detail-aside,
+#brim-guide-root .brim-guide__prose-card,
+#brim-guide-root .brim-guide__content-card {
+  padding: 24px;
+  border: 1px solid var(--guide-line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+#brim-guide-root .brim-guide__path {
+  margin: 8px 0 22px;
+  padding: 15px;
+  border-left: 4px solid var(--guide-teal);
+  border-radius: 0 10px 10px 0;
+  color: var(--guide-teal-dark);
+  background: rgba(13, 111, 121, 0.08);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+#brim-guide-root .brim-guide__action-notice {
+  margin: 20px 0 28px;
+  padding: 18px;
+  border: 1px solid rgba(165, 108, 33, 0.26);
+  border-radius: 12px;
+  background: rgba(229, 190, 124, 0.17);
+}
+
+#brim-guide-root .brim-guide__action-notice p {
+  margin: 6px 0 0;
+  color: #66543b;
+  line-height: 1.5;
+}
+
+#brim-guide-root .brim-guide__detail-list {
+  margin: 0;
+}
+
+#brim-guide-root .brim-guide__detail-row {
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(20, 66, 73, 0.12);
+}
+
+#brim-guide-root .brim-guide__detail-row:first-child {
+  padding-top: 0;
+}
+
+#brim-guide-root .brim-guide__detail-row:last-child {
+  border-bottom: 0;
+}
+
+#brim-guide-root .brim-guide__detail-row dt {
+  margin-bottom: 3px;
+  color: var(--guide-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#brim-guide-root .brim-guide__detail-row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+#brim-guide-root .brim-guide__related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#brim-guide-root .brim-guide__related-item {
+  padding: 9px 12px;
+  border: 1px solid var(--guide-line);
+  border-radius: 999px;
+  color: var(--guide-teal-dark);
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__content-grid,
+#brim-guide-root .brim-guide__about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+#brim-guide-root .brim-guide__content-card p,
+#brim-guide-root .brim-guide__prose-card p {
+  color: var(--guide-muted);
+  line-height: 1.55;
+}
+
+#brim-guide-root .brim-guide__date {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+#brim-guide-root .brim-guide__primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--guide-teal-dark);
+  border-radius: 9px;
+  color: #fff;
+  background: var(--guide-teal-dark);
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#brim-guide-root .brim-guide__primary-button:hover {
+  background: var(--guide-teal);
+}
+
+@media (max-width: 900px) {
+  #brim-guide-root {
+    padding: 12px;
+  }
+
+  #brim-guide-root .brim-guide__shell {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+    height: calc(100dvh - 24px);
+    grid-template-columns: 190px minmax(0, 1fr);
+    border-radius: 18px;
+  }
+
+  #brim-guide-root .brim-guide__header {
+    grid-template-columns: 58px minmax(0, 1fr) auto 58px;
+    min-height: 88px;
+    padding: 10px;
+  }
+
+  #brim-guide-root .brim-guide__marks {
+    gap: 5px;
+  }
+
+  #brim-guide-root .brim-guide__mark {
+    width: 40px;
+    height: 46px;
+  }
+
+  #brim-guide-root .brim-guide__mark img {
+    max-width: 38px;
+    max-height: 42px;
+  }
+
+  #brim-guide-root .brim-guide__nav {
+    padding: 16px 10px;
+  }
+
+  #brim-guide-root .brim-guide__nav-item {
+    grid-template-columns: 32px minmax(0, 1fr);
+    padding: 9px;
+  }
+
+  #brim-guide-root .brim-guide__main {
+    padding: 30px 28px 56px;
+  }
+
+  #brim-guide-root .brim-guide__quick-grid,
+  #brim-guide-root .brim-guide__browse-columns,
+  #brim-guide-root .brim-guide__detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  #brim-guide-root {
+    display: block;
+    padding: 0;
+  }
+
+  #brim-guide-root .brim-guide__shell {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    border: 0;
+    border-radius: 0;
+  }
+
+  #brim-guide-root .brim-guide__header {
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr) auto 54px;
+    min-height: 78px;
+    gap: 5px;
+    padding: 8px 7px 8px 12px;
+  }
+
+  #brim-guide-root .brim-guide__close--left {
+    display: none;
+  }
+
+  #brim-guide-root .brim-guide__close--right {
+    grid-column: 3;
+    width: 44px;
+    height: 44px;
+  }
+
+  #brim-guide-root .brim-guide__home {
+    grid-column: 1;
+    grid-row: 1;
+    padding-left: 4px;
+  }
+
+  #brim-guide-root .brim-guide__home-name {
+    font-size: 1rem;
+  }
+
+  #brim-guide-root .brim-guide__marks {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #brim-guide-root .brim-guide__mark {
+    width: 30px;
+    height: 38px;
+  }
+
+  #brim-guide-root .brim-guide__mark img {
+    max-width: 29px;
+    max-height: 36px;
+  }
+
+  #brim-guide-root .brim-guide__nav {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 7px;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid var(--guide-line);
+  }
+
+  #brim-guide-root .brim-guide__nav-item {
+    min-width: 0;
+    min-height: 49px;
+    grid-template-columns: 25px minmax(0, 1fr);
+    gap: 4px;
+    padding: 6px 5px;
+    border-radius: 9px;
+  }
+
+  #brim-guide-root .brim-guide__nav-letter {
+    width: 24px;
+    height: 24px;
+    font-size: 0.72rem;
+  }
+
+  #brim-guide-root .brim-guide__nav-label {
+    overflow: hidden;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+  }
+
+  #brim-guide-root .brim-guide__main {
+    grid-column: 1;
+    grid-row: 3;
+    padding: 24px 16px 46px;
+  }
+
+  #brim-guide-root .brim-guide__footer {
+    grid-column: 1;
+    grid-row: 4;
+    min-height: 48px;
+    padding: 7px 14px;
+  }
+
+  #brim-guide-root .brim-guide__footer-status {
+    display: none;
+  }
+
+  #brim-guide-root .brim-guide__page-heading h1 {
+    font-size: clamp(2rem, 12vw, 3.3rem);
+  }
+
+  #brim-guide-root .brim-guide__quick-grid,
+  #brim-guide-root .brim-guide__browse-columns,
+  #brim-guide-root .brim-guide__content-grid,
+  #brim-guide-root .brim-guide__about-grid,
+  #brim-guide-root .brim-guide__detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #brim-guide-root .brim-guide__result {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  #brim-guide-root .brim-guide__result-kind,
+  #brim-guide-root .brim-guide__result-title,
+  #brim-guide-root .brim-guide__result-path,
+  #brim-guide-root .brim-guide__result-summary {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  #brim-guide-root .brim-guide__detail-primary,
+  #brim-guide-root .brim-guide__detail-aside,
+  #brim-guide-root .brim-guide__prose-card,
+  #brim-guide-root .brim-guide__content-card {
+    padding: 18px;
+  }
+}

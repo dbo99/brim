@@ -217,6 +217,12 @@ assert.deepStrictEqual(
 );
 
 const modalSource = extractFunction(panelSource, "ptOpenLayerExplorer");
+assert(modalSource.includes("window.BRIM_GUIDE && typeof window.BRIM_GUIDE.open === 'function'"),
+  "Existing Layer Explorer host does not delegate to BRIM Guide");
+assert(modalSource.includes("window.BRIM_GUIDE.open(document.activeElement)"),
+  "BRIM Guide entry does not preserve the invoking focus target");
+assert(modalSource.indexOf("return;") < modalSource.indexOf("var old ="),
+  "BRIM Guide delegation must return before constructing the legacy modal");
 assert(modalSource.includes("Partial catalog: all 26 currently cataloged records are shown"),
   "User-visible partial-catalog notice is missing");
 assert(modalSource.includes("data-pt-layer-explorer-id"), "Record selection control is missing");
@@ -224,11 +230,15 @@ assert(modalSource.includes("pt-layer-explorer-search"), "Search control is miss
 assert(modalSource.includes("pt-layer-explorer-architecture"), "Architecture filter is missing");
 assert(modalSource.includes("renderDetail(selectedRecord)"), "Selected-record detail rendering is missing");
 assert(!modalSource.includes("innerHTML"), "Catalog metadata must not be rendered with innerHTML");
-assert(!/(map\.|addLayer|removeLayer|dispatchEvent|fetch\(|XMLHttpRequest|ptClear|ptToggle|BRIM_)/.test(modalSource),
+const fallbackSource = modalSource.slice(modalSource.indexOf("var old ="));
+assert(!/(map\.|addLayer|removeLayer|dispatchEvent|fetch\(|XMLHttpRequest|ptClear|ptToggle|BRIM_)/.test(fallbackSource),
   "Layer Explorer modal contains a map, controller, clear/reset, or network hook");
 
 assert(panelSource.includes('id="pt-layer-explorer-btn"'), "Layer Explorer entry point is missing");
 assert(panelSource.includes("ptBind('pt-layer-explorer-btn'"), "Layer Explorer entry is not bound");
+assert(panelSource.includes('>BRIM Guide</button>'), "Existing Tools host does not name the superseding BRIM Guide");
+assert(panelSource.includes('Guide does not turn map layers on.'),
+  "Tools host does not state the GUIDE-I1 runtime-action boundary");
 assert(helperSource.includes('layer_explorer = layer_explorer_metadata'),
   "Build-time metadata is not injected through the existing Tools data payload");
 assert.strictEqual((helperSource.match(/BRIM_LAYER_CATALOG\.csv/g) || []).length, 1,

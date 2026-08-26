@@ -11448,6 +11448,13 @@ function(el, x, toolsData) {
   }
 
   function ptOpenLayerExplorer() {
+    // GUIDE-I1 supersedes the small M04 catalog modal through the same host
+    // entry. Keep the descriptive-only fallback below for source authority and
+    // graceful degradation; it remains incapable of changing map state.
+    if (window.BRIM_GUIDE && typeof window.BRIM_GUIDE.open === 'function') {
+      window.BRIM_GUIDE.open(document.activeElement);
+      return;
+    }
     var old = document.getElementById('pt-layer-explorer-overlay');
     if (old) return;
     var previouslyFocused = document.activeElement;
@@ -11766,9 +11773,9 @@ function(el, x, toolsData) {
       '<div id="pt-tools-status" class="pt-tools-status"></div>' +
 
       '<div class="pt-tools-section pt-layer-explorer-entry">' +
-        '<div class="pt-tools-heading">BRIM layer metadata</div>' +
-        '<button type="button" id="pt-layer-explorer-btn" class="pt-tools-btn pt-layer-explorer-open">Layer Explorer</button>' +
-        '<div class="pt-tools-muted">Read-only descriptive metadata. Partial catalog: 26 records, not every BRIM layer.</div>' +
+        '<div class="pt-tools-heading">BRIM product guidance</div>' +
+        '<button type="button" id="pt-layer-explorer-btn" class="pt-tools-btn pt-layer-explorer-open">BRIM Guide</button>' +
+        '<div class="pt-tools-muted">Search and browse all Products included in this build. Guide does not turn map layers on.</div>' +
       '</div>' +
 
       '<div class="pt-tools-section pt-active-external-section" id="pt-active-external-section">' +
