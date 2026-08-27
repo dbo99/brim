@@ -54,7 +54,9 @@ Discovery and historical evidence only. Never automatically controlling.
   `/08_docs/catalog/BRIM_LAYER_CATALOG.csv`
 - Descriptive catalog parity test: `/qa/test_descriptive_layer_catalog.R`
 - BRIM Guide architecture and onboarding boundary:
-  `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md` under **BRIM Guide foundation** (accepted V4 shell and typography roles, sole upper-left entry, complete 280-item A–Z layer/tool browse, three-layer Fire Perimeters Quick Access, SCAN display terminology, source-backed upload-tool detail, mailto contact, seven maintained Methods, three verified Updates, and current-build Legacy Notes retirement)
+  `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md` under **BRIM Guide foundation** (accepted V4 shell and typography roles, sole upper-left entry, complete 280-item A–Z layer/tool browse, combined BRIM-section/entity/subject/information-type filters, 21 source-backed rich Product records, 11 verified Quick Access destinations including the current curated `Water conveyance | BRIM mapped` layer, timing boundaries, mailto contact, seven maintained Methods, three verified Updates, and current-build Legacy Notes retirement)
+- BRIM Guide source-backed Product enrichment registry:
+  `/00_config/guide_product_enrichment.json` (stable-ID-keyed editorial content only; it cannot create Products or control map runtime behavior)
 - BRIM Guide build-time inventory/profile owner:
   `/03_functions/leaflet_guide_helpers.r`
 - BRIM Guide focused foundation test: `/qa/test_guide_foundation.R`

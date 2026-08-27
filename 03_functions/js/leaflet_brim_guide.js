@@ -61,8 +61,12 @@ function(el, x, data) {
     section: 'explore',
     view: 'landing',
     query: '',
-    browseDimension: '',
-    browseValue: '',
+    filters: {
+      brimSection: '',
+      entityType: '',
+      subject: '',
+      informationType: ''
+    },
     selectedId: '',
     quickIds: [],
     quickId: '',
@@ -154,8 +158,8 @@ function(el, x, data) {
     score = Math.max(score, maxFieldScore(query, aliases, 1100, 900, 500));
     score = Math.max(score, maxFieldScore(query, path, 800, 720, 460));
     score = Math.max(score, maxFieldScore(query, pathGroups, 760, 700, 440));
-    score = Math.max(score, maxFieldScore(query, [record.subject], 650, 620, 410));
-    score = Math.max(score, maxFieldScore(query, [record.mode], 600, 570, 390));
+    score = Math.max(score, maxFieldScore(query, asArray(record.subjectTags), 650, 620, 410));
+    score = Math.max(score, maxFieldScore(query, asArray(record.informationTypes), 600, 570, 390));
     score = Math.max(score, maxFieldScore(query, [record.family], 550, 520, 360));
     score = Math.max(score, maxFieldScore(query, [record.provider].concat(searchTerms), 420, 390, 260));
     score = Math.max(score, maxFieldScore(query, [record.summary], 250, 220, 150));
@@ -172,8 +176,8 @@ function(el, x, data) {
         record.title,
         aliases.join(' '),
         path.join(' '),
-        record.subject,
-        record.mode,
+        asArray(record.subjectTags).join(' '),
+        asArray(record.informationTypes).join(' '),
         record.family,
         record.provider,
         searchTerms.join(' '),
@@ -208,6 +212,22 @@ function(el, x, data) {
       })
       .slice(0, 60)
       .map(function(item) { return item.record; });
+  }
+
+  function hasActiveFilters() {
+    return Object.keys(state.filters).some(function(key) { return Boolean(state.filters[key]); });
+  }
+
+  function productMatchesFilters(product) {
+    if (state.filters.brimSection && product.brimSection !== state.filters.brimSection) return false;
+    if (state.filters.entityType && product.entityType !== state.filters.entityType) return false;
+    if (state.filters.subject && asArray(product.subjectTags).indexOf(state.filters.subject) < 0) return false;
+    if (state.filters.informationType && asArray(product.informationTypes).indexOf(state.filters.informationType) < 0) return false;
+    return true;
+  }
+
+  function filteredProducts() {
+    return products.filter(productMatchesFilters);
   }
 
   var root = node('div', 'brim-guide');
@@ -324,8 +344,7 @@ function(el, x, data) {
       section: state.section,
       view: state.view,
       query: state.query,
-      browseDimension: state.browseDimension,
-      browseValue: state.browseValue,
+      filters: Object.assign({}, state.filters),
       selectedId: state.selectedId,
       quickIds: state.quickIds.slice(),
       quickId: state.quickId,
@@ -489,36 +508,51 @@ function(el, x, data) {
     return intro;
   }
 
-  function renderBrowse() {
-    var browse = node('section', 'brim-guide__browse');
-    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', products.length + ' included'));
-    var browseColumns = node('div', 'brim-guide__browse-columns');
-    [
-      ['subject', 'Primary subject'],
-      ['mode', 'Information Type']
-    ].forEach(function(definition) {
-      var column = node('div', 'brim-guide__browse-column');
-      column.appendChild(node('h3', '', definition[1]));
-      var grid = node('div', 'brim-guide__browse-grid');
-      grid.classList.add('brim-guide__browse-grid--' + definition[0]);
-      var values = Array.from(new Set(products.map(function(product) {
-        return product[definition[0]];
-      }))).sort();
-      values.forEach(function(value) {
-        var count = products.filter(function(product) {
-          return product[definition[0]] === value;
-        }).length;
-        var browseButton = button('brim-guide__browse-item', '', 'browse');
-        browseButton.setAttribute('data-guide-dimension', definition[0]);
-        browseButton.setAttribute('data-guide-value', value);
-        browseButton.appendChild(node('span', '', value));
-        browseButton.appendChild(node('span', 'brim-guide__browse-count', count));
-        grid.appendChild(browseButton);
+  function filterValues(field) {
+    var values = [];
+    products.forEach(function(product) {
+      var productValues = field === 'subject'
+        ? asArray(product.subjectTags)
+        : field === 'informationType'
+          ? asArray(product.informationTypes)
+          : [product[field]];
+      productValues.forEach(function(value) {
+        if (value && values.indexOf(value) < 0) values.push(value);
       });
-      column.appendChild(grid);
-      browseColumns.appendChild(column);
     });
-    browse.appendChild(browseColumns);
+    return values.sort();
+  }
+
+  function filterSelect(field, label, values) {
+    var wrap = node('label', 'brim-guide__filter');
+    wrap.appendChild(node('span', '', label));
+    var select = node('select', 'brim-guide__filter-select');
+    select.setAttribute('data-guide-filter', field);
+    var allOption = node('option', '', 'All');
+    allOption.value = '';
+    select.appendChild(allOption);
+    values.forEach(function(value) {
+      var option = node('option', '', value);
+      option.value = value;
+      if (state.filters[field] === value) option.selected = true;
+      select.appendChild(option);
+    });
+    wrap.appendChild(select);
+    return wrap;
+  }
+
+  function renderFilters() {
+    var browse = node('section', 'brim-guide__browse');
+    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', filteredProducts().length + ' of ' + products.length));
+    var controls = node('div', 'brim-guide__filters');
+    controls.appendChild(filterSelect('brimSection', 'BRIM section', filterValues('brimSection')));
+    controls.appendChild(filterSelect('entityType', 'Entity type', filterValues('entityType')));
+    controls.appendChild(filterSelect('subject', 'Subject', filterValues('subject')));
+    controls.appendChild(filterSelect('informationType', 'Information Type', filterValues('informationType')));
+    var clear = button('brim-guide__clear-filters', 'Clear filters', 'filters-clear');
+    clear.disabled = !hasActiveFilters();
+    controls.appendChild(clear);
+    browse.appendChild(controls);
     return browse;
   }
 
@@ -527,7 +561,13 @@ function(el, x, data) {
 
     if (state.query) {
       var searchResults = search(state.query);
+      if (hasActiveFilters()) {
+        searchResults = searchResults.filter(function(record) {
+          return record.kind === 'Product' && productMatchesFilters(record);
+        });
+      }
       fragment.appendChild(pageHeading('A · Explore', 'Search results', state.query));
+      fragment.appendChild(renderFilters());
       fragment.appendChild(renderResults(
         searchResults,
         'No Guide records match that search. Try a shorter source-supported term.'
@@ -535,26 +575,14 @@ function(el, x, data) {
       return fragment;
     }
 
-    if (state.browseDimension && state.browseValue) {
-      var key = state.browseDimension === 'subject' ? 'subject' : 'mode';
-      var filtered = products.filter(function(product) {
-        return product[key] === state.browseValue;
-      });
-      var browseHeader = node('div', 'brim-guide__filtered-heading');
-      browseHeader.appendChild(pageHeading('A · Explore', state.browseValue, filtered.length + ' layers & tools'));
-      browseHeader.appendChild(button('brim-guide__text-button', '← All browse options', 'browse-clear'));
-      fragment.appendChild(browseHeader);
-      fragment.appendChild(renderResults(filtered));
-      return fragment;
-    }
-
     fragment.appendChild(renderIntro());
     fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
     var directory = node('div', 'brim-guide__explore-directory');
-    directory.appendChild(renderBrowse());
+    directory.appendChild(renderFilters());
+    var filtered = filteredProducts();
     var productSection = node('section', 'brim-guide__product-index');
-    productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', products.length + ' included'));
-    productSection.appendChild(renderResults(products, '', 'index'));
+    productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', filtered.length + ' of ' + products.length));
+    productSection.appendChild(renderResults(filtered, 'No layers or tools match the active filters.', 'index'));
     directory.appendChild(productSection);
     fragment.appendChild(directory);
     return fragment;
@@ -590,14 +618,16 @@ function(el, x, data) {
     var detailLayout = node('div', 'brim-guide__detail-layout');
     var dl = node('dl', 'brim-guide__detail-list');
     [
-      ['Subsystem', product.subsystem],
+      ['BRIM section', product.brimSection],
       ['Provider / program', product.provider],
-      ['Primary subject', product.subject],
-      ['Information type', product.mode],
+      ['Subjects', asArray(product.subjectTags).join(', ')],
+      ['Information Type', asArray(product.informationTypes).join(', ')],
       ['Layer / tool family', product.family],
-      ['Guide coverage', product.contentTier === 'curated'
-        ? 'Curated Guide detail'
-        : (product.customOrNonGeneric ? 'Custom or non-generic presentation' : 'Basic Guide entry')]
+      ['Guide coverage', product.contentTier === 'SOURCE_BACKED_RICH'
+        ? 'Source-backed rich detail'
+        : (product.contentTier === 'EDITORIAL_REVIEW_REQUIRED'
+          ? 'Editorial review required'
+          : 'Structured basic detail')]
     ].forEach(function(definition) {
       var row = detailRow(definition[0], definition[1]);
       if (row) dl.appendChild(row);
@@ -796,8 +826,7 @@ function(el, x, data) {
     state.section = 'explore';
     state.view = 'landing';
     state.query = '';
-    state.browseDimension = '';
-    state.browseValue = '';
+    state.filters = { brimSection: '', entityType: '', subject: '', informationType: '' };
     state.selectedId = '';
     state.quickIds = [];
     state.quickId = '';
@@ -847,8 +876,6 @@ function(el, x, data) {
       state.section = target.getAttribute('data-guide-section');
       state.view = 'landing';
       state.query = '';
-      state.browseDimension = '';
-      state.browseValue = '';
       state.selectedId = '';
       state.quickIds = [];
       state.quickId = '';
@@ -859,18 +886,8 @@ function(el, x, data) {
       focusMain(false);
     } else if (action === 'record') {
       openRecord(target.getAttribute('data-guide-record'));
-    } else if (action === 'browse') {
-      state.section = 'explore';
-      state.view = 'landing';
-      state.query = '';
-      state.browseDimension = target.getAttribute('data-guide-dimension');
-      state.browseValue = target.getAttribute('data-guide-value');
-      searchInput.value = '';
-      render();
-      focusMain(false);
-    } else if (action === 'browse-clear') {
-      state.browseDimension = '';
-      state.browseValue = '';
+    } else if (action === 'filters-clear') {
+      state.filters = { brimSection: '', entityType: '', subject: '', informationType: '' };
       render();
     } else if (action === 'quick') {
       var quickIds = String(target.getAttribute('data-guide-products') || '')
@@ -883,8 +900,6 @@ function(el, x, data) {
         state.section = 'explore';
         state.view = 'quick';
         state.query = '';
-        state.browseDimension = '';
-        state.browseValue = '';
         state.quickIds = quickIds;
         state.quickId = target.getAttribute('data-guide-quick') || '';
         state.quickLabel = target.textContent;
@@ -905,12 +920,28 @@ function(el, x, data) {
     }
   });
 
+  root.addEventListener('change', function(event) {
+    var select = event.target.closest('[data-guide-filter]');
+    if (!select || !root.contains(select)) return;
+    var field = select.getAttribute('data-guide-filter');
+    if (!Object.prototype.hasOwnProperty.call(state.filters, field)) return;
+    state.filters[field] = select.value;
+    state.section = 'explore';
+    state.view = 'landing';
+    state.selectedId = '';
+    state.quickIds = [];
+    state.quickId = '';
+    state.quickLabel = '';
+    state.history = [];
+    render();
+    var replacement = root.querySelector('[data-guide-filter="' + field + '"]');
+    if (replacement) replacement.focus();
+  });
+
   searchInput.addEventListener('input', function(event) {
     state.section = 'explore';
     state.view = 'landing';
     state.query = event.target.value;
-    state.browseDimension = '';
-    state.browseValue = '';
     state.selectedId = '';
     state.quickIds = [];
     state.quickId = '';

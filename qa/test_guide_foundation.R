@@ -64,11 +64,11 @@ product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
 assert_identical(bundle$profileId, "default", "Default profile ID changed")
-assert_identical(bundle$schemaVersion, 2L, "Structured Guide schema version changed")
+assert_identical(bundle$schemaVersion, 3L, "Structured Guide schema version changed")
 assert_identical(
   bundle$authority$coverage,
-  "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_CURATED_QUICK_ACCESS_CONTENT_FLOOR",
-  "Guide coverage authority no longer declares the curated Quick Access floor"
+  "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS",
+  "Guide coverage authority no longer declares source-backed vitals"
 )
 assert_identical(bundle$counts$products, 280L,
                  "Current default build should derive 280 included Products")
@@ -184,12 +184,25 @@ assert_true(setequal(vapply(ops_definitions, `[[`, character(1), "source_token")
             "Ops stable identity registry is not in source-definition parity")
 assert_true(!"ops_nws_surface_wind_barbs" %in% product_ids,
             "Hard-disabled Surface Wind Barbs leaked into default Guide")
+assert_true(!any(grepl("(^| / )PT_[A-Z0-9_]+($| / )", product_paths, perl = TRUE)),
+            "An internal Ops constant leaked into a user-facing Guide path")
+assert_identical(
+  bundle$products[[match("winter_storm_levels", product_ids)]]$pathLabel,
+  "Ops Live / Forecasts / Outlooks / Weather Forecasts / Outlooks / NBM Snow Levels",
+  "NBM Snow Levels path did not resolve its runtime display-name constant"
+)
 
 quick_product_ids <- unlist(lapply(bundle$quickAccess, `[[`, "productIds"), use.names = FALSE)
 assert_true(all(quick_product_ids %in% product_ids),
             "Quick Access references an unavailable Product")
 assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "label"),
-                 c("HUC8 – PRISM/BCMv8", "Groundwater Basins – Bulletin 118", "Fire Perimeters"),
+                 c(
+                   "HUC8 – PRISM/BCMv8", "Groundwater Basins – Bulletin 118",
+                   "Fire Perimeters", "NBM Snow Levels", "Water-Supply Basin Forecasts",
+                   "Delta Operations", "USGS Streamflow", "USGS Groundwater",
+                   "USDA / SCAN Soil Moisture", "Snow-Pillow SWE",
+                   "Water conveyance | BRIM mapped"
+                 ),
                  "Verified Quick Access configuration changed")
 fire <- bundle$quickAccess[[which(vapply(bundle$quickAccess, `[[`, character(1), "id") == "quick_fire_perimeters")]]
 expected_fire_ids <- c("EXT070", "EXT072", "EXT074")
@@ -255,7 +268,7 @@ assert_true(all(vapply(
 
 external_tool <- record_by_id(bundle$products, "tool_external_gis_overlay")
 local_tool <- record_by_id(bundle$products, "tool_local_gis_upload")
-assert_true(all(c(external_tool$contentTier, local_tool$contentTier) == "curated"),
+assert_true(all(c(external_tool$contentTier, local_tool$contentTier) == "SOURCE_BACKED_RICH"),
             "Upload tools lost source-backed structured Guide content")
 assert_true(all(vapply(
   c("FeatureServer", "MapServer", "ImageServer", "GeoJSON", "SQL filters",
@@ -271,14 +284,13 @@ assert_true(all(vapply(
 )), "Local GIS File Upload capabilities are incomplete")
 
 huc8 <- record_by_id(bundle$products, "huc8")
-assert_identical(huc8$contentTier, "curated", "HUC8 lost curated Guide detail")
-assert_true(nzchar(huc8$summary) && length(huc8$sections) == 6L,
+assert_identical(huc8$contentTier, "SOURCE_BACKED_RICH", "HUC8 lost source-backed Guide detail")
+assert_true(nzchar(huc8$summary) && length(huc8$sections) == 4L,
             "HUC8 curated summary/section floor is incomplete")
-assert_identical(
-  section_by_id(huc8, "huc8_display_modes")$items,
+assert_true(all(vapply(
   unname(vapply(PT_HUC_THEME_REGISTRY, `[[`, character(1), "label")),
-  "HUC8 display modes drifted from current theme authority"
-)
+  function(label) grepl(label, section_text(huc8), fixed = TRUE), logical(1)
+)), "HUC8 display modes drifted from current theme authority")
 huc8_text <- section_text(huc8)
 assert_true(all(vapply(
   c("EPSG:3310", "exact polygon weights", "Geometry-free climate/recharge tables",
@@ -309,14 +321,13 @@ assert_identical(bcm_resource$url, "https://www.sciencebase.gov/catalog/item/5f2
                  "HUC8 BCMv8 ScienceBase link changed")
 
 bulletin118 <- record_by_id(bundle$products, "gw_bull118")
-assert_identical(bulletin118$contentTier, "curated", "Bulletin 118 lost curated Guide detail")
-assert_true(nzchar(bulletin118$summary) && length(bulletin118$sections) == 5L,
+assert_identical(bulletin118$contentTier, "SOURCE_BACKED_RICH", "Bulletin 118 lost source-backed Guide detail")
+assert_true(nzchar(bulletin118$summary) && length(bulletin118$sections) == 3L,
             "Bulletin 118 curated summary/section floor is incomplete")
-assert_identical(
-  section_by_id(bulletin118, "bulletin118_display_modes")$items,
+assert_true(all(vapply(
   c("Basins only", "DWR SGMA 2019 Basin Prioritization", "BLM-managed land — %"),
-  "Bulletin 118 display modes changed"
-)
+  function(label) grepl(label, section_text(bulletin118), fixed = TRUE), logical(1)
+)), "Bulletin 118 display modes changed")
 bulletin_text <- section_text(bulletin118)
 assert_true(all(vapply(
   c("515 retained basin records", "exact basin/subbasin code", "20 m distance tolerance",
@@ -333,7 +344,7 @@ assert_identical(
 fire_recent <- record_by_id(bundle$products, "EXT070")
 fire_all <- record_by_id(bundle$products, "EXT072")
 fire_current <- record_by_id(bundle$products, "EXT074")
-assert_true(all(c(fire_recent$contentTier, fire_all$contentTier, fire_current$contentTier) == "curated"),
+assert_true(all(c(fire_recent$contentTier, fire_all$contentTier, fire_current$contentTier) == "SOURCE_BACKED_RICH"),
             "Fire Perimeters Products lost curated Guide detail")
 assert_true(grepl("CAL FIRE", section_text(fire_recent), fixed = TRUE) &&
               grepl("full historical CAL FIRE", section_text(fire_all), fixed = TRUE) &&
@@ -355,6 +366,119 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
   nzchar(row$layer) && nzchar(row$parameter) && nzchar(row$disclosure)
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
+enrichment <- pt_guide_read_product_enrichment()
+assert_identical(length(enrichment), 21L,
+                 "GUIDE-I2A enrichment inventory changed without review")
+assert_true(all(vapply(enrichment, function(record) {
+  length(record$source_refs) > 0L &&
+    all(nzchar(as.character(unlist(record$source_refs, use.names = FALSE))))
+}, logical(1))), "Every enriched field set must identify current source authority")
+assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
+              "brim_mapped_conveyance" %in% product_ids &&
+              "brim_mapped_conveyance" %in% quick_product_ids &&
+              !"major_conveyance" %in% product_ids,
+            "Quick Access must use the current BRIM-mapped conveyance Product, not its legacy source layer")
+
+content_tiers <- table(vapply(bundle$products, `[[`, character(1), "contentTier"))
+assert_identical(as.integer(content_tiers[c("SOURCE_BACKED_RICH", "STRUCTURED_BASIC")]),
+                 c(21L, 259L), "GUIDE-I2A content-tier counts changed")
+assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
+            "Unexpected editorial-review tier entered the current profile")
+assert_true(all(vapply(bundle$products, function(product) {
+  all(nzchar(c(product$id, product$title, product$entityType, product$brimSection,
+               product$pathLabel, product$provider))) &&
+    length(product$subjectTags) > 0L && length(product$informationTypes) > 0L
+}, logical(1))), "A Product missed the structured minimum content floor")
+assert_true(!any(vapply(bundle$products, function(product) {
+  nzchar(product$summary) && grepl(
+    "This Product is available in BRIM|may be useful for analysis|See the map for more information",
+    product$summary, ignore.case = TRUE, perl = TRUE
+  )
+}, logical(1))), "A generic filler summary entered the Product inventory")
+
+allowed_information_types <- c(
+  "Static Reference", "Live Observation", "Forecast / Outlook",
+  "Historical Context", "Screening / Derived", "External On-Demand Service",
+  "Tool / Workflow"
+)
+all_information_types <- unique(unlist(lapply(bundle$products, `[[`, "informationTypes"), use.names = FALSE))
+assert_true(all(all_information_types %in% allowed_information_types) &&
+              !any(grepl("Data / Guidance Mode|Guidance Method|Interactive workflow|Static reference",
+                         all_information_types, fixed = FALSE, perl = TRUE)),
+            "Information Type vocabulary is not user-facing or controlled")
+assert_true(any(vapply(bundle$products, function(product) length(product$subjectTags) > 1L, logical(1))),
+            "Explicit taxonomy does not support multiple subject tags")
+
+fire_weather_ids <- vapply(Filter(function(product) {
+  "Fire Weather" %in% product$subjectTags
+}, bundle$products), `[[`, character(1), "id")
+assert_true(setequal(fire_weather_ids, c("EXT066", "EXT067", "EXT068", "EXT069", "EXT071", "EXT073", "EXT075", "EXT076")),
+            "Fire Weather taxonomy does not match the structured External subgroup")
+assert_true(all(vapply(Filter(function(product) product$id %in% fire_weather_ids, bundle$products), function(product) {
+  all(c("Fire Weather", "Weather & Forecasts") %in% product$subjectTags)
+}, logical(1))), "Fire-weather outlooks lost multi-tag Weather & Forecasts membership")
+matches_filters <- function(product, brim_section = "", entity_type = "", subject = "", information_type = "") {
+  (!nzchar(brim_section) || identical(product$brimSection, brim_section)) &&
+    (!nzchar(entity_type) || identical(product$entityType, entity_type)) &&
+    (!nzchar(subject) || subject %in% product$subjectTags) &&
+    (!nzchar(information_type) || information_type %in% product$informationTypes)
+}
+combined_fire_weather <- Filter(function(product) matches_filters(
+  product, "External", "Layer", "Fire Weather", "Forecast / Outlook"
+), bundle$products)
+assert_true(setequal(vapply(combined_fire_weather, `[[`, character(1), "id"), fire_weather_ids) &&
+              !anyDuplicated(vapply(combined_fire_weather, `[[`, character(1), "id")),
+            "Combined section/entity/subject/Information Type filtering duplicates or loses Products")
+assert_identical(length(Filter(matches_filters, bundle$products)), length(bundle$products),
+                 "Clearing filters does not restore the complete projected Product inventory")
+assert_identical(scan$subjectTags, "Soil Moisture",
+                 "SCAN Soil Moisture gained an unrelated inferred subject")
+assert_true(all(c("Live Observation", "Historical Context") %in% scan$informationTypes),
+            "SCAN Information Type tags are incomplete")
+
+rich_probe_ids <- c(
+  "huc8", "gw_bull118", "EXT070", "EXT072", "EXT074", "blm_diffs",
+  "wild_scenic_rivers_blm_ca_lines", "wild_scenic_rivers_usfs_interagency_segments",
+  "wild_scenic_river_corridors_blm_ca", "wild_scenic_river_corridors_usfs_lsrs",
+  "wild_scenic_river_legal_status_corridors_usfs_lsrs", "ops_scan_soil_moisture",
+  "ops_snow_pillow_swe", "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater",
+  "winter_storm_levels", "ops_major_water_supply_forecasts", "ops_delta_snapshot",
+  "brim_mapped_conveyance", "tool_local_gis_upload", "tool_external_gis_overlay"
+)
+assert_true(all(vapply(rich_probe_ids, function(id) {
+  product <- record_by_id(bundle$products, id)
+  !is.null(product) && identical(product$contentTier, "SOURCE_BACKED_RICH") &&
+    nzchar(product$summary) && length(product$sections) >= 2L &&
+    all(vapply(product$sections, function(section) length(section$items) > 0L, logical(1)))
+}, logical(1))), "A profile-included high-priority probe missed source-backed rich content")
+
+conveyance <- record_by_id(bundle$products, "brim_mapped_conveyance")
+assert_identical(conveyance$pathLabel,
+                 "Basemaps / Local Layers / Channels / Water conveyance | BRIM mapped",
+                 "Current BRIM-mapped conveyance path changed")
+assert_true(grepl("curated statewide water-conveyance layer", conveyance$summary, fixed = TRUE) &&
+              grepl("multiple reviewed source datasets", conveyance$summary, fixed = TRUE) &&
+              grepl("various reviewed source datasets", section_text(conveyance), fixed = TRUE),
+            "BRIM-mapped conveyance summary no longer describes its curated multi-source role")
+
+timing_probe_ids <- c(
+  "ops_scan_soil_moisture", "ops_snow_pillow_swe", "ops_streamflow_usgs_ca",
+  "product-ops-usgs-groundwater", "winter_storm_levels",
+  "ops_major_water_supply_forecasts", "ops_delta_snapshot"
+)
+assert_true(all(vapply(timing_probe_ids, function(id) {
+  product <- record_by_id(bundle$products, id)
+  text <- section_text(product)
+  grepl("fetch time", text, ignore.case = TRUE) &&
+    grepl("distinct", text, ignore.case = TRUE) &&
+    grepl("not a guarantee|do(es)? not guarantee|does not establish a producer schedule guarantee", text,
+          ignore.case = TRUE, perl = TRUE)
+}, logical(1))), "Timing probes conflate timestamp meanings or imply producer guarantees")
+
+assert_true(all(vapply(bundle$quickAccess, function(item) {
+  identical(item$entityType, "Collection") && all(item$productIds %in% product_ids)
+}, logical(1))), "Quick Access collections lost valid stable-ID membership")
+
 duplicate_id <- bundle
 duplicate_id$products[[2]]$id <- duplicate_id$products[[1]]$id
 assert_error(pt_validate_guide_bundle(duplicate_id),
@@ -372,6 +496,15 @@ missing_fire$quickAccess[[match("quick_fire_perimeters", vapply(
 assert_error(pt_validate_guide_bundle(missing_fire),
              "Quick Access references an unavailable Product",
              "Missing Fire Perimeters stable ID did not fail validation")
+empty_quick <- bundle
+empty_quick$quickAccess[[1]]$productIds <- character(0)
+assert_error(pt_validate_guide_bundle(empty_quick),
+             "Quick Access collections require unique IDs, labels, summaries, and Collection type",
+             "An empty Quick Access collection passed bundle validation")
+empty_quick_projected <- pt_project_guide_bundle(empty_quick, profile_id = "empty_quick_projection_test")
+assert_true(!empty_quick$quickAccess[[1]]$id %in% vapply(
+  empty_quick_projected$quickAccess, `[[`, character(1), "id"
+), "An empty Quick Access collection survived profile projection")
 
 excluded <- c(
   "huc8", "EXT070", "resource_usgs_water_dashboard",
@@ -453,6 +586,19 @@ assert_true(grepl("searchResults", guide_js, fixed = TRUE) &&
               grepl("filtered", guide_js, fixed = TRUE) &&
               grepl("function renderResults", guide_js, fixed = TRUE),
             "Search and browse do not share one result renderer")
+assert_true(grepl("function productMatchesFilters", guide_js, fixed = TRUE) &&
+              grepl("function filteredProducts", guide_js, fixed = TRUE) &&
+              grepl("state.filters.brimSection", guide_js, fixed = TRUE) &&
+              grepl("state.filters.entityType", guide_js, fixed = TRUE) &&
+              grepl("asArray(product.subjectTags).indexOf", guide_js, fixed = TRUE) &&
+              grepl("asArray(product.informationTypes).indexOf", guide_js, fixed = TRUE) &&
+              grepl("data-guide-filter", guide_js, fixed = TRUE) &&
+              grepl("filters-clear", guide_js, fixed = TRUE),
+            "Shared combined section/entity/subject/Information Type filtering is incomplete")
+assert_true(grepl("searchResults.filter", guide_js, fixed = TRUE) &&
+              grepl("filtered = filteredProducts()", guide_js, fixed = TRUE) &&
+              grepl("renderResults(filtered", guide_js, fixed = TRUE),
+            "Search, filters, and A-Z do not use the same projected Product set")
 assert_true(grepl("brim-guide__close--left", guide_js, fixed = TRUE) &&
               grepl("brim-guide__close--right", guide_js, fixed = TRUE) &&
               grepl(".brim-guide__close--left", guide_css, fixed = TRUE),
@@ -472,7 +618,7 @@ assert_true(grepl("Find in layer list", guide_js, fixed = TRUE) &&
               grepl("products.sort(function(a, b)", guide_js, fixed = TRUE) &&
               grepl("normalize(a.title)", guide_js, fixed = TRUE) &&
               grepl("String(a.id || '')", guide_js, fixed = TRUE) &&
-              grepl("renderResults(products, '', 'index')", guide_js, fixed = TRUE) &&
+              grepl("renderResults(filtered, 'No layers or tools match the active filters.', 'index')", guide_js, fixed = TRUE) &&
               !grepl("products.slice(0, 10)", guide_js, fixed = TRUE),
             "Exact-path locator or complete stable A-Z layer/tool index is missing")
 assert_true(grepl("brim-guide__results--index", guide_css, fixed = TRUE) &&
@@ -481,10 +627,10 @@ assert_true(grepl("brim-guide__results--index", guide_css, fixed = TRUE) &&
               grepl("list.tabIndex = 0", guide_js, fixed = TRUE),
             "A-Z inventory is not a bounded accessible scroll region")
 assert_true(grepl("grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr)", guide_css, fixed = TRUE) &&
-              grepl("brim-guide__browse-grid--subject", guide_css, fixed = TRUE) &&
-              grepl("brim-guide__browse-grid--mode", guide_css, fixed = TRUE) &&
-              grepl("repeat(auto-fit", guide_css, fixed = TRUE) &&
-              grepl("white-space: normal; text-overflow: clip", guide_css, fixed = TRUE) &&
+              grepl("brim-guide__filters", guide_css, fixed = TRUE) &&
+              grepl("brim-guide__filter-select", guide_css, fixed = TRUE) &&
+              grepl("repeat(4, minmax(120px, 1fr))", guide_css, fixed = TRUE) &&
+              grepl("grid-template-columns: 1fr", guide_css, fixed = TRUE) &&
               grepl("max-width: 1199px", guide_css, fixed = TRUE),
             "Browse-dominant desktop, stacked facets, readable labels, or intermediate stacking is missing")
 assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &&
@@ -504,9 +650,13 @@ assert_true(!grepl("huc8|gw_bull118|EXT070|EXT074|PRISM/BCMv8|Bulletin 118", gui
 assert_true(!grepl("tool_local_gis_upload|tool_external_gis_overlay|EXT072", guide_js,
                    fixed = FALSE, perl = TRUE),
             "New content introduced a record-specific browser branch")
+assert_true(!grepl("source_refs|sourceRefs|runtimeStatus|freshnessStatus|nextExpectedUpdate",
+                   projected_json, fixed = FALSE, perl = TRUE),
+            "Source evidence or generalized runtime-status fields leaked into the browser payload")
 assert_true(all(vapply(
   c("Search layers, tools, methods, resources, and updates",
     "Browse BRIM layers & tools", "All Layers & Tools A–Z", "Information Type",
+    "BRIM section", "Entity type", "Subject", "Clear filters",
     "Related Layers & Tools", "Collection · Quick Access", "Open email draft"),
   function(probe) grepl(probe, guide_js, fixed = TRUE),
   logical(1)
@@ -538,8 +688,8 @@ assert_true(grepl(".brim-guide__method-body .brim-guide__structured-section p", 
 assert_true(grepl("record.title], 1200", guide_js, fixed = TRUE) &&
               grepl("aliases, 1100", guide_js, fixed = TRUE) &&
               grepl("path, 800", guide_js, fixed = TRUE) &&
-              grepl("record.subject], 650", guide_js, fixed = TRUE) &&
-              grepl("record.mode], 600", guide_js, fixed = TRUE),
+              grepl("asArray(record.subjectTags), 650", guide_js, fixed = TRUE) &&
+              grepl("asArray(record.informationTypes), 600", guide_js, fixed = TRUE),
             "Deterministic V4 search weight ordering changed")
 score_source <- sub("^[\\s\\S]*?function scoreRecord", "function scoreRecord", guide_js, perl = TRUE)
 score_source <- sub("function search[\\s\\S]*$", "", score_source, perl = TRUE)
@@ -578,8 +728,11 @@ assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = 
 assert_true(!grepl("prototype diagnostic|editorial review|source_file", projected_json,
                    ignore.case = TRUE, perl = TRUE),
             "Prototype/source/audit diagnostics leaked into Guide payload")
+assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|producer QA", projected_json,
+                   ignore.case = TRUE, perl = TRUE),
+            "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I1 foundation contracts passed.\n")
+cat("GUIDE-I2A source-backed vitals contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
