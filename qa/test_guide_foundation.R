@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Focused source-only GUIDE-I1 contracts. No map build, cache mutation,
+# Focused source-only BRIM Guide contracts. No map build, cache mutation,
 # preprocessor, or network access occurs here.
 
 fail <- function(message) stop(message, call. = FALSE)
@@ -64,14 +64,14 @@ product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
 assert_identical(bundle$profileId, "default", "Default profile ID changed")
-assert_identical(bundle$schemaVersion, 3L, "Structured Guide schema version changed")
+assert_identical(bundle$schemaVersion, 4L, "Structured Guide schema version changed")
 assert_identical(
   bundle$authority$coverage,
-  "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS",
+  "ALL_INCLUDED_NON_BASEMAP_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS",
   "Guide coverage authority no longer declares source-backed vitals"
 )
-assert_identical(bundle$counts$products, 280L,
-                 "Current default build should derive 280 included Products")
+assert_identical(bundle$counts$products, 270L,
+                 "Current default Guide should derive 270 post-basemap Products")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
 assert_identical(bundle$counts$resources, 9L,
@@ -84,10 +84,10 @@ assert_identical(sum(product_subsystems == "Ops Live"), 47L,
                  "Ops Live active Product projection changed")
 assert_identical(sum(product_subsystems == "Tools"), 5L,
                  "Tools Product projection changed")
-assert_identical(sum(product_subsystems == "Basemaps / Local Layers"), 53L,
-                 "Local plus basemap Product projection changed")
+assert_identical(sum(product_subsystems == "Basemaps / Local Layers"), 43L,
+                 "Local Product projection changed")
 product_entity_types <- vapply(bundle$products, `[[`, character(1), "entityType")
-assert_identical(sum(product_entity_types == "Layer"), 275L,
+assert_identical(sum(product_entity_types == "Layer"), 265L,
                  "Guide layer entity projection changed")
 assert_identical(sum(product_entity_types == "Tool"), 5L,
                  "Guide tool entity projection changed")
@@ -107,6 +107,17 @@ assert_true(sum(grepl("^wild_scenic_river", product_ids)) == 5L,
             "Five current Wild & Scenic River control Products were not reconciled")
 assert_true(!any(grepl("^Labels", product_paths)),
             "Label-only overlay rows must remain explicit non-Products")
+runtime_basemaps <- pt_guide_basemap_products()
+runtime_basemap_ids <- vapply(runtime_basemaps, `[[`, character(1), "id")
+assert_identical(runtime_basemap_ids, pt_guide_basemap_ids(),
+                 "Runtime-derived basemap identity changed")
+assert_identical(vapply(runtime_basemaps, `[[`, character(1), "title"), pt_base_groups(),
+                 "Guide-side runtime basemap adapter no longer reflects pt_base_groups()")
+assert_true(!any(runtime_basemap_ids %in% product_ids) &&
+              !any(vapply(bundle$products, `[[`, character(1), "brimSection") == "Basemap"),
+            "Basemap records entered the projected Guide corpus")
+assert_identical(pt_guide_supported_profiles()$default$excluded_ids, runtime_basemap_ids,
+                 "Default profile does not explicitly exclude every runtime basemap Product")
 
 method_ids <- vapply(bundle$articles, `[[`, character(1), "id")
 method_titles <- vapply(bundle$articles, `[[`, character(1), "title")
@@ -167,6 +178,8 @@ without_enrichment <- c(
   pt_guide_basemap_products(),
   pt_guide_tool_products(MAP_DISPLAY)
 )
+without_enrichment <- Filter(function(product) !product$id %in% runtime_basemap_ids,
+                             without_enrichment)
 assert_identical(
   vapply(without_enrichment, `[[`, character(1), "id"),
   product_ids,
@@ -192,7 +205,10 @@ assert_identical(
   "NBM Snow Levels path did not resolve its runtime display-name constant"
 )
 
-quick_product_ids <- unlist(lapply(bundle$quickAccess, `[[`, "productIds"), use.names = FALSE)
+quick_members <- function(item) {
+  if (identical(item$entryKind, "collection")) item$memberIds else item$productId
+}
+quick_product_ids <- unlist(lapply(bundle$quickAccess, quick_members), use.names = FALSE)
 assert_true(all(quick_product_ids %in% product_ids),
             "Quick Access references an unavailable Product")
 assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "label"),
@@ -204,14 +220,37 @@ assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "label"),
                    "Water conveyance | BRIM mapped"
                  ),
                  "Verified Quick Access configuration changed")
+assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "entryKind"),
+                 c("layer", "layer", "collection", "layer", "layer", "layer",
+                   "collection", "collection", "layer", "layer", "layer"),
+                 "Quick Access layer/tool/collection classification changed")
+assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "typeLabel"),
+                 c("Layer", "Layer", "Collection · 3 layers", "Layer", "Layer", "Layer",
+                   "Collection · 2 BRIM views", "Collection · 2 BRIM views",
+                   "Layer", "Layer", "Layer"),
+                 "Quick Access visible type labels changed")
 fire <- bundle$quickAccess[[which(vapply(bundle$quickAccess, `[[`, character(1), "id") == "quick_fire_perimeters")]]
 expected_fire_ids <- c("EXT070", "EXT072", "EXT074")
-assert_identical(fire$productIds, expected_fire_ids,
+assert_identical(fire$memberIds, expected_fire_ids,
                  "Fire Perimeters collection must use explicit stable IDs")
 assert_true(!length(setdiff(expected_fire_ids, product_ids)),
             "A required Fire Perimeters layer is missing from the current profile")
-assert_true(!length(setdiff(fire$productIds, expected_fire_ids)),
+assert_true(!length(setdiff(fire$memberIds, expected_fire_ids)),
             "An unrelated layer entered the Fire Perimeters collection")
+streamflow_quick <- bundle$quickAccess[[match(
+  "quick_usgs_streamflow", vapply(bundle$quickAccess, `[[`, character(1), "id")
+)]]
+groundwater_quick <- bundle$quickAccess[[match(
+  "quick_usgs_groundwater", vapply(bundle$quickAccess, `[[`, character(1), "id")
+)]]
+assert_identical(streamflow_quick$memberIds, c("usgs_streamgages", "ops_streamflow_usgs_ca"),
+                 "USGS Streamflow did not retain distinct Local and Ops Live Product IDs")
+assert_identical(groundwater_quick$memberIds, c("usgs_wells", "product-ops-usgs-groundwater"),
+                 "USGS Groundwater did not retain distinct Local and Ops Live Product IDs")
+assert_identical(vapply(bundle$products[match(streamflow_quick$memberIds, product_ids)], `[[`, character(1), "brimSection"),
+                 c("Local", "Ops Live"), "USGS Streamflow collection paths lost subsystem identity")
+assert_identical(vapply(bundle$products[match(groundwater_quick$memberIds, product_ids)], `[[`, character(1), "brimSection"),
+                 c("Local", "Ops Live"), "USGS Groundwater collection paths lost subsystem identity")
 assert_true(all(vapply(bundle$quickAccess, function(item) nzchar(item$summary), logical(1))),
             "Every curated Quick Access entry requires a useful summary")
 assert_true(grepl("Three complementary perimeter layers", fire$summary, fixed = TRUE) &&
@@ -381,7 +420,7 @@ assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
 
 content_tiers <- table(vapply(bundle$products, `[[`, character(1), "contentTier"))
 assert_identical(as.integer(content_tiers[c("SOURCE_BACKED_RICH", "STRUCTURED_BASIC")]),
-                 c(21L, 259L), "GUIDE-I2A content-tier counts changed")
+                 c(21L, 249L), "GUIDE-I2A content-tier counts changed")
 assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
             "Unexpected editorial-review tier entered the current profile")
 assert_true(all(vapply(bundle$products, function(product) {
@@ -417,20 +456,39 @@ assert_true(setequal(fire_weather_ids, c("EXT066", "EXT067", "EXT068", "EXT069",
 assert_true(all(vapply(Filter(function(product) product$id %in% fire_weather_ids, bundle$products), function(product) {
   all(c("Fire Weather", "Weather & Forecasts") %in% product$subjectTags)
 }, logical(1))), "Fire-weather outlooks lost multi-tag Weather & Forecasts membership")
-matches_filters <- function(product, brim_section = "", entity_type = "", subject = "", information_type = "") {
-  (!nzchar(brim_section) || identical(product$brimSection, brim_section)) &&
-    (!nzchar(entity_type) || identical(product$entityType, entity_type)) &&
-    (!nzchar(subject) || subject %in% product$subjectTags) &&
-    (!nzchar(information_type) || information_type %in% product$informationTypes)
+matches_filters <- function(product, brim_sections = character(0), subjects = character(0),
+                            information_types = character(0)) {
+  (!length(brim_sections) || product$brimSection %in% brim_sections) &&
+    (!length(subjects) || any(subjects %in% product$subjectTags)) &&
+    (!length(information_types) || any(information_types %in% product$informationTypes))
 }
 combined_fire_weather <- Filter(function(product) matches_filters(
-  product, "External", "Layer", "Fire Weather", "Forecast / Outlook"
+  product, "External", "Fire Weather", "Forecast / Outlook"
 ), bundle$products)
 assert_true(setequal(vapply(combined_fire_weather, `[[`, character(1), "id"), fire_weather_ids) &&
               !anyDuplicated(vapply(combined_fire_weather, `[[`, character(1), "id")),
-            "Combined section/entity/subject/Information Type filtering duplicates or loses Products")
+            "Combined Where/Subject/Information Type filtering duplicates or loses Products")
 assert_identical(length(Filter(matches_filters, bundle$products)), length(bundle$products),
                  "Clearing filters does not restore the complete projected Product inventory")
+subject_or <- Filter(function(product) matches_filters(
+  product, subjects = c("Groundwater", "Soil Moisture")
+), bundle$products)
+assert_true(all(vapply(subject_or, function(product) {
+  any(c("Groundwater", "Soil Moisture") %in% product$subjectTags)
+}, logical(1))) && !anyDuplicated(vapply(subject_or, `[[`, character(1), "id")),
+"Primary Subject multi-select is not OR-within without duplication")
+local_soil <- Filter(function(product) matches_filters(
+  product, brim_sections = "Local", subjects = "Soil Moisture"
+), bundle$products)
+assert_true(all(vapply(local_soil, function(product) {
+  identical(product$brimSection, "Local") && "Soil Moisture" %in% product$subjectTags
+}, logical(1))), "Local + Soil Moisture returned a Product outside both selected facets")
+local_groundwater <- Filter(function(product) matches_filters(
+  product, brim_sections = "Local", subjects = "Groundwater"
+), bundle$products)
+assert_true(length(local_groundwater) > 0L && all(vapply(local_groundwater, function(product) {
+  identical(product$brimSection, "Local") && "Groundwater" %in% product$subjectTags
+}, logical(1))), "Where in BRIM and Primary Subject are not AND-across")
 assert_identical(scan$subjectTags, "Soil Moisture",
                  "SCAN Soil Moisture gained an unrelated inferred subject")
 assert_true(all(c("Live Observation", "Historical Context") %in% scan$informationTypes),
@@ -476,8 +534,9 @@ assert_true(all(vapply(timing_probe_ids, function(id) {
 }, logical(1))), "Timing probes conflate timestamp meanings or imply producer guarantees")
 
 assert_true(all(vapply(bundle$quickAccess, function(item) {
-  identical(item$entityType, "Collection") && all(item$productIds %in% product_ids)
-}, logical(1))), "Quick Access collections lost valid stable-ID membership")
+  item$entryKind %in% c("layer", "tool", "collection") &&
+    all(quick_members(item) %in% product_ids)
+}, logical(1))), "Quick Access entries lost typed stable-ID membership")
 
 duplicate_id <- bundle
 duplicate_id$products[[2]]$id <- duplicate_id$products[[1]]$id
@@ -492,17 +551,20 @@ assert_error(pt_validate_guide_bundle(duplicate_path),
 missing_fire <- bundle
 missing_fire$quickAccess[[match("quick_fire_perimeters", vapply(
   missing_fire$quickAccess, `[[`, character(1), "id"
-))]]$productIds <- c(expected_fire_ids, "EXT_DOES_NOT_EXIST")
+))]]$memberIds <- c(expected_fire_ids, "EXT_DOES_NOT_EXIST")
 assert_error(pt_validate_guide_bundle(missing_fire),
              "Quick Access references an unavailable Product",
              "Missing Fire Perimeters stable ID did not fail validation")
 empty_quick <- bundle
-empty_quick$quickAccess[[1]]$productIds <- character(0)
+empty_quick_index <- match("quick_fire_perimeters", vapply(
+  empty_quick$quickAccess, `[[`, character(1), "id"
+))
+empty_quick$quickAccess[[empty_quick_index]]$memberIds <- character(0)
 assert_error(pt_validate_guide_bundle(empty_quick),
-             "Quick Access collections require unique IDs, labels, summaries, and Collection type",
+             "Quick Access entries require valid typed identity, labels, summaries, and exact Product membership",
              "An empty Quick Access collection passed bundle validation")
 empty_quick_projected <- pt_project_guide_bundle(empty_quick, profile_id = "empty_quick_projection_test")
-assert_true(!empty_quick$quickAccess[[1]]$id %in% vapply(
+assert_true(!empty_quick$quickAccess[[empty_quick_index]]$id %in% vapply(
   empty_quick_projected$quickAccess, `[[`, character(1), "id"
 ), "An empty Quick Access collection survived profile projection")
 
@@ -517,8 +579,13 @@ for (probe in excluded) {
   assert_true(!grepl(probe, projected_json, fixed = TRUE),
               paste("Profile exclusion leaked into embedded payload:", probe))
 }
-assert_true(!grepl("quick_huc8|quick_fire_perimeters", projected_json, perl = TRUE),
-            "Unavailable Quick Access items leaked after Product projection")
+assert_true(!grepl("quick_huc8", projected_json, fixed = TRUE),
+            "Unavailable single Quick Access entry leaked after Product projection")
+projected_fire <- projected$quickAccess[[match(
+  "quick_fire_perimeters", vapply(projected$quickAccess, `[[`, character(1), "id")
+)]]
+assert_identical(projected_fire$memberIds, c("EXT072", "EXT074"),
+                 "Profile projection did not remove only the excluded collection member")
 assert_identical(projected$counts$products, bundle$counts$products - 2L,
                  "Projected Product count was not generated after exclusion")
 retained_ids <- setdiff(product_ids, c("huc8", "EXT070"))
@@ -537,9 +604,11 @@ assert_true(all(vapply(projected$products, function(product) {
   )
 }, logical(1))), "Projected role-labeled Resource relationships became inconsistent")
 fire_projected <- pt_project_guide_bundle(bundle, "EXT072", profile_id = "fire_projection_test")
-assert_true(!"quick_fire_perimeters" %in% vapply(
-  fire_projected$quickAccess, `[[`, character(1), "id"
-), "Partially unavailable Fire Perimeters collection survived profile projection")
+fire_projected_entry <- fire_projected$quickAccess[[match(
+  "quick_fire_perimeters", vapply(fire_projected$quickAccess, `[[`, character(1), "id")
+)]]
+assert_identical(fire_projected_entry$memberIds, c("EXT070", "EXT074"),
+                 "Partially projected Fire Perimeters collection did not retain exact available members")
 
 guide_js <- paste(readLines(file.path("03_functions", "js", "leaflet_brim_guide.js"), warn = FALSE), collapse = "\n")
 guide_css <- paste(readLines(file.path("03_functions", "css", "leaflet_brim_guide.css"), warn = FALSE), collapse = "\n")
@@ -566,7 +635,8 @@ assert_true(grepl("event.key === 'Escape'", guide_js, fixed = TRUE) &&
               grepl("state.previousFocus.focus", guide_js, fixed = TRUE),
             "Escape/focus restoration lifecycle is missing")
 assert_true(grepl("function asArray", guide_js, fixed = TRUE) &&
-              grepl("asArray(item.productIds)", guide_js, fixed = TRUE),
+              grepl("function quickProductIds", guide_js, fixed = TRUE) &&
+              grepl("asArray(item.memberIds)", guide_js, fixed = TRUE),
             "Singleton Guide payload fields are not normalized at the browser boundary")
 assert_true(grepl("preventScroll: true", guide_js, fixed = TRUE) &&
               grepl("main.scrollTop = desiredScroll", guide_js, fixed = TRUE),
@@ -588,15 +658,19 @@ assert_true(grepl("searchResults", guide_js, fixed = TRUE) &&
             "Search and browse do not share one result renderer")
 assert_true(grepl("function productMatchesFilters", guide_js, fixed = TRUE) &&
               grepl("function filteredProducts", guide_js, fixed = TRUE) &&
+              grepl("function visibleProducts", guide_js, fixed = TRUE) &&
               grepl("state.filters.brimSection", guide_js, fixed = TRUE) &&
-              grepl("state.filters.entityType", guide_js, fixed = TRUE) &&
+              !grepl("state.filters.entityType", guide_js, fixed = TRUE) &&
+              grepl("state.filters.subject.some", guide_js, fixed = TRUE) &&
+              grepl("state.filters.informationType.some", guide_js, fixed = TRUE) &&
               grepl("asArray(product.subjectTags).indexOf", guide_js, fixed = TRUE) &&
               grepl("asArray(product.informationTypes).indexOf", guide_js, fixed = TRUE) &&
-              grepl("data-guide-filter", guide_js, fixed = TRUE) &&
-              grepl("filters-clear", guide_js, fixed = TRUE),
-            "Shared combined section/entity/subject/Information Type filtering is incomplete")
+              grepl("facet-toggle", guide_js, fixed = TRUE) &&
+              grepl("filter-remove", guide_js, fixed = TRUE) &&
+              grepl("clear-all", guide_js, fixed = TRUE),
+            "Visible multi-select Where/Subject/Information Type filtering is incomplete")
 assert_true(grepl("searchResults.filter", guide_js, fixed = TRUE) &&
-              grepl("filtered = filteredProducts()", guide_js, fixed = TRUE) &&
+              grepl("filtered = visibleProducts()", guide_js, fixed = TRUE) &&
               grepl("renderResults(filtered", guide_js, fixed = TRUE),
             "Search, filters, and A-Z do not use the same projected Product set")
 assert_true(grepl("brim-guide__close--left", guide_js, fixed = TRUE) &&
@@ -626,12 +700,12 @@ assert_true(grepl("brim-guide__results--index", guide_css, fixed = TRUE) &&
               grepl("All layers and tools A to Z", guide_js, fixed = TRUE) &&
               grepl("list.tabIndex = 0", guide_js, fixed = TRUE),
             "A-Z inventory is not a bounded accessible scroll region")
-assert_true(grepl("grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr)", guide_css, fixed = TRUE) &&
+assert_true(grepl("grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr)", guide_css, fixed = TRUE) &&
               grepl("brim-guide__filters", guide_css, fixed = TRUE) &&
-              grepl("brim-guide__filter-select", guide_css, fixed = TRUE) &&
-              grepl("repeat(4, minmax(120px, 1fr))", guide_css, fixed = TRUE) &&
+              grepl("brim-guide__facet-button", guide_css, fixed = TRUE) &&
+              grepl("white-space: normal", guide_css, fixed = TRUE) &&
               grepl("grid-template-columns: 1fr", guide_css, fixed = TRUE) &&
-              grepl("max-width: 1199px", guide_css, fixed = TRUE),
+              grepl("max-width: 980px", guide_css, fixed = TRUE),
             "Browse-dominant desktop, stacked facets, readable labels, or intermediate stacking is missing")
 assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &&
               grepl("product.sections", guide_js, fixed = TRUE) &&
@@ -639,6 +713,11 @@ assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &
               grepl("relationship.role", guide_js, fixed = TRUE) &&
               grepl("quickDefinition.summary", guide_js, fixed = TRUE),
             "Generic structured content, Method, Resource-role, or Quick summary rendering is incomplete")
+assert_true(grepl("item.entryKind === 'collection'", guide_js, fixed = TRUE) &&
+              grepl("item.typeLabel", guide_js, fixed = TRUE) &&
+              grepl("data-guide-entry-kind", guide_js, fixed = TRUE) &&
+              grepl("Collection · 2 BRIM views", projected_json, fixed = TRUE),
+            "Quick Access does not expose layer/tool/collection distinctions")
 assert_true(grepl("asArray(record.externalLinks)", guide_js, fixed = TRUE) &&
               grepl("link.target = '_blank'", guide_js, fixed = TRUE) &&
               grepl("link.rel = 'noopener noreferrer'", guide_js, fixed = TRUE) &&
@@ -656,11 +735,20 @@ assert_true(!grepl("source_refs|sourceRefs|runtimeStatus|freshnessStatus|nextExp
 assert_true(all(vapply(
   c("Search layers, tools, methods, resources, and updates",
     "Browse BRIM layers & tools", "All Layers & Tools A–Z", "Information Type",
-    "BRIM section", "Entity type", "Subject", "Clear filters",
-    "Related Layers & Tools", "Collection · Quick Access", "Open email draft"),
+    "Where in BRIM", "Primary Subject", "Clear all",
+    "Related Layers & Tools", "Open email draft"),
   function(probe) grepl(probe, guide_js, fixed = TRUE),
   logical(1)
 )), "Layer/tool terminology or contact action is incomplete")
+assert_true(!grepl("node\\(['\"]select|createElement\\(['\"]select|<select|filter-select|Entity type|filters-clear|Clear filters",
+                   paste(guide_js, guide_css), ignore.case = TRUE, perl = TRUE),
+            "Superseded dropdown, Entity Type, or large Clear Filters UI remains")
+assert_true(grepl("activeSummary.hidden = !", guide_js, fixed = TRUE) &&
+              grepl("searchInput.focus()", guide_js, fixed = TRUE) &&
+              grepl("aria-pressed", guide_js, fixed = TRUE) &&
+              grepl("aria-live", guide_js, fixed = TRUE) &&
+              grepl("aria-hidden", guide_js, fixed = TRUE),
+            "Contextual clear, selected state, chips, or focus behavior is incomplete")
 assert_true(!grepl("Search Products|Browse BRIM Products|Find a Product|Data / guidance mode|Product family|Guide I1",
                    guide_js, fixed = FALSE, perl = TRUE),
             "Retired Guide-facing Product or implementation terminology remains")
@@ -687,7 +775,7 @@ assert_true(grepl(".brim-guide__method-body .brim-guide__structured-section p", 
             "Serif scope or no-webfont/no-monospace UI boundary changed")
 assert_true(grepl("record.title], 1200", guide_js, fixed = TRUE) &&
               grepl("aliases, 1100", guide_js, fixed = TRUE) &&
-              grepl("path, 800", guide_js, fixed = TRUE) &&
+              grepl("normalize(record.pathLabel) === query", guide_js, fixed = TRUE) &&
               grepl("asArray(record.subjectTags), 650", guide_js, fixed = TRUE) &&
               grepl("asArray(record.informationTypes), 600", guide_js, fixed = TRUE),
             "Deterministic V4 search weight ordering changed")
@@ -695,6 +783,30 @@ score_source <- sub("^[\\s\\S]*?function scoreRecord", "function scoreRecord", g
 score_source <- sub("function search[\\s\\S]*$", "", score_source, perl = TRUE)
 assert_true(!grepl("record\\.(id|url)", score_source, perl = TRUE),
             "Runtime IDs or URLs entered the semantic search index")
+assert_true(!grepl("pathGroups|var path =|path.join|record.family", score_source, fixed = FALSE, perl = TRUE) &&
+              grepl("record.kind === 'Product' ? '' : structuredText(record)", score_source, fixed = TRUE),
+            "Broad path, family, or Product section text remains token-indexed")
+assert_true(grepl("query.length >= 5", guide_js, fixed = TRUE) &&
+              grepl("editDistanceAtMostOne", guide_js, fixed = TRUE),
+            "Conservative title/alias typo recovery changed")
+product_search_text <- function(product) tolower(paste(c(
+  product$title, product$aliases, product$subjectTags, product$informationTypes,
+  product$provider, product$searchTerms, product$summary
+), collapse = " "))
+soil_only_products <- Filter(function(product) {
+  "Soil Moisture" %in% product$subjectTags && !"Snow & SWE" %in% product$subjectTags
+}, bundle$products)
+assert_true(length(soil_only_products) > 0L && all(!vapply(soil_only_products, function(product) {
+  grepl("(^|[^a-z])snow([^a-z]|$)", product_search_text(product), perl = TRUE)
+}, logical(1))), "A soil-moisture-only Product inherits snow through an ordinary search field")
+assert_true(all(c("SCAN", "soil climate analysis network") %in% scan$aliases) &&
+              "Soil Moisture" %in% scan$subjectTags &&
+              grepl("snow", scan$pathLabel, ignore.case = TRUE),
+            "SCAN does not prove alias/subject search independent of its exact broad-parent path")
+assert_true(!any(grepl("https?://|controller|PT_[A-Z]", unlist(lapply(
+  bundle$products, `[[`, "searchTerms"
+), use.names = FALSE), ignore.case = TRUE, perl = TRUE)),
+"URL, controller, or runtime-symbol text entered Product semantic search terms")
 record_kinds <- unique(vapply(
   c(bundle$products, bundle$articles, bundle$resources, bundle$updates),
   `[[`, character(1), "kind"

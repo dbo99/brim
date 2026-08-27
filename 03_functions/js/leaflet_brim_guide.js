@@ -44,6 +44,9 @@ function(el, x, data) {
   products.forEach(function(product) { productsById[product.id] = product; });
   var quickAccessById = {};
   quickAccess.forEach(function(item) { quickAccessById[item.id] = item; });
+  function quickProductIds(item) {
+    return item.entryKind === 'collection' ? asArray(item.memberIds) : asArray(item.productId);
+  }
   products.sort(function(a, b) {
     var titleA = normalize(a.title);
     var titleB = normalize(b.title);
@@ -62,10 +65,9 @@ function(el, x, data) {
     view: 'landing',
     query: '',
     filters: {
-      brimSection: '',
-      entityType: '',
-      subject: '',
-      informationType: ''
+      brimSection: [],
+      subject: [],
+      informationType: []
     },
     selectedId: '',
     quickIds: [],
@@ -149,21 +151,18 @@ function(el, x, data) {
     if (!query) return 0;
     var title = normalize(record.title);
     var aliases = asArray(record.aliases);
-    var path = asArray(record.path);
     var searchTerms = asArray(record.searchTerms);
-    var pathGroups = path.length > 2 ? path.slice(1, -1) : path.slice(0, -1);
+    var structured = record.kind === 'Product' ? '' : structuredText(record);
     var score = 0;
 
     score = Math.max(score, maxFieldScore(query, [record.title], 1200, 1000, 520));
     score = Math.max(score, maxFieldScore(query, aliases, 1100, 900, 500));
-    score = Math.max(score, maxFieldScore(query, path, 800, 720, 460));
-    score = Math.max(score, maxFieldScore(query, pathGroups, 760, 700, 440));
+    if (record.kind === 'Product' && normalize(record.pathLabel) === query) score = Math.max(score, 1050);
     score = Math.max(score, maxFieldScore(query, asArray(record.subjectTags), 650, 620, 410));
     score = Math.max(score, maxFieldScore(query, asArray(record.informationTypes), 600, 570, 390));
-    score = Math.max(score, maxFieldScore(query, [record.family], 550, 520, 360));
     score = Math.max(score, maxFieldScore(query, [record.provider].concat(searchTerms), 420, 390, 260));
     score = Math.max(score, maxFieldScore(query, [record.summary], 250, 220, 150));
-    score = Math.max(score, maxFieldScore(query, [structuredText(record)], 210, 190, 140));
+    score = Math.max(score, maxFieldScore(query, [structured], 210, 190, 140));
 
     asArray(record.relatedResourceIds).forEach(function(resourceId) {
       var resource = resourcesById[resourceId];
@@ -175,14 +174,12 @@ function(el, x, data) {
       var searchable = normalize([
         record.title,
         aliases.join(' '),
-        path.join(' '),
         asArray(record.subjectTags).join(' '),
         asArray(record.informationTypes).join(' '),
-        record.family,
         record.provider,
         searchTerms.join(' '),
         record.summary,
-        structuredText(record)
+        structured
       ].join(' '));
       if (queryWords.every(function(token) { return searchable.indexOf(token) >= 0; })) {
         score = Math.max(score, 340 + queryWords.length);
@@ -215,19 +212,32 @@ function(el, x, data) {
   }
 
   function hasActiveFilters() {
-    return Object.keys(state.filters).some(function(key) { return Boolean(state.filters[key]); });
+    return Object.keys(state.filters).some(function(key) { return state.filters[key].length > 0; });
   }
 
   function productMatchesFilters(product) {
-    if (state.filters.brimSection && product.brimSection !== state.filters.brimSection) return false;
-    if (state.filters.entityType && product.entityType !== state.filters.entityType) return false;
-    if (state.filters.subject && asArray(product.subjectTags).indexOf(state.filters.subject) < 0) return false;
-    if (state.filters.informationType && asArray(product.informationTypes).indexOf(state.filters.informationType) < 0) return false;
+    if (state.filters.brimSection.length && state.filters.brimSection.indexOf(product.brimSection) < 0) return false;
+    if (state.filters.subject.length && !state.filters.subject.some(function(value) {
+      return asArray(product.subjectTags).indexOf(value) >= 0;
+    })) return false;
+    if (state.filters.informationType.length && !state.filters.informationType.some(function(value) {
+      return asArray(product.informationTypes).indexOf(value) >= 0;
+    })) return false;
     return true;
   }
 
   function filteredProducts() {
     return products.filter(productMatchesFilters);
+  }
+
+  function visibleProducts() {
+    var filtered = filteredProducts();
+    if (!state.query) return filtered;
+    var matched = {};
+    search(state.query).forEach(function(record) {
+      if (record.kind === 'Product') matched[record.id] = true;
+    });
+    return filtered.filter(function(product) { return matched[product.id]; });
   }
 
   var root = node('div', 'brim-guide');
@@ -274,9 +284,13 @@ function(el, x, data) {
   quick.appendChild(node('h2', 'brim-guide__rail-heading', 'Quick Access'));
   var quickList = node('div', 'brim-guide__quick-list');
   quickAccess.forEach(function(item) {
-    var quickButton = button('brim-guide__quick-item', item.label, 'quick');
+    var quickButton = button('brim-guide__quick-item', '', 'quick');
     quickButton.setAttribute('data-guide-quick', item.id);
-    quickButton.setAttribute('data-guide-products', asArray(item.productIds).join(','));
+    quickButton.setAttribute('data-guide-products', quickProductIds(item).join(','));
+    quickButton.setAttribute('data-guide-entry-kind', item.entryKind);
+    quickButton.setAttribute('data-guide-entry-label', item.label);
+    quickButton.appendChild(node('span', 'brim-guide__quick-label', item.label));
+    quickButton.appendChild(node('span', 'brim-guide__quick-type', item.typeLabel));
     quickList.appendChild(quickButton);
   });
   quick.appendChild(quickList);
@@ -306,6 +320,7 @@ function(el, x, data) {
 
   var workspace = node('div', 'brim-guide__workspace');
   var utility = node('div', 'brim-guide__utility');
+  var searchStack = node('div', 'brim-guide__search-stack');
   var searchLabel = node(
     'label',
     'brim-guide__search-label',
@@ -318,14 +333,19 @@ function(el, x, data) {
   searchInput.autocomplete = 'off';
   searchInput.placeholder = 'Search layers, tools, methods, resources, and updates';
   searchInput.setAttribute('data-guide-search', 'true');
+  var activeSummary = node('div', 'brim-guide__active-filters');
+  activeSummary.setAttribute('aria-live', 'polite');
+  activeSummary.hidden = true;
   var rightClose = button(
     'brim-guide__close brim-guide__close--right',
     '×',
     'close',
     'Close BRIM Guide'
   );
-  utility.appendChild(searchLabel);
-  utility.appendChild(searchInput);
+  searchStack.appendChild(searchLabel);
+  searchStack.appendChild(searchInput);
+  searchStack.appendChild(activeSummary);
+  utility.appendChild(searchStack);
   utility.appendChild(rightClose);
   workspace.appendChild(utility);
 
@@ -339,12 +359,20 @@ function(el, x, data) {
   root.appendChild(shell);
   document.body.appendChild(root);
 
+  function copyFilters() {
+    return {
+      brimSection: state.filters.brimSection.slice(),
+      subject: state.filters.subject.slice(),
+      informationType: state.filters.informationType.slice()
+    };
+  }
+
   function snapshot() {
     return {
       section: state.section,
       view: state.view,
       query: state.query,
-      filters: Object.assign({}, state.filters),
+      filters: copyFilters(),
       selectedId: state.selectedId,
       quickIds: state.quickIds.slice(),
       quickId: state.quickId,
@@ -471,7 +499,10 @@ function(el, x, data) {
       ? record.pathLabel
       : (record.section || record.provider || record.date || 'BRIM Guide');
     row.appendChild(node('span', 'brim-guide__result-path', context));
-    if (record.summary) row.appendChild(node('span', 'brim-guide__result-summary', record.summary));
+    var summary = record.kind === 'Product'
+      ? [record.provider, record.summary].filter(Boolean).join(' · ')
+      : record.summary;
+    if (summary) row.appendChild(node('span', 'brim-guide__result-summary', summary));
     return row;
   }
 
@@ -517,41 +548,69 @@ function(el, x, data) {
           ? asArray(product.informationTypes)
           : [product[field]];
       productValues.forEach(function(value) {
-        if (value && values.indexOf(value) < 0) values.push(value);
+        if (value && value !== 'Tool / Workflow' && values.indexOf(value) < 0) values.push(value);
       });
     });
-    return values.sort();
+    if (field === 'brimSection') {
+      return ['Local', 'Ops Live', 'External', 'Tools'].filter(function(value) {
+        return values.indexOf(value) >= 0;
+      });
+    }
+    if (field === 'informationType') {
+      return [
+        'Static Reference', 'Live Observation', 'Forecast / Outlook',
+        'Historical Context', 'Screening / Derived', 'External On-Demand Service'
+      ].filter(function(value) { return values.indexOf(value) >= 0; });
+    }
+    return values.sort(function(a, b) { return a.localeCompare(b); });
   }
 
-  function filterSelect(field, label, values) {
-    var wrap = node('label', 'brim-guide__filter');
-    wrap.appendChild(node('span', '', label));
-    var select = node('select', 'brim-guide__filter-select');
-    select.setAttribute('data-guide-filter', field);
-    var allOption = node('option', '', 'All');
-    allOption.value = '';
-    select.appendChild(allOption);
+  function facetGroup(field, label, values) {
+    var wrap = node('section', 'brim-guide__facet');
+    wrap.appendChild(node('h3', '', label));
+    var options = node('div', 'brim-guide__facet-options');
+    options.setAttribute('aria-label', label);
     values.forEach(function(value) {
-      var option = node('option', '', value);
-      option.value = value;
-      if (state.filters[field] === value) option.selected = true;
-      select.appendChild(option);
+      var selected = state.filters[field].indexOf(value) >= 0;
+      var option = button('brim-guide__facet-button', value, 'facet-toggle');
+      option.setAttribute('data-guide-filter', field);
+      option.setAttribute('data-guide-value', value);
+      option.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      option.classList.toggle('is-selected', selected);
+      options.appendChild(option);
     });
-    wrap.appendChild(select);
+    wrap.appendChild(options);
     return wrap;
+  }
+
+  function renderActiveSummary() {
+    activeSummary.replaceChildren();
+    var labels = { brimSection: 'Where in BRIM', subject: 'Primary Subject', informationType: 'Information Type' };
+    Object.keys(labels).forEach(function(field) {
+      state.filters[field].forEach(function(value) {
+        var chip = button('brim-guide__filter-chip', '', 'filter-remove', 'Remove ' + value + ' filter');
+        chip.setAttribute('data-guide-filter', field);
+        chip.setAttribute('data-guide-value', value);
+        chip.appendChild(node('span', '', value));
+        var remove = node('span', 'brim-guide__filter-chip-x', '×');
+        remove.setAttribute('aria-hidden', 'true');
+        chip.appendChild(remove);
+        activeSummary.appendChild(chip);
+      });
+    });
+    if (state.query || hasActiveFilters()) {
+      activeSummary.appendChild(button('brim-guide__clear-all', 'Clear all', 'clear-all'));
+    }
+    activeSummary.hidden = !(state.query || hasActiveFilters());
   }
 
   function renderFilters() {
     var browse = node('section', 'brim-guide__browse');
-    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', filteredProducts().length + ' of ' + products.length));
+    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', visibleProducts().length + ' of ' + products.length));
     var controls = node('div', 'brim-guide__filters');
-    controls.appendChild(filterSelect('brimSection', 'BRIM section', filterValues('brimSection')));
-    controls.appendChild(filterSelect('entityType', 'Entity type', filterValues('entityType')));
-    controls.appendChild(filterSelect('subject', 'Subject', filterValues('subject')));
-    controls.appendChild(filterSelect('informationType', 'Information Type', filterValues('informationType')));
-    var clear = button('brim-guide__clear-filters', 'Clear filters', 'filters-clear');
-    clear.disabled = !hasActiveFilters();
-    controls.appendChild(clear);
+    controls.appendChild(facetGroup('brimSection', 'Where in BRIM', filterValues('brimSection')));
+    controls.appendChild(facetGroup('subject', 'Primary Subject', filterValues('subject')));
+    controls.appendChild(facetGroup('informationType', 'Information Type', filterValues('informationType')));
     browse.appendChild(controls);
     return browse;
   }
@@ -559,6 +618,12 @@ function(el, x, data) {
   function renderExplore() {
     var fragment = document.createDocumentFragment();
 
+    if (!state.query) {
+      fragment.appendChild(renderIntro());
+      fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
+    }
+    var directory = node('div', 'brim-guide__explore-directory');
+    var browse = renderFilters();
     if (state.query) {
       var searchResults = search(state.query);
       if (hasActiveFilters()) {
@@ -566,20 +631,14 @@ function(el, x, data) {
           return record.kind === 'Product' && productMatchesFilters(record);
         });
       }
-      fragment.appendChild(pageHeading('A · Explore', 'Search results', state.query));
-      fragment.appendChild(renderFilters());
-      fragment.appendChild(renderResults(
+      browse.appendChild(sectionHeading('', 'Search matches', searchResults.length + ' records'));
+      browse.appendChild(renderResults(
         searchResults,
         'No Guide records match that search. Try a shorter source-supported term.'
       ));
-      return fragment;
     }
-
-    fragment.appendChild(renderIntro());
-    fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
-    var directory = node('div', 'brim-guide__explore-directory');
-    directory.appendChild(renderFilters());
-    var filtered = filteredProducts();
+    directory.appendChild(browse);
+    var filtered = visibleProducts();
     var productSection = node('section', 'brim-guide__product-index');
     productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', filtered.length + ' of ' + products.length));
     productSection.appendChild(renderResults(filtered, 'No layers or tools match the active filters.', 'index'));
@@ -749,7 +808,7 @@ function(el, x, data) {
     var quickDefinition = quickAccessById[state.quickId];
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
     fragment.appendChild(pageHeading(
-      'Collection · Quick Access',
+      quickDefinition && quickDefinition.typeLabel ? quickDefinition.typeLabel : 'Collection · Quick Access',
       state.quickLabel,
       quickDefinition && quickDefinition.summary
         ? quickDefinition.summary
@@ -791,6 +850,7 @@ function(el, x, data) {
 
   function render() {
     activeNav();
+    renderActiveSummary();
     main.replaceChildren();
     if (state.view === 'detail') {
       var selected = recordsById[state.selectedId];
@@ -826,7 +886,7 @@ function(el, x, data) {
     state.section = 'explore';
     state.view = 'landing';
     state.query = '';
-    state.filters = { brimSection: '', entityType: '', subject: '', informationType: '' };
+    state.filters = { brimSection: [], subject: [], informationType: [] };
     state.selectedId = '';
     state.quickIds = [];
     state.quickId = '';
@@ -886,14 +946,42 @@ function(el, x, data) {
       focusMain(false);
     } else if (action === 'record') {
       openRecord(target.getAttribute('data-guide-record'));
-    } else if (action === 'filters-clear') {
-      state.filters = { brimSection: '', entityType: '', subject: '', informationType: '' };
+    } else if (action === 'clear-all') {
+      resetHome(true);
+    } else if (action === 'facet-toggle') {
+      var facetField = target.getAttribute('data-guide-filter');
+      var facetValue = target.getAttribute('data-guide-value');
+      if (!Object.prototype.hasOwnProperty.call(state.filters, facetField)) return;
+      var selected = state.filters[facetField].indexOf(facetValue) >= 0;
+      state.filters[facetField] = selected
+        ? state.filters[facetField].filter(function(value) { return value !== facetValue; })
+        : state.filters[facetField].concat(facetValue);
+      state.section = 'explore';
+      state.view = 'landing';
+      state.selectedId = '';
+      state.quickIds = [];
+      state.quickId = '';
+      state.quickLabel = '';
+      state.history = [];
       render();
+      var facetReplacement = root.querySelector(
+        '[data-guide-action="facet-toggle"][data-guide-filter="' + facetField + '"][data-guide-value="' + facetValue + '"]'
+      );
+      if (facetReplacement) facetReplacement.focus();
+    } else if (action === 'filter-remove') {
+      var chipField = target.getAttribute('data-guide-filter');
+      var chipValue = target.getAttribute('data-guide-value');
+      if (!Object.prototype.hasOwnProperty.call(state.filters, chipField)) return;
+      state.filters[chipField] = state.filters[chipField].filter(function(value) { return value !== chipValue; });
+      state.section = 'explore';
+      state.view = 'landing';
+      render();
+      searchInput.focus();
     } else if (action === 'quick') {
       var quickIds = String(target.getAttribute('data-guide-products') || '')
         .split(',')
         .filter(Boolean);
-      if (quickIds.length === 1) {
+      if (target.getAttribute('data-guide-entry-kind') !== 'collection') {
         openRecord(quickIds[0]);
       } else {
         pushHistory();
@@ -902,7 +990,7 @@ function(el, x, data) {
         state.query = '';
         state.quickIds = quickIds;
         state.quickId = target.getAttribute('data-guide-quick') || '';
-        state.quickLabel = target.textContent;
+        state.quickLabel = target.getAttribute('data-guide-entry-label') || '';
         searchInput.value = '';
         render();
         focusMain(false);
@@ -918,24 +1006,6 @@ function(el, x, data) {
       else resetHome(false);
       focusMain(true);
     }
-  });
-
-  root.addEventListener('change', function(event) {
-    var select = event.target.closest('[data-guide-filter]');
-    if (!select || !root.contains(select)) return;
-    var field = select.getAttribute('data-guide-filter');
-    if (!Object.prototype.hasOwnProperty.call(state.filters, field)) return;
-    state.filters[field] = select.value;
-    state.section = 'explore';
-    state.view = 'landing';
-    state.selectedId = '';
-    state.quickIds = [];
-    state.quickId = '';
-    state.quickLabel = '';
-    state.history = [];
-    render();
-    var replacement = root.querySelector('[data-guide-filter="' + field + '"]');
-    if (replacement) replacement.focus();
   });
 
   searchInput.addEventListener('input', function(event) {

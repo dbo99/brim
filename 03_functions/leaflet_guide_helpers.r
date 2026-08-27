@@ -21,6 +21,15 @@ pt_guide_first <- function(...) {
   ""
 }
 
+pt_guide_basemap_ids <- function() {
+  c(
+    "basemap_usgs_hydrography", "basemap_usgs_topo", "basemap_usgs_national_map_imagery",
+    "basemap_usgs_national_map_imagery_topo", "basemap_esri_world_topographic",
+    "basemap_esri_world_street", "basemap_esri_world_imagery", "basemap_cartodb_positron",
+    "basemap_openstreetmap", "basemap_none"
+  )
+}
+
 pt_guide_supported_profiles <- function() {
   list(
     default = list(
@@ -29,7 +38,7 @@ pt_guide_supported_profiles <- function() {
         "00_config/config_map_display.r::MAP_DISPLAY + ",
         "05_map_build/04_build_portatreasure2_core_map.r::OVERLAY_GROUPS"
       ),
-      excluded_ids = character(0)
+      excluded_ids = pt_guide_basemap_ids()
     )
   )
 }
@@ -334,8 +343,7 @@ pt_guide_external_products <- function(
     path <- c("External Layers", group, if (nzchar(subgroup)) subgroup, title)
     provider <- pt_guide_first(row$agency, row$program)
     summary <- pt_guide_first(row$pt2_usage_note, row$best_use, row$notes)
-    search_terms <- c(row$agency, row$program, row$theme, row$pt2_usage_note,
-                      row$best_use, row$notes, row$useful_for_visualization)
+    search_terms <- c(row$agency, row$program, row$service_type)
     pt_guide_product(
       id = row$external_layer_id,
       title = title,
@@ -468,12 +476,7 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
 pt_guide_basemap_products <- function() {
   if (!exists("pt_base_groups", mode = "function")) stop("pt_base_groups() is required for BRIM Guide.", call. = FALSE)
   titles <- pt_base_groups()
-  ids <- c(
-    "basemap_usgs_hydrography", "basemap_usgs_topo", "basemap_usgs_national_map_imagery",
-    "basemap_usgs_national_map_imagery_topo", "basemap_esri_world_topographic",
-    "basemap_esri_world_street", "basemap_esri_world_imagery", "basemap_cartodb_positron",
-    "basemap_openstreetmap", "basemap_none"
-  )
+  ids <- pt_guide_basemap_ids()
   if (length(titles) != length(ids)) stop("Basemap Guide identity requires review after pt_base_groups() changed.", call. = FALSE)
   lapply(seq_along(titles), function(i) {
     provider <- if (grepl("USGS", titles[[i]])) "U.S. Geological Survey" else if (grepl("Esri", titles[[i]])) "Esri" else "Basemap provider"
@@ -671,6 +674,11 @@ pt_guide_apply_product_enrichment <- function(products, enrichment) {
       product$informationTypes <- unique(information_types)
       product$mode <- product$informationTypes[[1]]
     }
+    capabilities <- unname(as.character(unlist(record$capabilities, use.names = FALSE)))
+    product$searchTerms <- unique(c(
+      product$searchTerms,
+      capabilities[nzchar(trimws(capabilities))]
+    ))
     product$sections <- pt_guide_enrichment_sections(record)
     product$relatedArticleIds <- unname(unique(as.character(unlist(record$method_ids, use.names = FALSE))))
     relationships <- record$resource_relationships
@@ -889,34 +897,41 @@ pt_guide_authored_content <- function() {
          date = "2026-08-19", updateType = "Usability", summary = "Removed redundant per-row NBM legend links while retaining the shared forecast-guidance control behavior.", relatedProductIds = c("winter_storm_levels", "nbm_qpf"))
   )
 
-  quick_access <- list(
-    list(id = "quick_huc8", label = "HUC8 – PRISM/BCMv8", productIds = "huc8",
-         summary = "HUC8 boundaries with BLM-managed-land, PRISM precipitation, and BCMv8 recharge display context."),
-    list(id = "quick_groundwater_basins", label = "Groundwater Basins – Bulletin 118", productIds = "gw_bull118",
-         summary = "Bulletin 118 groundwater basins with SGMA 2019 priority and BLM-managed-land context."),
-    list(id = "quick_fire_perimeters", label = "Fire Perimeters", productIds = c("EXT070", "EXT072", "EXT074"),
-         summary = "Three complementary perimeter layers: CAL FIRE recent large-fire and full historical coverage, plus NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each layer before use."),
-    list(id = "quick_nbm_snow_levels", label = "NBM Snow Levels", productIds = "winter_storm_levels",
-         summary = "NBM freezing-level and snow-level guidance by exact model cycle and valid time."),
-    list(id = "quick_water_supply_forecasts", label = "Water-Supply Basin Forecasts", productIds = "ops_major_water_supply_forecasts",
-         summary = "Reviewed major-basin and index water-supply forecast guidance from CNRFC sources."),
-    list(id = "quick_delta_operations", label = "Delta Operations", productIds = "ops_delta_snapshot",
-         summary = "DWR Delta Operations Daily Summary metrics with mapped facility and X2 context."),
-    list(id = "quick_usgs_streamflow", label = "USGS Streamflow", productIds = "ops_streamflow_usgs_ca",
-         summary = "Latest provisional discharge and gage-height values for the curated California station index."),
-    list(id = "quick_usgs_groundwater", label = "USGS Groundwater", productIds = "product-ops-usgs-groundwater",
-         summary = "Latest or recent USGS groundwater field measurements with compact history context."),
-    list(id = "quick_scan_soil_moisture", label = "USDA / SCAN Soil Moisture", productIds = "ops_scan_soil_moisture",
-         summary = "Latest SCAN soil-moisture observations by depth with current-water-year and historical context."),
-    list(id = "quick_snow_pillow_swe", label = "Snow-Pillow SWE", productIds = "ops_snow_pillow_swe",
-         summary = "Latest NRCS and CDEC snow-water equivalent with water-year and historical context."),
-    list(id = "quick_brim_mapped_conveyance", label = "Water conveyance | BRIM mapped", productIds = "brim_mapped_conveyance",
-         summary = "BRIM's curated statewide conveyance network assembled from multiple reviewed source datasets.")
-  )
-  quick_access <- lapply(quick_access, function(item) {
-    item$entityType <- "Collection"
+  quick_entry <- function(id, label, entry_kind, product_ids, summary, type_label = "") {
+    item <- list(
+      id = id, label = label, entryKind = entry_kind,
+      typeLabel = pt_guide_or(type_label, tools::toTitleCase(entry_kind)), summary = summary
+    )
+    if (identical(entry_kind, "collection")) item$memberIds <- product_ids else item$productId <- product_ids[[1]]
     item
-  })
+  }
+  quick_access <- list(
+    quick_entry("quick_huc8", "HUC8 – PRISM/BCMv8", "layer", "huc8",
+                "HUC8 boundaries with BLM-managed-land, PRISM precipitation, and BCMv8 recharge display context."),
+    quick_entry("quick_groundwater_basins", "Groundwater Basins – Bulletin 118", "layer", "gw_bull118",
+                "Bulletin 118 groundwater basins with SGMA 2019 priority and BLM-managed-land context."),
+    quick_entry("quick_fire_perimeters", "Fire Perimeters", "collection", c("EXT070", "EXT072", "EXT074"),
+                "Three complementary perimeter layers: CAL FIRE recent large-fire and full historical coverage, plus NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each layer before use.",
+                "Collection · 3 layers"),
+    quick_entry("quick_nbm_snow_levels", "NBM Snow Levels", "layer", "winter_storm_levels",
+                "NBM freezing-level and snow-level guidance by exact model cycle and valid time."),
+    quick_entry("quick_water_supply_forecasts", "Water-Supply Basin Forecasts", "layer", "ops_major_water_supply_forecasts",
+                "Reviewed major-basin and index water-supply forecast guidance from CNRFC sources."),
+    quick_entry("quick_delta_operations", "Delta Operations", "layer", "ops_delta_snapshot",
+                "DWR Delta Operations Daily Summary metrics with mapped facility and X2 context."),
+    quick_entry("quick_usgs_streamflow", "USGS Streamflow", "collection", c("usgs_streamgages", "ops_streamflow_usgs_ca"),
+                "Two distinct BRIM views retain the Local streamgage layer and the Ops Live provisional streamflow layer with their own paths and detail pages.",
+                "Collection · 2 BRIM views"),
+    quick_entry("quick_usgs_groundwater", "USGS Groundwater", "collection", c("usgs_wells", "product-ops-usgs-groundwater"),
+                "Two distinct BRIM views retain the Local monitoring-well layer and the Ops Live latest-measurement layer with their own paths and detail pages.",
+                "Collection · 2 BRIM views"),
+    quick_entry("quick_scan_soil_moisture", "USDA / SCAN Soil Moisture", "layer", "ops_scan_soil_moisture",
+                "Latest SCAN soil-moisture observations by depth with current-water-year and historical context."),
+    quick_entry("quick_snow_pillow_swe", "Snow-Pillow SWE", "layer", "ops_snow_pillow_swe",
+                "Latest NRCS and CDEC snow-water equivalent with water-year and historical context."),
+    quick_entry("quick_brim_mapped_conveyance", "Water conveyance | BRIM mapped", "layer", "brim_mapped_conveyance",
+                "BRIM's curated statewide conveyance network assembled from multiple reviewed source datasets.")
+  )
 
   list(
     articles = articles,
@@ -942,8 +957,15 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
   bundle$articles <- lapply(bundle$articles, prune_related)
   bundle$resources <- lapply(bundle$resources, prune_related)
   bundle$updates <- lapply(bundle$updates, prune_related)
+  bundle$quickAccess <- lapply(bundle$quickAccess, function(item) {
+    if (identical(item$entryKind, "collection")) {
+      item$memberIds <- intersect(item$memberIds, product_ids)
+    }
+    item
+  })
   bundle$quickAccess <- Filter(function(item) {
-    length(item$productIds) > 0L && all(item$productIds %in% product_ids)
+    if (identical(item$entryKind, "collection")) return(length(item$memberIds) > 0L)
+    pt_guide_or(item$productId) %in% product_ids
   }, bundle$quickAccess)
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
@@ -977,14 +999,29 @@ pt_validate_guide_bundle <- function(bundle) {
   paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
   if (any(!nzchar(paths)) || anyDuplicated(paths)) stop("BRIM Guide Product paths must be nonblank and unique.", call. = FALSE)
   if (any(grepl("(^| / )Points( / |$)", paths))) stop("BRIM Guide paths must use Monitoring Sites/Records terminology.", call. = FALSE)
-  quick_ids <- unlist(lapply(bundle$quickAccess, `[[`, "productIds"), use.names = FALSE)
+  quick_ids <- unlist(lapply(bundle$quickAccess, function(item) {
+    if (identical(item$entryKind, "collection")) item$memberIds else item$productId
+  }), use.names = FALSE)
   if (any(!quick_ids %in% product_ids)) stop("BRIM Guide Quick Access references an unavailable Product.", call. = FALSE)
   quick_record_ids <- vapply(bundle$quickAccess, function(x) pt_guide_or(x$id), character(1))
   if (any(!nzchar(quick_record_ids)) || anyDuplicated(quick_record_ids) ||
-      any(vapply(bundle$quickAccess, function(x) !identical(x$entityType, "Collection") ||
-        !length(x$productIds) || !nzchar(pt_guide_or(x$label)) ||
-        !nzchar(pt_guide_or(x$summary)), logical(1)))) {
-    stop("BRIM Guide Quick Access collections require unique IDs, labels, summaries, and Collection type.", call. = FALSE)
+      any(vapply(bundle$quickAccess, function(x) {
+        !pt_guide_or(x$entryKind) %in% c("layer", "tool", "collection") ||
+          !nzchar(pt_guide_or(x$label)) || !nzchar(pt_guide_or(x$typeLabel)) ||
+          !nzchar(pt_guide_or(x$summary)) ||
+          (identical(x$entryKind, "collection") &&
+             (!length(x$memberIds) || any(!nzchar(x$memberIds)) || anyDuplicated(x$memberIds))) ||
+          (!identical(x$entryKind, "collection") && !nzchar(pt_guide_or(x$productId)))
+      }, logical(1)))) {
+    stop("BRIM Guide Quick Access entries require valid typed identity, labels, summaries, and exact Product membership.", call. = FALSE)
+  }
+  for (item in bundle$quickAccess) {
+    if (identical(item$entryKind, "collection")) next
+    product <- bundle$products[[match(item$productId, product_ids)]]
+    expected_type <- if (identical(item$entryKind, "tool")) "Tool" else "Layer"
+    if (is.null(product) || !identical(product$entityType, expected_type)) {
+      stop("BRIM Guide Quick Access single-entry type does not match its Product.", call. = FALSE)
+    }
   }
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
@@ -1102,14 +1139,14 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
   content <- pt_guide_authored_content()
   bundle <- c(
     list(
-      schemaVersion = 3L,
+      schemaVersion = 4L,
       profileId = profile_id,
       identity = pt_brim_application_identity(),
       authority = list(
         catalogAuthority = "DESCRIPTIVE_ONLY",
         runtimeAuthority = "UNCHANGED",
         mapActions = "DEFERRED_TO_I2",
-        coverage = "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS"
+        coverage = "ALL_INCLUDED_NON_BASEMAP_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS"
       ),
       products = unname(products)
     ),
