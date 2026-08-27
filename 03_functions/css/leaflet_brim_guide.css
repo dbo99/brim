@@ -92,7 +92,7 @@
 }
 
 .brim-guide__quick {
-  min-width: 0;
+  min-width: 0; min-height: 0;
 }
 
 .brim-guide__rail-heading {
@@ -100,7 +100,7 @@
 }
 
 .brim-guide__quick-list {
-  display: grid;
+  display: grid; max-height: min(28vh, 220px); overflow-x: hidden; overflow-y: auto;
 }
 
 .brim-guide__quick-item {
@@ -197,6 +197,10 @@
   min-width: 0; margin-top: 13px;
 }
 
+.brim-guide__explore-directory {
+  min-width: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr); gap: 26px;
+}
+
 .brim-guide__section-heading {
   display: grid; grid-template-columns: 28px max-content minmax(0, 1fr); align-items: baseline; gap: 8px; min-height: 28px; padding-bottom: 5px; border-bottom: 1px solid #8e8a80;
 }
@@ -214,7 +218,7 @@
 }
 
 .brim-guide__browse-columns {
-  display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 22px; padding-top: 8px;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 8px;
 }
 
 .brim-guide__browse-column {
@@ -226,11 +230,19 @@
 }
 
 .brim-guide__browse-grid {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid rgba(141, 135, 123, 0.5);
+  display: grid; border-top: 1px solid rgba(141, 135, 123, 0.5);
+}
+
+.brim-guide__browse-grid--subject {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.brim-guide__browse-grid--mode {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
 
 .brim-guide__browse-item {
-  min-width: 0; min-height: 25px; display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: center; gap: 6px; padding: 3px 5px; border: 0; border-right: 1px solid rgba(141, 135, 123, 0.32); border-bottom: 1px solid rgba(141, 135, 123, 0.42); border-radius: 0; background: transparent; cursor: pointer; font-size: 10px; text-align: left;
+  min-width: 0; min-height: 40px; display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: center; gap: 6px; padding: 5px 6px; border: 0; border-right: 1px solid rgba(141, 135, 123, 0.32); border-bottom: 1px solid rgba(141, 135, 123, 0.42); border-radius: 0; background: transparent; cursor: pointer; font-size: 10px; line-height: 1.2; text-align: left;
 }
 
 .brim-guide__browse-item:hover {
@@ -238,7 +250,7 @@
 }
 
 .brim-guide__browse-item > span:first-child {
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  overflow: visible; white-space: normal; text-overflow: clip;
 }
 
 .brim-guide__browse-count {
@@ -247,6 +259,22 @@
 
 .brim-guide__results {
   min-width: 0; border-top: 1px solid rgba(140, 134, 121, 0.58);
+}
+
+.brim-guide__results--index {
+  max-height: min(38vh, 320px); overflow-x: hidden; overflow-y: auto; background: rgba(255, 253, 247, 0.28); scrollbar-gutter: stable;
+}
+
+.brim-guide__results--index .brim-guide__result-summary {
+  display: none;
+}
+
+.brim-guide__results--index .brim-guide__result {
+  grid-template-columns: 52px minmax(0, 1fr); gap: 5px 8px;
+}
+
+.brim-guide__results--index .brim-guide__result-path {
+  grid-column: 2;
 }
 
 .brim-guide__result {
@@ -485,12 +513,22 @@
   margin: 0; color: #4f544d; font-size: 12px; line-height: 1.55;
 }
 
+.brim-guide__prose p + .brim-guide__resource-link {
+  display: inline-block; margin-top: 10px;
+}
+
 .brim-guide__date {
   color: var(--guide-muted); font-size: 11px;
 }
 
 .brim-guide__about {
   max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+}
+
+@media (max-width: 1199px) and (min-width: 701px) {
+  .brim-guide__explore-directory {
+    grid-template-columns: minmax(0, 1fr); gap: 14px;
+  }
 }
 
 @media (max-width: 980px) and (min-width: 701px) {
@@ -517,14 +555,6 @@
 
   .brim-guide__intro {
     grid-template-columns: 1fr; gap: 8px;
-  }
-
-  .brim-guide__browse-columns {
-    grid-template-columns: 1fr; gap: 10px;
-  }
-
-  .brim-guide__browse-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .brim-guide__result {
@@ -607,7 +637,7 @@
   }
 
   .brim-guide__quick-list {
-    min-width: 0; display: flex; overflow-x: auto;
+    min-width: 0; display: flex; max-height: none; overflow-x: auto; overflow-y: hidden;
   }
 
   .brim-guide__quick-item {
@@ -655,6 +685,7 @@
   }
 
   .brim-guide__browse-columns,
+  .brim-guide__explore-directory,
   .brim-guide__detail-layout,
   .brim-guide__about,
   .brim-guide__structured-sections--product {

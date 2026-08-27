@@ -86,6 +86,11 @@ assert_identical(sum(product_subsystems == "Tools"), 5L,
                  "Tools Product projection changed")
 assert_identical(sum(product_subsystems == "Basemaps / Local Layers"), 53L,
                  "Local plus basemap Product projection changed")
+product_entity_types <- vapply(bundle$products, `[[`, character(1), "entityType")
+assert_identical(sum(product_entity_types == "Layer"), 275L,
+                 "Guide layer entity projection changed")
+assert_identical(sum(product_entity_types == "Tool"), 5L,
+                 "Guide tool entity projection changed")
 assert_true(!anyDuplicated(product_ids) && all(nzchar(product_ids)),
             "Every included Product needs one unique stable ID")
 assert_true(!anyDuplicated(product_paths) && all(nzchar(product_paths)),
@@ -123,7 +128,7 @@ assert_identical(
   c(
     "How BRIM Works",
     "Display Geometry & Generalization",
-    "SCAN Soil-Moisture Statistical Context",
+    "SCAN Soil Moisture Statistical Context",
     "Snow-Pillow SWE Statistical Context",
     "USGS Groundwater History Summaries",
     "BRIM Live Update Timing",
@@ -187,13 +192,18 @@ assert_identical(vapply(bundle$quickAccess, `[[`, character(1), "label"),
                  c("HUC8 – PRISM/BCMv8", "Groundwater Basins – Bulletin 118", "Fire Perimeters"),
                  "Verified Quick Access configuration changed")
 fire <- bundle$quickAccess[[which(vapply(bundle$quickAccess, `[[`, character(1), "id") == "quick_fire_perimeters")]]
-assert_identical(fire$productIds, c("EXT070", "EXT074"),
+expected_fire_ids <- c("EXT070", "EXT072", "EXT074")
+assert_identical(fire$productIds, expected_fire_ids,
                  "Fire Perimeters collection must use explicit stable IDs")
+assert_true(!length(setdiff(expected_fire_ids, product_ids)),
+            "A required Fire Perimeters layer is missing from the current profile")
+assert_true(!length(setdiff(fire$productIds, expected_fire_ids)),
+            "An unrelated layer entered the Fire Perimeters collection")
 assert_true(all(vapply(bundle$quickAccess, function(item) nzchar(item$summary), logical(1))),
             "Every curated Quick Access entry requires a useful summary")
-assert_true(grepl("complementary perimeter Products", fire$summary, fixed = TRUE) &&
+assert_true(grepl("Three complementary perimeter layers", fire$summary, fixed = TRUE) &&
               grepl("coverage and currency differ", fire$summary, fixed = TRUE),
-            "Fire Perimeters collection does not explain why its two Products differ")
+            "Fire Perimeters collection does not explain why its three layers differ")
 
 record_by_id <- function(records, id) {
   records[[match(id, vapply(records, `[[`, character(1), "id"))]]
@@ -206,6 +216,59 @@ section_text <- function(record) {
     c(section$title, section$paragraphs, section$items)
   }), use.names = FALSE), collapse = " ")
 }
+
+scan <- record_by_id(bundle$products, "ops_scan_soil_moisture")
+assert_identical(scan$title, "SCAN Soil Moisture",
+                 "SCAN Guide display title changed")
+assert_identical(scan$subject, "Soil Moisture",
+                 "SCAN lacks the explicit Soil Moisture subject tag")
+assert_true(grepl("Soil moisture | USDA NRCS SCAN | Ca/Nv", scan$pathLabel, fixed = TRUE),
+            "SCAN exact runtime path was not preserved")
+
+how_brim_works <- record_by_id(bundle$articles, "method_how_brim_works")
+how_brim_text <- section_text(how_brim_works)
+assert_true(all(vapply(
+  c("LOCAL LAYERS", "OPS LIVE", "EXTERNAL LAYERS", "TOOLS",
+    "sources, preparation, timing, and limitations"),
+  function(probe) grepl(probe, how_brim_text, fixed = TRUE),
+  logical(1)
+)), "How BRIM Works does not explain the four practical layer/tool families")
+assert_true(!grepl("PRISM|BCMv8|Guide I1|read-only index|compiler|implementation foundation",
+                   how_brim_text, ignore.case = TRUE, perl = TRUE),
+            "How BRIM Works contains HUC-specific or implementation-facing language")
+
+live_timing <- record_by_id(bundle$articles, "method_brim_live_update_timing")
+expected_schedule_url <- "https://github.com/dbo99/brim-live-data-feeds/blob/main/docs/PRODUCTS.md#inventory-at-a-glance"
+assert_identical(length(live_timing$externalLinks), 1L,
+                 "BRIM Live Update Timing must have exactly one schedule link")
+assert_identical(live_timing$externalLinks[[1]]$label, "View current BRIM Live schedule",
+                 "BRIM Live schedule link lost its user-facing label")
+assert_identical(live_timing$externalLinks[[1]]$role, "Current product schedule",
+                 "BRIM Live schedule link lost its role label")
+assert_identical(live_timing$externalLinks[[1]]$url, expected_schedule_url,
+                 "BRIM Live schedule link no longer matches the verified public authority")
+assert_true(all(vapply(
+  c("fetch attempts", "successful publication", "model cycles", "valid times"),
+  function(probe) grepl(probe, section_text(live_timing), fixed = TRUE),
+  logical(1)
+)), "BRIM Live timing semantics were conflated or omitted")
+
+external_tool <- record_by_id(bundle$products, "tool_external_gis_overlay")
+local_tool <- record_by_id(bundle$products, "tool_local_gis_upload")
+assert_true(all(c(external_tool$contentTier, local_tool$contentTier) == "curated"),
+            "Upload tools lost source-backed structured Guide content")
+assert_true(all(vapply(
+  c("FeatureServer", "MapServer", "ImageServer", "GeoJSON", "SQL filters",
+    "Clear external", "three temporary external overlays"),
+  function(probe) grepl(probe, section_text(external_tool), fixed = TRUE),
+  logical(1)
+)), "External GIS URL Overlay capabilities are incomplete")
+assert_true(all(vapply(
+  c("zipped shapefiles", "EPSG:4326", "Original geometry", "quantile",
+    "equal-interval", "Hover and popup", "Clear uploads", "50 MB", "25,000 features"),
+  function(probe) grepl(probe, section_text(local_tool), fixed = TRUE),
+  logical(1)
+)), "Local GIS File Upload capabilities are incomplete")
 
 huc8 <- record_by_id(bundle$products, "huc8")
 assert_identical(huc8$contentTier, "curated", "HUC8 lost curated Guide detail")
@@ -268,15 +331,19 @@ assert_identical(
 )
 
 fire_recent <- record_by_id(bundle$products, "EXT070")
+fire_all <- record_by_id(bundle$products, "EXT072")
 fire_current <- record_by_id(bundle$products, "EXT074")
-assert_true(all(c(fire_recent$contentTier, fire_current$contentTier) == "curated"),
+assert_true(all(c(fire_recent$contentTier, fire_all$contentTier, fire_current$contentTier) == "curated"),
             "Fire Perimeters Products lost curated Guide detail")
 assert_true(grepl("CAL FIRE", section_text(fire_recent), fixed = TRUE) &&
+              grepl("full historical CAL FIRE", section_text(fire_all), fixed = TRUE) &&
               grepl("current-view WFIGS", section_text(fire_current), fixed = TRUE) &&
               grepl("prescribed-fire records are excluded", section_text(fire_current), fixed = TRUE),
             "Fire Products do not retain distinct source, processing, and limitation content")
 assert_identical(fire_recent$relatedResourceIds, "resource_calfire_fire_perimeters",
                  "CAL FIRE perimeter Resource relationship changed")
+assert_identical(fire_all$relatedResourceIds, "resource_calfire_fire_perimeters",
+                 "CAL FIRE historical perimeter Resource relationship changed")
 assert_identical(fire_current$relatedResourceIds, "resource_nifc_wfigs_current",
                  "NIFC current perimeter Resource relationship changed")
 
@@ -298,6 +365,13 @@ duplicate_path$products[[2]]$pathLabel <- duplicate_path$products[[1]]$pathLabel
 assert_error(pt_validate_guide_bundle(duplicate_path),
              "Product paths must be nonblank and unique",
              "Duplicate Guide paths did not fail validation")
+missing_fire <- bundle
+missing_fire$quickAccess[[match("quick_fire_perimeters", vapply(
+  missing_fire$quickAccess, `[[`, character(1), "id"
+))]]$productIds <- c(expected_fire_ids, "EXT_DOES_NOT_EXIST")
+assert_error(pt_validate_guide_bundle(missing_fire),
+             "Quick Access references an unavailable Product",
+             "Missing Fire Perimeters stable ID did not fail validation")
 
 excluded <- c(
   "huc8", "EXT070", "resource_usgs_water_dashboard",
@@ -329,6 +403,10 @@ assert_true(all(vapply(projected$products, function(product) {
     unname(vapply(product$relatedResources, `[[`, character(1), "id"))
   )
 }, logical(1))), "Projected role-labeled Resource relationships became inconsistent")
+fire_projected <- pt_project_guide_bundle(bundle, "EXT072", profile_id = "fire_projection_test")
+assert_true(!"quick_fire_perimeters" %in% vapply(
+  fire_projected$quickAccess, `[[`, character(1), "id"
+), "Partially unavailable Fire Perimeters collection survived profile projection")
 
 guide_js <- paste(readLines(file.path("03_functions", "js", "leaflet_brim_guide.js"), warn = FALSE), collapse = "\n")
 guide_css <- paste(readLines(file.path("03_functions", "css", "leaflet_brim_guide.css"), warn = FALSE), collapse = "\n")
@@ -391,17 +469,55 @@ assert_true(grepl("https://www.doi.gov/", guide_js, fixed = TRUE) &&
               grepl("link.setAttribute('aria-label', definition[2])", guide_js, fixed = TRUE),
             "Lower-rail DOI/BLM image-link accessibility contract is incomplete")
 assert_true(grepl("Find in layer list", guide_js, fixed = TRUE) &&
-              grepl("products.slice(0, 10)", guide_js, fixed = TRUE),
-            "Product locator or initial compact Product index is missing")
+              grepl("products.sort(function(a, b)", guide_js, fixed = TRUE) &&
+              grepl("normalize(a.title)", guide_js, fixed = TRUE) &&
+              grepl("String(a.id || '')", guide_js, fixed = TRUE) &&
+              grepl("renderResults(products, '', 'index')", guide_js, fixed = TRUE) &&
+              !grepl("products.slice(0, 10)", guide_js, fixed = TRUE),
+            "Exact-path locator or complete stable A-Z layer/tool index is missing")
+assert_true(grepl("brim-guide__results--index", guide_css, fixed = TRUE) &&
+              grepl("overflow-y: auto", guide_css, fixed = TRUE) &&
+              grepl("All layers and tools A to Z", guide_js, fixed = TRUE) &&
+              grepl("list.tabIndex = 0", guide_js, fixed = TRUE),
+            "A-Z inventory is not a bounded accessible scroll region")
+assert_true(grepl("grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr)", guide_css, fixed = TRUE) &&
+              grepl("brim-guide__browse-grid--subject", guide_css, fixed = TRUE) &&
+              grepl("brim-guide__browse-grid--mode", guide_css, fixed = TRUE) &&
+              grepl("repeat(auto-fit", guide_css, fixed = TRUE) &&
+              grepl("white-space: normal; text-overflow: clip", guide_css, fixed = TRUE) &&
+              grepl("max-width: 1199px", guide_css, fixed = TRUE),
+            "Browse-dominant desktop, stacked facets, readable labels, or intermediate stacking is missing")
 assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &&
               grepl("product.sections", guide_js, fixed = TRUE) &&
               grepl("article.title", guide_js, fixed = TRUE) &&
               grepl("relationship.role", guide_js, fixed = TRUE) &&
               grepl("quickDefinition.summary", guide_js, fixed = TRUE),
             "Generic structured content, Method, Resource-role, or Quick summary rendering is incomplete")
+assert_true(grepl("asArray(record.externalLinks)", guide_js, fixed = TRUE) &&
+              grepl("link.target = '_blank'", guide_js, fixed = TRUE) &&
+              grepl("link.rel = 'noopener noreferrer'", guide_js, fixed = TRUE) &&
+              grepl("externalLink.role", guide_js, fixed = TRUE),
+            "Method external links lack the generic role-labeled safe-link convention")
 assert_true(!grepl("huc8|gw_bull118|EXT070|EXT074|PRISM/BCMv8|Bulletin 118", guide_js,
                    perl = TRUE),
             "Product-specific Guide content leaked into the generic browser renderer")
+assert_true(!grepl("tool_local_gis_upload|tool_external_gis_overlay|EXT072", guide_js,
+                   fixed = FALSE, perl = TRUE),
+            "New content introduced a record-specific browser branch")
+assert_true(all(vapply(
+  c("Search layers, tools, methods, resources, and updates",
+    "Browse BRIM layers & tools", "All Layers & Tools A–Z", "Information Type",
+    "Related Layers & Tools", "Collection · Quick Access", "Open email draft"),
+  function(probe) grepl(probe, guide_js, fixed = TRUE),
+  logical(1)
+)), "Layer/tool terminology or contact action is incomplete")
+assert_true(!grepl("Search Products|Browse BRIM Products|Find a Product|Data / guidance mode|Product family|Guide I1",
+                   guide_js, fixed = FALSE, perl = TRUE),
+            "Retired Guide-facing Product or implementation terminology remains")
+assert_true(grepl("mailto:doconnor@blm.gov", guide_js, fixed = TRUE) &&
+              grepl("encodeURIComponent('BRIM Guide feedback')", guide_js, fixed = TRUE) &&
+              grepl("does not send or store the message", guide_js, fixed = TRUE),
+            "Honest encoded BRIM Guide contact mailto is incomplete")
 assert_true(grepl("--guide-ui: Inter", guide_css, fixed = TRUE) &&
               grepl("--guide-condensed:", guide_css, fixed = TRUE) &&
               grepl("--guide-reading: Garamond", guide_css, fixed = TRUE),

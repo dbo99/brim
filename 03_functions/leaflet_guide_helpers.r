@@ -1,8 +1,8 @@
 # ==== leaflet_guide_helpers.r ===============================================
 ##
-## Build-time Product inventory, profile projection, and browser embedding for
-## BRIM Guide. Runtime registries remain authoritative; the descriptive catalog
-## can enrich a Product but can never create, activate, or suppress a map layer.
+## Build-time Guide inventory, profile projection, and browser embedding.
+## Runtime registries remain authoritative; the descriptive catalog can enrich
+## a record but can never create, activate, or suppress a map layer.
 # ============================================================================
 
 pt_guide_or <- function(x, fallback = "") {
@@ -98,7 +98,7 @@ pt_guide_mode <- function(subsystem, title, service_type = "") {
     return("Live observation")
   }
   if (identical(subsystem, "External Layers")) return("External on-demand service")
-  if (identical(subsystem, "Tools")) return("Guidance / method")
+  if (identical(subsystem, "Tools")) return("Interactive workflow")
   if (identical(subsystem, "Basemaps / Local Layers") && grepl("basemap", text)) return("Static reference")
   if (grepl("histor|past|archive", text)) return("Historical context")
   if (grepl("screen|derived|model|prism|bcm|match|candidate", text)) return("Screening / derived")
@@ -153,6 +153,7 @@ pt_guide_product <- function(
   )
   list(
     kind = "Product",
+    entityType = if (identical(subsystem, "Tools")) "Tool" else "Layer",
     id = as.character(id),
     title = as.character(title),
     subsystem = as.character(subsystem),
@@ -381,10 +382,13 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
     included <- isTRUE(registry$included_by_default[[i]]) &&
       (is.na(flag) || !nzchar(flag) || isTRUE(map_display[[flag]]))
     if (!included) next
-    title <- definition$source_token
+    runtime_title <- definition$source_token
+    title <- runtime_title
     if (title %in% names(constant_names)) title <- unname(constant_names[[title]])
+    id <- registry$stable_id[[i]]
+    if (identical(id, "ops_scan_soil_moisture")) title <- "SCAN Soil Moisture"
     path <- c("Ops Live", definition$category,
-              if (nzchar(definition$subgroup)) definition$subgroup, title)
+              if (nzchar(definition$subgroup)) definition$subgroup, runtime_title)
     provider <- if (grepl("USGS", title)) {
       "U.S. Geological Survey"
     } else if (grepl("USDA|SCAN", title)) {
@@ -394,14 +398,17 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
     } else {
       "NOAA / National Weather Service"
     }
-    id <- registry$stable_id[[i]]
     products[[length(products) + 1L]] <- pt_guide_product(
       id = id,
       title = title,
       subsystem = "Ops Live",
       provider = provider,
       path = path,
-      subject = pt_guide_subject(title, path),
+      subject = if (identical(id, "ops_scan_soil_moisture")) {
+        "Soil Moisture"
+      } else {
+        pt_guide_subject(title, path)
+      },
       mode = pt_guide_mode("Ops Live", title),
       family = definition$category,
       aliases = pt_guide_aliases(id, title),
@@ -439,8 +446,8 @@ pt_guide_tool_products <- function(map_display) {
   definitions <- list(
     c("tool_measure", "Distance and area measurement", "Measurement"),
     c("tool_teaching_markup", "Draw and label markup", "Teaching / markup"),
-    c("tool_external_gis_overlay", "External GIS URL overlay", "Add Data"),
-    c("tool_local_gis_upload", "Local GIS file upload", "Add Data")
+    c("tool_external_gis_overlay", "External GIS URL Overlay", "Add Data"),
+    c("tool_local_gis_upload", "Local GIS File Upload", "Add Data")
   )
   if (isTRUE(map_display$add_blm_sma_context_overlay)) {
     definitions <- c(definitions, list(c("tool_blm_sma_context", "BLM Surface Management Agency context", "Reference tool")))
@@ -451,7 +458,7 @@ pt_guide_tool_products <- function(map_display) {
       id = definition[[1]], title = definition[[2]], subsystem = "Tools",
       provider = "BRIM", path = path,
       subject = pt_guide_subject(definition[[2]], path),
-      mode = "Guidance / method", family = definition[[3]],
+      mode = "Interactive workflow", family = definition[[3]],
       related_resource_ids = if (definition[[1]] == "tool_blm_sma_context") "resource_blm_california" else character(0)
     )
   })
@@ -529,7 +536,7 @@ pt_guide_external_source_resource <- function(row, id, title) {
   )
 }
 
-pt_guide_article <- function(id, title, summary, sections, related_product_ids = character(0), aliases = character(0)) {
+pt_guide_article <- function(id, title, summary, sections, related_product_ids = character(0), aliases = character(0), external_links = list()) {
   list(
     kind = "Article",
     id = id,
@@ -538,7 +545,8 @@ pt_guide_article <- function(id, title, summary, sections, related_product_ids =
     summary = summary,
     sections = unname(sections),
     relatedProductIds = unname(unique(as.character(related_product_ids))),
-    aliases = unname(unique(as.character(aliases)))
+    aliases = unname(unique(as.character(aliases))),
+    externalLinks = unname(external_links)
   )
 }
 
@@ -574,40 +582,33 @@ pt_guide_authored_content <- function() {
   bulletin_geometry <- pt_polygon_generalization_registry_row("bulletin118", generalization)
   huc_modes <- unname(vapply(PT_HUC_THEME_REGISTRY, `[[`, character(1), "label"))
   fire_recent <- pt_guide_external_catalog_row("EXT070")
+  fire_all <- pt_guide_external_catalog_row("EXT072")
   fire_current <- pt_guide_external_catalog_row("EXT074")
 
   articles <- list(
     pt_guide_article(
       "method_how_brim_works",
       "How BRIM Works",
-      "How BRIM combines embedded reference layers, on-demand services, live feeds, and map tools without treating them as one loading or lifecycle system.",
+      "A practical guide to where BRIM layers and tools come from, how they behave, and what to check before using them.",
       list(
         pt_guide_section(
-          "product_families",
-          "Product families",
+          "layer_tool_families",
+          "Layers and tools in BRIM",
           items = c(
-            "Local layers are embedded or retained reference Products assembled into the standalone map.",
-            "External layers are provider services loaded on demand, often for the current map view.",
-            "Ops Live Products consume feed-specific current-observation or forecast contracts when activated.",
-            "Tools provide measurement, drawing, upload, and other map workflows rather than data layers."
+            "LOCAL LAYERS are packaged, cached, or prepared with BRIM for fast and consistent use in the map.",
+            "OPS LIVE layers show current observations, conditions, forecasts, or other time-aware information from feed-specific sources.",
+            "EXTERNAL LAYERS are hosted by other organizations, so drawing speed and availability depend on the provider service.",
+            "TOOLS support upload, measurement, drawing, filtering, and other workflows; they are not source datasets."
           )
         ),
         pt_guide_section(
-          "guide_boundary",
-          "Guide boundary",
-          paragraphs = "Guide I1 is a read-only index into current BRIM authority. Product existence and paths come from runtime/build definitions; the descriptive catalog can enrich records but cannot control the map."
-        ),
-        pt_guide_section(
-          "huc_climate_recharge",
-          "HUC climate and recharge summaries",
-          paragraphs = c(
-            "BRIM summarizes 1991–2020 PRISM precipitation and BCMv8 recharge rasters to HUC polygons using exact polygon weights, then joins compact geometry-free tables to the existing map geometry.",
-            "The map precomputes level-specific theme bins, labels, and colors and restyles the existing HUC polygons in place; it does not embed duplicate HUC geometry for each theme."
-          )
+          "using_the_guide",
+          "Using the Guide",
+          paragraphs = "Use the Guide to find layers and tools and to understand their sources, preparation, timing, and limitations. The Guide explains map content but does not turn layers on or change map settings."
         )
       ),
-      related_product_ids = c("huc8", "gw_bull118", "EXT070", "EXT074"),
-      aliases = c("BRIM architecture", "BRIM basics", "HUC climate recharge method")
+      related_product_ids = c("huc8", "gw_bull118", "EXT070", "EXT072", "EXT074"),
+      aliases = c("BRIM basics", "layer types", "tool types")
     ),
     pt_guide_article(
       "method_display_geometry_generalization",
@@ -633,7 +634,7 @@ pt_guide_authored_content <- function() {
     ),
     pt_guide_article(
       "method_scan_soil_moisture_statistical_context",
-      "SCAN Soil-Moisture Statistical Context",
+      "SCAN Soil Moisture Statistical Context",
       "How the SCAN map separates fresh observations from station/depth historical reference context.",
       list(
         pt_guide_section(
@@ -694,16 +695,17 @@ pt_guide_authored_content <- function() {
     pt_guide_article(
       "method_brim_live_update_timing",
       "BRIM Live Update Timing",
-      "How to read source times, forecast cycles, valid times, freshness, and refresh behavior across Ops Live Products.",
+      "How to read source times, forecast cycles, valid times, freshness, and refresh behavior across Ops Live layers.",
       list(
         pt_guide_section(
           "timing_semantics",
           "Feed-specific timing",
           items = c(
             "The separate feed repository acquires, normalizes, publishes, and monitors live artifacts; BRIM fetches and renders those documented contracts.",
-            "Observation Products expose provider/source observation times and feed-specific freshness or age status when available.",
-            "Forecast Products preserve their own cycle time, valid time, and lead; an exact unavailable target is not replaced with a nearby time or another cycle.",
-            "Activating or refreshing one Product does not make neighboring feeds share its update cadence or currency."
+            "Observation layers expose provider/source observation times and feed-specific freshness or age status when available.",
+            "Forecast layers preserve their own cycle time, valid time, and lead; an exact unavailable target is not replaced with a nearby time or another cycle.",
+            "Activating or refreshing one layer does not make neighboring feeds share its update cadence or currency.",
+            "The linked product table is the current schedule reference; fetch attempts, successful publication, model cycles, and valid times remain distinct and vary by product."
           )
         )
       ),
@@ -712,7 +714,12 @@ pt_guide_authored_content <- function() {
         "product-ops-usgs-groundwater", "winter_storm_levels", "nbm_qpf",
         "product-ops-nbm-accumulated-qpf"
       ),
-      aliases = c("freshness", "feed cadence", "cycle time", "valid time")
+      aliases = c("freshness", "feed cadence", "cycle time", "valid time"),
+      external_links = list(list(
+        label = "View current BRIM Live schedule",
+        role = "Current product schedule",
+        url = "https://github.com/dbo99/brim-live-data-feeds/blob/main/docs/PRODUCTS.md#inventory-at-a-glance"
+      ))
     ),
     pt_guide_article(
       "method_brim_under_the_hood",
@@ -724,8 +731,8 @@ pt_guide_authored_content <- function() {
           "Build and browser responsibilities",
           items = c(
             "R assembles the current registries, retained map products, controls, compact Guide bundle, and assets into one standalone Leaflet HTML file.",
-            "Guide Product coverage is compiled after the current map profile and visible layer groups are known, then embedded before browser startup.",
-            "Browser controllers own interaction and teardown for their layer families; Guide I1 does not activate map layers or fetch Guide content at runtime.",
+            "Guide coverage is assembled after the current map profile and visible layer groups are known, then embedded before browser startup.",
+            "Browser controllers own interaction and teardown for their layer families; the Guide does not activate map layers or fetch Guide content at runtime.",
             "Large raw inputs, processed products, caches, realistic HTML, and screenshots remain external to the tracked source repository."
           )
         )
@@ -745,7 +752,9 @@ pt_guide_authored_content <- function() {
          provider = "U.S. Geological Survey", summary = "Official BCMv8 model and data-release context for hydrologic California.", url = "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39", relatedProductIds = "huc8"),
     list(kind = "Resource", id = "resource_dwr_bulletin118_sgma_2019", title = "DWR Bulletin 118 SGMA 2019 Basin Prioritization",
          provider = "California Department of Water Resources", summary = "Official final 2019 SGMA basin-prioritization service used for BRIM's exact code-based attribute join.", url = PT_BULLETIN118_SGMA_SOURCE_PAGE, relatedProductIds = "gw_bull118"),
-    pt_guide_external_source_resource(fire_recent, "resource_calfire_fire_perimeters", "CAL FIRE FRAP Fire Perimeters"),
+    within(pt_guide_external_source_resource(fire_recent, "resource_calfire_fire_perimeters", "CAL FIRE FRAP Fire Perimeters"), {
+      relatedProductIds <- c("EXT070", "EXT072")
+    }),
     pt_guide_external_source_resource(fire_current, "resource_nifc_wfigs_current", "NIFC WFIGS Current Interagency Fire Perimeters"),
     list(kind = "Resource", id = "resource_usgs_water_dashboard", title = "USGS National Water Dashboard",
          provider = "U.S. Geological Survey", summary = "Official current water information and station context from USGS.", url = "https://dashboard.waterdata.usgs.gov/", relatedProductIds = "product-ops-usgs-groundwater"),
@@ -757,7 +766,7 @@ pt_guide_authored_content <- function() {
     list(kind = "Update", id = "update_read_only_layer_explorer", title = "Read-only Layer Explorer added",
          date = "2026-08-24", updateType = "Interface", summary = "Added a read-only view of embedded descriptive catalog metadata; current runtime construction remains authoritative and the explorer cannot control map layers.", relatedProductIds = character(0)),
     list(kind = "Update", id = "update_nbm_accumulated_qpf", title = "NBM accumulated QPF forecast windows added",
-         date = "2026-08-20", updateType = "Forecast Product", summary = "Added exact-cycle 0–10 day accumulated-QPF windows computed from verified six-hour numeric companions; partial totals are not rendered.", relatedProductIds = "product-ops-nbm-accumulated-qpf"),
+         date = "2026-08-20", updateType = "Forecast layer", summary = "Added exact-cycle 0–10 day accumulated-QPF windows computed from verified six-hour numeric companions; partial totals are not rendered.", relatedProductIds = "product-ops-nbm-accumulated-qpf"),
     list(kind = "Update", id = "update_nbm_legend_links", title = "NBM legend links simplified",
          date = "2026-08-19", updateType = "Usability", summary = "Removed redundant per-row NBM legend links while retaining the shared forecast-guidance control behavior.", relatedProductIds = c("winter_storm_levels", "nbm_qpf"))
   )
@@ -767,8 +776,8 @@ pt_guide_authored_content <- function() {
          summary = "HUC8 boundaries with BLM-managed-land, PRISM precipitation, and BCMv8 recharge display context."),
     list(id = "quick_groundwater_basins", label = "Groundwater Basins – Bulletin 118", productIds = "gw_bull118",
          summary = "Bulletin 118 groundwater basins with SGMA 2019 priority and BLM-managed-land context."),
-    list(id = "quick_fire_perimeters", label = "Fire Perimeters", productIds = c("EXT070", "EXT074"),
-         summary = "Two complementary perimeter Products: CAL FIRE recent large-fire context and NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each Product before use.")
+    list(id = "quick_fire_perimeters", label = "Fire Perimeters", productIds = c("EXT070", "EXT072", "EXT074"),
+         summary = "Three complementary perimeter layers: CAL FIRE recent large-fire and full historical coverage, plus NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each layer before use.")
   )
 
   curated_products <- list(
@@ -889,6 +898,29 @@ pt_guide_authored_content <- function() {
       "resource_calfire_fire_perimeters",
       c(resource_calfire_fire_perimeters = "Perimeter source and limitations")
     ),
+    EXT072 = pt_guide_curated_product(
+      pt_guide_first(fire_all$pt2_usage_note, fire_all$notes),
+      list(
+        pt_guide_section(
+          "fire_all_controls", "Loading & refresh",
+          items = pt_guide_or(fire_all$large_layer_warning)
+        ),
+        pt_guide_section(
+          "fire_all_processing", "How BRIM prepares it",
+          items = c(
+            "BRIM requests the configured full historical CAL FIRE FRAP feature layer for the current map view.",
+            pt_guide_or(fire_all$legend_note)
+          )
+        ),
+        pt_guide_section(
+          "fire_all_limitations", "Coverage & limitations",
+          items = c(pt_guide_or(fire_all$notes), pt_guide_or(fire_all$pt2_usage_note))
+        )
+      ),
+      "method_how_brim_works",
+      "resource_calfire_fire_perimeters",
+      c(resource_calfire_fire_perimeters = "Perimeter source and limitations")
+    ),
     EXT074 = pt_guide_curated_product(
       pt_guide_first(fire_current$pt2_usage_note, fire_current$notes),
       list(
@@ -899,7 +931,7 @@ pt_guide_authored_content <- function() {
         pt_guide_section(
           "fire_current_processing", "How BRIM prepares it",
           items = c(
-            "BRIM requests a current-view WFIGS snapshot and filters to wildfire and complex categories where the service supports SQL; prescribed-fire records are excluded from this Product.",
+            "BRIM requests a current-view WFIGS snapshot and filters to wildfire and complex categories where the service supports SQL; prescribed-fire records are excluded from this layer.",
             pt_guide_or(fire_current$legend_note)
           )
         ),
@@ -911,6 +943,62 @@ pt_guide_authored_content <- function() {
       "method_how_brim_works",
       "resource_nifc_wfigs_current",
       c(resource_nifc_wfigs_current = "Operational perimeter source")
+    ),
+    tool_external_gis_overlay = pt_guide_curated_product(
+      "Adds a temporary browser-session overlay from a direct public GeoJSON or ArcGIS REST source.",
+      list(
+        pt_guide_section(
+          "external_overlay_sources", "Supported sources",
+          items = c(
+            "Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.",
+            "Parent ArcGIS services can be resolved to a mappable sublayer when the service exposes one or more candidates."
+          )
+        ),
+        pt_guide_section(
+          "external_overlay_behavior", "Loading & interaction",
+          items = c(
+            "FeatureServer and queryable MapServer layers can load the current map view as a temporary snapshot; MapServer and ImageServer sources can remain provider-rendered visual overlays.",
+            "Popups, identify, current-view loading, and optional SQL filters depend on the selected service type and provider capabilities.",
+            "The panel reports loading and validation errors; each overlay can be removed individually, and Clear external removes the temporary URL/catalog overlays."
+          )
+        ),
+        pt_guide_section(
+          "external_overlay_limits", "Limits",
+          items = c(
+            "External overlays depend on provider availability, response speed, browser access rules, and service limits.",
+            "BRIM keeps up to three temporary external overlays in the browser session; they are not saved into BRIM."
+          )
+        )
+      ),
+      character(0), character(0), character(0)
+    ),
+    tool_local_gis_upload = pt_guide_curated_product(
+      "Displays a temporary local GeoJSON/JSON file or zipped shapefile without uploading it to a BRIM server.",
+      list(
+        pt_guide_section(
+          "local_upload_formats", "Supported files",
+          items = c(
+            "GeoJSON and JSON are read directly in the browser; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.",
+            "The zipped-shapefile reader is loaded from a browser-side CDN only when that format is selected."
+          )
+        ),
+        pt_guide_section(
+          "local_upload_display", "Display & styling",
+          items = c(
+            "Choose an attribute and style with one color, categories, or 3–10 numeric classes using quantile or equal-interval bins; controls include palettes, fill and outline colors, opacity, line width, and point size.",
+            "Hover and popup can be toggled per layer, with a chosen attribute for hover. Individual layers can be hidden, zoomed to, restyled, removed, or returned to Original geometry after display simplification; Clear uploads removes all uploaded layers.",
+            "Use WGS 84 (EPSG:4326) and verify alignment; missing or incorrect coordinate-reference information can produce plausible-looking but misplaced data."
+          )
+        ),
+        pt_guide_section(
+          "local_upload_limits", "Limits",
+          items = c(
+            "The current limits are 50 MB, 25,000 features, and three active local layers.",
+            "Local files remain temporary in the browser session and are not saved into BRIM."
+          )
+        )
+      ),
+      character(0), character(0), character(0)
     )
   )
 
@@ -990,6 +1078,16 @@ pt_validate_guide_bundle <- function(bundle) {
   if (any(!quick_ids %in% product_ids)) stop("BRIM Guide Quick Access references an unavailable Product.", call. = FALSE)
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
+  for (article in bundle$articles) {
+    links <- article$externalLinks
+    if (!length(links)) next
+    labels <- vapply(links, function(x) pt_guide_or(x$label), character(1))
+    roles <- vapply(links, function(x) pt_guide_or(x$role), character(1))
+    urls <- vapply(links, function(x) pt_guide_or(x$url), character(1))
+    if (any(!nzchar(labels)) || any(!nzchar(roles)) || any(!grepl("^https://", urls)) || anyDuplicated(urls)) {
+      stop("BRIM Guide Method external links require unique HTTPS URLs and nonblank labels and roles.", call. = FALSE)
+    }
+  }
   for (product in bundle$products) {
     related_articles <- as.character(product$relatedArticleIds)
     if (any(!related_articles %in% article_ids)) {
