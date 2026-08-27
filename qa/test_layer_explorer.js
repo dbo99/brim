@@ -217,6 +217,8 @@ assert.deepStrictEqual(
 );
 
 const modalSource = extractFunction(panelSource, "ptOpenLayerExplorer");
+assert(!modalSource.includes("window.BRIM_GUIDE"),
+  "Retained descriptive modal must not delegate to BRIM Guide");
 assert(modalSource.includes("Partial catalog: all 26 currently cataloged records are shown"),
   "User-visible partial-catalog notice is missing");
 assert(modalSource.includes("data-pt-layer-explorer-id"), "Record selection control is missing");
@@ -224,11 +226,16 @@ assert(modalSource.includes("pt-layer-explorer-search"), "Search control is miss
 assert(modalSource.includes("pt-layer-explorer-architecture"), "Architecture filter is missing");
 assert(modalSource.includes("renderDetail(selectedRecord)"), "Selected-record detail rendering is missing");
 assert(!modalSource.includes("innerHTML"), "Catalog metadata must not be rendered with innerHTML");
-assert(!/(map\.|addLayer|removeLayer|dispatchEvent|fetch\(|XMLHttpRequest|ptClear|ptToggle|BRIM_)/.test(modalSource),
+const fallbackSource = modalSource.slice(modalSource.indexOf("var old ="));
+assert(!/(map\.|addLayer|removeLayer|dispatchEvent|fetch\(|XMLHttpRequest|ptClear|ptToggle|BRIM_)/.test(fallbackSource),
   "Layer Explorer modal contains a map, controller, clear/reset, or network hook");
 
-assert(panelSource.includes('id="pt-layer-explorer-btn"'), "Layer Explorer entry point is missing");
-assert(panelSource.includes("ptBind('pt-layer-explorer-btn'"), "Layer Explorer entry is not bound");
+assert(!panelSource.includes('id="pt-layer-explorer-btn"'),
+  "External Layers retains the retired Guide entry button");
+assert(!panelSource.includes("ptBind('pt-layer-explorer-btn'"),
+  "External Layers retains the retired Guide entry handler");
+assert(!panelSource.includes('>BRIM Guide</button>'),
+  "External Layers retains a duplicate primary Guide entry");
 assert(helperSource.includes('layer_explorer = layer_explorer_metadata'),
   "Build-time metadata is not injected through the existing Tools data payload");
 assert.strictEqual((helperSource.match(/BRIM_LAYER_CATALOG\.csv/g) || []).length, 1,

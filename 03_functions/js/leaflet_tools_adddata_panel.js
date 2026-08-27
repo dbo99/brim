@@ -11765,12 +11765,6 @@ function(el, x, toolsData) {
 
       '<div id="pt-tools-status" class="pt-tools-status"></div>' +
 
-      '<div class="pt-tools-section pt-layer-explorer-entry">' +
-        '<div class="pt-tools-heading">BRIM layer metadata</div>' +
-        '<button type="button" id="pt-layer-explorer-btn" class="pt-tools-btn pt-layer-explorer-open">Layer Explorer</button>' +
-        '<div class="pt-tools-muted">Read-only descriptive metadata. Partial catalog: 26 records, not every BRIM layer.</div>' +
-      '</div>' +
-
       '<div class="pt-tools-section pt-active-external-section" id="pt-active-external-section">' +
         '<button type="button" id="pt-active-external-toggle" class="pt-active-external-toggle" aria-expanded="false" title="Expand/collapse active external overlay details">' +
           '<span id="pt-active-external-caret" class="pt-active-external-caret">▸</span>' +
@@ -14260,10 +14254,6 @@ function(el, x, toolsData) {
 
   ptBind('pt-custom-clear-btn', 'click', function() {
     ptClearCustomLayers();
-  });
-
-  ptBind('pt-layer-explorer-btn', 'click', function() {
-    ptOpenLayerExplorer();
   });
 
   ptBind('pt-source-links-btn', 'click', function() {

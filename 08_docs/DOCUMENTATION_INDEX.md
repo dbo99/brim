@@ -50,9 +50,14 @@ Discovery and historical evidence only. Never automatically controlling.
 - Data governance: `/DATA.md`
 - Codex template: `/CODEX_HANDOFF.md`
 - Architecture: `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md`
-- Descriptive-only ten-record layer catalog (six HUC plus four heterogeneous proof records):
+- Descriptive-only 26-record layer catalog (six HUC, four heterogeneous proof records, and 16 diversity-selected records):
   `/08_docs/catalog/BRIM_LAYER_CATALOG.csv`
 - Descriptive catalog parity test: `/qa/test_descriptive_layer_catalog.R`
+- BRIM Guide architecture and onboarding boundary:
+  `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md` under **BRIM Guide foundation** (accepted V4 shell and typography roles, sole upper-left entry, complete 280-item A–Z layer/tool browse, three-layer Fire Perimeters Quick Access, SCAN display terminology, source-backed upload-tool detail, mailto contact, seven maintained Methods, three verified Updates, and current-build Legacy Notes retirement)
+- BRIM Guide build-time inventory/profile owner:
+  `/03_functions/leaflet_guide_helpers.r`
+- BRIM Guide focused foundation test: `/qa/test_guide_foundation.R`
 - Backup/recovery: `/08_docs/operations/BACKUP_AND_RECOVERY.md`
 - Live feeds: `/08_docs/integrations/LIVE_DATA_FEEDS.md`
 - UIC feature: `/08_docs/features/UIC_AQUIFER_EXEMPTIONS.md`
