@@ -44,6 +44,9 @@ function(el, x, data) {
   products.forEach(function(product) { productsById[product.id] = product; });
   var quickAccessById = {};
   quickAccess.forEach(function(item) { quickAccessById[item.id] = item; });
+  function quickProductIds(item) {
+    return item.entryKind === 'collection' ? asArray(item.memberIds) : asArray(item.productId);
+  }
   products.sort(function(a, b) {
     var titleA = normalize(a.title);
     var titleB = normalize(b.title);
@@ -61,8 +64,11 @@ function(el, x, data) {
     section: 'explore',
     view: 'landing',
     query: '',
-    browseDimension: '',
-    browseValue: '',
+    filters: {
+      brimSection: [],
+      subject: [],
+      informationType: []
+    },
     selectedId: '',
     quickIds: [],
     quickId: '',
@@ -145,21 +151,18 @@ function(el, x, data) {
     if (!query) return 0;
     var title = normalize(record.title);
     var aliases = asArray(record.aliases);
-    var path = asArray(record.path);
     var searchTerms = asArray(record.searchTerms);
-    var pathGroups = path.length > 2 ? path.slice(1, -1) : path.slice(0, -1);
+    var structured = record.kind === 'Product' ? '' : structuredText(record);
     var score = 0;
 
     score = Math.max(score, maxFieldScore(query, [record.title], 1200, 1000, 520));
     score = Math.max(score, maxFieldScore(query, aliases, 1100, 900, 500));
-    score = Math.max(score, maxFieldScore(query, path, 800, 720, 460));
-    score = Math.max(score, maxFieldScore(query, pathGroups, 760, 700, 440));
-    score = Math.max(score, maxFieldScore(query, [record.subject], 650, 620, 410));
-    score = Math.max(score, maxFieldScore(query, [record.mode], 600, 570, 390));
-    score = Math.max(score, maxFieldScore(query, [record.family], 550, 520, 360));
+    if (record.kind === 'Product' && normalize(record.pathLabel) === query) score = Math.max(score, 1050);
+    score = Math.max(score, maxFieldScore(query, asArray(record.subjectTags), 650, 620, 410));
+    score = Math.max(score, maxFieldScore(query, asArray(record.informationTypes), 600, 570, 390));
     score = Math.max(score, maxFieldScore(query, [record.provider].concat(searchTerms), 420, 390, 260));
     score = Math.max(score, maxFieldScore(query, [record.summary], 250, 220, 150));
-    score = Math.max(score, maxFieldScore(query, [structuredText(record)], 210, 190, 140));
+    score = Math.max(score, maxFieldScore(query, [structured], 210, 190, 140));
 
     asArray(record.relatedResourceIds).forEach(function(resourceId) {
       var resource = resourcesById[resourceId];
@@ -171,14 +174,12 @@ function(el, x, data) {
       var searchable = normalize([
         record.title,
         aliases.join(' '),
-        path.join(' '),
-        record.subject,
-        record.mode,
-        record.family,
+        asArray(record.subjectTags).join(' '),
+        asArray(record.informationTypes).join(' '),
         record.provider,
         searchTerms.join(' '),
         record.summary,
-        structuredText(record)
+        structured
       ].join(' '));
       if (queryWords.every(function(token) { return searchable.indexOf(token) >= 0; })) {
         score = Math.max(score, 340 + queryWords.length);
@@ -208,6 +209,31 @@ function(el, x, data) {
       })
       .slice(0, 60)
       .map(function(item) { return item.record; });
+  }
+
+  function hasActiveFilters() {
+    return Object.keys(state.filters).some(function(key) { return state.filters[key].length > 0; });
+  }
+
+  function productMatchesFilters(product) {
+    if (state.filters.brimSection.length && state.filters.brimSection.indexOf(product.brimSection) < 0) return false;
+    if (state.filters.subject.length && asArray(product.subjectTags).indexOf(state.filters.subject[0]) < 0) return false;
+    if (state.filters.informationType.length && asArray(product.informationTypes).indexOf(state.filters.informationType[0]) < 0) return false;
+    return true;
+  }
+
+  function filteredProducts() {
+    return products.filter(productMatchesFilters);
+  }
+
+  function visibleProducts() {
+    var filtered = filteredProducts();
+    if (!state.query) return filtered;
+    var matched = {};
+    search(state.query).forEach(function(record) {
+      if (record.kind === 'Product') matched[record.id] = true;
+    });
+    return filtered.filter(function(product) { return matched[product.id]; });
   }
 
   var root = node('div', 'brim-guide');
@@ -254,9 +280,13 @@ function(el, x, data) {
   quick.appendChild(node('h2', 'brim-guide__rail-heading', 'Quick Access'));
   var quickList = node('div', 'brim-guide__quick-list');
   quickAccess.forEach(function(item) {
-    var quickButton = button('brim-guide__quick-item', item.label, 'quick');
+    var quickButton = button('brim-guide__quick-item', '', 'quick');
     quickButton.setAttribute('data-guide-quick', item.id);
-    quickButton.setAttribute('data-guide-products', asArray(item.productIds).join(','));
+    quickButton.setAttribute('data-guide-products', quickProductIds(item).join(','));
+    quickButton.setAttribute('data-guide-entry-kind', item.entryKind);
+    quickButton.setAttribute('data-guide-entry-label', item.label);
+    quickButton.appendChild(node('span', 'brim-guide__quick-label', item.label));
+    quickButton.appendChild(node('span', 'brim-guide__quick-type', item.typeLabel));
     quickList.appendChild(quickButton);
   });
   quick.appendChild(quickList);
@@ -286,6 +316,7 @@ function(el, x, data) {
 
   var workspace = node('div', 'brim-guide__workspace');
   var utility = node('div', 'brim-guide__utility');
+  var searchStack = node('div', 'brim-guide__search-stack');
   var searchLabel = node(
     'label',
     'brim-guide__search-label',
@@ -298,14 +329,19 @@ function(el, x, data) {
   searchInput.autocomplete = 'off';
   searchInput.placeholder = 'Search layers, tools, methods, resources, and updates';
   searchInput.setAttribute('data-guide-search', 'true');
+  var activeSummary = node('div', 'brim-guide__active-filters');
+  activeSummary.setAttribute('aria-live', 'polite');
+  activeSummary.hidden = true;
   var rightClose = button(
     'brim-guide__close brim-guide__close--right',
     '×',
     'close',
     'Close BRIM Guide'
   );
-  utility.appendChild(searchLabel);
-  utility.appendChild(searchInput);
+  searchStack.appendChild(searchLabel);
+  searchStack.appendChild(searchInput);
+  searchStack.appendChild(activeSummary);
+  utility.appendChild(searchStack);
   utility.appendChild(rightClose);
   workspace.appendChild(utility);
 
@@ -319,13 +355,20 @@ function(el, x, data) {
   root.appendChild(shell);
   document.body.appendChild(root);
 
+  function copyFilters() {
+    return {
+      brimSection: state.filters.brimSection.slice(),
+      subject: state.filters.subject.slice(),
+      informationType: state.filters.informationType.slice()
+    };
+  }
+
   function snapshot() {
     return {
       section: state.section,
       view: state.view,
       query: state.query,
-      browseDimension: state.browseDimension,
-      browseValue: state.browseValue,
+      filters: copyFilters(),
       selectedId: state.selectedId,
       quickIds: state.quickIds.slice(),
       quickId: state.quickId,
@@ -443,16 +486,26 @@ function(el, x, data) {
     return record.kind || 'Resource';
   }
 
+  function productResultContext(record) {
+    return recordType(record) === 'Tool'
+      ? (record.summary || record.accessHint || '')
+      : (record.pathLabel || record.summary || '');
+  }
+
   function resultRow(record) {
     var row = button('brim-guide__result', '', 'record');
     row.setAttribute('data-guide-record', record.id);
     row.appendChild(node('span', 'brim-guide__result-kind', recordType(record)));
     row.appendChild(node('strong', 'brim-guide__result-title', record.title));
     var context = record.kind === 'Product'
-      ? record.pathLabel
+      ? productResultContext(record)
       : (record.section || record.provider || record.date || 'BRIM Guide');
     row.appendChild(node('span', 'brim-guide__result-path', context));
-    if (record.summary) row.appendChild(node('span', 'brim-guide__result-summary', record.summary));
+    var summary = record.kind === 'Product'
+      ? [record.provider, record.summary === context ? '' : record.summary]
+          .filter(Boolean).join(' · ')
+      : record.summary;
+    if (summary) row.appendChild(node('span', 'brim-guide__result-summary', summary));
     return row;
   }
 
@@ -489,72 +542,111 @@ function(el, x, data) {
     return intro;
   }
 
-  function renderBrowse() {
-    var browse = node('section', 'brim-guide__browse');
-    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', products.length + ' included'));
-    var browseColumns = node('div', 'brim-guide__browse-columns');
-    [
-      ['subject', 'Primary subject'],
-      ['mode', 'Information Type']
-    ].forEach(function(definition) {
-      var column = node('div', 'brim-guide__browse-column');
-      column.appendChild(node('h3', '', definition[1]));
-      var grid = node('div', 'brim-guide__browse-grid');
-      grid.classList.add('brim-guide__browse-grid--' + definition[0]);
-      var values = Array.from(new Set(products.map(function(product) {
-        return product[definition[0]];
-      }))).sort();
-      values.forEach(function(value) {
-        var count = products.filter(function(product) {
-          return product[definition[0]] === value;
-        }).length;
-        var browseButton = button('brim-guide__browse-item', '', 'browse');
-        browseButton.setAttribute('data-guide-dimension', definition[0]);
-        browseButton.setAttribute('data-guide-value', value);
-        browseButton.appendChild(node('span', '', value));
-        browseButton.appendChild(node('span', 'brim-guide__browse-count', count));
-        grid.appendChild(browseButton);
+  function filterValues(field) {
+    var values = [];
+    products.forEach(function(product) {
+      var productValues = field === 'subject'
+        ? asArray(product.subjectTags)
+        : field === 'informationType'
+          ? asArray(product.informationTypes)
+          : [product[field]];
+      productValues.forEach(function(value) {
+        if (value && value !== 'Tool / Workflow' && values.indexOf(value) < 0) values.push(value);
       });
-      column.appendChild(grid);
-      browseColumns.appendChild(column);
     });
-    browse.appendChild(browseColumns);
+    if (field === 'brimSection') {
+      return ['Local', 'Ops Live', 'External', 'Tools'].filter(function(value) {
+        return values.indexOf(value) >= 0;
+      });
+    }
+    if (field === 'informationType') {
+      return [
+        'Static Reference', 'Live Observation', 'Forecast / Outlook',
+        'Model / Simulation', 'Historical Context', 'Screening / Derived',
+        'External On-Demand Service'
+      ].filter(function(value) { return values.indexOf(value) >= 0; });
+    }
+    return values.sort(function(a, b) { return a.localeCompare(b); });
+  }
+
+  function facetGroup(field, label, values) {
+    var wrap = node('section', 'brim-guide__facet');
+    wrap.appendChild(node('h3', '', label));
+    var options = node('div', 'brim-guide__facet-options');
+    options.setAttribute('role', 'group');
+    options.setAttribute('aria-label', label);
+    values.forEach(function(value) {
+      var selected = state.filters[field].indexOf(value) >= 0;
+      var option = button('brim-guide__facet-button', value, 'facet-toggle');
+      option.setAttribute('data-guide-filter', field);
+      option.setAttribute('data-guide-value', value);
+      option.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      option.classList.toggle('is-selected', selected);
+      options.appendChild(option);
+    });
+    wrap.appendChild(options);
+    return wrap;
+  }
+
+  function renderActiveSummary() {
+    activeSummary.replaceChildren();
+    var labels = { brimSection: 'Where in BRIM', subject: 'Primary Subject', informationType: 'Information Type' };
+    Object.keys(labels).forEach(function(field) {
+      state.filters[field].forEach(function(value) {
+        var chip = button('brim-guide__filter-chip', '', 'filter-remove', 'Remove ' + value + ' filter');
+        chip.setAttribute('data-guide-filter', field);
+        chip.setAttribute('data-guide-value', value);
+        chip.appendChild(node('span', '', value));
+        var remove = node('span', 'brim-guide__filter-chip-x', '×');
+        remove.setAttribute('aria-hidden', 'true');
+        chip.appendChild(remove);
+        activeSummary.appendChild(chip);
+      });
+    });
+    if (state.query || hasActiveFilters()) {
+      activeSummary.appendChild(button('brim-guide__clear-all', 'Clear all', 'clear-all'));
+    }
+    activeSummary.hidden = !(state.query || hasActiveFilters());
+  }
+
+  function renderFilters() {
+    var browse = node('section', 'brim-guide__browse');
+    browse.appendChild(sectionHeading('01', 'Browse BRIM layers & tools', visibleProducts().length + ' of ' + products.length));
+    var controls = node('div', 'brim-guide__filters');
+    controls.appendChild(facetGroup('brimSection', 'Where in BRIM', filterValues('brimSection')));
+    controls.appendChild(facetGroup('subject', 'Primary Subject', filterValues('subject')));
+    controls.appendChild(facetGroup('informationType', 'Information Type', filterValues('informationType')));
+    browse.appendChild(controls);
     return browse;
   }
 
   function renderExplore() {
     var fragment = document.createDocumentFragment();
 
+    if (!state.query) {
+      fragment.appendChild(renderIntro());
+      fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
+    }
+    var directory = node('div', 'brim-guide__explore-directory');
+    var browse = renderFilters();
     if (state.query) {
       var searchResults = search(state.query);
-      fragment.appendChild(pageHeading('A · Explore', 'Search results', state.query));
-      fragment.appendChild(renderResults(
+      if (hasActiveFilters()) {
+        searchResults = searchResults.filter(function(record) {
+          return record.kind === 'Product' && productMatchesFilters(record);
+        });
+      }
+      browse.appendChild(sectionHeading('', 'Search matches', searchResults.length + ' records'));
+      browse.appendChild(renderResults(
         searchResults,
         'No Guide records match that search. Try a shorter source-supported term.'
       ));
-      return fragment;
     }
-
-    if (state.browseDimension && state.browseValue) {
-      var key = state.browseDimension === 'subject' ? 'subject' : 'mode';
-      var filtered = products.filter(function(product) {
-        return product[key] === state.browseValue;
-      });
-      var browseHeader = node('div', 'brim-guide__filtered-heading');
-      browseHeader.appendChild(pageHeading('A · Explore', state.browseValue, filtered.length + ' layers & tools'));
-      browseHeader.appendChild(button('brim-guide__text-button', '← All browse options', 'browse-clear'));
-      fragment.appendChild(browseHeader);
-      fragment.appendChild(renderResults(filtered));
-      return fragment;
-    }
-
-    fragment.appendChild(renderIntro());
-    fragment.appendChild(node('p', 'brim-guide__scope-note', bundle.identity.scope_note));
-    var directory = node('div', 'brim-guide__explore-directory');
-    directory.appendChild(renderBrowse());
+    directory.appendChild(browse);
+    var filtered = visibleProducts();
     var productSection = node('section', 'brim-guide__product-index');
-    productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', products.length + ' included'));
-    productSection.appendChild(renderResults(products, '', 'index'));
+    productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', filtered.length + ' of ' + products.length));
+    productSection.appendChild(renderResults(filtered, 'No layers or tools match the active filters.', 'index'));
     directory.appendChild(productSection);
     fragment.appendChild(directory);
     return fragment;
@@ -570,18 +662,39 @@ function(el, x, data) {
 
   function renderProductDetail(product) {
     var fragment = document.createDocumentFragment();
+    var entityType = recordType(product);
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
-    fragment.appendChild(pageHeading(product.subsystem, product.title, product.summary, 'product'));
+    fragment.appendChild(pageHeading(
+      entityType,
+      product.title,
+      entityType === 'Tool' ? '' : product.summary,
+      'product'
+    ));
 
     var locator = node('section', 'brim-guide__locator');
-    locator.appendChild(node('h2', '', 'Find in layer list'));
-    locator.appendChild(node('p', 'brim-guide__path', product.pathLabel));
-    locator.appendChild(node(
-      'p',
-      'brim-guide__boundary',
-      'Use this exact path in the existing map controls. The Guide explains this item but does not change map state.'
-    ));
+    if (entityType === 'Tool') {
+      locator.appendChild(node('h2', '', 'What this tool does'));
+      locator.appendChild(node('p', 'brim-guide__path', product.summary));
+    } else if (product.pathLabel) {
+      locator.appendChild(node('h2', '', 'Find in layer list'));
+      locator.appendChild(node('p', 'brim-guide__path', product.pathLabel));
+      locator.appendChild(node(
+        'p',
+        'brim-guide__boundary',
+        'Use this exact path in the existing map controls. The Guide explains this item but does not change map state.'
+      ));
+    } else {
+      locator.appendChild(node('h2', '', 'About this layer'));
+      locator.appendChild(node('p', 'brim-guide__path', product.summary));
+    }
     fragment.appendChild(locator);
+
+    if (entityType === 'Tool' && product.accessHint) {
+      var access = node('section', 'brim-guide__locator');
+      access.appendChild(node('h2', '', 'How to open it'));
+      access.appendChild(node('p', 'brim-guide__path', product.accessHint));
+      fragment.appendChild(access);
+    }
 
     if (asArray(product.sections).length) {
       fragment.appendChild(renderStructuredSections(product.sections, 'product'));
@@ -590,14 +703,16 @@ function(el, x, data) {
     var detailLayout = node('div', 'brim-guide__detail-layout');
     var dl = node('dl', 'brim-guide__detail-list');
     [
-      ['Subsystem', product.subsystem],
+      ['BRIM section', product.brimSection],
       ['Provider / program', product.provider],
-      ['Primary subject', product.subject],
-      ['Information type', product.mode],
+      ['Subjects', asArray(product.subjectTags).join(', ')],
+      ['Information Type', asArray(product.informationTypes).join(', ')],
       ['Layer / tool family', product.family],
-      ['Guide coverage', product.contentTier === 'curated'
-        ? 'Curated Guide detail'
-        : (product.customOrNonGeneric ? 'Custom or non-generic presentation' : 'Basic Guide entry')]
+      ['Guide coverage', product.contentTier === 'SOURCE_BACKED_RICH'
+        ? 'Source-backed rich detail'
+        : (product.contentTier === 'EDITORIAL_REVIEW_REQUIRED'
+          ? 'Editorial review required'
+          : 'Structured basic detail')]
     ].forEach(function(definition) {
       var row = detailRow(definition[0], definition[1]);
       if (row) dl.appendChild(row);
@@ -719,7 +834,7 @@ function(el, x, data) {
     var quickDefinition = quickAccessById[state.quickId];
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
     fragment.appendChild(pageHeading(
-      'Collection · Quick Access',
+      quickDefinition && quickDefinition.typeLabel ? quickDefinition.typeLabel : 'Collection · Quick Access',
       state.quickLabel,
       quickDefinition && quickDefinition.summary
         ? quickDefinition.summary
@@ -761,6 +876,7 @@ function(el, x, data) {
 
   function render() {
     activeNav();
+    renderActiveSummary();
     main.replaceChildren();
     if (state.view === 'detail') {
       var selected = recordsById[state.selectedId];
@@ -796,8 +912,7 @@ function(el, x, data) {
     state.section = 'explore';
     state.view = 'landing';
     state.query = '';
-    state.browseDimension = '';
-    state.browseValue = '';
+    state.filters = { brimSection: [], subject: [], informationType: [] };
     state.selectedId = '';
     state.quickIds = [];
     state.quickId = '';
@@ -847,8 +962,6 @@ function(el, x, data) {
       state.section = target.getAttribute('data-guide-section');
       state.view = 'landing';
       state.query = '';
-      state.browseDimension = '';
-      state.browseValue = '';
       state.selectedId = '';
       state.quickIds = [];
       state.quickId = '';
@@ -859,35 +972,48 @@ function(el, x, data) {
       focusMain(false);
     } else if (action === 'record') {
       openRecord(target.getAttribute('data-guide-record'));
-    } else if (action === 'browse') {
+    } else if (action === 'clear-all') {
+      resetHome(true);
+    } else if (action === 'facet-toggle') {
+      var facetField = target.getAttribute('data-guide-filter');
+      var facetValue = target.getAttribute('data-guide-value');
+      if (!Object.prototype.hasOwnProperty.call(state.filters, facetField)) return;
+      var selected = state.filters[facetField].indexOf(facetValue) >= 0;
+      state.filters[facetField] = selected ? [] : [facetValue];
       state.section = 'explore';
       state.view = 'landing';
-      state.query = '';
-      state.browseDimension = target.getAttribute('data-guide-dimension');
-      state.browseValue = target.getAttribute('data-guide-value');
-      searchInput.value = '';
+      state.selectedId = '';
+      state.quickIds = [];
+      state.quickId = '';
+      state.quickLabel = '';
+      state.history = [];
       render();
-      focusMain(false);
-    } else if (action === 'browse-clear') {
-      state.browseDimension = '';
-      state.browseValue = '';
+      var facetReplacement = root.querySelector(
+        '[data-guide-action="facet-toggle"][data-guide-filter="' + facetField + '"][data-guide-value="' + facetValue + '"]'
+      );
+      if (facetReplacement) facetReplacement.focus();
+    } else if (action === 'filter-remove') {
+      var chipField = target.getAttribute('data-guide-filter');
+      if (!Object.prototype.hasOwnProperty.call(state.filters, chipField)) return;
+      state.filters[chipField] = [];
+      state.section = 'explore';
+      state.view = 'landing';
       render();
+      searchInput.focus();
     } else if (action === 'quick') {
       var quickIds = String(target.getAttribute('data-guide-products') || '')
         .split(',')
         .filter(Boolean);
-      if (quickIds.length === 1) {
+      if (target.getAttribute('data-guide-entry-kind') !== 'collection') {
         openRecord(quickIds[0]);
       } else {
         pushHistory();
         state.section = 'explore';
         state.view = 'quick';
         state.query = '';
-        state.browseDimension = '';
-        state.browseValue = '';
         state.quickIds = quickIds;
         state.quickId = target.getAttribute('data-guide-quick') || '';
-        state.quickLabel = target.textContent;
+        state.quickLabel = target.getAttribute('data-guide-entry-label') || '';
         searchInput.value = '';
         render();
         focusMain(false);
@@ -909,8 +1035,6 @@ function(el, x, data) {
     state.section = 'explore';
     state.view = 'landing';
     state.query = event.target.value;
-    state.browseDimension = '';
-    state.browseValue = '';
     state.selectedId = '';
     state.quickIds = [];
     state.quickId = '';

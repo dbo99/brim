@@ -21,6 +21,15 @@ pt_guide_first <- function(...) {
   ""
 }
 
+pt_guide_basemap_ids <- function() {
+  c(
+    "basemap_usgs_hydrography", "basemap_usgs_topo", "basemap_usgs_national_map_imagery",
+    "basemap_usgs_national_map_imagery_topo", "basemap_esri_world_topographic",
+    "basemap_esri_world_street", "basemap_esri_world_imagery", "basemap_cartodb_positron",
+    "basemap_openstreetmap", "basemap_none"
+  )
+}
+
 pt_guide_supported_profiles <- function() {
   list(
     default = list(
@@ -29,7 +38,7 @@ pt_guide_supported_profiles <- function() {
         "00_config/config_map_display.r::MAP_DISPLAY + ",
         "05_map_build/04_build_portatreasure2_core_map.r::OVERLAY_GROUPS"
       ),
-      excluded_ids = character(0)
+      excluded_ids = pt_guide_basemap_ids()
     )
   )
 }
@@ -67,42 +76,211 @@ pt_guide_aliases <- function(stable_id, title) {
   unique(out[nzchar(trimws(out)) & tolower(trimws(out)) != tolower(trimws(title))])
 }
 
-pt_guide_subject <- function(title, path = character(0), theme = "") {
-  text <- tolower(paste(c(title, path, theme), collapse = " "))
-  rules <- list(
-    "Groundwater" = "groundwater|monitoring well|bulletin 118|subsidence|well inventory|drilled well|gsp",
-    "Snow & SWE" = "snow|swe|snow pillow|winter storm level",
-    "Soil Moisture" = "soil moisture|\\bscan\\b",
-    "Precipitation" = "precip|qpf|qpe|rain|cocorahs",
-    "Fire & Burn Areas" = "fire|burn|smoke|wildfire",
-    "Climate & Drought" = "drought|climate|temperature outlook|prism|bcmv8",
-    "Weather & Forecasts" = "forecast|outlook|radar|nexrad|mrms|wind|weather|goes|warning|advis|wfo",
-    "Water Rights" = "water right|swrcb|calwatrs|point of diversion|\\bpod\\b",
-    "Geology & Subsidence" = "geolog|subsidence|seismic|fault",
-    "Ecology & Habitat" = "ecolog|habitat|species|invasive|wetland|riparian",
-    "Air Quality" = "air quality|air district|airnow|particulate",
-    "Infrastructure" = "conveyance|canal|reservoir|infrastructure|calsim",
-    "Land & Administrative Context" = "blm|office|county|district|boundary|wilderness|monument|grazing|drecp|acec|administrative|land status|surface management",
-    "Surface Water" = "stream|river|surface water|hydro|huc|basin|spring|watershed|water supply|reservoir"
+pt_guide_subject_vocabulary <- function() {
+  c(
+    "Groundwater", "Surface Water", "Water Quality", "Snow & SWE", "Soil Moisture",
+    "Precipitation", "Weather & Forecasts", "Fire Weather", "Climate & Drought",
+    "Fire & Burn Areas", "Ecology & Habitat", "Air Quality", "Water Rights",
+    "Geology & Geophysics", "Conservation Lands & Designations",
+    "Land Ownership & Administration", "Energy & Minerals", "Infrastructure & Conveyance"
   )
-  for (label in names(rules)) {
-    if (grepl(rules[[label]], text, perl = TRUE)) return(label)
-  }
-  "Land & Administrative Context"
 }
 
-pt_guide_mode <- function(subsystem, title, service_type = "") {
-  text <- tolower(paste(title, service_type))
-  if (identical(subsystem, "Ops Live")) {
-    if (grepl("forecast|outlook|nbm|hrrr|gfs|qpf|warning|advis", text)) return("Forecast / outlook")
-    return("Live observation")
+pt_guide_information_type_vocabulary <- function() {
+  c(
+    "Static Reference", "Live Observation", "Forecast / Outlook", "Model / Simulation",
+    "Historical Context", "Screening / Derived", "External On-Demand Service", "Tool / Workflow"
+  )
+}
+
+pt_guide_subject_tags <- function(stable_id, brim_section, source_theme = "") {
+  stable_id <- pt_guide_or(stable_id)
+  source_theme <- pt_guide_or(source_theme)
+  local_rules <- list(
+    "Groundwater" = c("gw_bull118", "gsp_areas", "adjudicated_gw_basins", "usgs_wells",
+                      "blm_noc_drilled_wells", "mojave_2025_gw_well_inventory"),
+    "Surface Water" = c(
+      "cnrfc_fnf_delta", "huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
+      "cnrfc_stream", "usgs_streamgages", "springs", "calsim3_network", "water_districts",
+      "brim_mapped_conveyance", "wild_scenic_rivers_blm_ca_lines",
+      "wild_scenic_rivers_usfs_interagency_segments", "wild_scenic_river_corridors_blm_ca",
+      "wild_scenic_river_corridors_usfs_lsrs",
+      "wild_scenic_river_legal_status_corridors_usfs_lsrs", "cnrfc_basin_product_availability"
+    ),
+    "Water Quality" = "rwqcb_regions",
+    "Precipitation" = c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
+                        "cnrfc_precip_weather_station_catalog"),
+    "Climate & Drought" = c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12"),
+    "Water Rights" = c("swrcb_wr_list_official", "swrcb_pod_spatial_matches", "swrcb_name_text_candidates"),
+    "Conservation Lands & Designations" = c(
+      "national_scenic_historic_trails", "national_monuments", "ca_desert_ncl",
+      "wilderness_study_areas", "federal_wilderness", "acec",
+      "wild_scenic_rivers_blm_ca_lines", "wild_scenic_rivers_usfs_interagency_segments",
+      "wild_scenic_river_corridors_blm_ca", "wild_scenic_river_corridors_usfs_lsrs",
+      "wild_scenic_river_legal_status_corridors_usfs_lsrs"
+    ),
+    "Land Ownership & Administration" = c(
+      "blm_offices", "field_office_outer", "blm_core", "blm_diffs", "gw_bull118",
+      "huc2", "huc4", "huc6", "huc8", "huc10", "huc12", "county",
+      "national_monuments", "ca_desert_ncl", "wilderness_study_areas", "federal_wilderness",
+      "drecp", "acec", "grazing_allotments", "rwqcb_regions", "water_districts",
+      "wild_scenic_rivers_blm_ca_lines", "wild_scenic_rivers_usfs_interagency_segments",
+      "wild_scenic_river_corridors_blm_ca", "wild_scenic_river_corridors_usfs_lsrs",
+      "wild_scenic_river_legal_status_corridors_usfs_lsrs"
+    ),
+    "Infrastructure & Conveyance" = c("calsim3_network", "brim_mapped_conveyance")
+  )
+  ops_rules <- list(
+    "Groundwater" = "product-ops-usgs-groundwater",
+    "Surface Water" = c(
+      "ops_streamflow_multiagency", "ops_delta_snapshot", "ops_streamflow_usgs_ca",
+      "ops_snow_pillow_swe", "ops_cnrfc_forecast_points",
+      "ops_major_water_supply_forecasts", "ops_cdec_reservoir_storage"
+    ),
+    "Snow & SWE" = c("ops_snow_pillow_swe", "winter_storm_levels"),
+    "Soil Moisture" = "ops_scan_soil_moisture",
+    "Precipitation" = c(
+      "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr", "ops_qpe_mrms_1day",
+      "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_7day",
+      "product-ops-cocorahs-ca-daily", "ops_cocorahs_conus_daily", "ops_wpc_qpf_day_1",
+      "ops_wpc_qpf_day_2", "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
+      "ops_cpc_6_10_precipitation", "ops_cpc_8_14_precipitation",
+      "product-ops-nbm-accumulated-qpf", "nbm_qpf"
+    ),
+    "Weather & Forecasts" = c(
+      "ops_hrrr_surface_wind", "ops_alertcalifornia_cameras", "ops_alertcalifornia_viewsheds",
+      "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_goes_geocolor", "ops_goes_infrared",
+      "ops_goes_water_vapor", "ops_modis_terra_true_color", "ops_cnrfc_forecast_points",
+      "ops_major_water_supply_forecasts", "ops_nws_weather_stations", "ops_wpc_qpf_day_1",
+      "ops_wpc_qpf_day_2", "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
+      "ops_nws_watches_warnings_advisories", "ops_wpc_ero_day_1", "ops_wpc_ero_day_2",
+      "ops_wpc_ero_day_3", "ops_nws_wfo_boundaries", "ops_cpc_6_10_temperature",
+      "ops_cpc_6_10_precipitation", "ops_cpc_8_14_temperature", "ops_cpc_8_14_precipitation",
+      "product-ops-nbm-accumulated-qpf", "winter_storm_levels", "nbm_qpf",
+      "ops_nbm_wind_guidance", "ops_observed_metar_wind", "ops_gfs_surface_wind"
+    ),
+    "Climate & Drought" = c(
+      "ops_us_drought_monitor", "ops_cpc_6_10_temperature", "ops_cpc_6_10_precipitation",
+      "ops_cpc_8_14_temperature", "ops_cpc_8_14_precipitation"
+    ),
+    "Fire & Burn Areas" = c("ops_alertcalifornia_cameras", "ops_alertcalifornia_viewsheds"),
+    "Land Ownership & Administration" = "ops_nws_wfo_boundaries",
+    "Infrastructure & Conveyance" = "ops_delta_snapshot"
+  )
+  external_theme_rules <- list(
+    "Groundwater" = c("Groundwater", "DWR GW", "Wells", "SWRCB GW", "C2VSIM",
+                      "Land subsidence", "UIC / Aquifer Exemptions"),
+    "Surface Water" = c(
+      "Surface water", "Gages", "Watershed condition", "Wild & Scenic Rivers", "NOHRSC",
+      "Water quality / impaired waters",
+      "refuges; delivery points; water infrastructure; habitat",
+      "refuges; wetlands; water deliveries; habitat"
+    ),
+    "Water Quality" = c("Water quality / impaired waters", "SWRCB GW", "DWR 1W"),
+    "Snow & SWE" = c("NOHRSC", "Winter weather"),
+    "Weather & Forecasts" = c("Convective storms", "CPC monthly / seasonal", "Fire weather",
+                              "Misc./Discussion", "NOHRSC", "Winter weather"),
+    "Fire Weather" = "Fire weather",
+    "Climate & Drought" = c("CPC monthly / seasonal", "Sea Level Rise"),
+    "Fire & Burn Areas" = c("Burn Areas", "Fire / active incidents", "Thermal hotspots",
+                            "Post-fire debris flow", "Post-fire vegetation condition"),
+    "Ecology & Habitat" = c(
+      "BLM", "CDFW", "CDFW lands; refuges; wildlife areas; ecological reserves; conservation easements",
+      "Invasive vegetation", "Post-fire vegetation condition",
+      "refuges; delivery points; water infrastructure; habitat",
+      "refuges; FWS administered lands; habitat; land status",
+      "refuges; wetlands; water deliveries; habitat", "USFWS", "Watershed condition"
+    ),
+    "Air Quality" = "Air Quality / Smoke",
+    "Water Rights" = "Points of Diversion",
+    "Geology & Geophysics" = c("Faults / seismicity", "Geology / maps", "Land subsidence",
+                               "Post-fire debris flow", "Quaternary faults", "Recent earthquakes",
+                               "Recent seismicity", "Regulatory fault traces"),
+    "Conservation Lands & Designations" = c(
+      "CDFW lands; refuges; wildlife areas; ecological reserves; conservation easements",
+      "refuges; FWS administered lands; habitat; land status",
+      "refuges; wetlands; water deliveries; habitat", "Wild & Scenic Rivers"
+    ),
+    "Land Ownership & Administration" = c("classification", "Districts / Service", "Planning", "PLSS"),
+    "Energy & Minerals" = c("Energy / Minerals", "Mines / AML", "Permitting", "Rnwble ROW",
+                             "UIC / Aquifer Exemptions", "utility"),
+    "Infrastructure & Conveyance" = c("transportation", "utility",
+                                      "refuges; delivery points; water infrastructure; habitat")
+  )
+  external_id_rules <- list(
+    "Surface Water" = c("EXT005", "EXT029", "EXT030", "EXT057", "EXT107", "EXT108", "EXT109",
+                        "EXT110", "EXT111", "EXT112", "EXT113"),
+    "Water Quality" = c("EXT029", "EXT030", "EXT053"),
+    "Soil Moisture" = "EXT124",
+    "Precipitation" = c("EXT140", "EXT142"),
+    "Climate & Drought" = c("EXT040", "EXT041", "EXT042", "EXT055"),
+    "Ecology & Habitat" = "EXT136",
+    "Geology & Geophysics" = "EXT033",
+    "Conservation Lands & Designations" = c("EXT131", "EXT132", "EXT135", "EXT136"),
+    "Land Ownership & Administration" = c(
+      "EXT006", "EXT007", "EXT015", "EXT016", "EXT017", "EXT053", "EXT131", "EXT132",
+      "EXT134", "EXT135", "EXT136", "CDFW_OWNED_OPERATED_LANDS", "USFWS_NWR_BOUNDARIES"
+    ),
+    "Energy & Minerals" = "EXT133",
+    "Infrastructure & Conveyance" = c("EXT017", "EXT045")
+  )
+  tool_rules <- list()
+  rules <- switch(brim_section, Local = local_rules, `Ops Live` = ops_rules,
+                  External = external_id_rules, Tools = tool_rules, list())
+  tags <- names(Filter(function(ids) stable_id %in% ids, rules))
+  if (identical(brim_section, "External")) {
+    tags <- c(tags, names(Filter(function(themes) source_theme %in% themes, external_theme_rules)))
   }
-  if (identical(subsystem, "External Layers")) return("External on-demand service")
-  if (identical(subsystem, "Tools")) return("Interactive workflow")
-  if (identical(subsystem, "Basemaps / Local Layers") && grepl("basemap", text)) return("Static reference")
-  if (grepl("histor|past|archive", text)) return("Historical context")
-  if (grepl("screen|derived|model|prism|bcm|match|candidate", text)) return("Screening / derived")
-  "Static reference"
+  vocabulary <- pt_guide_subject_vocabulary()
+  vocabulary[vocabulary %in% unique(tags)]
+}
+
+pt_guide_information_types <- function(stable_id, brim_section, source_theme = "") {
+  stable_id <- pt_guide_or(stable_id)
+  source_theme <- pt_guide_or(source_theme)
+  forecast_ops <- c(
+    "ops_hrrr_surface_wind", "ops_cnrfc_forecast_points", "ops_major_water_supply_forecasts",
+    "ops_wpc_qpf_day_1", "ops_wpc_qpf_day_2", "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day",
+    "ops_wpc_qpf_7day", "ops_wpc_ero_day_1", "ops_wpc_ero_day_2", "ops_wpc_ero_day_3",
+    "ops_cpc_6_10_temperature", "ops_cpc_6_10_precipitation", "ops_cpc_8_14_temperature",
+    "ops_cpc_8_14_precipitation", "product-ops-nbm-accumulated-qpf", "winter_storm_levels",
+    "nbm_qpf", "ops_nbm_wind_guidance", "ops_gfs_surface_wind"
+  )
+  out <- if (identical(brim_section, "External")) {
+    "External On-Demand Service"
+  } else if (identical(brim_section, "Ops Live")) {
+    if (stable_id %in% forecast_ops) "Forecast / Outlook" else if (stable_id == "ops_nws_wfo_boundaries") "Static Reference" else "Live Observation"
+  } else if (identical(brim_section, "Tools")) {
+    "Tool / Workflow"
+  } else {
+    "Static Reference"
+  }
+  if (identical(brim_section, "External") && source_theme %in% c(
+    "Convective storms", "CPC monthly / seasonal", "Fire weather", "Misc./Discussion", "Winter weather"
+  )) out <- c(out, "Forecast / Outlook")
+  if (identical(brim_section, "External") && source_theme %in% c(
+    "Air Quality / Smoke", "Fire / active incidents", "Gages", "Thermal hotspots",
+    "Recent earthquakes", "Recent seismicity"
+  )) out <- c(out, "Live Observation")
+  if (stable_id == "EXT050") out <- c(out, "Live Observation")
+  if (stable_id %in% c(
+    "huc8", "EXT070", "EXT072", "ops_scan_soil_moisture", "ops_snow_pillow_swe",
+    "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater"
+  )) out <- c(out, "Historical Context")
+  if (stable_id %in% c(
+    "blm_diffs", "gw_bull118", "huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
+    "swrcb_pod_spatial_matches", "swrcb_name_text_candidates", "brim_mapped_conveyance",
+    "calsim3_network", "ops_delta_snapshot", "ops_major_water_supply_forecasts",
+    paste0("EXT", 108:113)
+  )) out <- c(out, "Screening / Derived")
+  if (stable_id %in% c(
+    "calsim3_network", sprintf("EXT%03d", 31:38), "EXT057", "EXT058", "EXT059", "EXT124",
+    "ops_hrrr_surface_wind", "product-ops-nbm-accumulated-qpf", "winter_storm_levels", "nbm_qpf",
+    "ops_nbm_wind_guidance", "ops_gfs_surface_wind"
+  )) out <- c(out, "Model / Simulation")
+  if (stable_id == "tool_external_gis_overlay") out <- c(out, "External On-Demand Service")
+  vocabulary <- pt_guide_information_type_vocabulary()
+  vocabulary[vocabulary %in% unique(out)]
 }
 
 pt_guide_related_resources <- function(provider, title) {
@@ -136,34 +314,47 @@ pt_guide_resource_relationships <- function(ids, roles = character(0)) {
     } else {
       "Related agency resource"
     }
-    list(id = ids[[i]], role = pt_guide_or(role, "Related agency resource"))
+    list(
+      id = ids[[i]], role = pt_guide_or(role, "Related agency resource"),
+      relationshipType = "related_external_resource", useScope = "general_context"
+    )
   })
 }
 
 pt_guide_product <- function(
-  id, title, subsystem, provider, path, subject, mode, family,
+  id, title, subsystem, brim_section, provider, path, subjects, information_types, family,
   summary = "", aliases = character(0), search_terms = character(0),
   sections = list(), related_article_ids = character(0),
   related_resource_ids = character(0), related_resource_roles = character(0),
-  custom_or_non_generic = FALSE, content_tier = "basic"
+  custom_or_non_generic = FALSE, content_tier = "STRUCTURED_BASIC",
+  entity_type = "", access_hint = ""
 ) {
+  subjects <- unique(as.character(subjects[nzchar(trimws(subjects))]))
+  information_types <- unique(as.character(information_types[nzchar(trimws(information_types))]))
   resource_relationships <- pt_guide_resource_relationships(
     related_resource_ids,
     related_resource_roles
   )
   list(
     kind = "Product",
-    entityType = if (identical(subsystem, "Tools")) "Tool" else "Layer",
+    entityType = pt_guide_or(
+      entity_type,
+      if (identical(subsystem, "Tools")) "Tool" else "Layer"
+    ),
     id = as.character(id),
     title = as.character(title),
     subsystem = as.character(subsystem),
+    brimSection = as.character(brim_section),
     provider = as.character(provider),
     path = unname(as.character(path)),
     pathLabel = pt_guide_path_label(path),
-    subject = as.character(subject),
-    mode = as.character(mode),
+    subject = pt_guide_or(subjects),
+    subjectTags = unname(subjects),
+    mode = as.character(information_types[[1]]),
+    informationTypes = unname(information_types),
     family = as.character(family),
     summary = pt_guide_or(summary),
+    accessHint = pt_guide_or(access_hint),
     aliases = unname(unique(as.character(aliases[nzchar(trimws(aliases))]))),
     searchTerms = unname(unique(as.character(search_terms[nzchar(trimws(search_terms))]))),
     sections = unname(sections),
@@ -260,10 +451,11 @@ pt_guide_local_products <- function(overlay_groups, catalog_markers = list()) {
       id = row_id,
       title = title,
       subsystem = "Basemaps / Local Layers",
+      brim_section = "Local",
       provider = provider,
       path = path,
-      subject = pt_guide_subject(title, path),
-      mode = pt_guide_mode("Basemaps / Local Layers", title),
+      subjects = pt_guide_subject_tags(row_id, "Local"),
+      information_types = pt_guide_information_types(row_id, "Local"),
       family = if (identical(category, "Monitoring Sites/Records")) "Local monitoring record" else "Local reference layer",
       aliases = pt_guide_aliases(row_id, title),
       related_resource_ids = pt_guide_related_resources(provider, title),
@@ -298,16 +490,22 @@ pt_guide_external_products <- function(
     path <- c("External Layers", group, if (nzchar(subgroup)) subgroup, title)
     provider <- pt_guide_first(row$agency, row$program)
     summary <- pt_guide_first(row$pt2_usage_note, row$best_use, row$notes)
-    search_terms <- c(row$agency, row$program, row$theme, row$pt2_usage_note,
-                      row$best_use, row$notes, row$useful_for_visualization)
+    search_terms <- c(row$agency, row$program, row$service_type)
     pt_guide_product(
       id = row$external_layer_id,
       title = title,
       subsystem = "External Layers",
+      brim_section = "External",
       provider = provider,
       path = path,
-      subject = pt_guide_subject(title, path, row$theme),
-      mode = pt_guide_mode("External Layers", title, row$service_type),
+      subjects = pt_guide_subject_tags(
+        row$external_layer_id, "External",
+        row$theme
+      ),
+      information_types = pt_guide_information_types(
+        row$external_layer_id, "External",
+        row$theme
+      ),
       family = paste("External", pt_guide_or(row$service_type, "service")),
       summary = summary,
       aliases = pt_guide_aliases(row$external_layer_id, title),
@@ -383,8 +581,10 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
       (is.na(flag) || !nzchar(flag) || isTRUE(map_display[[flag]]))
     if (!included) next
     runtime_title <- definition$source_token
+    if (runtime_title %in% names(constant_names)) {
+      runtime_title <- unname(constant_names[[runtime_title]])
+    }
     title <- runtime_title
-    if (title %in% names(constant_names)) title <- unname(constant_names[[title]])
     id <- registry$stable_id[[i]]
     if (identical(id, "ops_scan_soil_moisture")) title <- "SCAN Soil Moisture"
     path <- c("Ops Live", definition$category,
@@ -402,14 +602,15 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
       id = id,
       title = title,
       subsystem = "Ops Live",
+      brim_section = "Ops Live",
       provider = provider,
       path = path,
-      subject = if (identical(id, "ops_scan_soil_moisture")) {
-        "Soil Moisture"
-      } else {
-        pt_guide_subject(title, path)
-      },
-      mode = pt_guide_mode("Ops Live", title),
+      subjects = pt_guide_subject_tags(
+        id, "Ops Live"
+      ),
+      information_types = pt_guide_information_types(
+        id, "Ops Live"
+      ),
       family = definition$category,
       aliases = pt_guide_aliases(id, title),
       related_resource_ids = pt_guide_related_resources(provider, title),
@@ -422,20 +623,16 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
 pt_guide_basemap_products <- function() {
   if (!exists("pt_base_groups", mode = "function")) stop("pt_base_groups() is required for BRIM Guide.", call. = FALSE)
   titles <- pt_base_groups()
-  ids <- c(
-    "basemap_usgs_hydrography", "basemap_usgs_topo", "basemap_usgs_national_map_imagery",
-    "basemap_usgs_national_map_imagery_topo", "basemap_esri_world_topographic",
-    "basemap_esri_world_street", "basemap_esri_world_imagery", "basemap_cartodb_positron",
-    "basemap_openstreetmap", "basemap_none"
-  )
+  ids <- pt_guide_basemap_ids()
   if (length(titles) != length(ids)) stop("Basemap Guide identity requires review after pt_base_groups() changed.", call. = FALSE)
   lapply(seq_along(titles), function(i) {
     provider <- if (grepl("USGS", titles[[i]])) "U.S. Geological Survey" else if (grepl("Esri", titles[[i]])) "Esri" else "Basemap provider"
     path <- c("Basemaps / Local Layers", "Basemaps", titles[[i]])
     pt_guide_product(
       id = ids[[i]], title = titles[[i]], subsystem = "Basemaps / Local Layers",
-      provider = provider, path = path, subject = "Land & Administrative Context",
-      mode = "Static reference", family = "Basemap",
+      brim_section = "Basemap", provider = provider, path = path,
+      subjects = "Land & Administrative Context",
+      information_types = "Static Reference", family = "Basemap",
       related_resource_ids = pt_guide_related_resources(provider, titles[[i]])
     )
   })
@@ -449,19 +646,40 @@ pt_guide_tool_products <- function(map_display) {
     c("tool_external_gis_overlay", "External GIS URL Overlay", "Add Data"),
     c("tool_local_gis_upload", "Local GIS File Upload", "Add Data")
   )
-  if (isTRUE(map_display$add_blm_sma_context_overlay)) {
-    definitions <- c(definitions, list(c("tool_blm_sma_context", "BLM Surface Management Agency context", "Reference tool")))
-  }
-  lapply(definitions, function(definition) {
-    path <- c("Tools", definition[[3]], definition[[2]])
+  products <- lapply(definitions, function(definition) {
     pt_guide_product(
       id = definition[[1]], title = definition[[2]], subsystem = "Tools",
-      provider = "BRIM", path = path,
-      subject = pt_guide_subject(definition[[2]], path),
-      mode = "Interactive workflow", family = definition[[3]],
-      related_resource_ids = if (definition[[1]] == "tool_blm_sma_context") "resource_blm_california" else character(0)
+      brim_section = "Tools", provider = "BRIM", path = character(0),
+      subjects = pt_guide_subject_tags(definition[[1]], "Tools"),
+      information_types = pt_guide_information_types(definition[[1]], "Tools"),
+      family = definition[[3]]
     )
   })
+  if (isTRUE(map_display$add_blm_sma_context_overlay)) {
+    products[[length(products) + 1L]] <- pt_guide_product(
+      id = "tool_blm_sma_context",
+      title = "BLM Surface Management Agency context",
+      subsystem = "External Layers",
+      brim_section = "External",
+      provider = "Bureau of Land Management",
+      path = c(
+        "External Layers", "Federal Land Status",
+        "Fed/State Surface Management Agency (SMA)"
+      ),
+      subjects = pt_guide_subject_tags(
+        "tool_blm_sma_context", "External", "classification"
+      ),
+      information_types = pt_guide_information_types(
+        "tool_blm_sma_context", "External", "classification"
+      ),
+      family = "Land status context",
+      aliases = c("BLM SMA", "Federal/State Surface Management Agency", "BLM CA land status"),
+      related_resource_ids = "resource_blm_california",
+      custom_or_non_generic = TRUE,
+      entity_type = "Layer"
+    )
+  }
+  products
 }
 
 pt_guide_generalization_parameter <- function(row) {
@@ -519,7 +737,7 @@ pt_guide_external_catalog_row <- function(
   )
   row <- x[x$external_layer_id == external_layer_id, , drop = FALSE]
   if (nrow(row) != 1L) {
-    stop("Expected one External catalog row for curated Guide Product ", external_layer_id, ".", call. = FALSE)
+    stop("Expected one External catalog row for Guide Resource ", external_layer_id, ".", call. = FALSE)
   }
   row
 }
@@ -550,26 +768,115 @@ pt_guide_article <- function(id, title, summary, sections, related_product_ids =
   )
 }
 
-pt_guide_curated_product <- function(
-    summary, sections, related_article_ids, related_resource_ids, related_resource_roles) {
-  relationships <- pt_guide_resource_relationships(
-    related_resource_ids,
-    related_resource_roles
+pt_guide_read_product_enrichment <- function(
+    path = file.path("00_config", "guide_product_enrichment.json")) {
+  if (!file.exists(path)) return(list())
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite is required by the existing BRIM Guide compiler.", call. = FALSE)
+  }
+  source <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  if (!identical(source$schema_version, 1L) || !is.list(source$products)) {
+    stop("Guide Product enrichment must use schema_version 1 and a products array.", call. = FALSE)
+  }
+  allowed <- c(
+    "stable_id", "summary", "access_hint", "subject_tags", "information_type_tags",
+    "capabilities", "processing", "timing", "geometry_limitations",
+    "method_ids", "resource_relationships", "editorial_state", "source_refs"
   )
-  list(
-    summary = summary,
-    sections = unname(sections),
-    relatedArticleIds = unname(unique(as.character(related_article_ids))),
-    relatedResourceIds = vapply(relationships, `[[`, character(1), "id"),
-    relatedResources = unname(relationships),
-    contentTier = "curated"
+  ids <- vapply(source$products, function(x) pt_guide_or(x$stable_id), character(1))
+  if (any(!nzchar(ids)) || anyDuplicated(ids) ||
+      !identical(ids, sort(ids, method = "radix"))) {
+    stop("Guide Product enrichment stable IDs must be nonblank, unique, and sorted.", call. = FALSE)
+  }
+  for (record in source$products) {
+    unknown <- setdiff(names(record), allowed)
+    if (length(unknown)) {
+      stop("Guide Product enrichment contains unsupported field(s): ", paste(unknown, collapse = ", "), call. = FALSE)
+    }
+    if (!pt_guide_or(record$editorial_state) %in% c(
+      "SOURCE_BACKED_RICH", "STRUCTURED_BASIC", "EDITORIAL_REVIEW_REQUIRED"
+    )) stop("Guide Product enrichment has an invalid editorial_state.", call. = FALSE)
+    if (!length(record$source_refs) || any(!nzchar(trimws(as.character(unlist(record$source_refs)))))) {
+      stop("Guide Product enrichment requires nonblank source_refs for every record.", call. = FALSE)
+    }
+    subjects <- unname(as.character(unlist(record$subject_tags, use.names = FALSE)))
+    information_types <- unname(as.character(unlist(record$information_type_tags, use.names = FALSE)))
+    if (any(!subjects %in% pt_guide_subject_vocabulary()) || anyDuplicated(subjects)) {
+      stop("Guide Product enrichment contains an uncontrolled or duplicate subject tag.", call. = FALSE)
+    }
+    if (!length(information_types) || any(!information_types %in% pt_guide_information_type_vocabulary()) ||
+        anyDuplicated(information_types)) {
+      stop("Guide Product enrichment requires controlled, unique Information Type tags.", call. = FALSE)
+    }
+  }
+  stats::setNames(source$products, ids)
+}
+
+pt_guide_enrichment_sections <- function(record) {
+  fields <- list(
+    capabilities = c("capabilities", "Capabilities"),
+    timing = c("time_period", "Time / period"),
+    processing = c("preparation", "How BRIM prepares it"),
+    geometry_limitations = c("geometry_limitations", "Geometry / limitations")
   )
+  sections <- list()
+  for (field in names(fields)) {
+    values <- unname(as.character(unlist(record[[field]], use.names = FALSE)))
+    values <- values[nzchar(trimws(values))]
+    if (!length(values)) next
+    sections[[length(sections) + 1L]] <- pt_guide_section(
+      fields[[field]][[1]], fields[[field]][[2]], items = values
+    )
+  }
+  sections
+}
+
+pt_guide_apply_product_enrichment <- function(products, enrichment) {
+  product_ids <- vapply(products, `[[`, character(1), "id")
+  missing <- setdiff(names(enrichment), product_ids)
+  if (length(missing)) {
+    stop("Guide Product enrichment references unavailable Product(s): ", paste(missing, collapse = ", "), call. = FALSE)
+  }
+  lapply(products, function(product) {
+    record <- enrichment[[product$id]]
+    if (is.null(record)) return(product)
+    if (nzchar(pt_guide_or(record$summary))) product$summary <- pt_guide_or(record$summary)
+    product$accessHint <- pt_guide_or(record$access_hint, product$accessHint)
+    if (!is.null(record$subject_tags)) {
+      subjects <- unname(as.character(unlist(record$subject_tags, use.names = FALSE)))
+      product$subjectTags <- unique(subjects[nzchar(trimws(subjects))])
+      product$subject <- pt_guide_or(product$subjectTags)
+    }
+    information_types <- unname(as.character(unlist(record$information_type_tags, use.names = FALSE)))
+    if (length(information_types)) {
+      product$informationTypes <- unique(information_types)
+      product$mode <- product$informationTypes[[1]]
+    }
+    capabilities <- unname(as.character(unlist(record$capabilities, use.names = FALSE)))
+    product$searchTerms <- unique(c(
+      product$searchTerms,
+      capabilities[nzchar(trimws(capabilities))]
+    ))
+    product$sections <- pt_guide_enrichment_sections(record)
+    product$relatedArticleIds <- unname(unique(as.character(unlist(record$method_ids, use.names = FALSE))))
+    relationships <- record$resource_relationships
+    if (length(relationships)) {
+      product$relatedResources <- lapply(relationships, function(relationship) list(
+        id = pt_guide_or(relationship$id),
+        role = pt_guide_or(relationship$role),
+        relationshipType = pt_guide_or(relationship$relationship_type),
+        useScope = pt_guide_or(relationship$use_scope)
+      ))
+      product$relatedResourceIds <- unname(vapply(
+        product$relatedResources, `[[`, character(1), "id"
+      ))
+    }
+    product$contentTier <- pt_guide_or(record$editorial_state)
+    product
+  })
 }
 
 pt_guide_authored_content <- function() {
-  if (!exists("PT_HUC_THEME_REGISTRY", inherits = TRUE)) {
-    stop("PT_HUC_THEME_REGISTRY must be loaded before compiling curated Guide content.", call. = FALSE)
-  }
   if (!exists("pt_polygon_generalization_read_registry", mode = "function")) {
     stop("Polygon generalization authority must be loaded before compiling curated Guide content.", call. = FALSE)
   }
@@ -578,9 +885,6 @@ pt_guide_authored_content <- function() {
   }
 
   generalization <- pt_polygon_generalization_read_registry()
-  huc8_geometry <- pt_polygon_generalization_registry_row("huc8", generalization)
-  bulletin_geometry <- pt_polygon_generalization_registry_row("bulletin118", generalization)
-  huc_modes <- unname(vapply(PT_HUC_THEME_REGISTRY, `[[`, character(1), "label"))
   fire_recent <- pt_guide_external_catalog_row("EXT070")
   fire_all <- pt_guide_external_catalog_row("EXT072")
   fire_current <- pt_guide_external_catalog_row("EXT074")
@@ -771,258 +1075,48 @@ pt_guide_authored_content <- function() {
          date = "2026-08-19", updateType = "Usability", summary = "Removed redundant per-row NBM legend links while retaining the shared forecast-guidance control behavior.", relatedProductIds = c("winter_storm_levels", "nbm_qpf"))
   )
 
-  quick_access <- list(
-    list(id = "quick_huc8", label = "HUC8 – PRISM/BCMv8", productIds = "huc8",
-         summary = "HUC8 boundaries with BLM-managed-land, PRISM precipitation, and BCMv8 recharge display context."),
-    list(id = "quick_groundwater_basins", label = "Groundwater Basins – Bulletin 118", productIds = "gw_bull118",
-         summary = "Bulletin 118 groundwater basins with SGMA 2019 priority and BLM-managed-land context."),
-    list(id = "quick_fire_perimeters", label = "Fire Perimeters", productIds = c("EXT070", "EXT072", "EXT074"),
-         summary = "Three complementary perimeter layers: CAL FIRE recent large-fire and full historical coverage, plus NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each layer before use.")
-  )
-
-  curated_products <- list(
-    huc8 = pt_guide_curated_product(
-      "HUC8 watershed boundaries with BLM-managed-land percentages and 1991–2020 PRISM precipitation and BCMv8 recharge summaries.",
-      list(
-        pt_guide_section("huc8_display_modes", "Available display modes", items = huc_modes),
-        pt_guide_section(
-          "huc8_controls", "Controls",
-          items = c(
-            "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps; 0% includes every retained HUC8 feature.",
-            "The shared HUC card follows the focused active HUC level and shows that level's visible count and legend."
-          )
-        ),
-        pt_guide_section(
-          "huc8_processing", "How BRIM prepares it",
-          items = c(
-            "HUC and BLM-intersection areas are calculated in EPSG:3310; PRISM and BCMv8 rasters are summarized with exact polygon weights.",
-            "Geometry-free climate/recharge tables are joined to the existing simplified HUC map geometry.",
-            "Theme bins, labels, and colors are precomputed by HUC level; the browser restyles the existing polygons in place rather than creating duplicate geometry."
-          )
-        ),
-        pt_guide_section(
-          "huc8_limitations", "Interpretation & limitations",
-          items = c(
-            "Precipitation and recharge color classes are calculated separately for each HUC level; compare values through the active legend rather than comparing colors across levels.",
-            "Inches per year are area-normalized depths; thousand acre-feet per year are total-volume estimates and are strongly influenced by watershed area."
-          )
-        ),
-        pt_guide_section(
-          "huc8_geometry", "Display geometry",
-          items = c(
-            pt_guide_generalization_detail(huc8_geometry),
-            as.character(huc8_geometry$public_disclosure),
-            "Canonical analytical HUC geometry remains unsimplified; the map-facing display geometry is delivered in EPSG:4326."
-          )
-        ),
-        pt_guide_section(
-          "huc8_provenance", "Period & provenance",
-          items = c(
-            "Precipitation: PRISM 1991–2020 precipitation normal vM5.",
-            "Recharge: USGS Basin Characterization Model version 8 (BCMv8), 1991–2020 recharge."
-          )
-        )
-      ),
-      c("method_how_brim_works", "method_display_geometry_generalization"),
-      c("resource_prism_normals", "resource_usgs_bcmv8", "resource_blm_california"),
-      c(
-        resource_prism_normals = "Precipitation source",
-        resource_usgs_bcmv8 = "Recharge model and source",
-        resource_blm_california = "BLM program context"
-      )
-    ),
-    gw_bull118 = pt_guide_curated_product(
-      "California DWR Bulletin 118 groundwater basin and subbasin boundaries with final SGMA 2019 prioritization and BLM-managed-land percentage context.",
-      list(
-        pt_guide_section(
-          "bulletin118_display_modes", "Available display modes",
-          items = c("Basins only", "DWR SGMA 2019 Basin Prioritization", "BLM-managed land — %")
-        ),
-        pt_guide_section(
-          "bulletin118_controls", "Controls",
-          items = c(
-            "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps.",
-            "Find basin or subbasin searches all 515 retained basin records and can reveal a result hidden by the active threshold."
-          )
-        ),
-        pt_guide_section(
-          "bulletin118_processing", "How BRIM prepares it",
-          items = c(
-            "BRIM joins the tracked 515-row DWR SGMA 2019 table to 515 retained basin geometries by exact basin/subbasin code; names do not participate in the join.",
-            "The SGMA and fixed percentage-BLM themes restyle the original basin polygons in place; no second polygon population or runtime DWR request is created."
-          )
-        ),
-        pt_guide_section(
-          "bulletin118_limitations", "Interpretation & limitations",
-          items = c(
-            "The priority theme represents DWR's final 2019 SGMA categories, not a newly inferred or continuously updated BRIM priority.",
-            "BLM-managed-land percentage is screening context calculated from retained BRIM geometry; use authoritative sources for boundary-sensitive decisions."
-          )
-        ),
-        pt_guide_section(
-          "bulletin118_geometry", "Display geometry",
-          items = c(
-            pt_guide_generalization_detail(bulletin_geometry),
-            as.character(bulletin_geometry$public_disclosure),
-            "Full-resolution analytical basin geometry remains separate from the map-facing display geometry."
-          )
-        )
-      ),
-      c("method_how_brim_works", "method_display_geometry_generalization"),
-      c("resource_dwr_bulletin118_sgma_2019", "resource_blm_california"),
-      c(
-        resource_dwr_bulletin118_sgma_2019 = "Basin-priority source",
-        resource_blm_california = "BLM program context"
-      )
-    ),
-    EXT070 = pt_guide_curated_product(
-      pt_guide_first(fire_recent$pt2_usage_note, fire_recent$notes),
-      list(
-        pt_guide_section(
-          "fire_recent_controls", "Loading & refresh",
-          items = pt_guide_or(fire_recent$large_layer_warning)
-        ),
-        pt_guide_section(
-          "fire_recent_processing", "How BRIM prepares it",
-          items = c(
-            "BRIM requests the configured CAL FIRE FRAP feature layer for the current map view.",
-            pt_guide_or(fire_recent$legend_note)
-          )
-        ),
-        pt_guide_section(
-          "fire_recent_limitations", "Currency & limitations",
-          items = c(pt_guide_or(fire_recent$notes), pt_guide_or(fire_recent$pt2_usage_note))
-        )
-      ),
-      "method_how_brim_works",
-      "resource_calfire_fire_perimeters",
-      c(resource_calfire_fire_perimeters = "Perimeter source and limitations")
-    ),
-    EXT072 = pt_guide_curated_product(
-      pt_guide_first(fire_all$pt2_usage_note, fire_all$notes),
-      list(
-        pt_guide_section(
-          "fire_all_controls", "Loading & refresh",
-          items = pt_guide_or(fire_all$large_layer_warning)
-        ),
-        pt_guide_section(
-          "fire_all_processing", "How BRIM prepares it",
-          items = c(
-            "BRIM requests the configured full historical CAL FIRE FRAP feature layer for the current map view.",
-            pt_guide_or(fire_all$legend_note)
-          )
-        ),
-        pt_guide_section(
-          "fire_all_limitations", "Coverage & limitations",
-          items = c(pt_guide_or(fire_all$notes), pt_guide_or(fire_all$pt2_usage_note))
-        )
-      ),
-      "method_how_brim_works",
-      "resource_calfire_fire_perimeters",
-      c(resource_calfire_fire_perimeters = "Perimeter source and limitations")
-    ),
-    EXT074 = pt_guide_curated_product(
-      pt_guide_first(fire_current$pt2_usage_note, fire_current$notes),
-      list(
-        pt_guide_section(
-          "fire_current_controls", "Loading & refresh",
-          items = pt_guide_or(fire_current$large_layer_warning)
-        ),
-        pt_guide_section(
-          "fire_current_processing", "How BRIM prepares it",
-          items = c(
-            "BRIM requests a current-view WFIGS snapshot and filters to wildfire and complex categories where the service supports SQL; prescribed-fire records are excluded from this layer.",
-            pt_guide_or(fire_current$legend_note)
-          )
-        ),
-        pt_guide_section(
-          "fire_current_limitations", "Currency & limitations",
-          items = c(pt_guide_or(fire_current$notes), pt_guide_or(fire_current$pt2_usage_note))
-        )
-      ),
-      "method_how_brim_works",
-      "resource_nifc_wfigs_current",
-      c(resource_nifc_wfigs_current = "Operational perimeter source")
-    ),
-    tool_external_gis_overlay = pt_guide_curated_product(
-      "Adds a temporary browser-session overlay from a direct public GeoJSON or ArcGIS REST source.",
-      list(
-        pt_guide_section(
-          "external_overlay_sources", "Supported sources",
-          items = c(
-            "Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.",
-            "Parent ArcGIS services can be resolved to a mappable sublayer when the service exposes one or more candidates."
-          )
-        ),
-        pt_guide_section(
-          "external_overlay_behavior", "Loading & interaction",
-          items = c(
-            "FeatureServer and queryable MapServer layers can load the current map view as a temporary snapshot; MapServer and ImageServer sources can remain provider-rendered visual overlays.",
-            "Popups, identify, current-view loading, and optional SQL filters depend on the selected service type and provider capabilities.",
-            "The panel reports loading and validation errors; each overlay can be removed individually, and Clear external removes the temporary URL/catalog overlays."
-          )
-        ),
-        pt_guide_section(
-          "external_overlay_limits", "Limits",
-          items = c(
-            "External overlays depend on provider availability, response speed, browser access rules, and service limits.",
-            "BRIM keeps up to three temporary external overlays in the browser session; they are not saved into BRIM."
-          )
-        )
-      ),
-      character(0), character(0), character(0)
-    ),
-    tool_local_gis_upload = pt_guide_curated_product(
-      "Displays a temporary local GeoJSON/JSON file or zipped shapefile without uploading it to a BRIM server.",
-      list(
-        pt_guide_section(
-          "local_upload_formats", "Supported files",
-          items = c(
-            "GeoJSON and JSON are read directly in the browser; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.",
-            "The zipped-shapefile reader is loaded from a browser-side CDN only when that format is selected."
-          )
-        ),
-        pt_guide_section(
-          "local_upload_display", "Display & styling",
-          items = c(
-            "Choose an attribute and style with one color, categories, or 3–10 numeric classes using quantile or equal-interval bins; controls include palettes, fill and outline colors, opacity, line width, and point size.",
-            "Hover and popup can be toggled per layer, with a chosen attribute for hover. Individual layers can be hidden, zoomed to, restyled, removed, or returned to Original geometry after display simplification; Clear uploads removes all uploaded layers.",
-            "Use WGS 84 (EPSG:4326) and verify alignment; missing or incorrect coordinate-reference information can produce plausible-looking but misplaced data."
-          )
-        ),
-        pt_guide_section(
-          "local_upload_limits", "Limits",
-          items = c(
-            "The current limits are 50 MB, 25,000 features, and three active local layers.",
-            "Local files remain temporary in the browser session and are not saved into BRIM."
-          )
-        )
-      ),
-      character(0), character(0), character(0)
+  quick_entry <- function(id, label, entry_kind, product_ids, summary, type_label = "") {
+    item <- list(
+      id = id, label = label, entryKind = entry_kind,
+      typeLabel = pt_guide_or(type_label, tools::toTitleCase(entry_kind)), summary = summary
     )
+    if (identical(entry_kind, "collection")) item$memberIds <- product_ids else item$productId <- product_ids[[1]]
+    item
+  }
+  quick_access <- list(
+    quick_entry("quick_huc8", "HUC8 – PRISM/BCMv8", "layer", "huc8",
+                "HUC8 boundaries with BLM-managed-land, PRISM precipitation, and BCMv8 recharge display context."),
+    quick_entry("quick_groundwater_basins", "Groundwater Basins – Bulletin 118", "layer", "gw_bull118",
+                "Bulletin 118 groundwater basins with SGMA 2019 priority and BLM-managed-land context."),
+    quick_entry("quick_fire_perimeters", "Fire Perimeters", "collection", c("EXT070", "EXT072", "EXT074"),
+                "Three complementary perimeter layers: CAL FIRE recent large-fire and full historical coverage, plus NIFC current operational wildfire/complex perimeters. Their coverage and currency differ; review each layer before use.",
+                "Collection · 3 layers"),
+    quick_entry("quick_nbm_snow_levels", "NBM Snow Levels", "layer", "winter_storm_levels",
+                "NBM freezing-level and snow-level guidance by exact model cycle and valid time."),
+    quick_entry("quick_water_supply_forecasts", "Water-Supply Basin Forecasts", "layer", "ops_major_water_supply_forecasts",
+                "Reviewed major-basin and index water-supply forecast guidance from CNRFC sources."),
+    quick_entry("quick_delta_operations", "Delta Operations", "layer", "ops_delta_snapshot",
+                "DWR Delta Operations Daily Summary metrics with mapped facility and X2 context."),
+    quick_entry("quick_usgs_streamflow", "USGS Streamflow", "collection", c("usgs_streamgages", "ops_streamflow_usgs_ca"),
+                "Two distinct BRIM views retain the Local streamgage layer and the Ops Live provisional streamflow layer with their own paths and detail pages.",
+                "Collection · 2 BRIM views"),
+    quick_entry("quick_usgs_groundwater", "USGS Groundwater", "collection", c("usgs_wells", "product-ops-usgs-groundwater"),
+                "Two distinct BRIM views retain the Local monitoring-well layer and the Ops Live latest-measurement layer with their own paths and detail pages.",
+                "Collection · 2 BRIM views"),
+    quick_entry("quick_scan_soil_moisture", "USDA / SCAN Soil Moisture", "layer", "ops_scan_soil_moisture",
+                "Latest SCAN soil-moisture observations by depth with current-water-year and historical context."),
+    quick_entry("quick_snow_pillow_swe", "Snow-Pillow SWE", "layer", "ops_snow_pillow_swe",
+                "Latest NRCS and CDEC snow-water equivalent with water-year and historical context."),
+    quick_entry("quick_brim_mapped_conveyance", "Water conveyance | BRIM mapped", "layer", "brim_mapped_conveyance",
+                "BRIM's curated statewide conveyance network assembled from multiple reviewed source datasets.")
   )
 
   list(
     articles = articles,
     resources = resources,
     updates = updates,
-    quickAccess = quick_access,
-    curatedProducts = curated_products
+    quickAccess = quick_access
   )
-}
-
-pt_guide_apply_curated_content <- function(products, curated_products) {
-  product_ids <- vapply(products, `[[`, character(1), "id")
-  missing <- setdiff(names(curated_products), product_ids)
-  if (length(missing)) {
-    stop("Curated Guide content references unavailable Product(s): ", paste(missing, collapse = ", "), call. = FALSE)
-  }
-  lapply(products, function(product) {
-    enrichment <- curated_products[[product$id]]
-    if (is.null(enrichment)) return(product)
-    for (field in names(enrichment)) product[[field]] <- enrichment[[field]]
-    product
-  })
 }
 
 pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile_id = bundle$profileId) {
@@ -1041,7 +1135,16 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
   bundle$articles <- lapply(bundle$articles, prune_related)
   bundle$resources <- lapply(bundle$resources, prune_related)
   bundle$updates <- lapply(bundle$updates, prune_related)
-  bundle$quickAccess <- Filter(function(item) all(item$productIds %in% product_ids), bundle$quickAccess)
+  bundle$quickAccess <- lapply(bundle$quickAccess, function(item) {
+    if (identical(item$entryKind, "collection")) {
+      item$memberIds <- intersect(item$memberIds, product_ids)
+    }
+    item
+  })
+  bundle$quickAccess <- Filter(function(item) {
+    if (identical(item$entryKind, "collection")) return(length(item$memberIds) > 0L)
+    pt_guide_or(item$productId) %in% product_ids
+  }, bundle$quickAccess)
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
   bundle$products <- lapply(bundle$products, function(product) {
@@ -1072,10 +1175,33 @@ pt_validate_guide_bundle <- function(bundle) {
   if (any(!nzchar(ids)) || anyDuplicated(ids)) stop("BRIM Guide record IDs must be nonblank and unique.", call. = FALSE)
   product_ids <- vapply(bundle$products, `[[`, character(1), "id")
   paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
-  if (any(!nzchar(paths)) || anyDuplicated(paths)) stop("BRIM Guide Product paths must be nonblank and unique.", call. = FALSE)
+  shown_paths <- paths[nzchar(paths)]
+  if (anyDuplicated(shown_paths)) stop("BRIM Guide nonblank Product paths must be unique.", call. = FALSE)
   if (any(grepl("(^| / )Points( / |$)", paths))) stop("BRIM Guide paths must use Monitoring Sites/Records terminology.", call. = FALSE)
-  quick_ids <- unlist(lapply(bundle$quickAccess, `[[`, "productIds"), use.names = FALSE)
+  quick_ids <- unlist(lapply(bundle$quickAccess, function(item) {
+    if (identical(item$entryKind, "collection")) item$memberIds else item$productId
+  }), use.names = FALSE)
   if (any(!quick_ids %in% product_ids)) stop("BRIM Guide Quick Access references an unavailable Product.", call. = FALSE)
+  quick_record_ids <- vapply(bundle$quickAccess, function(x) pt_guide_or(x$id), character(1))
+  if (any(!nzchar(quick_record_ids)) || anyDuplicated(quick_record_ids) ||
+      any(vapply(bundle$quickAccess, function(x) {
+        !pt_guide_or(x$entryKind) %in% c("layer", "tool", "collection") ||
+          !nzchar(pt_guide_or(x$label)) || !nzchar(pt_guide_or(x$typeLabel)) ||
+          !nzchar(pt_guide_or(x$summary)) ||
+          (identical(x$entryKind, "collection") &&
+             (!length(x$memberIds) || any(!nzchar(x$memberIds)) || anyDuplicated(x$memberIds))) ||
+          (!identical(x$entryKind, "collection") && !nzchar(pt_guide_or(x$productId)))
+      }, logical(1)))) {
+    stop("BRIM Guide Quick Access entries require valid typed identity, labels, summaries, and exact Product membership.", call. = FALSE)
+  }
+  for (item in bundle$quickAccess) {
+    if (identical(item$entryKind, "collection")) next
+    product <- bundle$products[[match(item$productId, product_ids)]]
+    expected_type <- if (identical(item$entryKind, "tool")) "Tool" else "Layer"
+    if (is.null(product) || !identical(product$entityType, expected_type)) {
+      stop("BRIM Guide Quick Access single-entry type does not match its Product.", call. = FALSE)
+    }
+  }
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
   for (article in bundle$articles) {
@@ -1089,6 +1215,35 @@ pt_validate_guide_bundle <- function(bundle) {
     }
   }
   for (product in bundle$products) {
+    mandatory <- c("id", "title", "entityType", "brimSection", "provider")
+    if (any(!vapply(mandatory, function(field) nzchar(pt_guide_or(product[[field]])), logical(1)))) {
+      stop("BRIM Guide Products require stable identity, entity type, section, and provider.", call. = FALSE)
+    }
+    if (!product$entityType %in% c("Layer", "Tool")) {
+      stop("BRIM Guide Products require a controlled user-facing entity type.", call. = FALSE)
+    }
+    if (!nzchar(product$pathLabel) && !nzchar(product$summary)) {
+      stop("BRIM Guide Products require a verified path or source-backed purpose/action summary.", call. = FALSE)
+    }
+    if (identical(product$entityType, "Tool") && nzchar(product$pathLabel)) {
+      stop("BRIM Guide Tools use action summaries and must not expose synthetic layer paths.", call. = FALSE)
+    }
+    subjects <- unname(as.character(product$subjectTags))
+    information_types <- unname(as.character(product$informationTypes))
+    if (any(!subjects %in% pt_guide_subject_vocabulary()) || anyDuplicated(subjects) ||
+        (!length(subjects) && nzchar(product$subject)) ||
+        (length(subjects) && !identical(product$subject, subjects[[1]])) ||
+        !length(information_types) || any(!information_types %in% pt_guide_information_type_vocabulary()) ||
+        anyDuplicated(information_types) || !identical(product$mode, information_types[[1]])) {
+      stop("BRIM Guide Products require controlled, unique taxonomy values; zero subjects are allowed when no confident domain assignment exists.", call. = FALSE)
+    }
+    if (!product$contentTier %in% c(
+      "SOURCE_BACKED_RICH", "STRUCTURED_BASIC", "EDITORIAL_REVIEW_REQUIRED"
+    )) stop("BRIM Guide Product content tier is invalid.", call. = FALSE)
+    if (nzchar(product$summary) && grepl(
+      "this (product|layer) is available in brim|may be useful for analysis|see the map for more information",
+      product$summary, ignore.case = TRUE, perl = TRUE
+    )) stop("BRIM Guide contains a generic filler summary.", call. = FALSE)
     related_articles <- as.character(product$relatedArticleIds)
     if (any(!related_articles %in% article_ids)) {
       stop("BRIM Guide Product references an unavailable Method.", call. = FALSE)
@@ -1104,7 +1259,15 @@ pt_validate_guide_bundle <- function(bundle) {
     } else {
       character(0)
     }
+    relationship_types <- if (length(relationships)) vapply(
+      relationships, function(x) pt_guide_or(x$relationshipType), character(1)
+    ) else character(0)
+    use_scopes <- if (length(relationships)) vapply(
+      relationships, function(x) pt_guide_or(x$useScope), character(1)
+    ) else character(0)
     if (any(!nzchar(relationship_ids)) || any(!nzchar(relationship_roles)) ||
+        any(!relationship_types %in% c("displayed_in_brim", "used_by_brim", "related_external_resource")) ||
+        any(!nzchar(use_scopes)) ||
         any(!relationship_ids %in% resource_ids) ||
         !identical(unname(as.character(product$relatedResourceIds)), unname(relationship_ids))) {
       stop("BRIM Guide Product Resource relationships must resolve with nonblank roles.", call. = FALSE)
@@ -1116,7 +1279,11 @@ pt_validate_guide_bundle <- function(bundle) {
     if (!length(sections)) next
     section_ids <- vapply(sections, function(x) pt_guide_or(x$id), character(1))
     section_titles <- vapply(sections, function(x) pt_guide_or(x$title), character(1))
-    if (any(!nzchar(section_ids)) || anyDuplicated(section_ids) || any(!nzchar(section_titles))) {
+    section_has_content <- vapply(sections, function(x) {
+      length(x$paragraphs) > 0L || length(x$items) > 0L || !is.null(x$table)
+    }, logical(1))
+    if (any(!nzchar(section_ids)) || anyDuplicated(section_ids) ||
+        any(!nzchar(section_titles)) || any(!section_has_content)) {
       stop("BRIM Guide structured sections require unique IDs and nonblank titles.", call. = FALSE)
     }
   }
@@ -1151,19 +1318,19 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
     pt_guide_basemap_products(),
     pt_guide_tool_products(map_display)
   )
+  enrichment <- pt_guide_read_product_enrichment()
+  products <- pt_guide_apply_product_enrichment(products, enrichment)
   content <- pt_guide_authored_content()
-  products <- pt_guide_apply_curated_content(products, content$curatedProducts)
-  content$curatedProducts <- NULL
   bundle <- c(
     list(
-      schemaVersion = 2L,
+      schemaVersion = 4L,
       profileId = profile_id,
       identity = pt_brim_application_identity(),
       authority = list(
         catalogAuthority = "DESCRIPTIVE_ONLY",
         runtimeAuthority = "UNCHANGED",
         mapActions = "DEFERRED_TO_I2",
-        coverage = "ALL_INCLUDED_VISIBLE_PRODUCTS_WITH_CURATED_QUICK_ACCESS_CONTENT_FLOOR"
+        coverage = "ALL_INCLUDED_NON_BASEMAP_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS"
       ),
       products = unname(products)
     ),
