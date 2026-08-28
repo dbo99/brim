@@ -270,6 +270,12 @@ section_text <- function(record) {
   }), use.names = FALSE), collapse = " ")
 }
 
+onboarding_basic <- record_by_id(without_enrichment, "acec")
+onboarding_reapplied <- pt_guide_apply_product_enrichment(list(onboarding_basic), list())[[1]]
+assert_true(identical(onboarding_basic$contentTier, "STRUCTURED_BASIC") &&
+              identical(onboarding_reapplied$contentTier, "STRUCTURED_BASIC"),
+            "Optional enrichment changed the default onboarding tier for an unenriched Product")
+
 scan <- record_by_id(bundle$products, "ops_scan_soil_moisture")
 assert_identical(scan$title, "SCAN Soil Moisture",
                  "SCAN Guide display title changed")
@@ -438,12 +444,61 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
 enrichment <- pt_guide_read_product_enrichment()
-assert_identical(length(enrichment), 24L,
-                 "GUIDE-I2A enrichment inventory changed without review")
+baseline_rich_count <- 24L
+baseline_basic_count <- 246L
+baseline_editorial_count <- 0L
+wave1_local_ids <- c(
+  "acec", "adjudicated_gw_basins", "blm_core", "blm_offices", "ca_desert_ncl",
+  "calsim3_network", "drecp", "federal_wilderness", "field_office_outer", "gsp_areas",
+  "national_monuments", "national_scenic_historic_trails", "rwqcb_regions",
+  "swrcb_name_text_candidates", "swrcb_pod_spatial_matches", "swrcb_wr_list_official",
+  "usgs_streamgages", "usgs_wells", "water_districts", "wilderness_study_areas"
+)
+wave1_external_ids <- c(
+  "CGS_AP_FAULT_TRACES", "CGS_AP_FAULT_ZONES", "CGS_GEOLOGY_MAP_TILED",
+  "DWR_TRE_ALTAMIRA_ANNUAL_RATE_MOSAIC", "DWR_TRE_ALTAMIRA_POINT_LOCATIONS_2026Q1",
+  "DWR_TRE_ALTAMIRA_TOTAL_SINCE_2015_MOSAIC", "EPA_NPL_BOUNDARIES", "EPA_SEMS_POINTS",
+  "EXT051", "EXT131", "EXT132", "SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS",
+  "UIC_CALGEM_POST_LIVE", "UIC_CALGEM_PRIMACY_LIVE", "UIC_EPA_LIVE",
+  "UIC_EPA_REFERENCE_POINTS", "USFWS_NWR_BOUNDARIES", "USGS_QFAULTS_VISUAL",
+  "USGS_RECENT_EARTHQUAKES_24H"
+)
+wave1_ops_ids <- c(
+  "nbm_qpf", "ops_cdec_reservoir_storage", "ops_cnrfc_forecast_points",
+  "ops_hrrr_surface_wind", "ops_nws_watches_warnings_advisories",
+  "ops_nws_weather_stations", "ops_observed_metar_wind", "ops_qpe_mrms_1day",
+  "ops_qpe_mrms_1hr", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_7day",
+  "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_streamflow_multiagency",
+  "ops_us_drought_monitor", "ops_wpc_ero_day_1", "ops_wpc_qpf_3day",
+  "ops_wpc_qpf_day_1", "product-ops-nbm-accumulated-qpf"
+)
+wave1_tool_ids <- character(0)
+wave1_rich_ids <- c(wave1_local_ids, wave1_external_ids, wave1_ops_ids, wave1_tool_ids)
+assert_identical(length(wave1_rich_ids), 60L,
+                 "GUIDE-I2A2 Wave 1 must deepen exactly 60 Products")
+assert_true(!anyDuplicated(wave1_rich_ids) && all(wave1_rich_ids %in% product_ids),
+            "GUIDE-I2A2 Wave 1 IDs must be unique current-profile Products")
+assert_true(length(wave1_rich_ids) >= 45L && length(wave1_rich_ids) <= 90L &&
+              all(c(length(wave1_local_ids), length(wave1_external_ids),
+                    length(wave1_ops_ids)) >= 12L),
+            "GUIDE-I2A2 Wave 1 missed its target range or subsystem coverage floor")
+assert_identical(
+  c(Local = length(wave1_local_ids), External = length(wave1_external_ids),
+    `Ops Live` = length(wave1_ops_ids), Tools = length(wave1_tool_ids)),
+  c(Local = 20L, External = 20L, `Ops Live` = 20L, Tools = 0L),
+  "GUIDE-I2A2 Wave 1 subsystem selection changed"
+)
+assert_identical(length(enrichment), baseline_rich_count + length(wave1_rich_ids),
+                 "GUIDE-I2A2 enrichment inventory changed without review")
+assert_true(all(wave1_rich_ids %in% names(enrichment)),
+            "A GUIDE-I2A2 Wave 1 Product lacks a source-backed enrichment record")
 assert_true(all(vapply(enrichment, function(record) {
   length(record$source_refs) > 0L &&
     all(nzchar(as.character(unlist(record$source_refs, use.names = FALSE))))
 }, logical(1))), "Every enriched field set must identify current source authority")
+assert_true(all(vapply(enrichment[wave1_rich_ids], function(record) {
+  length(record$method_ids) > 0L && all(record$method_ids %in% method_ids)
+}, logical(1))), "Every GUIDE-I2A2 Method relationship must resolve to a maintained Method")
 assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
               "brim_mapped_conveyance" %in% product_ids &&
               "brim_mapped_conveyance" %in% quick_product_ids &&
@@ -452,9 +507,29 @@ assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
 
 content_tiers <- table(vapply(bundle$products, `[[`, character(1), "contentTier"))
 assert_identical(as.integer(content_tiers[c("SOURCE_BACKED_RICH", "STRUCTURED_BASIC")]),
-                 c(24L, 246L), "GUIDE-I2A content-tier counts changed")
+                 c(baseline_rich_count + length(wave1_rich_ids),
+                   baseline_basic_count - length(wave1_rich_ids)),
+                 "GUIDE-I2A2 content-tier counts changed")
 assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
             "Unexpected editorial-review tier entered the current profile")
+assert_identical(baseline_editorial_count, 0L,
+                 "GUIDE-I2A2 baseline editorial-review count changed")
+wave1_products <- bundle$products[match(wave1_rich_ids, product_ids)]
+assert_true(all(vapply(wave1_products, function(product) {
+  identical(product$contentTier, "SOURCE_BACKED_RICH") && nzchar(product$summary) &&
+    length(product$sections) >= 2L && all(vapply(product$sections, function(section) {
+      nzchar(section$title) &&
+        (length(section$paragraphs) > 0L || length(section$items) > 0L || !is.null(section$table))
+    }, logical(1)))
+}, logical(1))),
+"Every GUIDE-I2A2 Wave 1 Product needs a concise summary and at least two meaningful detail areas")
+wave1_user_text <- paste(vapply(wave1_products, function(product) {
+  paste(product$summary, section_text(product))
+}, character(1)), collapse = " ")
+assert_true(!grepl(
+  "compiler|I2A|read-only index|implementation record|registry authority|/(Users|home|private|tmp|Volumes)/|00_config|03_functions|qa/|source_repo|worktree|audit staging",
+  wave1_user_text, ignore.case = TRUE, perl = TRUE
+), "GUIDE-I2A2 Wave 1 content contains developer-facing language or a machine/source path")
 assert_true(all(vapply(bundle$products, function(product) {
   all(nzchar(c(product$id, product$title, product$entityType, product$brimSection,
                product$provider))) &&
@@ -518,6 +593,12 @@ assert_true(setequal(subjectless_ids, c(
   "EPA_NPL_BOUNDARIES", "EPA_SEMS_POINTS", "EXT116", "EXT117",
   "tool_measure", "tool_teaching_markup", "tool_external_gis_overlay", "tool_local_gis_upload"
 )), "Unresolved or intentional no-domain-subject Product set changed")
+assert_true(all(vapply(c("EPA_NPL_BOUNDARIES", "EPA_SEMS_POINTS"), function(id) {
+  identical(record_by_id(bundle$products, id)$contentTier, "SOURCE_BACKED_RICH")
+}, logical(1))) && all(vapply(c("EXT116", "EXT117"), function(id) {
+  identical(record_by_id(bundle$products, id)$contentTier, "STRUCTURED_BASIC")
+}, logical(1))) && !"Contaminated Sites & Remediation" %in% all_subjects,
+"Focused taxonomy review must deepen the two contaminated-site records without inventing a sparse subject, while retaining recreation/access review")
 
 fire_weather_ids <- vapply(Filter(function(product) {
   "Fire Weather" %in% product$subjectTags
@@ -641,7 +722,8 @@ rich_probe_ids <- c(
   "wild_scenic_river_legal_status_corridors_usfs_lsrs", "ops_scan_soil_moisture",
   "ops_snow_pillow_swe", "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater",
   "winter_storm_levels", "ops_major_water_supply_forecasts", "ops_delta_snapshot",
-  "brim_mapped_conveyance", "tool_local_gis_upload", "tool_external_gis_overlay"
+  "brim_mapped_conveyance", "usgs_streamgages", "usgs_wells",
+  "tool_local_gis_upload", "tool_external_gis_overlay"
 )
 assert_true(all(vapply(rich_probe_ids, function(id) {
   product <- record_by_id(bundle$products, id)
@@ -996,10 +1078,14 @@ assert_true(all(c("SCAN", "soil climate analysis network") %in% scan$aliases) &&
               "Soil Moisture" %in% scan$subjectTags &&
               grepl("snow", scan$pathLabel, ignore.case = TRUE),
             "SCAN does not prove alias/subject search independent of its exact broad-parent path")
-assert_true(!any(grepl("https?://|controller|PT_[A-Z]", unlist(lapply(
-  bundle$products, `[[`, "searchTerms"
-), use.names = FALSE), ignore.case = TRUE, perl = TRUE)),
-"URL, controller, or runtime-symbol text entered Product semantic search terms")
+forbidden_search_ids <- vapply(Filter(function(product) {
+  any(grepl("https?://|controller|PT_[A-Z]", product$searchTerms,
+            ignore.case = TRUE, perl = TRUE))
+}, bundle$products), `[[`, character(1), "id")
+assert_true(!length(forbidden_search_ids), paste0(
+  "URL, controller, or runtime-symbol text entered Product semantic search terms: ",
+  paste(forbidden_search_ids, collapse = ", ")
+))
 record_kinds <- unique(vapply(
   c(bundle$products, bundle$articles, bundle$resources, bundle$updates),
   `[[`, character(1), "kind"
@@ -1024,9 +1110,13 @@ assert_true(!grepl("\\b276\\b", guide_r, perl = TRUE),
             "Production Guide payload contains a hardcoded fixture count")
 
 payload_bytes <- nchar(jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null"), type = "bytes")
+baseline_payload_bytes <- 313498L
+payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
 assert_true(payload_bytes <= 400000L, "Default Guide payload exceeds hard review threshold")
+assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 350000L,
+            "GUIDE-I2A2 embedded payload growth exceeds the preferred review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
             "Machine-local path leaked into Guide payload")
@@ -1037,7 +1127,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2A source-backed vitals contracts passed.\n")
+cat("GUIDE-I2A2 source-backed vitals deepening contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
@@ -1045,5 +1135,6 @@ cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")
+cat("EMBEDDED_PAYLOAD_GROWTH_BYTES=", payload_growth_bytes, "\n", sep = "")
 cat("GUIDE_JS_BYTES=", js_bytes, "\n", sep = "")
 cat("GUIDE_CSS_BYTES=", css_bytes, "\n", sep = "")
