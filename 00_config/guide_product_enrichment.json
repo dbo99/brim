@@ -2,301 +2,2847 @@
   "schema_version": 1,
   "products": [
     {
-      "stable_id": "EXT070",
-      "subject_tags": ["Fire & Burn Areas"],
-      "information_type_tags": ["External On-Demand Service", "Historical Context"],
-      "capabilities": ["Loads CAL FIRE recent large-fire perimeter features for the current map view.", "Uses the provider attributes and configured fire-perimeter legend treatment."],
-      "processing": ["BRIM requests the configured CAL FIRE FRAP recent large-fire feature layer; the External catalog continues to own its service and loading contract."],
-      "geometry_limitations": ["Coverage and currency differ from the full historical CAL FIRE layer and the current operational NIFC layer; review the provider record before boundary-sensitive use."],
-      "method_ids": ["method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_calfire_fire_perimeters", "role": "Perimeter source and limitations", "relationship_type": "used_by_brim", "use_scope": "source_and_service_context"}],
+      "stable_id": "CGS_AP_FAULT_TRACES",
+      "summary": "California Geological Survey Alquist-Priolo regulatory fault traces provided as a zoom-gated External detail layer.",
+      "subject_tags": [
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view fault-trace features at close zoom and inspect maintained source attributes in popups.",
+        "Use the traces with the separate Alquist-Priolo fault-zone polygons for regulatory screening context."
+      ],
+      "processing": [
+        "BRIM queries the provider FeatureServer for the current map view and applies the maintained External popup and legend configuration."
+      ],
+      "geometry_limitations": [
+        "Fault traces are detail context and are not interchangeable with the regulatory zone polygons or the USGS scientific Quaternary-fault layer.",
+        "Verify regulatory interpretation and current official mapping with CGS."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["external_service_catalog", "external_layer_capability_registry"]
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "cgs_alquist_priolo_source"
+      ]
+    },
+    {
+      "stable_id": "CGS_AP_FAULT_ZONES",
+      "summary": "California Geological Survey Alquist-Priolo Earthquake Fault Zone polygons for regulatory fault-zone screening.",
+      "subject_tags": [
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view regulatory zone polygons and inspect provider attributes through the maintained External popup behavior.",
+        "Compare the zones with CGS regulatory traces, USGS scientific faults, infrastructure, and project areas."
+      ],
+      "processing": [
+        "BRIM queries the official provider FeatureServer for the current map view and applies restrained screening styling."
+      ],
+      "geometry_limitations": [
+        "This is Alquist-Priolo regulatory-zone context, not a complete scientific map of Quaternary faults.",
+        "Consult current official CGS maps and requirements for site-specific or regulatory decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "cgs_alquist_priolo_source"
+      ]
+    },
+    {
+      "stable_id": "CGS_GEOLOGY_MAP_TILED",
+      "summary": "The official California Geological Survey Geologic Map of California service rendered as an External tiled visual overlay.",
+      "subject_tags": [
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Display provider-rendered statewide geologic-map context without loading the underlying features into the browser.",
+        "Compare the External service with BRIM's retained Local CA Geology row while that reviewed comparison remains available."
+      ],
+      "processing": [
+        "BRIM requests provider-rendered map tiles and preserves the official CGS service symbology rather than restyling source units."
+      ],
+      "geometry_limitations": [
+        "This is visual map context and does not expose a complete feature-level geology record through BRIM.",
+        "Map scale, service availability, and official CGS descriptions control interpretation; verify source mapping before reporting."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_tiled_map_loader",
+        "cgs_geologic_map_service"
+      ]
+    },
+    {
+      "stable_id": "DWR_TRE_ALTAMIRA_ANNUAL_RATE_MOSAIC",
+      "summary": "DWR/TRE ALTAMIRA InSAR annual vertical-displacement-rate mosaic for screening broad subsidence and uplift patterns.",
+      "subject_tags": [
+        "Groundwater",
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Display the provider-rendered annual-rate raster and use ImageServer identify to inspect the provider raw pixel value.",
+        "Compare rate patterns with groundwater basins, wells, conveyance, and project areas."
+      ],
+      "processing": [
+        "BRIM requests the provider ImageServer rendering and identify response; source renderer colors, classes, and units remain provider-owned."
+      ],
+      "geometry_limitations": [
+        "Use for relative screening patterns, not parcel-level elevation, infrastructure deformation, or a survey measurement.",
+        "A raster pixel and provider color class require the source legend, period, and methodology for interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_image_identify_loader",
+        "dwr_tre_altamira_source"
+      ]
+    },
+    {
+      "stable_id": "DWR_TRE_ALTAMIRA_POINT_LOCATIONS_2026Q1",
+      "summary": "DWR/TRE ALTAMIRA 2026Q1 InSAR point/cell locations that link to point-specific 2015–2026 displacement charts and CSV downloads.",
+      "subject_tags": [
+        "Groundwater",
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "At close zoom, identify a mapped location and open the DWR chart or CSV using its maintained CODE link.",
+        "Use the layer as a chart-link index while the companion rasters provide mapped displacement-value screening."
+      ],
+      "processing": [
+        "Because the provider layer is extremely large, BRIM uses a zoom-gated rendered MapServer overlay with identify rather than loading millions of features into the browser."
+      ],
+      "timing": [
+        "The cataloged release is 2026Q1 and its point-chart period is labeled 2015–2026; BRIM does not infer a continuing update cadence."
+      ],
+      "geometry_limitations": [
+        "The layer shows chart-link locations and does not itself expose displacement magnitude as thematic map values.",
+        "Use the linked source chart/CSV and provider methodology for point-level interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_map_identify_loader",
+        "dwr_tre_altamira_point_release"
+      ]
+    },
+    {
+      "stable_id": "DWR_TRE_ALTAMIRA_TOTAL_SINCE_2015_MOSAIC",
+      "summary": "DWR/TRE ALTAMIRA InSAR cumulative vertical-displacement mosaic since June 13, 2015 for subsidence/uplift screening.",
+      "subject_tags": [
+        "Groundwater",
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Display provider-rendered cumulative displacement and use ImageServer identify to inspect the provider raw pixel value.",
+        "Compare cumulative patterns with the annual-rate mosaic, groundwater basins, infrastructure, and project areas."
+      ],
+      "processing": [
+        "BRIM requests the provider ImageServer rendering and identify response; source renderer colors, classes, and units remain provider-owned."
+      ],
+      "timing": [
+        "The mapped quantity is cumulative displacement since June 13, 2015; that period is distinct from service retrieval time."
+      ],
+      "geometry_limitations": [
+        "Use for relative screening patterns, not parcel-level elevation, infrastructure deformation, or a survey measurement.",
+        "A raster pixel and provider color class require the source legend, period, and methodology for interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_image_identify_loader",
+        "dwr_tre_altamira_source"
+      ]
+    },
+    {
+      "stable_id": "EPA_NPL_BOUNDARIES",
+      "summary": "EPA public Superfund National Priorities List site-boundary features for cleanup and contaminated-site screening context.",
+      "subject_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Query current-view site-boundary features and inspect maintained EPA attributes in popups.",
+        "Use the polygons with the separate SEMS facility-point layer near BLM lands, watersheds, and water-resource review areas."
+      ],
+      "processing": [
+        "BRIM loads the provider FeatureServer by current map view and applies restrained boundary styling without changing source status fields."
+      ],
+      "geometry_limitations": [
+        "The overlay is screening context; verify site status, boundary details, cleanup records, and current decisions with EPA.",
+        "Only two current Guide records clearly fit contaminated-site/remediation content, so no new controlled subject is assigned in this wave."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "epa_superfund_boundary_service"
+      ]
+    },
+    {
+      "stable_id": "EPA_SEMS_POINTS",
+      "summary": "EPA SEMS/FRS facility-interest points for Superfund and contaminated-site screening near BLM lands and watersheds.",
+      "subject_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Query the dense national point service by current map view and inspect maintained facility fields in popups.",
+        "Use the point locations with the separate EPA NPL boundary layer for complementary site context."
+      ],
+      "processing": [
+        "BRIM uses current-view loading to bound the national FeatureServer response and preserves provider attributes in the External layer."
+      ],
+      "geometry_limitations": [
+        "Facility points are locators and do not represent site boundaries, contaminant extent, cleanup status, or current risk by themselves.",
+        "Only two current Guide records clearly fit contaminated-site/remediation content, so no new controlled subject is assigned in this wave."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "epa_sems_frs_service"
+      ]
+    },
+    {
+      "stable_id": "EXT051",
+      "summary": "SWRCB Water Rights Points of Diversion from the maintained MapServer, available as an attribute-bearing current-view External layer.",
+      "subject_tags": [
+        "Water Rights"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Zoom to an area, load current-view POD records, and inspect source attributes and popups.",
+        "An advanced visual-overlay option remains available when a statewide provider-rendered image is preferable to feature retrieval."
+      ],
+      "processing": [
+        "The default quick-add queries the current view for feature attributes; the optional visual path requests rendered map imagery."
+      ],
+      "geometry_limitations": [
+        "A POD location does not by itself establish current right validity, quantity, place of use, ownership, or management authority.",
+        "Use the official Water Boards record for legal and current-status interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "swrcb_points_of_diversion_service"
+      ]
+    },
+    {
+      "stable_id": "EXT070",
+      "subject_tags": [
+        "Fire & Burn Areas"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Loads CAL FIRE recent large-fire perimeter features for the current map view.",
+        "Uses the provider attributes and configured fire-perimeter legend treatment."
+      ],
+      "processing": [
+        "BRIM requests the configured CAL FIRE FRAP recent large-fire feature layer; the External catalog continues to own its service and loading contract."
+      ],
+      "geometry_limitations": [
+        "Coverage and currency differ from the full historical CAL FIRE layer and the current operational NIFC layer; review the provider record before boundary-sensitive use."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_calfire_fire_perimeters",
+          "role": "Perimeter source and limitations",
+          "relationship_type": "used_by_brim",
+          "use_scope": "source_and_service_context"
+        }
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_layer_capability_registry"
+      ]
     },
     {
       "stable_id": "EXT072",
-      "subject_tags": ["Fire & Burn Areas"],
-      "information_type_tags": ["External On-Demand Service", "Historical Context"],
-      "capabilities": ["Loads the full historical CAL FIRE perimeter feature layer for the current map view.", "Uses provider attributes and the configured fire-perimeter legend treatment."],
-      "processing": ["BRIM requests the configured full historical CAL FIRE FRAP feature layer; the External catalog continues to own its service and loading contract."],
-      "geometry_limitations": ["This is historical perimeter context, not the current operational wildfire snapshot; coverage and currency differ from the recent-large-fire and NIFC layers."],
-      "method_ids": ["method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_calfire_fire_perimeters", "role": "Perimeter source and limitations", "relationship_type": "used_by_brim", "use_scope": "source_and_service_context"}],
+      "subject_tags": [
+        "Fire & Burn Areas"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Loads the full historical CAL FIRE perimeter feature layer for the current map view.",
+        "Uses provider attributes and the configured fire-perimeter legend treatment."
+      ],
+      "processing": [
+        "BRIM requests the configured full historical CAL FIRE FRAP feature layer; the External catalog continues to own its service and loading contract."
+      ],
+      "geometry_limitations": [
+        "This is historical perimeter context, not the current operational wildfire snapshot; coverage and currency differ from the recent-large-fire and NIFC layers."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_calfire_fire_perimeters",
+          "role": "Perimeter source and limitations",
+          "relationship_type": "used_by_brim",
+          "use_scope": "source_and_service_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["external_service_catalog", "external_layer_capability_registry"]
+      "source_refs": [
+        "external_service_catalog",
+        "external_layer_capability_registry"
+      ]
     },
     {
       "stable_id": "EXT074",
-      "subject_tags": ["Fire & Burn Areas"],
-      "information_type_tags": ["External On-Demand Service", "Live Observation"],
-      "capabilities": ["Loads current operational wildfire and complex perimeters for the current map view.", "Uses the current NIFC/WFIGS feature attributes and configured fire-perimeter treatment."],
-      "processing": ["BRIM requests a current-view WFIGS snapshot and filters to wildfire and complex categories where the service supports SQL; prescribed-fire records are excluded from this layer."],
-      "geometry_limitations": ["Operational perimeters can change rapidly and are screening context; use the authoritative incident record for current operational decisions."],
-      "method_ids": ["method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_nifc_wfigs_current", "role": "Operational perimeter source", "relationship_type": "used_by_brim", "use_scope": "current_operational_context"}],
+      "subject_tags": [
+        "Fire & Burn Areas"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Loads current operational wildfire and complex perimeters for the current map view.",
+        "Uses the current NIFC/WFIGS feature attributes and configured fire-perimeter treatment."
+      ],
+      "processing": [
+        "BRIM requests a current-view WFIGS snapshot and filters to wildfire and complex categories where the service supports SQL; prescribed-fire records are excluded from this layer."
+      ],
+      "geometry_limitations": [
+        "Operational perimeters can change rapidly and are screening context; use the authoritative incident record for current operational decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_nifc_wfigs_current",
+          "role": "Operational perimeter source",
+          "relationship_type": "used_by_brim",
+          "use_scope": "current_operational_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["external_service_catalog", "external_layer_capability_registry"]
+      "source_refs": [
+        "external_service_catalog",
+        "external_layer_capability_registry"
+      ]
+    },
+    {
+      "stable_id": "EXT131",
+      "summary": "BLM California DRECP Record of Decision polygons representing Areas of Critical Environmental Concern for desert planning screening.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view DRECP ACEC polygons and inspect maintained provider attributes in popups.",
+        "Use deterministic name-based map colors for readability while comparing with other DRECP and Local designation layers."
+      ],
+      "processing": [
+        "BRIM queries the official provider FeatureServer for the current map view and applies deterministic display colors by source Name."
+      ],
+      "geometry_limitations": [
+        "This is planning/designation screening context; map colors are readability aids and do not add category or legal meaning.",
+        "Verify official designation boundaries, names, and decisions against the DRECP ROD/LUPA and current BLM records."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "drecp_rod_source"
+      ]
+    },
+    {
+      "stable_id": "EXT132",
+      "summary": "BLM California DRECP Record of Decision National Conservation Lands polygons for desert planning and designation screening.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view DRECP National Conservation Lands features and inspect provider attributes in popups.",
+        "Compare the service with other DRECP allocations and BRIM's separately owned Local conservation layers."
+      ],
+      "processing": [
+        "BRIM queries the official provider FeatureServer for the current map view and retains the source layer as an on-demand External product."
+      ],
+      "geometry_limitations": [
+        "This is planning/designation screening context and does not transfer identity or authority to an intersecting BRIM layer.",
+        "Verify boundaries, names, and applicable decisions against the DRECP ROD/LUPA and current BLM records."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "drecp_rod_source"
+      ]
+    },
+    {
+      "stable_id": "SWRCB_2024_IR_LINES",
+      "summary": "Linear assessed waterbodies from the Water Boards 2024 Integrated Report, including source assessment category and listing-status context.",
+      "subject_tags": [
+        "Surface Water",
+        "Water Quality"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view stream, river, and beach records and inspect assessment/listing attributes and fact-sheet links in popups.",
+        "Use the line layer with the companion polygon waterbody layer for current 2024 Integrated Report screening."
+      ],
+      "processing": [
+        "BRIM queries the provider FeatureServer for the current view and uses source listing attributes for simple display styling where available."
+      ],
+      "timing": [
+        "The record set is the 2024 Integrated Report; that report cycle is distinct from the service retrieval time."
+      ],
+      "geometry_limitations": [
+        "The layer is screening context and does not replace the Integrated Report, fact sheets, current Water Boards decisions, or site-specific water-quality data.",
+        "A mapped assessment category or listing status requires source-document interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "swrcb_2024_integrated_report"
+      ]
+    },
+    {
+      "stable_id": "SWRCB_2024_IR_POLYGONS",
+      "summary": "Polygon assessed waterbodies from the Water Boards 2024 Integrated Report, including source assessment category and listing-status context.",
+      "subject_tags": [
+        "Surface Water",
+        "Water Quality"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view bay, lake, and reservoir records and inspect assessment/listing attributes and fact-sheet links in popups.",
+        "Use the polygon layer with the companion linear waterbody layer for current 2024 Integrated Report screening."
+      ],
+      "processing": [
+        "BRIM queries the provider FeatureServer for the current view and uses source listing attributes for simple display styling where available."
+      ],
+      "timing": [
+        "The record set is the 2024 Integrated Report; that report cycle is distinct from the service retrieval time."
+      ],
+      "geometry_limitations": [
+        "The layer is screening context and does not replace the Integrated Report, fact sheets, current Water Boards decisions, or site-specific water-quality data.",
+        "A mapped assessment category or listing status requires source-document interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "swrcb_2024_integrated_report"
+      ]
+    },
+    {
+      "stable_id": "UIC_CALGEM_POST_LIVE",
+      "summary": "Authoritative CalGEM post-primacy aquifer-exemption approval footprints with source formation, zone, criterion, approval, and documentation attributes.",
+      "subject_tags": [
+        "Groundwater",
+        "Energy & Minerals"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load the complete current CalGEM polygon source on demand and filter or find records through the shared UIC Explorer.",
+        "Inspect source-specific attributes and official documentation links without merging the records with EPA or historic CalGEM layers."
+      ],
+      "processing": [
+        "The External loader retrieves the complete object-ID inventory in bounded batches, builds a replacement off-map, and swaps only after complete success."
+      ],
+      "geometry_limitations": [
+        "Mapped polygons are surface footprints; exemptions can be limited by formation, zone, depth, elevation, or structural boundary.",
+        "Review the applicable approval and supporting documents; a surface intersection does not establish that all underlying groundwater is exempt."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "uic_feature_contract",
+        "uic_external_loader_tests"
+      ]
+    },
+    {
+      "stable_id": "UIC_CALGEM_PRIMACY_LIVE",
+      "summary": "CalGEM's partial historic shaded subset associated with 1983 UIC primacy, retained as distinct historic aquifer-exemption context.",
+      "subject_tags": [
+        "Groundwater",
+        "Energy & Minerals"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load the complete historic-source layer on demand and inspect its available area and source attributes through the UIC Explorer.",
+        "Compare it with current EPA mapped boundaries and post-primacy CalGEM approvals without combining source identities."
+      ],
+      "processing": [
+        "The External loader retrieves the source in bounded batches and keeps the previous successful snapshot if a refresh fails."
+      ],
+      "timing": [
+        "The layer is historic 1983-primacy context; source date fields excluded by the maintained UIC contract are not inferred or displayed."
+      ],
+      "geometry_limitations": [
+        "This is a partial historic shaded subset and is not a complete map of all 1983 exemptions.",
+        "Mapped surface footprints do not establish exemption at every formation, zone, depth, or elevation beneath them."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "uic_feature_contract",
+        "uic_external_loader_tests"
+      ]
+    },
+    {
+      "stable_id": "UIC_EPA_LIVE",
+      "summary": "Authoritative EPA mapped aquifer-exemption surface footprints for current California UIC screening and source-record review.",
+      "subject_tags": [
+        "Groundwater",
+        "Energy & Minerals"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load the complete California EPA polygon source on demand and use the UIC Explorer for source, field/project, formation/zone, decision-year, and county review.",
+        "Inspect official source links and record attributes while keeping EPA and CalGEM source products separate."
+      ],
+      "processing": [
+        "The External loader obtains service metadata and the complete object-ID inventory, downloads bounded GeoJSON batches, and swaps only a complete successful replacement."
+      ],
+      "geometry_limitations": [
+        "Polygons show mapped surface footprints only; exemptions can be limited to formations, zones, depths, elevations, or structural boundaries.",
+        "Review the applicable EPA Record of Decision and supporting documents; a surface intersection does not establish that all underlying groundwater is exempt."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "uic_feature_contract",
+        "uic_external_loader_tests"
+      ]
+    },
+    {
+      "stable_id": "UIC_EPA_REFERENCE_POINTS",
+      "summary": "EPA aquifer-exemption centroids/reference locators for overview and navigation to mapped exemption records.",
+      "subject_tags": [
+        "Groundwater",
+        "Energy & Minerals"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load the complete California reference-point source on demand and use simple point popups for overview and record location.",
+        "Use the points with the EPA boundary layer and decision records for spatial interpretation."
+      ],
+      "processing": [
+        "BRIM retrieves the point layer through the shared complete External loader and renders simple circles without clustering or labels."
+      ],
+      "geometry_limitations": [
+        "The points are centroids/locators—not wells, injection wells, additional exemption areas, or substitutes for mapped boundaries.",
+        "Use mapped polygons and official decisions for exemption extent and formation/zone interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "uic_feature_contract",
+        "uic_external_loader_tests"
+      ]
+    },
+    {
+      "stable_id": "USFWS_NWR_BOUNDARIES",
+      "summary": "Simplified U.S. Fish and Wildlife Service National Wildlife Refuge System administered-land boundaries for refuge and habitat screening.",
+      "subject_tags": [
+        "Ecology & Habitat",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current-view refuge/administered-land polygons and inspect maintained source attributes in popups.",
+        "Compare refuge context with habitat, water-delivery, conservation, land-status, and project layers."
+      ],
+      "processing": [
+        "BRIM queries the provider FeatureServer by current map view and uses a restrained one-symbol External overlay."
+      ],
+      "geometry_limitations": [
+        "The source describes simplified resource-grade administered-land boundaries; not all mapped areas are open to the public.",
+        "Use official USFWS realty/source records for legal descriptions, ownership interests, access, or boundary-sensitive decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_current_view_loader",
+        "usfws_nwrs_boundary_source"
+      ]
+    },
+    {
+      "stable_id": "USGS_QFAULTS_VISUAL",
+      "summary": "Provider-rendered USGS Quaternary fault mapping for scientific fault-trace context.",
+      "subject_tags": [
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Display the USGS MapServer layer with provider symbology as a visual fault-context overlay.",
+        "Compare scientific Quaternary faults with CGS Alquist-Priolo zones and traces, recent seismicity, and infrastructure."
+      ],
+      "processing": [
+        "BRIM uses the provider-rendered map service after feature-query testing proved unsuitable for this source."
+      ],
+      "geometry_limitations": [
+        "This is scientific fault mapping and is not a substitute for regulatory Alquist-Priolo zoning.",
+        "Rendered scale, provider availability, and official USGS descriptions control interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_visual_map_loader",
+        "usgs_qfaults_service"
+      ]
+    },
+    {
+      "stable_id": "USGS_RECENT_EARTHQUAKES_24H",
+      "summary": "USGS all-magnitude earthquake feed for events reported during the past 24 hours, styled by BRIM for recent-seismicity context.",
+      "subject_tags": [
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Load current USGS GeoJSON events and inspect event magnitude, time, location, and source links through maintained popups.",
+        "Use magnitude-based point size/color to compare recent seismicity with faults, reservoirs, infrastructure, and project areas."
+      ],
+      "processing": [
+        "BRIM reads the public USGS GeoJSON feed and applies deterministic magnitude styling while retaining source event fields."
+      ],
+      "timing": [
+        "The source window is the past 24 hours; event time and browser retrieval time are distinct, and BRIM does not infer a publisher guarantee."
+      ],
+      "geometry_limitations": [
+        "The feed is a rolling recent-event view and is not a complete historical seismic catalog or a hazard forecast.",
+        "Event locations and magnitudes can be revised; use official USGS event records for current interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "external_service_catalog",
+        "external_geojson_loader",
+        "usgs_recent_earthquake_feed"
+      ]
+    },
+    {
+      "stable_id": "acec",
+      "summary": "Current BLM California Area of Critical Environmental Concern planning-designation boundaries with reviewed values, planning, and field-office context.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search and filter the 238 semantic ACECs by relevant-and-important value family, planning framework, and current field-office spatial context.",
+        "Popups separate source administrative coding, derived field-office context, designation values, planning documents, and current BLM source acreage."
+      ],
+      "processing": [
+        "BRIM preserves source attributes and stable semantic/component identities, repairs geometry on a derived copy, and uses reviewed display geometry.",
+        "Field-office context comes from positive-area intersection with the accepted current office boundaries and remains separate from source administration fields."
+      ],
+      "geometry_limitations": [
+        "An ACEC is a planning designation, not an ownership or cadastral boundary and not proof of public access or site-specific allowable uses.",
+        "Spatial field-office context does not by itself establish administrative responsibility; consult current BLM plans and source records."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "acec_feature_contract",
+        "local_geometry_generalization_registry",
+        "acec_controller_tests"
+      ]
+    },
+    {
+      "stable_id": "adjudicated_gw_basins",
+      "summary": "California adjudicated groundwater-basin boundaries retained as a Local reference for basin and groundwater-management screening.",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Display adjudicated-basin areas alongside Bulletin 118 basins and Groundwater Sustainability Plan areas.",
+        "Hover and popup expose the maintained basin attributes and source context."
+      ],
+      "processing": [
+        "BRIM prepares the maintained Local source for browser display and applies the reviewed polygon-display treatment without changing retained attributes."
+      ],
+      "geometry_limitations": [
+        "The mapped polygon is screening context and does not replace controlling adjudication judgments, decrees, or current court and agency records.",
+        "Basin boundaries do not describe conditions at individual wells or establish groundwater rights."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_groundwater_basin_builder",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "blm_core",
+      "summary": "The retained BRIM footprint of land represented as BLM California managed, provided as a fast Local land-administration reference.",
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Show the managed footprint as a single Local reference layer and compare it with the separate Held/Managed Differences layer.",
+        "Popup content identifies the mapped management category without changing map ownership or authority."
+      ],
+      "processing": [
+        "BRIM prepares the retained source geometry and popup category for the core map cache; this layer is not generalized by the reviewed polygon portfolio."
+      ],
+      "geometry_limitations": [
+        "Use as management-screening context, not parcel ownership, cadastral, mineral-estate, or survey authority.",
+        "Consult current BLM land-status records where a boundary-sensitive determination is needed."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "blm_core_cache_builder",
+        "blm_local_polygon_renderer"
+      ]
     },
     {
       "stable_id": "blm_diffs",
       "summary": "Two screening classes showing BLM-held land not represented as managed and BLM-managed land not represented as held in the retained BRIM source comparison.",
-      "subject_tags": ["Land Ownership & Administration"],
-      "information_type_tags": ["Screening / Derived", "Static Reference"],
-      "capabilities": ["Distinct fill and outline styles separate ‘Unmanaged but held’ from ‘Managed but not held’ polygons.", "Popup text reports the retained comparison class."],
-      "processing": ["BRIM derives the two difference classes from the retained held-tract and managed-land inputs and caches the map-facing polygons."],
-      "geometry_limitations": ["The current display retains unsimplified, clean-only geometry.", "A difference polygon is screening evidence of a source-representation difference; it does not by itself establish jurisdiction, administration, ownership, or an error in either authoritative record."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
-      "resource_relationships": [{"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Distinct fill and outline styles separate ‘Unmanaged but held’ from ‘Managed but not held’ polygons.",
+        "Popup text reports the retained comparison class."
+      ],
+      "processing": [
+        "BRIM derives the two difference classes from the retained held-tract and managed-land inputs and caches the map-facing polygons."
+      ],
+      "geometry_limitations": [
+        "The current display retains unsimplified, clean-only geometry.",
+        "A difference polygon is screening evidence of a source-representation difference; it does not by itself establish jurisdiction, administration, ownership, or an error in either authoritative record."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "blm_held_managed_preprocessor_contract", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "blm_held_managed_preprocessor_contract",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "blm_offices",
+      "summary": "BLM California office locations classified as state, district, and field offices, with parent-district context where maintained.",
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Display office locations by office type and relate field-office point colors to the current outer-boundary district colors.",
+        "Hover and popup show office name, type, and parent district when available."
+      ],
+      "processing": [
+        "BRIM standardizes office-type labels and joins reviewed field-office and district display colors without replacing source office attributes."
+      ],
+      "geometry_limitations": [
+        "Office points mark office locations; they are not administrative boundaries or evidence of responsibility for a project location.",
+        "Verify current contact information and organizational assignments with official BLM sources."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "blm_office_cache_builder",
+        "blm_office_popup_and_legend_helpers"
+      ]
     },
     {
       "stable_id": "brim_mapped_conveyance",
       "summary": "BRIM's curated statewide water-conveyance layer, assembled from multiple reviewed source datasets into one mapped facility network.",
-      "subject_tags": ["Surface Water", "Infrastructure & Conveyance"],
-      "information_type_tags": ["Static Reference", "Screening / Derived"],
-      "capabilities": ["Quick views and filters cover project family, ownership, conveyance group, BLM-managed-land relationship, display rank, and geometry confidence.", "Facility search, labels, hover, popup details, filter apply/auto modes, and zoom-to-results operate over the current filtered network."],
-      "processing": ["BRIM reconciles facility identities and assembles mapped segments from various reviewed source datasets into one curated combined layer."],
-      "geometry_limitations": ["The map is a curated screening representation, not a hydraulic model, complete ownership record, or operational control network.", "Popup source context identifies the retained geometry basis; use the authoritative facility source for operational or legal decisions."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Quick views and filters cover project family, ownership, conveyance group, BLM-managed-land relationship, display rank, and geometry confidence.",
+        "Facility search, labels, hover, popup details, filter apply/auto modes, and zoom-to-results operate over the current filtered network."
+      ],
+      "processing": [
+        "BRIM reconciles facility identities and assembles mapped segments from various reviewed source datasets into one curated combined layer."
+      ],
+      "geometry_limitations": [
+        "The map is a curated screening representation, not a hydraulic model, complete ownership record, or operational control network.",
+        "Popup source context identifies the retained geometry basis; use the authoritative facility source for operational or legal decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "conveyance_controller", "conveyance_pipeline_decision_ledger"]
+      "source_refs": [
+        "local_layer_registry",
+        "conveyance_controller",
+        "conveyance_pipeline_decision_ledger"
+      ]
+    },
+    {
+      "stable_id": "ca_desert_ncl",
+      "summary": "Eleven current BLM California Desert National Conservation Lands source records, including ten DRECP subarea allocations and Desert Lily Preserve.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search mapped units and filter by current field-office spatial context or reviewed overlaps with related designation layers.",
+        "Popups separate source identity, planning context, calculated geometry area, published acreage, and related-designation screening relationships."
+      ],
+      "processing": [
+        "BRIM preserves authoritative NLCS_ID identity and source GlobalID lineage, repairs invalid geometry on a derivative, and uses reviewed topology-preserving display geometry.",
+        "Related designations remain normalized references to their owning layers and do not merge or transfer legal identity."
+      ],
+      "geometry_limitations": [
+        "Ten mapped records are DRECP ecoregion subarea allocations, not independently established legal conservation units.",
+        "Field-office intersections and designation overlaps are screening context, not management assignments, legal relationships, or access determinations."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "ca_desert_ncl_feature_contract",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "calsim3_network",
+      "summary": "The CalSim 3.0 water-system network presented as one Guide layer while BRIM renders its connected arc and node children together.",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Model / Simulation",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Explore network arcs and nodes together, including maintained search, selection, and linked network attributes.",
+        "Arc and node components appear as one visible Product and one map path."
+      ],
+      "processing": [
+        "BRIM prepares separate arc and node geometries, then presents them as one combined layer."
+      ],
+      "geometry_limitations": [
+        "The network is model/simulation structure and screening context, not a survey of physical facility location or current operating state.",
+        "Nodes and arcs have different geometric meanings and should not be interpreted as one undifferentiated feature type."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "calsim_cache_builder",
+        "calsim_combined_controller",
+        "calsim_controller_tests"
+      ]
+    },
+    {
+      "stable_id": "drecp",
+      "summary": "The Desert Renewable Energy Conservation Plan planning-area boundary retained as Local context for California desert planning review.",
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Show the overall DRECP planning-area extent with other Local conservation, administration, and energy-screening layers.",
+        "Hover and popup identify the maintained planning boundary and source context."
+      ],
+      "processing": [
+        "BRIM packages the maintained planning-area geometry as a Local reference layer with its existing popup and lifecycle behavior."
+      ],
+      "geometry_limitations": [
+        "The planning-area boundary does not assign a parcel, project, or location to a particular land-use allocation or decision.",
+        "Consult the current DRECP Record of Decision, plan amendments, and owning designation layers for project-level interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_reference_builder",
+        "drecp_runtime_layer"
+      ]
+    },
+    {
+      "stable_id": "federal_wilderness",
+      "summary": "Congressionally designated Federal Wilderness represented as 158 named wildernesses across 197 source components, including three intentional western-Nevada context components.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search named wildernesses and filter by managing agency, management pattern, designation history, and geographic context.",
+        "Popups separate named-wilderness identity, selected source component, managing agencies, legal history, published acreage, and mapped area."
+      ],
+      "processing": [
+        "BRIM keeps component and semantic identities separate, preserves source attributes, and applies reviewed derived display geometry.",
+        "One-to-many laws, documents, agency, and policy records remain normalized rather than duplicated on every polygon."
+      ],
+      "geometry_limitations": [
+        "A source component is not synonymous with a named wilderness; one wilderness can contain multiple noncontiguous or agency-administered components.",
+        "This is planning and orientation context; controlling law, current agency direction, closures, permits, and field conditions remain authoritative."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "federal_wilderness_feature_contract",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "field_office_outer",
+      "summary": "Current BLM California field-office administrative-unit boundaries with parent-district display context.",
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Display the 14 current California field-office polygons with district-based line colors and maintained office/district popup fields.",
+        "The boundary layer also supplies reviewed spatial context to Local designation layers without transferring management authority."
+      ],
+      "processing": [
+        "BRIM retains the accepted office attributes and uses the reviewed field-office display geometry; district styling is derived from parent-district names."
+      ],
+      "geometry_limitations": [
+        "Administrative-boundary intersection is spatial context and does not by itself establish responsibility for a site or feature.",
+        "Use current official office records for boundary-sensitive, organizational, or contact decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "field_office_cache_builder",
+        "field_office_popup_and_legend_helpers",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "gsp_areas",
+      "summary": "California Groundwater Sustainability Plan area polygons provided as Local groundwater-management screening context.",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Compare plan-area coverage with Bulletin 118 basins, adjudicated basins, wells, and other groundwater layers.",
+        "Hover and popup expose the maintained plan-area attributes and source context."
+      ],
+      "processing": [
+        "BRIM retains the current prepared attributes and replaces only display geometry through the reviewed polygon portfolio."
+      ],
+      "geometry_limitations": [
+        "A mapped plan area does not establish current plan status, implementation sufficiency, or requirements at an individual location.",
+        "Check authoritative state and groundwater-sustainability agency records for boundary-sensitive or current-status use."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_groundwater_basin_builder",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "gw_bull118",
       "summary": "California DWR Bulletin 118 groundwater basin and subbasin boundaries with final SGMA 2019 prioritization and BLM-managed-land percentage context.",
-      "subject_tags": ["Groundwater", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference", "Screening / Derived"],
-      "capabilities": ["Display modes: Basins only; DWR SGMA 2019 Basin Prioritization; BLM-managed land — %.", "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps.", "Find basin or subbasin searches all 515 retained basin records and can reveal a result hidden by the active threshold."],
-      "processing": ["BRIM joins the tracked 515-row DWR SGMA 2019 table to 515 retained basin geometries by exact basin/subbasin code; names do not participate in the join.", "The SGMA and fixed percentage-BLM themes restyle the original basin polygons in place; no second polygon population or runtime DWR request is created."],
-      "geometry_limitations": ["Display treatment uses 20 m distance tolerance; full-resolution analytical basin geometry remains separate from the map-facing display geometry.", "The priority theme represents DWR's final 2019 SGMA categories, not a newly inferred or continuously updated BRIM priority.", "BLM-managed-land percentage is screening context; use authoritative sources for boundary-sensitive decisions."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
-      "resource_relationships": [{"id": "resource_dwr_bulletin118_sgma_2019", "role": "Basin-priority source", "relationship_type": "used_by_brim", "use_scope": "attribute_join_source"}, {"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Groundwater",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Display modes: Basins only; DWR SGMA 2019 Basin Prioritization; BLM-managed land — %.",
+        "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps.",
+        "Find basin or subbasin searches all 515 retained basin records and can reveal a result hidden by the active threshold."
+      ],
+      "processing": [
+        "BRIM joins the tracked 515-row DWR SGMA 2019 table to 515 retained basin geometries by exact basin/subbasin code; names do not participate in the join.",
+        "The SGMA and fixed percentage-BLM themes restyle the original basin polygons in place; no second polygon population or runtime DWR request is created."
+      ],
+      "geometry_limitations": [
+        "Display treatment uses 20 m distance tolerance; full-resolution analytical basin geometry remains separate from the map-facing display geometry.",
+        "The priority theme represents DWR's final 2019 SGMA categories, not a newly inferred or continuously updated BRIM priority.",
+        "BLM-managed-land percentage is screening context; use authoritative sources for boundary-sensitive decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_dwr_bulletin118_sgma_2019",
+          "role": "Basin-priority source",
+          "relationship_type": "used_by_brim",
+          "use_scope": "attribute_join_source"
+        },
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "bulletin118_theme_registry", "bulletin118_exact_join_tests", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "bulletin118_theme_registry",
+        "bulletin118_exact_join_tests",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "huc8",
       "summary": "HUC8 watershed boundaries with BLM-managed-land percentages and 1991–2020 PRISM precipitation and BCMv8 recharge summaries.",
-      "subject_tags": ["Surface Water", "Precipitation", "Climate & Drought", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference", "Screening / Derived", "Historical Context"],
-      "capabilities": ["Display modes: Boundaries only (no fill); BLM-managed land — %; PRISM precip - in/yr; PRISM precip - kaf/yr; BCMv8 recharge - in/yr; BCMv8 recharge - kaf/yr.", "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps; 0% includes every retained HUC8 feature.", "The shared HUC card follows the focused active HUC level and shows that level's visible count and legend."],
-      "processing": ["HUC and BLM-intersection areas are calculated in EPSG:3310; PRISM and BCMv8 rasters are summarized with exact polygon weights.", "Geometry-free climate/recharge tables are joined to the existing simplified HUC map geometry.", "Theme bins, labels, and colors are precomputed by HUC level; the browser restyles the existing polygons in place rather than creating duplicate geometry."],
-      "timing": ["Precipitation is the PRISM 1991–2020 precipitation normal vM5.", "Recharge is USGS Basin Characterization Model version 8 (BCMv8), 1991–2020 recharge."],
-      "geometry_limitations": ["Current display treatment uses 200 m distance tolerance; canonical analytical HUC geometry remains unsimplified and separate from the EPSG:4326 map-facing display geometry.", "Precipitation and recharge color classes are calculated separately for each HUC level; compare values through the active legend rather than comparing colors across levels.", "Inches per year are area-normalized depths; thousand acre-feet per year are total-volume estimates and are strongly influenced by watershed area."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
-      "resource_relationships": [{"id": "resource_prism_normals", "role": "Precipitation source", "relationship_type": "used_by_brim", "use_scope": "climate_summary_source"}, {"id": "resource_usgs_bcmv8", "role": "Recharge model and source", "relationship_type": "used_by_brim", "use_scope": "recharge_summary_source"}, {"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Surface Water",
+        "Precipitation",
+        "Climate & Drought",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Display modes: Boundaries only (no fill); BLM-managed land — %; PRISM precip - in/yr; PRISM precip - kaf/yr; BCMv8 recharge - in/yr; BCMv8 recharge - kaf/yr.",
+        "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps; 0% includes every retained HUC8 feature.",
+        "The shared HUC card follows the focused active HUC level and shows that level's visible count and legend."
+      ],
+      "processing": [
+        "HUC and BLM-intersection areas are calculated in EPSG:3310; PRISM and BCMv8 rasters are summarized with exact polygon weights.",
+        "Geometry-free climate/recharge tables are joined to the existing simplified HUC map geometry.",
+        "Theme bins, labels, and colors are precomputed by HUC level; the browser restyles the existing polygons in place rather than creating duplicate geometry."
+      ],
+      "timing": [
+        "Precipitation is the PRISM 1991–2020 precipitation normal vM5.",
+        "Recharge is USGS Basin Characterization Model version 8 (BCMv8), 1991–2020 recharge."
+      ],
+      "geometry_limitations": [
+        "Current display treatment uses 200 m distance tolerance; canonical analytical HUC geometry remains unsimplified and separate from the EPSG:4326 map-facing display geometry.",
+        "Precipitation and recharge color classes are calculated separately for each HUC level; compare values through the active legend rather than comparing colors across levels.",
+        "Inches per year are area-normalized depths; thousand acre-feet per year are total-volume estimates and are strongly influenced by watershed area."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_prism_normals",
+          "role": "Precipitation source",
+          "relationship_type": "used_by_brim",
+          "use_scope": "climate_summary_source"
+        },
+        {
+          "id": "resource_usgs_bcmv8",
+          "role": "Recharge model and source",
+          "relationship_type": "used_by_brim",
+          "use_scope": "recharge_summary_source"
+        },
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "huc_theme_registry", "huc_exact_weight_processing_contract", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "huc_theme_registry",
+        "huc_exact_weight_processing_contract",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "national_monuments",
+      "summary": "Twenty current National Monuments wholly or partly in California, reconciled from reviewed BLM, USFS, NPS, and USFWS source roles.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search and filter semantic monuments by verified administering-agency involvement, designation route/history, and current reviewed display roles.",
+        "Popups distinguish one semantic monument from visible agency geometry, shared whole boundaries, source acreage, and calculated mapped area."
+      ],
+      "processing": [
+        "BRIM preserves semantic, source, and geometry identities separately, removes reviewed duplicate whole-boundary representations, repairs a derived copy, and uses reviewed display geometry.",
+        "Sand to Snow and Tule Lake retain multiple truthful source components while each remains one search/filter/label identity."
+      ],
+      "geometry_limitations": [
+        "Publisher identity is not treated as management authority, and duplicate agency-published boundaries are not independently rendered.",
+        "Mapped and calculated areas remain separate from official acreage; consult authoritative monument records for legal or boundary-sensitive use."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "national_monuments_feature_contract",
+        "local_geometry_generalization_registry",
+        "national_monument_agency_style_tests"
+      ]
+    },
+    {
+      "stable_id": "national_scenic_historic_trails",
+      "summary": "National Scenic and Historic Trail alignments retained as a Local conservation-designation reference layer.",
+      "subject_tags": [
+        "Conservation Lands & Designations"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search and select maintained trail identities and use the shared Local Reference hover, popup, filter, label, and zoom behavior.",
+        "Display the trail alignments beside land-status, designation, water, and project-screening layers."
+      ],
+      "processing": [
+        "BRIM prepares stable semantic and geometry keys with compact draw, hover, popup, and label fields for the shared Local Reference controller."
+      ],
+      "geometry_limitations": [
+        "A mapped trail alignment is not a parcel boundary, public-access guarantee, or complete statement of easements, rights, closures, or trail condition.",
+        "Use official trail and managing-agency sources for route-sensitive or access decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_trails_controller",
+        "local_trails_tests",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "nbm_qpf",
+      "summary": "NOAA National Blend of Models precipitation guidance for the preceding six hours, selected by exact model cycle, lead, and valid time.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
+      "capabilities": [
+        "Use the shared NBM cycle and valid-time controls to display the exact six-hour QPF target and inspect the selected grid cell.",
+        "The legend reports model cycle, forecast lead, valid time, and the preceding-six-hour accumulation period."
+      ],
+      "processing": [
+        "BRIM reads the published NBM manifest and exact selected image/numeric entry; it does not substitute another cycle, lead, or nearby valid time.",
+        "Numeric hover and displayed imagery use the same selected target and maintained NoData handling."
+      ],
+      "timing": [
+        "Model cycle, forecast lead, valid time, six-hour accumulation period, publication time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "This is gridded model guidance, not observed precipitation or a site-specific forecast; terrain and convective detail can differ.",
+        "No surface is shown when the exact required target is unavailable."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "nbm_qpf_consumer",
+        "nbm_manifest_contract",
+        "brim_live_consumer_contract"
+      ]
+    },
+    {
+      "stable_id": "ops_cdec_reservoir_storage",
+      "summary": "Near-live California reservoir storage from CDEC where available, with CNRFC forecast/release and USACE reservoir-plot links where maintained.",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display storage-centric reservoir points and inspect current storage, capacity context, observation age, and official source links where available.",
+        "Open companion CNRFC or USACE forecast/release products from maintained station relationships."
+      ],
+      "processing": [
+        "The BRIM Live product standardizes station identity and chooses supported CDEC storage observations; the map fetches the feed when the layer is turned on.",
+        "Missing storage remains missing rather than zero, and source observation time stays separate from feed build and map retrieval time."
+      ],
+      "timing": [
+        "Observation time/age, feed build time, and BRIM retrieval time remain distinct; the Guide does not infer a new observation from a successful fetch."
+      ],
+      "geometry_limitations": [
+        "Values are provisional and station-specific; capacity and percent-full context can be unavailable or source-dependent.",
+        "Reservoir points do not represent operating constraints, releases, flood-control space, or a complete water-supply forecast."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "cdec_reservoir_consumer",
+        "brim_live_consumer_contract"
+      ]
+    },
+    {
+      "stable_id": "ops_cnrfc_forecast_points",
+      "summary": "Active California-Nevada River Forecast Center river and reservoir forecast-product points with product-availability cues and source links.",
+      "subject_tags": [
+        "Surface Water",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
+      "capabilities": [
+        "Symbols distinguish river forecasts, reservoir products, and manually maintained water-supply index points; reservoir markers show inflow/release and ensemble availability cues.",
+        "Popups open the maintained CNRFC river, reservoir, ensemble, or related product destinations for each active point."
+      ],
+      "processing": [
+        "BRIM packages the current map-ready active-point catalog and keeps product-availability flags separate from forecast values."
+      ],
+      "timing": [
+        "The layer describes current cataloged product availability; each linked forecast product carries its own issue and valid times."
+      ],
+      "geometry_limitations": [
+        "A point indicates a forecast/product location and availability, not the spatial extent or current value of a forecast.",
+        "Availability cues do not guarantee that every linked upstream page has a newly issued product."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "cnrfc_forecast_point_controller",
+        "cnrfc_point_catalog_builder"
+      ]
     },
     {
       "stable_id": "ops_delta_snapshot",
       "summary": "A compact map view of California DWR Delta Operations Daily Summary metrics with CVP/SWP facility and X2 river-kilometer context.",
-      "subject_tags": ["Surface Water", "Infrastructure & Conveyance"],
-      "information_type_tags": ["Live Observation", "Screening / Derived"],
-      "capabilities": ["Map symbols and popups present current operational metrics with source-specific units and report context.", "X2 reference points remain a separate spatial aid for interpreting the reported X2 position."],
-      "processing": ["The producer parses the DWR daily-summary PDF into validated operational features and a compact summary; BRIM fetches those published consumer products."],
-      "timing": ["Report date, X2 position date, feed build time, and fetch time remain distinct.", "The producer schedule makes five attempts between 15:41 and 17:41 UTC; this is an attempt schedule, not a guarantee of a new report or successful publication."],
-      "geometry_limitations": ["Values are preliminary source-reported operations data; the mapped locations and X2 reference are screening context rather than an authoritative operational control surface."],
-      "method_ids": ["method_brim_live_update_timing", "method_how_brim_works"],
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Map symbols and popups present current operational metrics with source-specific units and report context.",
+        "X2 reference points remain a separate spatial aid for interpreting the reported X2 position."
+      ],
+      "processing": [
+        "The producer parses the DWR daily-summary PDF into validated operational features and a compact summary; BRIM fetches those published consumer products."
+      ],
+      "timing": [
+        "Report date, X2 position date, feed build time, and fetch time remain distinct.",
+        "The producer schedule makes five attempts between 15:41 and 17:41 UTC; this is an attempt schedule, not a guarantee of a new report or successful publication."
+      ],
+      "geometry_limitations": [
+        "Values are preliminary source-reported operations data; the mapped locations and X2 reference are screening context rather than an authoritative operational control surface."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "delta_ops_consumer", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "delta_ops_consumer",
+        "brim_live_products_schedule"
+      ]
+    },
+    {
+      "stable_id": "ops_hrrr_surface_wind",
+      "summary": "NOAA/NCEP HRRR 10-m regional model wind for Hydrologic California and adjacent basins, with Current, +6-hour, and +12-hour target views.",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
+      "capabilities": [
+        "Select Current, +6-hour, or +12-hour targets and view an animated wind field with cycle, valid-time, and lead context in the legend.",
+        "The consumer rejects a manifest entry outside the maintained target-time tolerance and can retain the prior in-session field after a later load failure."
+      ],
+      "processing": [
+        "The BRIM Live writer extracts 10-m U/V components, confirms earth-relative winds, regrids the regional field, and publishes manifest-selected targets.",
+        "The browser selects the closest allowed manifest entry to each requested target and reports target versus actual valid time."
+      ],
+      "timing": [
+        "Requested target, model cycle, forecast hour, actual valid time, publication time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "This is gridded model wind, not observed station wind; terrain, elevation, exposure, and local effects can differ.",
+        "Coverage is the maintained regional domain, and an unavailable target is not replaced with a field outside tolerance."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "hrrr_wind_consumer",
+        "brim_live_consumer_contract",
+        "hrrr_feed_manifest"
+      ]
     },
     {
       "stable_id": "ops_major_water_supply_forecasts",
       "summary": "CNRFC water-year, April–July, and short-range accumulated-volume forecasts joined to BRIM's reviewed major water-supply basin geometries and index context.",
-      "subject_tags": ["Surface Water", "Weather & Forecasts"],
-      "information_type_tags": ["Forecast / Outlook", "Screening / Derived"],
-      "capabilities": ["Basin controls switch among reviewed forecast families and statistics while the map card reports the active source issue and valid context.", "Related reservoirs and official forecast links are available for reviewed basin relationships."],
-      "processing": ["The live feed carries geometry-free, labeled source values; BRIM validates stable basin/product identities and joins them to the retained reviewed geometry catalog.", "The producer copies labeled source forecast values and does not calculate basin forecasts, normals, percentages, or index values."],
-      "timing": ["Issuance time, forecast valid period, feed publication, and BRIM fetch time remain distinct.", "The CNRFC writer is scheduled at 10:56 and 16:56 in America/Los_Angeles; schedule execution does not guarantee a new source issuance or successful publication."],
-      "geometry_limitations": ["Basin polygons are BRIM's reviewed display geometry; the feed itself contains no geometry.", "Forecast values are source guidance, not observed flow or a BRIM-generated hydrologic forecast."],
-      "method_ids": ["method_brim_live_update_timing", "method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_noaa_nwps", "role": "Official river and forecast context", "relationship_type": "related_external_resource", "use_scope": "forecast_context"}],
+      "subject_tags": [
+        "Surface Water",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Basin controls switch among reviewed forecast families and statistics while the map card reports the active source issue and valid context.",
+        "Related reservoirs and official forecast links are available for reviewed basin relationships."
+      ],
+      "processing": [
+        "The live feed carries geometry-free, labeled source values; BRIM validates stable basin/product identities and joins them to the retained reviewed geometry catalog.",
+        "The producer copies labeled source forecast values and does not calculate basin forecasts, normals, percentages, or index values."
+      ],
+      "timing": [
+        "Issuance time, forecast valid period, feed publication, and BRIM fetch time remain distinct.",
+        "The CNRFC writer is scheduled at 10:56 and 16:56 in America/Los_Angeles; schedule execution does not guarantee a new source issuance or successful publication."
+      ],
+      "geometry_limitations": [
+        "Basin polygons are BRIM's reviewed display geometry; the feed itself contains no geometry.",
+        "Forecast values are source guidance, not observed flow or a BRIM-generated hydrologic forecast."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_noaa_nwps",
+          "role": "Official river and forecast context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "forecast_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "major_water_supply_consumer_contract", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "major_water_supply_consumer_contract",
+        "brim_live_products_schedule"
+      ]
+    },
+    {
+      "stable_id": "ops_nws_watches_warnings_advisories",
+      "summary": "Current National Weather Service watch, warning, and advisory polygons from the maintained NWS map service.",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display active colored polygons and hover for event name, expiration, and the linked responsible forecast office.",
+        "Use the source legend and freshness check to review the service rendering and reported currency."
+      ],
+      "processing": [
+        "BRIM requests the current NWS MapServer image layers and adds maintained hover identification without rebuilding alert geometry."
+      ],
+      "timing": [
+        "Alert issuance/expiration and service retrieval are distinct; an expiration shown by the source does not establish browser polling or delivery guarantees."
+      ],
+      "geometry_limitations": [
+        "The map is situational context and does not replace the full official alert text, instructions, forecast-office updates, or emergency notifications.",
+        "Polygon rendering and availability depend on the upstream NWS service."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "nws_wwa_hover_controller",
+        "nws_wwa_service"
+      ]
+    },
+    {
+      "stable_id": "ops_nws_weather_stations",
+      "summary": "NWS weather-station locations from the CNRFC catalog with direct NWS/Western Region time-series links.",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Filter station points as RAWS/GOES, ASOS/airport, ALERT/event, or Other and open maintained station time-series links.",
+        "Priority and background station groups, clustering, hover, popups, and visible/total counts support dense station review."
+      ],
+      "processing": [
+        "BRIM packages the CNRFC station catalog, normalizes supported WRH site identifiers, and keeps station classification separate from the linked observations."
+      ],
+      "timing": [
+        "The mapped point inventory is a station catalog; observation timing belongs to the linked NWS/WRH time series and is not inferred from map load time."
+      ],
+      "geometry_limitations": [
+        "Station locations and links do not guarantee a current report or continuous coverage between sites.",
+        "RAWS/GOES grouping is a display classification and should not be read as identical instrumentation or reporting cadence."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "cnrfc_weather_station_controller",
+        "cnrfc_station_catalog_builder"
+      ]
+    },
+    {
+      "stable_id": "ops_observed_metar_wind",
+      "summary": "Observed METAR/ASOS surface wind barbs from the NOAA/NWS Aviation Weather Center stream, including sustained speed and reported gust context.",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Render sustained-wind barbs in knots and inspect station speed, direction, reported gust, observation time, and age in labels or popups.",
+        "A close-zoom label toggle shows speed/gust context while current-view refresh reloads the maintained feed."
+      ],
+      "processing": [
+        "The BRIM Live writer standardizes station identity and wind units and preserves a missing gust as not reported rather than zero.",
+        "The consumer uses the feed manifest/summary and applies point thinning and zoom-aware labels for browser display."
+      ],
+      "timing": [
+        "Station observation time/age, feed build time, manifest publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "Point observations reflect station exposure and reporting and do not describe continuous wind between sites.",
+        "A missing gust is not a zero gust; stale or absent station reports should not be inferred as calm conditions."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "observed_wind_consumer",
+        "brim_live_consumer_contract",
+        "asos_awos_feed_manifest"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_mrms_1day",
+      "summary": "NWS Multi-Radar/Multi-Sensor one-day quantitative precipitation estimate for recent storm-total context.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the maintained 24-hour MRMS raster function with the shared QPE legend and upstream freshness context.",
+        "Compare the estimate with shorter/longer QPE windows, gages, streamflow, and forecast precipitation."
+      ],
+      "processing": [
+        "BRIM requests the MRMS ImageServer 24-hour raster function and provider rendering; it does not convert the estimate into station observations."
+      ],
+      "timing": [
+        "The quantity is a one-day accumulation; accumulation window, source analysis time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "QPE is an automated radar/sensor-based estimate, not a rain-gage measurement; terrain, beam coverage, bright band, and storm type can affect values.",
+        "Use station observations and official source products for verification."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "mrms_qpe_imageserver",
+        "mrms_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_mrms_1hr",
+      "summary": "NWS Multi-Radar/Multi-Sensor one-hour quantitative precipitation estimate for quick recent-storm context.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the maintained one-hour MRMS raster function with the shared QPE legend and upstream freshness context.",
+        "Compare the estimate with longer QPE windows, gages, streamflow, and forecast precipitation."
+      ],
+      "processing": [
+        "BRIM requests the MRMS ImageServer one-hour raster function and provider rendering; it does not convert the estimate into station observations."
+      ],
+      "timing": [
+        "The quantity is a one-hour accumulation; accumulation window, source analysis time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "QPE is an automated radar/sensor-based estimate, not a rain-gage measurement; terrain, beam coverage, bright band, and storm type can affect values.",
+        "Use station observations and official source products for verification."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "mrms_qpe_imageserver",
+        "mrms_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_mrms_3day",
+      "summary": "NWS Multi-Radar/Multi-Sensor three-day quantitative precipitation estimate for multi-day storm context.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the maintained 72-hour MRMS raster function with the shared QPE legend and upstream freshness context.",
+        "Compare the estimate with shorter QPE windows, gages, streamflow, and forecast precipitation."
+      ],
+      "processing": [
+        "BRIM requests the MRMS ImageServer 72-hour raster function and provider rendering; it does not convert the estimate into station observations."
+      ],
+      "timing": [
+        "The quantity is a three-day accumulation; accumulation window, source analysis time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "QPE is an automated radar/sensor-based estimate, not a rain-gage measurement; terrain, beam coverage, bright band, and storm type can affect values.",
+        "Use station observations and official source products for verification."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "mrms_qpe_imageserver",
+        "mrms_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_rfc_1day",
+      "summary": "NWS River Forecast Center multisensor one-day QPE mosaic using the daily analysis image ending near 12Z.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the daily RFC mosaic with the shared QPE legend and compare western RFC coverage with MRMS and station observations.",
+        "Use the source freshness check and linked CNRFC QPE graphics for upstream context."
+      ],
+      "processing": [
+        "BRIM requests the provider MapServer daily-analysis sublayer rather than the rolling last-24-hours image for more complete western RFC coverage."
+      ],
+      "timing": [
+        "The mapped total is a one-day analysis ending near 12Z; accumulation end, source publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "Multisensor QPE is an analysis estimate rather than a station measurement and can differ from gages or local conditions.",
+        "Mosaic completeness and timing depend on upstream RFC source processing."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "rfc_qpe_mapserver",
+        "rfc_qpe_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_rfc_7day",
+      "summary": "NWS River Forecast Center multisensor seven-day QPE mosaic ending near 12Z for longer recent-precipitation context.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the seven-day RFC mosaic with the shared QPE legend and compare it with shorter MRMS/RFC windows and station observations.",
+        "Use the source freshness check and linked CNRFC QPE graphics for upstream context."
+      ],
+      "processing": [
+        "BRIM requests the provider MapServer seven-day accumulation sublayer and preserves the upstream mosaic rendering."
+      ],
+      "timing": [
+        "The mapped total is a seven-day accumulation ending near 12Z; accumulation end, source publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "Multisensor QPE is an analysis estimate rather than a station measurement and can differ from gages or local conditions.",
+        "Mosaic completeness and timing depend on upstream RFC source processing."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "rfc_qpe_mapserver",
+        "rfc_qpe_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_radar_iem_nexrad",
+      "summary": "A live NEXRAD radar tile overlay from the Iowa Environmental Mesonet WMS, provided as a fast alternate radar source.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the current provider WMS radar tiles with the maintained NEXRAD legend and adjustable map-layer opacity.",
+        "Use the layer as an alternate quick-look radar source beside the NOAA MRMS radar image."
+      ],
+      "processing": [
+        "BRIM requests provider-rendered WMS tiles and legend imagery; it does not ingest or restyle underlying radar bins."
+      ],
+      "timing": [
+        "Tile retrieval time is not the radar scan time; BRIM does not infer a publication cadence or freshness guarantee for the WMS."
+      ],
+      "geometry_limitations": [
+        "Radar reflectivity is remote-sensing context and does not directly equal surface precipitation amount or type.",
+        "Coverage, scan age, tile availability, terrain blockage, and provider behavior can affect the display."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "iem_nexrad_wms_layer",
+        "radar_legend_contract"
+      ]
+    },
+    {
+      "stable_id": "ops_radar_noaa_mrms",
+      "summary": "Official NOAA/NWS Multi-Radar/Multi-Sensor base-reflectivity imagery for broad current radar context.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the provider-rendered base-reflectivity layer with source legend and maintained freshness context.",
+        "Use it with the alternate IEM NEXRAD view and MRMS/RFC QPE products to distinguish reflectivity from precipitation accumulation."
+      ],
+      "processing": [
+        "BRIM requests the NOAA MapServer image layer and does not ingest or restyle underlying radar bins."
+      ],
+      "timing": [
+        "Radar image time, service publication, freshness-check result, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "Base reflectivity does not directly equal surface precipitation amount or type and can include nonmeteorological returns.",
+        "Coverage, scan age, beam geometry, terrain blockage, and provider availability affect interpretation."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "noaa_mrms_radar_mapserver",
+        "noaa_radar_freshness_check"
+      ]
     },
     {
       "stable_id": "ops_scan_soil_moisture",
       "summary": "Latest USDA NRCS SCAN volumetric soil-moisture observations by sensor depth with current-water-year traces and station/depth historical context.",
-      "subject_tags": ["Soil Moisture"],
-      "information_type_tags": ["Live Observation", "Historical Context"],
-      "capabilities": ["Depth controls select a station sensor depth; map classes distinguish current values and supported historical percentile context.", "Hover and popup show station observations, observation age, current-water-year trace, and eligible percentile or prior-water-year context."],
-      "processing": ["BRIM keeps latest observations and current-water-year traces separate from water-day percentiles, monthly context, depth style, and prior-water-year fallback traces.", "Context classes use station/depth p10, p30, p70, and p90 thresholds; daily ribbons require the maintained mature-reference support rule."],
-      "timing": ["Observation UTC/Pacific time, observation date/age, water year, producer publication, and BRIM fetch time remain distinct.", "The producer is scheduled daily at 14:30 UTC; the schedule is not a guarantee of a fresh source observation or successful publication."],
-      "geometry_limitations": ["Historical context is station- and depth-specific and is not a formal climatology; absent context is not inferred.", "Point locations describe monitoring stations, not continuous soil-moisture conditions between stations."],
-      "method_ids": ["method_scan_soil_moisture_statistical_context", "method_brim_live_update_timing", "method_how_brim_works"],
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Depth controls select a station sensor depth; map classes distinguish current values and supported historical percentile context.",
+        "Hover and popup show station observations, observation age, current-water-year trace, and eligible percentile or prior-water-year context."
+      ],
+      "processing": [
+        "BRIM keeps latest observations and current-water-year traces separate from water-day percentiles, monthly context, depth style, and prior-water-year fallback traces.",
+        "Context classes use station/depth p10, p30, p70, and p90 thresholds; daily ribbons require the maintained mature-reference support rule."
+      ],
+      "timing": [
+        "Observation UTC/Pacific time, observation date/age, water year, producer publication, and BRIM fetch time remain distinct.",
+        "The producer is scheduled daily at 14:30 UTC; the schedule is not a guarantee of a fresh source observation or successful publication."
+      ],
+      "geometry_limitations": [
+        "Historical context is station- and depth-specific and is not a formal climatology; absent context is not inferred.",
+        "Point locations describe monitoring stations, not continuous soil-moisture conditions between stations."
+      ],
+      "method_ids": [
+        "method_scan_soil_moisture_statistical_context",
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "scan_consumer", "scan_statistical_method", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "scan_consumer",
+        "scan_statistical_method",
+        "brim_live_products_schedule"
+      ]
     },
     {
       "stable_id": "ops_snow_pillow_swe",
       "summary": "Latest snow-water equivalent and snow-depth observations from USDA NRCS and California DWR/CDEC stations with current-water-year and historical context.",
-      "subject_tags": ["Snow & SWE", "Surface Water"],
-      "information_type_tags": ["Live Observation", "Historical Context"],
-      "capabilities": ["Map modes include current daily SWE, 1-/3-/7-day change, and current SWE relative to station/day historical context.", "Hover and popup provide station values, freshness, water-year traces, supported percentile context, and separate median comparisons."],
-      "processing": ["The producer validates NRCS and CDEC independently and can carry forward one failed provider only under the documented complete prior-product rules.", "Latest observations, current-water-year traces, percentiles, monthly context, fallback traces, and normal medians retain separate ownership and semantics."],
-      "timing": ["Latest SWE/snow-depth dates, water day/year, provider fetch windows, publication, and BRIM fetch time remain distinct.", "The producer is scheduled at 05:52, 13:52, and 21:52 UTC; the schedule is not a guarantee of a new observation or successful publication."],
-      "geometry_limitations": ["Station values do not represent continuous snow conditions between sites; historical context is station-specific and is not a formal climatology.", "Fresh, recent, stale, and very-stale classes describe observation age, not a producer delivery guarantee."],
-      "method_ids": ["method_snow_pillow_swe_statistical_context", "method_brim_live_update_timing", "method_how_brim_works"],
+      "subject_tags": [
+        "Snow & SWE",
+        "Surface Water"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Map modes include current daily SWE, 1-/3-/7-day change, and current SWE relative to station/day historical context.",
+        "Hover and popup provide station values, freshness, water-year traces, supported percentile context, and separate median comparisons."
+      ],
+      "processing": [
+        "The producer validates NRCS and CDEC independently and can carry forward one failed provider only under the documented complete prior-product rules.",
+        "Latest observations, current-water-year traces, percentiles, monthly context, fallback traces, and normal medians retain separate ownership and semantics."
+      ],
+      "timing": [
+        "Latest SWE/snow-depth dates, water day/year, provider fetch windows, publication, and BRIM fetch time remain distinct.",
+        "The producer is scheduled at 05:52, 13:52, and 21:52 UTC; the schedule is not a guarantee of a new observation or successful publication."
+      ],
+      "geometry_limitations": [
+        "Station values do not represent continuous snow conditions between sites; historical context is station-specific and is not a formal climatology.",
+        "Fresh, recent, stale, and very-stale classes describe observation age, not a producer delivery guarantee."
+      ],
+      "method_ids": [
+        "method_snow_pillow_swe_statistical_context",
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "snow_pillow_consumer", "snow_pillow_statistical_method", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "snow_pillow_consumer",
+        "snow_pillow_statistical_method",
+        "brim_live_products_schedule"
+      ]
+    },
+    {
+      "stable_id": "ops_streamflow_multiagency",
+      "summary": "A national multi-agency stream/reservoir gage view promoted from the maintained External service for quick operational screening.",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Query the current map view and inspect updated stream, reservoir, or questionable-status symbols, hover fields, popups, and hydrograph links.",
+        "Use the one-click Ops view for quick review or the External catalog row for SQL filtering and manual refresh controls."
+      ],
+      "processing": [
+        "The Ops wrapper reuses the current External catalog query, style, popup, and source metadata rather than creating a second service implementation."
+      ],
+      "timing": [
+        "Observation and update fields are source-dependent across agencies; map retrieval time does not establish a common freshness cadence."
+      ],
+      "geometry_limitations": [
+        "Multi-agency values can differ in parameter, datum, reporting cadence, and provisional status; follow each source link for interpretation.",
+        "Station points do not represent continuous river or reservoir conditions between sites."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "catalog_promoted_external_layer",
+        "multiagency_streamflow_catalog_row"
+      ]
     },
     {
       "stable_id": "ops_streamflow_usgs_ca",
       "summary": "Latest continuous USGS discharge and gage-height values for the curated California station index, with provisional-data links and optional compact history context.",
-      "subject_tags": ["Surface Water"],
-      "information_type_tags": ["Live Observation", "Historical Context"],
-      "capabilities": ["Map symbols and hover/popups expose current discharge or stage, observation age, provisional-data context, and official station/rating links.", "Optional CNRFC and compact daily-history context remain separate from the latest USGS observation."],
-      "processing": ["The producer joins USGS Water Data API latest-continuous values to a curated station index and publishes GeoJSON plus a summary."],
-      "timing": ["Discharge and stage observation times/ages, query and history windows, publication, and BRIM fetch time remain distinct.", "The writer is scheduled every four hours at :23 UTC; the schedule and a serialized station index do not guarantee complete current discharge values."],
-      "geometry_limitations": ["USGS values are provisional and station-specific; do not treat gage values as continuous conditions between stations.", "BRIM draws only stations with a current discharge or stage value; source coverage can be incomplete."],
-      "method_ids": ["method_brim_live_update_timing", "method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_usgs_water_dashboard", "role": "Official station and current-water context", "relationship_type": "related_external_resource", "use_scope": "station_context"}],
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Map symbols and hover/popups expose current discharge or stage, observation age, provisional-data context, and official station/rating links.",
+        "Optional CNRFC and compact daily-history context remain separate from the latest USGS observation."
+      ],
+      "processing": [
+        "The producer joins USGS Water Data API latest-continuous values to a curated station index and publishes GeoJSON plus a summary."
+      ],
+      "timing": [
+        "Discharge and stage observation times/ages, query and history windows, publication, and BRIM fetch time remain distinct.",
+        "The writer is scheduled every four hours at :23 UTC; the schedule and a serialized station index do not guarantee complete current discharge values."
+      ],
+      "geometry_limitations": [
+        "USGS values are provisional and station-specific; do not treat gage values as continuous conditions between stations.",
+        "BRIM draws only stations with a current discharge or stage value; source coverage can be incomplete."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_usgs_water_dashboard",
+          "role": "Official station and current-water context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "station_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "usgs_streamflow_consumer", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "usgs_streamflow_consumer",
+        "brim_live_products_schedule"
+      ]
+    },
+    {
+      "stable_id": "ops_us_drought_monitor",
+      "summary": "The current U.S. Drought Monitor categories presented as a one-click Ops Live view of the maintained External source.",
+      "subject_tags": [
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Load current-view drought-category polygons with the maintained BRIM category styling, hover fields, popups, and source metadata.",
+        "Use the Ops row for one-click review or the maintained source context links for the official map and drought reports."
+      ],
+      "processing": [
+        "The Ops wrapper reuses the curated External source row and its current-view loader rather than duplicating the service definition."
+      ],
+      "timing": [
+        "The source map's analysis/publication time and BRIM retrieval time remain distinct; no new drought analysis is inferred from a successful map load."
+      ],
+      "geometry_limitations": [
+        "Drought Monitor categories synthesize broad conditions and do not describe a site-specific water supply, soil moisture value, or regulatory status.",
+        "Use official source narrative and current agency products for interpretation."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "catalog_promoted_external_layer",
+        "us_drought_monitor_catalog_row"
+      ]
+    },
+    {
+      "stable_id": "ops_wpc_ero_day_1",
+      "summary": "Weather Prediction Center Day 1 Excessive Rainfall Outlook polygons for current short-range rainfall-risk screening.",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
+      "capabilities": [
+        "Query a current-view polygon snapshot and inspect maintained hover/popup summaries and the WPC source outlook.",
+        "Pan or zoom, then use refresh to requery the current map view."
+      ],
+      "processing": [
+        "BRIM queries the provider outlook service for the current view and replaces the displayed snapshot only after a successful response."
+      ],
+      "timing": [
+        "Day 1 outlook issue/valid context, source publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "An Excessive Rainfall Outlook is probabilistic forecast guidance, not a deterministic flood boundary or a local warning.",
+        "Use official WPC and NWS forecast/warning text for decisions and current hazards."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "wpc_ero_current_view_layer",
+        "wpc_ero_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_wpc_qpf_3day",
+      "summary": "Weather Prediction Center quantitative precipitation forecast accumulated across Days 1–3.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
+      "capabilities": [
+        "Display the provider-rendered three-day QPF and hover for forecast precipitation plus issued and valid times in Los Angeles time.",
+        "Refresh after pan or zoom to request a new image for the current map view."
+      ],
+      "processing": [
+        "BRIM requests the WPC MapServer Days 1–3 sublayer and uses the maintained identify/hover helper for source forecast fields."
+      ],
+      "timing": [
+        "Issue time, Days 1–3 valid period, forecast accumulation, source publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "QPF is forecast guidance, not observed precipitation, a local point forecast, or a flood boundary.",
+        "Provider scale, rendering, and service availability affect the map display; use official WPC products for decisions."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "wpc_qpf_hover_controller",
+        "wpc_qpf_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_wpc_qpf_day_1",
+      "summary": "Weather Prediction Center 24-hour Day 1 quantitative precipitation forecast.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
+      "capabilities": [
+        "Display the provider-rendered Day 1 QPF and hover for forecast precipitation plus issued and valid times in Los Angeles time.",
+        "Refresh after pan or zoom to request a new image for the current map view."
+      ],
+      "processing": [
+        "BRIM requests the WPC MapServer Day 1 sublayer and uses the maintained identify/hover helper for source forecast fields."
+      ],
+      "timing": [
+        "Issue time, 24-hour valid period, forecast accumulation, source publication, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "QPF is forecast guidance, not observed precipitation, a local point forecast, or a flood boundary.",
+        "Provider scale, rendering, and service availability affect the map display; use official WPC products for decisions."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "wpc_qpf_hover_controller",
+        "wpc_qpf_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "product-ops-nbm-accumulated-qpf",
+      "summary": "NOAA National Blend of Models accumulated precipitation guidance with exact Next 24 hours, Next 72 hours, and Next 10 days windows.",
+      "subject_tags": [
+        "Precipitation",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
+      "capabilities": [
+        "Select an exact accumulation window and inspect the displayed grid cell with cycle, valid-end, lead, and accumulation context.",
+        "The legend distinguishes the three supported windows and reports when no exact accumulated surface is available."
+      ],
+      "processing": [
+        "BRIM loads manifest-declared compressed numeric targets, decodes the required grids, subtracts exact endpoints, and applies a common NoData mask.",
+        "The consumer does not substitute a nearby cycle, lead, valid time, or partial accumulation window."
+      ],
+      "timing": [
+        "Model cycle, window start/end, forecast leads, valid time, publication time, and BRIM retrieval time remain distinct."
+      ],
+      "geometry_limitations": [
+        "This is gridded model guidance, not observed precipitation or a site-specific forecast; terrain and convective detail can differ.",
+        "An accumulation is shown only when every exact required target passes the maintained contract."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "nbm_accumulated_qpf_consumer",
+        "nbm_manifest_contract",
+        "brim_live_consumer_contract"
+      ]
     },
     {
       "stable_id": "product-ops-usgs-groundwater",
       "summary": "Latest or recent USGS groundwater field measurements for a curated California-centered well index with compact period-of-record, seasonal, and water-year context where available.",
-      "subject_tags": ["Groundwater"],
-      "information_type_tags": ["Live Observation", "Historical Context"],
-      "capabilities": ["Hover summarizes co-located wells and compact water-year history; popups expose individual well records, source links, measurement context, and history where available.", "Freshness bands distinguish measurements within 90 days, one year, and two years without implying an hourly groundwater cadence."],
-      "processing": ["The producer retrieves USGS field measurements, validates the candidate index and aggregate API result, and joins optional compact local history summaries.", "Latest field measurements remain separate from period-of-record/seasonal percentiles and completed water-year mean depth-to-water series."],
-      "timing": ["Measurement date/time, last-modified time, query window, measurement age, publication, and BRIM fetch time remain distinct.", "The writer is scheduled daily at 13:41 UTC; the schedule is not a guarantee of a new field measurement or successful publication."],
-      "geometry_limitations": ["Values are measurements, not groundwater-storage calculations; negative depth-to-water values can be reported artesian or above-land-surface conditions.", "Well points and screening summaries do not describe conditions between wells or replace the official record."],
-      "method_ids": ["method_usgs_groundwater_history_summaries", "method_brim_live_update_timing", "method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_usgs_water_dashboard", "role": "Official well and current-water context", "relationship_type": "related_external_resource", "use_scope": "well_context"}],
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "capabilities": [
+        "Hover summarizes co-located wells and compact water-year history; popups expose individual well records, source links, measurement context, and history where available.",
+        "Freshness bands distinguish measurements within 90 days, one year, and two years without implying an hourly groundwater cadence."
+      ],
+      "processing": [
+        "The producer retrieves USGS field measurements, validates the candidate index and aggregate API result, and joins optional compact local history summaries.",
+        "Latest field measurements remain separate from period-of-record/seasonal percentiles and completed water-year mean depth-to-water series."
+      ],
+      "timing": [
+        "Measurement date/time, last-modified time, query window, measurement age, publication, and BRIM fetch time remain distinct.",
+        "The writer is scheduled daily at 13:41 UTC; the schedule is not a guarantee of a new field measurement or successful publication."
+      ],
+      "geometry_limitations": [
+        "Values are measurements, not groundwater-storage calculations; negative depth-to-water values can be reported artesian or above-land-surface conditions.",
+        "Well points and screening summaries do not describe conditions between wells or replace the official record."
+      ],
+      "method_ids": [
+        "method_usgs_groundwater_history_summaries",
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_usgs_water_dashboard",
+          "role": "Official well and current-water context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "well_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "usgs_groundwater_consumer", "usgs_groundwater_history_method", "brim_live_products_schedule"]
+      "source_refs": [
+        "ops_live_definition",
+        "usgs_groundwater_consumer",
+        "usgs_groundwater_history_method",
+        "brim_live_products_schedule"
+      ]
+    },
+    {
+      "stable_id": "rwqcb_regions",
+      "summary": "California Regional Water Quality Control Board region boundaries provided as Local administrative and water-quality context.",
+      "subject_tags": [
+        "Water Quality",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Identify the mapped regional board number and name and compare regions with watersheds, waterbodies, and project areas.",
+        "Shared Local Reference hover, popup, semantic labels, selection, and zoom use the retained region identity."
+      ],
+      "processing": [
+        "BRIM preserves the nine-region identity and current attributes while applying the reviewed 100-metre display geometry."
+      ],
+      "geometry_limitations": [
+        "The boundary provides administrative context and does not determine a permit, listing, water-quality condition, or jurisdictional conclusion by itself.",
+        "Use current Water Boards records for boundary-sensitive or regulatory interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_reference_closeout_contract",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "swrcb_name_text_candidates",
+      "summary": "Additional SWRCB water-right Point of Diversion records flagged by BRIM name/text screening as possible BLM-related candidates.",
+      "subject_tags": [
+        "Water Rights"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Review candidate POD records separately from the official BLM list and BRIM spatial-match layer.",
+        "Hover and popup retain the source water-right record fields used for screening and follow-up."
+      ],
+      "processing": [
+        "BRIM keeps name/text candidates in a distinct layer so the screening signal is not silently promoted to an official or spatial relationship."
+      ],
+      "geometry_limitations": [
+        "A name or text match is only a candidate and does not establish ownership, management, applicant identity, water-right validity, or BLM authority.",
+        "Verify every candidate against the official SWRCB record and relevant BLM documentation before use."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "water_rights_screening_builder",
+        "water_rights_popup_contract"
+      ]
+    },
+    {
+      "stable_id": "swrcb_pod_spatial_matches",
+      "summary": "Additional SWRCB water-right Point of Diversion records that BRIM spatially matched to the retained BLM screening geometry.",
+      "subject_tags": [
+        "Water Rights"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
+      "capabilities": [
+        "Review spatially matched POD records separately from the official BLM list and name/text candidate layer.",
+        "Hover and popup preserve source water-right attributes and the distinct BRIM screening classification."
+      ],
+      "processing": [
+        "BRIM records the spatial screen as a separate derived layer rather than overwriting the source record or inferring an official BLM relationship."
+      ],
+      "geometry_limitations": [
+        "Spatial intersection or proximity does not establish management, ownership, applicant identity, legal validity, or an operative BLM water right.",
+        "Confirm the source POD location, official right record, and land-status context before decisions."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "water_rights_spatial_screening_builder",
+        "water_rights_popup_contract"
+      ]
+    },
+    {
+      "stable_id": "swrcb_wr_list_official",
+      "summary": "SWRCB Point of Diversion records from the maintained 2026 BLM water-right list, kept separate from BRIM-derived candidate layers.",
+      "subject_tags": [
+        "Water Rights"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Review the official-list POD records alongside separate spatial-match and name/text candidate layers.",
+        "Hover and popup expose the maintained source water-right fields for record-level follow-up."
+      ],
+      "processing": [
+        "BRIM preserves the official-list classification separately and does not merge it with derived spatial or text-screening candidates."
+      ],
+      "geometry_limitations": [
+        "A mapped POD is a source record location and does not by itself establish current validity, quantity, place of use, ownership, or management authority.",
+        "Consult the official SWRCB water-right record and current BLM documentation for authoritative interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "water_rights_official_list_builder",
+        "water_rights_popup_contract"
+      ]
     },
     {
       "stable_id": "tool_blm_sma_context",
       "summary": "Displays the live BLM California Federal/State Surface Management Agency service as an adjustable-opacity reference overlay.",
-      "subject_tags": ["Land Ownership & Administration"],
-      "information_type_tags": ["External On-Demand Service"],
-      "capabilities": ["The Federal Land Status control turns the SMA overlay on or off and adjusts its opacity.", "BRIM requests the configured BLM California dynamic map service only when the overlay is selected."],
-      "geometry_limitations": ["Use this as surface-management context, not parcel-level ownership or boundary authority.", "Availability depends on browser access to the BLM service and the Esri Leaflet library."],
-      "method_ids": ["method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "The Federal Land Status control turns the SMA overlay on or off and adjusts its opacity.",
+        "BRIM requests the configured BLM California dynamic map service only when the overlay is selected."
+      ],
+      "geometry_limitations": [
+        "Use this as surface-management context, not parcel-level ownership or boundary authority.",
+        "Availability depends on browser access to the BLM service and the Esri Leaflet library."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["config_map_display", "tools_adddata_owner", "external_service_catalog_EXT101"]
+      "source_refs": [
+        "config_map_display",
+        "tools_adddata_owner",
+        "external_service_catalog_EXT101"
+      ]
     },
     {
       "stable_id": "tool_external_gis_overlay",
       "summary": "Adds a temporary browser-session overlay from a direct public GeoJSON or ArcGIS REST source.",
       "access_hint": "Open External Layers, then Advanced manual URL add.",
       "subject_tags": [],
-      "information_type_tags": ["Tool / Workflow", "External On-Demand Service"],
-      "capabilities": ["Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.", "Feature/query services can use current-view loading, popup or identify behavior, and optional SQL filters when the provider supports them.", "Each overlay can be removed individually; Clear external removes temporary URL/catalog overlays."],
-      "geometry_limitations": ["External overlays depend on provider availability, response speed, browser access rules, and service limits.", "BRIM keeps up to three temporary external overlays in the browser session; they are not saved into BRIM."],
+      "information_type_tags": [
+        "Tool / Workflow",
+        "External On-Demand Service"
+      ],
+      "capabilities": [
+        "Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.",
+        "Feature/query services can use current-view loading, popup or identify behavior, and optional SQL filters when the provider supports them.",
+        "Each overlay can be removed individually; Clear external removes temporary URL/catalog overlays."
+      ],
+      "geometry_limitations": [
+        "External overlays depend on provider availability, response speed, browser access rules, and service limits.",
+        "BRIM keeps up to three temporary external overlays in the browser session; they are not saved into BRIM."
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["tools_adddata_owner", "external_overlay_controller_tests"]
+      "source_refs": [
+        "tools_adddata_owner",
+        "external_overlay_controller_tests"
+      ]
     },
     {
       "stable_id": "tool_local_gis_upload",
       "summary": "Displays a temporary local GeoJSON/JSON file or zipped shapefile without uploading it to a BRIM server.",
       "access_hint": "Open Local GIS Uploads, then Upload local GIS file.",
       "subject_tags": [],
-      "information_type_tags": ["Tool / Workflow"],
-      "capabilities": ["GeoJSON and JSON are read directly; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.", "Attribute styling supports one color, categories, or 3–10 numeric quantile or equal-interval classes with palette and geometry controls.", "Hover and popup can be toggled; layers can be hidden, zoomed, restyled, removed, or returned to Original geometry; Clear uploads removes all uploads."],
-      "processing": ["Files are parsed in the browser session; the zipped-shapefile reader is loaded from a browser-side CDN only when that format is selected."],
-      "geometry_limitations": ["Use WGS 84 (EPSG:4326) and verify alignment; missing or incorrect coordinate-reference information can produce plausible-looking but misplaced data.", "Current limits are 50 MB, 25,000 features, and three active local layers; uploaded files remain temporary and are not saved into BRIM."],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
+      "capabilities": [
+        "GeoJSON and JSON are read directly; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.",
+        "Attribute styling supports one color, categories, or 3–10 numeric quantile or equal-interval classes with palette and geometry controls.",
+        "Hover and popup can be toggled; layers can be hidden, zoomed, restyled, removed, or returned to Original geometry; Clear uploads removes all uploads."
+      ],
+      "processing": [
+        "Files are parsed in the browser session; the zipped-shapefile reader is loaded from a browser-side CDN only when that format is selected."
+      ],
+      "geometry_limitations": [
+        "Use WGS 84 (EPSG:4326) and verify alignment; missing or incorrect coordinate-reference information can produce plausible-looking but misplaced data.",
+        "Current limits are 50 MB, 25,000 features, and three active local layers; uploaded files remain temporary and are not saved into BRIM."
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["tools_adddata_owner", "local_upload_geometry_and_attribute_tests"]
+      "source_refs": [
+        "tools_adddata_owner",
+        "local_upload_geometry_and_attribute_tests"
+      ]
     },
     {
       "stable_id": "tool_measure",
       "summary": "Measures map distances and polygon areas for screening use.",
       "access_hint": "Open the map control labeled measure.",
       "subject_tags": [],
-      "information_type_tags": ["Tool / Workflow"],
-      "capabilities": ["Choose Distance or Area, click map points, and use Finish to complete the current measurement.", "Clear removes the current measurements."],
-      "geometry_limitations": ["Measurements are screening-level only."],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
+      "capabilities": [
+        "Choose Distance or Area, click map points, and use Finish to complete the current measurement.",
+        "Clear removes the current measurements."
+      ],
+      "geometry_limitations": [
+        "Measurements are screening-level only."
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["tools_adddata_owner", "measure_control_implementation"]
+      "source_refs": [
+        "tools_adddata_owner",
+        "measure_control_implementation"
+      ]
     },
     {
       "stable_id": "tool_teaching_markup",
       "summary": "Adds temporary freehand map markup and text labels, with undo and clear controls.",
       "access_hint": "Open Draw / Label on the map.",
       "subject_tags": [],
-      "information_type_tags": ["Tool / Workflow"],
-      "capabilities": ["Draw mode supports color, brush size, and opacity controls; Label mode supports text, style, size, and color controls.", "Undo removes the most recent annotation and Clear removes the temporary annotations."],
-      "geometry_limitations": ["Markup and labels are temporary browser-session annotations and are not source data."],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
+      "capabilities": [
+        "Draw mode supports color, brush size, and opacity controls; Label mode supports text, style, size, and color controls.",
+        "Undo removes the most recent annotation and Clear removes the temporary annotations."
+      ],
+      "geometry_limitations": [
+        "Markup and labels are temporary browser-session annotations and are not source data."
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["tools_adddata_owner", "draw_label_control_implementation"]
+      "source_refs": [
+        "tools_adddata_owner",
+        "draw_label_control_implementation"
+      ]
+    },
+    {
+      "stable_id": "usgs_streamgages",
+      "summary": "The retained Local USGS streamgage station catalog, including historical/site metadata whether or not a current discharge or stage value is available.",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search clustered station records and inspect site identity, period, parameters, source links, and maintained popup fields.",
+        "Use the paired USGS Streamflow Quick Access collection to compare this broad Local inventory with the current-value Ops Live view."
+      ],
+      "processing": [
+        "BRIM prepares the station catalog for clustered Local rendering and may add separately sourced current Ops context without removing historical/no-current stations."
+      ],
+      "geometry_limitations": [
+        "Station points describe measurements at specific gages and do not represent continuous conditions between sites.",
+        "The Local catalog is not a freshness claim; use the Ops view and official USGS record for current values and provisional-data context."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "usgs_local_station_controller",
+        "usgs_streamgage_popup_contract",
+        "usgs_streamflow_ops_pairing"
+      ]
+    },
+    {
+      "stable_id": "usgs_wells",
+      "summary": "The retained Local USGS monitoring-well catalog with site, aquifer, period-of-record, measurement, and source metadata where available.",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search clustered well records and inspect site identity, aquifer/well fields, measurement history context, and official source links.",
+        "Use the paired USGS Groundwater Quick Access collection to compare this broad Local inventory with the latest/recent field-measurement Ops view."
+      ],
+      "processing": [
+        "BRIM prepares a payload-conscious Local well catalog, preserving stable site identity and source fields while using compact popup templates."
+      ],
+      "geometry_limitations": [
+        "Well points and measurements do not describe groundwater conditions between wells, aquifer storage, or basin-wide trends by themselves.",
+        "The Local catalog is not a current-measurement guarantee; verify datum, construction, aquifer, and the official USGS record."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "usgs_local_well_controller",
+        "usgs_well_popup_contract",
+        "usgs_groundwater_ops_pairing"
+      ]
+    },
+    {
+      "stable_id": "water_districts",
+      "summary": "California water-district and water-agency polygons retained as Local administrative and service-area screening context.",
+      "subject_tags": [
+        "Surface Water",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search and select maintained district/agency identities and compare them with watersheds, facilities, project areas, and regional boundaries.",
+        "Shared Local Reference hover, popup, labels, filters, and zoom use the stable water-district identity."
+      ],
+      "processing": [
+        "BRIM retains the accepted display geometry and source-derived agency fields; the polygon portfolio records this as a retained, not newly generalized, display."
+      ],
+      "geometry_limitations": [
+        "A mapped district or agency area does not by itself establish retail service, jurisdiction, ownership, entitlement, or a current project relationship.",
+        "District boundaries and agency roles can change; use authoritative agency and state records for boundary-sensitive work."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "local_reference_closeout_contract",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "wild_scenic_river_corridors_blm_ca",
       "summary": "BLM California Wild and Scenic River corridor polygons retained as a separate Local reference product from the centerline and Forest Service/interagency products.",
-      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference"],
-      "capabilities": ["Corridor polygons display separately from BLM river lines and the USFS/LSRS area and legal-status products.", "Hover and popup behavior uses the retained Local reference attributes."],
-      "geometry_limitations": ["Use the official administering-agency record for legal status or boundary-sensitive work; corridor polygons and centerlines have different meanings."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
-      "resource_relationships": [{"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Surface Water",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Corridor polygons display separately from BLM river lines and the USFS/LSRS area and legal-status products.",
+        "Hover and popup behavior uses the retained Local reference attributes."
+      ],
+      "geometry_limitations": [
+        "Use the official administering-agency record for legal status or boundary-sensitive work; corridor polygons and centerlines have different meanings."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "wild_scenic_river_local_controls", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "wild_scenic_river_local_controls",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "wild_scenic_river_corridors_usfs_lsrs",
       "summary": "USFS/LSRS Wild and Scenic River area polygons for California retained separately from interagency segments and legal-status corridors.",
-      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference"],
-      "capabilities": ["Area polygons display separately from the USFS/interagency segment lines and LSRS legal-status corridors.", "Hover and popup behavior uses the retained Local reference attributes."],
-      "geometry_limitations": ["Area polygons, legal-status corridors, and centerline segments are distinct source representations; do not treat them as interchangeable boundary authority."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
+      "subject_tags": [
+        "Surface Water",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Area polygons display separately from the USFS/interagency segment lines and LSRS legal-status corridors.",
+        "Hover and popup behavior uses the retained Local reference attributes."
+      ],
+      "geometry_limitations": [
+        "Area polygons, legal-status corridors, and centerline segments are distinct source representations; do not treat them as interchangeable boundary authority."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "wild_scenic_river_local_controls", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "wild_scenic_river_local_controls",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "wild_scenic_river_legal_status_corridors_usfs_lsrs",
       "summary": "USFS/LSRS legal-status corridor polygons for California Wild and Scenic Rivers, kept distinct from general area polygons and interagency segments.",
-      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference"],
-      "capabilities": ["Legal-status corridor polygons display separately from USFS/LSRS area polygons and the interagency segment lines.", "Hover and popup behavior uses the retained Local reference attributes."],
-      "geometry_limitations": ["This display is screening context; consult the official legal-status and administering-agency record for authoritative interpretation."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
+      "subject_tags": [
+        "Surface Water",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Legal-status corridor polygons display separately from USFS/LSRS area polygons and the interagency segment lines.",
+        "Hover and popup behavior uses the retained Local reference attributes."
+      ],
+      "geometry_limitations": [
+        "This display is screening context; consult the official legal-status and administering-agency record for authoritative interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "wild_scenic_river_local_controls", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "wild_scenic_river_local_controls",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "wild_scenic_rivers_blm_ca_lines",
       "summary": "BLM California Wild and Scenic River centerlines retained as a separate Local reference product from corridor polygons and USFS/interagency source products.",
-      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference"],
-      "capabilities": ["River lines display separately from BLM corridor polygons and the USFS/LSRS products.", "Hover and popup behavior uses the retained Local reference attributes."],
-      "geometry_limitations": ["Centerlines indicate river alignment and are not corridor boundaries; use the official BLM record for boundary-sensitive or legal interpretation."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
-      "resource_relationships": [{"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "subject_tags": [
+        "Surface Water",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "River lines display separately from BLM corridor polygons and the USFS/LSRS products.",
+        "Hover and popup behavior uses the retained Local reference attributes."
+      ],
+      "geometry_limitations": [
+        "Centerlines indicate river alignment and are not corridor boundaries; use the official BLM record for boundary-sensitive or legal interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_blm_california",
+          "role": "BLM program context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "program_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "wild_scenic_river_local_controls", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "wild_scenic_river_local_controls",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "wild_scenic_rivers_usfs_interagency_segments",
       "summary": "National Wild and Scenic River segments in California from the USFS/interagency source, kept distinct from BLM lines and polygon corridor products.",
-      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
-      "information_type_tags": ["Static Reference"],
-      "capabilities": ["Segment lines display separately from BLM centerlines, BLM corridors, USFS/LSRS areas, and legal-status corridors.", "Hover and popup behavior uses the retained segment attributes."],
-      "geometry_limitations": ["Segment lines, area polygons, and legal-status corridors represent different source concepts; consult the official interagency record for designation and legal-status interpretation."],
-      "method_ids": ["method_how_brim_works", "method_display_geometry_generalization"],
+      "subject_tags": [
+        "Surface Water",
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Segment lines display separately from BLM centerlines, BLM corridors, USFS/LSRS areas, and legal-status corridors.",
+        "Hover and popup behavior uses the retained segment attributes."
+      ],
+      "geometry_limitations": [
+        "Segment lines, area polygons, and legal-status corridors represent different source concepts; consult the official interagency record for designation and legal-status interpretation."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["local_layer_registry", "wild_scenic_river_local_controls", "local_geometry_generalization_registry"]
+      "source_refs": [
+        "local_layer_registry",
+        "wild_scenic_river_local_controls",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "wilderness_study_areas",
+      "summary": "Current BLM California Wilderness Study Area boundaries retained as a Local conservation-designation screening layer.",
+      "subject_tags": [
+        "Conservation Lands & Designations",
+        "Land Ownership & Administration"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Search and filter the maintained WSA inventory with shared Local Reference selection, labels, popup, and zoom behavior.",
+        "Review WSA identity and source attributes separately from Federal Wilderness, ACECs whose names contain WSA, and other conservation layers."
+      ],
+      "processing": [
+        "BRIM retains stable semantic/component identity and applies the reviewed display geometry through the shared Local Reference pipeline."
+      ],
+      "geometry_limitations": [
+        "A Wilderness Study Area is distinct from congressionally designated Federal Wilderness and from historical WSA wording in another designation's name.",
+        "The layer is planning context, not an access, ownership, allowable-use, or final wilderness-designation determination."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "local_layer_registry",
+        "wsa_local_reference_controller",
+        "wsa_focused_tests",
+        "local_geometry_generalization_registry"
+      ]
     },
     {
       "stable_id": "winter_storm_levels",
       "summary": "NOAA/NBM freezing-level and snow-level forecast guidance with selectable model cycle and valid-time contours for screening weather and snow impacts.",
-      "subject_tags": ["Snow & SWE", "Weather & Forecasts"],
-      "information_type_tags": ["Forecast / Outlook", "Model / Simulation"],
-      "capabilities": ["The shared NBM run selector chooses the model cycle; the product's valid-time controls select exact forecast targets and can toggle contour labels.", "Hover and the legend report the selected cycle, valid time, forecast lead, and snow/freezing-level values."],
-      "processing": ["BRIM reads the published NBM manifest and exact selected forecast entries; it does not substitute a nearby time or another cycle when the required target is unavailable."],
-      "timing": ["Model cycle, forecast lead, valid time, publication time, and BRIM fetch time remain distinct.", "The current product contract does not establish a producer schedule guarantee in the shared BRIM Live product table; next-update wording is therefore omitted."],
-      "geometry_limitations": ["Contours are model guidance and screening context, not observed snow level or a site-specific forecast; terrain and local conditions can differ."],
-      "method_ids": ["method_brim_live_update_timing", "method_how_brim_works"],
-      "resource_relationships": [{"id": "resource_noaa_nwps", "role": "Official NOAA water and forecast context", "relationship_type": "related_external_resource", "use_scope": "forecast_context"}],
+      "subject_tags": [
+        "Snow & SWE",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
+      "capabilities": [
+        "The shared NBM run selector chooses the model cycle; the product's valid-time controls select exact forecast targets and can toggle contour labels.",
+        "Hover and the legend report the selected cycle, valid time, forecast lead, and snow/freezing-level values."
+      ],
+      "processing": [
+        "BRIM reads the published NBM manifest and exact selected forecast entries; it does not substitute a nearby time or another cycle when the required target is unavailable."
+      ],
+      "timing": [
+        "Model cycle, forecast lead, valid time, publication time, and BRIM fetch time remain distinct.",
+        "The current product contract does not establish a producer schedule guarantee in the shared BRIM Live product table; next-update wording is therefore omitted."
+      ],
+      "geometry_limitations": [
+        "Contours are model guidance and screening context, not observed snow level or a site-specific forecast; terrain and local conditions can differ."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "resource_relationships": [
+        {
+          "id": "resource_noaa_nwps",
+          "role": "Official NOAA water and forecast context",
+          "relationship_type": "related_external_resource",
+          "use_scope": "forecast_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
-      "source_refs": ["ops_live_definition", "nbm_snow_consumer", "brim_live_update_timing_method"]
+      "source_refs": [
+        "ops_live_definition",
+        "nbm_snow_consumer",
+        "brim_live_update_timing_method"
+      ]
     }
   ]
 }
