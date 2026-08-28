@@ -78,23 +78,24 @@ assert_identical(bundle$counts$resources, 9L,
                  "Current Guide must include the nine maintained Resources")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
-assert_identical(sum(product_subsystems == "External Layers"), 175L,
+assert_identical(sum(product_subsystems == "External Layers"), 176L,
                  "External visible Product projection changed")
 assert_identical(sum(product_subsystems == "Ops Live"), 47L,
                  "Ops Live active Product projection changed")
-assert_identical(sum(product_subsystems == "Tools"), 5L,
+assert_identical(sum(product_subsystems == "Tools"), 4L,
                  "Tools Product projection changed")
 assert_identical(sum(product_subsystems == "Basemaps / Local Layers"), 43L,
                  "Local Product projection changed")
 product_entity_types <- vapply(bundle$products, `[[`, character(1), "entityType")
-assert_identical(sum(product_entity_types == "Layer"), 265L,
+assert_identical(sum(product_entity_types == "Layer"), 266L,
                  "Guide layer entity projection changed")
-assert_identical(sum(product_entity_types == "Tool"), 5L,
+assert_identical(sum(product_entity_types == "Tool"), 4L,
                  "Guide tool entity projection changed")
 assert_true(!anyDuplicated(product_ids) && all(nzchar(product_ids)),
             "Every included Product needs one unique stable ID")
-assert_true(!anyDuplicated(product_paths) && all(nzchar(product_paths)),
-            "Every included Product needs one unique exact path")
+assert_true(!anyDuplicated(product_paths[nzchar(product_paths)]) &&
+              all(!nzchar(product_paths) == (product_entity_types == "Tool")),
+            "Every Layer needs one unique verified path and Tools must omit synthetic paths")
 assert_true(!any(grepl("(^| / )Points( / |$)", product_paths)),
             "Guide exposes stale Points terminology")
 assert_true(any(grepl("Monitoring Sites/Records", product_paths, fixed = TRUE)),
@@ -307,8 +308,31 @@ assert_true(all(vapply(
 
 external_tool <- record_by_id(bundle$products, "tool_external_gis_overlay")
 local_tool <- record_by_id(bundle$products, "tool_local_gis_upload")
+measure_tool <- record_by_id(bundle$products, "tool_measure")
+draw_tool <- record_by_id(bundle$products, "tool_teaching_markup")
+tool_products <- Filter(function(product) identical(product$entityType, "Tool"), bundle$products)
+assert_true(setequal(vapply(tool_products, `[[`, character(1), "id"), c(
+  "tool_measure", "tool_teaching_markup", "tool_external_gis_overlay",
+  "tool_local_gis_upload"
+)), "Current Guide Tool inventory is not the exact four interactive utilities")
+assert_true(all(vapply(tool_products, function(product) {
+  nzchar(product$summary) && nzchar(product$accessHint) &&
+    !nzchar(product$pathLabel) && identical(product$brimSection, "Tools") &&
+    "Tool / Workflow" %in% product$informationTypes &&
+    any(vapply(product$sections, function(section) {
+      identical(section$id, "capabilities") && length(section$items) > 0L
+    }, logical(1))) &&
+    !grepl("controller|leaflet_|pt_", paste(product$summary, product$accessHint),
+           ignore.case = TRUE, perl = TRUE)
+}, logical(1))), "Every Tool needs an action summary, verified access hint, capabilities, and no fabricated path")
 assert_true(all(c(external_tool$contentTier, local_tool$contentTier) == "SOURCE_BACKED_RICH"),
             "Upload tools lost source-backed structured Guide content")
+assert_identical(external_tool$accessHint,
+                 "Open External Layers, then Advanced manual URL add.",
+                 "External GIS URL Overlay access hint changed")
+assert_identical(local_tool$accessHint,
+                 "Open Local GIS Uploads, then Upload local GIS file.",
+                 "Local GIS File Upload access hint changed")
 assert_true(all(vapply(
   c("FeatureServer", "MapServer", "ImageServer", "GeoJSON", "SQL filters",
     "Clear external", "three temporary external overlays"),
@@ -321,6 +345,14 @@ assert_true(all(vapply(
   function(probe) grepl(probe, section_text(local_tool), fixed = TRUE),
   logical(1)
 )), "Local GIS File Upload capabilities are incomplete")
+assert_true(grepl("distances and polygon areas", measure_tool$summary, fixed = TRUE) &&
+              all(vapply(c("Distance or Area", "Finish", "Clear"), function(probe) {
+                grepl(probe, section_text(measure_tool), fixed = TRUE)
+              }, logical(1))), "Measure lacks its plain action summary or maintained controls")
+assert_true(grepl("freehand map markup and text labels", draw_tool$summary, fixed = TRUE) &&
+              all(vapply(c("color", "brush size", "Label mode", "Undo", "Clear"), function(probe) {
+                grepl(probe, section_text(draw_tool), fixed = TRUE)
+              }, logical(1))), "Draw / Label lacks its plain action summary or maintained controls")
 
 huc8 <- record_by_id(bundle$products, "huc8")
 assert_identical(huc8$contentTier, "SOURCE_BACKED_RICH", "HUC8 lost source-backed Guide detail")
@@ -406,7 +438,7 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
 enrichment <- pt_guide_read_product_enrichment()
-assert_identical(length(enrichment), 21L,
+assert_identical(length(enrichment), 24L,
                  "GUIDE-I2A enrichment inventory changed without review")
 assert_true(all(vapply(enrichment, function(record) {
   length(record$source_refs) > 0L &&
@@ -420,12 +452,13 @@ assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
 
 content_tiers <- table(vapply(bundle$products, `[[`, character(1), "contentTier"))
 assert_identical(as.integer(content_tiers[c("SOURCE_BACKED_RICH", "STRUCTURED_BASIC")]),
-                 c(21L, 249L), "GUIDE-I2A content-tier counts changed")
+                 c(24L, 246L), "GUIDE-I2A content-tier counts changed")
 assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
             "Unexpected editorial-review tier entered the current profile")
 assert_true(all(vapply(bundle$products, function(product) {
   all(nzchar(c(product$id, product$title, product$entityType, product$brimSection,
-               product$pathLabel, product$provider))) &&
+               product$provider))) &&
+    (nzchar(product$pathLabel) || nzchar(product$summary)) &&
     length(product$informationTypes) > 0L
 }, logical(1))), "A Product missed the structured minimum content floor")
 assert_true(!any(vapply(bundle$products, function(product) {
@@ -538,7 +571,23 @@ assert_true(all(vapply(huc_climate_ids, function(id) {
 }, logical(1))), "A HUC level with the shared PRISM/BCMv8 themes lacks Climate & Drought taxonomy")
 blm_sma <- record_by_id(bundle$products, "tool_blm_sma_context")
 assert_identical(blm_sma$subjectTags, "Land Ownership & Administration",
-                 "BLM Surface Management Agency has an incorrect or generic Tool subject")
+                 "BLM Surface Management Agency has an incorrect subject")
+assert_identical(blm_sma$entityType, "Layer",
+                 "BLM Surface Management Agency must be presented as a Layer")
+assert_identical(blm_sma$brimSection, "External",
+                 "BLM Surface Management Agency Where in BRIM location is incorrect")
+assert_identical(blm_sma$subsystem, "External Layers",
+                 "BLM Surface Management Agency retained its implementation-owner subsystem")
+assert_identical(
+  blm_sma$pathLabel,
+  "External Layers / Federal Land Status / Fed/State Surface Management Agency (SMA)",
+  "BLM Surface Management Agency does not use its exact current user-facing path"
+)
+assert_true(!"Tool / Workflow" %in% blm_sma$informationTypes &&
+              "External On-Demand Service" %in% blm_sma$informationTypes &&
+              !grepl("Tools /|Teaching|Reference tool", blm_sma$pathLabel, perl = TRUE) &&
+              grepl("adjustable-opacity reference overlay", blm_sma$summary, fixed = TRUE),
+            "BLM Surface Management Agency retains Tool presentation or lacks its layer purpose")
 integrated_report_ids <- c("SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS")
 assert_true(all(vapply(integrated_report_ids, function(id) {
   product <- record_by_id(bundle$products, id)
@@ -637,8 +686,22 @@ assert_error(pt_validate_guide_bundle(duplicate_id),
 duplicate_path <- bundle
 duplicate_path$products[[2]]$pathLabel <- duplicate_path$products[[1]]$pathLabel
 assert_error(pt_validate_guide_bundle(duplicate_path),
-             "Product paths must be nonblank and unique",
+             "nonblank Product paths must be unique",
              "Duplicate Guide paths did not fail validation")
+synthetic_tool_path <- bundle
+synthetic_tool_index <- match("tool_measure", vapply(
+  synthetic_tool_path$products, `[[`, character(1), "id"
+))
+synthetic_tool_path$products[[synthetic_tool_index]]$pathLabel <-
+  "Tools / Measurement / Distance and area measurement"
+assert_error(pt_validate_guide_bundle(synthetic_tool_path),
+             "Tools use action summaries and must not expose synthetic layer paths",
+             "A Tool synthetic layer path passed bundle validation")
+missing_tool_action <- bundle
+missing_tool_action$products[[synthetic_tool_index]]$summary <- ""
+assert_error(pt_validate_guide_bundle(missing_tool_action),
+             "verified path or source-backed purpose/action summary",
+             "A Tool without an action summary passed bundle validation")
 missing_fire <- bundle
 missing_fire$quickAccess[[match("quick_fire_perimeters", vapply(
   missing_fire$quickAccess, `[[`, character(1), "id"
@@ -818,6 +881,15 @@ assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &
               grepl("relationship.role", guide_js, fixed = TRUE) &&
               grepl("quickDefinition.summary", guide_js, fixed = TRUE),
             "Generic structured content, Method, Resource-role, or Quick summary rendering is incomplete")
+assert_true(grepl("function productResultContext", guide_js, fixed = TRUE) &&
+              grepl("recordType(record) === 'Tool'", guide_js, fixed = TRUE) &&
+              grepl("record.summary || record.accessHint", guide_js, fixed = TRUE) &&
+              grepl("record.pathLabel || record.summary", guide_js, fixed = TRUE) &&
+              grepl("What this tool does", guide_js, fixed = TRUE) &&
+              grepl("How to open it", guide_js, fixed = TRUE) &&
+              grepl("entityType === 'Tool' && product.accessHint", guide_js, fixed = TRUE) &&
+              grepl("entityType = recordType(product)", guide_js, fixed = TRUE),
+            "Generic Layer/Tool secondary-line or Tool detail rendering is incomplete")
 assert_true(grepl("item.entryKind === 'collection'", guide_js, fixed = TRUE) &&
               grepl("item.typeLabel", guide_js, fixed = TRUE) &&
               grepl("data-guide-entry-kind", guide_js, fixed = TRUE) &&
@@ -831,7 +903,7 @@ assert_true(grepl("asArray(record.externalLinks)", guide_js, fixed = TRUE) &&
 assert_true(!grepl("huc8|gw_bull118|EXT070|EXT074|PRISM/BCMv8|Bulletin 118", guide_js,
                    perl = TRUE),
             "Product-specific Guide content leaked into the generic browser renderer")
-assert_true(!grepl("tool_local_gis_upload|tool_external_gis_overlay|EXT072", guide_js,
+assert_true(!grepl("tool_(blm_sma_context|local_gis_upload|external_gis_overlay|measure|teaching_markup)|EXT072", guide_js,
                    fixed = FALSE, perl = TRUE),
             "New content introduced a record-specific browser branch")
 assert_true(!grepl("source_refs|sourceRefs|runtimeStatus|freshnessStatus|nextExpectedUpdate",

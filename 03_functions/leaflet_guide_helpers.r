@@ -224,7 +224,7 @@ pt_guide_subject_tags <- function(stable_id, brim_section, source_theme = "") {
     "Energy & Minerals" = "EXT133",
     "Infrastructure & Conveyance" = c("EXT017", "EXT045")
   )
-  tool_rules <- list("Land Ownership & Administration" = "tool_blm_sma_context")
+  tool_rules <- list()
   rules <- switch(brim_section, Local = local_rules, `Ops Live` = ops_rules,
                   External = external_id_rules, Tools = tool_rules, list())
   tags <- names(Filter(function(ids) stable_id %in% ids, rules))
@@ -326,7 +326,8 @@ pt_guide_product <- function(
   summary = "", aliases = character(0), search_terms = character(0),
   sections = list(), related_article_ids = character(0),
   related_resource_ids = character(0), related_resource_roles = character(0),
-  custom_or_non_generic = FALSE, content_tier = "STRUCTURED_BASIC"
+  custom_or_non_generic = FALSE, content_tier = "STRUCTURED_BASIC",
+  entity_type = "", access_hint = ""
 ) {
   subjects <- unique(as.character(subjects[nzchar(trimws(subjects))]))
   information_types <- unique(as.character(information_types[nzchar(trimws(information_types))]))
@@ -336,7 +337,10 @@ pt_guide_product <- function(
   )
   list(
     kind = "Product",
-    entityType = if (identical(subsystem, "Tools")) "Tool" else "Layer",
+    entityType = pt_guide_or(
+      entity_type,
+      if (identical(subsystem, "Tools")) "Tool" else "Layer"
+    ),
     id = as.character(id),
     title = as.character(title),
     subsystem = as.character(subsystem),
@@ -350,6 +354,7 @@ pt_guide_product <- function(
     informationTypes = unname(information_types),
     family = as.character(family),
     summary = pt_guide_or(summary),
+    accessHint = pt_guide_or(access_hint),
     aliases = unname(unique(as.character(aliases[nzchar(trimws(aliases))]))),
     searchTerms = unname(unique(as.character(search_terms[nzchar(trimws(search_terms))]))),
     sections = unname(sections),
@@ -641,19 +646,40 @@ pt_guide_tool_products <- function(map_display) {
     c("tool_external_gis_overlay", "External GIS URL Overlay", "Add Data"),
     c("tool_local_gis_upload", "Local GIS File Upload", "Add Data")
   )
-  if (isTRUE(map_display$add_blm_sma_context_overlay)) {
-    definitions <- c(definitions, list(c("tool_blm_sma_context", "BLM Surface Management Agency context", "Reference tool")))
-  }
-  lapply(definitions, function(definition) {
-    path <- c("Tools", definition[[3]], definition[[2]])
+  products <- lapply(definitions, function(definition) {
     pt_guide_product(
       id = definition[[1]], title = definition[[2]], subsystem = "Tools",
-      brim_section = "Tools", provider = "BRIM", path = path,
+      brim_section = "Tools", provider = "BRIM", path = character(0),
       subjects = pt_guide_subject_tags(definition[[1]], "Tools"),
-      information_types = pt_guide_information_types(definition[[1]], "Tools"), family = definition[[3]],
-      related_resource_ids = if (definition[[1]] == "tool_blm_sma_context") "resource_blm_california" else character(0)
+      information_types = pt_guide_information_types(definition[[1]], "Tools"),
+      family = definition[[3]]
     )
   })
+  if (isTRUE(map_display$add_blm_sma_context_overlay)) {
+    products[[length(products) + 1L]] <- pt_guide_product(
+      id = "tool_blm_sma_context",
+      title = "BLM Surface Management Agency context",
+      subsystem = "External Layers",
+      brim_section = "External",
+      provider = "Bureau of Land Management",
+      path = c(
+        "External Layers", "Federal Land Status",
+        "Fed/State Surface Management Agency (SMA)"
+      ),
+      subjects = pt_guide_subject_tags(
+        "tool_blm_sma_context", "External", "classification"
+      ),
+      information_types = pt_guide_information_types(
+        "tool_blm_sma_context", "External", "classification"
+      ),
+      family = "Land status context",
+      aliases = c("BLM SMA", "Federal/State Surface Management Agency", "BLM CA land status"),
+      related_resource_ids = "resource_blm_california",
+      custom_or_non_generic = TRUE,
+      entity_type = "Layer"
+    )
+  }
+  products
 }
 
 pt_guide_generalization_parameter <- function(row) {
@@ -753,7 +779,7 @@ pt_guide_read_product_enrichment <- function(
     stop("Guide Product enrichment must use schema_version 1 and a products array.", call. = FALSE)
   }
   allowed <- c(
-    "stable_id", "summary", "subject_tags", "information_type_tags",
+    "stable_id", "summary", "access_hint", "subject_tags", "information_type_tags",
     "capabilities", "processing", "timing", "geometry_limitations",
     "method_ids", "resource_relationships", "editorial_state", "source_refs"
   )
@@ -815,6 +841,7 @@ pt_guide_apply_product_enrichment <- function(products, enrichment) {
     record <- enrichment[[product$id]]
     if (is.null(record)) return(product)
     if (nzchar(pt_guide_or(record$summary))) product$summary <- pt_guide_or(record$summary)
+    product$accessHint <- pt_guide_or(record$access_hint, product$accessHint)
     if (!is.null(record$subject_tags)) {
       subjects <- unname(as.character(unlist(record$subject_tags, use.names = FALSE)))
       product$subjectTags <- unique(subjects[nzchar(trimws(subjects))])
@@ -1148,7 +1175,8 @@ pt_validate_guide_bundle <- function(bundle) {
   if (any(!nzchar(ids)) || anyDuplicated(ids)) stop("BRIM Guide record IDs must be nonblank and unique.", call. = FALSE)
   product_ids <- vapply(bundle$products, `[[`, character(1), "id")
   paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
-  if (any(!nzchar(paths)) || anyDuplicated(paths)) stop("BRIM Guide Product paths must be nonblank and unique.", call. = FALSE)
+  shown_paths <- paths[nzchar(paths)]
+  if (anyDuplicated(shown_paths)) stop("BRIM Guide nonblank Product paths must be unique.", call. = FALSE)
   if (any(grepl("(^| / )Points( / |$)", paths))) stop("BRIM Guide paths must use Monitoring Sites/Records terminology.", call. = FALSE)
   quick_ids <- unlist(lapply(bundle$quickAccess, function(item) {
     if (identical(item$entryKind, "collection")) item$memberIds else item$productId
@@ -1187,9 +1215,18 @@ pt_validate_guide_bundle <- function(bundle) {
     }
   }
   for (product in bundle$products) {
-    mandatory <- c("id", "title", "entityType", "brimSection", "provider", "pathLabel")
+    mandatory <- c("id", "title", "entityType", "brimSection", "provider")
     if (any(!vapply(mandatory, function(field) nzchar(pt_guide_or(product[[field]])), logical(1)))) {
-      stop("BRIM Guide Products require stable identity, entity type, section, path, and provider.", call. = FALSE)
+      stop("BRIM Guide Products require stable identity, entity type, section, and provider.", call. = FALSE)
+    }
+    if (!product$entityType %in% c("Layer", "Tool")) {
+      stop("BRIM Guide Products require a controlled user-facing entity type.", call. = FALSE)
+    }
+    if (!nzchar(product$pathLabel) && !nzchar(product$summary)) {
+      stop("BRIM Guide Products require a verified path or source-backed purpose/action summary.", call. = FALSE)
+    }
+    if (identical(product$entityType, "Tool") && nzchar(product$pathLabel)) {
+      stop("BRIM Guide Tools use action summaries and must not expose synthetic layer paths.", call. = FALSE)
     }
     subjects <- unname(as.character(product$subjectTags))
     information_types <- unname(as.character(product$informationTypes))

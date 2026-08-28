@@ -486,17 +486,24 @@ function(el, x, data) {
     return record.kind || 'Resource';
   }
 
+  function productResultContext(record) {
+    return recordType(record) === 'Tool'
+      ? (record.summary || record.accessHint || '')
+      : (record.pathLabel || record.summary || '');
+  }
+
   function resultRow(record) {
     var row = button('brim-guide__result', '', 'record');
     row.setAttribute('data-guide-record', record.id);
     row.appendChild(node('span', 'brim-guide__result-kind', recordType(record)));
     row.appendChild(node('strong', 'brim-guide__result-title', record.title));
     var context = record.kind === 'Product'
-      ? record.pathLabel
+      ? productResultContext(record)
       : (record.section || record.provider || record.date || 'BRIM Guide');
     row.appendChild(node('span', 'brim-guide__result-path', context));
     var summary = record.kind === 'Product'
-      ? [record.provider, record.summary].filter(Boolean).join(' · ')
+      ? [record.provider, record.summary === context ? '' : record.summary]
+          .filter(Boolean).join(' · ')
       : record.summary;
     if (summary) row.appendChild(node('span', 'brim-guide__result-summary', summary));
     return row;
@@ -655,18 +662,39 @@ function(el, x, data) {
 
   function renderProductDetail(product) {
     var fragment = document.createDocumentFragment();
+    var entityType = recordType(product);
     fragment.appendChild(button('brim-guide__back', '← Back', 'back'));
-    fragment.appendChild(pageHeading(product.subsystem, product.title, product.summary, 'product'));
+    fragment.appendChild(pageHeading(
+      entityType,
+      product.title,
+      entityType === 'Tool' ? '' : product.summary,
+      'product'
+    ));
 
     var locator = node('section', 'brim-guide__locator');
-    locator.appendChild(node('h2', '', 'Find in layer list'));
-    locator.appendChild(node('p', 'brim-guide__path', product.pathLabel));
-    locator.appendChild(node(
-      'p',
-      'brim-guide__boundary',
-      'Use this exact path in the existing map controls. The Guide explains this item but does not change map state.'
-    ));
+    if (entityType === 'Tool') {
+      locator.appendChild(node('h2', '', 'What this tool does'));
+      locator.appendChild(node('p', 'brim-guide__path', product.summary));
+    } else if (product.pathLabel) {
+      locator.appendChild(node('h2', '', 'Find in layer list'));
+      locator.appendChild(node('p', 'brim-guide__path', product.pathLabel));
+      locator.appendChild(node(
+        'p',
+        'brim-guide__boundary',
+        'Use this exact path in the existing map controls. The Guide explains this item but does not change map state.'
+      ));
+    } else {
+      locator.appendChild(node('h2', '', 'About this layer'));
+      locator.appendChild(node('p', 'brim-guide__path', product.summary));
+    }
     fragment.appendChild(locator);
+
+    if (entityType === 'Tool' && product.accessHint) {
+      var access = node('section', 'brim-guide__locator');
+      access.appendChild(node('h2', '', 'How to open it'));
+      access.appendChild(node('p', 'brim-guide__path', product.accessHint));
+      fragment.appendChild(access);
+    }
 
     if (asArray(product.sections).length) {
       fragment.appendChild(renderStructuredSections(product.sections, 'product'));

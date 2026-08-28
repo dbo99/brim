@@ -171,8 +171,21 @@
       "source_refs": ["ops_live_definition", "usgs_groundwater_consumer", "usgs_groundwater_history_method", "brim_live_products_schedule"]
     },
     {
+      "stable_id": "tool_blm_sma_context",
+      "summary": "Displays the live BLM California Federal/State Surface Management Agency service as an adjustable-opacity reference overlay.",
+      "subject_tags": ["Land Ownership & Administration"],
+      "information_type_tags": ["External On-Demand Service"],
+      "capabilities": ["The Federal Land Status control turns the SMA overlay on or off and adjusts its opacity.", "BRIM requests the configured BLM California dynamic map service only when the overlay is selected."],
+      "geometry_limitations": ["Use this as surface-management context, not parcel-level ownership or boundary authority.", "Availability depends on browser access to the BLM service and the Esri Leaflet library."],
+      "method_ids": ["method_how_brim_works"],
+      "resource_relationships": [{"id": "resource_blm_california", "role": "BLM program context", "relationship_type": "related_external_resource", "use_scope": "program_context"}],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": ["config_map_display", "tools_adddata_owner", "external_service_catalog_EXT101"]
+    },
+    {
       "stable_id": "tool_external_gis_overlay",
       "summary": "Adds a temporary browser-session overlay from a direct public GeoJSON or ArcGIS REST source.",
+      "access_hint": "Open External Layers, then Advanced manual URL add.",
       "subject_tags": [],
       "information_type_tags": ["Tool / Workflow", "External On-Demand Service"],
       "capabilities": ["Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.", "Feature/query services can use current-view loading, popup or identify behavior, and optional SQL filters when the provider supports them.", "Each overlay can be removed individually; Clear external removes temporary URL/catalog overlays."],
@@ -183,6 +196,7 @@
     {
       "stable_id": "tool_local_gis_upload",
       "summary": "Displays a temporary local GeoJSON/JSON file or zipped shapefile without uploading it to a BRIM server.",
+      "access_hint": "Open Local GIS Uploads, then Upload local GIS file.",
       "subject_tags": [],
       "information_type_tags": ["Tool / Workflow"],
       "capabilities": ["GeoJSON and JSON are read directly; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.", "Attribute styling supports one color, categories, or 3–10 numeric quantile or equal-interval classes with palette and geometry controls.", "Hover and popup can be toggled; layers can be hidden, zoomed, restyled, removed, or returned to Original geometry; Clear uploads removes all uploads."],
@@ -190,6 +204,28 @@
       "geometry_limitations": ["Use WGS 84 (EPSG:4326) and verify alignment; missing or incorrect coordinate-reference information can produce plausible-looking but misplaced data.", "Current limits are 50 MB, 25,000 features, and three active local layers; uploaded files remain temporary and are not saved into BRIM."],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": ["tools_adddata_owner", "local_upload_geometry_and_attribute_tests"]
+    },
+    {
+      "stable_id": "tool_measure",
+      "summary": "Measures map distances and polygon areas for screening use.",
+      "access_hint": "Open the map control labeled measure.",
+      "subject_tags": [],
+      "information_type_tags": ["Tool / Workflow"],
+      "capabilities": ["Choose Distance or Area, click map points, and use Finish to complete the current measurement.", "Clear removes the current measurements."],
+      "geometry_limitations": ["Measurements are screening-level only."],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": ["tools_adddata_owner", "measure_control_implementation"]
+    },
+    {
+      "stable_id": "tool_teaching_markup",
+      "summary": "Adds temporary freehand map markup and text labels, with undo and clear controls.",
+      "access_hint": "Open Draw / Label on the map.",
+      "subject_tags": [],
+      "information_type_tags": ["Tool / Workflow"],
+      "capabilities": ["Draw mode supports color, brush size, and opacity controls; Label mode supports text, style, size, and color controls.", "Undo removes the most recent annotation and Clear removes the temporary annotations."],
+      "geometry_limitations": ["Markup and labels are temporary browser-session annotations and are not source data."],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": ["tools_adddata_owner", "draw_label_control_implementation"]
     },
     {
       "stable_id": "wild_scenic_river_corridors_blm_ca",
