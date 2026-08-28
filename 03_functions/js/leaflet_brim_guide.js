@@ -217,12 +217,8 @@ function(el, x, data) {
 
   function productMatchesFilters(product) {
     if (state.filters.brimSection.length && state.filters.brimSection.indexOf(product.brimSection) < 0) return false;
-    if (state.filters.subject.length && !state.filters.subject.some(function(value) {
-      return asArray(product.subjectTags).indexOf(value) >= 0;
-    })) return false;
-    if (state.filters.informationType.length && !state.filters.informationType.some(function(value) {
-      return asArray(product.informationTypes).indexOf(value) >= 0;
-    })) return false;
+    if (state.filters.subject.length && asArray(product.subjectTags).indexOf(state.filters.subject[0]) < 0) return false;
+    if (state.filters.informationType.length && asArray(product.informationTypes).indexOf(state.filters.informationType[0]) < 0) return false;
     return true;
   }
 
@@ -559,7 +555,8 @@ function(el, x, data) {
     if (field === 'informationType') {
       return [
         'Static Reference', 'Live Observation', 'Forecast / Outlook',
-        'Historical Context', 'Screening / Derived', 'External On-Demand Service'
+        'Model / Simulation', 'Historical Context', 'Screening / Derived',
+        'External On-Demand Service'
       ].filter(function(value) { return values.indexOf(value) >= 0; });
     }
     return values.sort(function(a, b) { return a.localeCompare(b); });
@@ -569,6 +566,7 @@ function(el, x, data) {
     var wrap = node('section', 'brim-guide__facet');
     wrap.appendChild(node('h3', '', label));
     var options = node('div', 'brim-guide__facet-options');
+    options.setAttribute('role', 'group');
     options.setAttribute('aria-label', label);
     values.forEach(function(value) {
       var selected = state.filters[field].indexOf(value) >= 0;
@@ -953,9 +951,7 @@ function(el, x, data) {
       var facetValue = target.getAttribute('data-guide-value');
       if (!Object.prototype.hasOwnProperty.call(state.filters, facetField)) return;
       var selected = state.filters[facetField].indexOf(facetValue) >= 0;
-      state.filters[facetField] = selected
-        ? state.filters[facetField].filter(function(value) { return value !== facetValue; })
-        : state.filters[facetField].concat(facetValue);
+      state.filters[facetField] = selected ? [] : [facetValue];
       state.section = 'explore';
       state.view = 'landing';
       state.selectedId = '';
@@ -970,9 +966,8 @@ function(el, x, data) {
       if (facetReplacement) facetReplacement.focus();
     } else if (action === 'filter-remove') {
       var chipField = target.getAttribute('data-guide-filter');
-      var chipValue = target.getAttribute('data-guide-value');
       if (!Object.prototype.hasOwnProperty.call(state.filters, chipField)) return;
-      state.filters[chipField] = state.filters[chipField].filter(function(value) { return value !== chipValue; });
+      state.filters[chipField] = [];
       state.section = 'explore';
       state.view = 'landing';
       render();

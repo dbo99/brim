@@ -426,7 +426,7 @@ assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
 assert_true(all(vapply(bundle$products, function(product) {
   all(nzchar(c(product$id, product$title, product$entityType, product$brimSection,
                product$pathLabel, product$provider))) &&
-    length(product$subjectTags) > 0L && length(product$informationTypes) > 0L
+    length(product$informationTypes) > 0L
 }, logical(1))), "A Product missed the structured minimum content floor")
 assert_true(!any(vapply(bundle$products, function(product) {
   nzchar(product$summary) && grepl(
@@ -435,18 +435,56 @@ assert_true(!any(vapply(bundle$products, function(product) {
   )
 }, logical(1))), "A generic filler summary entered the Product inventory")
 
+controlled_subjects <- c(
+  "Groundwater", "Surface Water", "Water Quality", "Snow & SWE", "Soil Moisture",
+  "Precipitation", "Weather & Forecasts", "Fire Weather", "Climate & Drought",
+  "Fire & Burn Areas", "Ecology & Habitat", "Air Quality", "Water Rights",
+  "Geology & Geophysics", "Conservation Lands & Designations",
+  "Land Ownership & Administration", "Energy & Minerals", "Infrastructure & Conveyance"
+)
 allowed_information_types <- c(
   "Static Reference", "Live Observation", "Forecast / Outlook",
-  "Historical Context", "Screening / Derived", "External On-Demand Service",
-  "Tool / Workflow"
+  "Model / Simulation", "Historical Context", "Screening / Derived",
+  "External On-Demand Service", "Tool / Workflow"
 )
+all_subjects <- unique(unlist(lapply(bundle$products, `[[`, "subjectTags"), use.names = FALSE))
 all_information_types <- unique(unlist(lapply(bundle$products, `[[`, "informationTypes"), use.names = FALSE))
-assert_true(all(all_information_types %in% allowed_information_types) &&
+assert_true(setequal(all_subjects, controlled_subjects) &&
+              identical(pt_guide_subject_vocabulary(), controlled_subjects) &&
+              !any(c("Map Tools & Workflows", "Land & Administrative Context",
+                     "Geology & Subsidence", "Infrastructure") %in% all_subjects),
+            "Primary Subject vocabulary is not explicit and controlled")
+assert_true(setequal(all_information_types, allowed_information_types) &&
+              identical(pt_guide_information_type_vocabulary(), allowed_information_types) &&
               !any(grepl("Data / Guidance Mode|Guidance Method|Interactive workflow|Static reference",
                          all_information_types, fixed = FALSE, perl = TRUE)),
             "Information Type vocabulary is not user-facing or controlled")
 assert_true(any(vapply(bundle$products, function(product) length(product$subjectTags) > 1L, logical(1))),
             "Explicit taxonomy does not support multiple subject tags")
+
+subject_counts <- table(unlist(lapply(bundle$products, `[[`, "subjectTags"), use.names = FALSE))
+expected_subject_counts <- c(
+  "Groundwater" = 40L, "Surface Water" = 54L, "Water Quality" = 7L,
+  "Snow & SWE" = 8L, "Soil Moisture" = 2L, "Precipitation" = 27L,
+  "Weather & Forecasts" = 54L, "Fire Weather" = 8L, "Climate & Drought" = 25L,
+  "Fire & Burn Areas" = 12L, "Ecology & Habitat" = 34L, "Air Quality" = 6L,
+  "Water Rights" = 4L, "Geology & Geophysics" = 12L,
+  "Conservation Lands & Designations" = 24L, "Land Ownership & Administration" = 51L,
+  "Energy & Minerals" = 19L, "Infrastructure & Conveyance" = 10L
+)
+assert_identical(as.integer(subject_counts[names(expected_subject_counts)]), unname(expected_subject_counts),
+                 "Corrected Primary Subject counts changed")
+assert_true(all(subject_counts <= 0.25 * length(bundle$products)),
+            "A Primary Subject exceeds the 25 percent focused-review threshold")
+subject_lengths <- lengths(lapply(bundle$products, `[[`, "subjectTags"))
+assert_identical(sum(subject_lengths == 0L), 8L, "Zero-subject Product count changed")
+assert_identical(sum(subject_lengths == 1L), 155L, "One-subject Product count changed")
+assert_identical(sum(subject_lengths > 1L), 107L, "Multi-subject Product count changed")
+subjectless_ids <- product_ids[subject_lengths == 0L]
+assert_true(setequal(subjectless_ids, c(
+  "EPA_NPL_BOUNDARIES", "EPA_SEMS_POINTS", "EXT116", "EXT117",
+  "tool_measure", "tool_teaching_markup", "tool_external_gis_overlay", "tool_local_gis_upload"
+)), "Unresolved or intentional no-domain-subject Product set changed")
 
 fire_weather_ids <- vapply(Filter(function(product) {
   "Fire Weather" %in% product$subjectTags
@@ -456,11 +494,10 @@ assert_true(setequal(fire_weather_ids, c("EXT066", "EXT067", "EXT068", "EXT069",
 assert_true(all(vapply(Filter(function(product) product$id %in% fire_weather_ids, bundle$products), function(product) {
   all(c("Fire Weather", "Weather & Forecasts") %in% product$subjectTags)
 }, logical(1))), "Fire-weather outlooks lost multi-tag Weather & Forecasts membership")
-matches_filters <- function(product, brim_sections = character(0), subjects = character(0),
-                            information_types = character(0)) {
-  (!length(brim_sections) || product$brimSection %in% brim_sections) &&
-    (!length(subjects) || any(subjects %in% product$subjectTags)) &&
-    (!length(information_types) || any(information_types %in% product$informationTypes))
+matches_filters <- function(product, brim_section = "", subject = "", information_type = "") {
+  (!nzchar(brim_section) || identical(product$brimSection, brim_section)) &&
+    (!nzchar(subject) || subject %in% product$subjectTags) &&
+    (!nzchar(information_type) || information_type %in% product$informationTypes)
 }
 combined_fire_weather <- Filter(function(product) matches_filters(
   product, "External", "Fire Weather", "Forecast / Outlook"
@@ -470,21 +507,21 @@ assert_true(setequal(vapply(combined_fire_weather, `[[`, character(1), "id"), fi
             "Combined Where/Subject/Information Type filtering duplicates or loses Products")
 assert_identical(length(Filter(matches_filters, bundle$products)), length(bundle$products),
                  "Clearing filters does not restore the complete projected Product inventory")
-subject_or <- Filter(function(product) matches_filters(
-  product, subjects = c("Groundwater", "Soil Moisture")
-), bundle$products)
-assert_true(all(vapply(subject_or, function(product) {
-  any(c("Groundwater", "Soil Moisture") %in% product$subjectTags)
-}, logical(1))) && !anyDuplicated(vapply(subject_or, `[[`, character(1), "id")),
-"Primary Subject multi-select is not OR-within without duplication")
+replace_selection <- function(current, selected) if (identical(current, selected)) "" else selected
+assert_identical(replace_selection("", "Groundwater"), "Groundwater",
+                 "Selecting an inactive facet value did not activate it")
+assert_identical(replace_selection("Groundwater", "Soil Moisture"), "Soil Moisture",
+                 "Selecting a second value did not replace the first within its facet group")
+assert_identical(replace_selection("Soil Moisture", "Soil Moisture"), "",
+                 "Selecting the active value did not clear its facet group")
 local_soil <- Filter(function(product) matches_filters(
-  product, brim_sections = "Local", subjects = "Soil Moisture"
+  product, brim_section = "Local", subject = "Soil Moisture"
 ), bundle$products)
 assert_true(all(vapply(local_soil, function(product) {
   identical(product$brimSection, "Local") && "Soil Moisture" %in% product$subjectTags
 }, logical(1))), "Local + Soil Moisture returned a Product outside both selected facets")
 local_groundwater <- Filter(function(product) matches_filters(
-  product, brim_sections = "Local", subjects = "Groundwater"
+  product, brim_section = "Local", subject = "Groundwater"
 ), bundle$products)
 assert_true(length(local_groundwater) > 0L && all(vapply(local_groundwater, function(product) {
   identical(product$brimSection, "Local") && "Groundwater" %in% product$subjectTags
@@ -493,6 +530,60 @@ assert_identical(scan$subjectTags, "Soil Moisture",
                  "SCAN Soil Moisture gained an unrelated inferred subject")
 assert_true(all(c("Live Observation", "Historical Context") %in% scan$informationTypes),
             "SCAN Information Type tags are incomplete")
+
+huc_climate_ids <- c("huc2", "huc4", "huc6", "huc8", "huc10", "huc12")
+assert_true(all(vapply(huc_climate_ids, function(id) {
+  product <- record_by_id(bundle$products, id)
+  all(c("Surface Water", "Precipitation", "Climate & Drought") %in% product$subjectTags)
+}, logical(1))), "A HUC level with the shared PRISM/BCMv8 themes lacks Climate & Drought taxonomy")
+blm_sma <- record_by_id(bundle$products, "tool_blm_sma_context")
+assert_identical(blm_sma$subjectTags, "Land Ownership & Administration",
+                 "BLM Surface Management Agency has an incorrect or generic Tool subject")
+integrated_report_ids <- c("SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS")
+assert_true(all(vapply(integrated_report_ids, function(id) {
+  product <- record_by_id(bundle$products, id)
+  setequal(product$subjectTags, c("Surface Water", "Water Quality")) &&
+    !"Groundwater" %in% product$subjectTags
+}, logical(1))), "SWRCB Integrated Report taxonomy is not exact Water Quality and Surface Water")
+multiagency_streamflow <- record_by_id(bundle$products, "ops_streamflow_multiagency")
+assert_identical(multiagency_streamflow$subjectTags, "Surface Water",
+                 "Multi-agency streamflow inherited an unrelated Snow & SWE subject")
+cpc_ids <- c(
+  "ops_cpc_6_10_temperature", "ops_cpc_6_10_precipitation",
+  "ops_cpc_8_14_temperature", "ops_cpc_8_14_precipitation"
+)
+assert_true(all(vapply(cpc_ids, function(id) {
+  product <- record_by_id(bundle$products, id)
+  all(c("Climate & Drought", "Weather & Forecasts") %in% product$subjectTags) &&
+    !"Land Ownership & Administration" %in% product$subjectTags &&
+    "Forecast / Outlook" %in% product$informationTypes
+}, logical(1))), "CPC outlook taxonomy contains an unrelated subject or misses forecast/climate context")
+seismicity_ids <- c(
+  "CGS_AP_FAULT_ZONES", "CGS_AP_FAULT_TRACES", "USGS_QFAULTS_VISUAL",
+  "USGS_RECENT_EARTHQUAKES_24H", "USGS_RECENT_EARTHQUAKES_7D"
+)
+assert_true(all(vapply(seismicity_ids, function(id) {
+  "Geology & Geophysics" %in% record_by_id(bundle$products, id)$subjectTags
+}, logical(1))), "Seismicity/fault probes are missing Geology & Geophysics")
+conservation_ids <- c(
+  "federal_wilderness", "wilderness_study_areas", "acec", "ca_desert_ncl",
+  "national_monuments", "EXT131", "EXT132", "USFWS_NWR_BOUNDARIES", "WSR_BLM_CA_CORRIDORS"
+)
+assert_true(all(vapply(conservation_ids, function(id) {
+  "Conservation Lands & Designations" %in% record_by_id(bundle$products, id)$subjectTags
+}, logical(1))), "A maintained conservation-land/designation probe lacks its explicit subject")
+energy_ids <- c("EXT114", "EXT145", "EXT147", "EXT148", "EXT119", "EXT137", "UIC_EPA_LIVE")
+assert_true(all(vapply(energy_ids, function(id) {
+  "Energy & Minerals" %in% record_by_id(bundle$products, id)$subjectTags
+}, logical(1))), "An oil/gas, UIC, mineral, geothermal, or renewable-energy probe lacks Energy & Minerals")
+model_ids <- c(
+  "calsim3_network", sprintf("EXT%03d", 31:38), "EXT057", "EXT058", "EXT059", "EXT124",
+  "ops_hrrr_surface_wind", "product-ops-nbm-accumulated-qpf", "winter_storm_levels", "nbm_qpf",
+  "ops_nbm_wind_guidance", "ops_gfs_surface_wind"
+)
+assert_true(all(vapply(model_ids, function(id) {
+  "Model / Simulation" %in% record_by_id(bundle$products, id)$informationTypes
+}, logical(1))), "A verified CalSim/C2VSim/NOHRSC/NWM/NOAA model probe lacks Model / Simulation")
 
 rich_probe_ids <- c(
   "huc8", "gw_bull118", "EXT070", "EXT072", "EXT074", "blm_diffs",
@@ -616,6 +707,17 @@ guide_r <- paste(readLines(file.path("03_functions", "leaflet_guide_helpers.r"),
 loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.r"), warn = FALSE), collapse = "\n")
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
 panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
+bundle_json <- jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null")
+subject_rule_source <- paste(deparse(body(pt_guide_subject_tags)), collapse = "\n")
+assert_true(!grepl("grepl|tolower|structured_values|!length\\(tags\\)", subject_rule_source, perl = TRUE) &&
+              grepl("row$theme", guide_r, fixed = TRUE) &&
+              grepl('pt_guide_subject_tags(row_id, "Local")', guide_r, fixed = TRUE) &&
+              grepl('id, "Ops Live"', guide_r, fixed = TRUE),
+            "Subject taxonomy still inherits broad path/group text or an unmatched-record fallback")
+assert_true(!grepl(
+  "Map Tools & Workflows|Land & Administrative Context|Geology & Subsidence|\"Infrastructure\"",
+  bundle_json, perl = TRUE
+), "Retired or generic taxonomy labels remain in the embedded Guide payload")
 
 assert_true(!grepl("fetch\\s*\\(", guide_js, perl = TRUE),
             "Guide browser source must not request Guide data at runtime")
@@ -661,14 +763,17 @@ assert_true(grepl("function productMatchesFilters", guide_js, fixed = TRUE) &&
               grepl("function visibleProducts", guide_js, fixed = TRUE) &&
               grepl("state.filters.brimSection", guide_js, fixed = TRUE) &&
               !grepl("state.filters.entityType", guide_js, fixed = TRUE) &&
-              grepl("state.filters.subject.some", guide_js, fixed = TRUE) &&
-              grepl("state.filters.informationType.some", guide_js, fixed = TRUE) &&
-              grepl("asArray(product.subjectTags).indexOf", guide_js, fixed = TRUE) &&
-              grepl("asArray(product.informationTypes).indexOf", guide_js, fixed = TRUE) &&
+              grepl("state.filters.subject[0]", guide_js, fixed = TRUE) &&
+              grepl("state.filters.informationType[0]", guide_js, fixed = TRUE) &&
+              grepl("state.filters[facetField] = selected ? [] : [facetValue]", guide_js, fixed = TRUE) &&
+              !grepl("concat(facetValue)|ctrlKey|metaKey|long-press|longpress",
+                     guide_js, ignore.case = TRUE, perl = TRUE) &&
+              grepl("options.setAttribute('role', 'group')", guide_js, fixed = TRUE) &&
+              grepl("aria-pressed", guide_js, fixed = TRUE) &&
               grepl("facet-toggle", guide_js, fixed = TRUE) &&
               grepl("filter-remove", guide_js, fixed = TRUE) &&
               grepl("clear-all", guide_js, fixed = TRUE),
-            "Visible multi-select Where/Subject/Information Type filtering is incomplete")
+            "Visible single-select-within/AND-across facet behavior or accessibility is incomplete")
 assert_true(grepl("searchResults.filter", guide_js, fixed = TRUE) &&
               grepl("filtered = visibleProducts()", guide_js, fixed = TRUE) &&
               grepl("renderResults(filtered", guide_js, fixed = TRUE),
@@ -735,7 +840,7 @@ assert_true(!grepl("source_refs|sourceRefs|runtimeStatus|freshnessStatus|nextExp
 assert_true(all(vapply(
   c("Search layers, tools, methods, resources, and updates",
     "Browse BRIM layers & tools", "All Layers & Tools A–Z", "Information Type",
-    "Where in BRIM", "Primary Subject", "Clear all",
+    "Where in BRIM", "Primary Subject", "Model / Simulation", "Clear all",
     "Related Layers & Tools", "Open email draft"),
   function(probe) grepl(probe, guide_js, fixed = TRUE),
   logical(1)
@@ -745,6 +850,9 @@ assert_true(!grepl("node\\(['\"]select|createElement\\(['\"]select|<select|filte
             "Superseded dropdown, Entity Type, or large Clear Filters UI remains")
 assert_true(grepl("activeSummary.hidden = !", guide_js, fixed = TRUE) &&
               grepl("searchInput.focus()", guide_js, fixed = TRUE) &&
+              grepl("state.filters = { brimSection: [], subject: [], informationType: [] }",
+                    guide_js, fixed = TRUE) &&
+              grepl("state.filters[chipField] = []", guide_js, fixed = TRUE) &&
               grepl("aria-pressed", guide_js, fixed = TRUE) &&
               grepl("aria-live", guide_js, fixed = TRUE) &&
               grepl("aria-hidden", guide_js, fixed = TRUE),
@@ -793,6 +901,19 @@ product_search_text <- function(product) tolower(paste(c(
   product$title, product$aliases, product$subjectTags, product$informationTypes,
   product$provider, product$searchTerms, product$summary
 ), collapse = " "))
+climate_search_ids <- vapply(Filter(function(product) {
+  grepl("climate", product_search_text(product), fixed = TRUE)
+}, bundle$products), `[[`, character(1), "id")
+climate_facet_ids <- vapply(Filter(function(product) {
+  "Climate & Drought" %in% product$subjectTags
+}, bundle$products), `[[`, character(1), "id")
+assert_identical(length(climate_search_ids), 27L, "Climate semantic-search count changed")
+assert_identical(length(climate_facet_ids), 25L, "Climate & Drought facet count changed")
+assert_true(all(huc_climate_ids %in% climate_search_ids) &&
+              all(huc_climate_ids %in% climate_facet_ids) &&
+              setequal(setdiff(climate_search_ids, climate_facet_ids),
+                       c("EXT094", "ops_scan_soil_moisture")),
+            "Climate search/facet difference is not explained by maintained alias/title metadata")
 soil_only_products <- Filter(function(product) {
   "Soil Moisture" %in% product$subjectTags && !"Snow & SWE" %in% product$subjectTags
 }, bundle$products)

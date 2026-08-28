@@ -40,7 +40,7 @@
     {
       "stable_id": "blm_diffs",
       "summary": "Two screening classes showing BLM-held land not represented as managed and BLM-managed land not represented as held in the retained BRIM source comparison.",
-      "subject_tags": ["Land & Administrative Context"],
+      "subject_tags": ["Land Ownership & Administration"],
       "information_type_tags": ["Screening / Derived", "Static Reference"],
       "capabilities": ["Distinct fill and outline styles separate ‘Unmanaged but held’ from ‘Managed but not held’ polygons.", "Popup text reports the retained comparison class."],
       "processing": ["BRIM derives the two difference classes from the retained held-tract and managed-land inputs and caches the map-facing polygons."],
@@ -53,7 +53,7 @@
     {
       "stable_id": "brim_mapped_conveyance",
       "summary": "BRIM's curated statewide water-conveyance layer, assembled from multiple reviewed source datasets into one mapped facility network.",
-      "subject_tags": ["Surface Water", "Infrastructure"],
+      "subject_tags": ["Surface Water", "Infrastructure & Conveyance"],
       "information_type_tags": ["Static Reference", "Screening / Derived"],
       "capabilities": ["Quick views and filters cover project family, ownership, conveyance group, BLM-managed-land relationship, display rank, and geometry confidence.", "Facility search, labels, hover, popup details, filter apply/auto modes, and zoom-to-results operate over the current filtered network."],
       "processing": ["BRIM reconciles facility identities and assembles mapped segments from various reviewed source datasets into one curated combined layer."],
@@ -65,7 +65,7 @@
     {
       "stable_id": "gw_bull118",
       "summary": "California DWR Bulletin 118 groundwater basin and subbasin boundaries with final SGMA 2019 prioritization and BLM-managed-land percentage context.",
-      "subject_tags": ["Groundwater", "Land & Administrative Context"],
+      "subject_tags": ["Groundwater", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference", "Screening / Derived"],
       "capabilities": ["Display modes: Basins only; DWR SGMA 2019 Basin Prioritization; BLM-managed land — %.", "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps.", "Find basin or subbasin searches all 515 retained basin records and can reveal a result hidden by the active threshold."],
       "processing": ["BRIM joins the tracked 515-row DWR SGMA 2019 table to 515 retained basin geometries by exact basin/subbasin code; names do not participate in the join.", "The SGMA and fixed percentage-BLM themes restyle the original basin polygons in place; no second polygon population or runtime DWR request is created."],
@@ -78,7 +78,7 @@
     {
       "stable_id": "huc8",
       "summary": "HUC8 watershed boundaries with BLM-managed-land percentages and 1991–2020 PRISM precipitation and BCMv8 recharge summaries.",
-      "subject_tags": ["Surface Water", "Precipitation", "Climate & Drought", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Precipitation", "Climate & Drought", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference", "Screening / Derived", "Historical Context"],
       "capabilities": ["Display modes: Boundaries only (no fill); BLM-managed land — %; PRISM precip - in/yr; PRISM precip - kaf/yr; BCMv8 recharge - in/yr; BCMv8 recharge - kaf/yr.", "Minimum BLM-managed land filter: 0–100% in one-percentage-point steps; 0% includes every retained HUC8 feature.", "The shared HUC card follows the focused active HUC level and shows that level's visible count and legend."],
       "processing": ["HUC and BLM-intersection areas are calculated in EPSG:3310; PRISM and BCMv8 rasters are summarized with exact polygon weights.", "Geometry-free climate/recharge tables are joined to the existing simplified HUC map geometry.", "Theme bins, labels, and colors are precomputed by HUC level; the browser restyles the existing polygons in place rather than creating duplicate geometry."],
@@ -92,7 +92,7 @@
     {
       "stable_id": "ops_delta_snapshot",
       "summary": "A compact map view of California DWR Delta Operations Daily Summary metrics with CVP/SWP facility and X2 river-kilometer context.",
-      "subject_tags": ["Surface Water", "Infrastructure"],
+      "subject_tags": ["Surface Water", "Infrastructure & Conveyance"],
       "information_type_tags": ["Live Observation", "Screening / Derived"],
       "capabilities": ["Map symbols and popups present current operational metrics with source-specific units and report context.", "X2 reference points remain a separate spatial aid for interpreting the reported X2 position."],
       "processing": ["The producer parses the DWR daily-summary PDF into validated operational features and a compact summary; BRIM fetches those published consumer products."],
@@ -173,7 +173,7 @@
     {
       "stable_id": "tool_external_gis_overlay",
       "summary": "Adds a temporary browser-session overlay from a direct public GeoJSON or ArcGIS REST source.",
-      "subject_tags": ["Map Tools & Workflows"],
+      "subject_tags": [],
       "information_type_tags": ["Tool / Workflow", "External On-Demand Service"],
       "capabilities": ["Direct GeoJSON and ArcGIS FeatureServer, MapServer, and ImageServer URLs are supported; portal and catalog pages are not direct layer endpoints.", "Feature/query services can use current-view loading, popup or identify behavior, and optional SQL filters when the provider supports them.", "Each overlay can be removed individually; Clear external removes temporary URL/catalog overlays."],
       "geometry_limitations": ["External overlays depend on provider availability, response speed, browser access rules, and service limits.", "BRIM keeps up to three temporary external overlays in the browser session; they are not saved into BRIM."],
@@ -183,7 +183,7 @@
     {
       "stable_id": "tool_local_gis_upload",
       "summary": "Displays a temporary local GeoJSON/JSON file or zipped shapefile without uploading it to a BRIM server.",
-      "subject_tags": ["Map Tools & Workflows"],
+      "subject_tags": [],
       "information_type_tags": ["Tool / Workflow"],
       "capabilities": ["GeoJSON and JSON are read directly; zipped shapefiles require .shp, .shx, .dbf, and preferably .prj components.", "Attribute styling supports one color, categories, or 3–10 numeric quantile or equal-interval classes with palette and geometry controls.", "Hover and popup can be toggled; layers can be hidden, zoomed, restyled, removed, or returned to Original geometry; Clear uploads removes all uploads."],
       "processing": ["Files are parsed in the browser session; the zipped-shapefile reader is loaded from a browser-side CDN only when that format is selected."],
@@ -194,7 +194,7 @@
     {
       "stable_id": "wild_scenic_river_corridors_blm_ca",
       "summary": "BLM California Wild and Scenic River corridor polygons retained as a separate Local reference product from the centerline and Forest Service/interagency products.",
-      "subject_tags": ["Surface Water", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference"],
       "capabilities": ["Corridor polygons display separately from BLM river lines and the USFS/LSRS area and legal-status products.", "Hover and popup behavior uses the retained Local reference attributes."],
       "geometry_limitations": ["Use the official administering-agency record for legal status or boundary-sensitive work; corridor polygons and centerlines have different meanings."],
@@ -206,7 +206,7 @@
     {
       "stable_id": "wild_scenic_river_corridors_usfs_lsrs",
       "summary": "USFS/LSRS Wild and Scenic River area polygons for California retained separately from interagency segments and legal-status corridors.",
-      "subject_tags": ["Surface Water", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference"],
       "capabilities": ["Area polygons display separately from the USFS/interagency segment lines and LSRS legal-status corridors.", "Hover and popup behavior uses the retained Local reference attributes."],
       "geometry_limitations": ["Area polygons, legal-status corridors, and centerline segments are distinct source representations; do not treat them as interchangeable boundary authority."],
@@ -217,7 +217,7 @@
     {
       "stable_id": "wild_scenic_river_legal_status_corridors_usfs_lsrs",
       "summary": "USFS/LSRS legal-status corridor polygons for California Wild and Scenic Rivers, kept distinct from general area polygons and interagency segments.",
-      "subject_tags": ["Surface Water", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference"],
       "capabilities": ["Legal-status corridor polygons display separately from USFS/LSRS area polygons and the interagency segment lines.", "Hover and popup behavior uses the retained Local reference attributes."],
       "geometry_limitations": ["This display is screening context; consult the official legal-status and administering-agency record for authoritative interpretation."],
@@ -228,7 +228,7 @@
     {
       "stable_id": "wild_scenic_rivers_blm_ca_lines",
       "summary": "BLM California Wild and Scenic River centerlines retained as a separate Local reference product from corridor polygons and USFS/interagency source products.",
-      "subject_tags": ["Surface Water", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference"],
       "capabilities": ["River lines display separately from BLM corridor polygons and the USFS/LSRS products.", "Hover and popup behavior uses the retained Local reference attributes."],
       "geometry_limitations": ["Centerlines indicate river alignment and are not corridor boundaries; use the official BLM record for boundary-sensitive or legal interpretation."],
@@ -240,7 +240,7 @@
     {
       "stable_id": "wild_scenic_rivers_usfs_interagency_segments",
       "summary": "National Wild and Scenic River segments in California from the USFS/interagency source, kept distinct from BLM lines and polygon corridor products.",
-      "subject_tags": ["Surface Water", "Land & Administrative Context"],
+      "subject_tags": ["Surface Water", "Conservation Lands & Designations", "Land Ownership & Administration"],
       "information_type_tags": ["Static Reference"],
       "capabilities": ["Segment lines display separately from BLM centerlines, BLM corridors, USFS/LSRS areas, and legal-status corridors.", "Hover and popup behavior uses the retained segment attributes."],
       "geometry_limitations": ["Segment lines, area polygons, and legal-status corridors represent different source concepts; consult the official interagency record for designation and legal-status interpretation."],
@@ -252,7 +252,7 @@
       "stable_id": "winter_storm_levels",
       "summary": "NOAA/NBM freezing-level and snow-level forecast guidance with selectable model cycle and valid-time contours for screening weather and snow impacts.",
       "subject_tags": ["Snow & SWE", "Weather & Forecasts"],
-      "information_type_tags": ["Forecast / Outlook"],
+      "information_type_tags": ["Forecast / Outlook", "Model / Simulation"],
       "capabilities": ["The shared NBM run selector chooses the model cycle; the product's valid-time controls select exact forecast targets and can toggle contour labels.", "Hover and the legend report the selected cycle, valid time, forecast lead, and snow/freezing-level values."],
       "processing": ["BRIM reads the published NBM manifest and exact selected forecast entries; it does not substitute a nearby time or another cycle when the required target is unavailable."],
       "timing": ["Model cycle, forecast lead, valid time, publication time, and BRIM fetch time remain distinct.", "The current product contract does not establish a producer schedule guarantee in the shared BRIM Live product table; next-update wording is therefore omitted."],
