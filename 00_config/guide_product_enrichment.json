@@ -1912,6 +1912,14 @@
         "method_brim_live_update_timing",
         "method_how_brim_works"
       ],
+      "resource_relationships": [
+        {
+          "id": "resource_nrcs_scan",
+          "role": "Observation network and official station context",
+          "relationship_type": "used_by_brim",
+          "use_scope": "observation_source_and_station_context"
+        }
+      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "ops_live_definition",

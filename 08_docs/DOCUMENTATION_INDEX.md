@@ -58,7 +58,7 @@ Discovery and historical evidence only. Never automatically controlling.
 - BRIM Guide source-backed Product enrichment registry:
   `/00_config/guide_product_enrichment.json` (stable-ID-keyed editorial content only; it cannot create Products or control map runtime behavior)
 - BRIM Guide canonical authored Resource metadata registry:
-  `/00_config/guide_resources.json` (exactly the nine pre-existing public Resources; descriptive content only, with Product relationships and profile/runtime authority retained elsewhere)
+  `/00_config/guide_resources.json` (one schema-v2 dataset with nine published and 24 staged Resources; the build-time publication gate preserves the exact current nine-record browser projection, while Product relationships and profile/runtime authority remain elsewhere)
 - BRIM Guide build-time inventory/profile owner:
   `/03_functions/leaflet_guide_helpers.r`
 - BRIM Guide focused foundation test: `/qa/test_guide_foundation.R`

@@ -60,6 +60,11 @@ bundle <- pt_build_guide_bundle(runtime_groups, MAP_DISPLAY, "default")
 product_ids <- vapply(bundle$products, `[[`, character(1), "id")
 product_paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
 product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
+resource_registry <- pt_guide_read_resource_registry()
+registry_ids <- vapply(resource_registry, `[[`, character(1), "id")
+registry_states <- vapply(resource_registry, `[[`, character(1), "publication_state")
+staged_registry <- unclass(resource_registry)[registry_states == "staged"]
+staged_registry_ids <- vapply(staged_registry, `[[`, character(1), "id")
 
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
@@ -76,6 +81,12 @@ assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
 assert_identical(bundle$counts$resources, 9L,
                  "Current Guide must include the nine maintained Resources")
+assert_identical(length(resource_registry), 33L,
+                 "Canonical Resource registry must validate all 33 records")
+assert_identical(sum(registry_states == "published"), 9L,
+                 "Canonical Resource registry published count changed")
+assert_identical(sum(registry_states == "staged"), 24L,
+                 "Canonical Resource registry staged count changed")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
 expected_resource_ids <- c(
@@ -125,6 +136,11 @@ assert_identical(sum(product_entity_types == "Tool"), 4L,
                  "Guide tool entity projection changed")
 assert_true(!anyDuplicated(product_ids) && all(nzchar(product_ids)),
             "Every included Product needs one unique stable ID")
+assert_identical(
+  digest::digest(paste(product_ids, collapse = "\n"), algo = "sha256", serialize = FALSE),
+  "a003f1882614ca2cef2487afda234ec31701d4e6be91741ffc8ac617388782da",
+  "Exact ordered 270-ID Product universe changed"
+)
 assert_true(!anyDuplicated(product_paths[nzchar(product_paths)]) &&
               all(!nzchar(product_paths) == (product_entity_types == "Tool")),
             "Every Layer needs one unique verified path and Tools must omit synthetic paths")
@@ -476,6 +492,24 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
 enrichment <- pt_guide_read_product_enrichment()
+scan_enrichment_relationship <- enrichment$ops_scan_soil_moisture$resource_relationships[[1]]
+assert_identical(
+  scan_enrichment_relationship,
+  list(
+    id = "resource_nrcs_scan",
+    role = "Observation network and official station context",
+    relationship_type = "used_by_brim",
+    use_scope = "observation_source_and_station_context"
+  ),
+  "The source-backed staged SCAN relationship changed in enrichment authority"
+)
+assert_true(
+  !"resource_nrcs_scan" %in% scan$relatedResourceIds &&
+    !any(vapply(scan$relatedResources, function(relationship) {
+      identical(relationship$id, "resource_nrcs_scan")
+    }, logical(1))),
+  "The staged SCAN relationship leaked into the current Product projection"
+)
 baseline_rich_count <- 24L
 baseline_basic_count <- 246L
 baseline_editorial_count <- 0L
@@ -885,6 +919,33 @@ loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
 panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
 bundle_json <- jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null")
+staged_migration_aliases <- unlist(lapply(staged_registry, function(record) {
+  unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
+}), use.names = FALSE)
+staged_access_urls <- unlist(lapply(staged_registry, function(record) {
+  vapply(record$access_points, `[[`, character(1), "url")
+}), use.names = FALSE)
+assert_true(!any(vapply(
+  c(staged_registry_ids, staged_migration_aliases, staged_access_urls),
+  function(probe) grepl(probe, bundle_json, fixed = TRUE), logical(1)
+)), "Staged IDs, migration aliases, or access points leaked into the serialized bundle")
+assert_true(all(vapply(bundle$products, function(product) {
+  !any(product$relatedResourceIds %in% staged_registry_ids)
+}, logical(1))), "A staged Resource relationship leaked into current Product relationships")
+ordinary_search_corpus <- tolower(paste(vapply(bundle$products, function(product) {
+  paste(c(
+    product$title, product$aliases, product$subjectTags, product$informationTypes,
+    product$provider, product$searchTerms, product$summary
+  ), collapse = " ")
+}, character(1)), collapse = " "))
+staged_text_probes <- tolower(c(
+  vapply(staged_registry[staged_registry_ids != "resource_nrcs_scan"],
+         `[[`, character(1), "title"),
+  vapply(staged_registry, `[[`, character(1), "summary")
+))
+assert_true(!any(vapply(staged_text_probes, function(probe) {
+  grepl(probe, ordinary_search_corpus, fixed = TRUE)
+}, logical(1))), "Staged Resource title or summary text leaked into ordinary Product search")
 subject_rule_source <- paste(deparse(body(pt_guide_subject_tags)), collapse = "\n")
 assert_true(!grepl("grepl|tolower|structured_values|!length\\(tags\\)", subject_rule_source, perl = TRUE) &&
               grepl("row$theme", guide_r, fixed = TRUE) &&
@@ -1162,8 +1223,12 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
 cat("GUIDE-I2A2 source-backed vitals deepening contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
+cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
+cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
+cat("REGISTRY_RESOURCES=33_TOTAL,9_PUBLISHED,24_STAGED\n")
+cat("STAGED_RELATIONSHIP_BROWSER_LEAKAGE=0\n")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")

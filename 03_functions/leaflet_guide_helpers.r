@@ -830,24 +830,39 @@ pt_guide_read_resource_registry <- function(
   pt_guide_resource_registry_assert_fields(
     source, c("schema_version", "resources"), label = "Guide Resource registry"
   )
-  if (!identical(source$schema_version, 1L) || !is.list(source$resources) ||
+  if (!identical(source$schema_version, 2L) || !is.list(source$resources) ||
       !length(source$resources)) {
-    stop("Guide Resource registry must use schema_version 1 and a nonempty resources array.",
+    stop("Guide Resource registry must use schema_version 2 and a nonempty resources array.",
          call. = FALSE)
   }
 
   required <- c(
-    "id", "aliases", "order", "title", "providers", "summary", "canonical_url",
-    "access_points", "resource_type", "resource_granularity", "public_source_references"
+    "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
+    "providers", "summary", "canonical_url", "access_points", "resource_type",
+    "resource_granularity", "subject_tags", "information_type_tags", "variables",
+    "use_scopes", "geographic_scope", "access_class", "public_source_references",
+    "publication_state"
   )
   id_pattern <- "^resource_[a-z0-9]+(?:_[a-z0-9]+)*$"
-  provider_roles <- c("display_provider", "publisher", "program")
-  access_roles <- c("canonical")
+  migration_id_pattern <- "^res\\.[a-z0-9]+(?:[.-][a-z0-9]+)*$"
+  provider_roles <- c(
+    "display_provider", "publisher", "maintainer", "partner", "data_owner", "program"
+  )
+  access_roles <- c("canonical", "configured_view", "archive", "comparison_viewer")
   reference_roles <- c("official_source", "documentation")
-  resource_types <- c("unknown")
-  resource_granularities <- c("unknown")
+  resource_types <- c(
+    "unknown", "dashboard", "data_portal", "dataset", "interactive_map",
+    "organization_page", "web_application"
+  )
+  resource_granularities <- c(
+    "unknown", "collection", "dashboard", "dataset", "mission", "platform",
+    "product", "program", "viewer"
+  )
+  publication_states <- c("published", "staged")
+  geographic_scope_types <- c("unknown", "global", "multi_state", "national")
   ids <- character(length(source$resources))
   aliases <- vector("list", length(source$resources))
+  migration_aliases <- vector("list", length(source$resources))
   orders <- integer(length(source$resources))
 
   for (index in seq_along(source$resources)) {
@@ -864,6 +879,20 @@ pt_guide_read_resource_registry <- function(
     if (any(!grepl(id_pattern, aliases[[index]], perl = TRUE)) ||
         anyDuplicated(aliases[[index]])) {
       stop(label, " aliases must be unique resource_* stable IDs.", call. = FALSE)
+    }
+    migration_aliases[[index]] <- pt_guide_resource_registry_string_array(
+      record$migration_aliases, paste0(label, " migration_aliases")
+    )
+    if (any(!grepl(migration_id_pattern, migration_aliases[[index]], perl = TRUE)) ||
+        anyDuplicated(migration_aliases[[index]])) {
+      stop(label, " migration_aliases must be unique reviewed res.* intake keys.",
+           call. = FALSE)
+    }
+    search_aliases <- pt_guide_resource_registry_string_array(
+      record$search_aliases, paste0(label, " search_aliases")
+    )
+    if (anyDuplicated(search_aliases)) {
+      stop(label, " search_aliases must be unique within the Resource.", call. = FALSE)
     }
     if (!is.numeric(record$order) || length(record$order) != 1L ||
         is.na(record$order) || !is.finite(record$order) || record$order != as.integer(record$order) ||
@@ -889,20 +918,28 @@ pt_guide_read_resource_registry <- function(
     if (!is.list(record$providers) || !length(record$providers)) {
       stop(label, " requires a providers array.", call. = FALSE)
     }
-    provider_role_values <- vapply(seq_along(record$providers), function(provider_index) {
+    providers <- lapply(seq_along(record$providers), function(provider_index) {
       provider <- record$providers[[provider_index]]
       provider_label <- paste0(label, " provider ", provider_index)
       pt_guide_resource_registry_assert_fields(
         provider, c("name", "role"), label = provider_label
       )
-      pt_guide_resource_registry_scalar(provider$name, paste0(provider_label, " name"))
+      name <- pt_guide_resource_registry_scalar(
+        provider$name, paste0(provider_label, " name")
+      )
       role <- pt_guide_resource_registry_scalar(provider$role, paste0(provider_label, " role"))
       if (!role %in% provider_roles) stop(provider_label, " has an uncontrolled role.", call. = FALSE)
-      role
-    }, character(1))
+      list(name = name, role = role)
+    })
+    provider_role_values <- vapply(providers, `[[`, character(1), "role")
+    provider_pairs <- vapply(
+      providers, function(provider) paste(provider$name, provider$role, sep = "\r"), character(1)
+    )
     if (sum(provider_role_values == "display_provider") != 1L ||
-        anyDuplicated(provider_role_values)) {
-      stop(label, " requires exactly one display_provider and unique provider roles.", call. = FALSE)
+        anyDuplicated(provider_pairs)) {
+      stop(label, paste0(
+        " requires exactly one display_provider and unique provider (name, role) pairs."
+      ), call. = FALSE)
     }
 
     if (!is.list(record$access_points) || !length(record$access_points)) {
@@ -911,15 +948,77 @@ pt_guide_read_resource_registry <- function(
     access <- lapply(seq_along(record$access_points), function(access_index) {
       point <- record$access_points[[access_index]]
       point_label <- paste0(label, " access point ", access_index)
-      pt_guide_resource_registry_assert_fields(point, c("url", "role"), label = point_label)
+      pt_guide_resource_registry_assert_fields(
+        point, c("role", "label", "url"), label = point_label
+      )
       role <- pt_guide_resource_registry_scalar(point$role, paste0(point_label, " role"))
       if (!role %in% access_roles) stop(point_label, " has an uncontrolled role.", call. = FALSE)
-      list(url = pt_guide_validate_public_https_url(point$url, paste0(point_label, " url")), role = role)
+      list(
+        role = role,
+        label = pt_guide_resource_registry_scalar(point$label, paste0(point_label, " label")),
+        url = pt_guide_validate_public_https_url(point$url, paste0(point_label, " url"))
+      )
     })
     access_role_values <- vapply(access, `[[`, character(1), "role")
-    if (sum(access_role_values == "canonical") != 1L || anyDuplicated(access_role_values) ||
+    access_urls <- vapply(access, `[[`, character(1), "url")
+    if (sum(access_role_values == "canonical") != 1L || anyDuplicated(access_urls) ||
         !identical(access[[match("canonical", access_role_values)]]$url, canonical_url)) {
-      stop(label, " requires one canonical access point matching canonical_url.", call. = FALSE)
+      stop(label, paste0(
+        " requires unique access-point URLs and one canonical access point matching canonical_url."
+      ), call. = FALSE)
+    }
+
+    subject_tags <- pt_guide_resource_registry_string_array(
+      record$subject_tags, paste0(label, " subject_tags")
+    )
+    if (any(!subject_tags %in% pt_guide_subject_vocabulary()) || anyDuplicated(subject_tags)) {
+      stop(label, " contains an uncontrolled or duplicate subject tag.", call. = FALSE)
+    }
+    information_type_tags <- pt_guide_resource_registry_string_array(
+      record$information_type_tags, paste0(label, " information_type_tags")
+    )
+    if (any(!information_type_tags %in% pt_guide_information_type_vocabulary()) ||
+        anyDuplicated(information_type_tags)) {
+      stop(label, " contains an uncontrolled or duplicate Information Type tag.",
+           call. = FALSE)
+    }
+    variables <- pt_guide_resource_registry_string_array(
+      record$variables, paste0(label, " variables")
+    )
+    use_scopes <- pt_guide_resource_registry_string_array(
+      record$use_scopes, paste0(label, " use_scopes")
+    )
+    if (anyDuplicated(variables) || anyDuplicated(use_scopes)) {
+      stop(label, " variables and use_scopes must be unique within the Resource.",
+           call. = FALSE)
+    }
+    pt_guide_resource_registry_assert_fields(
+      record$geographic_scope, c("scope_type", "names"),
+      label = paste0(label, " geographic_scope")
+    )
+    geographic_scope_type <- pt_guide_resource_registry_scalar(
+      record$geographic_scope$scope_type, paste0(label, " geographic_scope scope_type")
+    )
+    geographic_names <- pt_guide_resource_registry_string_array(
+      record$geographic_scope$names, paste0(label, " geographic_scope names")
+    )
+    if (!geographic_scope_type %in% geographic_scope_types ||
+        anyDuplicated(geographic_names) ||
+        (identical(geographic_scope_type, "unknown") && length(geographic_names)) ||
+        (!identical(geographic_scope_type, "unknown") && !length(geographic_names))) {
+      stop(label, " contains an uncontrolled or inconsistent geographic scope.", call. = FALSE)
+    }
+    access_class <- pt_guide_resource_registry_scalar(
+      record$access_class, paste0(label, " access_class")
+    )
+    if (!identical(access_class, "public")) {
+      stop(label, " access_class must be public.", call. = FALSE)
+    }
+    publication_state <- pt_guide_resource_registry_scalar(
+      record$publication_state, paste0(label, " publication_state")
+    )
+    if (!publication_state %in% publication_states) {
+      stop(label, " has an uncontrolled publication_state.", call. = FALSE)
     }
 
     if (!is.list(record$public_source_references)) {
@@ -955,6 +1054,10 @@ pt_guide_read_resource_registry <- function(
   if (anyDuplicated(ids) || anyDuplicated(all_ids)) {
     stop("Guide Resource registry primary IDs and aliases must be globally unique.", call. = FALSE)
   }
+  all_migration_aliases <- unlist(migration_aliases, use.names = FALSE)
+  if (anyDuplicated(all_migration_aliases)) {
+    stop("Guide Resource registry migration aliases must be globally unique.", call. = FALSE)
+  }
   if (anyDuplicated(orders) || !identical(orders, seq_along(source$resources))) {
     stop("Guide Resource registry order must be unique, complete, and match file order.", call. = FALSE)
   }
@@ -967,7 +1070,22 @@ pt_guide_read_resource_registry <- function(
                 values, ignore.case = TRUE, perl = TRUE))) {
     stop("Guide Resource registry contains credentials or secret material.", call. = FALSE)
   }
-  unname(source$resources)
+  structure(unname(source$resources), class = c("pt_guide_resource_registry", "list"))
+}
+
+pt_guide_resource_published_records <- function(registry) {
+  if (!inherits(registry, "pt_guide_resource_registry")) {
+    stop("Guide Resource publication projection requires a validated registry.", call. = FALSE)
+  }
+  publication_states <- vapply(registry, function(record) {
+    pt_guide_or(record$publication_state)
+  }, character(1))
+  if (any(!publication_states %in% c("published", "staged"))) {
+    stop("Guide Resource publication projection encountered an unknown publication state.",
+         call. = FALSE)
+  }
+  records <- unclass(registry)
+  unname(records[publication_states == "published"])
 }
 
 pt_guide_resource_product_relationships <- function() {
@@ -985,8 +1103,13 @@ pt_guide_resource_product_relationships <- function() {
 }
 
 pt_guide_resource_browser_records <- function(
-    registry = pt_guide_read_resource_registry(),
+    registry = pt_guide_resource_published_records(pt_guide_read_resource_registry()),
     related_products = pt_guide_resource_product_relationships()) {
+  if (any(vapply(registry, function(record) {
+    !identical(pt_guide_or(record$publication_state), "published")
+  }, logical(1)))) {
+    stop("Guide Resource browser adaptation accepts published records only.", call. = FALSE)
+  }
   ids <- vapply(registry, `[[`, character(1), "id")
   if (!identical(ids, names(related_products))) {
     stop("Guide Resource registry IDs/order require explicit compiler relationship reconciliation.",
@@ -1048,6 +1171,45 @@ pt_guide_read_product_enrichment <- function(
         anyDuplicated(information_types)) {
       stop("Guide Product enrichment requires controlled, unique Information Type tags.", call. = FALSE)
     }
+    relationships <- record$resource_relationships
+    if (length(relationships)) {
+      if (!is.list(relationships)) {
+        stop("Guide Product enrichment Resource relationships must be an array.", call. = FALSE)
+      }
+      relationship_ids <- vapply(seq_along(relationships), function(index) {
+        relationship <- relationships[[index]]
+        label <- paste0("Guide Product enrichment Resource relationship ", index)
+        if (!is.list(relationship) || is.null(names(relationship)) ||
+            anyDuplicated(names(relationship)) ||
+            !setequal(
+              names(relationship), c("id", "role", "relationship_type", "use_scope")
+            )) {
+          stop(label, " must contain exactly id, role, relationship_type, and use_scope.",
+               call. = FALSE)
+        }
+        id <- pt_guide_resource_registry_scalar(relationship$id, paste0(label, " id"))
+        if (!grepl("^resource_[a-z0-9]+(?:_[a-z0-9]+)*$", id, perl = TRUE)) {
+          stop(label, " id must use the resource_* stable-ID syntax.", call. = FALSE)
+        }
+        pt_guide_resource_registry_scalar(relationship$role, paste0(label, " role"))
+        relationship_type <- pt_guide_resource_registry_scalar(
+          relationship$relationship_type, paste0(label, " relationship_type")
+        )
+        if (!relationship_type %in% c(
+          "displayed_in_brim", "used_by_brim", "related_external_resource"
+        )) {
+          stop(label, " has an uncontrolled relationship_type.", call. = FALSE)
+        }
+        pt_guide_resource_registry_scalar(
+          relationship$use_scope, paste0(label, " use_scope")
+        )
+        id
+      }, character(1))
+      if (anyDuplicated(relationship_ids)) {
+        stop("Guide Product enrichment Resource relationship IDs must be unique per Product.",
+             call. = FALSE)
+      }
+    }
   }
   stats::setNames(source$products, ids)
 }
@@ -1071,11 +1233,45 @@ pt_guide_enrichment_sections <- function(record) {
   sections
 }
 
-pt_guide_apply_product_enrichment <- function(products, enrichment) {
+pt_guide_apply_product_enrichment <- function(
+    products, enrichment,
+    resource_registry = pt_guide_read_resource_registry(),
+    product_universe_ids = NULL) {
   product_ids <- vapply(products, `[[`, character(1), "id")
-  missing <- setdiff(names(enrichment), product_ids)
+  if (any(!nzchar(product_ids)) || anyDuplicated(product_ids)) {
+    stop("Guide Product universe IDs must be nonblank and unique.", call. = FALSE)
+  }
+  if (is.null(product_universe_ids)) product_universe_ids <- product_ids
+  product_universe_ids <- unname(as.character(product_universe_ids))
+  if (any(!nzchar(product_universe_ids)) || anyDuplicated(product_universe_ids) ||
+      any(!product_universe_ids %in% product_ids)) {
+    stop("Guide Product enrichment requires an exact unique Product universe.", call. = FALSE)
+  }
+  missing <- setdiff(names(enrichment), product_universe_ids)
   if (length(missing)) {
     stop("Guide Product enrichment references unavailable Product(s): ", paste(missing, collapse = ", "), call. = FALSE)
+  }
+  if (!inherits(resource_registry, "pt_guide_resource_registry")) {
+    stop("Guide Product enrichment requires the validated canonical Resource registry.",
+         call. = FALSE)
+  }
+  resource_ids <- vapply(resource_registry, `[[`, character(1), "id")
+  published_resource_ids <- vapply(
+    pt_guide_resource_published_records(resource_registry), `[[`, character(1), "id"
+  )
+  for (product_id in names(enrichment)) {
+    relationships <- enrichment[[product_id]]$resource_relationships
+    relationship_ids <- if (length(relationships)) {
+      vapply(relationships, function(relationship) {
+        pt_guide_or(relationship$id)
+      }, character(1))
+    } else {
+      character(0)
+    }
+    if (any(!relationship_ids %in% resource_ids)) {
+      stop("Guide Product enrichment references unavailable Resource(s): ",
+           paste(setdiff(relationship_ids, resource_ids), collapse = ", "), call. = FALSE)
+    }
   }
   lapply(products, function(product) {
     record <- enrichment[[product$id]]
@@ -1099,7 +1295,9 @@ pt_guide_apply_product_enrichment <- function(products, enrichment) {
     ))
     product$sections <- pt_guide_enrichment_sections(record)
     product$relatedArticleIds <- unname(unique(as.character(unlist(record$method_ids, use.names = FALSE))))
-    relationships <- record$resource_relationships
+    relationships <- Filter(function(relationship) {
+      pt_guide_or(relationship$id) %in% published_resource_ids
+    }, record$resource_relationships)
     if (length(relationships)) {
       product$relatedResources <- lapply(relationships, function(relationship) list(
         id = pt_guide_or(relationship$id),
@@ -1116,9 +1314,12 @@ pt_guide_apply_product_enrichment <- function(products, enrichment) {
   })
 }
 
-pt_guide_authored_content <- function() {
+pt_guide_authored_content <- function(resources = NULL) {
   if (!exists("pt_polygon_generalization_read_registry", mode = "function")) {
     stop("Polygon generalization authority must be loaded before compiling curated Guide content.", call. = FALSE)
+  }
+  if (is.null(resources)) {
+    resources <- pt_guide_resource_browser_records()
   }
 
   generalization <- pt_polygon_generalization_read_registry()
@@ -1278,8 +1479,6 @@ pt_guide_authored_content <- function() {
       aliases = c("technical architecture", "standalone Leaflet", "build pipeline")
     )
   )
-
-  resources <- pt_guide_resource_browser_records()
 
   updates <- list(
     list(kind = "Update", id = "update_read_only_layer_explorer", title = "Read-only Layer Explorer added",
@@ -1525,6 +1724,9 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
   profiles <- pt_guide_supported_profiles()
   if (!profile_id %in% names(profiles)) stop("Unsupported current BRIM Guide profile: ", profile_id, call. = FALSE)
   if (!exists("pt_brim_application_identity", mode = "function")) stop("BRIM application identity seam is not loaded.", call. = FALSE)
+  resource_registry <- pt_guide_read_resource_registry()
+  published_resources <- pt_guide_resource_published_records(resource_registry)
+  browser_resources <- pt_guide_resource_browser_records(published_resources)
   markers <- pt_guide_descriptive_markers()
   products <- c(
     pt_guide_local_products(overlay_groups, markers),
@@ -1534,8 +1736,16 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
     pt_guide_tool_products(map_display)
   )
   enrichment <- pt_guide_read_product_enrichment()
-  products <- pt_guide_apply_product_enrichment(products, enrichment)
-  content <- pt_guide_authored_content()
+  product_universe_ids <- setdiff(
+    vapply(products, `[[`, character(1), "id"),
+    profiles[[profile_id]]$excluded_ids
+  )
+  products <- pt_guide_apply_product_enrichment(
+    products, enrichment,
+    resource_registry = resource_registry,
+    product_universe_ids = product_universe_ids
+  )
+  content <- pt_guide_authored_content(browser_resources)
   bundle <- c(
     list(
       schemaVersion = 4L,

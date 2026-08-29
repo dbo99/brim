@@ -1,9 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "resources": [
     {
       "id": "resource_doi",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 1,
       "title": "U.S. Department of the Interior",
       "providers": [
@@ -16,17 +18,30 @@
       "canonical_url": "https://www.doi.gov/",
       "access_points": [
         {
-          "url": "https://www.doi.gov/",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "U.S. Department of the Interior",
+          "url": "https://www.doi.gov/"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_blm_california",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 2,
       "title": "BLM California",
       "providers": [
@@ -39,17 +54,30 @@
       "canonical_url": "https://www.blm.gov/california",
       "access_points": [
         {
-          "url": "https://www.blm.gov/california",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "BLM California",
+          "url": "https://www.blm.gov/california"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_prism_normals",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 3,
       "title": "PRISM 1991–2020 Climate Normals",
       "providers": [
@@ -62,17 +90,30 @@
       "canonical_url": "https://prism.oregonstate.edu/normals/",
       "access_points": [
         {
-          "url": "https://prism.oregonstate.edu/normals/",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "PRISM 1991–2020 Climate Normals",
+          "url": "https://prism.oregonstate.edu/normals/"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_bcmv8",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 4,
       "title": "USGS Basin Characterization Model (BCMv8)",
       "providers": [
@@ -85,17 +126,30 @@
       "canonical_url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
       "access_points": [
         {
-          "url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "USGS Basin Characterization Model (BCMv8)",
+          "url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_bulletin118_sgma_2019",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 5,
       "title": "DWR Bulletin 118 SGMA 2019 Basin Prioritization",
       "providers": [
@@ -108,17 +162,30 @@
       "canonical_url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer",
       "access_points": [
         {
-          "url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "DWR Bulletin 118 SGMA 2019 Basin Prioritization",
+          "url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_calfire_fire_perimeters",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 6,
       "title": "CAL FIRE FRAP Fire Perimeters",
       "providers": [
@@ -131,17 +198,30 @@
       "canonical_url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters",
       "access_points": [
         {
-          "url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "CAL FIRE FRAP Fire Perimeters",
+          "url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_nifc_wfigs_current",
       "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
       "order": 7,
       "title": "NIFC WFIGS Current Interagency Fire Perimeters",
       "providers": [
@@ -154,17 +234,32 @@
       "canonical_url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about",
       "access_points": [
         {
-          "url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "NIFC WFIGS Current Interagency Fire Perimeters",
+          "url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_water_dashboard",
       "aliases": [],
+      "migration_aliases": [
+        "res.usgs.usgs-national-water-dashboard.dashboard"
+      ],
+      "search_aliases": [],
       "order": 8,
       "title": "USGS National Water Dashboard",
       "providers": [
@@ -177,17 +272,32 @@
       "canonical_url": "https://dashboard.waterdata.usgs.gov/",
       "access_points": [
         {
-          "url": "https://dashboard.waterdata.usgs.gov/",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "USGS National Water Dashboard",
+          "url": "https://dashboard.waterdata.usgs.gov/"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_nwps",
       "aliases": [],
+      "migration_aliases": [
+        "res.noaa.national-water-prediction-service.viewer"
+      ],
+      "search_aliases": [],
       "order": 9,
       "title": "NOAA National Water Prediction Service",
       "providers": [
@@ -200,13 +310,1733 @@
       "canonical_url": "https://water.noaa.gov/",
       "access_points": [
         {
-          "url": "https://water.noaa.gov/",
-          "role": "canonical"
+          "role": "canonical",
+          "label": "NOAA National Water Prediction Service",
+          "url": "https://water.noaa.gov/"
         }
       ],
       "resource_type": "unknown",
       "resource_granularity": "unknown",
-      "public_source_references": []
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "unknown",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_noaa_goes_image_viewer",
+      "aliases": [],
+      "migration_aliases": [
+        "res.noaa.noaa-goes-image-viewer.viewer"
+      ],
+      "search_aliases": [
+        "GOES Viewer",
+        "NOAA STAR GOES"
+      ],
+      "order": 10,
+      "title": "NOAA GOES Image Viewer",
+      "providers": [
+        {
+          "name": "NOAA / NESDIS STAR",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA National Environmental Satellite, Data, and Information Service / Center for Satellite Applications and Research",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Official NOAA viewer for current GOES imagery and animations by full disk, national domain, and regional sector.",
+      "canonical_url": "https://www.star.nesdis.noaa.gov/GOES/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NOAA GOES Image Viewer",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/"
+        },
+        {
+          "role": "configured_view",
+          "label": "GOES-West Pacific Northwest GeoColor",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=pnw"
+        },
+        {
+          "role": "configured_view",
+          "label": "GOES-West Pacific Southwest Fire Temperature",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=FireTemperature&dim=1&length=12&sat=G18&sector=psw"
+        },
+        {
+          "role": "configured_view",
+          "label": "GOES-West Pacific Southwest GeoColor",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=psw"
+        },
+        {
+          "role": "configured_view",
+          "label": "GOES-West U.S. Pacific Coast GeoColor",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=wus"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "variables": [
+        "satellite imagery",
+        "clouds",
+        "water vapor",
+        "fire temperature"
+      ],
+      "use_scopes": [
+        "weather situational awareness",
+        "flood preparedness",
+        "snow and storm monitoring",
+        "remote sensing"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "United States",
+          "Western Hemisphere"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_cira_slider",
+      "aliases": [],
+      "migration_aliases": [
+        "res.cira.rammb-cira-slider.viewer"
+      ],
+      "search_aliases": [
+        "SLIDER",
+        "Satellite Loop Interactive Data Explorer in Real-time"
+      ],
+      "order": 11,
+      "title": "RAMMB/CIRA SLIDER",
+      "providers": [
+        {
+          "name": "CIRA / NOAA RAMMB",
+          "role": "display_provider"
+        },
+        {
+          "name": "Cooperative Institute for Research in the Atmosphere",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA Regional and Mesoscale Meteorology Branch",
+          "role": "partner"
+        }
+      ],
+      "summary": "Interactive real-time explorer for GOES and other satellite imagery with animation and layer controls.",
+      "canonical_url": "https://rammb-slider.cira.colostate.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open SLIDER",
+          "url": "https://rammb-slider.cira.colostate.edu/"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "variables": [
+        "GOES imagery",
+        "JPSS imagery",
+        "satellite products"
+      ],
+      "use_scopes": [
+        "weather situational awareness",
+        "storm monitoring",
+        "remote-sensing comparison"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://rammb-slider.cira.colostate.edu/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_worldview",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-worldview.viewer"
+      ],
+      "search_aliases": [
+        "Worldview Snapshots"
+      ],
+      "order": 12,
+      "title": "NASA Worldview",
+      "providers": [
+        {
+          "name": "NASA",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        }
+      ],
+      "summary": "NASA viewer for near-real-time and historical satellite imagery and Earth-observation layers.",
+      "canonical_url": "https://worldview.earthdata.nasa.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open NASA Worldview",
+          "url": "https://worldview.earthdata.nasa.gov/"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Groundwater",
+        "Surface Water",
+        "Water Quality",
+        "Snow & SWE",
+        "Soil Moisture",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "variables": [
+        "satellite imagery",
+        "soil moisture",
+        "terrestrial water storage",
+        "vegetation indices",
+        "surface water extent"
+      ],
+      "use_scopes": [
+        "remote sensing",
+        "geospatial analysis",
+        "water-resource screening",
+        "historical comparison"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://worldview.earthdata.nasa.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_climate_engine",
+      "aliases": [],
+      "migration_aliases": [
+        "res.agricultural-water-and-evapotranspiratio.climate-engine.platform"
+      ],
+      "search_aliases": [
+        "ClimateEngine"
+      ],
+      "order": 13,
+      "title": "Climate Engine",
+      "providers": [
+        {
+          "name": "Climate Engine",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Cloud-based analysis of climate and Earth-observation data for drought, agriculture, and water management.",
+      "canonical_url": "https://app.climateengine.org/climateEngine",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open Climate Engine",
+          "url": "https://app.climateengine.org/climateEngine"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Groundwater",
+        "Soil Moisture",
+        "Climate & Drought",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "precipitation",
+        "temperature",
+        "vegetation",
+        "evapotranspiration",
+        "NDVI",
+        "EVI",
+        "soil moisture",
+        "snow",
+        "climate anomalies"
+      ],
+      "use_scopes": [
+        "agricultural water management",
+        "drought",
+        "climate analysis",
+        "remote sensing",
+        "groundwater",
+        "vegetation condition"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "Western United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://app.climateengine.org/climateEngine"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_smap_mission",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-soil-moisture-active-passive-mission.mission"
+      ],
+      "search_aliases": [
+        "SMAP"
+      ],
+      "order": 14,
+      "title": "NASA Soil Moisture Active Passive Mission",
+      "providers": [
+        {
+          "name": "NASA / JPL",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NASA Jet Propulsion Laboratory",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Mission site for NASA's Soil Moisture Active Passive satellite and its surface-soil-moisture and freeze-thaw measurements.",
+      "canonical_url": "https://smap.jpl.nasa.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the SMAP mission site",
+          "url": "https://smap.jpl.nasa.gov/"
+        }
+      ],
+      "resource_type": "organization_page",
+      "resource_granularity": "mission",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [
+        "surface soil moisture",
+        "freeze-thaw state",
+        "brightness temperature"
+      ],
+      "use_scopes": [
+        "soil-moisture monitoring",
+        "drought and flood research",
+        "mission documentation"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://smap.jpl.nasa.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_smap_data",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-smap-data.collection"
+      ],
+      "search_aliases": [],
+      "order": 15,
+      "title": "NASA SMAP Data",
+      "providers": [
+        {
+          "name": "NASA / JPL",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NASA Jet Propulsion Laboratory",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "SMAP data portal with pointers to standard mission products and access systems.",
+      "canonical_url": "https://smap.jpl.nasa.gov/data/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open SMAP Data",
+          "url": "https://smap.jpl.nasa.gov/data/"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [
+        "surface soil moisture",
+        "root-zone soil moisture",
+        "freeze-thaw state"
+      ],
+      "use_scopes": [
+        "SMAP data discovery",
+        "soil-moisture research",
+        "data download"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://smap.jpl.nasa.gov/data/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_smap_l3_enhanced_soil_moisture",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.smap-enhanced-l3-radiometer-global-daily-9-km-soil-moisture.dataset"
+      ],
+      "search_aliases": [
+        "SPL3SMP_E"
+      ],
+      "order": 16,
+      "title": "SMAP Enhanced L3 Radiometer Global Daily 9 km Soil Moisture",
+      "providers": [
+        {
+          "name": "NASA / NSIDC DAAC",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "National Snow and Ice Data Center Distributed Active Archive Center",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Enhanced Level-3 daily global surface-soil-moisture dataset from the SMAP radiometer on a 9 km EASE-Grid.",
+      "canonical_url": "https://nsidc.org/data/spl3smp_e/versions/3",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open dataset metadata",
+          "url": "https://nsidc.org/data/spl3smp_e/versions/3"
+        }
+      ],
+      "resource_type": "dataset",
+      "resource_granularity": "dataset",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Historical Context",
+        "Live Observation"
+      ],
+      "variables": [
+        "surface soil moisture",
+        "brightness temperature",
+        "vegetation water content"
+      ],
+      "use_scopes": [
+        "daily surface soil moisture",
+        "satellite-data analysis",
+        "drought research"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://nsidc.org/data/spl3smp_e/versions/3"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_smops",
+      "aliases": [],
+      "migration_aliases": [
+        "res.noaa.noaa-soil-moisture-operational-product-system.program"
+      ],
+      "search_aliases": [
+        "SMOPS"
+      ],
+      "order": 17,
+      "title": "NOAA Soil Moisture Operational Product System",
+      "providers": [
+        {
+          "name": "NOAA / NESDIS STAR",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA National Environmental Satellite, Data, and Information Service / Center for Satellite Applications and Research",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "NOAA NESDIS portal for global near-real-time satellite soil-moisture products and blended SMOPS data.",
+      "canonical_url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/index.php",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open NOAA SMOPS",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/index.php"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "satellite soil moisture",
+        "blended soil moisture",
+        "surface soil moisture"
+      ],
+      "use_scopes": [
+        "near-real-time soil moisture",
+        "model-initialization context",
+        "drought monitoring"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/index.php"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_smops_maps",
+      "aliases": [],
+      "migration_aliases": [
+        "res.noaa.noaa-smops-soil-moisture-maps.viewer"
+      ],
+      "search_aliases": [],
+      "order": 18,
+      "title": "NOAA SMOPS Soil Moisture Maps",
+      "providers": [
+        {
+          "name": "NOAA / NESDIS STAR",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA National Environmental Satellite, Data, and Information Service / Center for Satellite Applications and Research",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Interactive maps for blended and sensor-specific SMOPS soil moisture at daily and six-hourly intervals.",
+      "canonical_url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/SMOPSMaps.php",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open SMOPS maps",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/SMOPSMaps.php"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "volumetric surface soil moisture",
+        "blended soil moisture",
+        "AMSR2 soil moisture",
+        "ASCAT soil moisture",
+        "SMAP soil moisture"
+      ],
+      "use_scopes": [
+        "near-real-time soil moisture",
+        "satellite-product comparison",
+        "drought monitoring"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/SMOPSMaps.php"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_cpc_soil_moisture",
+      "aliases": [],
+      "migration_aliases": [
+        "res.noaa.noaa-cpc-soil-moisture-monitoring.collection"
+      ],
+      "search_aliases": [
+        "CPC Soil Moisture"
+      ],
+      "order": 19,
+      "title": "NOAA CPC Soil Moisture Monitoring",
+      "providers": [
+        {
+          "name": "NOAA Climate Prediction Center",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA Climate Prediction Center",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "CPC collection of current, monthly, climatological, anomaly, percentile, and outlook soil-moisture graphics.",
+      "canonical_url": "https://www.cpc.ncep.noaa.gov/soilmst/w.shtml",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open CPC Soil Moisture Monitoring",
+          "url": "https://www.cpc.ncep.noaa.gov/soilmst/w.shtml"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Forecast / Outlook"
+      ],
+      "variables": [
+        "soil moisture content",
+        "soil moisture anomaly",
+        "soil moisture percentile",
+        "evaporation",
+        "runoff"
+      ],
+      "use_scopes": [
+        "soil-moisture monitoring",
+        "drought monitoring",
+        "climate diagnostics"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.cpc.ncep.noaa.gov/soilmst/w.shtml"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nidis_soil_moisture_dashboard",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nidis.drought-gov-soil-moisture-product-dashboard.dashboard"
+      ],
+      "search_aliases": [
+        "Soil Moisture Product Dashboard"
+      ],
+      "order": 20,
+      "title": "Drought.gov Soil Moisture Product Dashboard",
+      "providers": [
+        {
+          "name": "NIDIS / NOAA",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Integrated Drought Information System",
+          "role": "publisher"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        }
+      ],
+      "summary": "Side-by-side dashboard for comparing root-zone soil-moisture products with different depths, units, sources, and methods.",
+      "canonical_url": "https://www.drought.gov/indicators/soil-moisture-product-dashboard",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the soil-moisture dashboard",
+          "url": "https://www.drought.gov/indicators/soil-moisture-product-dashboard"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "dashboard",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "root-zone soil moisture percentile",
+        "soil moisture anomaly",
+        "soil moisture content"
+      ],
+      "use_scopes": [
+        "soil-moisture comparison",
+        "drought monitoring",
+        "convergence-of-evidence analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.drought.gov/indicators/soil-moisture-product-dashboard"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_ncsmmn_network_map",
+      "aliases": [],
+      "migration_aliases": [
+        "res.ncsmmn.national-coordinated-soil-moisture-monitoring-network-map.viewer"
+      ],
+      "search_aliases": [],
+      "order": 21,
+      "title": "National Coordinated Soil Moisture Monitoring Network Map",
+      "providers": [
+        {
+          "name": "NCSMMN / NIDIS",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Coordinated Soil Moisture Monitoring Network",
+          "role": "publisher"
+        },
+        {
+          "name": "National Integrated Drought Information System",
+          "role": "partner"
+        }
+      ],
+      "summary": "Interactive map for discovering the partnered national network-of-networks and its soil-moisture monitoring coverage.",
+      "canonical_url": "https://experience.arcgis.com/experience/c589a0c00ad14d778e2c3f6fd9a0ebba",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the NCSMMN map",
+          "url": "https://experience.arcgis.com/experience/c589a0c00ad14d778e2c3f6fd9a0ebba"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [
+        "soil-moisture stations",
+        "network coverage",
+        "station metadata"
+      ],
+      "use_scopes": [
+        "monitoring-network discovery",
+        "station-coverage assessment",
+        "soil-moisture data discovery"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://experience.arcgis.com/experience/c589a0c00ad14d778e2c3f6fd9a0ebba"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_ncsmmn_soil_moisture_portal",
+      "aliases": [],
+      "migration_aliases": [
+        "res.ncsmmn.u-s-soil-moisture-networks-portal.viewer"
+      ],
+      "search_aliases": [
+        "NationalSoilMoisture.com",
+        "U.S. National Soil Moisture Network"
+      ],
+      "order": 22,
+      "title": "U.S. Soil Moisture Networks Portal",
+      "providers": [
+        {
+          "name": "NCSMMN / NIDIS",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Coordinated Soil Moisture Monitoring Network",
+          "role": "publisher"
+        },
+        {
+          "name": "National Integrated Drought Information System",
+          "role": "partner"
+        }
+      ],
+      "summary": "Portal for exploring U.S. in-situ soil-moisture networks and mapped conditions at multiple depths.",
+      "canonical_url": "https://www.drought.gov/data-maps-tools/us-soil-moisture-networks-portal",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the U.S. Soil Moisture Networks Portal",
+          "url": "https://www.drought.gov/data-maps-tools/us-soil-moisture-networks-portal"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "variables": [
+        "soil water content",
+        "soil-moisture percentile",
+        "station observations"
+      ],
+      "use_scopes": [
+        "in-situ network discovery",
+        "soil-moisture monitoring",
+        "drought monitoring"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.drought.gov/data-maps-tools/us-soil-moisture-networks-portal"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nrcs_scan",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nrcs.soil-climate-analysis-network.platform"
+      ],
+      "search_aliases": [
+        "NRCS SCAN",
+        "SCAN"
+      ],
+      "order": 23,
+      "title": "Soil Climate Analysis Network",
+      "providers": [
+        {
+          "name": "USDA NRCS",
+          "role": "display_provider"
+        },
+        {
+          "name": "USDA Natural Resources Conservation Service",
+          "role": "publisher"
+        },
+        {
+          "name": "National Water and Climate Center",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Official SCAN network information for soil moisture, soil temperature, weather, and climate monitoring.",
+      "canonical_url": "https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the SCAN network page",
+          "url": "https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
+      "variables": [
+        "soil moisture",
+        "soil temperature",
+        "weather",
+        "soil moisture by depth",
+        "soil temperature by depth"
+      ],
+      "use_scopes": [
+        "hydrologic conditions",
+        "agricultural water management",
+        "in-situ monitoring",
+        "soil-moisture context"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California",
+          "Nevada"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_grace_tellus",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-grace-tellus.mission"
+      ],
+      "search_aliases": [
+        "GRACE Tellus",
+        "GRACE-FO"
+      ],
+      "order": 24,
+      "title": "NASA GRACE Tellus",
+      "providers": [
+        {
+          "name": "NASA / JPL",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NASA Jet Propulsion Laboratory",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "NASA portal for GRACE, GRACE Follow-On, and related gravity and terrestrial-water-storage datasets and tools.",
+      "canonical_url": "https://grace.jpl.nasa.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open NASA GRACE Tellus",
+          "url": "https://grace.jpl.nasa.gov/"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "mission",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Historical Context"
+      ],
+      "variables": [
+        "gravity anomalies",
+        "terrestrial water storage",
+        "land water storage"
+      ],
+      "use_scopes": [
+        "terrestrial-water-storage context",
+        "groundwater context",
+        "basin-scale water-storage analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://grace.jpl.nasa.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_grace_data",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-grace-data-portal.collection"
+      ],
+      "search_aliases": [],
+      "order": 25,
+      "title": "NASA GRACE Data Portal",
+      "providers": [
+        {
+          "name": "NASA / JPL",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NASA Jet Propulsion Laboratory",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Data portal for monthly GRACE and GRACE-FO mass grids, basin retrieval, trends, and supporting products.",
+      "canonical_url": "https://grace.jpl.nasa.gov/data/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the GRACE data portal",
+          "url": "https://grace.jpl.nasa.gov/data/"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Historical Context"
+      ],
+      "variables": [
+        "monthly mass grids",
+        "land water storage",
+        "ocean-bottom pressure"
+      ],
+      "use_scopes": [
+        "GRACE data discovery",
+        "basin-scale water storage",
+        "long-term trend analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://grace.jpl.nasa.gov/data/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_grace_analysis_tool",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-grace-data-analysis-tool.viewer"
+      ],
+      "search_aliases": [
+        "GRACE DAT"
+      ],
+      "order": 26,
+      "title": "NASA GRACE Data Analysis Tool",
+      "providers": [
+        {
+          "name": "NASA / JPL",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NASA Jet Propulsion Laboratory",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Interactive tool for comparing, visualizing, and analyzing GRACE and GRACE-FO datasets, basin averages, and time series.",
+      "canonical_url": "https://grace.jpl.nasa.gov/data/data-analysis-tool/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the GRACE Data Analysis Tool",
+          "url": "https://grace.jpl.nasa.gov/data/data-analysis-tool/"
+        }
+      ],
+      "resource_type": "web_application",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "terrestrial-water-storage anomaly",
+        "gravity-derived mass change",
+        "basin time series"
+      ],
+      "use_scopes": [
+        "quick-look GRACE analysis",
+        "basin averaging",
+        "time-series comparison"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://grace.jpl.nasa.gov/data/data-analysis-tool/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_grace_groundwater_soil_moisture",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nasa.nasa-grace-groundwater-and-soil-moisture-conditions.product"
+      ],
+      "search_aliases": [
+        "NASA GRACE Drought Indicators"
+      ],
+      "order": 27,
+      "title": "NASA GRACE Groundwater and Soil Moisture Conditions",
+      "providers": [
+        {
+          "name": "NASA / University of Nebraska–Lincoln",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "University of Nebraska–Lincoln",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "GRACE/GRACE-FO data-assimilation indicators for groundwater, root-zone and surface soil moisture, wetness percentiles, and forecasts.",
+      "canonical_url": "https://nasagrace.unl.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open current GRACE conditions",
+          "url": "https://nasagrace.unl.edu/"
+        },
+        {
+          "role": "archive",
+          "label": "Open historical map archive",
+          "url": "https://nasagrace.unl.edu/Archive.aspx"
+        },
+        {
+          "role": "comparison_viewer",
+          "label": "Open map comparison slider",
+          "url": "https://nasagrace.unl.edu/Slider.aspx"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Groundwater",
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Forecast / Outlook",
+        "Screening / Derived",
+        "Historical Context"
+      ],
+      "variables": [
+        "groundwater percentile",
+        "root-zone soil-moisture percentile",
+        "surface soil-moisture percentile",
+        "one-to-three-month forecasts"
+      ],
+      "use_scopes": [
+        "groundwater drought",
+        "soil-moisture drought",
+        "water-storage outlook",
+        "historical comparison"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global",
+          "Conterminous United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://nasagrace.unl.edu/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://nasagrace.unl.edu/About.aspx"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nidis_grace_groundwater_soil_moisture",
+      "aliases": [],
+      "migration_aliases": [
+        "res.nidis.drought-gov-grace-groundwater-and-soil-moisture-tool.product"
+      ],
+      "search_aliases": [],
+      "order": 28,
+      "title": "Drought.gov GRACE Groundwater and Soil Moisture Tool",
+      "providers": [
+        {
+          "name": "NIDIS / NOAA",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Integrated Drought Information System",
+          "role": "publisher"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "data_owner"
+        }
+      ],
+      "summary": "Drought.gov presentation of NASA GRACE data-assimilation indicators for groundwater and soil-moisture conditions.",
+      "canonical_url": "https://www.drought.gov/data-maps-tools/groundwater-and-soil-moisture-conditions-grace-data-assimilation",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open the Drought.gov GRACE tool",
+          "url": "https://www.drought.gov/data-maps-tools/groundwater-and-soil-moisture-conditions-grace-data-assimilation"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Groundwater",
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "groundwater wetness percentile",
+        "root-zone soil-moisture percentile",
+        "surface soil-moisture percentile"
+      ],
+      "use_scopes": [
+        "groundwater drought",
+        "soil-moisture drought",
+        "drought monitoring"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.drought.gov/data-maps-tools/groundwater-and-soil-moisture-conditions-grace-data-assimilation"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_vegetation_health",
+      "aliases": [],
+      "migration_aliases": [
+        "res.noaa.noaa-star-vegetation-health-products.collection"
+      ],
+      "search_aliases": [
+        "NOAA Vegetation Health",
+        "VHI"
+      ],
+      "order": 29,
+      "title": "NOAA STAR Vegetation Health Products",
+      "providers": [
+        {
+          "name": "NOAA / NESDIS STAR",
+          "role": "display_provider"
+        },
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "publisher"
+        },
+        {
+          "name": "NOAA National Environmental Satellite, Data, and Information Service / Center for Satellite Applications and Research",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "NOAA satellite-derived vegetation-health products for monitoring vegetation stress and drought.",
+      "canonical_url": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/index.php",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open NOAA Vegetation Health Products",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/index.php"
+        }
+      ],
+      "resource_type": "data_portal",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Ecology & Habitat",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived",
+        "Historical Context"
+      ],
+      "variables": [
+        "vegetation-condition index",
+        "temperature-condition index",
+        "vegetation-health index"
+      ],
+      "use_scopes": [
+        "vegetation condition",
+        "drought monitoring",
+        "agricultural screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/index.php"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usda_crop_casma",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usda-nass.usda-crop-casma.viewer"
+      ],
+      "search_aliases": [
+        "Crop Condition and Soil Moisture Analytics"
+      ],
+      "order": 30,
+      "title": "USDA Crop-CASMA",
+      "providers": [
+        {
+          "name": "USDA NASS / George Mason University",
+          "role": "display_provider"
+        },
+        {
+          "name": "U.S. Department of Agriculture National Agricultural Statistics Service",
+          "role": "publisher"
+        },
+        {
+          "name": "George Mason University Center for Spatial Information Science and Systems",
+          "role": "maintainer"
+        },
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "partner"
+        }
+      ],
+      "summary": "Interactive application for high-resolution SMAP soil moisture and MODIS vegetation-condition data over U.S. cropland.",
+      "canonical_url": "https://cloud.csiss.gmu.edu/Crop-CASMA/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open Crop-CASMA",
+          "url": "https://cloud.csiss.gmu.edu/Crop-CASMA/"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Soil Moisture",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "SMAP soil moisture",
+        "soil-moisture anomaly",
+        "MODIS vegetation indices",
+        "crop condition"
+      ],
+      "use_scopes": [
+        "agricultural soil moisture",
+        "crop condition",
+        "drought and flood screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "Conterminous United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cloud.csiss.gmu.edu/Crop-CASMA/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usda_vegscape",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usda-nass.usda-vegscape-vegetation-condition-explorer.viewer"
+      ],
+      "search_aliases": [
+        "Vegetation Condition Explorer"
+      ],
+      "order": 31,
+      "title": "USDA VegScape Vegetation Condition Explorer",
+      "providers": [
+        {
+          "name": "USDA NASS / George Mason University",
+          "role": "display_provider"
+        },
+        {
+          "name": "U.S. Department of Agriculture National Agricultural Statistics Service",
+          "role": "publisher"
+        },
+        {
+          "name": "George Mason University Center for Spatial Information Science and Systems",
+          "role": "maintainer"
+        }
+      ],
+      "summary": "Interactive viewer for current and historical vegetation-index products and crop-condition comparison.",
+      "canonical_url": "https://nassgeodata.gmu.edu/VegScape/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open VegScape",
+          "url": "https://nassgeodata.gmu.edu/VegScape/"
+        }
+      ],
+      "resource_type": "interactive_map",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "NDVI",
+        "vegetation condition",
+        "crop masks"
+      ],
+      "use_scopes": [
+        "crop condition",
+        "vegetation condition",
+        "drought and flood impact screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "Conterminous United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://nassgeodata.gmu.edu/VegScape/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_quickdri",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usgs.quick-drought-response-index.product"
+      ],
+      "search_aliases": [
+        "QuickDRI"
+      ],
+      "order": 32,
+      "title": "Quick Drought Response Index",
+      "providers": [
+        {
+          "name": "USGS / National Drought Mitigation Center",
+          "role": "display_provider"
+        },
+        {
+          "name": "U.S. Geological Survey",
+          "role": "publisher"
+        },
+        {
+          "name": "National Drought Mitigation Center",
+          "role": "partner"
+        }
+      ],
+      "summary": "Short-term vegetation drought indicator designed to show rapidly developing environmental stress over about one month.",
+      "canonical_url": "https://quickdri.unl.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open QuickDRI",
+          "url": "https://quickdri.unl.edu/"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Ecology & Habitat",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "quick drought response index",
+        "rapid vegetation stress"
+      ],
+      "use_scopes": [
+        "flash-drought monitoring",
+        "vegetation condition",
+        "rapid-drying screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "Conterminous United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://quickdri.unl.edu/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_vegdri",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usgs.vegetation-drought-response-index.product"
+      ],
+      "search_aliases": [
+        "VegDRI"
+      ],
+      "order": 33,
+      "title": "Vegetation Drought Response Index",
+      "providers": [
+        {
+          "name": "USGS / National Drought Mitigation Center",
+          "role": "display_provider"
+        },
+        {
+          "name": "U.S. Geological Survey",
+          "role": "publisher"
+        },
+        {
+          "name": "National Drought Mitigation Center",
+          "role": "partner"
+        },
+        {
+          "name": "High Plains Regional Climate Center",
+          "role": "partner"
+        }
+      ],
+      "summary": "Weekly depiction of vegetation stress integrating satellite, climate, and biophysical information.",
+      "canonical_url": "https://vegdri.unl.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open VegDRI",
+          "url": "https://vegdri.unl.edu/"
+        }
+      ],
+      "resource_type": "dashboard",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Ecology & Habitat",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
+      "variables": [
+        "vegetation drought response index",
+        "vegetation stress"
+      ],
+      "use_scopes": [
+        "vegetation condition",
+        "drought monitoring",
+        "rangeland and crop screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "Conterminous United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://vegdri.unl.edu/"
+        }
+      ],
+      "publication_state": "staged"
     }
   ]
 }
