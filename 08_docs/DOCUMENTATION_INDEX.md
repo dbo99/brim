@@ -57,9 +57,12 @@ Discovery and historical evidence only. Never automatically controlling.
   `/08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md` under **BRIM Guide foundation** (accepted V4 shell and typography roles, sole upper-left entry, complete 270-item post-basemap A–Z layer/tool browse, three visible zero-or-one-selection facet groups combined by AND with compact chips and contextual Clear all, explicit controlled multi-tag subject taxonomy without path/group fallback, generic Layer-path-or-purpose / Tool-action-summary / Collection-scope presentation, the SMA overlay correctly presented as an External Layer, `Model / Simulation` Information Type, semantic-field search plus separate exact-path lookup, 84 source-backed rich Product records including the 60-record Local/External/Ops Live Wave 1, and 11 typed Quick Access destinations including exact Fire/USGS collections and the current curated `Water conveyance | BRIM mapped` layer, timing boundaries, mailto contact, seven maintained Methods, three verified Updates, and current-build Legacy Notes retirement)
 - BRIM Guide source-backed Product enrichment registry:
   `/00_config/guide_product_enrichment.json` (stable-ID-keyed editorial content only; it cannot create Products or control map runtime behavior)
+- BRIM Guide canonical authored Resource metadata registry:
+  `/00_config/guide_resources.json` (exactly the nine pre-existing public Resources; descriptive content only, with Product relationships and profile/runtime authority retained elsewhere)
 - BRIM Guide build-time inventory/profile owner:
   `/03_functions/leaflet_guide_helpers.r`
 - BRIM Guide focused foundation test: `/qa/test_guide_foundation.R`
+- BRIM Guide Resource registry contract test: `/qa/test_guide_resource_registry.R`
 - Backup/recovery: `/08_docs/operations/BACKUP_AND_RECOVERY.md`
 - Live feeds: `/08_docs/integrations/LIVE_DATA_FEEDS.md`
 - UIC feature: `/08_docs/features/UIC_AQUIFER_EXEMPTIONS.md`

@@ -78,6 +78,38 @@ assert_identical(bundle$counts$resources, 9L,
                  "Current Guide must include the nine maintained Resources")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
+expected_resource_ids <- c(
+  "resource_doi",
+  "resource_blm_california",
+  "resource_prism_normals",
+  "resource_usgs_bcmv8",
+  "resource_dwr_bulletin118_sgma_2019",
+  "resource_calfire_fire_perimeters",
+  "resource_nifc_wfigs_current",
+  "resource_usgs_water_dashboard",
+  "resource_noaa_nwps"
+)
+assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
+                 "Current Resource ID set/order changed")
+assert_true(all(vapply(bundle$resources, function(resource) {
+  identical(
+    names(resource),
+    c("kind", "id", "title", "provider", "summary", "url", "relatedProductIds")
+  )
+}, logical(1))), "Registry-only metadata leaked into the browser Resource projection")
+assert_true(requireNamespace("digest", quietly = TRUE),
+            "digest is required for the captured Resource-payload regression contract")
+resource_projection_json <- jsonlite::toJSON(
+  bundle$resources,
+  auto_unbox = TRUE, null = "null", na = "null", pretty = TRUE, digits = NA
+)
+assert_identical(nchar(resource_projection_json, type = "bytes"), 3659L,
+                 "Browser Resource serialization byte count changed from the captured baseline")
+assert_identical(
+  digest::digest(resource_projection_json, algo = "sha256", serialize = FALSE),
+  "b5b1307349df5f65182695e06afbb739bf29ae0ce65f0cd6ca4552c7333ce827",
+  "Browser Resource serialization changed from the captured baseline"
+)
 assert_identical(sum(product_subsystems == "External Layers"), 176L,
                  "External visible Product projection changed")
 assert_identical(sum(product_subsystems == "Ops Live"), 47L,

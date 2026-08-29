@@ -26,6 +26,27 @@ For each layer, explicitly identify:
 
 BRIM local source geometry and raw fields outrank research-package geometry or prebuilt popup content unless a reviewed migration explicitly replaces the source.
 
+## Guide Resource metadata
+
+`00_config/guide_resources.json` is the canonical tracked source for authored
+BRIM Guide Resource metadata. It currently contains exactly the nine
+pre-existing public Resources. The registry preserves their stable IDs and
+browser order and stores only reviewed descriptive fields; it does not contain
+Product relationships or profile, layer, lifecycle, status, freshness, or
+runtime-control authority.
+
+Resource-to-Product relationships remain separately authoritative in the
+existing Guide compiler and Product enrichment paths. They are not inferred
+from Resource titles, provider text, summaries, or URLs. The compiler projects
+the one current `default` profile before embedding the Resource records in the
+standalone HTML, which performs no runtime Resource-data fetch.
+
+Raw bookmark exports, intake workbooks, candidate records, unresolved notes,
+and other Resource-inventory evidence remain External research/input material
+and are not tracked wholesale or embedded in the Guide. Importing a future
+inventory requires a separate reconciliation and approval; it cannot be
+treated as an automatic registry or relationship expansion.
+
 ## Identity and joins
 
 - Use durable semantic identifiers when available.
