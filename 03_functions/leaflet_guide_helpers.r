@@ -726,34 +726,6 @@ pt_guide_generalization_table <- function(registry) {
   )
 }
 
-pt_guide_external_catalog_row <- function(
-    external_layer_id,
-    catalog_path = file.path("00_config", "external_service_catalog.csv")) {
-  x <- utils::read.csv(
-    catalog_path,
-    stringsAsFactors = FALSE,
-    check.names = FALSE,
-    na.strings = character()
-  )
-  row <- x[x$external_layer_id == external_layer_id, , drop = FALSE]
-  if (nrow(row) != 1L) {
-    stop("Expected one External catalog row for Guide Resource ", external_layer_id, ".", call. = FALSE)
-  }
-  row
-}
-
-pt_guide_external_source_resource <- function(row, id, title) {
-  list(
-    kind = "Resource",
-    id = id,
-    title = title,
-    provider = pt_guide_first(row$agency, row$program),
-    summary = pt_guide_first(row$notes, row$pt2_usage_note),
-    url = pt_guide_first(row$source_page, row$service_url),
-    relatedProductIds = as.character(row$external_layer_id)
-  )
-}
-
 pt_guide_article <- function(id, title, summary, sections, related_product_ids = character(0), aliases = character(0), external_links = list()) {
   list(
     kind = "Article",
@@ -766,6 +738,274 @@ pt_guide_article <- function(id, title, summary, sections, related_product_ids =
     aliases = unname(unique(as.character(aliases))),
     externalLinks = unname(external_links)
   )
+}
+
+pt_guide_resource_registry_assert_fields <- function(
+    record, required, allowed = required, label = "Guide Resource registry record") {
+  if (!is.list(record) || is.null(names(record)) || anyDuplicated(names(record))) {
+    stop(label, " must be an object with unique field names.", call. = FALSE)
+  }
+  prohibited <- grep(
+    "(^raw_|bookmark|candidate|provenance|source_record|machine_path|local_path|relationship|related.*product|profile|lifecycle|freshness|status)",
+    names(record), ignore.case = TRUE, perl = TRUE, value = TRUE
+  )
+  if (length(prohibited)) {
+    stop(label, " contains prohibited authority/provenance field(s): ",
+         paste(prohibited, collapse = ", "), call. = FALSE)
+  }
+  missing <- setdiff(required, names(record))
+  unknown <- setdiff(names(record), allowed)
+  if (length(missing)) {
+    stop(label, " is missing required field(s): ", paste(missing, collapse = ", "), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(label, " contains unsupported field(s): ", paste(unknown, collapse = ", "), call. = FALSE)
+  }
+  invisible(record)
+}
+
+pt_guide_resource_registry_scalar <- function(value, label, allow_empty = FALSE) {
+  if (!is.character(value) || length(value) != 1L || is.na(value) ||
+      (!allow_empty && !nzchar(value)) || !identical(value, trimws(value))) {
+    stop(label, " must be one ", if (allow_empty) "trimmed" else "nonblank trimmed",
+         " string.", call. = FALSE)
+  }
+  value
+}
+
+pt_guide_resource_registry_string_array <- function(value, label) {
+  if (!is.list(value) || (!is.null(names(value)) && any(nzchar(names(value))))) {
+    stop(label, " must be an array of strings.", call. = FALSE)
+  }
+  if (!length(value)) return(character(0))
+  unname(vapply(value, pt_guide_resource_registry_scalar, character(1), label = label))
+}
+
+pt_guide_validate_public_https_url <- function(url, label) {
+  url <- pt_guide_resource_registry_scalar(url, label)
+  if (!grepl("^https://[^/?#]+(?:[/?#]|$)", url, perl = TRUE)) {
+    stop(label, " must use a public https:// URL.", call. = FALSE)
+  }
+  authority <- sub("^https://", "", url)
+  authority <- sub("[/?#].*$", "", authority)
+  if (grepl("@|%40|%3a", authority, ignore.case = TRUE, perl = TRUE)) {
+    stop(label, " must not contain URL credentials.", call. = FALSE)
+  }
+  host <- tolower(sub(":(?:[0-9]+)$", "", authority, perl = TRUE))
+  host <- sub("\\.$", "", host)
+  private_host <- grepl(
+    paste0(
+      "^(localhost|0(?:\\.|$)|127(?:\\.|$)|10(?:\\.|$)|192\\.168(?:\\.|$)|",
+      "172\\.(?:1[6-9]|2[0-9]|3[01])(?:\\.|$)|169\\.254(?:\\.|$)|",
+      "100\\.(?:6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])(?:\\.|$)|",
+      "\\[(?:::1|f[cd][0-9a-f:]*|fe[89ab][0-9a-f:]*)\\]$)"
+    ),
+    host, ignore.case = TRUE, perl = TRUE
+  ) || grepl("(?:^|[.-])(?:internal|private|restricted)(?:[.-]|$)|\\.(?:local|lan|home|test|invalid)$",
+             host, ignore.case = TRUE, perl = TRUE) ||
+    (!grepl("\\.", host) && !grepl("^\\[[0-9a-f:]+\\]$", host, ignore.case = TRUE, perl = TRUE))
+  if (private_host) stop(label, " must not use a local, private, or restricted host.", call. = FALSE)
+  query <- if (grepl("?", url, fixed = TRUE)) sub("^[^?]*\\?", "", url) else ""
+  if (nzchar(query) && grepl(
+    "(?:^|&)(?:x-amz-[^=]*|x-goog-[^=]*|awsaccesskeyid|googleaccessid|signature|sig|token|access_token|api[_-]?key|credential|authorization|auth|expires?|policy|key-pair-id|se|sp|sv)=",
+    query, ignore.case = TRUE, perl = TRUE
+  )) stop(label, " must not contain credentials, tokens, or signed-query material.", call. = FALSE)
+  url
+}
+
+pt_guide_read_resource_registry <- function(
+    path = file.path("00_config", "guide_resources.json")) {
+  if (!file.exists(path)) {
+    stop("Missing canonical Guide Resource registry: ", path, call. = FALSE)
+  }
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("jsonlite is required by the existing BRIM Guide compiler.", call. = FALSE)
+  }
+  source <- tryCatch(
+    jsonlite::fromJSON(path, simplifyVector = FALSE),
+    error = function(error) stop(
+      "Malformed canonical Guide Resource registry: ", conditionMessage(error), call. = FALSE
+    )
+  )
+  pt_guide_resource_registry_assert_fields(
+    source, c("schema_version", "resources"), label = "Guide Resource registry"
+  )
+  if (!identical(source$schema_version, 1L) || !is.list(source$resources) ||
+      !length(source$resources)) {
+    stop("Guide Resource registry must use schema_version 1 and a nonempty resources array.",
+         call. = FALSE)
+  }
+
+  required <- c(
+    "id", "aliases", "order", "title", "providers", "summary", "canonical_url",
+    "access_points", "resource_type", "resource_granularity", "public_source_references"
+  )
+  id_pattern <- "^resource_[a-z0-9]+(?:_[a-z0-9]+)*$"
+  provider_roles <- c("display_provider", "publisher", "program")
+  access_roles <- c("canonical")
+  reference_roles <- c("official_source", "documentation")
+  resource_types <- c("unknown")
+  resource_granularities <- c("unknown")
+  ids <- character(length(source$resources))
+  aliases <- vector("list", length(source$resources))
+  orders <- integer(length(source$resources))
+
+  for (index in seq_along(source$resources)) {
+    record <- source$resources[[index]]
+    label <- paste0("Guide Resource registry record ", index)
+    pt_guide_resource_registry_assert_fields(record, required, label = label)
+    ids[[index]] <- pt_guide_resource_registry_scalar(record$id, paste0(label, " id"))
+    if (!grepl(id_pattern, ids[[index]], perl = TRUE)) {
+      stop(label, " id must use the resource_* stable-ID syntax.", call. = FALSE)
+    }
+    aliases[[index]] <- pt_guide_resource_registry_string_array(
+      record$aliases, paste0(label, " aliases")
+    )
+    if (any(!grepl(id_pattern, aliases[[index]], perl = TRUE)) ||
+        anyDuplicated(aliases[[index]])) {
+      stop(label, " aliases must be unique resource_* stable IDs.", call. = FALSE)
+    }
+    if (!is.numeric(record$order) || length(record$order) != 1L ||
+        is.na(record$order) || !is.finite(record$order) || record$order != as.integer(record$order) ||
+        record$order < 1) {
+      stop(label, " order must be one positive integer.", call. = FALSE)
+    }
+    orders[[index]] <- as.integer(record$order)
+    pt_guide_resource_registry_scalar(record$title, paste0(label, " title"))
+    pt_guide_resource_registry_scalar(record$summary, paste0(label, " summary"))
+    canonical_url <- pt_guide_validate_public_https_url(
+      record$canonical_url, paste0(label, " canonical_url")
+    )
+    resource_type <- pt_guide_resource_registry_scalar(
+      record$resource_type, paste0(label, " resource_type")
+    )
+    granularity <- pt_guide_resource_registry_scalar(
+      record$resource_granularity, paste0(label, " resource_granularity")
+    )
+    if (!resource_type %in% resource_types || !granularity %in% resource_granularities) {
+      stop(label, " contains an uncontrolled Resource type or granularity.", call. = FALSE)
+    }
+
+    if (!is.list(record$providers) || !length(record$providers)) {
+      stop(label, " requires a providers array.", call. = FALSE)
+    }
+    provider_role_values <- vapply(seq_along(record$providers), function(provider_index) {
+      provider <- record$providers[[provider_index]]
+      provider_label <- paste0(label, " provider ", provider_index)
+      pt_guide_resource_registry_assert_fields(
+        provider, c("name", "role"), label = provider_label
+      )
+      pt_guide_resource_registry_scalar(provider$name, paste0(provider_label, " name"))
+      role <- pt_guide_resource_registry_scalar(provider$role, paste0(provider_label, " role"))
+      if (!role %in% provider_roles) stop(provider_label, " has an uncontrolled role.", call. = FALSE)
+      role
+    }, character(1))
+    if (sum(provider_role_values == "display_provider") != 1L ||
+        anyDuplicated(provider_role_values)) {
+      stop(label, " requires exactly one display_provider and unique provider roles.", call. = FALSE)
+    }
+
+    if (!is.list(record$access_points) || !length(record$access_points)) {
+      stop(label, " requires an access_points array.", call. = FALSE)
+    }
+    access <- lapply(seq_along(record$access_points), function(access_index) {
+      point <- record$access_points[[access_index]]
+      point_label <- paste0(label, " access point ", access_index)
+      pt_guide_resource_registry_assert_fields(point, c("url", "role"), label = point_label)
+      role <- pt_guide_resource_registry_scalar(point$role, paste0(point_label, " role"))
+      if (!role %in% access_roles) stop(point_label, " has an uncontrolled role.", call. = FALSE)
+      list(url = pt_guide_validate_public_https_url(point$url, paste0(point_label, " url")), role = role)
+    })
+    access_role_values <- vapply(access, `[[`, character(1), "role")
+    if (sum(access_role_values == "canonical") != 1L || anyDuplicated(access_role_values) ||
+        !identical(access[[match("canonical", access_role_values)]]$url, canonical_url)) {
+      stop(label, " requires one canonical access point matching canonical_url.", call. = FALSE)
+    }
+
+    if (!is.list(record$public_source_references)) {
+      stop(label, " public_source_references must be an array.", call. = FALSE)
+    }
+    if (length(record$public_source_references)) {
+      reference_roles_seen <- vapply(
+        seq_along(record$public_source_references),
+        function(reference_index) {
+          reference <- record$public_source_references[[reference_index]]
+          reference_label <- paste0(label, " public source reference ", reference_index)
+          pt_guide_resource_registry_assert_fields(
+            reference, c("url", "role"), label = reference_label
+          )
+          role <- pt_guide_resource_registry_scalar(
+            reference$role, paste0(reference_label, " role")
+          )
+          if (!role %in% reference_roles) {
+            stop(reference_label, " has an uncontrolled role.", call. = FALSE)
+          }
+          pt_guide_validate_public_https_url(reference$url, paste0(reference_label, " url"))
+          role
+        },
+        character(1)
+      )
+      if (anyDuplicated(reference_roles_seen)) {
+        stop(label, " public source reference roles must be unique.", call. = FALSE)
+      }
+    }
+  }
+
+  all_ids <- c(ids, unlist(aliases, use.names = FALSE))
+  if (anyDuplicated(ids) || anyDuplicated(all_ids)) {
+    stop("Guide Resource registry primary IDs and aliases must be globally unique.", call. = FALSE)
+  }
+  if (anyDuplicated(orders) || !identical(orders, seq_along(source$resources))) {
+    stop("Guide Resource registry order must be unique, complete, and match file order.", call. = FALSE)
+  }
+  values <- as.character(unlist(source, recursive = TRUE, use.names = FALSE))
+  if (any(grepl("(^|[[:space:]\"'=])/(Users|home|private|tmp|var|Volumes)/|(^|[[:space:]\"'=])[A-Za-z]:[\\\\/]",
+                values, ignore.case = TRUE, perl = TRUE))) {
+    stop("Guide Resource registry contains a machine-local filesystem path.", call. = FALSE)
+  }
+  if (any(grepl("BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|bearer[[:space:]]+[A-Za-z0-9._~-]+|password[[:space:]]*[:=]|secret[[:space:]]*[:=]",
+                values, ignore.case = TRUE, perl = TRUE))) {
+    stop("Guide Resource registry contains credentials or secret material.", call. = FALSE)
+  }
+  unname(source$resources)
+}
+
+pt_guide_resource_product_relationships <- function() {
+  list(
+    resource_doi = character(0),
+    resource_blm_california = c("huc8", "gw_bull118"),
+    resource_prism_normals = "huc8",
+    resource_usgs_bcmv8 = "huc8",
+    resource_dwr_bulletin118_sgma_2019 = "gw_bull118",
+    resource_calfire_fire_perimeters = c("EXT070", "EXT072"),
+    resource_nifc_wfigs_current = "EXT074",
+    resource_usgs_water_dashboard = "product-ops-usgs-groundwater",
+    resource_noaa_nwps = character(0)
+  )
+}
+
+pt_guide_resource_browser_records <- function(
+    registry = pt_guide_read_resource_registry(),
+    related_products = pt_guide_resource_product_relationships()) {
+  ids <- vapply(registry, `[[`, character(1), "id")
+  if (!identical(ids, names(related_products))) {
+    stop("Guide Resource registry IDs/order require explicit compiler relationship reconciliation.",
+         call. = FALSE)
+  }
+  lapply(registry, function(record) {
+    display_providers <- Filter(
+      function(provider) identical(provider$role, "display_provider"), record$providers
+    )
+    list(
+      kind = "Resource",
+      id = record$id,
+      title = record$title,
+      provider = display_providers[[1]]$name,
+      summary = record$summary,
+      url = record$canonical_url,
+      relatedProductIds = unname(related_products[[record$id]])
+    )
+  })
 }
 
 pt_guide_read_product_enrichment <- function(
@@ -880,14 +1120,8 @@ pt_guide_authored_content <- function() {
   if (!exists("pt_polygon_generalization_read_registry", mode = "function")) {
     stop("Polygon generalization authority must be loaded before compiling curated Guide content.", call. = FALSE)
   }
-  if (!exists("PT_BULLETIN118_SGMA_SOURCE_PAGE", inherits = TRUE)) {
-    stop("Bulletin 118 source authority must be loaded before compiling curated Guide content.", call. = FALSE)
-  }
 
   generalization <- pt_polygon_generalization_read_registry()
-  fire_recent <- pt_guide_external_catalog_row("EXT070")
-  fire_all <- pt_guide_external_catalog_row("EXT072")
-  fire_current <- pt_guide_external_catalog_row("EXT074")
 
   articles <- list(
     pt_guide_article(
@@ -1045,26 +1279,7 @@ pt_guide_authored_content <- function() {
     )
   )
 
-  resources <- list(
-    list(kind = "Resource", id = "resource_doi", title = "U.S. Department of the Interior",
-         provider = "U.S. Department of the Interior", summary = "Department-level information and programs.", url = "https://www.doi.gov/", relatedProductIds = character(0)),
-    list(kind = "Resource", id = "resource_blm_california", title = "BLM California",
-         provider = "Bureau of Land Management", summary = "Official BLM California programs, offices, and public information.", url = "https://www.blm.gov/california", relatedProductIds = c("huc8", "gw_bull118")),
-    list(kind = "Resource", id = "resource_prism_normals", title = "PRISM 1991–2020 Climate Normals",
-         provider = "PRISM Climate Group, Oregon State University", summary = "Official PRISM 30-year normals access and documentation for the 1991–2020 period.", url = "https://prism.oregonstate.edu/normals/", relatedProductIds = "huc8"),
-    list(kind = "Resource", id = "resource_usgs_bcmv8", title = "USGS Basin Characterization Model (BCMv8)",
-         provider = "U.S. Geological Survey", summary = "Official BCMv8 model and data-release context for hydrologic California.", url = "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39", relatedProductIds = "huc8"),
-    list(kind = "Resource", id = "resource_dwr_bulletin118_sgma_2019", title = "DWR Bulletin 118 SGMA 2019 Basin Prioritization",
-         provider = "California Department of Water Resources", summary = "Official final 2019 SGMA basin-prioritization service used for BRIM's exact code-based attribute join.", url = PT_BULLETIN118_SGMA_SOURCE_PAGE, relatedProductIds = "gw_bull118"),
-    within(pt_guide_external_source_resource(fire_recent, "resource_calfire_fire_perimeters", "CAL FIRE FRAP Fire Perimeters"), {
-      relatedProductIds <- c("EXT070", "EXT072")
-    }),
-    pt_guide_external_source_resource(fire_current, "resource_nifc_wfigs_current", "NIFC WFIGS Current Interagency Fire Perimeters"),
-    list(kind = "Resource", id = "resource_usgs_water_dashboard", title = "USGS National Water Dashboard",
-         provider = "U.S. Geological Survey", summary = "Official current water information and station context from USGS.", url = "https://dashboard.waterdata.usgs.gov/", relatedProductIds = "product-ops-usgs-groundwater"),
-    list(kind = "Resource", id = "resource_noaa_nwps", title = "NOAA National Water Prediction Service",
-         provider = "NOAA / National Weather Service", summary = "Official river observations, forecasts, and water-prediction context.", url = "https://water.noaa.gov/", relatedProductIds = character(0))
-  )
+  resources <- pt_guide_resource_browser_records()
 
   updates <- list(
     list(kind = "Update", id = "update_read_only_layer_explorer", title = "Read-only Layer Explorer added",

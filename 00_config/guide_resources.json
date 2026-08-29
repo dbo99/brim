@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "resources": [
+    {
+      "id": "resource_doi",
+      "aliases": [],
+      "order": 1,
+      "title": "U.S. Department of the Interior",
+      "providers": [
+        {
+          "name": "U.S. Department of the Interior",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Department-level information and programs.",
+      "canonical_url": "https://www.doi.gov/",
+      "access_points": [
+        {
+          "url": "https://www.doi.gov/",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_blm_california",
+      "aliases": [],
+      "order": 2,
+      "title": "BLM California",
+      "providers": [
+        {
+          "name": "Bureau of Land Management",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official BLM California programs, offices, and public information.",
+      "canonical_url": "https://www.blm.gov/california",
+      "access_points": [
+        {
+          "url": "https://www.blm.gov/california",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_prism_normals",
+      "aliases": [],
+      "order": 3,
+      "title": "PRISM 1991–2020 Climate Normals",
+      "providers": [
+        {
+          "name": "PRISM Climate Group, Oregon State University",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official PRISM 30-year normals access and documentation for the 1991–2020 period.",
+      "canonical_url": "https://prism.oregonstate.edu/normals/",
+      "access_points": [
+        {
+          "url": "https://prism.oregonstate.edu/normals/",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_usgs_bcmv8",
+      "aliases": [],
+      "order": 4,
+      "title": "USGS Basin Characterization Model (BCMv8)",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official BCMv8 model and data-release context for hydrologic California.",
+      "canonical_url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
+      "access_points": [
+        {
+          "url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_dwr_bulletin118_sgma_2019",
+      "aliases": [],
+      "order": 5,
+      "title": "DWR Bulletin 118 SGMA 2019 Basin Prioritization",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official final 2019 SGMA basin-prioritization service used for BRIM's exact code-based attribute join.",
+      "canonical_url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer",
+      "access_points": [
+        {
+          "url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_calfire_fire_perimeters",
+      "aliases": [],
+      "order": 6,
+      "title": "CAL FIRE FRAP Fire Perimeters",
+      "providers": [
+        {
+          "name": "CAL FIRE / FRAP",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Recent large California fire-perimeter/burn-scar context from CAL FIRE FRAP. Current-view snapshot; zoom in first. Public service can take 30+ seconds or return blank at broad extents. Use source dates and CAL FIRE cautions before statistics/reporting.",
+      "canonical_url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters",
+      "access_points": [
+        {
+          "url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_nifc_wfigs_current",
+      "aliases": [],
+      "order": 7,
+      "title": "NIFC WFIGS Current Interagency Fire Perimeters",
+      "providers": [
+        {
+          "name": "NIFC / WFIGS",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Current-view interagency wildfire/complex perimeter snapshot. Perimeters are operational and incomplete; refresh after panning/zooming and check source dates. BRIM filters to wildfire/complex records where the service supports SQL.",
+      "canonical_url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about",
+      "access_points": [
+        {
+          "url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_usgs_water_dashboard",
+      "aliases": [],
+      "order": 8,
+      "title": "USGS National Water Dashboard",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official current water information and station context from USGS.",
+      "canonical_url": "https://dashboard.waterdata.usgs.gov/",
+      "access_points": [
+        {
+          "url": "https://dashboard.waterdata.usgs.gov/",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    },
+    {
+      "id": "resource_noaa_nwps",
+      "aliases": [],
+      "order": 9,
+      "title": "NOAA National Water Prediction Service",
+      "providers": [
+        {
+          "name": "NOAA / National Weather Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official river observations, forecasts, and water-prediction context.",
+      "canonical_url": "https://water.noaa.gov/",
+      "access_points": [
+        {
+          "url": "https://water.noaa.gov/",
+          "role": "canonical"
+        }
+      ],
+      "resource_type": "unknown",
+      "resource_granularity": "unknown",
+      "public_source_references": []
+    }
+  ]
+}

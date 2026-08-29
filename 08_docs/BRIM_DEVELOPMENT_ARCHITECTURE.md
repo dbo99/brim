@@ -47,6 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
+- `00_config/guide_resources.json` for the canonical authored metadata of the nine current public Resource records;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4 shell, deterministic search, combined browse filters, detail/history/focus behavior, and the small `window.BRIM_GUIDE` host API;
@@ -64,7 +65,25 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
+`guide_resources.json` currently contains exactly the nine Resource records that
+preceded the registry. It is the tracked authority for their reviewed public
+metadata and explicit browser order, but not for their Product relationships.
+Those relationships remain in the existing compiler and Product enrichment
+authority and are never inferred from Resource text, providers, or URLs. The
+registry is descriptive Guide content only: it cannot create or control map
+layers, visibility, order, controllers, lifecycle, clear/reset behavior,
+legends, popups, status/freshness, or BRIM Live behavior. Registry-only fields
+are validated at build time and are not added to the compact browser Resource
+shape.
+
 The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Projection occurs before the Guide bundle is embedded and explicitly excludes all runtime-derived basemap records. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+
+The standalone HTML embeds the projected Resource records and makes no runtime
+Resource-data request. Raw bookmark exports, intake workbooks, candidate
+inventories, and unresolved reconciliation evidence remain External and are
+not tracked wholesale or shipped in the browser payload. Any future inventory
+import requires separate reconciliation and approval before it can change the
+registry, aliases, relationships, profiles, or visible Guide content.
 
 The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value: choosing another replaces the prior value, choosing the active value clears that group, and selections across groups combine with search by AND. Product taxonomy remains multi-valued. Removable chips appear directly beneath search with at most one chip per group, and a contextual inline `Clear all` resets query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
 
