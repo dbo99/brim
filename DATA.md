@@ -29,17 +29,23 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 ## Guide Resource metadata
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
-BRIM Guide Resource metadata. It currently contains exactly the nine
-pre-existing public Resources. The registry preserves their stable IDs and
-browser order and stores only reviewed descriptive fields; it does not contain
-Product relationships or profile, layer, lifecycle, status, freshness, or
-runtime-control authority.
+BRIM Guide Resource metadata. Its schema version 2 contains one ordered
+33-record dataset: the nine pre-existing Resources are `published`, and 24
+reviewed Wave 1 Resources are `staged`. The registry preserves immutable
+`resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
+aliases, and future human search aliases, and stores only reviewed descriptive
+fields. It does not contain Product relationships or profile, layer,
+lifecycle, status, freshness, or runtime-control authority.
 
 Resource-to-Product relationships remain separately authoritative in the
 existing Guide compiler and Product enrichment paths. They are not inferred
-from Resource titles, provider text, summaries, or URLs. The compiler projects
-the one current `default` profile before embedding the Resource records in the
-standalone HTML, which performs no runtime Resource-data fetch.
+from Resource titles, provider text, summaries, or URLs. Relationship Resource
+IDs validate against the complete registry and Product IDs validate against
+the current Product universe. The build-time publication projection then
+removes staged Resources and their relationships before browser adaptation,
+search text, counts, or bundle construction. The publication gate is not a
+Guide profile: `default` remains the only current profile, and the standalone
+HTML still performs no runtime Resource-data fetch.
 
 Raw bookmark exports, intake workbooks, candidate records, unresolved notes,
 and other Resource-inventory evidence remain External research/input material

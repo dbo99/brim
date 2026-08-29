@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical authored metadata of the nine current public Resource records;
+- `00_config/guide_resources.json` for the canonical schema-v2 authored metadata of 33 Resource records, with nine published and 24 staged behind a build-time publication gate;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4 shell, deterministic search, combined browse filters, detail/history/focus behavior, and the small `window.BRIM_GUIDE` host API;
@@ -65,16 +65,26 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` currently contains exactly the nine Resource records that
-preceded the registry. It is the tracked authority for their reviewed public
-metadata and explicit browser order, but not for their Product relationships.
-Those relationships remain in the existing compiler and Product enrichment
-authority and are never inferred from Resource text, providers, or URLs. The
-registry is descriptive Guide content only: it cannot create or control map
-layers, visibility, order, controllers, lifecycle, clear/reset behavior,
-legends, popups, status/freshness, or BRIM Live behavior. Registry-only fields
-are validated at build time and are not added to the compact browser Resource
-shape.
+`guide_resources.json` is one canonical schema-v2 dataset with 33 ordered
+Resource records. The nine pre-existing records are `published`; 24 reviewed
+Wave 1 records are `staged`. Final-ID aliases, build-time `res.*` migration
+aliases, future human search aliases, publication state, controlled taxonomy,
+variables, use scopes, geography, labeled access points, and public access
+class are distinct validated fields. The registry is the tracked authority for
+that reviewed descriptive metadata, but not for Product relationships. Those
+relationships remain in the existing compiler and Product enrichment
+authority and are never inferred from Resource text, providers, or URLs.
+
+The compiler validates relationship Resource IDs against all 33 registry
+records and Product IDs against the current Product universe, then projects
+only `published` Resources before browser adaptation and prunes staged
+relationships before Product projection. Staged IDs, aliases, text, access
+points, relationships, and counts therefore do not enter the current browser
+bundle. This publication gate is not a profile; the compact seven-field browser
+Resource shape and its nine-record order remain unchanged. The registry is
+descriptive Guide content only: it cannot create or control map layers,
+visibility, order, controllers, lifecycle, clear/reset behavior, legends,
+popups, status/freshness, or BRIM Live behavior.
 
 The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Projection occurs before the Guide bundle is embedded and explicitly excludes all runtime-derived basemap records. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
