@@ -8,7 +8,11 @@ function(el, x, data) {
   }
 
   var oldRoot = document.getElementById('brim-guide-root');
-  if (oldRoot) oldRoot.remove();
+  if (oldRoot && typeof oldRoot.__brimGuideTeardown === 'function') {
+    oldRoot.__brimGuideTeardown();
+  } else if (oldRoot) {
+    oldRoot.remove();
+  }
 
   function node(tag, className, text) {
     var result = document.createElement(tag);
@@ -31,9 +35,581 @@ function(el, x, data) {
     return result;
   }
 
+  function ptCreateResourceExplorerModel(inputResources) {
+    'use strict';
+
+    var sourceResources = Array.isArray(inputResources) ? inputResources.slice() : [];
+    var pageSize = 25;
+    var presetDefinitions = [
+      { id: 'brim_linked', label: 'BRIM-linked', flag: 'brimLinked' },
+      { id: 'beyond_brim', label: 'Beyond BRIM', flag: 'beyondBrim' },
+      { id: 'all_resources', label: 'All Resources', flag: '' }
+    ];
+    var relationshipSubtypeDefinitions = [
+      { id: 'displayed_in_brim', label: 'Available in BRIM', flag: 'displayedInBrim' },
+      { id: 'used_by_brim', label: 'Used by BRIM', flag: 'usedByBrim' },
+      {
+        id: 'related_external_resource',
+        label: 'Related resource',
+        flag: 'relatedExternalResource'
+      }
+    ];
+
+    function array(value) {
+      if (Array.isArray(value)) return value;
+      if (value === undefined || value === null || value === '') return [];
+      return [value];
+    }
+
+    function normalizeText(value) {
+      return String(value || '')
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+        .replace(/\s+/g, ' ');
+    }
+
+    function tokenWords(value) {
+      var normalized = normalizeText(value);
+      return normalized ? normalized.split(' ') : [];
+    }
+
+    function distanceAtMostOne(a, b) {
+      if (a === b) return true;
+      if (Math.abs(a.length - b.length) > 1) return false;
+      var left = 0;
+      var right = 0;
+      var edits = 0;
+      while (left < a.length && right < b.length) {
+        if (a[left] === b[right]) {
+          left += 1;
+          right += 1;
+        } else {
+          edits += 1;
+          if (edits > 1) return false;
+          if (a.length > b.length) left += 1;
+          else if (b.length > a.length) right += 1;
+          else {
+            left += 1;
+            right += 1;
+          }
+        }
+      }
+      if (left < a.length || right < b.length) edits += 1;
+      return edits <= 1;
+    }
+
+    function fieldScore(query, values, exact, prefix, contains) {
+      var result = 0;
+      array(values).forEach(function(value) {
+        var candidate = normalizeText(value);
+        if (!candidate) return;
+        if (candidate === query) result = Math.max(result, exact);
+        else if (candidate.indexOf(query) === 0) result = Math.max(result, prefix);
+        else if (candidate.indexOf(query) >= 0) result = Math.max(result, contains);
+      });
+      return result;
+    }
+
+    function providerNames(resource) {
+      return array(resource.providers).map(function(provider) { return provider.name; });
+    }
+
+    function geographyValues(resource) {
+      var scope = resource.geographicScope || {};
+      return [scope.scopeType].concat(array(scope.names)).filter(Boolean);
+    }
+
+    function relationshipTypes(resource) {
+      return array(resource.relatedProducts).map(function(product) {
+        return product.relationshipType;
+      }).filter(function(value, index, values) {
+        return relationshipSubtypeDefinitions.some(function(definition) {
+          return definition.id === value;
+        }) && values.indexOf(value) === index;
+      });
+    }
+
+    function hasProductContext(resource, productId) {
+      if (!productId) return true;
+      return array(resource.relatedProducts).some(function(product) {
+        return product.id === productId;
+      });
+    }
+
+    function scoreResource(resource, state) {
+      var query = normalizeText(state.query);
+      var tokens = tokenWords(query);
+      var searchable = normalizeText(resource.searchText);
+      var allTokensMatch = !tokens.length || tokens.every(function(token) {
+        return searchable.indexOf(token) >= 0;
+      });
+      var typoMatch = false;
+      if (!allTokensMatch && tokens.length === 1 && tokens[0].length >= 5) {
+        var candidates = tokenWords(
+          [resource.title].concat(array(resource.aliases)).join(' ')
+        );
+        typoMatch = candidates.some(function(candidate) {
+          return candidate.length >= 5 && distanceAtMostOne(tokens[0], candidate);
+        });
+      }
+      if (!allTokensMatch && !typoMatch) return null;
+
+      var score = typoMatch ? 70 : 0;
+      if (query && allTokensMatch) {
+        score = Math.max(score, fieldScore(query, [resource.title], 1200, 1000, 520));
+        score = Math.max(score, fieldScore(query, array(resource.aliases), 1100, 900, 500));
+        score = Math.max(score, fieldScore(query, [resource.provider], 850, 700, 420));
+        score = Math.max(score, fieldScore(
+          query,
+          providerNames(resource).filter(function(name) { return name !== resource.provider; }),
+          700, 560, 360
+        ));
+        score = Math.max(score, fieldScore(query, array(resource.subjectTags), 650, 620, 410));
+        score = Math.max(score, fieldScore(
+          query,
+          array(resource.variables).concat(array(resource.useScopes)),
+          600, 570, 390
+        ));
+        score = Math.max(score, fieldScore(query, array(resource.informationTypes), 560, 530, 370));
+        score = Math.max(score, fieldScore(query, geographyValues(resource), 520, 490, 340));
+        score = Math.max(score, fieldScore(
+          query,
+          [resource.resourceType, resource.resourceGranularity].concat(
+            array(resource.accessPoints).map(function(point) { return point.label; })
+          ),
+          460, 430, 300
+        ));
+        score = Math.max(score, fieldScore(query, [resource.summary], 250, 220, 150));
+        score += 340 + tokens.length;
+      }
+      if (state.productContextId && hasProductContext(resource, state.productContextId)) {
+        score += 2000;
+      }
+      return score;
+    }
+
+    function stateCopy(value) {
+      return {
+        query: String(value.query || ''),
+        preset: String(value.preset || 'all_resources'),
+        providers: array(value.providers).slice(),
+        providerQuery: String(value.providerQuery || ''),
+        subject: String(value.subject || ''),
+        informationType: String(value.informationType || ''),
+        resourceType: String(value.resourceType || ''),
+        relationshipTypes: array(value.relationshipTypes).slice(),
+        moreFiltersOpen: Boolean(value.moreFiltersOpen),
+        sortMode: String(value.sortMode || ''),
+        selectedId: String(value.selectedId || ''),
+        renderLimit: Number(value.renderLimit) || pageSize,
+        productContextId: String(value.productContextId || ''),
+        pane: String(value.pane || 'results'),
+        facetsOpen: Boolean(value.facetsOpen),
+        facetScrollTop: Math.max(0, Number(value.facetScrollTop) || 0),
+        resultsScrollTop: Math.max(0, Number(value.resultsScrollTop) || 0),
+        detailScrollTop: Math.max(0, Number(value.detailScrollTop) || 0),
+        focusKey: String(value.focusKey || 'resource-search')
+      };
+    }
+
+    function createState(options) {
+      var initial = stateCopy(options || {});
+      if (!presetDefinitions.some(function(preset) { return preset.id === initial.preset; })) {
+        initial.preset = 'all_resources';
+      }
+      initial.providers = initial.providers.filter(function(value, index, values) {
+        return value && values.indexOf(value) === index;
+      });
+      initial.relationshipTypes = initial.relationshipTypes.filter(function(value, index, values) {
+        return relationshipSubtypeDefinitions.some(function(definition) {
+          return definition.id === value;
+        }) && values.indexOf(value) === index;
+      });
+      initial.renderLimit = Math.max(pageSize, initial.renderLimit);
+      if (!initial.sortMode) {
+        initial.sortMode = initial.query || initial.productContextId ? 'relevance' : 'title';
+      }
+      return initial;
+    }
+
+    function presetMatch(resource, presetId) {
+      var preset = presetDefinitions.find(function(item) { return item.id === presetId; });
+      return !preset || !preset.flag || Boolean(
+        resource.relationshipFlags && resource.relationshipFlags[preset.flag]
+      );
+    }
+
+    function dimensionMatch(resource, state, ignored) {
+      if (ignored !== 'preset' && !presetMatch(resource, state.preset)) return false;
+      if (ignored !== 'productContext' &&
+          !hasProductContext(resource, state.productContextId)) return false;
+      if (ignored !== 'providers' && state.providers.length &&
+          state.providers.indexOf(resource.provider) < 0) return false;
+      if (ignored !== 'subject' && state.subject &&
+          array(resource.subjectTags).indexOf(state.subject) < 0) return false;
+      if (ignored !== 'informationType' && state.informationType &&
+          array(resource.informationTypes).indexOf(state.informationType) < 0) return false;
+      if (ignored !== 'resourceType' && state.resourceType &&
+          resource.resourceType !== state.resourceType) return false;
+      if (ignored !== 'relationshipTypes' && state.relationshipTypes.length &&
+          !relationshipTypes(resource).some(function(value) {
+            return state.relationshipTypes.indexOf(value) >= 0;
+          })) return false;
+      if (ignored !== 'query' && scoreResource(resource, state) === null) return false;
+      return true;
+    }
+
+    function compareTitle(a, b) {
+      var titleA = normalizeText(a.resource.title);
+      var titleB = normalizeText(b.resource.title);
+      if (titleA < titleB) return -1;
+      if (titleA > titleB) return 1;
+      return String(a.resource.id).localeCompare(String(b.resource.id));
+    }
+
+    function resultItems(stateInput, ignored) {
+      var state = createState(stateInput);
+      var items = sourceResources.map(function(resource) {
+        return { resource: resource, score: scoreResource(resource, state) };
+      }).filter(function(item) {
+        return item.score !== null && dimensionMatch(item.resource, state, ignored || '');
+      });
+      if (state.sortMode === 'provider') {
+        items.sort(function(a, b) {
+          return normalizeText(a.resource.provider).localeCompare(
+            normalizeText(b.resource.provider)
+          ) || compareTitle(a, b);
+        });
+      } else if (state.sortMode === 'relevance' &&
+                 (normalizeText(state.query) || state.productContextId)) {
+        items.sort(function(a, b) { return b.score - a.score || compareTitle(a, b); });
+      } else {
+        items.sort(compareTitle);
+      }
+      return items;
+    }
+
+    function results(state) {
+      return resultItems(state).map(function(item) { return item.resource; });
+    }
+
+    function uniqueSorted(values) {
+      return values.filter(function(value, index, all) {
+        return value && all.indexOf(value) === index;
+      }).sort(function(a, b) { return normalizeText(a).localeCompare(normalizeText(b)); });
+    }
+
+    function countValues(state, dimension, valuesForResource) {
+      var counts = {};
+      sourceResources.forEach(function(resource) {
+        if (!dimensionMatch(resource, createState(state), dimension)) return;
+        uniqueSorted(valuesForResource(resource)).forEach(function(value) {
+          counts[value] = (counts[value] || 0) + 1;
+        });
+      });
+      return counts;
+    }
+
+    function facetCounts(state) {
+      var presets = {};
+      presetDefinitions.forEach(function(preset) {
+        var candidate = createState(state);
+        candidate.preset = preset.id;
+        presets[preset.id] = sourceResources.filter(function(resource) {
+          return dimensionMatch(resource, candidate, '');
+        }).length;
+      });
+      return {
+        presets: presets,
+        providers: countValues(state, 'providers', function(resource) {
+          return [resource.provider];
+        }),
+        subjects: countValues(state, 'subject', function(resource) {
+          return array(resource.subjectTags);
+        }),
+        informationTypes: countValues(state, 'informationType', function(resource) {
+          return array(resource.informationTypes);
+        }),
+        resourceTypes: countValues(state, 'resourceType', function(resource) {
+          return [resource.resourceType];
+        }),
+        relationshipTypes: countValues(state, 'relationshipTypes', relationshipTypes)
+      };
+    }
+
+    function providerOptions(state) {
+      var counts = facetCounts(state).providers;
+      var query = normalizeText(state.providerQuery);
+      return uniqueSorted(Object.keys(counts)).filter(function(displayProvider) {
+        if (!query) return true;
+        return sourceResources.some(function(resource) {
+          return resource.provider === displayProvider &&
+            normalizeText([displayProvider].concat(providerNames(resource)).join(' '))
+              .indexOf(query) >= 0;
+        });
+      }).map(function(value) { return { value: value, count: counts[value] || 0 }; });
+    }
+
+    function chips(stateInput) {
+      var state = createState(stateInput);
+      var output = [];
+      state.providers.slice().sort(function(a, b) {
+        return normalizeText(a).localeCompare(normalizeText(b));
+      }).forEach(function(value) {
+        output.push({ key: 'provider', value: value, label: value });
+      });
+      [
+        ['subject', state.subject, 'Subject'],
+        ['informationType', state.informationType, 'Information Type'],
+        ['resourceType', state.resourceType, 'Resource type']
+      ].forEach(function(definition) {
+        if (definition[1]) output.push({
+          key: definition[0], value: definition[1],
+          label: definition[2] + ': ' + definition[1]
+        });
+      });
+      relationshipSubtypeDefinitions.forEach(function(definition) {
+        if (state.relationshipTypes.indexOf(definition.id) >= 0) output.push({
+          key: 'relationshipType', value: definition.id, label: definition.label
+        });
+      });
+      return output;
+    }
+
+    function removeChip(stateInput, key, value) {
+      var state = createState(stateInput);
+      if (key === 'provider') state.providers = state.providers.filter(function(item) {
+        return item !== value;
+      });
+      else if (key === 'relationshipType') {
+        state.relationshipTypes = state.relationshipTypes.filter(function(item) {
+          return item !== value;
+        });
+      }
+      else if (Object.prototype.hasOwnProperty.call(state, key)) state[key] = '';
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      state.focusKey = 'resource-search';
+      return state;
+    }
+
+    function clearProviders(stateInput) {
+      var state = createState(stateInput);
+      state.providers = [];
+      state.providerQuery = '';
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      state.focusKey = 'resource-provider-search';
+      return state;
+    }
+
+    function reset(stateInput) {
+      var state = createState({ productContextId: '' });
+      state.focusKey = 'resource-search';
+      return state;
+    }
+
+    function setQuery(stateInput, query) {
+      var state = createState(stateInput);
+      var hadMeaning = Boolean(normalizeText(state.query) || state.productContextId);
+      state.query = String(query || '');
+      var hasMeaning = Boolean(normalizeText(state.query) || state.productContextId);
+      if ((!hadMeaning && hasMeaning && state.sortMode === 'title') ||
+          (hadMeaning && !hasMeaning && state.sortMode === 'relevance')) {
+        state.sortMode = hasMeaning ? 'relevance' : 'title';
+      }
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      return state;
+    }
+
+    function toggleProvider(stateInput, provider) {
+      var state = createState(stateInput);
+      state.providers = state.providers.indexOf(provider) >= 0
+        ? state.providers.filter(function(value) { return value !== provider; })
+        : state.providers.concat(provider);
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      state.focusKey = 'resource-provider-' + normalizeText(provider).replace(/ /g, '-');
+      return state;
+    }
+
+    function toggleRelationshipType(stateInput, relationshipType) {
+      var state = createState(stateInput);
+      if (!relationshipSubtypeDefinitions.some(function(definition) {
+        return definition.id === relationshipType;
+      })) return state;
+      state.relationshipTypes = state.relationshipTypes.indexOf(relationshipType) >= 0
+        ? state.relationshipTypes.filter(function(value) { return value !== relationshipType; })
+        : state.relationshipTypes.concat(relationshipType);
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      state.facetsOpen = false;
+      state.focusKey = 'resource-relationship-' +
+        normalizeText(relationshipType).replace(/ /g, '-');
+      return state;
+    }
+
+    function setPreset(stateInput, presetId) {
+      var state = createState(stateInput);
+      state.preset = presetDefinitions.some(function(preset) {
+        return preset.id === presetId;
+      }) ? presetId : 'all_resources';
+      state.selectedId = '';
+      state.renderLimit = pageSize;
+      state.pane = 'results';
+      state.focusKey = 'resource-preset-' + state.preset;
+      return state;
+    }
+
+    function patchState(stateInput, patch) {
+      var state = createState(stateInput);
+      Object.keys(patch || {}).forEach(function(key) {
+        if (Object.prototype.hasOwnProperty.call(state, key)) state[key] = patch[key];
+      });
+      state = createState(state);
+      state.selectedId = patch && Object.prototype.hasOwnProperty.call(patch, 'selectedId')
+        ? String(patch.selectedId || '') : '';
+      state.renderLimit = patch && Object.prototype.hasOwnProperty.call(patch, 'renderLimit')
+        ? Math.max(pageSize, Number(patch.renderLimit) || pageSize) : pageSize;
+      return state;
+    }
+
+    function selectResource(stateInput, resourceId) {
+      var state = createState(stateInput);
+      if (!sourceResources.some(function(resource) { return resource.id === resourceId; })) {
+        return state;
+      }
+      state.selectedId = resourceId;
+      state.pane = 'detail';
+      state.focusKey = 'resource-result-' + resourceId;
+      return state;
+    }
+
+    function detail(stateInput) {
+      var state = createState(stateInput);
+      if (!state.selectedId) return null;
+      return sourceResources.find(function(resource) {
+        return resource.id === state.selectedId;
+      }) || null;
+    }
+
+    function accessPointGroups(resource) {
+      var points = array(resource && resource.accessPoints).slice();
+      var canonicalUrl = String(resource && resource.canonicalUrl || '');
+      var official = points.find(function(point) {
+        return point.role === 'canonical' && point.url === canonicalUrl;
+      }) || null;
+      return {
+        official: official,
+        additional: points.filter(function(point) { return point !== official; })
+      };
+    }
+
+    function showMore(stateInput) {
+      var state = createState(stateInput);
+      state.renderLimit += pageSize;
+      state.focusKey = 'resource-show-more';
+      return state;
+    }
+
+    function sortOptions(stateInput) {
+      var state = createState(stateInput);
+      return normalizeText(state.query) || state.productContextId
+        ? ['relevance', 'title', 'provider']
+        : ['title', 'provider'];
+    }
+
+    function escape(stateInput) {
+      var state = createState(stateInput);
+      if (state.pane === 'detail' || state.selectedId) {
+        var selected = state.selectedId;
+        state.selectedId = '';
+        state.pane = 'results';
+        state.focusKey = selected ? 'resource-result-' + selected : 'resource-search';
+        return { action: 'nested', state: state };
+      }
+      if (state.pane === 'facets' || state.facetsOpen) {
+        state.pane = 'results';
+        state.facetsOpen = false;
+        state.focusKey = 'resource-facets-toggle';
+        return { action: 'nested', state: state };
+      }
+      return { action: 'close-guide', state: state };
+    }
+
+    function snapshot(stateInput) {
+      return stateCopy(createState(stateInput));
+    }
+
+    function restore(saved) {
+      return createState(stateCopy(saved || {}));
+    }
+
+    function createLifecycle() {
+      var attached = false;
+      var destroyed = false;
+      return Object.freeze({
+        attach: function() {
+          if (attached || destroyed) return false;
+          attached = true;
+          return true;
+        },
+        detach: function() {
+          if (destroyed) return false;
+          attached = false;
+          destroyed = true;
+          return true;
+        },
+        state: function() { return { attached: attached, destroyed: destroyed }; }
+      });
+    }
+
+    return Object.freeze({
+      pageSize: pageSize,
+      normalize: normalizeText,
+      createState: createState,
+      results: results,
+      resultItems: resultItems,
+      facetCounts: facetCounts,
+      providerOptions: providerOptions,
+      chips: chips,
+      removeChip: removeChip,
+      clearProviders: clearProviders,
+      reset: reset,
+      setQuery: setQuery,
+      toggleProvider: toggleProvider,
+      toggleRelationshipType: toggleRelationshipType,
+      setPreset: setPreset,
+      patchState: patchState,
+      selectResource: selectResource,
+      detail: detail,
+      accessPointGroups: accessPointGroups,
+      showMore: showMore,
+      sortOptions: sortOptions,
+      escape: escape,
+      snapshot: snapshot,
+      restore: restore,
+      createLifecycle: createLifecycle,
+      presets: presetDefinitions.map(function(preset) { return Object.assign({}, preset); }),
+      relationshipSubtypes: relationshipSubtypeDefinitions.map(function(definition) {
+        return Object.assign({}, definition);
+      })
+    });
+  }
+
   var products = asArray(bundle.products);
   var articles = asArray(bundle.articles);
   var resources = asArray(bundle.resources);
+  var resourceExplorerModel = ptCreateResourceExplorerModel(resources);
   var updates = asArray(bundle.updates);
   var quickAccess = asArray(bundle.quickAccess);
   var resourcesById = {};
@@ -74,8 +650,12 @@ function(el, x, data) {
     quickId: '',
     quickLabel: '',
     previousFocus: null,
-    history: []
+    history: [],
+    resourceExplorer: resourceExplorerModel.createState(),
+    compactSnapshot: null,
+    resourceEntryFocusKey: ''
   };
+  var pendingResourceResultAlignment = '';
 
   function normalize(value) {
     return String(value || '')
@@ -257,7 +837,17 @@ function(el, x, data) {
   var home = button('brim-guide__home', '', 'home', 'BRIM Guide Home');
   home.appendChild(node('span', 'brim-guide__home-name', bundle.identity.guide_name));
   home.appendChild(node('span', 'brim-guide__home-subtitle', 'Home'));
+  var resourceSpine = node('div', 'brim-guide__resource-spine');
+  resourceSpine.hidden = true;
+  resourceSpine.appendChild(node('span', 'brim-guide__resource-spine-letter', 'C'));
+  resourceSpine.appendChild(button(
+    'brim-guide__resource-spine-back',
+    'Back to Guide',
+    'resource-back-guide',
+    'Back to compact BRIM Guide'
+  ));
   rail.appendChild(leftClose);
+  rail.appendChild(resourceSpine);
   rail.appendChild(home);
 
   var nav = node('nav', 'brim-guide__nav');
@@ -373,17 +963,50 @@ function(el, x, data) {
       quickIds: state.quickIds.slice(),
       quickId: state.quickId,
       quickLabel: state.quickLabel,
+      resourceExplorerState: resourceExplorerModel.snapshot(state.resourceExplorer),
       scrollTop: main.scrollTop
     };
   }
 
+  function snapshotCompactGuide(triggerFocusKey) {
+    var saved = snapshot();
+    saved.history = state.history.map(function(item) {
+      return Object.assign({}, item, {
+        filters: {
+          brimSection: item.filters.brimSection.slice(),
+          subject: item.filters.subject.slice(),
+          informationType: item.filters.informationType.slice()
+        },
+        quickIds: item.quickIds.slice(),
+        resourceExplorerState: resourceExplorerModel.snapshot(item.resourceExplorerState)
+      });
+    });
+    saved.triggerFocusKey = triggerFocusKey || '';
+    return saved;
+  }
+
   function restore(saved) {
     Object.keys(saved).forEach(function(key) {
-      if (key !== 'scrollTop') state[key] = saved[key];
+      if (key !== 'scrollTop' && key !== 'triggerFocusKey' &&
+          key !== 'resourceExplorerState') state[key] = saved[key];
     });
+    state.resourceExplorer = resourceExplorerModel.restore(saved.resourceExplorerState);
     searchInput.value = state.query;
     render();
     main.scrollTop = saved.scrollTop || 0;
+  }
+
+  function setSearchPresentation(resourceMode) {
+    searchLabel.textContent = resourceMode
+      ? 'Search Resources'
+      : 'Search layers, tools, methods, resources, and updates';
+    searchInput.placeholder = resourceMode
+      ? 'Search titles, providers, subjects, variables, and places'
+      : 'Search layers, tools, methods, resources, and updates';
+    searchInput.setAttribute('aria-label', searchLabel.textContent);
+    if (resourceMode) searchInput.setAttribute('data-guide-focus-key', 'resource-search');
+    else searchInput.removeAttribute('data-guide-focus-key');
+    searchInput.value = resourceMode ? state.resourceExplorer.query : state.query;
   }
 
   function pushHistory() {
@@ -472,11 +1095,19 @@ function(el, x, data) {
     return related;
   }
 
-  function sectionHeading(number, title, detail) {
+  function sectionHeading(number, title, detail, liveDetail) {
     var wrap = node('div', 'brim-guide__section-heading');
     wrap.appendChild(node('span', 'brim-guide__section-number', number));
     wrap.appendChild(node('h2', '', title));
-    if (detail) wrap.appendChild(node('span', 'brim-guide__section-detail', detail));
+    if (detail) {
+      var detailNode = node('span', 'brim-guide__section-detail', detail);
+      if (liveDetail) {
+        detailNode.setAttribute('role', 'status');
+        detailNode.setAttribute('aria-live', 'polite');
+        detailNode.setAttribute('aria-atomic', 'true');
+      }
+      wrap.appendChild(detailNode);
+    }
     return wrap;
   }
 
@@ -495,6 +1126,7 @@ function(el, x, data) {
   function resultRow(record) {
     var row = button('brim-guide__result', '', 'record');
     row.setAttribute('data-guide-record', record.id);
+    resourceFocusKey(row, 'guide-record-' + record.id);
     row.appendChild(node('span', 'brim-guide__result-kind', recordType(record)));
     row.appendChild(node('strong', 'brim-guide__result-title', record.title));
     var context = record.kind === 'Product'
@@ -532,7 +1164,17 @@ function(el, x, data) {
   function renderIntro() {
     var intro = node('section', 'brim-guide__intro');
     var identity = node('div', 'brim-guide__identity');
-    identity.appendChild(node('p', 'brim-guide__eyebrow', bundle.identity.expanded_name));
+    var masthead = node('p', 'brim-guide__eyebrow brim-guide__masthead');
+    String(bundle.identity.expanded_name || '').split(' ').forEach(function(word, index) {
+      if (index) masthead.appendChild(document.createTextNode(' '));
+      if (index < 4 && word) {
+        masthead.appendChild(node('span', 'brim-guide__masthead-acronym', word.charAt(0)));
+        masthead.appendChild(document.createTextNode(word.slice(1)));
+      } else {
+        masthead.appendChild(document.createTextNode(word));
+      }
+    });
+    identity.appendChild(masthead);
     var title = node('h1', '', bundle.identity.guide_name);
     title.id = 'brim-guide-title';
     identity.appendChild(title);
@@ -573,14 +1215,22 @@ function(el, x, data) {
     var wrap = node('section', 'brim-guide__facet');
     wrap.appendChild(node('h3', '', label));
     var options = node('div', 'brim-guide__facet-options');
-    options.setAttribute('role', 'group');
+    var radioGroup = field === 'brimSection';
+    var selectedValue = state.filters[field][0] || '';
+    options.setAttribute('role', radioGroup ? 'radiogroup' : 'group');
     options.setAttribute('aria-label', label);
-    values.forEach(function(value) {
+    values.forEach(function(value, index) {
       var selected = state.filters[field].indexOf(value) >= 0;
       var option = button('brim-guide__facet-button', value, 'facet-toggle');
       option.setAttribute('data-guide-filter', field);
       option.setAttribute('data-guide-value', value);
-      option.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      if (radioGroup) {
+        option.setAttribute('role', 'radio');
+        option.setAttribute('aria-checked', selected ? 'true' : 'false');
+        option.tabIndex = selected || (!selectedValue && index === 0) ? 0 : -1;
+      } else {
+        option.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      }
       option.classList.toggle('is-selected', selected);
       options.appendChild(option);
     });
@@ -593,7 +1243,10 @@ function(el, x, data) {
     var labels = { brimSection: 'Where in BRIM', subject: 'Primary Subject', informationType: 'Information Type' };
     Object.keys(labels).forEach(function(field) {
       state.filters[field].forEach(function(value) {
-        var chip = button('brim-guide__filter-chip', '', 'filter-remove', 'Remove ' + value + ' filter');
+        var chip = button(
+          'brim-guide__filter-chip', '', 'filter-remove',
+          'Remove ' + labels[field] + ': ' + value + ' filter'
+        );
         chip.setAttribute('data-guide-filter', field);
         chip.setAttribute('data-guide-value', value);
         chip.appendChild(node('span', '', value));
@@ -603,10 +1256,13 @@ function(el, x, data) {
         activeSummary.appendChild(chip);
       });
     });
-    if (state.query || hasActiveFilters()) {
-      activeSummary.appendChild(button('brim-guide__clear-all', 'Clear all', 'clear-all'));
+    if (hasActiveFilters()) {
+      activeSummary.appendChild(button(
+        'brim-guide__clear-all', 'Clear all', 'clear-all',
+        'Clear all A Explore filters'
+      ));
     }
-    activeSummary.hidden = !(state.query || hasActiveFilters());
+    activeSummary.hidden = !hasActiveFilters();
   }
 
   function renderFilters() {
@@ -645,7 +1301,11 @@ function(el, x, data) {
     directory.appendChild(browse);
     var filtered = visibleProducts();
     var productSection = node('section', 'brim-guide__product-index');
-    productSection.appendChild(sectionHeading('02', 'All Layers & Tools A–Z', filtered.length + ' of ' + products.length));
+    var subsetStatus = filtered.length + ' of ' + products.length;
+    if (filtered.length !== products.length) subsetStatus += ' shown · filtered';
+    productSection.appendChild(sectionHeading(
+      '02', 'All Layers & Tools A–Z', subsetStatus, true
+    ));
     productSection.appendChild(renderResults(filtered, 'No layers or tools match the active filters.', 'index'));
     directory.appendChild(productSection);
     fragment.appendChild(directory);
@@ -681,7 +1341,7 @@ function(el, x, data) {
       locator.appendChild(node(
         'p',
         'brim-guide__boundary',
-        'Use this exact path in the existing map controls. The Guide explains this item but does not change map state.'
+        'Use this exact path in the existing map controls. BRIM Guide explains this item but does not change map state.'
       ));
     } else {
       locator.appendChild(node('h2', '', 'About this layer'));
@@ -741,8 +1401,14 @@ function(el, x, data) {
         relationships.forEach(function(relationship) {
           var resource = resourcesById[relationship.id];
           if (!resource) return;
-          var relatedButton = button('brim-guide__related-item', '', 'record');
-          relatedButton.setAttribute('data-guide-record', resource.id);
+          var relatedButton = button(
+            'brim-guide__related-item', '', 'resource-open-context'
+          );
+          relatedButton.setAttribute('data-resource-product-context', product.id);
+          resourceFocusKey(
+            relatedButton,
+            'product-resource-' + product.id + '-' + resource.id
+          );
           relatedButton.appendChild(node('span', 'brim-guide__related-title', resource.title));
           relatedButton.appendChild(node('span', 'brim-guide__related-role', relationship.role));
           related.appendChild(relatedButton);
@@ -780,9 +1446,9 @@ function(el, x, data) {
         detail.appendChild(sources);
       }
     }
-    if (record.kind === 'Resource' && record.url) {
+    if (record.kind === 'Resource' && record.canonicalUrl) {
       var link = node('a', 'brim-guide__resource-link', 'Open official resource ↗');
-      link.href = record.url;
+      link.href = record.canonicalUrl;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       detail.appendChild(link);
@@ -808,6 +1474,551 @@ function(el, x, data) {
     return row;
   }
 
+  function resourceFocusKey(element, key) {
+    if (element && key) element.setAttribute('data-guide-focus-key', key);
+    return element;
+  }
+
+  function renderResourceGateway() {
+    var fragment = document.createDocumentFragment();
+    var gatewayState = resourceExplorerModel.createState();
+    var counts = resourceExplorerModel.facetCounts(gatewayState).presets;
+    fragment.appendChild(pageHeading(
+      'C · Resources',
+      'Resource Explorer',
+      'Datasets, viewers, portals, and official sources linked to BRIM or useful beyond it. ' +
+        'For layers, live products, and tools available in BRIM, use A · Explore.'
+    ));
+    var gateway = node('section', 'brim-guide__resource-gateway');
+    gateway.appendChild(node(
+      'p',
+      'brim-guide__resource-gateway-count',
+      resources.length + ' published Resources in the current BRIM Guide.'
+    ));
+    var actions = node('div', 'brim-guide__resource-gateway-actions');
+    [
+      ['brim_linked', 'BRIM-linked', counts.brim_linked, false],
+      ['beyond_brim', 'Explore beyond BRIM', counts.beyond_brim, false],
+      ['all_resources', 'Search all Resources', counts.all_resources, true]
+    ].forEach(function(definition) {
+      var action = button('brim-guide__resource-gateway-action', '', 'resource-open');
+      action.setAttribute('data-resource-preset', definition[0]);
+      action.setAttribute('data-resource-focus-search', definition[3] ? 'true' : 'false');
+      if (definition[0] === 'brim_linked') {
+        action.title = 'Resources with at least one exact reviewed BRIM Product relationship.';
+      }
+      resourceFocusKey(action, 'resource-gateway-' + definition[0]);
+      action.appendChild(node('strong', '', definition[1]));
+      action.appendChild(node('span', '', definition[2] + ' Resources'));
+      actions.appendChild(action);
+    });
+    gateway.appendChild(actions);
+    fragment.appendChild(gateway);
+    return fragment;
+  }
+
+  function sortedCountKeys(counts) {
+    return Object.keys(counts || {}).sort(function(a, b) {
+      return resourceExplorerModel.normalize(a).localeCompare(
+        resourceExplorerModel.normalize(b)
+      );
+    });
+  }
+
+  function resourceFacetChoices(label, field, value, counts) {
+    var section = node('section', 'brim-guide__resource-choice-group');
+    section.appendChild(node('h3', '', label));
+    var choices = node('div', 'brim-guide__resource-choices');
+    choices.setAttribute('role', 'group');
+    choices.setAttribute('aria-label', label);
+    sortedCountKeys(counts).forEach(function(optionValue) {
+      var selected = optionValue === value;
+      var choice = button(
+        'brim-guide__resource-choice',
+        optionValue + ' ' + counts[optionValue],
+        'resource-facet-choice',
+        label + ': ' + optionValue + ', ' + counts[optionValue] + ' Resources'
+      );
+      choice.setAttribute('data-resource-field', field);
+      choice.setAttribute('data-resource-value', optionValue);
+      choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      choice.classList.toggle('is-selected', selected);
+      resourceFocusKey(
+        choice,
+        'resource-facet-' + field + '-' +
+          resourceExplorerModel.normalize(optionValue).replace(/ /g, '-')
+      );
+      choices.appendChild(choice);
+    });
+    section.appendChild(choices);
+    return section;
+  }
+
+  function resourceFacetSelect(label, field, value, counts, emptyLabel) {
+    var section = node('section', 'brim-guide__resource-select-group');
+    var selectLabel = node('label', 'brim-guide__resource-filter-label');
+    selectLabel.appendChild(node('span', '', label));
+    var select = node('select', 'brim-guide__resource-select');
+    select.setAttribute('data-resource-field', field);
+    select.setAttribute('aria-label', label);
+    resourceFocusKey(select, 'resource-more-' + field);
+    var empty = node('option', '', emptyLabel);
+    empty.value = '';
+    empty.selected = !value;
+    select.appendChild(empty);
+    sortedCountKeys(counts).forEach(function(optionValue) {
+      var option = node('option', '', optionValue + ' (' + counts[optionValue] + ')');
+      option.value = optionValue;
+      option.selected = optionValue === value;
+      select.appendChild(option);
+    });
+    selectLabel.appendChild(select);
+    section.appendChild(selectLabel);
+    return section;
+  }
+
+  function resourceRelationshipChoices(resourceState, counts) {
+    var section = node(
+      'section',
+      'brim-guide__resource-choice-group brim-guide__resource-relationship-group'
+    );
+    section.appendChild(node('h3', '', 'Relationship to BRIM'));
+    var choices = node('div', 'brim-guide__resource-choices');
+    choices.setAttribute('role', 'group');
+    choices.setAttribute('aria-label', 'Exact relationship subtype refinements');
+    resourceExplorerModel.relationshipSubtypes.forEach(function(definition) {
+      var count = counts[definition.id] || 0;
+      var selected = resourceState.relationshipTypes.indexOf(definition.id) >= 0;
+      var choice = button(
+        'brim-guide__resource-choice',
+        definition.label + ' ' + count,
+        'resource-relationship-choice',
+        definition.label + ': ' + count + ' Resources'
+      );
+      choice.setAttribute('data-resource-relationship-type', definition.id);
+      choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      choice.classList.toggle('is-selected', selected);
+      choice.classList.add(
+        definition.id === 'related_external_resource'
+          ? 'brim-guide__resource-choice--external'
+          : 'brim-guide__resource-choice--brim'
+      );
+      choice.disabled = count === 0 && !selected;
+      if (definition.id === 'displayed_in_brim' && count === 0) {
+        choice.title = 'No Resources currently have an exact reviewed displayed-in-BRIM relationship.';
+      }
+      resourceFocusKey(
+        choice,
+        'resource-relationship-' +
+          resourceExplorerModel.normalize(definition.id).replace(/ /g, '-')
+      );
+      choices.appendChild(choice);
+    });
+    section.appendChild(choices);
+    return section;
+  }
+
+  function renderResourceFacets(resourceState, counts) {
+    var facets = node('aside', 'brim-guide__resource-facets');
+    facets.id = 'brim-guide-resource-facets';
+    facets.setAttribute('aria-label', 'Resource filters');
+    facets.classList.toggle('is-open', resourceState.facetsOpen);
+    var narrowBack = button(
+      'brim-guide__resource-pane-back', '← Results', 'resource-pane-results'
+    );
+    facets.appendChild(narrowBack);
+    var heading = node('div', 'brim-guide__resource-facet-heading');
+    heading.appendChild(node('h2', '', 'Refine Resources'));
+    heading.appendChild(button(
+      'brim-guide__text-button',
+      'Reset all',
+      'resource-reset'
+    ));
+    facets.appendChild(heading);
+
+    var providerBlock = node('section', 'brim-guide__resource-provider');
+    var providerHeader = node('div', 'brim-guide__resource-provider-heading');
+    providerHeader.appendChild(node('h3', '', 'Provider'));
+    var providerClear = button(
+      'brim-guide__text-button', 'Clear', 'resource-provider-clear', 'Clear providers only'
+    );
+    providerClear.disabled = !resourceState.providers.length && !resourceState.providerQuery;
+    providerHeader.appendChild(providerClear);
+    providerBlock.appendChild(providerHeader);
+    var providerSearchLabel = node('label', 'brim-guide__resource-provider-search-label');
+    providerSearchLabel.appendChild(node('span', '', 'Search providers'));
+    var providerSearch = node('input', 'brim-guide__resource-provider-search');
+    providerSearch.type = 'search';
+    providerSearch.value = resourceState.providerQuery;
+    providerSearch.autocomplete = 'off';
+    providerSearch.setAttribute('data-resource-provider-search', 'true');
+    resourceFocusKey(providerSearch, 'resource-provider-search');
+    providerSearchLabel.appendChild(providerSearch);
+    providerBlock.appendChild(providerSearchLabel);
+    var providerOptions = node('div', 'brim-guide__resource-provider-options');
+    providerOptions.setAttribute('role', 'group');
+    providerOptions.setAttribute('aria-label', 'Exact display providers');
+    resourceExplorerModel.providerOptions(resourceState).forEach(function(option) {
+      var label = node('label', 'brim-guide__resource-provider-option');
+      var checkbox = node('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = resourceState.providers.indexOf(option.value) >= 0;
+      checkbox.setAttribute('data-resource-provider', option.value);
+      resourceFocusKey(
+        checkbox,
+        'resource-provider-' + resourceExplorerModel.normalize(option.value).replace(/ /g, '-')
+      );
+      label.appendChild(checkbox);
+      label.appendChild(node('span', '', option.value));
+      label.appendChild(node('small', '', String(option.count)));
+      providerOptions.appendChild(label);
+    });
+    if (!providerOptions.children.length) {
+      providerOptions.appendChild(node('p', 'brim-guide__resource-facet-empty', 'No providers match.'));
+    }
+    providerBlock.appendChild(providerOptions);
+    facets.appendChild(providerBlock);
+
+    var choiceStack = node('div', 'brim-guide__resource-facet-choices');
+    choiceStack.appendChild(resourceRelationshipChoices(
+      resourceState, counts.relationshipTypes
+    ));
+    choiceStack.appendChild(resourceFacetChoices(
+      'Subject', 'subject', resourceState.subject, counts.subjects
+    ));
+    choiceStack.appendChild(resourceFacetChoices(
+      'Information Type', 'informationType', resourceState.informationType,
+      counts.informationTypes
+    ));
+    facets.appendChild(choiceStack);
+
+    var more = node('section', 'brim-guide__resource-more');
+    var moreToggle = button(
+      'brim-guide__resource-more-toggle', 'More filters', 'resource-more-filters'
+    );
+    moreToggle.setAttribute('aria-expanded', resourceState.moreFiltersOpen ? 'true' : 'false');
+    moreToggle.setAttribute('aria-controls', 'brim-guide-resource-more-panel');
+    resourceFocusKey(moreToggle, 'resource-more-filters');
+    more.appendChild(moreToggle);
+    var morePanel = node('div', 'brim-guide__resource-more-panel');
+    morePanel.id = 'brim-guide-resource-more-panel';
+    morePanel.hidden = !resourceState.moreFiltersOpen;
+    morePanel.appendChild(resourceFacetSelect(
+      'Resource type', 'resourceType', resourceState.resourceType,
+      counts.resourceTypes, 'All Resource types'
+    ));
+    more.appendChild(morePanel);
+    facets.appendChild(more);
+    return facets;
+  }
+
+  function resourceRelationshipBadges(resource) {
+    var values = [];
+    var flags = resource.relationshipFlags || {};
+    if (flags.displayedInBrim) values.push('Available in BRIM');
+    if (flags.usedByBrim) values.push('Used by BRIM');
+    if (flags.relatedExternalResource) values.push('Related resource');
+    return values;
+  }
+
+  function resourceBadges(resource) {
+    var values = [];
+    if (asArray(resource.subjectTags).length) values.push(asArray(resource.subjectTags)[0]);
+    if (resource.resourceType && resource.resourceType !== 'unknown') values.push(resource.resourceType);
+    values = values.concat(resourceRelationshipBadges(resource));
+    if (asArray(resource.accessPoints).length > 1) {
+      values.push(asArray(resource.accessPoints).length + ' access points');
+    }
+    return values;
+  }
+
+  function resourceBadgeClass(value) {
+    if (value === 'Available in BRIM' || value === 'Used by BRIM') {
+      return ' brim-guide__resource-badge--brim';
+    }
+    if (value === 'Related resource') return ' brim-guide__resource-badge--external';
+    return '';
+  }
+
+  function renderResourceResult(resource, selected) {
+    var row = button('brim-guide__resource-result', '', 'resource-select');
+    row.setAttribute('data-resource-id', resource.id);
+    row.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    if (selected) row.setAttribute('aria-current', 'true');
+    row.classList.toggle('is-selected', selected);
+    resourceFocusKey(row, 'resource-result-' + resource.id);
+    var header = node('span', 'brim-guide__resource-result-header');
+    header.appendChild(node('strong', '', resource.title));
+    header.appendChild(node('span', '', resource.provider));
+    row.appendChild(header);
+    row.appendChild(node('span', 'brim-guide__resource-result-summary', resource.summary));
+    var badges = node('span', 'brim-guide__resource-badges');
+    if (selected) {
+      badges.appendChild(node(
+        'span', 'brim-guide__resource-badge brim-guide__resource-selected-label', 'Selected'
+      ));
+    }
+    resourceBadges(resource).forEach(function(value) {
+      badges.appendChild(node(
+        'span', 'brim-guide__resource-badge' + resourceBadgeClass(value), value
+      ));
+    });
+    row.appendChild(badges);
+    return row;
+  }
+
+  function appendResourceDetailRow(list, label, value) {
+    if (!value || (Array.isArray(value) && !value.length)) return;
+    var row = node('div', 'brim-guide__resource-detail-row');
+    row.appendChild(node('dt', '', label));
+    row.appendChild(node('dd', '', Array.isArray(value) ? value.join(', ') : value));
+    list.appendChild(row);
+  }
+
+  function renderResourceDetail(resource) {
+    var detail = node('aside', 'brim-guide__resource-detail');
+    detail.setAttribute('role', 'region');
+    detail.setAttribute('aria-label', 'Selected Resource detail');
+    detail.setAttribute('data-resource-detail', resource.id);
+    detail.appendChild(button(
+      'brim-guide__resource-pane-back', '← Results', 'resource-detail-back'
+    ));
+    detail.appendChild(node('p', 'brim-guide__eyebrow', 'Selected Resource'));
+    detail.appendChild(node('h2', '', resource.title));
+    detail.appendChild(node('p', 'brim-guide__resource-detail-summary', resource.summary));
+    var relationshipBadges = node(
+      'div', 'brim-guide__resource-badges brim-guide__resource-detail-badges'
+    );
+    resourceRelationshipBadges(resource).forEach(function(value) {
+      relationshipBadges.appendChild(node(
+        'span', 'brim-guide__resource-badge' + resourceBadgeClass(value), value
+      ));
+    });
+    if (relationshipBadges.children.length) detail.appendChild(relationshipBadges);
+    var accessGroups = resourceExplorerModel.accessPointGroups(resource);
+    var access = node('section', 'brim-guide__resource-detail-section brim-guide__resource-access-section');
+    access.appendChild(node('h3', '', 'Official Resource'));
+    if (accessGroups.official) {
+      var officialLink = node(
+        'a',
+        'brim-guide__resource-access brim-guide__resource-access--primary',
+        'Open official resource ↗'
+      );
+      officialLink.href = accessGroups.official.url;
+      officialLink.target = '_blank';
+      officialLink.rel = 'noopener noreferrer';
+      officialLink.setAttribute('data-resource-access-role', accessGroups.official.role);
+      officialLink.setAttribute('aria-label', 'Open official resource in a new tab');
+      access.appendChild(officialLink);
+    }
+    if (accessGroups.additional.length) {
+      access.appendChild(node(
+        'p', 'brim-guide__resource-access-subheading', 'Additional access points'
+      ));
+      accessGroups.additional.forEach(function(point) {
+        var link = node(
+          'a', 'brim-guide__resource-access brim-guide__resource-access--secondary',
+          point.label + ' ↗'
+        );
+        link.href = point.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.setAttribute('data-resource-access-role', point.role);
+        access.appendChild(link);
+      });
+    }
+    detail.appendChild(access);
+
+    var list = node('dl', 'brim-guide__resource-detail-list');
+    appendResourceDetailRow(list, 'Display provider', resource.provider);
+    appendResourceDetailRow(
+      list,
+      'Providers',
+      asArray(resource.providers).map(function(provider) {
+        return provider.name + ' — ' + provider.role.replace(/_/g, ' ');
+      })
+    );
+    appendResourceDetailRow(list, 'Subjects', asArray(resource.subjectTags));
+    appendResourceDetailRow(list, 'Information Types', asArray(resource.informationTypes));
+    appendResourceDetailRow(list, 'Resource type', resource.resourceType);
+    appendResourceDetailRow(list, 'Granularity', resource.resourceGranularity);
+    appendResourceDetailRow(list, 'Variables', asArray(resource.variables));
+    appendResourceDetailRow(list, 'Use scopes', asArray(resource.useScopes));
+    appendResourceDetailRow(
+      list,
+      'Geography',
+      [resource.geographicScope && resource.geographicScope.scopeType]
+        .concat(asArray(resource.geographicScope && resource.geographicScope.names))
+        .filter(Boolean)
+    );
+    detail.appendChild(list);
+
+    var relationships = asArray(resource.relatedProducts);
+    if (relationships.length) {
+      var related = node('section', 'brim-guide__resource-detail-section');
+      related.appendChild(node('h3', '', 'Exact BRIM relationships'));
+      relationships.forEach(function(relationship) {
+        var item = node('div', 'brim-guide__resource-relationship');
+        item.appendChild(node('strong', '', relationship.title));
+        item.appendChild(node(
+          'span', '',
+          [relationship.entityType, relationship.relationshipType.replace(/_/g, ' '),
+           relationship.role, relationship.useScope.replace(/_/g, ' ')].join(' · ')
+        ));
+        related.appendChild(item);
+      });
+      detail.appendChild(related);
+    }
+
+    return detail;
+  }
+
+  function renderResourceExplorer() {
+    var resourceState = state.resourceExplorer;
+    var allResults = resourceExplorerModel.results(resourceState);
+    var visibleResults = allResults.slice(0, resourceState.renderLimit);
+    var selected = resourceExplorerModel.detail(resourceState);
+    var counts = resourceExplorerModel.facetCounts(resourceState);
+    var fragment = document.createDocumentFragment();
+    var explorer = node('section', 'brim-guide__resource-explorer');
+    explorer.setAttribute('data-resource-pane', resourceState.pane);
+    explorer.setAttribute('data-resource-preset', resourceState.preset);
+    explorer.classList.toggle('has-detail', Boolean(selected));
+
+    var header = node('header', 'brim-guide__resource-explorer-header');
+    var headerText = node('div');
+    headerText.appendChild(node('p', 'brim-guide__eyebrow', 'C · Resources'));
+    var heading = node('h1', '', 'Resource Explorer');
+    heading.id = 'brim-guide-title';
+    headerText.appendChild(heading);
+    if (resourceState.productContextId && productsById[resourceState.productContextId]) {
+      headerText.appendChild(node(
+        'p',
+        'brim-guide__resource-context',
+        'Showing exact Resources related to ' + productsById[resourceState.productContextId].title + '.'
+      ));
+    } else {
+      headerText.appendChild(node(
+        'p',
+        'brim-guide__resource-context',
+        'Resources are datasets, viewers, portals, and supporting sources. ' +
+          'Use A · Explore for BRIM layers, live products, and tools.'
+      ));
+    }
+    header.appendChild(headerText);
+    var facetToggle = button(
+      'brim-guide__resource-facets-toggle',
+      'Filters',
+      'resource-facets-toggle'
+    );
+    facetToggle.setAttribute('aria-controls', 'brim-guide-resource-facets');
+    facetToggle.setAttribute('aria-expanded', resourceState.facetsOpen ? 'true' : 'false');
+    resourceFocusKey(facetToggle, 'resource-facets-toggle');
+    header.appendChild(facetToggle);
+    explorer.appendChild(header);
+
+    var presets = node('div', 'brim-guide__resource-presets');
+    presets.setAttribute('role', 'radiogroup');
+    presets.setAttribute('aria-label', 'Resource relationship views');
+    resourceExplorerModel.presets.forEach(function(preset) {
+      var count = counts.presets[preset.id] || 0;
+      var presetButton = button(
+        'brim-guide__resource-preset',
+        preset.label + ' ' + count,
+        'resource-preset'
+      );
+      presetButton.setAttribute('data-resource-preset', preset.id);
+      presetButton.setAttribute('role', 'radio');
+      presetButton.setAttribute('aria-checked', resourceState.preset === preset.id ? 'true' : 'false');
+      presetButton.tabIndex = resourceState.preset === preset.id ? 0 : -1;
+      presetButton.classList.toggle('is-selected', resourceState.preset === preset.id);
+      resourceFocusKey(presetButton, 'resource-preset-' + preset.id);
+      if (preset.id === 'brim_linked') {
+        presetButton.title = 'Resources with at least one exact reviewed BRIM Product relationship.';
+      }
+      presets.appendChild(presetButton);
+    });
+    explorer.appendChild(presets);
+
+    var chipValues = resourceExplorerModel.chips(resourceState);
+    if (chipValues.length) {
+      var chips = node('div', 'brim-guide__resource-chips');
+      chips.setAttribute('aria-label', 'Active Resource filters');
+      chipValues.forEach(function(chipValue) {
+        var chip = button(
+          'brim-guide__filter-chip',
+          chipValue.label + ' ×',
+          'resource-chip-remove',
+          'Remove ' + chipValue.label + ' filter'
+        );
+        chip.setAttribute('data-resource-chip-key', chipValue.key);
+        chip.setAttribute('data-resource-chip-value', chipValue.value);
+        chips.appendChild(chip);
+      });
+      explorer.appendChild(chips);
+    }
+
+    var layout = node('div', 'brim-guide__resource-layout');
+    layout.appendChild(renderResourceFacets(resourceState, counts));
+    var resultsSection = node('section', 'brim-guide__resource-results');
+    resultsSection.setAttribute('aria-label', 'Resource results');
+    var resultsHeader = node('div', 'brim-guide__resource-results-header');
+    var status = node(
+      'p', 'brim-guide__resource-status',
+      allResults.length + (allResults.length === 1 ? ' Resource' : ' Resources')
+    );
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.setAttribute('aria-atomic', 'true');
+    resultsHeader.appendChild(status);
+    var sortLabel = node('label', 'brim-guide__resource-sort');
+    sortLabel.appendChild(node('span', '', 'Sort'));
+    var sort = node('select', 'brim-guide__resource-select');
+    sort.setAttribute('data-resource-field', 'sortMode');
+    sort.setAttribute('aria-label', 'Sort Resources');
+    resourceExplorerModel.sortOptions(resourceState).forEach(function(value) {
+      var label = value === 'relevance' ? 'Relevance' :
+        (value === 'provider' ? 'Provider' : 'Title A–Z');
+      var option = node('option', '', label);
+      option.value = value;
+      option.selected = value === resourceState.sortMode;
+      sort.appendChild(option);
+    });
+    sortLabel.appendChild(sort);
+    resultsHeader.appendChild(sortLabel);
+    resultsSection.appendChild(resultsHeader);
+    var resultList = node('div', 'brim-guide__resource-result-list');
+    if (!visibleResults.length) {
+      var empty = node('div', 'brim-guide__resource-empty');
+      empty.appendChild(node('p', '', 'No Resources match the active search and filters.'));
+      empty.appendChild(button('brim-guide__text-button', 'Reset all', 'resource-reset'));
+      resultList.appendChild(empty);
+    } else {
+      visibleResults.forEach(function(resource) {
+        resultList.appendChild(renderResourceResult(
+          resource, resourceState.selectedId === resource.id
+        ));
+      });
+    }
+    resultsSection.appendChild(resultList);
+    if (visibleResults.length < allResults.length) {
+      var showMore = button(
+        'brim-guide__resource-show-more',
+        'Show more (' + (allResults.length - visibleResults.length) + ' remaining)',
+        'resource-show-more'
+      );
+      resourceFocusKey(showMore, 'resource-show-more');
+      resultsSection.appendChild(showMore);
+    }
+    var content = node('div', 'brim-guide__resource-content');
+    content.appendChild(resultsSection);
+    if (selected) content.appendChild(renderResourceDetail(selected));
+    layout.appendChild(content);
+    explorer.appendChild(layout);
+    fragment.appendChild(explorer);
+    return fragment;
+  }
+
   function renderSection(sectionName) {
     var definitions = {
       methods: ['B · Methods & Guides', 'Methods & Guides', 'Compact guidance for interpreting and finding BRIM layers and tools.'],
@@ -815,9 +2026,10 @@ function(el, x, data) {
       updates: ['D · Updates', 'Updates', 'Verified user-facing Guide changes.']
     };
     var definition = definitions[sectionName];
+    if (sectionName === 'resources') return renderResourceGateway();
     var collection = sectionName === 'methods'
       ? articles
-      : sectionName === 'resources' ? resources : updates;
+      : updates;
     var fragment = document.createDocumentFragment();
     fragment.appendChild(pageHeading(definition[0], definition[1], definition[2]));
     var list = node('div', 'brim-guide__content-list');
@@ -861,7 +2073,7 @@ function(el, x, data) {
     contact.appendChild(node(
       'p',
       '',
-      'BRIM is maintained for Bureau of Land Management California water-resource screening and resource-review support. The link below opens a draft in your email application; the Guide does not send or store the message.'
+      'BRIM is maintained for Bureau of Land Management California water-resource screening and resource-review support. The link below opens a draft in your email application; BRIM Guide does not send or store the message.'
     ));
     var contactLink = node('a', 'brim-guide__resource-link', 'Open email draft');
     contactLink.href = 'mailto:doconnor@blm.gov?subject=' +
@@ -874,11 +2086,111 @@ function(el, x, data) {
     return fragment;
   }
 
-  function render() {
+  function captureResourceScrollPositions() {
+    var existing = main.querySelector('.brim-guide__resource-explorer');
+    if (!existing) return;
+    var facets = existing.querySelector('.brim-guide__resource-facets');
+    var content = existing.querySelector('.brim-guide__resource-content');
+    var wide = window.matchMedia('(min-width: 1101px)').matches;
+    if (wide) {
+      if (facets) state.resourceExplorer.facetScrollTop = facets.scrollTop;
+      if (content) {
+        if (existing.querySelector('.brim-guide__resource-detail')) {
+          state.resourceExplorer.detailScrollTop = content.scrollTop;
+        } else {
+          state.resourceExplorer.resultsScrollTop = content.scrollTop;
+        }
+      }
+      return;
+    }
+    var pane = existing.getAttribute('data-resource-pane') || 'results';
+    if (pane === 'facets') state.resourceExplorer.facetScrollTop = main.scrollTop;
+    else if (pane === 'detail') state.resourceExplorer.detailScrollTop = main.scrollTop;
+    else state.resourceExplorer.resultsScrollTop = main.scrollTop;
+  }
+
+  function restoreResourceScrollPositions() {
+    var existing = main.querySelector('.brim-guide__resource-explorer');
+    if (!existing) return;
+    var wide = window.matchMedia('(min-width: 1101px)').matches;
+    if (wide) {
+      main.scrollTop = 0;
+      var facets = existing.querySelector('.brim-guide__resource-facets');
+      var content = existing.querySelector('.brim-guide__resource-content');
+      if (facets) facets.scrollTop = state.resourceExplorer.facetScrollTop;
+      if (content) {
+        var detail = existing.querySelector('.brim-guide__resource-detail');
+        var selectedRow = existing.querySelector(
+          '[data-resource-id="' + state.resourceExplorer.selectedId + '"]'
+        );
+        if (detail && selectedRow) {
+          detail.style.marginTop = Math.max(
+            0,
+            content.scrollTop + selectedRow.getBoundingClientRect().top -
+              content.getBoundingClientRect().top
+          ) + 'px';
+        }
+        content.scrollTop = detail
+          ? state.resourceExplorer.detailScrollTop
+          : state.resourceExplorer.resultsScrollTop;
+      }
+      return;
+    }
+    var pane = existing.getAttribute('data-resource-pane') || 'results';
+    main.scrollTop = pane === 'facets' ? state.resourceExplorer.facetScrollTop
+      : (pane === 'detail' ? state.resourceExplorer.detailScrollTop
+        : state.resourceExplorer.resultsScrollTop);
+  }
+
+  function prepareResourceResultAlignment(resourceId) {
+    pendingResourceResultAlignment = window.matchMedia('(min-width: 1101px)').matches
+      ? String(resourceId || '') : '';
+    if (!pendingResourceResultAlignment) return;
+    var existing = main.querySelector('.brim-guide__resource-explorer');
+    var content = existing && existing.querySelector('.brim-guide__resource-content');
+    if (content) state.resourceExplorer.resultsScrollTop = content.scrollTop;
+  }
+
+  function alignPendingResourceResult() {
+    var resourceId = pendingResourceResultAlignment;
+    pendingResourceResultAlignment = '';
+    if (!resourceId || !window.matchMedia('(min-width: 1101px)').matches) return;
+    var existing = main.querySelector('.brim-guide__resource-explorer');
+    var content = existing && existing.querySelector('.brim-guide__resource-content');
+    var rows = existing ? existing.querySelectorAll('[data-resource-id]') : [];
+    var selectedRow = null;
+    for (var index = 0; index < rows.length; index += 1) {
+      if (rows[index].getAttribute('data-resource-id') === resourceId) {
+        selectedRow = rows[index];
+        break;
+      }
+    }
+    if (!content || !selectedRow) return;
+    var contentTop = content.getBoundingClientRect().top;
+    var rowTop = selectedRow.getBoundingClientRect().top;
+    content.scrollTop = Math.max(0, content.scrollTop + rowTop - contentTop);
+    state.resourceExplorer.detailScrollTop = content.scrollTop;
+  }
+
+  function render(preserveResourceScroll) {
+    var resourceMode = state.view === 'resource-explorer';
+    if (resourceMode && preserveResourceScroll !== false) {
+      captureResourceScrollPositions();
+    }
+    root.classList.toggle('brim-guide--resource-explorer', resourceMode);
+    resourceSpine.hidden = !resourceMode;
+    setSearchPresentation(resourceMode);
     activeNav();
-    renderActiveSummary();
+    if (resourceMode) {
+      activeSummary.replaceChildren();
+      activeSummary.hidden = true;
+    } else {
+      renderActiveSummary();
+    }
     main.replaceChildren();
-    if (state.view === 'detail') {
+    if (resourceMode) {
+      main.appendChild(renderResourceExplorer());
+    } else if (state.view === 'detail') {
       var selected = recordsById[state.selectedId];
       if (selected) main.appendChild(renderRecordDetail(selected));
       else {
@@ -895,7 +2207,11 @@ function(el, x, data) {
     } else {
       main.appendChild(renderSection(state.section));
     }
-    main.scrollTop = 0;
+    if (resourceMode) {
+      restoreResourceScrollPositions();
+      alignPendingResourceResult();
+    }
+    else main.scrollTop = 0;
   }
 
   function focusMain(preserveScroll) {
@@ -918,6 +2234,9 @@ function(el, x, data) {
     state.quickId = '';
     state.quickLabel = '';
     state.history = [];
+    state.resourceExplorer = resourceExplorerModel.reset(state.resourceExplorer);
+    state.compactSnapshot = null;
+    state.resourceEntryFocusKey = '';
     searchInput.value = '';
     render();
     if (focusSearch) searchInput.focus();
@@ -941,8 +2260,103 @@ function(el, x, data) {
     }
   }
 
-  function openRecord(id) {
+  function restoreResourceScrollAfterFocus() {
+    if (state.view !== 'resource-explorer') return;
+    restoreResourceScrollPositions();
+    window.requestAnimationFrame(function() {
+      if (state.view !== 'resource-explorer') return;
+      restoreResourceScrollPositions();
+      window.requestAnimationFrame(function() {
+        if (state.view === 'resource-explorer') restoreResourceScrollPositions();
+      });
+    });
+  }
+
+  function focusResourceTarget(key) {
+    window.setTimeout(function() {
+      if (key === 'resource-search') {
+        try {
+          searchInput.focus({ preventScroll: true });
+        } catch (error) {
+          searchInput.focus();
+        }
+        restoreResourceScrollAfterFocus();
+        return;
+      }
+      var candidates = root.querySelectorAll('[data-guide-focus-key]');
+      for (var index = 0; index < candidates.length; index += 1) {
+        if (candidates[index].getAttribute('data-guide-focus-key') === key &&
+            candidates[index].offsetParent !== null) {
+          try {
+            candidates[index].focus({ preventScroll: true });
+          } catch (error) {
+            candidates[index].focus();
+          }
+          restoreResourceScrollAfterFocus();
+          return;
+        }
+      }
+      if (state.view === 'resource-explorer') {
+        try {
+          searchInput.focus({ preventScroll: true });
+        } catch (error) {
+          searchInput.focus();
+        }
+        restoreResourceScrollAfterFocus();
+        return;
+      }
+      focusMain(true);
+    }, 0);
+  }
+
+  function openResourceExplorer(options, trigger) {
+    options = options || {};
+    if (state.view !== 'resource-explorer') {
+      var triggerKey = trigger && trigger.getAttribute
+        ? trigger.getAttribute('data-guide-focus-key') : '';
+      state.compactSnapshot = snapshotCompactGuide(triggerKey);
+      state.resourceEntryFocusKey = triggerKey;
+    }
+    state.section = 'resources';
+    state.view = 'resource-explorer';
+    state.resourceExplorer = resourceExplorerModel.createState({
+      preset: options.preset || 'all_resources',
+      productContextId: options.productContextId || '',
+      sortMode: options.productContextId ? 'relevance' : '',
+      focusKey: options.focusSearch ? 'resource-search' : 'resource-facets-toggle'
+    });
+    if (options.selectedId) {
+      state.resourceExplorer = resourceExplorerModel.selectResource(
+        state.resourceExplorer, options.selectedId
+      );
+      pendingResourceResultAlignment = window.matchMedia('(min-width: 1101px)').matches
+        ? String(options.selectedId) : '';
+    }
+    render();
+    if (options.focusSearch) focusResourceTarget('resource-search');
+    else if (options.selectedId) focusMain(false);
+    else focusResourceTarget('resource-facets-toggle');
+  }
+
+  function backToCompactGuide() {
+    var saved = state.compactSnapshot;
+    if (!saved) {
+      resetHome(false);
+      focusMain(false);
+      return;
+    }
+    var triggerKey = saved.triggerFocusKey;
+    state.compactSnapshot = null;
+    restore(saved);
+    focusResourceTarget(triggerKey || 'resource-search');
+  }
+
+  function openRecord(id, trigger) {
     if (!recordsById[id]) return;
+    if (recordsById[id].kind === 'Resource') {
+      openResourceExplorer({ preset: 'all_resources', selectedId: id }, trigger);
+      return;
+    }
     pushHistory();
     state.view = 'detail';
     state.selectedId = id;
@@ -950,7 +2364,7 @@ function(el, x, data) {
     focusMain(false);
   }
 
-  root.addEventListener('click', function(event) {
+  function handleRootClick(event) {
     var target = event.target.closest('[data-guide-action]');
     if (!target || !root.contains(target)) return;
     var action = target.getAttribute('data-guide-action');
@@ -971,7 +2385,129 @@ function(el, x, data) {
       render();
       focusMain(false);
     } else if (action === 'record') {
-      openRecord(target.getAttribute('data-guide-record'));
+      openRecord(target.getAttribute('data-guide-record'), target);
+    } else if (action === 'resource-open') {
+      openResourceExplorer({
+        preset: target.getAttribute('data-resource-preset') || 'all_resources',
+        focusSearch: target.getAttribute('data-resource-focus-search') === 'true'
+      }, target);
+    } else if (action === 'resource-open-context') {
+      openResourceExplorer({
+        preset: 'all_resources',
+        productContextId: target.getAttribute('data-resource-product-context') || ''
+      }, target);
+    } else if (action === 'resource-back-guide') {
+      backToCompactGuide();
+    } else if (action === 'resource-preset') {
+      state.resourceExplorer = resourceExplorerModel.setPreset(
+        state.resourceExplorer,
+        target.getAttribute('data-resource-preset') || 'all_resources'
+      );
+      render();
+      focusResourceTarget(state.resourceExplorer.focusKey);
+    } else if (action === 'resource-facet-choice') {
+      var facetField = target.getAttribute('data-resource-field');
+      var facetValue = target.getAttribute('data-resource-value') || '';
+      var facetPatch = {};
+      facetPatch[facetField] = state.resourceExplorer[facetField] === facetValue
+        ? '' : facetValue;
+      facetPatch.pane = 'results';
+      facetPatch.facetsOpen = false;
+      facetPatch.renderLimit = 25;
+      state.resourceExplorer = resourceExplorerModel.patchState(
+        state.resourceExplorer, facetPatch
+      );
+      render();
+      focusResourceTarget(
+        'resource-facet-' + facetField + '-' +
+          resourceExplorerModel.normalize(facetValue).replace(/ /g, '-')
+      );
+    } else if (action === 'resource-relationship-choice') {
+      state.resourceExplorer = resourceExplorerModel.toggleRelationshipType(
+        state.resourceExplorer,
+        target.getAttribute('data-resource-relationship-type') || ''
+      );
+      render();
+      focusResourceTarget(state.resourceExplorer.focusKey);
+    } else if (action === 'resource-more-filters') {
+      state.resourceExplorer = resourceExplorerModel.patchState(
+        state.resourceExplorer,
+        {
+          moreFiltersOpen: !state.resourceExplorer.moreFiltersOpen,
+          pane: state.resourceExplorer.pane,
+          facetsOpen: state.resourceExplorer.facetsOpen,
+          selectedId: state.resourceExplorer.selectedId,
+          renderLimit: state.resourceExplorer.renderLimit
+        }
+      );
+      render();
+      focusResourceTarget('resource-more-filters');
+    } else if (action === 'resource-facets-toggle') {
+      var openingFacets = !state.resourceExplorer.facetsOpen;
+      state.resourceExplorer = resourceExplorerModel.patchState(
+        state.resourceExplorer,
+        {
+          facetsOpen: openingFacets,
+          pane: openingFacets ? 'facets' : 'results',
+          selectedId: state.resourceExplorer.selectedId,
+          renderLimit: state.resourceExplorer.renderLimit
+        }
+      );
+      render();
+      focusResourceTarget(openingFacets ? 'resource-provider-search' : 'resource-facets-toggle');
+    } else if (action === 'resource-pane-results') {
+      state.resourceExplorer = resourceExplorerModel.patchState(
+        state.resourceExplorer,
+        {
+          facetsOpen: false,
+          pane: 'results',
+          selectedId: state.resourceExplorer.selectedId,
+          renderLimit: state.resourceExplorer.renderLimit
+        }
+      );
+      render();
+      focusResourceTarget('resource-facets-toggle');
+    } else if (action === 'resource-detail-back') {
+      var detailFocusKey = state.resourceExplorer.selectedId
+        ? 'resource-result-' + state.resourceExplorer.selectedId : 'resource-search';
+      state.resourceExplorer = resourceExplorerModel.patchState(
+        state.resourceExplorer,
+        {
+          selectedId: '', pane: 'results',
+          renderLimit: state.resourceExplorer.renderLimit
+        }
+      );
+      render();
+      focusResourceTarget(detailFocusKey);
+    } else if (action === 'resource-provider-clear') {
+      state.resourceExplorer = resourceExplorerModel.clearProviders(state.resourceExplorer);
+      render();
+      focusResourceTarget('resource-provider-search');
+    } else if (action === 'resource-reset') {
+      state.resourceExplorer = resourceExplorerModel.reset(state.resourceExplorer);
+      render(false);
+      focusResourceTarget('resource-search');
+    } else if (action === 'resource-chip-remove') {
+      state.resourceExplorer = resourceExplorerModel.removeChip(
+        state.resourceExplorer,
+        target.getAttribute('data-resource-chip-key'),
+        target.getAttribute('data-resource-chip-value')
+      );
+      render();
+      focusResourceTarget('resource-search');
+    } else if (action === 'resource-select') {
+      var resourceId = target.getAttribute('data-resource-id');
+      prepareResourceResultAlignment(resourceId);
+      state.resourceExplorer = resourceExplorerModel.selectResource(
+        state.resourceExplorer,
+        resourceId
+      );
+      render();
+      focusMain(false);
+    } else if (action === 'resource-show-more') {
+      state.resourceExplorer = resourceExplorerModel.showMore(state.resourceExplorer);
+      render();
+      focusResourceTarget('resource-show-more');
     } else if (action === 'clear-all') {
       resetHome(true);
     } else if (action === 'facet-toggle') {
@@ -979,7 +2515,8 @@ function(el, x, data) {
       var facetValue = target.getAttribute('data-guide-value');
       if (!Object.prototype.hasOwnProperty.call(state.filters, facetField)) return;
       var selected = state.filters[facetField].indexOf(facetValue) >= 0;
-      state.filters[facetField] = selected ? [] : [facetValue];
+      state.filters[facetField] = facetField === 'brimSection'
+        ? [facetValue] : (selected ? [] : [facetValue]);
       state.section = 'explore';
       state.view = 'landing';
       state.selectedId = '';
@@ -1029,9 +2566,16 @@ function(el, x, data) {
       else resetHome(false);
       focusMain(true);
     }
-  });
+  }
 
-  searchInput.addEventListener('input', function(event) {
+  function handleSearchInput(event) {
+    if (state.view === 'resource-explorer') {
+      state.resourceExplorer = resourceExplorerModel.setQuery(
+        state.resourceExplorer, event.target.value
+      );
+      render();
+      return;
+    }
     state.section = 'explore';
     state.view = 'landing';
     state.query = event.target.value;
@@ -1041,17 +2585,120 @@ function(el, x, data) {
     state.quickLabel = '';
     state.history = [];
     render();
-  });
+  }
 
-  root.addEventListener('keydown', function(event) {
+  function handleResourceInput(event) {
+    var target = event.target;
+    if (!target || !target.hasAttribute('data-resource-provider-search')) return;
+    state.resourceExplorer = resourceExplorerModel.patchState(
+      state.resourceExplorer,
+      {
+        providerQuery: target.value,
+        facetsOpen: true,
+        pane: 'facets',
+        renderLimit: state.resourceExplorer.renderLimit
+      }
+    );
+    render();
+    window.setTimeout(function() {
+      var replacement = root.querySelector('[data-resource-provider-search]');
+      if (!replacement) return;
+      replacement.focus();
+      replacement.setSelectionRange(replacement.value.length, replacement.value.length);
+    }, 0);
+  }
+
+  function handleResourceChange(event) {
+    var target = event.target;
+    if (!target) return;
+    if (target.hasAttribute('data-resource-provider')) {
+      state.resourceExplorer = resourceExplorerModel.toggleProvider(
+        state.resourceExplorer,
+        target.getAttribute('data-resource-provider')
+      );
+      state.resourceExplorer.facetsOpen = true;
+      state.resourceExplorer.pane = 'facets';
+      render();
+      focusResourceTarget(state.resourceExplorer.focusKey);
+      return;
+    }
+    if (!target.hasAttribute('data-resource-field')) return;
+    var field = target.getAttribute('data-resource-field');
+    var patch = {};
+    patch[field] = target.value;
+    patch.pane = field === 'sortMode' ? state.resourceExplorer.pane : 'results';
+    patch.facetsOpen = field === 'sortMode' ? state.resourceExplorer.facetsOpen : false;
+    patch.selectedId = field === 'sortMode' ? state.resourceExplorer.selectedId : '';
+    patch.renderLimit = field === 'sortMode' ? state.resourceExplorer.renderLimit : 25;
+    state.resourceExplorer = resourceExplorerModel.patchState(
+      state.resourceExplorer, patch
+    );
+    render();
+    focusResourceTarget(field === 'sortMode' ? 'resource-search' : 'resource-facets-toggle');
+  }
+
+  function handleRootKeydown(event) {
+    var browseRadioField = event.target && event.target.getAttribute
+      ? event.target.getAttribute('data-guide-filter') : '';
+    if (browseRadioField === 'brimSection' &&
+        ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].indexOf(event.key) >= 0) {
+      event.preventDefault();
+      var browseRadios = Array.prototype.slice.call(root.querySelectorAll(
+        '[data-guide-action="facet-toggle"][data-guide-filter="brimSection"]'
+      ));
+      var browseRadioIndex = browseRadios.indexOf(event.target);
+      if (browseRadioIndex < 0 || !browseRadios.length) return;
+      var nextBrowseRadioIndex = browseRadioIndex;
+      if (event.key === 'Home') nextBrowseRadioIndex = 0;
+      else if (event.key === 'End') nextBrowseRadioIndex = browseRadios.length - 1;
+      else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        nextBrowseRadioIndex = (browseRadioIndex + 1) % browseRadios.length;
+      } else {
+        nextBrowseRadioIndex = (browseRadioIndex - 1 + browseRadios.length) % browseRadios.length;
+      }
+      browseRadios[nextBrowseRadioIndex].click();
+      return;
+    }
+    var presetTarget = event.target && event.target.getAttribute
+      ? event.target.getAttribute('data-resource-preset') : '';
+    if (presetTarget && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(event.key) >= 0) {
+      event.preventDefault();
+      var enabledPresets = resourceExplorerModel.presets.filter(function(preset) {
+        return (resourceExplorerModel.facetCounts(state.resourceExplorer).presets[preset.id] || 0) > 0 ||
+          preset.id === 'all_resources';
+      });
+      var currentIndex = enabledPresets.findIndex(function(preset) {
+        return preset.id === presetTarget;
+      });
+      var nextIndex = currentIndex;
+      if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = enabledPresets.length - 1;
+      else if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % enabledPresets.length;
+      else nextIndex = (currentIndex - 1 + enabledPresets.length) % enabledPresets.length;
+      state.resourceExplorer = resourceExplorerModel.setPreset(
+        state.resourceExplorer, enabledPresets[nextIndex].id
+      );
+      render();
+      focusResourceTarget(state.resourceExplorer.focusKey);
+      return;
+    }
     if (event.key === 'Escape') {
       event.preventDefault();
+      if (state.view === 'resource-explorer') {
+        var escapeResult = resourceExplorerModel.escape(state.resourceExplorer);
+        if (escapeResult.action === 'nested') {
+          state.resourceExplorer = escapeResult.state;
+          render();
+          focusResourceTarget(state.resourceExplorer.focusKey);
+          return;
+        }
+      }
       closeGuide();
       return;
     }
     if (event.key !== 'Tab') return;
     var focusable = Array.prototype.slice.call(root.querySelectorAll(
-      'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
     )).filter(function(item) { return item.offsetParent !== null; });
     if (!focusable.length) return;
     var first = focusable[0];
@@ -1063,19 +2710,47 @@ function(el, x, data) {
       event.preventDefault();
       first.focus();
     }
-  });
+  }
 
-  window.BRIM_GUIDE = Object.freeze({
+  var lifecycle = resourceExplorerModel.createLifecycle();
+  var guideApi = null;
+  function teardownGuide() {
+    if (!lifecycle.detach()) return;
+    root.removeEventListener('click', handleRootClick);
+    root.removeEventListener('input', handleResourceInput);
+    root.removeEventListener('change', handleResourceChange);
+    root.removeEventListener('keydown', handleRootKeydown);
+    searchInput.removeEventListener('input', handleSearchInput);
+    if (root.parentNode) root.parentNode.removeChild(root);
+    if (window.BRIM_GUIDE === guideApi) window.BRIM_GUIDE = undefined;
+  }
+  root.__brimGuideTeardown = teardownGuide;
+  if (lifecycle.attach()) {
+    root.addEventListener('click', handleRootClick);
+    root.addEventListener('input', handleResourceInput);
+    root.addEventListener('change', handleResourceChange);
+    root.addEventListener('keydown', handleRootKeydown);
+    searchInput.addEventListener('input', handleSearchInput);
+  }
+
+  guideApi = Object.freeze({
     open: openGuide,
     close: closeGuide,
     home: function() { resetHome(true); },
+    openResources: function(options) { openResourceExplorer(options || {}, null); },
     search: function(query) {
       return search(query).map(function(record) {
         return { id: record.id, title: record.title, kind: record.kind };
       });
     },
     getState: function() {
-      return Object.assign({}, snapshot(), { open: !root.hidden });
-    }
+      return Object.assign({}, snapshot(), {
+        open: !root.hidden,
+        resourceExplorerOpen: state.view === 'resource-explorer',
+        listenerState: lifecycle.state()
+      });
+    },
+    teardown: teardownGuide
   });
+  window.BRIM_GUIDE = guideApi;
 }

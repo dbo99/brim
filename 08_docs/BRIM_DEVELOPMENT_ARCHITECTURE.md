@@ -47,14 +47,14 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v2 authored metadata of 33 Resource records, with nine published and 24 staged behind a build-time publication gate;
+- `00_config/guide_resources.json` for the canonical schema-v2 authored metadata of 33 published Resource records;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
-- `03_functions/js/leaflet_brim_guide.js` for the V4 shell, deterministic search, combined browse filters, detail/history/focus behavior, and the small `window.BRIM_GUIDE` host API;
+- `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
 - `03_functions/css/leaflet_brim_guide.css` for styles namespaced under `#brim-guide-root`;
 - `05_map_build/04_build_portatreasure2_core_map.r` for compilation after the actual `OVERLAY_GROUPS` and `MAP_DISPLAY` inclusion state are known.
 
-The startup overlay and Guide share the small application-identity seam in `03_functions/leaflet_loading_helpers.r`; identity wording is not independently maintained in browser code. The compact upper-left map-toolbar control labeled `Guide`, with accessible name `Open BRIM Guide`, is the sole primary Guide entry. It always opens Explore/Home with search focused, and Guide close restores focus to that control. The External Layers panel has no Guide entry or delegation. The prior 26-record descriptive modal implementation remains read-only source with its tests and authority boundary, but it is not presented as a current panel entry.
+The startup overlay and Guide share the small application-identity seam in `03_functions/leaflet_loading_helpers.r`; identity wording is not independently maintained in browser code. The compact upper-left map-toolbar control labeled `BRIM Guide`, with accessible name `Open BRIM Guide`, is the sole primary Guide entry. It always opens Explore/Home with search focused, and Guide close restores focus to that control. The External Layers panel has no Guide entry or delegation. The prior 26-record descriptive modal implementation remains read-only source with its tests and authority boundary, but it is not presented as a current panel entry.
 
 Guide basic Product coverage is automatic for every included visible Product in the current build. Product existence and ordinary paths derive from current runtime/build authority before embedding:
 
@@ -65,37 +65,108 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v2 dataset with 33 ordered
-Resource records. The nine pre-existing records are `published`; 24 reviewed
-Wave 1 records are `staged`. Final-ID aliases, build-time `res.*` migration
+`guide_resources.json` is one canonical schema-v2 dataset with 33 ordered,
+published Resource records. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
-that reviewed descriptive metadata, but not for Product relationships. Those
-relationships remain in the existing compiler and Product enrichment
-authority and are never inferred from Resource text, providers, or URLs.
+that reviewed descriptive metadata, but not for Product relationships.
+`guide_product_enrichment.json` is the sole authored relationship authority:
+its exact 17 rows comprise zero `displayed_in_brim`, seven `used_by_brim`, and
+ten `related_external_resource` relationships. Relationships are never inferred
+from Resource text, providers, URLs, publication, or geographic intersection.
 
-The compiler validates relationship Resource IDs against all 33 registry
-records and Product IDs against the current Product universe, then projects
-only `published` Resources before browser adaptation and prunes staged
-relationships before Product projection. Staged IDs, aliases, text, access
-points, relationships, and counts therefore do not enter the current browser
-bundle. This publication gate is not a profile; the compact seven-field browser
-Resource shape and its nine-record order remain unchanged. The registry is
-descriptive Guide content only: it cannot create or control map layers,
+The compiler validates relationship Resource IDs against the 33-record
+published registry and Product IDs against the current projected Product
+universe, then derives reverse Resource-to-Product links only from surviving
+exact Product relationships. The browser receives all 33 records in registry
+order with one exact 19-field shape: identity and reviewed descriptive fields,
+labeled access points, geography, derived related Products and relationship
+flags, and normalized search text. Migration aliases, raw source evidence, and
+runtime authority are excluded. Publication is not a Guide profile. The
+registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
 The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Projection occurs before the Guide bundle is embedded and explicitly excludes all runtime-derived basemap records. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
-Resource-data request. Raw bookmark exports, intake workbooks, candidate
+Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
 inventories, and unresolved reconciliation evidence remain External and are
 not tracked wholesale or shipped in the browser payload. Any future inventory
 import requires separate reconciliation and approval before it can change the
 registry, aliases, relationships, profiles, or visible Guide content.
 
-The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value: choosing another replaces the prior value, choosing the active value clears that group, and selections across groups combine with search by AND. Product taxonomy remains multi-valued. Removable chips appear directly beneath search with at most one chip per group, and a contextual inline `Clear all` resets query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
+The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value and selections across groups combine with search by AND. `Where in BRIM` is a radio-style dimension: choosing another value replaces the prior value, while its removable active chip restores the unfiltered state. Primary Subject and Information Type likewise replace the prior value, and their active value or chip can clear that group. Product taxonomy remains multi-valued. Removable chips appear directly beneath search only while browse filters are active, with at most one chip per group, and a contextual inline `Clear all` retains the existing reset contract by clearing query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop; an adjacent live derived status reports the current count against the complete projected Product count and marks any subset as filtered. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
+
+V4.1 extends that same shell with one Resource Explorer. The compact Resources
+destination is a gateway with exactly three actions: open BRIM-linked
+Resources, explore beyond BRIM, or search all Resources. Its orientation copy
+distinguishes A · Explore—Products available through BRIM—from C · Resources,
+which contains datasets, viewers, portals, official sources, and supporting
+libraries linked to BRIM or useful beyond it. The Explorer uses a
+64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
+and a measured one-pane search/results, facets, or detail flow at narrow width.
+Its three primary views appear in the consistent order 9 BRIM-linked, 24 Beyond
+BRIM, and 33 All Resources. `BRIM-linked` is the union of Resources with at least one exact
+`displayed_in_brim`, `used_by_brim`, or `related_external_resource`
+relationship; Beyond BRIM is the exact complement. The primary views form one
+mutually exclusive radio-style control, selecting one replaces the prior view,
+and primary-view changes do not create chips or clear secondary refinements.
+Search applies NFKD normalization, punctuation and whitespace
+folding, AND across query tokens and facet dimensions, OR within selected
+providers, fixed semantic-field weights, conservative one-edit title/alias
+recovery for tokens of at least five characters, and stable title/ID ties.
+Provider retains searchable exact multi-select controls; Subject and
+Information Type use immediately visible compact wrapped single-select choices.
+A sentence-case `More filters` disclosure progressively reveals native,
+long-vocabulary-capable single-select control for the already projected
+Resource type. Resource granularity and geography remain projected search/detail
+metadata but are not R6 facets because granularity overlaps Resource type and
+current geography mixes scope classes with place names. Deferred controlled
+enrichment candidates are richer Resource-type normalization informed by the
+legacy prototype, temporal character/time mode, geographic scope separated from
+named places, variables/use-scope exploration, and access-point type; R6 adds no
+placeholder controls for them. A separate visible relationship-subtype group exposes
+Available in BRIM (`displayed_in_brim`), Used by BRIM (`used_by_brim`), and
+Related resource (`related_external_resource`); those controls are OR within
+their group and AND with other dimensions, and the current unique-Resource
+counts are 0, 6, and 3. The zero-count Available control remains visible but
+disabled. Results and selected detail use the same exact subtype wording rather
+than a generic connected badge; Beyond Resources receive no relationship badge.
+The V4.1 warm-neutral shell remains authoritative: All Resources stays neutral,
+BRIM-linked and its direct relationship states receive restrained green
+emphasis, and Beyond BRIM, related-external badges, and external access actions
+receive restrained muted-blue emphasis. Labels and accessible selected states,
+not color alone, remain authoritative.
+Sort remains native. On wide desktop, refinement receives about two-fifths of
+the result-list layout and one-third of the selected-detail layout, preserving
+dense result/detail scanning without compressing visible filters. Search,
+orientation copy, and the primary-view ribbon remain stationary above a bounded
+workspace whose Refine pane and single results/detail content region are the
+only independent vertical scrollers. Controller rerenders preserve their
+unrelated positions. Selecting a wide-layout result saves the current browsing
+position and aligns that existing selected row once at the top of the result
+viewport beside its detail without changing sort order; subsequent user
+scrolling is not overridden. Closing detail restores the saved result-list
+position and selected-row focus, while Reset all returns all three positions to
+the top.
+Narrow layouts keep the shared one-pane results, filters, or detail flow and use
+the Guide main region as that pane's scroll owner rather than adopting the
+desktop split-scroll hierarchy. Results initially reveal 25;
+`Show more` reveals the remaining eight without pagination or virtualization.
+Only the selected Resource renders full metadata, exact related Products, and
+role-labeled safe access links. The exact canonical access point matching
+`canonicalUrl` is promoted to the restrained external-blue `Open official
+resource` primary action; any other configured access points retain their
+projected labels, URLs, and lower visual priority. Product-to-Resource
+navigation enters the same
+Explorer with an exact Product-ID relationship filter and relevance boost.
+Nested Escape closes Resource detail or facets before root Escape closes Guide,
+and Resource state restores when returning to the compact Guide. One shared
+model and controller own all responsive layouts; replacement and teardown are
+listener-idempotent. The Explorer does not fetch, persist, activate map layers,
+or introduce a second Resource authority.
 
 V4 behavior includes Home reset, Escape/close/focus restoration, typed stable-ID Quick Access, and combined visible facets over BRIM section, multi-valued subject tags, and multi-valued `Information Type` tags. Layer details show `Find in layer list` only for a verified navigable path and otherwise use a source-backed layer-purpose summary; Tool details show `What this tool does` plus `How to open it` only when a current UI control is verified. The maintained information-type metadata vocabulary is `Static Reference`, `Live Observation`, `Forecast / Outlook`, `Model / Simulation`, `Historical Context`, `Screening / Derived`, `External On-Demand Service`, and `Tool / Workflow`; the last remains Tools metadata but is not a permanent browse choice. `Model / Simulation` is assigned only to exact verified model or simulation systems and can coexist with forecast, observation, historical, or screening metadata. User-facing result types distinguish Layer, Tool, Collection, Method, Resource, and Update while the internal Product umbrella remains unchanged. Result secondary lines are generic by entity: Layers use a verified path or purpose, Tools use an action summary, and Collections use exact member scope. Search is deterministic and gives precedence to exact titles and reviewed aliases, then explicit subject and Information Type tags, provider/program, reviewed capability terms, concise source-supported summaries, related Resource titles, and conservative title/alias typo recovery. Ordinary search does not tokenize broad group/subgroup labels, BRIM path components, Product family labels, runtime IDs, raw URLs, controller variables, DOM text, or editorial source references. Exact complete normalized BRIM paths remain discoverable through a separate equality check rather than ordinary token indexing.
 

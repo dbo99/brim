@@ -418,7 +418,7 @@
           "url": "https://www.star.nesdis.noaa.gov/GOES/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cira_slider",
@@ -486,7 +486,7 @@
           "url": "https://rammb-slider.cira.colostate.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_worldview",
@@ -558,7 +558,7 @@
           "url": "https://worldview.earthdata.nasa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_climate_engine",
@@ -632,7 +632,7 @@
           "url": "https://app.climateengine.org/climateEngine"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_smap_mission",
@@ -699,7 +699,7 @@
           "url": "https://smap.jpl.nasa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_smap_data",
@@ -764,7 +764,7 @@
           "url": "https://smap.jpl.nasa.gov/data/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_smap_l3_enhanced_soil_moisture",
@@ -832,7 +832,7 @@
           "url": "https://nsidc.org/data/spl3smp_e/versions/3"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_smops",
@@ -901,7 +901,7 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/index.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_smops_maps",
@@ -970,7 +970,7 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/SMOPSMaps.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cpc_soil_moisture",
@@ -1042,7 +1042,7 @@
           "url": "https://www.cpc.ncep.noaa.gov/soilmst/w.shtml"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nidis_soil_moisture_dashboard",
@@ -1111,7 +1111,7 @@
           "url": "https://www.drought.gov/indicators/soil-moisture-product-dashboard"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ncsmmn_network_map",
@@ -1176,7 +1176,7 @@
           "url": "https://experience.arcgis.com/experience/c589a0c00ad14d778e2c3f6fd9a0ebba"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ncsmmn_soil_moisture_portal",
@@ -1245,7 +1245,7 @@
           "url": "https://www.drought.gov/data-maps-tools/us-soil-moisture-networks-portal"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_scan",
@@ -1319,7 +1319,7 @@
           "url": "https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_grace_tellus",
@@ -1388,7 +1388,7 @@
           "url": "https://grace.jpl.nasa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_grace_data",
@@ -1453,7 +1453,7 @@
           "url": "https://grace.jpl.nasa.gov/data/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_grace_analysis_tool",
@@ -1521,7 +1521,7 @@
           "url": "https://grace.jpl.nasa.gov/data/data-analysis-tool/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_grace_groundwater_soil_moisture",
@@ -1610,7 +1610,7 @@
           "url": "https://nasagrace.unl.edu/About.aspx"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nidis_grace_groundwater_soil_moisture",
@@ -1682,7 +1682,7 @@
           "url": "https://www.drought.gov/data-maps-tools/groundwater-and-soil-moisture-conditions-grace-data-assimilation"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_vegetation_health",
@@ -1753,7 +1753,7 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/index.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usda_crop_casma",
@@ -1827,7 +1827,7 @@
           "url": "https://cloud.csiss.gmu.edu/Crop-CASMA/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usda_vegscape",
@@ -1896,7 +1896,7 @@
           "url": "https://nassgeodata.gmu.edu/VegScape/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_quickdri",
@@ -1964,7 +1964,7 @@
           "url": "https://quickdri.unl.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_vegdri",
@@ -2036,7 +2036,7 @@
           "url": "https://vegdri.unl.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     }
   ]
 }

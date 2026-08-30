@@ -283,15 +283,6 @@ pt_guide_information_types <- function(stable_id, brim_section, source_theme = "
   vocabulary[vocabulary %in% unique(out)]
 }
 
-pt_guide_related_resources <- function(provider, title) {
-  text <- tolower(paste(provider, title))
-  out <- character(0)
-  if (grepl("blm|bureau of land management", text)) out <- c(out, "resource_blm_california")
-  if (grepl("usgs|geological survey", text)) out <- c(out, "resource_usgs_water_dashboard")
-  if (grepl("noaa|nws|cnrfc|wpc|cpc|mrms", text)) out <- c(out, "resource_noaa_nwps")
-  unique(out)
-}
-
 pt_guide_section <- function(id, title, paragraphs = character(0), items = character(0), table = NULL) {
   list(
     id = as.character(id),
@@ -302,39 +293,15 @@ pt_guide_section <- function(id, title, paragraphs = character(0), items = chara
   )
 }
 
-pt_guide_resource_relationships <- function(ids, roles = character(0)) {
-  ids <- unique(as.character(ids[nzchar(trimws(ids))]))
-  if (!length(ids)) return(list())
-  roles <- as.character(roles)
-  lapply(seq_along(ids), function(i) {
-    role <- if (length(roles) && !is.null(names(roles)) && ids[[i]] %in% names(roles)) {
-      roles[[ids[[i]]]]
-    } else if (length(roles) >= i) {
-      roles[[i]]
-    } else {
-      "Related agency resource"
-    }
-    list(
-      id = ids[[i]], role = pt_guide_or(role, "Related agency resource"),
-      relationshipType = "related_external_resource", useScope = "general_context"
-    )
-  })
-}
-
 pt_guide_product <- function(
   id, title, subsystem, brim_section, provider, path, subjects, information_types, family,
   summary = "", aliases = character(0), search_terms = character(0),
   sections = list(), related_article_ids = character(0),
-  related_resource_ids = character(0), related_resource_roles = character(0),
   custom_or_non_generic = FALSE, content_tier = "STRUCTURED_BASIC",
   entity_type = "", access_hint = ""
 ) {
   subjects <- unique(as.character(subjects[nzchar(trimws(subjects))]))
   information_types <- unique(as.character(information_types[nzchar(trimws(information_types))]))
-  resource_relationships <- pt_guide_resource_relationships(
-    related_resource_ids,
-    related_resource_roles
-  )
   list(
     kind = "Product",
     entityType = pt_guide_or(
@@ -359,8 +326,8 @@ pt_guide_product <- function(
     searchTerms = unname(unique(as.character(search_terms[nzchar(trimws(search_terms))]))),
     sections = unname(sections),
     relatedArticleIds = unname(unique(as.character(related_article_ids))),
-    relatedResourceIds = vapply(resource_relationships, `[[`, character(1), "id"),
-    relatedResources = unname(resource_relationships),
+    relatedResourceIds = character(0),
+    relatedResources = list(),
     customOrNonGeneric = isTRUE(custom_or_non_generic),
     contentTier = as.character(content_tier)
   )
@@ -458,7 +425,6 @@ pt_guide_local_products <- function(overlay_groups, catalog_markers = list()) {
       information_types = pt_guide_information_types(row_id, "Local"),
       family = if (identical(category, "Monitoring Sites/Records")) "Local monitoring record" else "Local reference layer",
       aliases = pt_guide_aliases(row_id, title),
-      related_resource_ids = pt_guide_related_resources(provider, title),
       custom_or_non_generic = isTRUE(catalog_markers[[row_id]])
     )
   }
@@ -510,7 +476,6 @@ pt_guide_external_products <- function(
       summary = summary,
       aliases = pt_guide_aliases(row$external_layer_id, title),
       search_terms = search_terms,
-      related_resource_ids = pt_guide_related_resources(provider, title),
       custom_or_non_generic = isTRUE(catalog_markers[[row$external_layer_id]])
     )
   })
@@ -613,7 +578,6 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
       ),
       family = definition$category,
       aliases = pt_guide_aliases(id, title),
-      related_resource_ids = pt_guide_related_resources(provider, title),
       custom_or_non_generic = isTRUE(catalog_markers[[id]])
     )
   }
@@ -632,8 +596,7 @@ pt_guide_basemap_products <- function() {
       id = ids[[i]], title = titles[[i]], subsystem = "Basemaps / Local Layers",
       brim_section = "Basemap", provider = provider, path = path,
       subjects = "Land & Administrative Context",
-      information_types = "Static Reference", family = "Basemap",
-      related_resource_ids = pt_guide_related_resources(provider, titles[[i]])
+      information_types = "Static Reference", family = "Basemap"
     )
   })
 }
@@ -674,7 +637,6 @@ pt_guide_tool_products <- function(map_display) {
       ),
       family = "Land status context",
       aliases = c("BLM SMA", "Federal/State Surface Management Agency", "BLM CA land status"),
-      related_resource_ids = "resource_blm_california",
       custom_or_non_generic = TRUE,
       entity_type = "Layer"
     )
@@ -1085,48 +1047,131 @@ pt_guide_resource_published_records <- function(registry) {
          call. = FALSE)
   }
   records <- unclass(registry)
-  unname(records[publication_states == "published"])
-}
-
-pt_guide_resource_product_relationships <- function() {
-  list(
-    resource_doi = character(0),
-    resource_blm_california = c("huc8", "gw_bull118"),
-    resource_prism_normals = "huc8",
-    resource_usgs_bcmv8 = "huc8",
-    resource_dwr_bulletin118_sgma_2019 = "gw_bull118",
-    resource_calfire_fire_perimeters = c("EXT070", "EXT072"),
-    resource_nifc_wfigs_current = "EXT074",
-    resource_usgs_water_dashboard = "product-ops-usgs-groundwater",
-    resource_noaa_nwps = character(0)
+  structure(
+    unname(records[publication_states == "published"]),
+    class = c("pt_guide_resource_registry", "list")
   )
 }
 
-pt_guide_resource_browser_records <- function(
-    registry = pt_guide_resource_published_records(pt_guide_read_resource_registry()),
-    related_products = pt_guide_resource_product_relationships()) {
+pt_guide_normalize_resource_search <- function(values) {
+  value <- paste(unname(as.character(unlist(values, recursive = TRUE, use.names = FALSE))),
+                 collapse = " ")
+  value <- iconv(value, from = "UTF-8", to = "ASCII//TRANSLIT", sub = "")
+  if (is.na(value)) {
+    stop("Guide Resource search text could not be normalized.", call. = FALSE)
+  }
+  value <- gsub("[^a-z0-9]+", " ", tolower(value), perl = TRUE)
+  trimws(gsub("[[:space:]]+", " ", value, perl = TRUE))
+}
+
+pt_guide_resource_relationship_flags <- function(related_products) {
+  relationship_types <- if (length(related_products)) {
+    vapply(related_products, `[[`, character(1), "relationshipType")
+  } else {
+    character(0)
+  }
+  displayed <- "displayed_in_brim" %in% relationship_types
+  used <- "used_by_brim" %in% relationship_types
+  related <- "related_external_resource" %in% relationship_types
+  brim_linked <- displayed || used || related
+  list(
+    brimLinked = brim_linked,
+    beyondBrim = !brim_linked,
+    displayedInBrim = displayed,
+    usedByBrim = used,
+    relatedExternalResource = related
+  )
+}
+
+pt_guide_resource_browser_records <- function(registry, products) {
+  if (!inherits(registry, "pt_guide_resource_registry")) {
+    stop("Guide Resource browser adaptation requires a validated registry.",
+         call. = FALSE)
+  }
   if (any(vapply(registry, function(record) {
     !identical(pt_guide_or(record$publication_state), "published")
   }, logical(1)))) {
     stop("Guide Resource browser adaptation accepts published records only.", call. = FALSE)
   }
-  ids <- vapply(registry, `[[`, character(1), "id")
-  if (!identical(ids, names(related_products))) {
-    stop("Guide Resource registry IDs/order require explicit compiler relationship reconciliation.",
+  if (!is.list(products)) {
+    stop("Guide Resource browser adaptation requires eligible projected Products.",
+         call. = FALSE)
+  }
+  product_ids <- vapply(products, function(product) pt_guide_or(product$id), character(1))
+  if (any(!nzchar(product_ids)) || anyDuplicated(product_ids)) {
+    stop("Guide Resource browser adaptation requires unique eligible Product IDs.",
          call. = FALSE)
   }
   lapply(registry, function(record) {
     display_providers <- Filter(
       function(provider) identical(provider$role, "display_provider"), record$providers
     )
+    related_products <- list()
+    for (product in products) {
+      for (relationship in product$relatedResources) {
+        if (!identical(pt_guide_or(relationship$id), record$id)) next
+        related_products[[length(related_products) + 1L]] <- list(
+          id = product$id,
+          title = product$title,
+          entityType = product$entityType,
+          relationshipType = relationship$relationshipType,
+          role = relationship$role,
+          useScope = relationship$useScope
+        )
+      }
+    }
+    aliases <- unname(as.character(unlist(record$search_aliases, use.names = FALSE)))
+    providers <- lapply(record$providers, function(provider) list(
+      name = provider$name,
+      role = provider$role
+    ))
+    access_points <- lapply(record$access_points, function(point) list(
+      role = point$role,
+      label = if (identical(point$role, "canonical")) "Official Resource" else point$label,
+      url = point$url
+    ))
+    geographic_scope <- list(
+      scopeType = record$geographic_scope$scope_type,
+      names = unname(as.character(unlist(record$geographic_scope$names, use.names = FALSE)))
+    )
+    search_text <- pt_guide_normalize_resource_search(list(
+      record$title,
+      aliases,
+      display_providers[[1]]$name,
+      vapply(providers, `[[`, character(1), "name"),
+      record$summary,
+      vapply(access_points, `[[`, character(1), "label"),
+      record$resource_type,
+      record$resource_granularity,
+      unlist(record$subject_tags, use.names = FALSE),
+      unlist(record$information_type_tags, use.names = FALSE),
+      unlist(record$variables, use.names = FALSE),
+      unlist(record$use_scopes, use.names = FALSE),
+      geographic_scope$scopeType,
+      geographic_scope$names
+    ))
     list(
       kind = "Resource",
       id = record$id,
       title = record$title,
+      aliases = aliases,
       provider = display_providers[[1]]$name,
+      providers = unname(providers),
       summary = record$summary,
-      url = record$canonical_url,
-      relatedProductIds = unname(related_products[[record$id]])
+      canonicalUrl = record$canonical_url,
+      accessPoints = unname(access_points),
+      resourceType = record$resource_type,
+      resourceGranularity = record$resource_granularity,
+      subjectTags = unname(as.character(unlist(record$subject_tags, use.names = FALSE))),
+      informationTypes = unname(as.character(unlist(
+        record$information_type_tags, use.names = FALSE
+      ))),
+      variables = unname(as.character(unlist(record$variables, use.names = FALSE))),
+      useScopes = unname(as.character(unlist(record$use_scopes, use.names = FALSE))),
+      geographicScope = geographic_scope,
+      relatedProducts = unname(related_products),
+      relationshipFlags = pt_guide_resource_relationship_flags(related_products),
+      searchText = search_text
     )
   })
 }
@@ -1274,6 +1319,8 @@ pt_guide_apply_product_enrichment <- function(
     }
   }
   lapply(products, function(product) {
+    product$relatedResourceIds <- character(0)
+    product$relatedResources <- list()
     record <- enrichment[[product$id]]
     if (is.null(record)) return(product)
     if (nzchar(pt_guide_or(record$summary))) product$summary <- pt_guide_or(record$summary)
@@ -1314,14 +1361,10 @@ pt_guide_apply_product_enrichment <- function(
   })
 }
 
-pt_guide_authored_content <- function(resources = NULL) {
+pt_guide_authored_content <- function(resources) {
   if (!exists("pt_polygon_generalization_read_registry", mode = "function")) {
     stop("Polygon generalization authority must be loaded before compiling curated Guide content.", call. = FALSE)
   }
-  if (is.null(resources)) {
-    resources <- pt_guide_resource_browser_records()
-  }
-
   generalization <- pt_polygon_generalization_read_registry()
 
   articles <- list(
@@ -1342,11 +1385,10 @@ pt_guide_authored_content <- function(resources = NULL) {
         ),
         pt_guide_section(
           "using_the_guide",
-          "Using the Guide",
-          paragraphs = "Use the Guide to find layers and tools and to understand their sources, preparation, timing, and limitations. The Guide explains map content but does not turn layers on or change map settings."
+          "Using BRIM Guide",
+          paragraphs = "Use BRIM Guide to find layers and tools and to understand their sources, preparation, timing, and limitations. BRIM Guide explains map content but does not turn layers on or change map settings."
         )
       ),
-      related_product_ids = c("huc8", "gw_bull118", "EXT070", "EXT072", "EXT074"),
       aliases = c("BRIM basics", "layer types", "tool types")
     ),
     pt_guide_article(
@@ -1471,7 +1513,7 @@ pt_guide_authored_content <- function(resources = NULL) {
           items = c(
             "R assembles the current registries, retained map products, controls, compact Guide bundle, and assets into one standalone Leaflet HTML file.",
             "Guide coverage is assembled after the current map profile and visible layer groups are known, then embedded before browser startup.",
-            "Browser controllers own interaction and teardown for their layer families; the Guide does not activate map layers or fetch Guide content at runtime.",
+            "Browser controllers own interaction and teardown for their layer families; BRIM Guide does not activate map layers or fetch Guide content at runtime.",
             "Large raw inputs, processed products, caches, realistic HTML, and screenshots remain external to the tracked source repository."
           )
         )
@@ -1547,7 +1589,6 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
     record
   }
   bundle$articles <- lapply(bundle$articles, prune_related)
-  bundle$resources <- lapply(bundle$resources, prune_related)
   bundle$updates <- lapply(bundle$updates, prune_related)
   bundle$quickAccess <- lapply(bundle$quickAccess, function(item) {
     if (identical(item$entryKind, "collection")) {
@@ -1573,6 +1614,15 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
       "id"
     ))
     product
+  })
+  bundle$resources <- lapply(bundle$resources, function(resource) {
+    resource$relatedProducts <- Filter(function(product) {
+      pt_guide_or(product$id) %in% product_ids
+    }, resource$relatedProducts)
+    resource$relationshipFlags <- pt_guide_resource_relationship_flags(
+      resource$relatedProducts
+    )
+    resource
   })
   bundle$profileId <- profile_id
   bundle$counts <- list(
@@ -1618,6 +1668,100 @@ pt_validate_guide_bundle <- function(bundle) {
   }
   resource_ids <- vapply(bundle$resources, `[[`, character(1), "id")
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
+  resource_fields <- c(
+    "kind", "id", "title", "aliases", "provider", "providers", "summary",
+    "canonicalUrl", "accessPoints", "resourceType", "resourceGranularity",
+    "subjectTags", "informationTypes", "variables", "useScopes",
+    "geographicScope", "relatedProducts", "relationshipFlags", "searchText"
+  )
+  for (resource in bundle$resources) {
+    if (!identical(names(resource), resource_fields) ||
+        !identical(resource$kind, "Resource") ||
+        any(!nzchar(c(resource$id, resource$title, resource$provider,
+                      resource$summary, resource$canonicalUrl, resource$resourceType,
+                      resource$resourceGranularity, resource$searchText)))) {
+      stop("BRIM Guide Resources require the exact public 19-field projection.",
+           call. = FALSE)
+    }
+    if (!is.list(resource$providers) || !length(resource$providers) ||
+        any(vapply(resource$providers, function(provider) {
+          !identical(names(provider), c("name", "role")) ||
+            any(!nzchar(c(provider$name, provider$role)))
+        }, logical(1)))) {
+      stop("BRIM Guide Resource providers require exact nonblank name/role pairs.",
+           call. = FALSE)
+    }
+    display_providers <- Filter(function(provider) {
+      identical(provider$role, "display_provider")
+    }, resource$providers)
+    if (length(display_providers) != 1L ||
+        !identical(display_providers[[1]]$name, resource$provider)) {
+      stop("BRIM Guide Resource display provider is inconsistent.", call. = FALSE)
+    }
+    if (!is.list(resource$accessPoints) || !length(resource$accessPoints) ||
+        any(vapply(resource$accessPoints, function(point) {
+          !identical(names(point), c("role", "label", "url")) ||
+            any(!nzchar(c(point$role, point$label, point$url))) ||
+            !grepl("^https://", point$url)
+        }, logical(1)))) {
+      stop("BRIM Guide Resource access points require exact labeled HTTPS actions.",
+           call. = FALSE)
+    }
+    canonical_points <- Filter(function(point) {
+      identical(point$role, "canonical")
+    }, resource$accessPoints)
+    if (length(canonical_points) != 1L ||
+        !identical(canonical_points[[1]]$label, "Official Resource") ||
+        !identical(canonical_points[[1]]$url, resource$canonicalUrl)) {
+      stop("BRIM Guide Resource canonical access-point contract changed.", call. = FALSE)
+    }
+    if (!identical(names(resource$geographicScope), c("scopeType", "names")) ||
+        !nzchar(resource$geographicScope$scopeType)) {
+      stop("BRIM Guide Resource geographic scope shape changed.", call. = FALSE)
+    }
+    expected_related <- list()
+    for (product in bundle$products) {
+      for (relationship in product$relatedResources) {
+        if (!identical(pt_guide_or(relationship$id), resource$id)) next
+        expected_related[[length(expected_related) + 1L]] <- list(
+          id = product$id,
+          title = product$title,
+          entityType = product$entityType,
+          relationshipType = relationship$relationshipType,
+          role = relationship$role,
+          useScope = relationship$useScope
+        )
+      }
+    }
+    if (!identical(resource$relatedProducts, unname(expected_related)) ||
+        !identical(
+          resource$relationshipFlags,
+          pt_guide_resource_relationship_flags(resource$relatedProducts)
+        )) {
+      stop("BRIM Guide Resource relationships must reverse-index exact eligible Product enrichment rows.",
+           call. = FALSE)
+    }
+    expected_search <- pt_guide_normalize_resource_search(list(
+      resource$title,
+      resource$aliases,
+      resource$provider,
+      vapply(resource$providers, `[[`, character(1), "name"),
+      resource$summary,
+      vapply(resource$accessPoints, `[[`, character(1), "label"),
+      resource$resourceType,
+      resource$resourceGranularity,
+      resource$subjectTags,
+      resource$informationTypes,
+      resource$variables,
+      resource$useScopes,
+      resource$geographicScope$scopeType,
+      resource$geographicScope$names
+    ))
+    if (!identical(resource$searchText, expected_search)) {
+      stop("BRIM Guide Resource search text is not the deterministic allowed-field projection.",
+           call. = FALSE)
+    }
+  }
   for (article in bundle$articles) {
     links <- article$externalLinks
     if (!length(links)) next
@@ -1726,7 +1870,6 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
   if (!exists("pt_brim_application_identity", mode = "function")) stop("BRIM application identity seam is not loaded.", call. = FALSE)
   resource_registry <- pt_guide_read_resource_registry()
   published_resources <- pt_guide_resource_published_records(resource_registry)
-  browser_resources <- pt_guide_resource_browser_records(published_resources)
   markers <- pt_guide_descriptive_markers()
   products <- c(
     pt_guide_local_products(overlay_groups, markers),
@@ -1744,6 +1887,13 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
     products, enrichment,
     resource_registry = resource_registry,
     product_universe_ids = product_universe_ids
+  )
+  eligible_products <- Filter(function(product) {
+    product$id %in% product_universe_ids
+  }, products)
+  browser_resources <- pt_guide_resource_browser_records(
+    published_resources,
+    eligible_products
   )
   content <- pt_guide_authored_content(browser_resources)
   bundle <- c(

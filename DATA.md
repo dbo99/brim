@@ -30,22 +30,55 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 2 contains one ordered
-33-record dataset: the nine pre-existing Resources are `published`, and 24
-reviewed Wave 1 Resources are `staged`. The registry preserves immutable
+33-record dataset, and all 33 reviewed Resources are `published`. The registry
+preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. It does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
-Resource-to-Product relationships remain separately authoritative in the
-existing Guide compiler and Product enrichment paths. They are not inferred
-from Resource titles, provider text, summaries, or URLs. Relationship Resource
-IDs validate against the complete registry and Product IDs validate against
-the current Product universe. The build-time publication projection then
-removes staged Resources and their relationships before browser adaptation,
-search text, counts, or bundle construction. The publication gate is not a
-Guide profile: `default` remains the only current profile, and the standalone
-HTML still performs no runtime Resource-data fetch.
+`00_config/guide_product_enrichment.json` is the sole authored authority for
+Product-to-Resource relationships. Its 17 reviewed rows consist of zero
+`displayed_in_brim`, seven `used_by_brim`, and ten
+`related_external_resource` relationships. They are never inferred from
+Resource titles, providers, summaries, URLs, publication, or geographic
+intersection. Relationship Resource IDs validate against the complete
+published registry and Product IDs validate against the current projected
+Product universe; the compiler then derives the reverse Resource-to-Product
+links from those exact surviving rows.
+
+The Resource Explorer derives its primary views from those rows without adding
+another relationship category. `BRIM-linked` is the union of Resources with at
+least one `displayed_in_brim`, `used_by_brim`, or
+`related_external_resource` row; it currently contains nine unique Resources.
+`Beyond BRIM` is the exact 24-Resource complement within the 33 published
+Resources. The visible relationship subtype refinements preserve the canonical
+types and currently count zero Available in BRIM, six Used by BRIM, and three
+Related resource records by unique Resource rather than relationship row.
+
+The browser projection contains the 33 published records in registry order and
+only the reviewed 19-field Resource shape: identity and descriptive metadata,
+labeled access points, geographic scope, derived related Products and
+relationship flags, and normalized search text. Migration aliases, runtime
+authority, raw source evidence, and unreviewed fields do not enter that shape.
+The selected-detail primary external action is the one access point whose role
+is `canonical` and whose URL exactly equals `canonicalUrl`; other access points
+retain their projected labels and exact URLs as secondary actions. This display
+priority does not add or infer Resource authority.
+`default` remains the only current Guide profile, and the standalone HTML makes
+no runtime Resource-data request or browser-storage copy.
+
+Resource filtering uses only that projected authority. Provider, Subject,
+Information Type, and Resource type may be filtered directly; Resource type is
+the sole scalable native select under `More filters`. Resource granularity and
+geography remain projected detail/search metadata rather than R6 facets, and no
+recasing, merging, or geographic reinterpretation is applied. Variables and use
+scopes remain searchable descriptive fields, not controlled facet vocabularies.
+Future controlled candidates include richer Resource-type normalization,
+temporal character/time mode, geographic scope separated from named places,
+variables/use-scope exploration, and access-point type. R6 does not infer or
+store a temporal class, cadence, update frequency, or time mode from titles,
+URLs, or Information Type.
 
 Raw bookmark exports, intake workbooks, candidate records, unresolved notes,
 and other Resource-inventory evidence remain External research/input material
