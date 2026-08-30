@@ -29,12 +29,21 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 ## Guide Resource metadata
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
-BRIM Guide Resource metadata. Its schema version 2 contains one ordered
+BRIM Guide Resource metadata. Its schema version 3 contains one ordered
 33-record dataset, and all 33 reviewed Resources are `published`. The registry
 preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
-fields. It does not contain Product relationships or profile, layer,
+fields. Every Resource has exactly one controlled Resource Type machine ID,
+one controlled temporal-character machine ID, and one geographic-scope object
+whose controlled scope-class ID is independent of its normalized named-place
+array. `resource_granularity` remains canonical editorial metadata unchanged
+from schema version 2; it is not a public facet. Temporal character describes
+the Resource's temporal role and is separate from cadence, update frequency,
+freshness, or runtime status, none of which the registry infers. The compiler
+owns the single ID-to-label vocabulary for Resource Type, temporal character,
+and geographic scope and projects deterministic labels at build time. The
+registry does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
 `00_config/guide_product_enrichment.json` is the sole authored authority for
@@ -57,10 +66,12 @@ types and currently count zero Available in BRIM, six Used by BRIM, and three
 Related resource records by unique Resource rather than relationship row.
 
 The browser projection contains the 33 published records in registry order and
-only the reviewed 19-field Resource shape: identity and descriptive metadata,
-labeled access points, geographic scope, derived related Products and
-relationship flags, and normalized search text. Migration aliases, runtime
-authority, raw source evidence, and unreviewed fields do not enter that shape.
+only the reviewed 22-field Resource shape: identity and descriptive metadata,
+labeled access points, Resource Type and temporal machine IDs with build-derived
+labels, normalized geographic scope with its build-derived scope label and
+independent named places, derived related Products and relationship flags, and
+normalized search text. Migration aliases, runtime authority, raw source
+evidence, and unreviewed fields do not enter that shape.
 The selected-detail primary external action is the one access point whose role
 is `canonical` and whose URL exactly equals `canonicalUrl`; other access points
 retain their projected labels and exact URLs as secondary actions. This display
@@ -70,15 +81,16 @@ no runtime Resource-data request or browser-storage copy.
 
 Resource filtering uses only that projected authority. Provider, Subject,
 Information Type, and Resource type may be filtered directly; Resource type is
-the sole scalable native select under `More filters`. Resource granularity and
-geography remain projected detail/search metadata rather than R6 facets, and no
-recasing, merging, or geographic reinterpretation is applied. Variables and use
-scopes remain searchable descriptive fields, not controlled facet vocabularies.
-Future controlled candidates include richer Resource-type normalization,
-temporal character/time mode, geographic scope separated from named places,
-variables/use-scope exploration, and access-point type. R6 does not infer or
-store a temporal class, cadence, update frequency, or time mode from titles,
-URLs, or Information Type.
+the sole scalable native select under `More filters`; its state uses the machine
+ID and its option text uses the controlled label. Temporal character is not a
+facet or search field and appears in selected detail only when it is not
+`unknown`. Geographic scope and named geography remain search/detail metadata,
+not facets; an `unknown` scope is retained canonically but its label is omitted
+from public detail. Resource granularity remains editorial-only detail/search
+metadata rather than a facet. Variables and use scopes remain searchable
+descriptive fields, not controlled facet vocabularies. Temporal, geographic,
+named-geography, access-point-type, granularity, verification, and priority
+facets are not current Guide authority.
 
 Raw bookmark exports, intake workbooks, candidate records, unresolved notes,
 and other Resource-inventory evidence remain External research/input material

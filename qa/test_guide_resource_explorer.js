@@ -2,7 +2,7 @@
 
 "use strict";
 
-// Dedicated source/model contracts for the GUIDE-I2B-R6 Resource Explorer.
+// Dedicated source/model contracts for the GUIDE-I2B-R8 Resource Explorer.
 // Uses only Node built-ins and executes the pure model used by the browser.
 
 const fs = require("fs");
@@ -18,6 +18,39 @@ const source = fs.readFileSync(guidePath, "utf8");
 const css = fs.readFileSync(cssPath, "utf8");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
 const enrichment = JSON.parse(fs.readFileSync(enrichmentPath, "utf8"));
+const metadataVocabularies = {
+  resourceType: {
+    program_or_mission: "Program or mission",
+    dataset_or_collection: "Dataset or collection",
+    data_portal_or_catalog: "Data portal or catalog",
+    viewer_or_explorer: "Viewer or explorer",
+    dashboard: "Dashboard",
+    analysis_tool: "Analysis tool",
+    data_service_or_api: "Data service or API",
+    documentation_or_guide: "Documentation or guide",
+    organization_homepage: "Organization homepage",
+    report_or_publication: "Report or publication"
+  },
+  temporalCharacter: {
+    current_or_near_real_time: "Current or near-real-time",
+    forecast: "Forecast",
+    historical_archive: "Historical archive",
+    climatology_or_normals: "Climatology or normals",
+    static_reference: "Static reference",
+    mixed: "Mixed",
+    unknown: "Unknown"
+  },
+  geographicScope: {
+    global: "Global",
+    multinational: "Multinational",
+    national: "National",
+    multi_state: "Multi-state",
+    state: "State",
+    regional: "Regional",
+    local: "Local",
+    unknown: "Unknown"
+  }
+};
 
 const callback = new Function(`return (${source})`)();
 assert.strictEqual(typeof callback, "function", "Guide onRender callback did not compile");
@@ -95,6 +128,7 @@ assert.deepStrictEqual(
   "Exact relationship type counts changed"
 );
 assert.strictEqual(registry.resources.length, 33, "Registry Resource count changed");
+assert.strictEqual(registry.schema_version, 3, "Registry schema version changed");
 assert(registry.resources.every(resource => resource.publication_state === "published"),
   "Every R6 Resource must be published");
 const resourceIdsByRelationshipType = Object.fromEntries(
@@ -161,6 +195,11 @@ function projectedResource(record) {
     canonicalUrl: record.canonical_url,
     accessPoints,
     resourceType: record.resource_type,
+    resourceTypeLabel: metadataVocabularies.resourceType[record.resource_type],
+    temporalCharacter: record.temporal_character,
+    temporalCharacterLabel: metadataVocabularies.temporalCharacter[
+      record.temporal_character
+    ],
     resourceGranularity: record.resource_granularity,
     subjectTags: record.subject_tags,
     informationTypes: record.information_type_tags,
@@ -168,6 +207,7 @@ function projectedResource(record) {
     useScopes: record.use_scopes,
     geographicScope: {
       scopeType: record.geographic_scope.scope_type,
+      scopeLabel: metadataVocabularies.geographicScope[record.geographic_scope.scope_type],
       names: record.geographic_scope.names
     },
     relatedProducts,
@@ -183,9 +223,9 @@ function projectedResource(record) {
   result.searchText = [
     result.title, result.aliases, result.provider,
     result.providers.map(value => value.name), result.summary,
-    result.accessPoints.map(value => value.label), result.resourceType,
+    result.accessPoints.map(value => value.label), result.resourceTypeLabel,
     result.resourceGranularity, result.subjectTags, result.informationTypes,
-    result.variables, result.useScopes, result.geographicScope.scopeType,
+    result.variables, result.useScopes, result.geographicScope.scopeLabel,
     result.geographicScope.names
   ].flat(Infinity).join(" ");
   return result;
@@ -193,6 +233,34 @@ function projectedResource(record) {
 
 const fullResources = registry.resources.map(projectedResource);
 const model = createModel(fullResources);
+
+assert(fullResources.every(resource =>
+  resource.resourceTypeLabel === metadataVocabularies.resourceType[resource.resourceType] &&
+  resource.temporalCharacterLabel ===
+    metadataVocabularies.temporalCharacter[resource.temporalCharacter] &&
+  resource.geographicScope.scopeLabel ===
+    metadataVocabularies.geographicScope[resource.geographicScope.scopeType]
+), "Build-derived controlled metadata labels changed");
+assert.deepStrictEqual(
+  fullResources.filter(resource => resource.temporalCharacter === "unknown")
+    .map(resource => resource.id),
+  [
+    "resource_blm_california", "resource_usgs_bcmv8",
+    "resource_nidis_soil_moisture_dashboard",
+    "resource_nidis_grace_groundwater_soil_moisture"
+  ],
+  "Temporal unknown Resource IDs changed"
+);
+assert.deepStrictEqual(
+  fullResources.filter(resource => resource.geographicScope.scopeType === "unknown")
+    .map(resource => resource.id),
+  ["resource_prism_normals"],
+  "Geographic-scope unknown Resource ID changed"
+);
+const doiResource = fullResources.find(resource => resource.id === "resource_doi");
+assert(!model.normalize(doiResource.searchText).includes(
+  model.normalize(doiResource.temporalCharacterLabel)
+), "Temporal character entered the R8 search corpus");
 
 assert.strictEqual(model.normalize("  Café—Water & Forecasts  "),
   "cafe water forecasts", "NFKD/punctuation/whitespace normalization changed");
@@ -237,18 +305,23 @@ function fixture(overrides = {}) {
       role: "canonical", label: "Official Resource", url: "https://example.gov/resource"
     }],
     resourceType: "dashboard",
+    resourceTypeLabel: "Dashboard",
+    temporalCharacter: "current_or_near_real_time",
+    temporalCharacterLabel: "Current or near-real-time",
     resourceGranularity: "viewer",
     subjectTags: ["Surface Water"],
     informationTypes: ["Live Observation"],
     variables: ["streamflow"],
     useScopes: ["screening"],
-    geographicScope: { scopeType: "national", names: ["California"] },
+    geographicScope: {
+      scopeType: "national", scopeLabel: "National", names: ["California"]
+    },
     relatedProducts: [],
     relationshipFlags: {
       brimLinked: false, beyondBrim: true, displayedInBrim: false,
       usedByBrim: false, relatedExternalResource: false
     },
-    searchText: "River Atlas Watershed Book NOAA Daily observations California basins dashboard viewer Surface Water Live Observation streamflow screening national California Official Resource"
+    searchText: "River Atlas Watershed Book NOAA Daily observations California basins Dashboard viewer Surface Water Live Observation streamflow screening National California Official Resource"
   };
   return Object.assign(value, overrides);
 }
@@ -319,12 +392,19 @@ assert(model.results(providerState).every(resource =>
 const providerCounts = model.facetCounts(model.createState()).providers;
 assert.strictEqual(Object.values(providerCounts).reduce((sum, count) => sum + count, 0), 33,
   "Display-provider facet counts changed");
-assert.strictEqual(Object.keys(model.facetCounts(model.createState()).resourceTypes).length, 7,
-  "Current projected Resource-type vocabulary changed");
+const currentTypeCounts = model.facetCounts(model.createState()).resourceTypes;
+assert.deepStrictEqual(Object.keys(currentTypeCounts).sort(), [
+  "analysis_tool", "dashboard", "data_portal_or_catalog", "dataset_or_collection",
+  "organization_homepage", "program_or_mission", "viewer_or_explorer"
+], "Current projected Resource-type machine IDs changed");
+assert(Object.keys(currentTypeCounts).every(value =>
+  model.resourceTypeLabel(value) === metadataVocabularies.resourceType[value]
+), "Current Resource Type labels are not controlled projections");
 const deepCounts = model.facetCounts(model.createState());
 assert(!Object.prototype.hasOwnProperty.call(deepCounts, "resourceGranularities") &&
-  !Object.prototype.hasOwnProperty.call(deepCounts, "geographies"),
-  "Granularity or geography remains exposed as a facet-count dimension");
+  !Object.prototype.hasOwnProperty.call(deepCounts, "geographies") &&
+  !Object.prototype.hasOwnProperty.call(deepCounts, "temporalCharacters"),
+  "Granularity, geography, or temporal character became a facet-count dimension");
 const typeValue = fullResources.find(resource =>
   resource.resourceType && resource.resourceType !== "unknown"
 ).resourceType;
@@ -334,6 +414,11 @@ const typeState = model.patchState(model.createState(), {
 assert(model.results(typeState).length > 0 &&
   model.results(typeState).every(resource => resource.resourceType === typeValue),
   "Resource Type filtering is not deterministic");
+const typeChip = model.chips(typeState).find(chip => chip.key === "resourceType");
+assert.deepStrictEqual(typeChip, {
+  key: "resourceType", value: typeValue,
+  label: `Resource type: ${metadataVocabularies.resourceType[typeValue]}`
+}, "Resource Type chip lost machine identity or controlled display label");
 const granularityProbe = fullResources.find(resource =>
   resource.resourceGranularity && resource.resourceGranularity !== "unknown"
 );
@@ -466,6 +551,20 @@ assert.strictEqual(model.detail(detailState), null, "Detail exists before select
 detailState = model.selectResource(detailState, "resource_noaa_goes_image_viewer");
 const goesDetail = model.detail(detailState);
 assert(goesDetail, "Selected-only detail was not created");
+assert.strictEqual(goesDetail.temporalCharacter, "current_or_near_real_time",
+  "Representative non-unknown temporal detail assignment changed");
+assert.strictEqual(goesDetail.temporalCharacterLabel, "Current or near-real-time",
+  "Representative temporal detail label changed");
+const unknownTemporalDetail = fullResources.find(
+  resource => resource.id === "resource_blm_california"
+);
+assert.strictEqual(unknownTemporalDetail.temporalCharacter, "unknown",
+  "Approved unknown temporal detail fixture changed");
+const unknownGeographyDetail = fullResources.find(
+  resource => resource.id === "resource_prism_normals"
+);
+assert.strictEqual(unknownGeographyDetail.geographicScope.scopeType, "unknown",
+  "Approved unknown geography detail fixture changed");
 assert.strictEqual(goesDetail.accessPoints.length, 5, "GOES access-point family changed");
 assert.deepStrictEqual(goesDetail.accessPoints[0], {
   role: "canonical", label: "Official Resource", url: "https://www.star.nesdis.noaa.gov/GOES/"
@@ -563,14 +662,27 @@ assert(source.includes("function resourceFacetChoices") &&
   source.includes("'Resource type', 'resourceType'") &&
   !source.includes("'Resource granularity', 'resourceGranularity'") &&
   !source.includes("'Geography', 'geography'") &&
+  !source.includes("'Temporal character', 'temporalCharacter'") &&
   source.includes("'brim-guide__resource-more-toggle', 'More filters'") &&
   !source.includes("'More Filters'"),
   "Visible primary facets or scalable More filters controls changed");
-assert(source.includes("resource.resourceGranularity") &&
+assert(source.includes("option.value = optionValue") &&
+  source.includes("valueLabel ? valueLabel(optionValue) : optionValue") &&
+  source.includes("resourceExplorerModel.resourceTypeLabel") &&
+  source.includes("resource.resourceTypeLabel") &&
+  source.includes("resource.resourceGranularity") &&
   source.includes("geographyValues(resource)") &&
   source.includes("appendResourceDetailRow(list, 'Granularity'") &&
   source.includes("appendResourceDetailRow(\n      list,\n      'Geography'"),
-  "Granularity or geography disappeared from approved search/detail metadata");
+  "Controlled Resource Type labels or approved granularity/geography metadata disappeared");
+assert(source.includes("resource.temporalCharacter !== 'unknown'") &&
+  source.includes("list, 'Temporal character', resource.temporalCharacterLabel") &&
+  source.includes("resource.geographicScope.scopeType !== 'unknown'") &&
+  source.includes("? resource.geographicScope.scopeLabel : ''"),
+  "Temporal detail or unknown temporal/geography omission contract changed");
+assert(!factorySource.includes("temporalCharacter") &&
+  !extractFunction(source, "resourceBadges").includes("temporalCharacter"),
+  "Temporal character entered Resource search/filter state or badges");
 assert(source.includes("moreToggle.setAttribute('aria-expanded'") &&
   source.includes("moreToggle.setAttribute('aria-controls'") &&
   source.includes("morePanel.hidden = !resourceState.moreFiltersOpen") &&
@@ -579,7 +691,7 @@ assert(source.includes("moreToggle.setAttribute('aria-expanded'") &&
 assert(!/\b(variable|variables|useScope|useScopes):\s*String\(/.test(factorySource) &&
   !source.includes("'Time mode'") && !source.includes("'Temporal class'") &&
   !source.includes("'Update frequency'"),
-  "Descriptive variables/use scopes or deferred temporal metadata became R6 facets");
+  "Descriptive variables/use scopes or deferred temporal metadata became R8 facets");
 assert(source.includes("candidates[index].offsetParent !== null") &&
   source.includes("if (state.view === 'resource-explorer')") &&
   source.includes("searchInput.focus()"),
@@ -669,8 +781,12 @@ assert(css.includes(".brim-guide__resource-selected-label") &&
   source.includes("row.setAttribute('aria-current', 'true')"),
   "Selected-row or primary official-access treatment is incomplete");
 
-console.log("GUIDE-I2B-R6 Resource Explorer source/model contracts passed.");
+console.log("GUIDE-I2B-R8 Resource Explorer source/model contracts passed.");
 console.log("PUBLISHED_RESOURCES=33");
+console.log("RESOURCE_TYPE_MACHINE_ID_LABELS=PASS");
+console.log("TEMPORAL_DETAIL_NONUNKNOWN_ONLY=PASS");
+console.log("GEOGRAPHY_UNKNOWN_DETAIL_OMISSION=PASS");
+console.log("DEFERRED_RESOURCE_FACETS=ABSENT");
 console.log("PRESET_COUNTS=33,9,24");
 console.log("RELATIONSHIP_SUBTYPE_UNIQUE_COUNTS=0,6,3");
 console.log("INITIAL_LIMIT=25");

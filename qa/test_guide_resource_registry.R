@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Focused source-only contracts for the canonical schema-v2 Resource registry,
+# Focused source-only contracts for the canonical schema-v3 Resource registry,
 # exact Product-enrichment relationships, and the public Resource projection.
 
 fail <- function(message) stop(message, call. = FALSE)
@@ -73,18 +73,19 @@ wave1_ids <- expected_ids[10:33]
 required_fields <- c(
   "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
   "providers", "summary", "canonical_url", "access_points", "resource_type",
-  "resource_granularity", "subject_tags", "information_type_tags", "variables",
-  "use_scopes", "geographic_scope", "access_class", "public_source_references",
-  "publication_state"
+  "temporal_character", "resource_granularity", "subject_tags",
+  "information_type_tags", "variables", "use_scopes", "geographic_scope",
+  "access_class", "public_source_references", "publication_state"
 )
 browser_fields <- c(
   "kind", "id", "title", "aliases", "provider", "providers", "summary",
-  "canonicalUrl", "accessPoints", "resourceType", "resourceGranularity",
-  "subjectTags", "informationTypes", "variables", "useScopes",
-  "geographicScope", "relatedProducts", "relationshipFlags", "searchText"
+  "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
+  "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
+  "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
+  "relatedProducts", "relationshipFlags", "searchText"
 )
 
-assert_identical(raw_registry$schema_version, 2L, "Registry schema marker changed")
+assert_identical(raw_registry$schema_version, 3L, "Registry schema marker changed")
 assert_true(inherits(registry, "pt_guide_resource_registry"),
             "Registry reader did not mark validated records")
 assert_identical(length(registry), 33L, "Registry must contain exactly 33 Resources")
@@ -112,6 +113,149 @@ assert_true(all(vapply(registry[match(wave1_ids, registry_ids)], function(record
 }, logical(1))), "The exact approved 24-Resource cohort was not published")
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Publication was incorrectly implemented as another profile")
+
+expected_metadata_vocabularies <- list(
+  resource_type = c(
+    program_or_mission = "Program or mission",
+    dataset_or_collection = "Dataset or collection",
+    data_portal_or_catalog = "Data portal or catalog",
+    viewer_or_explorer = "Viewer or explorer",
+    dashboard = "Dashboard",
+    analysis_tool = "Analysis tool",
+    data_service_or_api = "Data service or API",
+    documentation_or_guide = "Documentation or guide",
+    organization_homepage = "Organization homepage",
+    report_or_publication = "Report or publication"
+  ),
+  temporal_character = c(
+    current_or_near_real_time = "Current or near-real-time",
+    forecast = "Forecast",
+    historical_archive = "Historical archive",
+    climatology_or_normals = "Climatology or normals",
+    static_reference = "Static reference",
+    mixed = "Mixed",
+    unknown = "Unknown"
+  ),
+  geographic_scope_class = c(
+    global = "Global",
+    multinational = "Multinational",
+    national = "National",
+    multi_state = "Multi-state",
+    state = "State",
+    regional = "Regional",
+    local = "Local",
+    unknown = "Unknown"
+  )
+)
+assert_identical(
+  pt_guide_resource_metadata_vocabularies(), expected_metadata_vocabularies,
+  "Controlled Resource metadata vocabularies or exact labels changed"
+)
+
+expected_resource_types <- c(
+  "organization_homepage", "organization_homepage", "dataset_or_collection",
+  "dataset_or_collection", "dataset_or_collection", "dataset_or_collection",
+  "dataset_or_collection", "dashboard", "data_portal_or_catalog",
+  "viewer_or_explorer", "viewer_or_explorer", "viewer_or_explorer", "analysis_tool",
+  "program_or_mission", "data_portal_or_catalog", "dataset_or_collection",
+  "program_or_mission", "viewer_or_explorer", "data_portal_or_catalog", "dashboard",
+  "viewer_or_explorer", "viewer_or_explorer", "program_or_mission",
+  "program_or_mission", "data_portal_or_catalog", "analysis_tool", "dashboard",
+  "dashboard", "data_portal_or_catalog", "viewer_or_explorer", "viewer_or_explorer",
+  "dashboard", "dashboard"
+)
+expected_temporal_characters <- c(
+  "static_reference", "unknown", "climatology_or_normals", "unknown",
+  "static_reference", "current_or_near_real_time", "current_or_near_real_time",
+  "current_or_near_real_time", "mixed", "current_or_near_real_time",
+  "current_or_near_real_time", "mixed", "historical_archive", "static_reference",
+  "static_reference", "mixed", "current_or_near_real_time",
+  "current_or_near_real_time", "mixed", "unknown", "static_reference",
+  "current_or_near_real_time", "mixed", "mixed", "historical_archive",
+  "historical_archive", "mixed", "unknown", "mixed", "current_or_near_real_time",
+  "mixed", "current_or_near_real_time", "current_or_near_real_time"
+)
+expected_geographic_scope_types <- c(
+  "national", "state", "unknown", "state", "state", "state", "national",
+  "national", "national", "multinational", "global", "global", "national",
+  "global", "global", "global", "global", "global", "national", "national",
+  "national", "national", "national", "global", "global", "global", "global",
+  "national", "global", "national", "national", "national", "national"
+)
+expected_geographic_names <- lapply(c(
+  "United States", "California", "", "California", "California", "California",
+  "United States", "United States", "United States",
+  "Western Hemisphere;United States", "", "",
+  "United States;Western United States;California", "", "", "", "", "",
+  "United States", "United States", "United States", "United States",
+  "United States;California;Nevada", "", "", "", "Conterminous United States",
+  "United States", "", "Conterminous United States", "Conterminous United States",
+  "Conterminous United States", "Conterminous United States"
+), function(value) {
+  if (nzchar(value)) strsplit(value, ";", fixed = TRUE)[[1]] else character(0)
+})
+
+assert_identical(
+  vapply(registry, `[[`, character(1), "resource_type"), expected_resource_types,
+  "The exact current-33 Resource Type assignments changed"
+)
+assert_identical(
+  vapply(registry, `[[`, character(1), "temporal_character"),
+  expected_temporal_characters,
+  "The exact current-33 temporal-character assignments changed"
+)
+assert_identical(
+  vapply(registry, function(record) record$geographic_scope$scope_type, character(1)),
+  expected_geographic_scope_types,
+  "The exact current-33 geographic scope-class assignments changed"
+)
+assert_identical(
+  lapply(registry, function(record) {
+    unname(as.character(unlist(record$geographic_scope$names, use.names = FALSE)))
+  }),
+  expected_geographic_names,
+  "The exact current-33 named-geography assignments changed"
+)
+expected_temporal_unknown_ids <- c(
+  "resource_blm_california", "resource_usgs_bcmv8",
+  "resource_nidis_soil_moisture_dashboard",
+  "resource_nidis_grace_groundwater_soil_moisture"
+)
+assert_identical(
+  registry_ids[expected_temporal_characters == "unknown"],
+  expected_temporal_unknown_ids,
+  "Temporal-character unknown Resource IDs changed"
+)
+assert_identical(
+  registry_ids[expected_geographic_scope_types == "unknown"],
+  "resource_prism_normals",
+  "Geographic-scope unknown Resource ID changed"
+)
+assert_true(all(vapply(registry, function(record) {
+  names <- unname(as.character(unlist(record$geographic_scope$names, use.names = FALSE)))
+  !anyDuplicated(tolower(trimws(names))) && all(nzchar(names))
+}, logical(1))), "Named geographies are not normalized and unique after trim/case folding")
+assert_true(!"other" %in% expected_geographic_scope_types,
+            "The prohibited other geography scope entered the registry")
+assert_true(!any(c("update_cadence", "cadence", "update_frequency", "time_mode") %in%
+                   unique(unlist(lapply(raw_registry$resources, names)))),
+            "An unauthorized cadence/time-mode field entered canonical Resources")
+
+protected_fields <- c(
+  "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
+  "providers", "summary", "canonical_url", "access_points", "resource_granularity",
+  "subject_tags", "information_type_tags", "variables", "use_scopes", "access_class",
+  "public_source_references", "publication_state"
+)
+protected_json <- jsonlite::toJSON(
+  lapply(raw_registry$resources, function(record) record[protected_fields]),
+  auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
+)
+assert_identical(
+  digest::digest(protected_json, algo = "sha256", serialize = FALSE),
+  "10f1d4a6f4115af1ea5e8d439058f0648325676b3cd8ad8f354b94fdde8bda1b",
+  "Protected current-33 Resource fields or granularity changed from the R8 baseline"
+)
 
 final_aliases <- unlist(lapply(registry, function(record) {
   unname(as.character(unlist(record$aliases, use.names = FALSE)))
@@ -195,7 +339,38 @@ assert_identical(vapply(browser_records, `[[`, character(1), "id"), expected_ids
                  "Browser projection changed Resource order or identity")
 assert_true(all(vapply(browser_records, function(record) {
   identical(names(record), browser_fields)
-}, logical(1))), "Resource browser projection is not the exact 19-field shape")
+}, logical(1))), "Resource browser projection is not the exact 22-field shape")
+assert_true(all(vapply(seq_along(browser_records), function(index) {
+  record <- browser_records[[index]]
+  identical(
+    record$resourceTypeLabel,
+    unname(expected_metadata_vocabularies$resource_type[[record$resourceType]])
+  ) &&
+    identical(record$temporalCharacter, expected_temporal_characters[[index]]) &&
+    identical(
+      record$temporalCharacterLabel,
+      unname(expected_metadata_vocabularies$temporal_character[[
+        record$temporalCharacter
+      ]])
+    ) &&
+    identical(
+      record$geographicScope$scopeLabel,
+      unname(expected_metadata_vocabularies$geographic_scope_class[[
+        record$geographicScope$scopeType
+      ]])
+    )
+}, logical(1))), "Build-derived controlled Resource metadata labels changed")
+assert_true(all(vapply(browser_records, function(record) {
+  expected_search <- pt_guide_normalize_resource_search(list(
+    record$title, record$aliases, record$provider,
+    vapply(record$providers, `[[`, character(1), "name"), record$summary,
+    vapply(record$accessPoints, `[[`, character(1), "label"),
+    record$resourceTypeLabel, record$resourceGranularity, record$subjectTags,
+    record$informationTypes, record$variables, record$useScopes,
+    record$geographicScope$scopeLabel, record$geographicScope$names
+  ))
+  identical(record$searchText, expected_search)
+}, logical(1))), "Temporal character entered searchText or label search drifted")
 
 projected_relationships <- unlist(lapply(browser_records, `[[`, "relatedProducts"),
                                   recursive = FALSE)
@@ -297,13 +472,32 @@ fresh_registry <- function() jsonlite::fromJSON(registry_path, simplifyVector = 
 
 bad <- fresh_registry()
 bad$schema_version <- 1L
-expect_invalid(bad, "schema_version 2", "Unsupported schema version was accepted")
+expect_invalid(bad, "schema_version 3", "Unsupported schema version was accepted")
 bad <- fresh_registry()
 bad$resources[[1]]$summary <- NULL
 expect_invalid(bad, "missing required field", "Missing required field was accepted")
 bad <- fresh_registry()
+bad$resources[[1]]$temporal_character <- NULL
+expect_invalid(bad, "missing required field", "Missing temporal character was accepted")
+bad <- fresh_registry()
 bad$resources[[1]]$unexpected_field <- "unexpected"
 expect_invalid(bad, "unsupported field", "Unknown Resource field was accepted")
+bad <- fresh_registry()
+bad$resources[[1]]$resource_type <- "interactive_map"
+expect_invalid(bad, "uncontrolled Resource type, temporal character, or granularity",
+               "A prototype Resource Type was accepted")
+bad <- fresh_registry()
+bad$resources[[1]]$temporal_character <- "near_real_time"
+expect_invalid(bad, "uncontrolled Resource type, temporal character, or granularity",
+               "An uncontrolled temporal character was accepted")
+bad <- fresh_registry()
+bad$resources[[1]]$geographic_scope$scope_type <- "other"
+expect_invalid(bad, "uncontrolled or inconsistent geographic scope",
+               "The prohibited other geographic scope was accepted")
+bad <- fresh_registry()
+bad$resources[[1]]$geographic_scope$names <- list("United States", "united states")
+expect_invalid(bad, "uncontrolled or inconsistent geographic scope",
+               "Case-insensitive duplicate named geographies were accepted")
 bad <- fresh_registry()
 bad$resources[[2]]$id <- bad$resources[[1]]$id
 expect_invalid(bad, "globally unique", "Duplicate stable ID was accepted")
@@ -339,8 +533,8 @@ assert_error(
   "Browser projection accepted duplicate eligible Product IDs"
 )
 
-cat("GUIDE-I2B-R6 exact Resource registry/projection contracts passed.\n")
-cat("SCHEMA_VERSION=2\n")
+cat("GUIDE-I2B-R8 exact Resource metadata registry/projection contracts passed.\n")
+cat("SCHEMA_VERSION=3\n")
 cat("TOTAL_RESOURCES=33\n")
 cat("PUBLISHED_RESOURCES=33\n")
 cat("STAGED_RESOURCES=0\n")
@@ -352,7 +546,14 @@ cat("RELATIONSHIP_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
 cat("BRIM_LINKED_RESOURCE_IDS=9\n")
 cat("BEYOND_BRIM_RESOURCE_IDS=24\n")
 cat("PRESET_COUNTS=33,9,24\n")
-cat("BROWSER_RESOURCE_FIELDS=19\n")
+cat("RESOURCE_TYPE_VALUES=7_OF_10_CURRENT\n")
+cat("TEMPORAL_CHARACTER_VALUES=6_OF_7_CURRENT\n")
+cat("TEMPORAL_UNKNOWN_IDS=4_EXACT\n")
+cat("GEOGRAPHIC_SCOPE_VALUES=5_OF_8_CURRENT\n")
+cat("GEOGRAPHY_UNKNOWN_IDS=1_EXACT\n")
+cat("CONTRACT_MATCH=33_OF_33\n")
+cat("PROTECTED_FIELD_EQUIVALENCE=PASS\n")
+cat("BROWSER_RESOURCE_FIELDS=22\n")
 cat("BROWSER_RESOURCE_BYTES=", nchar(browser_json, type = "bytes"), "\n", sep = "")
 cat("BROWSER_RESOURCE_SHA256=",
     digest::digest(browser_json, algo = "sha256", serialize = FALSE), "\n", sep = "")

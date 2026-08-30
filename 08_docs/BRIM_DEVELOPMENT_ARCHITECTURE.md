@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v2 authored metadata of 33 published Resource records;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 33 published Resource records;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -65,12 +65,19 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v2 dataset with 33 ordered,
+`guide_resources.json` is one canonical schema-v3 dataset with 33 ordered,
 published Resource records. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
-that reviewed descriptive metadata, but not for Product relationships.
+that reviewed descriptive metadata, but not for Product relationships. Each
+Resource has one controlled Resource Type machine ID, one controlled temporal-
+character machine ID, and one geographic-scope class machine ID plus an
+independent normalized named-place array. One vocabulary in the Guide compiler
+owns the exact labels projected from those IDs at build time. Temporal character
+is separate from cadence, update frequency, freshness, and runtime status.
+Resource granularity remains unchanged canonical editorial metadata and is not
+a public facet.
 `guide_product_enrichment.json` is the sole authored relationship authority:
 its exact 17 rows comprise zero `displayed_in_brim`, seven `used_by_brim`, and
 ten `related_external_resource` relationships. Relationships are never inferred
@@ -80,10 +87,11 @@ The compiler validates relationship Resource IDs against the 33-record
 published registry and Product IDs against the current projected Product
 universe, then derives reverse Resource-to-Product links only from surviving
 exact Product relationships. The browser receives all 33 records in registry
-order with one exact 19-field shape: identity and reviewed descriptive fields,
-labeled access points, geography, derived related Products and relationship
-flags, and normalized search text. Migration aliases, raw source evidence, and
-runtime authority are excluded. Publication is not a Guide profile. The
+order with one exact 22-field shape: identity and reviewed descriptive fields,
+labeled access points, Resource Type and temporal machine IDs with controlled
+labels, geography scope ID/label plus named places, derived related Products
+and relationship flags, and normalized search text. Migration aliases, raw
+source evidence, and runtime authority are excluded. Publication is not a Guide profile. The
 registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
@@ -121,13 +129,17 @@ Provider retains searchable exact multi-select controls; Subject and
 Information Type use immediately visible compact wrapped single-select choices.
 A sentence-case `More filters` disclosure progressively reveals native,
 long-vocabulary-capable single-select control for the already projected
-Resource type. Resource granularity and geography remain projected search/detail
-metadata but are not R6 facets because granularity overlaps Resource type and
-current geography mixes scope classes with place names. Deferred controlled
-enrichment candidates are richer Resource-type normalization informed by the
-legacy prototype, temporal character/time mode, geographic scope separated from
-named places, variables/use-scope exploration, and access-point type; R6 adds no
-placeholder controls for them. A separate visible relationship-subtype group exposes
+Resource type. Resource Type state and counts use its controlled machine ID,
+while options, chips, badges, and detail use the build-derived controlled label.
+Resource granularity remains projected editorial search/detail metadata rather
+than a facet. Temporal character is excluded from search and filtering and is
+shown compactly in selected detail only when its controlled ID is not `unknown`.
+Geographic scope and named geography remain projected search/detail metadata,
+not facets; search uses the normalized scope/place labels, and an `unknown`
+scope label is omitted from public detail while retained in canonical data.
+Temporal, geographic, named-geography, access-point-type, granularity,
+verification, and priority facets remain deferred, and there are no placeholder
+controls for them. A separate visible relationship-subtype group exposes
 Available in BRIM (`displayed_in_brim`), Used by BRIM (`used_by_brim`), and
 Related resource (`related_external_resource`); those controls are OR within
 their group and AND with other dimensions, and the current unique-Resource

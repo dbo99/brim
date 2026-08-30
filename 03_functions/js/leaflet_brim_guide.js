@@ -117,9 +117,16 @@ function(el, x, data) {
       return array(resource.providers).map(function(provider) { return provider.name; });
     }
 
+    function resourceTypeLabel(value) {
+      var match = sourceResources.find(function(resource) {
+        return resource.resourceType === value && resource.resourceTypeLabel;
+      });
+      return match ? match.resourceTypeLabel : value;
+    }
+
     function geographyValues(resource) {
       var scope = resource.geographicScope || {};
-      return [scope.scopeType].concat(array(scope.names)).filter(Boolean);
+      return [scope.scopeLabel].concat(array(scope.names)).filter(Boolean);
     }
 
     function relationshipTypes(resource) {
@@ -177,7 +184,7 @@ function(el, x, data) {
         score = Math.max(score, fieldScore(query, geographyValues(resource), 520, 490, 340));
         score = Math.max(score, fieldScore(
           query,
-          [resource.resourceType, resource.resourceGranularity].concat(
+          [resource.resourceTypeLabel, resource.resourceGranularity].concat(
             array(resource.accessPoints).map(function(point) { return point.label; })
           ),
           460, 430, 300
@@ -364,11 +371,13 @@ function(el, x, data) {
       [
         ['subject', state.subject, 'Subject'],
         ['informationType', state.informationType, 'Information Type'],
-        ['resourceType', state.resourceType, 'Resource type']
+        ['resourceType', state.resourceType, 'Resource type', resourceTypeLabel]
       ].forEach(function(definition) {
         if (definition[1]) output.push({
           key: definition[0], value: definition[1],
-          label: definition[2] + ': ' + definition[1]
+          label: definition[2] + ': ' + (
+            definition[3] ? definition[3](definition[1]) : definition[1]
+          )
         });
       });
       relationshipSubtypeDefinitions.forEach(function(definition) {
@@ -593,6 +602,7 @@ function(el, x, data) {
       selectResource: selectResource,
       detail: detail,
       accessPointGroups: accessPointGroups,
+      resourceTypeLabel: resourceTypeLabel,
       showMore: showMore,
       sortOptions: sortOptions,
       escape: escape,
@@ -1554,7 +1564,7 @@ function(el, x, data) {
     return section;
   }
 
-  function resourceFacetSelect(label, field, value, counts, emptyLabel) {
+  function resourceFacetSelect(label, field, value, counts, emptyLabel, valueLabel) {
     var section = node('section', 'brim-guide__resource-select-group');
     var selectLabel = node('label', 'brim-guide__resource-filter-label');
     selectLabel.appendChild(node('span', '', label));
@@ -1567,7 +1577,8 @@ function(el, x, data) {
     empty.selected = !value;
     select.appendChild(empty);
     sortedCountKeys(counts).forEach(function(optionValue) {
-      var option = node('option', '', optionValue + ' (' + counts[optionValue] + ')');
+      var visibleValue = valueLabel ? valueLabel(optionValue) : optionValue;
+      var option = node('option', '', visibleValue + ' (' + counts[optionValue] + ')');
       option.value = optionValue;
       option.selected = optionValue === value;
       select.appendChild(option);
@@ -1705,7 +1716,7 @@ function(el, x, data) {
     morePanel.hidden = !resourceState.moreFiltersOpen;
     morePanel.appendChild(resourceFacetSelect(
       'Resource type', 'resourceType', resourceState.resourceType,
-      counts.resourceTypes, 'All Resource types'
+      counts.resourceTypes, 'All Resource types', resourceExplorerModel.resourceTypeLabel
     ));
     more.appendChild(morePanel);
     facets.appendChild(more);
@@ -1724,7 +1735,7 @@ function(el, x, data) {
   function resourceBadges(resource) {
     var values = [];
     if (asArray(resource.subjectTags).length) values.push(asArray(resource.subjectTags)[0]);
-    if (resource.resourceType && resource.resourceType !== 'unknown') values.push(resource.resourceType);
+    if (resource.resourceTypeLabel) values.push(resource.resourceTypeLabel);
     values = values.concat(resourceRelationshipBadges(resource));
     if (asArray(resource.accessPoints).length > 1) {
       values.push(asArray(resource.accessPoints).length + ' access points');
@@ -1840,14 +1851,20 @@ function(el, x, data) {
     );
     appendResourceDetailRow(list, 'Subjects', asArray(resource.subjectTags));
     appendResourceDetailRow(list, 'Information Types', asArray(resource.informationTypes));
-    appendResourceDetailRow(list, 'Resource type', resource.resourceType);
+    appendResourceDetailRow(list, 'Resource type', resource.resourceTypeLabel);
+    if (resource.temporalCharacter && resource.temporalCharacter !== 'unknown') {
+      appendResourceDetailRow(
+        list, 'Temporal character', resource.temporalCharacterLabel
+      );
+    }
     appendResourceDetailRow(list, 'Granularity', resource.resourceGranularity);
     appendResourceDetailRow(list, 'Variables', asArray(resource.variables));
     appendResourceDetailRow(list, 'Use scopes', asArray(resource.useScopes));
     appendResourceDetailRow(
       list,
       'Geography',
-      [resource.geographicScope && resource.geographicScope.scopeType]
+      [resource.geographicScope && resource.geographicScope.scopeType !== 'unknown'
+        ? resource.geographicScope.scopeLabel : '']
         .concat(asArray(resource.geographicScope && resource.geographicScope.names))
         .filter(Boolean)
     );
