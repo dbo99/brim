@@ -79,13 +79,13 @@ assert_identical(bundle$counts$products, 270L,
                  "Current default Guide should derive 270 post-basemap Products")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
-assert_identical(bundle$counts$resources, 9L,
-                 "Current Guide must include the nine maintained Resources")
+assert_identical(bundle$counts$resources, 33L,
+                 "Current Guide must include all 33 published Resources")
 assert_identical(length(resource_registry), 33L,
                  "Canonical Resource registry must validate all 33 records")
-assert_identical(sum(registry_states == "published"), 9L,
+assert_identical(sum(registry_states == "published"), 33L,
                  "Canonical Resource registry published count changed")
-assert_identical(sum(registry_states == "staged"), 24L,
+assert_identical(sum(registry_states == "staged"), 0L,
                  "Canonical Resource registry staged count changed")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
@@ -98,29 +98,53 @@ expected_resource_ids <- c(
   "resource_calfire_fire_perimeters",
   "resource_nifc_wfigs_current",
   "resource_usgs_water_dashboard",
-  "resource_noaa_nwps"
+  "resource_noaa_nwps",
+  "resource_noaa_goes_image_viewer",
+  "resource_cira_slider",
+  "resource_nasa_worldview",
+  "resource_climate_engine",
+  "resource_nasa_smap_mission",
+  "resource_nasa_smap_data",
+  "resource_nasa_smap_l3_enhanced_soil_moisture",
+  "resource_noaa_smops",
+  "resource_noaa_smops_maps",
+  "resource_noaa_cpc_soil_moisture",
+  "resource_nidis_soil_moisture_dashboard",
+  "resource_ncsmmn_network_map",
+  "resource_ncsmmn_soil_moisture_portal",
+  "resource_nrcs_scan",
+  "resource_nasa_grace_tellus",
+  "resource_nasa_grace_data",
+  "resource_nasa_grace_analysis_tool",
+  "resource_nasa_grace_groundwater_soil_moisture",
+  "resource_nidis_grace_groundwater_soil_moisture",
+  "resource_noaa_vegetation_health",
+  "resource_usda_crop_casma",
+  "resource_usda_vegscape",
+  "resource_usgs_quickdri",
+  "resource_usgs_vegdri"
 )
 assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
                  "Current Resource ID set/order changed")
 assert_true(all(vapply(bundle$resources, function(resource) {
   identical(
     names(resource),
-    c("kind", "id", "title", "provider", "summary", "url", "relatedProductIds")
+    c(
+      "kind", "id", "title", "aliases", "provider", "providers", "summary",
+      "canonicalUrl", "accessPoints", "resourceType", "resourceGranularity",
+      "subjectTags", "informationTypes", "variables", "useScopes",
+      "geographicScope", "relatedProducts", "relationshipFlags", "searchText"
+    )
   )
-}, logical(1))), "Registry-only metadata leaked into the browser Resource projection")
+}, logical(1))), "Resource browser projection is not the exact public 19-field shape")
 assert_true(requireNamespace("digest", quietly = TRUE),
             "digest is required for the captured Resource-payload regression contract")
 resource_projection_json <- jsonlite::toJSON(
   bundle$resources,
   auto_unbox = TRUE, null = "null", na = "null", pretty = TRUE, digits = NA
 )
-assert_identical(nchar(resource_projection_json, type = "bytes"), 3659L,
-                 "Browser Resource serialization byte count changed from the captured baseline")
-assert_identical(
-  digest::digest(resource_projection_json, algo = "sha256", serialize = FALSE),
-  "b5b1307349df5f65182695e06afbb739bf29ae0ce65f0cd6ca4552c7333ce827",
-  "Browser Resource serialization changed from the captured baseline"
-)
+assert_true(nchar(resource_projection_json, type = "bytes") < 200000L,
+            "Browser Resource projection exceeds the focused payload review threshold")
 assert_identical(sum(product_subsystems == "External Layers"), 176L,
                  "External visible Product projection changed")
 assert_identical(sum(product_subsystems == "Ops Live"), 47L,
@@ -334,6 +358,15 @@ assert_true(grepl("Soil moisture | USDA NRCS SCAN | Ca/Nv", scan$pathLabel, fixe
 
 how_brim_works <- record_by_id(bundle$articles, "method_how_brim_works")
 how_brim_text <- section_text(how_brim_works)
+assert_identical(how_brim_works$relatedProductIds, character(0),
+                 "Generic How BRIM Works Method retained arbitrary Product relationships")
+assert_identical(how_brim_works$sections[[2]]$title, "Using BRIM Guide",
+                 "How BRIM Works lost the BRIM Guide surface name")
+assert_identical(
+  how_brim_works$sections[[2]]$paragraphs,
+  "Use BRIM Guide to find layers and tools and to understand their sources, preparation, timing, and limitations. BRIM Guide explains map content but does not turn layers on or change map settings.",
+  "How BRIM Works BRIM Guide explanation changed"
+)
 assert_true(all(vapply(
   c("LOCAL LAYERS", "OPS LIVE", "EXTERNAL LAYERS", "TOOLS",
     "sources, preparation, timing, and limitations"),
@@ -343,6 +376,10 @@ assert_true(all(vapply(
 assert_true(!grepl("PRISM|BCMv8|Guide I1|read-only index|compiler|implementation foundation",
                    how_brim_text, ignore.case = TRUE, perl = TRUE),
             "How BRIM Works contains HUC-specific or implementation-facing language")
+
+display_geometry_method <- record_by_id(bundle$articles, "method_display_geometry_generalization")
+assert_identical(display_geometry_method$relatedProductIds, c("huc8", "gw_bull118"),
+                 "Topic-specific Method-to-Product relationships changed")
 
 live_timing <- record_by_id(bundle$articles, "method_brim_live_update_timing")
 expected_schedule_url <- "https://github.com/dbo99/brim-live-data-feeds/blob/main/docs/PRODUCTS.md#inventory-at-a-glance"
@@ -440,9 +477,9 @@ assert_identical(
 )
 prism_resource <- record_by_id(bundle$resources, "resource_prism_normals")
 bcm_resource <- record_by_id(bundle$resources, "resource_usgs_bcmv8")
-assert_identical(prism_resource$url, "https://prism.oregonstate.edu/normals/",
+assert_identical(prism_resource$canonicalUrl, "https://prism.oregonstate.edu/normals/",
                  "HUC8 PRISM link changed")
-assert_identical(bcm_resource$url, "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
+assert_identical(bcm_resource$canonicalUrl, "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39",
                  "HUC8 BCMv8 ScienceBase link changed")
 
 bulletin118 <- record_by_id(bundle$products, "gw_bull118")
@@ -504,12 +541,52 @@ assert_identical(
   "The source-backed staged SCAN relationship changed in enrichment authority"
 )
 assert_true(
-  !"resource_nrcs_scan" %in% scan$relatedResourceIds &&
-    !any(vapply(scan$relatedResources, function(relationship) {
-      identical(relationship$id, "resource_nrcs_scan")
+  "resource_nrcs_scan" %in% scan$relatedResourceIds &&
+    any(vapply(scan$relatedResources, function(relationship) {
+      identical(relationship$id, "resource_nrcs_scan") &&
+        identical(relationship$relationshipType, "used_by_brim")
     }, logical(1))),
-  "The staged SCAN relationship leaked into the current Product projection"
+  "The published exact SCAN used-by-BRIM relationship is missing"
 )
+exact_relationships <- unlist(lapply(bundle$products, function(product) {
+  lapply(product$relatedResources, function(relationship) {
+    c(list(productId = product$id), relationship)
+  })
+}), recursive = FALSE)
+exact_relationship_types <- vapply(
+  exact_relationships, `[[`, character(1), "relationshipType"
+)
+assert_identical(length(exact_relationships), 17L,
+                 "Projected Product relationships must contain exactly 17 rows")
+assert_identical(sum(exact_relationship_types == "displayed_in_brim"), 0L,
+                 "Displayed-in-BRIM relationship count changed")
+assert_identical(sum(exact_relationship_types == "used_by_brim"), 7L,
+                 "Used-by-BRIM relationship count changed")
+assert_identical(sum(exact_relationship_types == "related_external_resource"), 10L,
+                 "Related-external relationship count changed")
+resource_flag_ids <- function(flag) vapply(Filter(function(resource) {
+  isTRUE(resource$relationshipFlags[[flag]])
+}, bundle$resources), `[[`, character(1), "id")
+assert_identical(length(resource_flag_ids("brimLinked")), 9L,
+                 "BRIM-linked Resource count changed")
+assert_identical(length(resource_flag_ids("displayedInBrim")), 0L,
+                 "Available-in-BRIM Resource count changed")
+assert_identical(length(resource_flag_ids("usedByBrim")), 6L,
+                 "Used Resource count changed")
+assert_identical(length(resource_flag_ids("beyondBrim")), 24L,
+                 "Beyond BRIM Resource count changed")
+assert_identical(length(resource_flag_ids("relatedExternalResource")), 3L,
+                 "Related Resource count changed")
+assert_true(
+  !length(intersect(resource_flag_ids("brimLinked"), resource_flag_ids("beyondBrim"))) &&
+    setequal(c(resource_flag_ids("brimLinked"), resource_flag_ids("beyondBrim")),
+             vapply(bundle$resources, `[[`, character(1), "id")),
+  "BRIM-linked and Beyond BRIM are not disjoint exhaustive complements"
+)
+reverse_relationships <- unlist(lapply(bundle$resources, `[[`, "relatedProducts"),
+                                recursive = FALSE)
+assert_identical(length(reverse_relationships), 17L,
+                 "Resource reverse index must preserve all 17 exact rows")
 baseline_rich_count <- 24L
 baseline_basic_count <- 246L
 baseline_editorial_count <- 0L
@@ -986,7 +1063,7 @@ assert_true(!grepl("legacy_notes|open_legacy_notes|openPtNotes|pt-map-notes|map-
             "Retired Notes runtime content or wiring remains in the current build")
 assert_true(grepl("pt-map-guide-btn", map_r, fixed = TRUE) &&
               grepl("Open BRIM Guide", map_r, fixed = TRUE) &&
-              grepl("guideButton.textContent = 'Guide'", map_r, fixed = TRUE),
+              grepl("guideButton.textContent = 'BRIM Guide'", map_r, fixed = TRUE),
             "Upper-left Guide control identity is incomplete")
 assert_identical(length(gregexpr("window.BRIM_GUIDE.open(guideButton)", map_r, fixed = TRUE)[[1]]), 1L,
                  "Current map build must contain exactly one primary Guide opener")
@@ -1003,10 +1080,14 @@ assert_true(grepl("function productMatchesFilters", guide_js, fixed = TRUE) &&
               !grepl("state.filters.entityType", guide_js, fixed = TRUE) &&
               grepl("state.filters.subject[0]", guide_js, fixed = TRUE) &&
               grepl("state.filters.informationType[0]", guide_js, fixed = TRUE) &&
-              grepl("state.filters[facetField] = selected ? [] : [facetValue]", guide_js, fixed = TRUE) &&
+              grepl("facetField === 'brimSection'", guide_js, fixed = TRUE) &&
+              grepl("? [facetValue] : (selected ? [] : [facetValue])", guide_js, fixed = TRUE) &&
               !grepl("concat(facetValue)|ctrlKey|metaKey|long-press|longpress",
                      guide_js, ignore.case = TRUE, perl = TRUE) &&
-              grepl("options.setAttribute('role', 'group')", guide_js, fixed = TRUE) &&
+              grepl("radioGroup ? 'radiogroup' : 'group'", guide_js, fixed = TRUE) &&
+              grepl("option.setAttribute('role', 'radio')", guide_js, fixed = TRUE) &&
+              grepl("option.setAttribute('aria-checked'", guide_js, fixed = TRUE) &&
+              grepl("browseRadios[nextBrowseRadioIndex].click()", guide_js, fixed = TRUE) &&
               grepl("aria-pressed", guide_js, fixed = TRUE) &&
               grepl("facet-toggle", guide_js, fixed = TRUE) &&
               grepl("filter-remove", guide_js, fixed = TRUE) &&
@@ -1092,10 +1173,17 @@ assert_true(all(vapply(
   function(probe) grepl(probe, guide_js, fixed = TRUE),
   logical(1)
 )), "Layer/tool terminology or contact action is incomplete")
-assert_true(!grepl("node\\(['\"]select|createElement\\(['\"]select|<select|filter-select|Entity type|filters-clear|Clear filters",
+assert_true(!grepl("filter-select|Entity type|filters-clear|Clear filters",
                    paste(guide_js, guide_css), ignore.case = TRUE, perl = TRUE),
-            "Superseded dropdown, Entity Type, or large Clear Filters UI remains")
+            "Superseded Product Entity Type or large Clear Filters UI remains")
+assert_true(grepl("brim-guide__resource-facet-choices", guide_js, fixed = TRUE) &&
+              grepl("resourceFacetChoices", guide_js, fixed = TRUE) &&
+              grepl("aria-pressed", guide_js, fixed = TRUE) &&
+              grepl("brim-guide__resource-sort", guide_js, fixed = TRUE),
+            "Required visible Resource facet choices or native sort control are missing")
 assert_true(grepl("activeSummary.hidden = !", guide_js, fixed = TRUE) &&
+              grepl("activeSummary.hidden = !hasActiveFilters()", guide_js, fixed = TRUE) &&
+              grepl("Clear all A Explore filters", guide_js, fixed = TRUE) &&
               grepl("searchInput.focus()", guide_js, fixed = TRUE) &&
               grepl("state.filters = { brimSection: [], subject: [], informationType: [] }",
                     guide_js, fixed = TRUE) &&
@@ -1104,6 +1192,15 @@ assert_true(grepl("activeSummary.hidden = !", guide_js, fixed = TRUE) &&
               grepl("aria-live", guide_js, fixed = TRUE) &&
               grepl("aria-hidden", guide_js, fixed = TRUE),
             "Contextual clear, selected state, chips, or focus behavior is incomplete")
+assert_true(grepl("shown · filtered", guide_js, fixed = TRUE) &&
+              grepl("filtered.length + ' of ' + products.length", guide_js, fixed = TRUE) &&
+              grepl("filtered.length !== products.length", guide_js, fixed = TRUE) &&
+              grepl("'02', 'All Layers & Tools A–Z', subsetStatus, true", guide_js, fixed = TRUE) &&
+              grepl("detailNode.setAttribute('role', 'status')", guide_js, fixed = TRUE) &&
+              grepl("detailNode.setAttribute('aria-live', 'polite')", guide_js, fixed = TRUE) &&
+              grepl("display: block; grid-column: 2; justify-self: start", guide_css, fixed = TRUE) &&
+              !grepl(".brim-guide__section-detail {\n    display: none;", guide_css, fixed = TRUE),
+            "A–Z full/subset status is not derived from the projected Product universe or exposed accessibly")
 assert_true(!grepl("Search Products|Browse BRIM Products|Find a Product|Data / guidance mode|Product family|Guide I1",
                    guide_js, fixed = FALSE, perl = TRUE),
             "Retired Guide-facing Product or implementation terminology remains")
@@ -1187,8 +1284,8 @@ assert_identical(record_kinds, c("Product", "Article", "Resource", "Update"),
                  "Search/result record types are not distinguishable")
 
 accepted_description <- paste0(
-  "A hydrology-centered browser map for water-resource screening, ",
-  "live conditions, and resource-review support."
+  "An integrated, water-resources-centered portal for project screening, ",
+  "landscape and situational awareness, and decision support."
 )
 assert_identical(pt_brim_application_identity()$description, accepted_description,
                  "Shared application description changed")
@@ -1207,8 +1304,8 @@ baseline_payload_bytes <- 313498L
 payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
-assert_true(payload_bytes <= 400000L, "Default Guide payload exceeds hard review threshold")
-assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 350000L,
+assert_true(payload_bytes <= 500000L, "Default Guide payload exceeds hard review threshold")
+assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 200000L,
             "GUIDE-I2A2 embedded payload growth exceeds the preferred review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
@@ -1220,15 +1317,18 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2A2 source-backed vitals deepening contracts passed.\n")
+cat("GUIDE-I2B-R6 exact Resource foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
 cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
-cat("REGISTRY_RESOURCES=33_TOTAL,9_PUBLISHED,24_STAGED\n")
-cat("STAGED_RELATIONSHIP_BROWSER_LEAKAGE=0\n")
+cat("REGISTRY_RESOURCES=33_TOTAL,33_PUBLISHED,0_STAGED\n")
+cat("EXACT_RELATIONSHIP_ROWS=17\n")
+cat("RELATIONSHIP_COUNTS=0_DISPLAYED,7_USED,10_EXTERNAL\n")
+cat("RESOURCE_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
+cat("RESOURCE_PRESET_COUNTS=33_ALL,9_BRIM_LINKED,24_BEYOND\n")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")

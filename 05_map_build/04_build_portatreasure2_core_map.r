@@ -1301,7 +1301,7 @@ function(el, x) {
     guideButton.type = 'button';
     guideButton.title = 'Open BRIM Guide';
     guideButton.setAttribute('aria-label', 'Open BRIM Guide');
-    guideButton.textContent = 'Guide';
+    guideButton.textContent = 'BRIM Guide';
     guideButton.style.position = 'absolute';
     guideButton.style.top = '84px';
     guideButton.style.left = '8px';

@@ -35,7 +35,7 @@ pt_brim_application_identity <- function() {
     short_name = "BRIM",
     guide_name = "BRIM GUIDE",
     expanded_name = "BLM-California Resources Information Mapper",
-    description = "A hydrology-centered browser map for water-resource screening, live conditions, and resource-review support.",
+    description = "An integrated, water-resources-centered portal for project screening, landscape and situational awareness, and decision support.",
     scope_note = paste0(
       "BRIM supports screening, situational awareness, and resource review. ",
       "It does not replace authoritative records, formal boundary ",
