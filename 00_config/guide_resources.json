@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "resources": [
     {
       "id": "resource_doi",
@@ -23,15 +23,18 @@
           "url": "https://www.doi.gov/"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "organization_homepage",
+      "temporal_character": "static_reference",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -59,15 +62,18 @@
           "url": "https://www.blm.gov/california"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "organization_homepage",
+      "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -95,7 +101,8 @@
           "url": "https://prism.oregonstate.edu/normals/"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "climatology_or_normals",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
@@ -131,15 +138,18 @@
           "url": "https://www.sciencebase.gov/catalog/item/5f29c62d82cef313ed9edb39"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -167,15 +177,18 @@
           "url": "https://gis.water.ca.gov/arcgis/rest/services/Geoscientific/i08_B118_SGMA_2019_Basin_Prioritization/MapServer"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "static_reference",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -203,15 +216,18 @@
           "url": "https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -239,15 +255,18 @@
           "url": "https://data-nifc.opendata.arcgis.com/datasets/nifc::wfigs-current-interagency-fire-perimeters/about"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -277,15 +296,18 @@
           "url": "https://dashboard.waterdata.usgs.gov/"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "dashboard",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -315,15 +337,18 @@
           "url": "https://water.noaa.gov/"
         }
       ],
-      "resource_type": "unknown",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
       "resource_granularity": "unknown",
       "subject_tags": [],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
-        "scope_type": "unknown",
-        "names": []
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
       },
       "access_class": "public",
       "public_source_references": [],
@@ -384,7 +409,8 @@
           "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=wus"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Weather & Forecasts"
@@ -405,10 +431,10 @@
         "remote sensing"
       ],
       "geographic_scope": {
-        "scope_type": "multi_state",
+        "scope_type": "multinational",
         "names": [
-          "United States",
-          "Western Hemisphere"
+          "Western Hemisphere",
+          "United States"
         ]
       },
       "access_class": "public",
@@ -455,7 +481,8 @@
           "url": "https://rammb-slider.cira.colostate.edu/"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Weather & Forecasts"
@@ -475,9 +502,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -518,7 +543,8 @@
           "url": "https://worldview.earthdata.nasa.gov/"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "mixed",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Groundwater",
@@ -547,9 +573,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -586,7 +610,8 @@
           "url": "https://app.climateengine.org/climateEngine"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "analysis_tool",
+      "temporal_character": "historical_archive",
       "resource_granularity": "platform",
       "subject_tags": [
         "Groundwater",
@@ -668,7 +693,8 @@
           "url": "https://smap.jpl.nasa.gov/"
         }
       ],
-      "resource_type": "organization_page",
+      "resource_type": "program_or_mission",
+      "temporal_character": "static_reference",
       "resource_granularity": "mission",
       "subject_tags": [
         "Soil Moisture"
@@ -688,9 +714,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -733,7 +757,8 @@
           "url": "https://smap.jpl.nasa.gov/data/"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "static_reference",
       "resource_granularity": "collection",
       "subject_tags": [
         "Soil Moisture"
@@ -753,9 +778,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -800,7 +823,8 @@
           "url": "https://nsidc.org/data/spl3smp_e/versions/3"
         }
       ],
-      "resource_type": "dataset",
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "mixed",
       "resource_granularity": "dataset",
       "subject_tags": [
         "Soil Moisture"
@@ -821,9 +845,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -868,7 +890,8 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/index.php"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "program_or_mission",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "program",
       "subject_tags": [
         "Soil Moisture",
@@ -890,9 +913,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -935,7 +956,8 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/soilmoisture/SMOPSMaps.php"
         }
       ],
-      "resource_type": "dashboard",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Soil Moisture",
@@ -959,9 +981,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -1006,7 +1026,8 @@
           "url": "https://www.cpc.ncep.noaa.gov/soilmst/w.shtml"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
       "resource_granularity": "collection",
       "subject_tags": [
         "Soil Moisture",
@@ -1079,6 +1100,7 @@
         }
       ],
       "resource_type": "dashboard",
+      "temporal_character": "unknown",
       "resource_granularity": "dashboard",
       "subject_tags": [
         "Soil Moisture",
@@ -1145,7 +1167,8 @@
           "url": "https://experience.arcgis.com/experience/c589a0c00ad14d778e2c3f6fd9a0ebba"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "static_reference",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Soil Moisture"
@@ -1213,7 +1236,8 @@
           "url": "https://www.drought.gov/data-maps-tools/us-soil-moisture-networks-portal"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Soil Moisture",
@@ -1282,7 +1306,8 @@
           "url": "https://www.nrcs.usda.gov/resources/data-and-reports/soil-climate-analysis-network"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
       "resource_granularity": "platform",
       "subject_tags": [
         "Soil Moisture"
@@ -1356,7 +1381,8 @@
           "url": "https://grace.jpl.nasa.gov/"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
       "resource_granularity": "mission",
       "subject_tags": [
         "Groundwater"
@@ -1377,9 +1403,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -1422,7 +1446,8 @@
           "url": "https://grace.jpl.nasa.gov/data/"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "historical_archive",
       "resource_granularity": "collection",
       "subject_tags": [
         "Groundwater"
@@ -1442,9 +1467,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -1489,7 +1512,8 @@
           "url": "https://grace.jpl.nasa.gov/data/data-analysis-tool/"
         }
       ],
-      "resource_type": "web_application",
+      "resource_type": "analysis_tool",
+      "temporal_character": "historical_archive",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Groundwater"
@@ -1510,9 +1534,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -1568,6 +1590,7 @@
         }
       ],
       "resource_type": "dashboard",
+      "temporal_character": "mixed",
       "resource_granularity": "product",
       "subject_tags": [
         "Groundwater",
@@ -1595,7 +1618,6 @@
       "geographic_scope": {
         "scope_type": "global",
         "names": [
-          "Global",
           "Conterminous United States"
         ]
       },
@@ -1649,6 +1671,7 @@
         }
       ],
       "resource_type": "dashboard",
+      "temporal_character": "unknown",
       "resource_granularity": "product",
       "subject_tags": [
         "Groundwater",
@@ -1719,7 +1742,8 @@
           "url": "https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/index.php"
         }
       ],
-      "resource_type": "data_portal",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
       "resource_granularity": "collection",
       "subject_tags": [
         "Ecology & Habitat",
@@ -1742,9 +1766,7 @@
       ],
       "geographic_scope": {
         "scope_type": "global",
-        "names": [
-          "Global"
-        ]
+        "names": []
       },
       "access_class": "public",
       "public_source_references": [
@@ -1793,7 +1815,8 @@
           "url": "https://cloud.csiss.gmu.edu/Crop-CASMA/"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Soil Moisture",
@@ -1863,7 +1886,8 @@
           "url": "https://nassgeodata.gmu.edu/VegScape/"
         }
       ],
-      "resource_type": "interactive_map",
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "mixed",
       "resource_granularity": "viewer",
       "subject_tags": [
         "Ecology & Habitat"
@@ -1933,6 +1957,7 @@
         }
       ],
       "resource_type": "dashboard",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "product",
       "subject_tags": [
         "Ecology & Habitat",
@@ -2005,6 +2030,7 @@
         }
       ],
       "resource_type": "dashboard",
+      "temporal_character": "current_or_near_real_time",
       "resource_granularity": "product",
       "subject_tags": [
         "Ecology & Habitat",

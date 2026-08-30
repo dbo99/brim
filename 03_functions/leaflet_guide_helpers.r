@@ -743,6 +743,50 @@ pt_guide_resource_registry_string_array <- function(value, label) {
   unname(vapply(value, pt_guide_resource_registry_scalar, character(1), label = label))
 }
 
+pt_guide_resource_metadata_vocabularies <- function() {
+  list(
+    resource_type = c(
+      program_or_mission = "Program or mission",
+      dataset_or_collection = "Dataset or collection",
+      data_portal_or_catalog = "Data portal or catalog",
+      viewer_or_explorer = "Viewer or explorer",
+      dashboard = "Dashboard",
+      analysis_tool = "Analysis tool",
+      data_service_or_api = "Data service or API",
+      documentation_or_guide = "Documentation or guide",
+      organization_homepage = "Organization homepage",
+      report_or_publication = "Report or publication"
+    ),
+    temporal_character = c(
+      current_or_near_real_time = "Current or near-real-time",
+      forecast = "Forecast",
+      historical_archive = "Historical archive",
+      climatology_or_normals = "Climatology or normals",
+      static_reference = "Static reference",
+      mixed = "Mixed",
+      unknown = "Unknown"
+    ),
+    geographic_scope_class = c(
+      global = "Global",
+      multinational = "Multinational",
+      national = "National",
+      multi_state = "Multi-state",
+      state = "State",
+      regional = "Regional",
+      local = "Local",
+      unknown = "Unknown"
+    )
+  )
+}
+
+pt_guide_resource_metadata_label <- function(vocabulary, value, label) {
+  result <- unname(vocabulary[[value]])
+  if (!is.character(result) || length(result) != 1L || !nzchar(result)) {
+    stop(label, " has no controlled display label.", call. = FALSE)
+  }
+  result
+}
+
 pt_guide_validate_public_https_url <- function(url, label) {
   url <- pt_guide_resource_registry_scalar(url, label)
   if (!grepl("^https://[^/?#]+(?:[/?#]|$)", url, perl = TRUE)) {
@@ -792,18 +836,18 @@ pt_guide_read_resource_registry <- function(
   pt_guide_resource_registry_assert_fields(
     source, c("schema_version", "resources"), label = "Guide Resource registry"
   )
-  if (!identical(source$schema_version, 2L) || !is.list(source$resources) ||
+  if (!identical(source$schema_version, 3L) || !is.list(source$resources) ||
       !length(source$resources)) {
-    stop("Guide Resource registry must use schema_version 2 and a nonempty resources array.",
+    stop("Guide Resource registry must use schema_version 3 and a nonempty resources array.",
          call. = FALSE)
   }
 
   required <- c(
     "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
     "providers", "summary", "canonical_url", "access_points", "resource_type",
-    "resource_granularity", "subject_tags", "information_type_tags", "variables",
-    "use_scopes", "geographic_scope", "access_class", "public_source_references",
-    "publication_state"
+    "temporal_character", "resource_granularity", "subject_tags",
+    "information_type_tags", "variables", "use_scopes", "geographic_scope",
+    "access_class", "public_source_references", "publication_state"
   )
   id_pattern <- "^resource_[a-z0-9]+(?:_[a-z0-9]+)*$"
   migration_id_pattern <- "^res\\.[a-z0-9]+(?:[.-][a-z0-9]+)*$"
@@ -812,16 +856,15 @@ pt_guide_read_resource_registry <- function(
   )
   access_roles <- c("canonical", "configured_view", "archive", "comparison_viewer")
   reference_roles <- c("official_source", "documentation")
-  resource_types <- c(
-    "unknown", "dashboard", "data_portal", "dataset", "interactive_map",
-    "organization_page", "web_application"
-  )
+  metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
+  resource_types <- names(metadata_vocabularies$resource_type)
+  temporal_characters <- names(metadata_vocabularies$temporal_character)
   resource_granularities <- c(
     "unknown", "collection", "dashboard", "dataset", "mission", "platform",
     "product", "program", "viewer"
   )
   publication_states <- c("published", "staged")
-  geographic_scope_types <- c("unknown", "global", "multi_state", "national")
+  geographic_scope_types <- names(metadata_vocabularies$geographic_scope_class)
   ids <- character(length(source$resources))
   aliases <- vector("list", length(source$resources))
   migration_aliases <- vector("list", length(source$resources))
@@ -870,11 +913,18 @@ pt_guide_read_resource_registry <- function(
     resource_type <- pt_guide_resource_registry_scalar(
       record$resource_type, paste0(label, " resource_type")
     )
+    temporal_character <- pt_guide_resource_registry_scalar(
+      record$temporal_character, paste0(label, " temporal_character")
+    )
     granularity <- pt_guide_resource_registry_scalar(
       record$resource_granularity, paste0(label, " resource_granularity")
     )
-    if (!resource_type %in% resource_types || !granularity %in% resource_granularities) {
-      stop(label, " contains an uncontrolled Resource type or granularity.", call. = FALSE)
+    if (!resource_type %in% resource_types ||
+        !temporal_character %in% temporal_characters ||
+        !granularity %in% resource_granularities) {
+      stop(label, paste0(
+        " contains an uncontrolled Resource type, temporal character, or granularity."
+      ), call. = FALSE)
     }
 
     if (!is.list(record$providers) || !length(record$providers)) {
@@ -964,10 +1014,11 @@ pt_guide_read_resource_registry <- function(
     geographic_names <- pt_guide_resource_registry_string_array(
       record$geographic_scope$names, paste0(label, " geographic_scope names")
     )
+    geographic_name_keys <- tolower(iconv(
+      geographic_names, from = "UTF-8", to = "ASCII//TRANSLIT", sub = ""
+    ))
     if (!geographic_scope_type %in% geographic_scope_types ||
-        anyDuplicated(geographic_names) ||
-        (identical(geographic_scope_type, "unknown") && length(geographic_names)) ||
-        (!identical(geographic_scope_type, "unknown") && !length(geographic_names))) {
+        any(is.na(geographic_name_keys)) || anyDuplicated(geographic_name_keys)) {
       stop(label, " contains an uncontrolled or inconsistent geographic scope.", call. = FALSE)
     }
     access_class <- pt_guide_resource_registry_scalar(
@@ -1102,6 +1153,7 @@ pt_guide_resource_browser_records <- function(registry, products) {
     stop("Guide Resource browser adaptation requires unique eligible Product IDs.",
          call. = FALSE)
   }
+  metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
   lapply(registry, function(record) {
     display_providers <- Filter(
       function(provider) identical(provider$role, "display_provider"), record$providers
@@ -1130,8 +1182,21 @@ pt_guide_resource_browser_records <- function(registry, products) {
       label = if (identical(point$role, "canonical")) "Official Resource" else point$label,
       url = point$url
     ))
+    resource_type_label <- pt_guide_resource_metadata_label(
+      metadata_vocabularies$resource_type, record$resource_type,
+      paste0("Guide Resource ", record$id, " resource_type")
+    )
+    temporal_character_label <- pt_guide_resource_metadata_label(
+      metadata_vocabularies$temporal_character, record$temporal_character,
+      paste0("Guide Resource ", record$id, " temporal_character")
+    )
     geographic_scope <- list(
       scopeType = record$geographic_scope$scope_type,
+      scopeLabel = pt_guide_resource_metadata_label(
+        metadata_vocabularies$geographic_scope_class,
+        record$geographic_scope$scope_type,
+        paste0("Guide Resource ", record$id, " geographic_scope scope_type")
+      ),
       names = unname(as.character(unlist(record$geographic_scope$names, use.names = FALSE)))
     )
     search_text <- pt_guide_normalize_resource_search(list(
@@ -1141,13 +1206,13 @@ pt_guide_resource_browser_records <- function(registry, products) {
       vapply(providers, `[[`, character(1), "name"),
       record$summary,
       vapply(access_points, `[[`, character(1), "label"),
-      record$resource_type,
+      resource_type_label,
       record$resource_granularity,
       unlist(record$subject_tags, use.names = FALSE),
       unlist(record$information_type_tags, use.names = FALSE),
       unlist(record$variables, use.names = FALSE),
       unlist(record$use_scopes, use.names = FALSE),
-      geographic_scope$scopeType,
+      geographic_scope$scopeLabel,
       geographic_scope$names
     ))
     list(
@@ -1161,6 +1226,9 @@ pt_guide_resource_browser_records <- function(registry, products) {
       canonicalUrl = record$canonical_url,
       accessPoints = unname(access_points),
       resourceType = record$resource_type,
+      resourceTypeLabel = resource_type_label,
+      temporalCharacter = record$temporal_character,
+      temporalCharacterLabel = temporal_character_label,
       resourceGranularity = record$resource_granularity,
       subjectTags = unname(as.character(unlist(record$subject_tags, use.names = FALSE))),
       informationTypes = unname(as.character(unlist(
@@ -1670,17 +1738,34 @@ pt_validate_guide_bundle <- function(bundle) {
   article_ids <- vapply(bundle$articles, `[[`, character(1), "id")
   resource_fields <- c(
     "kind", "id", "title", "aliases", "provider", "providers", "summary",
-    "canonicalUrl", "accessPoints", "resourceType", "resourceGranularity",
-    "subjectTags", "informationTypes", "variables", "useScopes",
-    "geographicScope", "relatedProducts", "relationshipFlags", "searchText"
+    "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
+    "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
+    "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
+    "relatedProducts", "relationshipFlags", "searchText"
   )
+  metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
   for (resource in bundle$resources) {
     if (!identical(names(resource), resource_fields) ||
         !identical(resource$kind, "Resource") ||
         any(!nzchar(c(resource$id, resource$title, resource$provider,
                       resource$summary, resource$canonicalUrl, resource$resourceType,
-                      resource$resourceGranularity, resource$searchText)))) {
-      stop("BRIM Guide Resources require the exact public 19-field projection.",
+                      resource$resourceTypeLabel, resource$temporalCharacter,
+                      resource$temporalCharacterLabel, resource$resourceGranularity,
+                      resource$searchText)))) {
+      stop("BRIM Guide Resources require the exact public 22-field projection.",
+           call. = FALSE)
+    }
+    if (!resource$resourceType %in% names(metadata_vocabularies$resource_type) ||
+        !identical(
+          resource$resourceTypeLabel,
+          unname(metadata_vocabularies$resource_type[[resource$resourceType]])
+        ) ||
+        !resource$temporalCharacter %in% names(metadata_vocabularies$temporal_character) ||
+        !identical(
+          resource$temporalCharacterLabel,
+          unname(metadata_vocabularies$temporal_character[[resource$temporalCharacter]])
+        )) {
+      stop("BRIM Guide Resource type or temporal labels are not controlled projections.",
            call. = FALSE)
     }
     if (!is.list(resource$providers) || !length(resource$providers) ||
@@ -1715,8 +1800,17 @@ pt_validate_guide_bundle <- function(bundle) {
         !identical(canonical_points[[1]]$url, resource$canonicalUrl)) {
       stop("BRIM Guide Resource canonical access-point contract changed.", call. = FALSE)
     }
-    if (!identical(names(resource$geographicScope), c("scopeType", "names")) ||
-        !nzchar(resource$geographicScope$scopeType)) {
+    if (!identical(
+          names(resource$geographicScope), c("scopeType", "scopeLabel", "names")
+        ) ||
+        !resource$geographicScope$scopeType %in%
+          names(metadata_vocabularies$geographic_scope_class) ||
+        !identical(
+          resource$geographicScope$scopeLabel,
+          unname(metadata_vocabularies$geographic_scope_class[[
+            resource$geographicScope$scopeType
+          ]])
+        )) {
       stop("BRIM Guide Resource geographic scope shape changed.", call. = FALSE)
     }
     expected_related <- list()
@@ -1748,13 +1842,13 @@ pt_validate_guide_bundle <- function(bundle) {
       vapply(resource$providers, `[[`, character(1), "name"),
       resource$summary,
       vapply(resource$accessPoints, `[[`, character(1), "label"),
-      resource$resourceType,
+      resource$resourceTypeLabel,
       resource$resourceGranularity,
       resource$subjectTags,
       resource$informationTypes,
       resource$variables,
       resource$useScopes,
-      resource$geographicScope$scopeType,
+      resource$geographicScope$scopeLabel,
       resource$geographicScope$names
     ))
     if (!identical(resource$searchText, expected_search)) {

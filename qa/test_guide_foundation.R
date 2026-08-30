@@ -61,6 +61,9 @@ product_ids <- vapply(bundle$products, `[[`, character(1), "id")
 product_paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
 product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
 resource_registry <- pt_guide_read_resource_registry()
+raw_resource_registry <- jsonlite::fromJSON(
+  file.path("00_config", "guide_resources.json"), simplifyVector = FALSE
+)
 registry_ids <- vapply(resource_registry, `[[`, character(1), "id")
 registry_states <- vapply(resource_registry, `[[`, character(1), "publication_state")
 staged_registry <- unclass(resource_registry)[registry_states == "staged"]
@@ -83,6 +86,8 @@ assert_identical(bundle$counts$resources, 33L,
                  "Current Guide must include all 33 published Resources")
 assert_identical(length(resource_registry), 33L,
                  "Canonical Resource registry must validate all 33 records")
+assert_identical(raw_resource_registry$schema_version, 3L,
+                 "Canonical Resource registry schema version changed")
 assert_identical(sum(registry_states == "published"), 33L,
                  "Canonical Resource registry published count changed")
 assert_identical(sum(registry_states == "staged"), 0L,
@@ -131,12 +136,67 @@ assert_true(all(vapply(bundle$resources, function(resource) {
     names(resource),
     c(
       "kind", "id", "title", "aliases", "provider", "providers", "summary",
-      "canonicalUrl", "accessPoints", "resourceType", "resourceGranularity",
-      "subjectTags", "informationTypes", "variables", "useScopes",
-      "geographicScope", "relatedProducts", "relationshipFlags", "searchText"
+      "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
+      "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
+      "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
+      "relatedProducts", "relationshipFlags", "searchText"
     )
   )
-}, logical(1))), "Resource browser projection is not the exact public 19-field shape")
+}, logical(1))), "Resource browser projection is not the exact public 22-field shape")
+resource_metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
+assert_true(all(vapply(bundle$resources, function(resource) {
+  canonical <- resource_registry[[match(resource$id, registry_ids)]]
+  identical(resource$resourceType, canonical$resource_type) &&
+    identical(
+      resource$resourceTypeLabel,
+      unname(resource_metadata_vocabularies$resource_type[[resource$resourceType]])
+    ) &&
+    identical(resource$temporalCharacter, canonical$temporal_character) &&
+    identical(
+      resource$temporalCharacterLabel,
+      unname(resource_metadata_vocabularies$temporal_character[[
+        resource$temporalCharacter
+      ]])
+    ) &&
+    identical(resource$geographicScope$scopeType, canonical$geographic_scope$scope_type) &&
+    identical(
+      resource$geographicScope$scopeLabel,
+      unname(resource_metadata_vocabularies$geographic_scope_class[[
+        resource$geographicScope$scopeType
+      ]])
+    ) &&
+    identical(
+      resource$geographicScope$names,
+      unname(as.character(unlist(canonical$geographic_scope$names, use.names = FALSE)))
+    )
+}, logical(1))), "Controlled Resource metadata browser projection changed")
+assert_true(all(vapply(bundle$resources, function(resource) {
+  expected_search <- pt_guide_normalize_resource_search(list(
+    resource$title, resource$aliases, resource$provider,
+    vapply(resource$providers, `[[`, character(1), "name"), resource$summary,
+    vapply(resource$accessPoints, `[[`, character(1), "label"),
+    resource$resourceTypeLabel, resource$resourceGranularity, resource$subjectTags,
+    resource$informationTypes, resource$variables, resource$useScopes,
+    resource$geographicScope$scopeLabel, resource$geographicScope$names
+  ))
+  identical(resource$searchText, expected_search)
+}, logical(1))), "Temporal character entered Resource searchText")
+assert_identical(
+  vapply(Filter(function(resource) identical(resource$temporalCharacter, "unknown"),
+                bundle$resources), `[[`, character(1), "id"),
+  c(
+    "resource_blm_california", "resource_usgs_bcmv8",
+    "resource_nidis_soil_moisture_dashboard",
+    "resource_nidis_grace_groundwater_soil_moisture"
+  ),
+  "Temporal unknown Resource projection changed"
+)
+assert_identical(
+  vapply(Filter(function(resource) identical(resource$geographicScope$scopeType, "unknown"),
+                bundle$resources), `[[`, character(1), "id"),
+  "resource_prism_normals",
+  "Geography unknown Resource projection changed"
+)
 assert_true(requireNamespace("digest", quietly = TRUE),
             "digest is required for the captured Resource-payload regression contract")
 resource_projection_json <- jsonlite::toJSON(
@@ -1181,6 +1241,18 @@ assert_true(grepl("brim-guide__resource-facet-choices", guide_js, fixed = TRUE) 
               grepl("aria-pressed", guide_js, fixed = TRUE) &&
               grepl("brim-guide__resource-sort", guide_js, fixed = TRUE),
             "Required visible Resource facet choices or native sort control are missing")
+assert_true(grepl("resourceExplorerModel.resourceTypeLabel", guide_js, fixed = TRUE) &&
+              grepl("resource.temporalCharacter !== 'unknown'", guide_js, fixed = TRUE) &&
+              grepl("'Temporal character', resource.temporalCharacterLabel", guide_js,
+                    fixed = TRUE) &&
+              grepl("resource.geographicScope.scopeType !== 'unknown'", guide_js,
+                    fixed = TRUE) &&
+              grepl("resource.geographicScope.scopeLabel", guide_js, fixed = TRUE),
+            "Controlled labels or unknown temporal/geography detail omission changed")
+assert_true(!grepl("'Temporal character', 'temporalCharacter'", guide_js, fixed = TRUE) &&
+              !grepl("'Geographic scope', 'geographicScope'", guide_js, fixed = TRUE) &&
+              !grepl("'Named geography', 'geographic", guide_js, fixed = TRUE),
+            "A deferred temporal or geographic Resource facet was activated")
 assert_true(grepl("activeSummary.hidden = !", guide_js, fixed = TRUE) &&
               grepl("activeSummary.hidden = !hasActiveFilters()", guide_js, fixed = TRUE) &&
               grepl("Clear all A Explore filters", guide_js, fixed = TRUE) &&
@@ -1317,18 +1389,22 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R6 exact Resource foundation contracts passed.\n")
+cat("GUIDE-I2B-R8 exact Resource metadata foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
 cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
+cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
 cat("REGISTRY_RESOURCES=33_TOTAL,33_PUBLISHED,0_STAGED\n")
 cat("EXACT_RELATIONSHIP_ROWS=17\n")
 cat("RELATIONSHIP_COUNTS=0_DISPLAYED,7_USED,10_EXTERNAL\n")
 cat("RESOURCE_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
 cat("RESOURCE_PRESET_COUNTS=33_ALL,9_BRIM_LINKED,24_BEYOND\n")
+cat("RESOURCE_METADATA_LABEL_PROJECTION=PASS\n")
+cat("TEMPORAL_SEARCH_EXCLUSION=PASS\n")
+cat("UNKNOWN_DETAIL_OMISSION_CONTRACT=PASS\n")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")
