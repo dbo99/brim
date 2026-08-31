@@ -30,12 +30,15 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-72-record dataset: 33 reviewed Resources are `published` and 39 identity-ready
-Wave-2 Resources are `staged`. The publication projection runs before
+72-record dataset: 67 reviewed Resources are `published` and five Wave-2
+Resources remain `staged`. GUIDE-I2B-R10 published exactly 34 of the 39
+identity-ready Wave-2 records by changing only `publication_state`. The five
+held IDs are `resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
+`resource_usgs_water_data_apis` for subject review, plus
+`resource_nrcs_web_soil_survey` and `resource_usda_cropland_data_layer` for
+taxonomy resolution. The publication projection runs before
 relationships, search text, counts, facets, adaptation, or browser embedding,
-so only the 33 published Resources are browser-visible. Within the staged R7C
-evidence, 34 records are publication-ready and five remain held: three for
-subject review and two for taxonomy resolution. The registry preserves immutable
+so only the 67 published Resources are browser-visible. The registry preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. Every Resource has exactly one controlled Resource Type machine ID,
@@ -50,7 +53,8 @@ and geographic scope and projects deterministic labels at build time. The
 registry does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
-No Wave-2 Product relationship or Guide profile is introduced by staging.
+Wave-2 publication introduces no Product relationship, Guide profile, subject,
+Information Type, controlled vocabulary, or facet.
 `00_config/guide_product_enrichment.json` remains the sole authored authority for
 Product-to-Resource relationships. Its 17 reviewed rows consist of zero
 `displayed_in_brim`, seven `used_by_brim`, and ten
@@ -65,12 +69,12 @@ The Resource Explorer derives its primary views from those rows without adding
 another relationship category. `BRIM-linked` is the union of Resources with at
 least one `displayed_in_brim`, `used_by_brim`, or
 `related_external_resource` row; it currently contains nine unique Resources.
-`Beyond BRIM` is the exact 24-Resource complement within the 33 published
+`Beyond BRIM` is the exact 58-Resource complement within the 67 published
 Resources. The visible relationship subtype refinements preserve the canonical
 types and currently count zero Available in BRIM, six Used by BRIM, and three
 Related resource records by unique Resource rather than relationship row.
 
-The browser projection contains the 33 published records in registry order and
+The browser projection contains the 67 published records in registry order and
 only the reviewed 22-field Resource shape: identity and descriptive metadata,
 labeled access points, Resource Type and temporal machine IDs with build-derived
 labels, normalized geographic scope with its build-derived scope label and
@@ -101,6 +105,10 @@ metadata rather than a facet. Variables and use scopes remain searchable
 descriptive fields, not controlled facet vocabularies. Temporal, geographic,
 named-geography, access-point-type, granularity, verification, and priority
 facets are not current Guide authority.
+The Explorer initially renders at most 25 result rows and exposes further rows
+in deterministic 25-record increments, so all 67 published Resources remain
+reachable without embedding hidden card copies or introducing pagination,
+virtualization, runtime fetching, or browser-storage authority.
 
 Raw bookmark exports, intake workbooks, candidate records, unresolved notes,
 and other Resource-inventory evidence remain External research/input material

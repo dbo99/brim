@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 72 Resource records: 33 published and 39 staged;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 72 Resource records: 67 published and five staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -66,10 +66,12 @@ Guide basic Product coverage is automatic for every included visible Product in 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
 `guide_resources.json` is one canonical schema-v3 dataset with 72 ordered
-Resource records: 33 published and 39 identity-ready Wave-2 records staged for
-later publication review. Within the staged R7C evidence, 34 are publication-
-ready and five remain held—three for subject review and two for taxonomy
-resolution. Final-ID aliases, build-time `res.*` migration
+Resource records: 67 published and five Wave-2 records still staged. R10
+published exactly 34 Wave-2 records by changing only `publication_state`.
+The held subject-review IDs are `resource_nasa_giovanni`,
+`resource_usgs_earthexplorer`, and `resource_usgs_water_data_apis`; the held
+taxonomy-resolution IDs are `resource_nrcs_web_soil_survey` and
+`resource_usda_cropland_data_layer`. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
@@ -85,13 +87,14 @@ a public facet.
 its exact 17 rows comprise zero `displayed_in_brim`, seven `used_by_brim`, and
 ten `related_external_resource` relationships. Relationships are never inferred
 from Resource text, providers, URLs, publication, or geographic intersection.
-Wave-2 staging adds no Product relationship and no Guide profile.
+Wave-2 publication adds no Product relationship, Guide profile, subject,
+Information Type, controlled vocabulary, or facet.
 
 The compiler validates relationship Resource IDs against the canonical
 registry, removes staged Resources before relationship projection, and
 validates Product IDs against the current projected Product
 universe, then derives reverse Resource-to-Product links only from surviving
-exact Product relationships. The browser receives the 33 published records in
+exact Product relationships. The browser receives the 67 published records in
 registry
 order with one exact 22-field shape: identity and reviewed descriptive fields,
 labeled access points, Resource Type and temporal machine IDs with controlled
@@ -102,7 +105,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The staged 39 therefore contribute zero browser payload or visible-count/search/facet authority. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The staged five therefore contribute zero browser payload or visible-count/search/facet authority. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -121,8 +124,8 @@ which contains datasets, viewers, portals, official sources, and supporting
 libraries linked to BRIM or useful beyond it. The Explorer uses a
 64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
 and a measured one-pane search/results, facets, or detail flow at narrow width.
-Its three primary views appear in the consistent order 9 BRIM-linked, 24 Beyond
-BRIM, and 33 All Resources. `BRIM-linked` is the union of Resources with at least one exact
+Its three primary views appear in the consistent order 9 BRIM-linked, 58 Beyond
+BRIM, and 67 All Resources. `BRIM-linked` is the union of Resources with at least one exact
 `displayed_in_brim`, `used_by_brim`, or `related_external_resource`
 relationship; Beyond BRIM is the exact complement. The primary views form one
 mutually exclusive radio-style control, selecting one replaces the prior view,
@@ -157,12 +160,19 @@ BRIM-linked and its direct relationship states receive restrained green
 emphasis, and Beyond BRIM, related-external badges, and external access actions
 receive restrained muted-blue emphasis. Labels and accessible selected states,
 not color alone, remain authoritative.
+Resource filter buttons retain their existing minimum interactive heights and
+visible focus outline while using slightly tighter padding and modest five-pixel
+corners. Resource informational and relationship badges use the same modest
+corner treatment; active removable filter chips retain their separate compact
+chip treatment.
 Sort remains native. On wide desktop, refinement receives about two-fifths of
 the result-list layout and one-third of the selected-detail layout, preserving
 dense result/detail scanning without compressing visible filters. Search,
 orientation copy, and the primary-view ribbon remain stationary above a bounded
-workspace whose Refine pane and single results/detail content region are the
-only independent vertical scrollers. Controller rerenders preserve their
+workspace. The outer Refine framework is stationary; its Provider heading and
+search remain fixed while the high-cardinality Provider-value list alone absorbs
+available-height variation through internal scrolling. The single results/detail
+content region scrolls independently. Controller rerenders preserve those
 unrelated positions. Selecting a wide-layout result saves the current browsing
 position and aligns that existing selected row once at the top of the result
 viewport beside its detail without changing sort order; subsequent user
@@ -171,8 +181,10 @@ position and selected-row focus, while Reset all returns all three positions to
 the top.
 Narrow layouts keep the shared one-pane results, filters, or detail flow and use
 the Guide main region as that pane's scroll owner rather than adopting the
-desktop split-scroll hierarchy. Results initially reveal 25;
-`Show more` reveals the remaining eight without pagination or virtualization.
+desktop split-scroll hierarchy. Results initially reveal 25; repeated `Show
+more` activation reveals further 25-record increments until all 67 are
+reachable, without pagination, virtualization, or hundreds of hidden startup
+cards.
 Only the selected Resource renders full metadata, exact related Products, and
 role-labeled safe access links. The exact canonical access point matching
 `canonicalUrl` is promoted to the restrained external-blue `Open official

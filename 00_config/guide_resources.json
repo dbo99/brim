@@ -2125,7 +2125,7 @@
           "url": "https://www.airbornesnowobservatories.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_california_groundwater_live",
@@ -2187,7 +2187,7 @@
           "url": "https://calgwlive.water.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_california_water_watch",
@@ -2253,7 +2253,7 @@
           "url": "https://cww.water.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_casgem",
@@ -2317,7 +2317,7 @@
           "url": "https://sgma.water.ca.gov/portal/casgem/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_cdec",
@@ -2382,7 +2382,7 @@
           "url": "https://cdec.water.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_cimis",
@@ -2444,7 +2444,7 @@
           "url": "https://cimis.water.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_groundwater_sustainability_agencies",
@@ -2505,7 +2505,7 @@
           "url": "https://sgma.water.ca.gov/portal/gsa/all"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_water_data_library",
@@ -2571,7 +2571,7 @@
           "url": "https://wdl.water.ca.gov/waterdatalibrary/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_epa_cyanweb",
@@ -2629,7 +2629,7 @@
           "url": "https://qed.epa.gov/cyanweb/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ismn",
@@ -2690,7 +2690,7 @@
           "url": "https://ismn.earth/en/dataviewer/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_asf_displacement_portal",
@@ -2747,7 +2747,7 @@
           "url": "https://displacement.asf.alaska.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_cyfi_explorer",
@@ -2799,7 +2799,7 @@
           "url": "https://www.earthdata.nasa.gov/data/tools/cyfi-explorer"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_ecostress_data_resources",
@@ -2851,7 +2851,7 @@
           "url": "https://www.earthdata.nasa.gov/data/instruments/ecostress"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_firms_global_fire_map",
@@ -2907,7 +2907,7 @@
           "url": "https://firms.modaps.eosdis.nasa.gov/map/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_giovanni",
@@ -3020,7 +3020,7 @@
           "url": "https://ldas.gsfc.nasa.gov/nldas/drought-monitor"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_opera_products",
@@ -3075,7 +3075,7 @@
           "url": "https://www.earthdata.nasa.gov/data/projects/opera"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_stream_water_quality_tool",
@@ -3128,7 +3128,7 @@
           "url": "https://www.earthdata.nasa.gov/data/tools/stream"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_swot_hydrology_resources",
@@ -3180,7 +3180,7 @@
           "url": "https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/swot/resources"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nidis_soil_moisture_resources",
@@ -3235,7 +3235,7 @@
           "url": "https://www.drought.gov/topics/soil-moisture"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cnrfc",
@@ -3300,7 +3300,7 @@
           "url": "https://www.cnrfc.noaa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_coastwatch_data_portal",
@@ -3356,7 +3356,7 @@
           "url": "https://coastwatch.noaa.gov/cw_html/cwViewer.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_coastwatch_erddap",
@@ -3411,7 +3411,7 @@
           "url": "https://coastwatch.noaa.gov/erddap/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cpc_forecasts_outlooks",
@@ -3471,7 +3471,7 @@
           "url": "https://www.cpc.ncep.noaa.gov/products/forecasts/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_wpc_qpf",
@@ -3530,7 +3530,7 @@
           "url": "https://www.wpc.ncep.noaa.gov/qpf/qpf2.shtml"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_nwcc",
@@ -3594,7 +3594,7 @@
           "url": "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_snow_survey_water_supply_forecasting",
@@ -3661,7 +3661,7 @@
           "url": "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_web_soil_survey",
@@ -3772,7 +3772,7 @@
           "url": "https://dataviewer.geo.tuwien.ac.at/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_cwms_data_api",
@@ -3831,7 +3831,7 @@
           "url": "https://cwms-data.usace.army.mil/cwms-data/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usbr",
@@ -3893,7 +3893,7 @@
           "url": "https://www.usbr.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usda_cropland_data_layer",
@@ -4066,7 +4066,7 @@
           "url": "https://groundwaterwatch.usgs.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_national_hydrography_products",
@@ -4132,7 +4132,7 @@
           "url": "https://www.usgs.gov/national-hydrography/access-national-hydrography-products"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_streamstats",
@@ -4195,7 +4195,7 @@
           "url": "https://streamstats.usgs.gov/ss/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_water_data_apis",
@@ -4315,7 +4315,7 @@
           "url": "https://waterdata.usgs.gov/nwis"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_water_quality_portal",
@@ -4379,7 +4379,7 @@
           "url": "https://www.waterqualitydata.us/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     }
   ]
 }
