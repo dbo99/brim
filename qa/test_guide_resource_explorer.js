@@ -2,7 +2,7 @@
 
 "use strict";
 
-// Dedicated source/model contracts for the GUIDE-I2B-R9 Resource Explorer.
+// Dedicated source/model contracts for the GUIDE-I2B-R10 Resource Explorer.
 // Uses only Node built-ins and executes the pure model used by the browser.
 
 const fs = require("fs");
@@ -137,12 +137,59 @@ const stagedResources = canonicalResources.filter(
 );
 const publishedResourceIds = new Set(publishedResources.map(resource => resource.id));
 const stagedResourceIds = new Set(stagedResources.map(resource => resource.id));
+const expectedNewlyPublishedIds = [
+  "resource_aso_airborne_snow_observatories",
+  "resource_dwr_california_groundwater_live",
+  "resource_dwr_california_water_watch",
+  "resource_dwr_casgem",
+  "resource_dwr_cdec",
+  "resource_dwr_cimis",
+  "resource_dwr_groundwater_sustainability_agencies",
+  "resource_dwr_water_data_library",
+  "resource_epa_cyanweb",
+  "resource_ismn",
+  "resource_nasa_asf_displacement_portal",
+  "resource_nasa_cyfi_explorer",
+  "resource_nasa_ecostress_data_resources",
+  "resource_nasa_firms_global_fire_map",
+  "resource_nasa_nldas_drought_monitor",
+  "resource_nasa_opera_products",
+  "resource_nasa_stream_water_quality_tool",
+  "resource_nasa_swot_hydrology_resources",
+  "resource_nidis_soil_moisture_resources",
+  "resource_noaa_cnrfc",
+  "resource_noaa_coastwatch_data_portal",
+  "resource_noaa_coastwatch_erddap",
+  "resource_noaa_cpc_forecasts_outlooks",
+  "resource_noaa_wpc_qpf",
+  "resource_nrcs_nwcc",
+  "resource_nrcs_snow_survey_water_supply_forecasting",
+  "resource_tu_wien_soil_moisture_viewer",
+  "resource_usace_cwms_data_api",
+  "resource_usbr",
+  "resource_usgs_groundwater_watch",
+  "resource_usgs_national_hydrography_products",
+  "resource_usgs_streamstats",
+  "resource_usgs_water_data_nation",
+  "resource_usgs_water_quality_portal"
+];
+const expectedHeldStagedIds = [
+  "resource_nasa_giovanni",
+  "resource_nrcs_web_soil_survey",
+  "resource_usda_cropland_data_layer",
+  "resource_usgs_earthexplorer",
+  "resource_usgs_water_data_apis"
+];
 assert.strictEqual(canonicalResources.length, 72,
   "Canonical registry Resource count changed");
-assert.strictEqual(publishedResources.length, 33,
+assert.strictEqual(publishedResources.length, 67,
   "Canonical registry published Resource count changed");
-assert.strictEqual(stagedResources.length, 39,
+assert.strictEqual(stagedResources.length, 5,
   "Canonical registry staged Resource count changed");
+assert.deepStrictEqual(publishedResources.slice(33).map(resource => resource.id),
+  expectedNewlyPublishedIds, "The 34 newly published Resource IDs/order changed");
+assert.deepStrictEqual(stagedResources.map(resource => resource.id),
+  expectedHeldStagedIds, "The five held staged Resource IDs/order changed");
 assert(canonicalResources.every(resource =>
   resource.publication_state === "published" || resource.publication_state === "staged"
 ), "Canonical registry contains an unsupported publication state");
@@ -175,10 +222,10 @@ const brimLinkedIds = new Set([
 const beyondIds = new Set(publishedResources.map(resource => resource.id)
   .filter(id => !brimLinkedIds.has(id)));
 assert.strictEqual(brimLinkedIds.size, 9, "BRIM-linked unique Resource count changed");
-assert.strictEqual(beyondIds.size, 24, "Beyond-BRIM complement count changed");
+assert.strictEqual(beyondIds.size, 58, "Beyond-BRIM complement count changed");
 assert([...brimLinkedIds].every(id => !beyondIds.has(id)),
   "BRIM-linked and Beyond BRIM are not disjoint");
-assert.strictEqual(brimLinkedIds.size + beyondIds.size, 33,
+assert.strictEqual(brimLinkedIds.size + beyondIds.size, 67,
   "BRIM-linked and Beyond BRIM are not exhaustive");
 
 function projectedResource(record) {
@@ -257,8 +304,8 @@ function projectedResource(record) {
 const fullResources = publishedResources.map(projectedResource);
 const model = createModel(fullResources);
 
-assert.strictEqual(fullResources.length, 33,
-  "Browser projection must contain exactly 33 published Resources");
+assert.strictEqual(fullResources.length, 67,
+  "Browser projection must contain exactly 67 published Resources");
 assert(fullResources.every(resource => publishedResourceIds.has(resource.id)),
   "Browser projection contains a non-published Resource");
 assert([...stagedResourceIds].every(id =>
@@ -274,8 +321,8 @@ assert(stagedProjectionProbes.every(probe => !projectedResourceJson.includes(pro
   "A staged Resource ID, migration alias, or access point reached browser data");
 const allPublishedState = model.createState();
 const allPublishedResults = model.results(allPublishedState);
-assert.strictEqual(allPublishedResults.length, 33,
-  "All Resources model results must remain the 33-record published projection");
+assert.strictEqual(allPublishedResults.length, 67,
+  "All Resources model results must remain the 67-record published projection");
 assert(allPublishedResults.every(resource => publishedResourceIds.has(resource.id)),
   "A staged Resource reached Resource Explorer results");
 assert(fullResources.every(resource =>
@@ -295,7 +342,18 @@ assert.deepStrictEqual(
   [
     "resource_blm_california", "resource_usgs_bcmv8",
     "resource_nidis_soil_moisture_dashboard",
-    "resource_nidis_grace_groundwater_soil_moisture"
+    "resource_nidis_grace_groundwater_soil_moisture",
+    "resource_aso_airborne_snow_observatories",
+    "resource_epa_cyanweb",
+    "resource_nasa_asf_displacement_portal",
+    "resource_nasa_cyfi_explorer",
+    "resource_nasa_ecostress_data_resources",
+    "resource_nasa_opera_products",
+    "resource_nasa_swot_hydrology_resources",
+    "resource_nidis_soil_moisture_resources",
+    "resource_noaa_coastwatch_data_portal",
+    "resource_noaa_coastwatch_erddap",
+    "resource_usbr"
   ],
   "Temporal unknown Resource IDs changed"
 );
@@ -315,10 +373,10 @@ assert.strictEqual(model.normalize("  Café—Water & Forecasts  "),
 const fullCounts = model.facetCounts(model.createState()).presets;
 assert.deepStrictEqual(fullCounts, {
   brim_linked: 9,
-  beyond_brim: 24,
-  all_resources: 33
+  beyond_brim: 58,
+  all_resources: 67
 }, "Relationship preset truth table changed");
-assert.strictEqual(Object.values(fullCounts).filter(count => count === 33).length, 1,
+assert.strictEqual(Object.values(fullCounts).filter(count => count === 67).length, 1,
   "The all-Resources preset no longer represents the published projection");
 assert.deepStrictEqual(model.presets.map(preset => preset.id),
   ["brim_linked", "beyond_brim", "all_resources"],
@@ -336,7 +394,7 @@ assert.strictEqual(presetState.preset, "brim_linked",
 presetState = model.setPreset(presetState, "beyond_brim");
 assert.strictEqual(presetState.preset, "beyond_brim",
   "A later relationship preset did not replace the prior preset");
-assert.strictEqual(model.results(presetState).length, 24,
+assert.strictEqual(model.results(presetState).length, 58,
   "Preset switching became additive instead of mutually exclusive");
 assert.strictEqual(model.chips(presetState).filter(chip => chip.key === "preset").length, 0,
   "A primary relationship view incorrectly created a removable chip");
@@ -398,6 +456,19 @@ assert(model.results(andState).every(resource =>
 ), "All-token matching allowed a missing token");
 assert.strictEqual(model.results(model.setQuery(model.createState(), "soil impossibletoken")).length, 0,
   "All-token matching degraded to OR");
+[
+  ["cdec", "resource_dwr_cdec"],
+  ["NOAA CoastWatch Data Portal", "resource_noaa_coastwatch_data_portal"],
+  ["NRCS Snow Survey and Water Supply Forecasting Program",
+    "resource_nrcs_snow_survey_water_supply_forecasting"],
+  ["USGS StreamStats", "resource_usgs_streamstats"],
+  ["USGS Water Quality Portal", "resource_usgs_water_quality_portal"],
+  ["NASA FIRMS Global Fire Map", "resource_nasa_firms_global_fire_map"]
+].forEach(([query, expectedId]) => {
+  const results = model.results(model.setQuery(model.createState(), query));
+  assert(results.length > 0 && results[0].id === expectedId,
+    `Representative R10 search did not rank ${expectedId} first`);
+});
 
 const typoModel = createModel([
   fixture({ id: "resource_ordinary", title: "Climate", searchText: "Climate" }),
@@ -430,7 +501,8 @@ assert.deepStrictEqual(
 );
 
 const providerValues = [...new Set(fullResources.map(resource => resource.provider))];
-assert(providerValues.length >= 2, "Fixture needs at least two display providers");
+assert.strictEqual(providerValues.length, 31,
+  "Expanded published display-provider inventory changed");
 let providerState = model.createState({ providers: providerValues.slice(0, 2) });
 assert(model.results(providerState).every(resource => providerValues.slice(0, 2).includes(resource.provider)),
   "Provider multi-select is not OR within provider");
@@ -440,19 +512,39 @@ assert(model.results(providerState).every(resource =>
   providerValues.slice(0, 2).includes(resource.provider) && resource.subjectTags.includes(subjectValue)
 ), "Provider and Subject are not AND across dimensions");
 const providerCounts = model.facetCounts(model.createState()).providers;
-assert.strictEqual(Object.values(providerCounts).reduce((sum, count) => sum + count, 0), 33,
+assert.strictEqual(Object.values(providerCounts).reduce((sum, count) => sum + count, 0), 67,
   "Display-provider facet counts changed");
 assert(Object.values(model.facetCounts(model.createState())).every(counts =>
-  typeof counts !== "object" || Object.values(counts).every(count => count <= 33)
+  typeof counts !== "object" || Object.values(counts).every(count => count <= 67)
 ), "A facet count exceeds the published Resource projection");
+const dwrProvider = "California Department of Water Resources";
+assert.strictEqual(model.results(model.createState({ providers: [dwrProvider] })).length, 8,
+  "Expanded DWR provider selection count changed");
+assert.deepStrictEqual(
+  model.providerOptions(model.createState({ providerQuery: "geological survey" }))
+    .map(option => option.value),
+  ["U.S. Geological Survey", "USGS / National Drought Mitigation Center"],
+  "Provider search did not return the exact expanded USGS provider groups"
+);
 const currentTypeCounts = model.facetCounts(model.createState()).resourceTypes;
-assert.deepStrictEqual(Object.keys(currentTypeCounts).sort(), [
-  "analysis_tool", "dashboard", "data_portal_or_catalog", "dataset_or_collection",
-  "organization_homepage", "program_or_mission", "viewer_or_explorer"
-], "Current projected Resource-type machine IDs changed");
+assert.deepStrictEqual(currentTypeCounts, {
+  organization_homepage: 4,
+  dataset_or_collection: 10,
+  dashboard: 9,
+  data_portal_or_catalog: 15,
+  viewer_or_explorer: 15,
+  analysis_tool: 3,
+  program_or_mission: 8,
+  data_service_or_api: 2,
+  report_or_publication: 1
+}, "Published Resource-type machine-ID counts changed");
 assert(Object.keys(currentTypeCounts).every(value =>
   model.resourceTypeLabel(value) === metadataVocabularies.resourceType[value]
 ), "Current Resource Type labels are not controlled projections");
+assert(expectedNewlyPublishedIds.every(id => {
+  const resource = fullResources.find(value => value.id === id);
+  return resource && resource.informationTypes.length === 0;
+}), "A newly published Resource received an inferred Information Type");
 const deepCounts = model.facetCounts(model.createState());
 assert(!Object.prototype.hasOwnProperty.call(deepCounts, "resourceGranularities") &&
   !Object.prototype.hasOwnProperty.call(deepCounts, "geographies") &&
@@ -596,8 +688,17 @@ assert.strictEqual(model.results(pageState).slice(0, pageState.renderLimit).leng
   "Initial rendered result count changed");
 pageState = model.showMore(pageState);
 assert.strictEqual(pageState.renderLimit, 50, "Show more increment changed");
-assert.strictEqual(model.results(pageState).slice(0, pageState.renderLimit).length, 33,
-  "Show more did not reveal all 33 embedded records");
+assert.strictEqual(model.results(pageState).slice(0, pageState.renderLimit).length, 50,
+  "First Show more activation did not reveal exactly 50 records");
+pageState = model.showMore(pageState);
+assert.strictEqual(pageState.renderLimit, 75, "Second Show more increment changed");
+assert.strictEqual(model.results(pageState).slice(0, pageState.renderLimit).length, 67,
+  "Repeated Show more did not reveal all 67 embedded records");
+assert.deepStrictEqual(
+  model.results(pageState).slice(0, pageState.renderLimit).map(resource => resource.id),
+  allPublishedResults.map(resource => resource.id),
+  "Repeated Show more changed deterministic published Resource order"
+);
 
 let detailState = model.createState();
 assert.strictEqual(model.detail(detailState), null, "Detail exists before selection");
@@ -832,12 +933,15 @@ assert(css.includes("@media (min-width: 1101px)") &&
   css.includes(".brim-guide--resource-explorer .brim-guide__main {\n    display: grid; min-height: 0; overflow: hidden;") &&
   css.includes(".brim-guide__resource-explorer-header,\n  .brim-guide__resource-presets,\n  .brim-guide__resource-chips {\n    flex: 0 0 auto;") &&
   css.includes(".brim-guide__resource-presets {\n    min-height: 33px; overflow: hidden;") &&
-  css.includes(".brim-guide__resource-facets,\n  .brim-guide__resource-content") &&
-  css.includes("overflow-x: hidden; overflow-y: auto;") &&
+  css.includes(".brim-guide__resource-facets {\n    min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto;") &&
+  css.includes("padding-bottom: 6px; overflow-x: hidden; overflow-y: hidden;") &&
+  css.includes(".brim-guide__resource-content {\n    min-height: 0; overflow-x: hidden; overflow-y: auto;") &&
+  css.includes(".brim-guide__resource-provider {\n    min-height: 0; display: grid; grid-template-rows: auto auto minmax(54px, 1fr);") &&
+  css.includes(".brim-guide__resource-provider-options {\n    min-height: 54px; max-height: none;") &&
   css.includes("overflow-anchor: none") &&
   css.includes("overscroll-behavior: contain") &&
   css.includes("scrollbar-gutter: stable"),
-  "Wide Resource Explorer header stack or bounded independent content regions changed");
+  "Wide Resource Explorer stationary Refine framework, flexible Provider scroller, or independent results region changed");
 assert(css.includes(".brim-guide--resource-explorer .brim-guide__main {\n  padding: 10px 14px 18px; overflow-anchor: none;"),
   "Resource pane transitions no longer suppress browser scroll-anchor jumps");
 assert(source.indexOf("explorer.appendChild(header)") <
@@ -859,6 +963,20 @@ assert(css.includes(".brim-guide__resource-choices") &&
   css.includes(".brim-guide__resource-choice:disabled") &&
   css.includes("@media (max-width: 700px)"),
   "Visible Resource facet choices lack responsive active-state styling");
+assert(css.includes(
+  "min-height: 24px; padding: 2px 4px; border: 1px solid #a7a093; border-radius: 5px"
+) && css.includes(
+  "min-height: 29px; display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; border: 1px solid #9d9689; border-radius: 5px"
+) && css.includes(
+  "display: none; min-height: 30px; padding: 3px 8px; border: 1px solid #8d978c; border-radius: 5px"
+) && css.includes(
+  "height: 29px; padding: 4px 6px; border: 1px solid #9c9588; border-radius: 5px"
+), "Resource filter controls lost the approved compact padding, retained targets, or modest radius");
+assert(css.includes(
+  "padding: 1px 4px; border: 1px solid #b8b1a4; border-radius: 5px"
+) && css.includes(".brim-guide button:focus-visible") &&
+  css.includes("outline: 2px solid #236fa1; outline-offset: 2px"),
+"Resource badges lost modest rounding or filter controls lost visible focus");
 assert(css.includes("data-resource-preset=\"brim_linked\"") &&
   css.includes("data-resource-preset=\"beyond_brim\"") &&
   css.includes(".brim-guide__resource-choice--brim.is-selected:not(:disabled)") &&
@@ -887,20 +1005,23 @@ assert(css.includes(".brim-guide__resource-selected-label") &&
   source.includes("row.setAttribute('aria-current', 'true')"),
   "Selected-row or primary official-access treatment is incomplete");
 
-console.log("GUIDE-I2B-R9 Resource Explorer source/model contracts passed.");
+console.log("GUIDE-I2B-R10 Resource Explorer source/model contracts passed.");
 console.log("CANONICAL_RESOURCES=72");
-console.log("PUBLISHED_RESOURCES=33");
-console.log("STAGED_RESOURCES=39");
-console.log("STAGED_BROWSER_LEAKAGE=0");
+console.log("PUBLISHED_RESOURCES=67");
+console.log("STAGED_RESOURCES=5");
+console.log("HELD_BROWSER_LEAKAGE=0");
 console.log("GOES_ACCESS_POINT_TYPES=viewer,viewer,configured_view,configured_view");
 console.log("RESOURCE_TYPE_MACHINE_ID_LABELS=PASS");
 console.log("TEMPORAL_DETAIL_NONUNKNOWN_ONLY=PASS");
 console.log("GEOGRAPHY_UNKNOWN_DETAIL_OMISSION=PASS");
 console.log("DEFERRED_RESOURCE_FACETS=ABSENT");
-console.log("PRESET_COUNTS=33,9,24");
+console.log("PRESET_COUNTS=67,9,58");
 console.log("RELATIONSHIP_SUBTYPE_UNIQUE_COUNTS=0,6,3");
 console.log("INITIAL_LIMIT=25");
-console.log("SHOW_MORE_VISIBLE=33");
+console.log("SHOW_MORE_VISIBLE=67");
+console.log("PROVIDER_VALUES=31");
+console.log("FILTER_BADGE_POLISH=PASS");
+console.log("DESKTOP_FILTER_PANE_FIT=CSS_ONLY_PROVIDER_SCROLL");
 console.log("SELECTED_ONLY_DETAIL=PASS");
 console.log("ROOT_AND_NESTED_ESCAPE=PASS");
 console.log("LIFECYCLE_IDEMPOTENCE=PASS");

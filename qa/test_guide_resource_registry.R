@@ -69,7 +69,7 @@ expected_ids <- c(
   "resource_usgs_quickdri",
   "resource_usgs_vegdri"
 )
-expected_staged_ids <- c(
+expected_wave2_ids <- c(
   "resource_aso_airborne_snow_observatories",
   "resource_dwr_california_groundwater_live",
   "resource_dwr_california_water_watch",
@@ -117,6 +117,10 @@ expected_held_staged_ids <- c(
   "resource_usgs_earthexplorer",
   "resource_usgs_water_data_apis"
 )
+expected_newly_published_ids <- expected_wave2_ids[
+  !expected_wave2_ids %in% expected_held_staged_ids
+]
+expected_published_ids <- c(expected_ids, expected_newly_published_ids)
 wave1_ids <- expected_ids[10:33]
 required_fields <- c(
   "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
@@ -142,12 +146,14 @@ published_ids <- vapply(published, `[[`, character(1), "id")
 staged <- unclass(registry)[vapply(registry, `[[`, character(1), "publication_state") == "staged"]
 staged_ids <- vapply(staged, `[[`, character(1), "id")
 current_registry <- unclass(registry)[match(expected_ids, registry_ids)]
-assert_identical(registry_ids, c(expected_ids, expected_staged_ids),
+wave2_registry <- unclass(registry)[match(expected_wave2_ids, registry_ids)]
+newly_published <- unclass(registry)[match(expected_newly_published_ids, registry_ids)]
+assert_identical(registry_ids, c(expected_ids, expected_wave2_ids),
                  "Complete Resource ID set/order changed")
-assert_identical(published_ids, expected_ids,
-                 "The exact 33 published Resources changed or reordered")
-assert_identical(staged_ids, expected_staged_ids,
-                 "The exact 39 staged Resources changed or reordered")
+assert_identical(published_ids, expected_published_ids,
+                 "The exact 67 published Resources changed or reordered")
+assert_identical(staged_ids, expected_held_staged_ids,
+                 "The exact five held staged Resources changed or reordered")
 assert_true(!anyDuplicated(registry_ids), "Registry Resource IDs are duplicated")
 assert_true(all(vapply(registry, function(record) {
   identical(names(record), required_fields)
@@ -158,13 +164,16 @@ assert_identical(
   "Registry order is not unique, complete, and in file order"
 )
 publication_states <- vapply(registry, `[[`, character(1), "publication_state")
-assert_identical(sum(publication_states == "published"), 33L,
-                 "Published Resource count must be 33")
-assert_identical(sum(publication_states == "staged"), 39L,
-                 "Staged Resource count must be 39")
+assert_identical(sum(publication_states == "published"), 67L,
+                 "Published Resource count must be 67")
+assert_identical(sum(publication_states == "staged"), 5L,
+                 "Staged Resource count must be five")
 assert_true(all(vapply(registry[match(wave1_ids, registry_ids)], function(record) {
   identical(record$publication_state, "published")
 }, logical(1))), "The exact approved 24-Resource cohort was not published")
+assert_true(all(vapply(newly_published, function(record) {
+  identical(record$publication_state, "published")
+}, logical(1))), "The exact approved 34-Resource R10 cohort was not published")
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Publication was incorrectly implemented as another profile")
 
@@ -295,6 +304,38 @@ assert_true(!any(c("update_cadence", "cadence", "update_frequency", "time_mode")
                    unique(unlist(lapply(raw_registry$resources, names)))),
             "An unauthorized cadence/time-mode field entered canonical Resources")
 
+metadata_counts <- function(values) {
+  counts <- table(values)
+  setNames(as.integer(counts), names(counts))
+}
+assert_identical(
+  metadata_counts(vapply(published, `[[`, character(1), "resource_type")),
+  c(
+    analysis_tool = 3L, dashboard = 9L, data_portal_or_catalog = 15L,
+    data_service_or_api = 2L, dataset_or_collection = 10L,
+    organization_homepage = 4L, program_or_mission = 8L,
+    report_or_publication = 1L, viewer_or_explorer = 15L
+  ),
+  "Published Resource Type distribution changed"
+)
+assert_identical(
+  metadata_counts(vapply(published, `[[`, character(1), "temporal_character")),
+  c(
+    climatology_or_normals = 1L, current_or_near_real_time = 15L,
+    forecast = 2L, historical_archive = 7L, mixed = 18L,
+    static_reference = 9L, unknown = 15L
+  ),
+  "Published temporal-character distribution changed"
+)
+assert_identical(
+  metadata_counts(vapply(published, function(record) {
+    record$geographic_scope$scope_type
+  }, character(1))),
+  c(global = 20L, multi_state = 2L, multinational = 4L, national = 29L,
+    state = 11L, unknown = 1L),
+  "Published geographic-scope distribution changed"
+)
+
 compact_json <- function(value) jsonlite::toJSON(
   value,
   auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
@@ -302,6 +343,11 @@ compact_json <- function(value) jsonlite::toJSON(
 raw_current <- raw_registry$resources[match(expected_ids, vapply(
   raw_registry$resources, `[[`, character(1), "id"
 ))]
+assert_identical(
+  digest::digest(compact_json(raw_current), algo = "sha256", serialize = FALSE),
+  "a86067ab046b93a165fd5944f85079ca7140fbb34efc0d0add79b0921f260190",
+  "A current published Resource changed from the accepted R9 baseline"
+)
 current_non_goes_json <- compact_json(raw_current[vapply(
   raw_current, `[[`, character(1), "id"
 ) != "resource_noaa_goes_image_viewer"])
@@ -320,32 +366,47 @@ assert_identical(
   "A NOAA GOES field other than access_points changed from the R8 baseline"
 )
 
-staged_json <- compact_json(staged)
+strip_publication_state <- function(record) {
+  record$publication_state <- NULL
+  record
+}
+newly_published_without_state_json <- compact_json(lapply(
+  newly_published, strip_publication_state
+))
 assert_identical(
-  digest::digest(staged_json, algo = "sha256", serialize = FALSE),
-  "d401ee9b1bf9c7ef381608dcc10881af53e19bba4e5311bafb540dd68f76f160",
-  "The exact 39-of-39 canonical R9 staged metadata contract changed"
+  digest::digest(newly_published_without_state_json, algo = "sha256", serialize = FALSE),
+  "d726b498b4292dcc46f720e2c166704c362539e312d357cb21a617a41ea6de7a",
+  "A newly published Resource field other than publication_state changed from R9"
 )
-assert_identical(as.integer(vapply(staged, `[[`, numeric(1), "order")), 34:72,
-                 "Staged Resource orders must be exactly 34 through 72")
-assert_true(all(vapply(staged, function(record) {
-  identical(record$publication_state, "staged") && !length(record$aliases) &&
+held_json <- compact_json(staged)
+assert_identical(
+  digest::digest(held_json, algo = "sha256", serialize = FALSE),
+  "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
+  "A held staged Resource changed from the accepted R9 baseline"
+)
+assert_identical(as.integer(vapply(wave2_registry, `[[`, numeric(1), "order")), 34:72,
+                 "Wave-2 Resource orders must remain exactly 34 through 72")
+assert_identical(as.integer(vapply(newly_published, `[[`, numeric(1), "order")),
+                 setdiff(34:72, c(48L, 61L, 65L, 66L, 70L)),
+                 "The exact R10 publication orders changed")
+assert_true(all(vapply(wave2_registry, function(record) {
+  !length(record$aliases) &&
     !length(record$migration_aliases) && !length(record$search_aliases)
-}, logical(1))), "Staged publication state or empty alias contract changed")
-assert_true(all(vapply(staged, function(record) {
+}, logical(1))), "Wave-2 empty alias contract changed")
+assert_true(all(vapply(wave2_registry, function(record) {
   !length(record$information_type_tags)
-}, logical(1))), "Every staged Resource must retain an empty Information Type array")
+}, logical(1))), "Every Wave-2 Resource must retain an empty Information Type array")
 assert_identical(vapply(Filter(function(record) {
   !length(record$subject_tags)
-}, staged), `[[`, character(1), "id"), expected_held_staged_ids,
-"The exact three subject-review and two taxonomy-blocked staged Resources changed")
+}, wave2_registry), `[[`, character(1), "id"), expected_held_staged_ids,
+"The exact three subject-review and two taxonomy-blocked Resources changed")
 assert_true(!"resource_noaa_wpc_excessive_rainfall_outlook" %in% registry_ids,
             "The unresolved WPC Excessive Rainfall Outlook entered the registry")
-assert_identical(staged[[match("resource_dwr_cdec", staged_ids)]]$resource_granularity,
+assert_identical(wave2_registry[[match("resource_dwr_cdec", expected_wave2_ids)]]$resource_granularity,
                  "unknown", "CDEC intake granularity was not normalized to schema-v3 unknown")
 assert_true(all(vapply(c(
   "resource_noaa_coastwatch_erddap", "resource_usgs_water_data_apis"
-), function(id) identical(staged[[match(id, staged_ids)]]$resource_granularity, "platform"),
+), function(id) identical(wave2_registry[[match(id, expected_wave2_ids)]]$resource_granularity, "platform"),
 logical(1))), "Service intake granularities were not normalized to schema-v3 platform")
 
 final_aliases <- unlist(lapply(registry, function(record) {
@@ -389,7 +450,7 @@ duplicate_removal_ids <- c(
 assert_identical(length(duplicate_removal_ids), 14L,
                  "R7C duplicate access-point removal count changed")
 assert_true(all(vapply(duplicate_removal_ids, function(id) {
-  record <- staged[[match(id, staged_ids)]]
+  record <- wave2_registry[[match(id, expected_wave2_ids)]]
   length(record$access_points) == 1L &&
     identical(record$access_points[[1]]$role, "canonical") &&
     identical(record$access_points[[1]]$url, record$canonical_url)
@@ -440,6 +501,9 @@ assert_identical(sum(relationship_types == "used_by_brim"), 7L,
                  "Used-by-BRIM relationship count changed")
 assert_identical(sum(relationship_types == "related_external_resource"), 10L,
                  "Related-external relationship count changed")
+assert_true(!any(vapply(relationship_rows, `[[`, character(1), "id") %in%
+                  expected_newly_published_ids),
+            "A Wave-2 Resource gained a Product relationship")
 
 product_fixtures <- lapply(names(enrichment), function(product_id) {
   relationships <- lapply(enrichment[[product_id]]$resource_relationships,
@@ -460,18 +524,19 @@ product_fixtures <- lapply(names(enrichment), function(product_id) {
   )
 })
 browser_records <- pt_guide_resource_browser_records(published, product_fixtures)
-assert_identical(vapply(browser_records, `[[`, character(1), "id"), expected_ids,
+assert_identical(vapply(browser_records, `[[`, character(1), "id"), expected_published_ids,
                  "Browser projection changed Resource order or identity")
 assert_true(all(vapply(browser_records, function(record) {
   identical(names(record), browser_fields)
 }, logical(1))), "Resource browser projection is not the exact 22-field shape")
 assert_true(all(vapply(seq_along(browser_records), function(index) {
   record <- browser_records[[index]]
+  canonical <- registry[[match(record$id, registry_ids)]]
   identical(
     record$resourceTypeLabel,
     unname(expected_metadata_vocabularies$resource_type[[record$resourceType]])
   ) &&
-    identical(record$temporalCharacter, expected_temporal_characters[[index]]) &&
+    identical(record$temporalCharacter, canonical$temporal_character) &&
     identical(
       record$temporalCharacterLabel,
       unname(expected_metadata_vocabularies$temporal_character[[
@@ -529,10 +594,10 @@ assert_identical(length(flag_ids("displayedInBrim")), 0L,
                  "Available-in-BRIM Resource count must remain zero")
 assert_true(setequal(flag_ids("relatedExternalResource"), expected_related),
             "Related Resource IDs changed")
-assert_identical(length(flag_ids("beyondBrim")), 24L,
-                 "Beyond BRIM count must be 24")
+assert_identical(length(flag_ids("beyondBrim")), 58L,
+                 "Beyond BRIM count must be 58")
 assert_true(!length(intersect(flag_ids("brimLinked"), flag_ids("beyondBrim"))) &&
-              setequal(c(flag_ids("brimLinked"), flag_ids("beyondBrim")), expected_ids),
+              setequal(c(flag_ids("brimLinked"), flag_ids("beyondBrim")), expected_published_ids),
             "BRIM-linked and Beyond BRIM must be disjoint exhaustive complements")
 
 assert_true(all(vapply(browser_records, function(record) {
@@ -545,7 +610,7 @@ assert_true(all(vapply(browser_records, function(record) {
               lapply(registry[[match(record$id, registry_ids)]]$providers,
                      function(provider) list(name = provider$name, role = provider$role)))
 }, logical(1))), "Canonical action, human aliases, or provider projection changed")
-projected_goes <- browser_records[[match("resource_noaa_goes_image_viewer", expected_ids)]]
+projected_goes <- browser_records[[match("resource_noaa_goes_image_viewer", expected_published_ids)]]
 assert_identical(vapply(projected_goes$accessPoints, `[[`, character(1), "url"),
                  expected_goes_urls, "GOES access points changed in browser projection")
 
@@ -556,15 +621,15 @@ browser_json <- jsonlite::toJSON(
   browser_records, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
-assert_identical(length(browser_records), 33L,
-                 "Staged Resources changed the browser-visible Resource count")
+assert_identical(length(browser_records), 67L,
+                 "Browser projection must contain exactly 67 published Resources")
 assert_true(!any(vapply(staged_ids, function(id) {
   grepl(id, browser_json, fixed = TRUE)
 }, logical(1))), "A staged Resource ID entered the browser projection")
 assert_identical(
   digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "92ae977240a178ff235a72560f22d6a650a8757dadf6ede99b7ddc17b95d14f2",
-  "The browser Resource payload changed beyond the exact GOES access-point correction"
+  "d291ab3357efa47939a2cc7303aaf5794f9a4a2bd7769ed7fdf7151f5eeaaad2",
+  "The browser Resource payload changed beyond the exact R10 publication projection"
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
@@ -639,7 +704,7 @@ expect_invalid(bad, "globally unique", "Duplicate stable ID was accepted")
 bad <- fresh_registry()
 bad$resources[[1]]$publication_state <- "staged"
 validated_staged <- pt_guide_read_resource_registry(write_registry_fixture(bad))
-assert_identical(length(pt_guide_resource_published_records(validated_staged)), 32L,
+assert_identical(length(pt_guide_resource_published_records(validated_staged)), 66L,
                  "Publication projection did not exclude a staged negative fixture")
 bad <- fresh_registry()
 bad$resources[[1]]$canonical_url <- "https://localhost/private"
@@ -668,12 +733,12 @@ assert_error(
   "Browser projection accepted duplicate eligible Product IDs"
 )
 
-cat("GUIDE-I2B-R9 Wave-2 staging and GOES registry/projection contracts passed.\n")
+cat("GUIDE-I2B-R10 Wave-2 publication registry/projection contracts passed.\n")
 cat("SCHEMA_VERSION=3\n")
 cat("TOTAL_RESOURCES=72\n")
-cat("PUBLISHED_RESOURCES=33\n")
-cat("STAGED_RESOURCES=39\n")
-cat("PUBLICATION_READY_STAGED_RESOURCES=34\n")
+cat("PUBLISHED_RESOURCES=67\n")
+cat("STAGED_RESOURCES=5\n")
+cat("NEWLY_PUBLISHED_RESOURCES=34\n")
 cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
 cat("STAGED_TAXONOMY_BLOCKED=2\n")
@@ -684,18 +749,22 @@ cat("USED_BY_BRIM=7\n")
 cat("RELATED_EXTERNAL_RESOURCE=10\n")
 cat("RELATIONSHIP_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
 cat("BRIM_LINKED_RESOURCE_IDS=9\n")
-cat("BEYOND_BRIM_RESOURCE_IDS=24\n")
-cat("PRESET_COUNTS=33,9,24\n")
-cat("RESOURCE_TYPE_VALUES=7_OF_10_CURRENT\n")
-cat("TEMPORAL_CHARACTER_VALUES=6_OF_7_CURRENT\n")
-cat("TEMPORAL_UNKNOWN_IDS=4_EXACT\n")
-cat("GEOGRAPHIC_SCOPE_VALUES=5_OF_8_CURRENT\n")
+cat("BEYOND_BRIM_RESOURCE_IDS=58\n")
+cat("PRESET_COUNTS=67,9,58\n")
+cat("RESOURCE_TYPE_VALUES=9_OF_10_CURRENT\n")
+cat("TEMPORAL_CHARACTER_VALUES=7_OF_7_CURRENT\n")
+cat("TEMPORAL_UNKNOWN_IDS=15_EXACT\n")
+cat("GEOGRAPHIC_SCOPE_VALUES=6_OF_8_CURRENT\n")
 cat("GEOGRAPHY_UNKNOWN_IDS=1_EXACT\n")
-cat("CONTRACT_MATCH=39_OF_39_STAGED\n")
+cat("PUBLICATION_TRANSITIONS=34_OF_34_EXACT\n")
+cat("HELD_CONTRACT_MATCH=5_OF_5_STAGED\n")
 cat("PROTECTED_FIELD_EQUIVALENCE=PASS\n")
+cat("CURRENT_33_EQUIVALENCE=PASS\n")
+cat("NEWLY_PUBLISHED_34_ONLY_PUBLICATION_STATE=PASS\n")
+cat("HELD_5_EQUIVALENCE=PASS\n")
 cat("CURRENT_32_NON_GOES_EQUIVALENCE=PASS\n")
 cat("GOES_ALLOWED_CHANGED_FIELD=access_points_ONLY\n")
-cat("STAGED_BROWSER_LEAKAGE=0\n")
+cat("HELD_BROWSER_LEAKAGE=0\n")
 cat("BROWSER_RESOURCE_FIELDS=22\n")
 cat("BROWSER_RESOURCE_BYTES=", nchar(browser_json, type = "bytes"), "\n", sep = "")
 cat("BROWSER_RESOURCE_SHA256=",

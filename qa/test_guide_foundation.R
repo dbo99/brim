@@ -82,15 +82,15 @@ assert_identical(bundle$counts$products, 270L,
                  "Current default Guide should derive 270 post-basemap Products")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
-assert_identical(bundle$counts$resources, 33L,
-                 "Current Guide must include all 33 published Resources")
+assert_identical(bundle$counts$resources, 67L,
+                 "Current Guide must include all 67 published Resources")
 assert_identical(length(resource_registry), 72L,
                  "Canonical Resource registry must validate all 72 records")
 assert_identical(raw_resource_registry$schema_version, 3L,
                  "Canonical Resource registry schema version changed")
-assert_identical(sum(registry_states == "published"), 33L,
+assert_identical(sum(registry_states == "published"), 67L,
                  "Canonical Resource registry published count changed")
-assert_identical(sum(registry_states == "staged"), 39L,
+assert_identical(sum(registry_states == "staged"), 5L,
                  "Canonical Resource registry staged count changed")
 staged_registry_json <- jsonlite::toJSON(
   staged_registry, auto_unbox = TRUE, null = "null", na = "null",
@@ -98,12 +98,12 @@ staged_registry_json <- jsonlite::toJSON(
 )
 assert_identical(
   digest::digest(staged_registry_json, algo = "sha256", serialize = FALSE),
-  "d401ee9b1bf9c7ef381608dcc10881af53e19bba4e5311bafb540dd68f76f160",
-  "The exact 39-record staged registry contract changed"
+  "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
+  "The exact five-record held staged registry contract changed"
 )
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
-expected_resource_ids <- c(
+expected_current_resource_ids <- c(
   "resource_doi",
   "resource_blm_california",
   "resource_prism_normals",
@@ -138,8 +138,80 @@ expected_resource_ids <- c(
   "resource_usgs_quickdri",
   "resource_usgs_vegdri"
 )
+expected_newly_published_ids <- c(
+  "resource_aso_airborne_snow_observatories",
+  "resource_dwr_california_groundwater_live",
+  "resource_dwr_california_water_watch",
+  "resource_dwr_casgem",
+  "resource_dwr_cdec",
+  "resource_dwr_cimis",
+  "resource_dwr_groundwater_sustainability_agencies",
+  "resource_dwr_water_data_library",
+  "resource_epa_cyanweb",
+  "resource_ismn",
+  "resource_nasa_asf_displacement_portal",
+  "resource_nasa_cyfi_explorer",
+  "resource_nasa_ecostress_data_resources",
+  "resource_nasa_firms_global_fire_map",
+  "resource_nasa_nldas_drought_monitor",
+  "resource_nasa_opera_products",
+  "resource_nasa_stream_water_quality_tool",
+  "resource_nasa_swot_hydrology_resources",
+  "resource_nidis_soil_moisture_resources",
+  "resource_noaa_cnrfc",
+  "resource_noaa_coastwatch_data_portal",
+  "resource_noaa_coastwatch_erddap",
+  "resource_noaa_cpc_forecasts_outlooks",
+  "resource_noaa_wpc_qpf",
+  "resource_nrcs_nwcc",
+  "resource_nrcs_snow_survey_water_supply_forecasting",
+  "resource_tu_wien_soil_moisture_viewer",
+  "resource_usace_cwms_data_api",
+  "resource_usbr",
+  "resource_usgs_groundwater_watch",
+  "resource_usgs_national_hydrography_products",
+  "resource_usgs_streamstats",
+  "resource_usgs_water_data_nation",
+  "resource_usgs_water_quality_portal"
+)
+expected_held_staged_ids <- c(
+  "resource_nasa_giovanni",
+  "resource_nrcs_web_soil_survey",
+  "resource_usda_cropland_data_layer",
+  "resource_usgs_earthexplorer",
+  "resource_usgs_water_data_apis"
+)
+expected_resource_ids <- c(expected_current_resource_ids, expected_newly_published_ids)
 assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
                  "Current Resource ID set/order changed")
+assert_identical(staged_registry_ids, expected_held_staged_ids,
+                 "The five held staged Resource IDs changed")
+raw_registry_ids <- vapply(raw_resource_registry$resources, `[[`, character(1), "id")
+raw_current_resources <- raw_resource_registry$resources[match(
+  expected_current_resource_ids, raw_registry_ids
+)]
+raw_newly_published <- raw_resource_registry$resources[match(
+  expected_newly_published_ids, raw_registry_ids
+)]
+compact_json <- function(value) jsonlite::toJSON(
+  value, auto_unbox = TRUE, null = "null", na = "null",
+  pretty = FALSE, digits = NA
+)
+strip_publication_state <- function(record) {
+  record$publication_state <- NULL
+  record
+}
+assert_identical(
+  digest::digest(compact_json(raw_current_resources), algo = "sha256", serialize = FALSE),
+  "a86067ab046b93a165fd5944f85079ca7140fbb34efc0d0add79b0921f260190",
+  "A current published Resource changed from the accepted R9 baseline"
+)
+assert_identical(
+  digest::digest(compact_json(lapply(raw_newly_published, strip_publication_state)),
+                 algo = "sha256", serialize = FALSE),
+  "d726b498b4292dcc46f720e2c166704c362539e312d357cb21a617a41ea6de7a",
+  "A newly published Resource field other than publication_state changed from R9"
+)
 goes_resource <- bundle$resources[[match(
   "resource_noaa_goes_image_viewer", expected_resource_ids
 )]]
@@ -211,7 +283,18 @@ assert_identical(
   c(
     "resource_blm_california", "resource_usgs_bcmv8",
     "resource_nidis_soil_moisture_dashboard",
-    "resource_nidis_grace_groundwater_soil_moisture"
+    "resource_nidis_grace_groundwater_soil_moisture",
+    "resource_aso_airborne_snow_observatories",
+    "resource_epa_cyanweb",
+    "resource_nasa_asf_displacement_portal",
+    "resource_nasa_cyfi_explorer",
+    "resource_nasa_ecostress_data_resources",
+    "resource_nasa_opera_products",
+    "resource_nasa_swot_hydrology_resources",
+    "resource_nidis_soil_moisture_resources",
+    "resource_noaa_coastwatch_data_portal",
+    "resource_noaa_coastwatch_erddap",
+    "resource_usbr"
   ),
   "Temporal unknown Resource projection changed"
 )
@@ -220,6 +303,42 @@ assert_identical(
                 bundle$resources), `[[`, character(1), "id"),
   "resource_prism_normals",
   "Geography unknown Resource projection changed"
+)
+assert_true(all(vapply(bundle$resources[match(
+  expected_newly_published_ids,
+  vapply(bundle$resources, `[[`, character(1), "id")
+)], function(resource) !length(resource$informationTypes), logical(1))),
+"A newly published Resource received an inferred Information Type")
+metadata_counts <- function(values) {
+  counts <- table(values)
+  setNames(as.integer(counts), names(counts))
+}
+assert_identical(
+  metadata_counts(vapply(bundle$resources, `[[`, character(1), "resourceType")),
+  c(
+    analysis_tool = 3L, dashboard = 9L, data_portal_or_catalog = 15L,
+    data_service_or_api = 2L, dataset_or_collection = 10L,
+    organization_homepage = 4L, program_or_mission = 8L,
+    report_or_publication = 1L, viewer_or_explorer = 15L
+  ),
+  "Published Resource Type distribution changed"
+)
+assert_identical(
+  metadata_counts(vapply(bundle$resources, `[[`, character(1), "temporalCharacter")),
+  c(
+    climatology_or_normals = 1L, current_or_near_real_time = 15L,
+    forecast = 2L, historical_archive = 7L, mixed = 18L,
+    static_reference = 9L, unknown = 15L
+  ),
+  "Published temporal-character distribution changed"
+)
+assert_identical(
+  metadata_counts(vapply(bundle$resources, function(resource) {
+    resource$geographicScope$scopeType
+  }, character(1))),
+  c(global = 20L, multi_state = 2L, multinational = 4L, national = 29L,
+    state = 11L, unknown = 1L),
+  "Published geographic-scope distribution changed"
 )
 assert_true(requireNamespace("digest", quietly = TRUE),
             "digest is required for the captured Resource-payload regression contract")
@@ -648,6 +767,11 @@ assert_identical(sum(exact_relationship_types == "used_by_brim"), 7L,
                  "Used-by-BRIM relationship count changed")
 assert_identical(sum(exact_relationship_types == "related_external_resource"), 10L,
                  "Related-external relationship count changed")
+assert_true(all(vapply(bundle$resources[match(
+  expected_newly_published_ids,
+  vapply(bundle$resources, `[[`, character(1), "id")
+)], function(resource) !length(resource$relatedProducts), logical(1))),
+"A Wave-2 Resource gained a Product relationship")
 resource_flag_ids <- function(flag) vapply(Filter(function(resource) {
   isTRUE(resource$relationshipFlags[[flag]])
 }, bundle$resources), `[[`, character(1), "id")
@@ -657,7 +781,7 @@ assert_identical(length(resource_flag_ids("displayedInBrim")), 0L,
                  "Available-in-BRIM Resource count changed")
 assert_identical(length(resource_flag_ids("usedByBrim")), 6L,
                  "Used Resource count changed")
-assert_identical(length(resource_flag_ids("beyondBrim")), 24L,
+assert_identical(length(resource_flag_ids("beyondBrim")), 58L,
                  "Beyond BRIM Resource count changed")
 assert_identical(length(resource_flag_ids("relatedExternalResource")), 3L,
                  "Related Resource count changed")
@@ -1086,10 +1210,10 @@ resource_payload_json <- jsonlite::toJSON(
 )
 assert_identical(
   digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
-  "52785c15db42a064d5396284d70a1f240e5f461f14c5cbddf983eda32c9318da",
+  "0572c2d2e624229cf95666618ac12a833dfabe17a638407a48c626c5db8bbb55",
   paste0(
-    "The exact published Resource payload changed beyond the GOES correction; ",
-    "staged identity, metadata, search, count, or facet leakage is possible"
+    "The exact published Resource payload changed beyond the R10 projection; ",
+    "held identity, metadata, search, count, or facet leakage is possible"
   )
 )
 staged_migration_aliases <- unlist(lapply(staged_registry, function(record) {
@@ -1411,7 +1535,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R9 Wave-2 staging and GOES foundation contracts passed.\n")
+cat("GUIDE-I2B-R10 Wave-2 publication foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1419,12 +1543,14 @@ cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
-cat("REGISTRY_RESOURCES=72_TOTAL,33_PUBLISHED,39_STAGED\n")
+cat("REGISTRY_RESOURCES=72_TOTAL,67_PUBLISHED,5_STAGED\n")
 cat("EXACT_RELATIONSHIP_ROWS=17\n")
 cat("RELATIONSHIP_COUNTS=0_DISPLAYED,7_USED,10_EXTERNAL\n")
 cat("RESOURCE_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
-cat("RESOURCE_PRESET_COUNTS=33_ALL,9_BRIM_LINKED,24_BEYOND\n")
-cat("STAGED_RESOURCE_LEAKAGE=0\n")
+cat("RESOURCE_PRESET_COUNTS=67_ALL,9_BRIM_LINKED,58_BEYOND\n")
+cat("HELD_RESOURCE_LEAKAGE=0\n")
+cat("NEWLY_PUBLISHED_IDS_IN_CANONICAL_ORDER=PASS\n")
+cat("WAVE2_INFORMATION_TYPE_INFERENCE=NONE\n")
 cat("RESOURCE_METADATA_LABEL_PROJECTION=PASS\n")
 cat("TEMPORAL_SEARCH_EXCLUSION=PASS\n")
 cat("UNKNOWN_DETAIL_OMISSION_CONTRACT=PASS\n")
