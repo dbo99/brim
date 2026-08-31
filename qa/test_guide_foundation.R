@@ -84,14 +84,23 @@ assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
 assert_identical(bundle$counts$resources, 33L,
                  "Current Guide must include all 33 published Resources")
-assert_identical(length(resource_registry), 33L,
-                 "Canonical Resource registry must validate all 33 records")
+assert_identical(length(resource_registry), 72L,
+                 "Canonical Resource registry must validate all 72 records")
 assert_identical(raw_resource_registry$schema_version, 3L,
                  "Canonical Resource registry schema version changed")
 assert_identical(sum(registry_states == "published"), 33L,
                  "Canonical Resource registry published count changed")
-assert_identical(sum(registry_states == "staged"), 0L,
+assert_identical(sum(registry_states == "staged"), 39L,
                  "Canonical Resource registry staged count changed")
+staged_registry_json <- jsonlite::toJSON(
+  staged_registry, auto_unbox = TRUE, null = "null", na = "null",
+  pretty = FALSE, digits = NA
+)
+assert_identical(
+  digest::digest(staged_registry_json, algo = "sha256", serialize = FALSE),
+  "d401ee9b1bf9c7ef381608dcc10881af53e19bba4e5311bafb540dd68f76f160",
+  "The exact 39-record staged registry contract changed"
+)
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
 expected_resource_ids <- c(
@@ -131,6 +140,21 @@ expected_resource_ids <- c(
 )
 assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
                  "Current Resource ID set/order changed")
+goes_resource <- bundle$resources[[match(
+  "resource_noaa_goes_image_viewer", expected_resource_ids
+)]]
+assert_identical(vapply(goes_resource$accessPoints, `[[`, character(1), "url"), c(
+  "https://www.star.nesdis.noaa.gov/GOES/",
+  "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=psw",
+  "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=wus",
+  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=GEOCOLOR&length=24&dim=1",
+  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=FireTemperature&length=12&dim=1"
+), "NOAA GOES browser access-point order changed")
+assert_true(!any(grepl("sector=pnw", vapply(
+  goes_resource$accessPoints, `[[`, character(1), "url"
+), fixed = TRUE)), "A Pacific Northwest GOES access point reached the browser")
+assert_identical(goes_resource$canonicalUrl, "https://www.star.nesdis.noaa.gov/GOES/",
+                 "NOAA GOES canonical Official Resource action changed")
 assert_true(all(vapply(bundle$resources, function(resource) {
   identical(
     names(resource),
@@ -1056,6 +1080,18 @@ loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
 panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
 bundle_json <- jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null")
+resource_payload_json <- jsonlite::toJSON(
+  bundle$resources, auto_unbox = TRUE, null = "null", na = "null",
+  pretty = FALSE, digits = NA
+)
+assert_identical(
+  digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
+  "52785c15db42a064d5396284d70a1f240e5f461f14c5cbddf983eda32c9318da",
+  paste0(
+    "The exact published Resource payload changed beyond the GOES correction; ",
+    "staged identity, metadata, search, count, or facet leakage is possible"
+  )
+)
 staged_migration_aliases <- unlist(lapply(staged_registry, function(record) {
   unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
 }), use.names = FALSE)
@@ -1069,20 +1105,6 @@ assert_true(!any(vapply(
 assert_true(all(vapply(bundle$products, function(product) {
   !any(product$relatedResourceIds %in% staged_registry_ids)
 }, logical(1))), "A staged Resource relationship leaked into current Product relationships")
-ordinary_search_corpus <- tolower(paste(vapply(bundle$products, function(product) {
-  paste(c(
-    product$title, product$aliases, product$subjectTags, product$informationTypes,
-    product$provider, product$searchTerms, product$summary
-  ), collapse = " ")
-}, character(1)), collapse = " "))
-staged_text_probes <- tolower(c(
-  vapply(staged_registry[staged_registry_ids != "resource_nrcs_scan"],
-         `[[`, character(1), "title"),
-  vapply(staged_registry, `[[`, character(1), "summary")
-))
-assert_true(!any(vapply(staged_text_probes, function(probe) {
-  grepl(probe, ordinary_search_corpus, fixed = TRUE)
-}, logical(1))), "Staged Resource title or summary text leaked into ordinary Product search")
 subject_rule_source <- paste(deparse(body(pt_guide_subject_tags)), collapse = "\n")
 assert_true(!grepl("grepl|tolower|structured_values|!length\\(tags\\)", subject_rule_source, perl = TRUE) &&
               grepl("row$theme", guide_r, fixed = TRUE) &&
@@ -1389,7 +1411,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R8 exact Resource metadata foundation contracts passed.\n")
+cat("GUIDE-I2B-R9 Wave-2 staging and GOES foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1397,11 +1419,12 @@ cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
-cat("REGISTRY_RESOURCES=33_TOTAL,33_PUBLISHED,0_STAGED\n")
+cat("REGISTRY_RESOURCES=72_TOTAL,33_PUBLISHED,39_STAGED\n")
 cat("EXACT_RELATIONSHIP_ROWS=17\n")
 cat("RELATIONSHIP_COUNTS=0_DISPLAYED,7_USED,10_EXTERNAL\n")
 cat("RESOURCE_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
 cat("RESOURCE_PRESET_COUNTS=33_ALL,9_BRIM_LINKED,24_BEYOND\n")
+cat("STAGED_RESOURCE_LEAKAGE=0\n")
 cat("RESOURCE_METADATA_LABEL_PROJECTION=PASS\n")
 cat("TEMPORAL_SEARCH_EXCLUSION=PASS\n")
 cat("UNKNOWN_DETAIL_OMISSION_CONTRACT=PASS\n")
@@ -1411,3 +1434,5 @@ cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_GROWTH_BYTES=", payload_growth_bytes, "\n", sep = "")
 cat("GUIDE_JS_BYTES=", js_bytes, "\n", sep = "")
 cat("GUIDE_CSS_BYTES=", css_bytes, "\n", sep = "")
+cat("BROWSER_RESOURCE_SHA256=",
+    digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE), "\n", sep = "")

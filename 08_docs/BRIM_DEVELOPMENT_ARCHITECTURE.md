@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 33 published Resource records;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 72 Resource records: 33 published and 39 staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -65,8 +65,11 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v3 dataset with 33 ordered,
-published Resource records. Final-ID aliases, build-time `res.*` migration
+`guide_resources.json` is one canonical schema-v3 dataset with 72 ordered
+Resource records: 33 published and 39 identity-ready Wave-2 records staged for
+later publication review. Within the staged R7C evidence, 34 are publication-
+ready and five remain held—three for subject review and two for taxonomy
+resolution. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
@@ -82,11 +85,14 @@ a public facet.
 its exact 17 rows comprise zero `displayed_in_brim`, seven `used_by_brim`, and
 ten `related_external_resource` relationships. Relationships are never inferred
 from Resource text, providers, URLs, publication, or geographic intersection.
+Wave-2 staging adds no Product relationship and no Guide profile.
 
-The compiler validates relationship Resource IDs against the 33-record
-published registry and Product IDs against the current projected Product
+The compiler validates relationship Resource IDs against the canonical
+registry, removes staged Resources before relationship projection, and
+validates Product IDs against the current projected Product
 universe, then derives reverse Resource-to-Product links only from surviving
-exact Product relationships. The browser receives all 33 records in registry
+exact Product relationships. The browser receives the 33 published records in
+registry
 order with one exact 22-field shape: identity and reviewed descriptive fields,
 labeled access points, Resource Type and temporal machine IDs with controlled
 labels, geography scope ID/label plus named places, derived related Products
@@ -96,7 +102,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Projection occurs before the Guide bundle is embedded and explicitly excludes all runtime-derived basemap records. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The staged 39 therefore contribute zero browser payload or visible-count/search/facet authority. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -171,7 +177,12 @@ Only the selected Resource renders full metadata, exact related Products, and
 role-labeled safe access links. The exact canonical access point matching
 `canonicalUrl` is promoted to the restrained external-blue `Open official
 resource` primary action; any other configured access points retain their
-projected labels, URLs, and lower visual priority. Product-to-Resource
+projected labels, URLs, and lower visual priority. When broad official landing
+or sector pages and configured views are both retained, the broad pages precede
+configured views. The NOAA GOES Image Viewer keeps its canonical official action
+and presents California-relevant Pacific Southwest and U.S. Pacific Coast sector
+pages before its Pacific Southwest GeoColor and Fire Temperature views.
+Product-to-Resource
 navigation enters the same
 Explorer with an exact Product-ID relationship filter and relevance boost.
 Nested Escape closes Resource detail or facets before root Escape closes Guide,

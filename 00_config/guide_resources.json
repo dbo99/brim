@@ -390,23 +390,23 @@
         },
         {
           "role": "configured_view",
-          "label": "GOES-West Pacific Northwest GeoColor",
-          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=pnw"
+          "label": "GOES-West Pacific Southwest — all products",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=psw"
         },
         {
           "role": "configured_view",
-          "label": "GOES-West Pacific Southwest Fire Temperature",
-          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=FireTemperature&dim=1&length=12&sat=G18&sector=psw"
+          "label": "GOES-West U.S. Pacific Coast — all products",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=wus"
         },
         {
           "role": "configured_view",
           "label": "GOES-West Pacific Southwest GeoColor",
-          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=psw"
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=GEOCOLOR&length=24&dim=1"
         },
         {
           "role": "configured_view",
-          "label": "GOES-West U.S. Pacific Coast GeoColor",
-          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=wus"
+          "label": "GOES-West Pacific Southwest Fire Temperature",
+          "url": "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=FireTemperature&length=12&dim=1"
         }
       ],
       "resource_type": "viewer_or_explorer",
@@ -2063,6 +2063,2323 @@
         }
       ],
       "publication_state": "published"
+    },
+    {
+      "id": "resource_aso_airborne_snow_observatories",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 34,
+      "title": "Airborne Snow Observatories",
+      "providers": [
+        {
+          "name": "Airborne Snow Observatories, Inc.",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Basin-scale airborne lidar snow-depth/SWE measurements, modeling, and forecasting services.",
+      "canonical_url": "https://airbornesnowobservatories.com/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Airborne Snow Observatories",
+          "url": "https://airbornesnowobservatories.com/"
+        }
+      ],
+      "resource_type": "organization_homepage",
+      "temporal_character": "unknown",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Snow & SWE",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "snow depth",
+        "snow water equivalent"
+      ],
+      "use_scopes": [
+        "Snow",
+        "Water supply",
+        "Forecasting",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Hydrologic conditions"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "California",
+          "Sierra Nevada",
+          "Western United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://airbornesnowobservatories.com/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.airbornesnowobservatories.com/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_california_groundwater_live",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 35,
+      "title": "California Groundwater Live",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Current and historical groundwater levels, well infrastructure, land subsidence, and related conditions.",
+      "canonical_url": "https://calgwlive.water.ca.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Groundwater Live",
+          "url": "https://calgwlive.water.ca.gov/"
+        }
+      ],
+      "resource_type": "dashboard",
+      "temporal_character": "mixed",
+      "resource_granularity": "dashboard",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "groundwater level",
+        "well infrastructure",
+        "subsidence"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://calgwlive.water.ca.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_california_water_watch",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 36,
+      "title": "California Water Watch",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Map-centered current statewide and local water conditions.",
+      "canonical_url": "https://cww.water.ca.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Water Watch",
+          "url": "https://cww.water.ca.gov/"
+        }
+      ],
+      "resource_type": "dashboard",
+      "temporal_character": "current_or_near_real_time",
+      "resource_granularity": "dashboard",
+      "subject_tags": [
+        "Groundwater",
+        "Surface Water",
+        "Snow & SWE",
+        "Precipitation"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "precipitation",
+        "reservoir storage",
+        "snow",
+        "groundwater"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cww.water.ca.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_casgem",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 37,
+      "title": "CASGEM Groundwater Elevation Monitoring",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "California Statewide Groundwater Elevation Monitoring records within the SGMA portal.",
+      "canonical_url": "https://sgma.water.ca.gov/portal/casgem",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "CASGEM Groundwater Elevation Monitoring",
+          "url": "https://sgma.water.ca.gov/portal/casgem"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "groundwater elevation"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://sgma.water.ca.gov/portal/casgem"
+        },
+        {
+          "role": "documentation",
+          "url": "https://sgma.water.ca.gov/portal/casgem/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_cdec",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 38,
+      "title": "California Data Exchange Center (CDEC)",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Primary California hydrologic data portal for precipitation, river stage and flow, reservoirs, snow, forecasts, and water quality.",
+      "canonical_url": "https://cdec.water.ca.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Data Exchange Center (CDEC)",
+          "url": "https://cdec.water.ca.gov/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "unknown",
+      "subject_tags": [
+        "Surface Water",
+        "Precipitation",
+        "Snow & SWE",
+        "Weather & Forecasts",
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "precipitation",
+        "stream stage",
+        "streamflow",
+        "reservoir storage",
+        "snow water equivalent",
+        "water quality"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Reservoir operations",
+        "Forecasting",
+        "Snow",
+        "Water supply",
+        "Data integration",
+        "Streamflow"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cdec.water.ca.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_cimis",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 39,
+      "title": "California Irrigation Management Information System",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Weather-station and reference-evapotranspiration data for irrigation scheduling.",
+      "canonical_url": "https://cimis.water.ca.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Irrigation Management Information System",
+          "url": "https://cimis.water.ca.gov/"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "evapotranspiration",
+        "weather",
+        "soil temperature"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cimis.water.ca.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_groundwater_sustainability_agencies",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 40,
+      "title": "All Groundwater Sustainability Agencies",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Searchable statewide list of GSAs and their basin coverage.",
+      "canonical_url": "https://sgma.water.ca.gov/portal/gsa/all",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "All Groundwater Sustainability Agencies",
+          "url": "https://sgma.water.ca.gov/portal/gsa/all"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "static_reference",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "agency records",
+        "basin coverage"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://sgma.water.ca.gov/portal/gsa/all"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_dwr_water_data_library",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 41,
+      "title": "Water Data Library",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "DWR groundwater-level, water-quality, and related historical records.",
+      "canonical_url": "https://wdl.water.ca.gov/waterdatalibrary",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Water Data Library",
+          "url": "https://wdl.water.ca.gov/waterdatalibrary"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Groundwater",
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "groundwater level",
+        "water quality"
+      ],
+      "use_scopes": [
+        "Groundwater",
+        "Groundwater sustainability",
+        "Hydrologic conditions",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Drought",
+        "Climate",
+        "Agricultural water management",
+        "Irrigation",
+        "Flood risk",
+        "Emergency planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://wdl.water.ca.gov/waterdatalibrary"
+        },
+        {
+          "role": "documentation",
+          "url": "https://wdl.water.ca.gov/waterdatalibrary/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_epa_cyanweb",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 42,
+      "title": "EPA CyANWeb",
+      "providers": [
+        {
+          "name": "U.S. Environmental Protection Agency",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Browser-based satellite screening tool for cyanobacteria conditions in U.S. lakes and reservoirs.",
+      "canonical_url": "https://qed.epa.gov/cyanweb",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "EPA CyANWeb",
+          "url": "https://qed.epa.gov/cyanweb"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "unknown",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "cyanobacteria index",
+        "cyanobacteria abundance",
+        "satellite imagery"
+      ],
+      "use_scopes": [
+        "Harmful algal bloom screening",
+        "Reservoir and lake screening",
+        "Field-sampling prioritization"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://qed.epa.gov/cyanweb"
+        },
+        {
+          "role": "documentation",
+          "url": "https://qed.epa.gov/cyanweb/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_ismn",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 43,
+      "title": "International Soil Moisture Network",
+      "providers": [
+        {
+          "name": "International Soil Moisture Network",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "International database of harmonized in-situ soil-moisture observations used for satellite and model validation.",
+      "canonical_url": "https://ismn.earth/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "International Soil Moisture Network",
+          "url": "https://ismn.earth/"
+        },
+        {
+          "role": "configured_view",
+          "label": "ISMN Data Viewer",
+          "url": "https://ismn.earth/en/dataviewer/"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Soil Moisture"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "in-situ soil moisture",
+        "station metadata",
+        "quality flags"
+      ],
+      "use_scopes": [
+        "Satellite validation",
+        "In-situ data discovery",
+        "Model evaluation"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://ismn.earth/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://ismn.earth/en/dataviewer/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_asf_displacement_portal",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 44,
+      "title": "ASF Displacement Portal",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Interactive exploration of OPERA Sentinel-1 surface-displacement products, including time series useful for subsidence screening.",
+      "canonical_url": "https://displacement.asf.alaska.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "ASF Displacement Portal",
+          "url": "https://displacement.asf.alaska.edu/"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "unknown",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Geology & Geophysics",
+        "Groundwater"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "InSAR displacement",
+        "line-of-sight displacement",
+        "subsidence",
+        "uplift"
+      ],
+      "use_scopes": [
+        "Groundwater-related subsidence screening",
+        "Land-surface displacement",
+        "Infrastructure screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "multinational",
+        "names": [
+          "North America",
+          "United States territories"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://displacement.asf.alaska.edu/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_cyfi_explorer",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 45,
+      "title": "NASA CyFi Explorer",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Explorer for Sentinel-2-based cyanobacteria estimates in smaller inland waters.",
+      "canonical_url": "https://www.earthdata.nasa.gov/data/tools/cyfi-explorer",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA CyFi Explorer",
+          "url": "https://www.earthdata.nasa.gov/data/tools/cyfi-explorer"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "unknown",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "cyanobacteria",
+        "Sentinel-2 imagery"
+      ],
+      "use_scopes": [
+        "Small-waterbody cyanobacteria screening",
+        "Harmful algal bloom screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.earthdata.nasa.gov/data/tools/cyfi-explorer"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_ecostress_data_resources",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 46,
+      "title": "NASA ECOSTRESS Data and Resources",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Earthdata collection page for ECOSTRESS datasets, documentation, and access tools.",
+      "canonical_url": "https://www.earthdata.nasa.gov/data/instruments/ecostress",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA ECOSTRESS Data and Resources",
+          "url": "https://www.earthdata.nasa.gov/data/instruments/ecostress"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "unknown",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "land surface temperature",
+        "evapotranspiration",
+        "evaporative stress"
+      ],
+      "use_scopes": [
+        "Data discovery",
+        "Evapotranspiration",
+        "Vegetation water stress"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.earthdata.nasa.gov/data/instruments/ecostress"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_firms_global_fire_map",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 47,
+      "title": "NASA FIRMS Global Fire Map",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Near-real-time global active-fire and thermal-anomaly map from NASA FIRMS.",
+      "canonical_url": "https://firms.modaps.eosdis.nasa.gov/map",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA FIRMS Global Fire Map",
+          "url": "https://firms.modaps.eosdis.nasa.gov/map"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Fire & Burn Areas"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "active fire detections",
+        "thermal anomalies",
+        "burned area"
+      ],
+      "use_scopes": [
+        "Post-fire watershed screening",
+        "Wildfire situational awareness",
+        "Water-quality risk screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://firms.modaps.eosdis.nasa.gov/map"
+        },
+        {
+          "role": "documentation",
+          "url": "https://firms.modaps.eosdis.nasa.gov/map/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_giovanni",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 48,
+      "title": "NASA Giovanni",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Browser-based visualization and analysis of gridded NASA Earth science data without downloading full source files.",
+      "canonical_url": "https://giovanni.gsfc.nasa.gov/giovanni",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA Giovanni",
+          "url": "https://giovanni.gsfc.nasa.gov/giovanni"
+        }
+      ],
+      "resource_type": "analysis_tool",
+      "temporal_character": "unknown",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [
+        "precipitation",
+        "soil moisture",
+        "water vapor",
+        "ocean color",
+        "land-surface variables"
+      ],
+      "use_scopes": [
+        "Online analysis",
+        "Time-series analysis",
+        "Map generation"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://giovanni.gsfc.nasa.gov/giovanni"
+        },
+        {
+          "role": "documentation",
+          "url": "https://giovanni.gsfc.nasa.gov/giovanni/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_nldas_drought_monitor",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 49,
+      "title": "NASA NLDAS Drought Monitor",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "NLDAS-based drought-monitoring products from land-surface model simulations and forcing data.",
+      "canonical_url": "https://ldas.gsfc.nasa.gov/nldas/drought-monitor",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA NLDAS Drought Monitor",
+          "url": "https://ldas.gsfc.nasa.gov/nldas/drought-monitor"
+        }
+      ],
+      "resource_type": "dashboard",
+      "temporal_character": "current_or_near_real_time",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "soil moisture percentile",
+        "runoff",
+        "evapotranspiration",
+        "land-surface model fields"
+      ],
+      "use_scopes": [
+        "Drought monitoring",
+        "Modeled soil moisture",
+        "Hydrologic anomaly analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "multinational",
+        "names": [
+          "North America",
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://ldas.gsfc.nasa.gov/nldas/drought-monitor"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_opera_products",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 50,
+      "title": "NASA OPERA Products",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Earthdata collection for OPERA analysis-ready products, including surface water extent, surface displacement, and land disturbance.",
+      "canonical_url": "https://www.earthdata.nasa.gov/data/projects/opera",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA OPERA Products",
+          "url": "https://www.earthdata.nasa.gov/data/projects/opera"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "unknown",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Surface Water",
+        "Geology & Geophysics"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "dynamic surface water extent",
+        "surface displacement",
+        "land disturbance"
+      ],
+      "use_scopes": [
+        "Surface-water monitoring",
+        "Subsidence screening",
+        "Flood and wetland screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "multinational",
+        "names": [
+          "North America"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.earthdata.nasa.gov/data/projects/opera"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_stream_water_quality_tool",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 51,
+      "title": "NASA STREAM Water Quality Tool",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Satellite-based tool for mapping near-real-time chlorophyll-a, suspended solids, and water clarity at relatively fine spatial resolution.",
+      "canonical_url": "https://www.earthdata.nasa.gov/data/tools/stream",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA STREAM Water Quality Tool",
+          "url": "https://www.earthdata.nasa.gov/data/tools/stream"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "current_or_near_real_time",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Water Quality",
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "chlorophyll-a",
+        "total suspended solids",
+        "water clarity"
+      ],
+      "use_scopes": [
+        "Near-real-time water-quality screening",
+        "Lake and river assessment",
+        "Field-sampling prioritization"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.earthdata.nasa.gov/data/tools/stream"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nasa_swot_hydrology_resources",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 52,
+      "title": "NASA SWOT Hydrology Resources",
+      "providers": [
+        {
+          "name": "National Aeronautics and Space Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "NASA resource hub for Surface Water and Ocean Topography mission data, tools, learning materials, and hydrology applications.",
+      "canonical_url": "https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/swot/resources",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NASA SWOT Hydrology Resources",
+          "url": "https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/swot/resources"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "unknown",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "river water surface elevation",
+        "lake water surface elevation",
+        "ocean topography"
+      ],
+      "use_scopes": [
+        "SWOT data discovery",
+        "River and lake monitoring",
+        "Surface-water analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/swot/resources"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nidis_soil_moisture_resources",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 53,
+      "title": "Drought.gov Soil Moisture Data and Resources",
+      "providers": [
+        {
+          "name": "National Integrated Drought Information System",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Gateway to U.S. soil-moisture maps, tools, research, network information, and drought indicators.",
+      "canonical_url": "https://www.drought.gov/topics/soil-moisture",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Drought.gov Soil Moisture Data and Resources",
+          "url": "https://www.drought.gov/topics/soil-moisture"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "unknown",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "soil moisture",
+        "soil moisture anomaly",
+        "groundwater wetness"
+      ],
+      "use_scopes": [
+        "Tool discovery",
+        "Drought monitoring",
+        "Soil moisture interpretation"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.drought.gov/topics/soil-moisture"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_cnrfc",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 54,
+      "title": "California-Nevada River Forecast Center",
+      "providers": [
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Operational river, precipitation, temperature, snow-level, and water-supply forecasting for California and Nevada.",
+      "canonical_url": "https://cnrfc.noaa.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California-Nevada River Forecast Center",
+          "url": "https://cnrfc.noaa.gov/"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Weather & Forecasts",
+        "Surface Water",
+        "Precipitation",
+        "Snow & SWE"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "river forecast",
+        "QPF",
+        "temperature",
+        "snow level"
+      ],
+      "use_scopes": [
+        "Forecasting",
+        "Hydrologic conditions",
+        "Flood risk",
+        "Emergency planning",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "California",
+          "Nevada"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cnrfc.noaa.gov/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.cnrfc.noaa.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_coastwatch_data_portal",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 55,
+      "title": "NOAA CoastWatch Data Portal",
+      "providers": [
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Interactive viewer and download portal for NOAA CoastWatch satellite data, including mapped layers and NetCDF subsets.",
+      "canonical_url": "https://coastwatch.noaa.gov/cw_html/cwViewer.html",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NOAA CoastWatch Data Portal",
+          "url": "https://coastwatch.noaa.gov/cw_html/cwViewer.html"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "unknown",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Surface Water",
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "ocean color",
+        "chlorophyll-a",
+        "sea surface temperature",
+        "satellite imagery"
+      ],
+      "use_scopes": [
+        "Coastal water-quality screening",
+        "Marine data download",
+        "Remote-sensing visualization"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "United States coasts"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://coastwatch.noaa.gov/cw_html/cwViewer.html"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_coastwatch_erddap",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 56,
+      "title": "NOAA CoastWatch ERDDAP",
+      "providers": [
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "ERDDAP service for subsetting, downloading, graphing, and mapping NOAA CoastWatch environmental datasets.",
+      "canonical_url": "https://coastwatch.noaa.gov/erddap",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NOAA CoastWatch ERDDAP",
+          "url": "https://coastwatch.noaa.gov/erddap"
+        }
+      ],
+      "resource_type": "data_service_or_api",
+      "temporal_character": "unknown",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "gridded satellite data",
+        "tabular ocean data"
+      ],
+      "use_scopes": [
+        "Programmatic data access",
+        "Data subsetting",
+        "Time-series analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://coastwatch.noaa.gov/erddap"
+        },
+        {
+          "role": "documentation",
+          "url": "https://coastwatch.noaa.gov/erddap/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_cpc_forecasts_outlooks",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 57,
+      "title": "CPC Forecasts and Outlooks",
+      "providers": [
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Index of CPC outlook maps, tables, and discussions.",
+      "canonical_url": "https://cpc.ncep.noaa.gov/products/forecasts",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "CPC Forecasts and Outlooks",
+          "url": "https://cpc.ncep.noaa.gov/products/forecasts"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "forecast",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Weather & Forecasts",
+        "Precipitation"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "precipitation outlook",
+        "temperature outlook"
+      ],
+      "use_scopes": [
+        "Forecasting",
+        "Hydrologic conditions",
+        "Flood risk",
+        "Emergency planning",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cpc.ncep.noaa.gov/products/forecasts"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.cpc.ncep.noaa.gov/products/forecasts/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_noaa_wpc_qpf",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 58,
+      "title": "Weather Prediction Center QPF",
+      "providers": [
+        {
+          "name": "National Oceanic and Atmospheric Administration",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National quantitative precipitation forecast maps and accumulations.",
+      "canonical_url": "https://wpc.ncep.noaa.gov/qpf/qpf2.shtml",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Weather Prediction Center QPF",
+          "url": "https://wpc.ncep.noaa.gov/qpf/qpf2.shtml"
+        }
+      ],
+      "resource_type": "report_or_publication",
+      "temporal_character": "forecast",
+      "resource_granularity": "product",
+      "subject_tags": [
+        "Weather & Forecasts",
+        "Precipitation"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "precipitation forecast"
+      ],
+      "use_scopes": [
+        "Forecasting",
+        "Hydrologic conditions",
+        "Flood risk",
+        "Emergency planning",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://wpc.ncep.noaa.gov/qpf/qpf2.shtml"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.wpc.ncep.noaa.gov/qpf/qpf2.shtml"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nrcs_nwcc",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 59,
+      "title": "NRCS National Water and Climate Center",
+      "providers": [
+        {
+          "name": "USDA Natural Resources Conservation Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "NWCC program, network, data stewardship, and forecasting information.",
+      "canonical_url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NRCS National Water and Climate Center",
+          "url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "static_reference",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Snow & SWE",
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "snow and climate data"
+      ],
+      "use_scopes": [
+        "Snow",
+        "Water supply",
+        "Forecasting",
+        "Agricultural water management",
+        "Irrigation",
+        "Hydrologic conditions",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "Western United States",
+          "California",
+          "Nevada"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nrcs_snow_survey_water_supply_forecasting",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 60,
+      "title": "NRCS Snow Survey and Water Supply Forecasting Program",
+      "providers": [
+        {
+          "name": "USDA Natural Resources Conservation Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Program hub for SNOTEL, snow courses, water-supply forecasts, and National Water and Climate Center products.",
+      "canonical_url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NRCS Snow Survey and Water Supply Forecasting Program",
+          "url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Snow & SWE",
+        "Weather & Forecasts",
+        "Precipitation"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "snow water equivalent",
+        "precipitation",
+        "water supply forecast"
+      ],
+      "use_scopes": [
+        "Snow",
+        "Water supply",
+        "Forecasting",
+        "Agricultural water management",
+        "Irrigation",
+        "Hydrologic conditions",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "Western United States",
+          "California",
+          "Nevada"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_nrcs_web_soil_survey",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 61,
+      "title": "Web Soil Survey",
+      "providers": [
+        {
+          "name": "USDA Natural Resources Conservation Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Interactive soil mapping and interpretations for engineering, hydrology, agriculture, and planning.",
+      "canonical_url": "https://websoilsurvey.nrcs.usda.gov/app",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Web Soil Survey",
+          "url": "https://websoilsurvey.nrcs.usda.gov/app"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "static_reference",
+      "resource_granularity": "viewer",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [
+        "soil properties",
+        "hydrologic soil group"
+      ],
+      "use_scopes": [
+        "Snow",
+        "Water supply",
+        "Forecasting",
+        "Agricultural water management",
+        "Irrigation",
+        "Hydrologic conditions",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://websoilsurvey.nrcs.usda.gov/app"
+        },
+        {
+          "role": "documentation",
+          "url": "https://websoilsurvey.nrcs.usda.gov/app/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_tu_wien_soil_moisture_viewer",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 62,
+      "title": "TU Wien Soil Moisture Data Viewer",
+      "providers": [
+        {
+          "name": "TU Wien",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Public viewer for monthly ESA CCI soil-moisture averages and related products.",
+      "canonical_url": "https://dataviewer.geo.tuwien.ac.at/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "TU Wien Soil Moisture Data Viewer",
+          "url": "https://dataviewer.geo.tuwien.ac.at/"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Soil Moisture",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "monthly soil moisture",
+        "ESA CCI soil moisture"
+      ],
+      "use_scopes": [
+        "Global soil-moisture visualization",
+        "Climate comparison",
+        "Drought monitoring"
+      ],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://dataviewer.geo.tuwien.ac.at/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usace_cwms_data_api",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 63,
+      "title": "USACE CWMS Data API",
+      "providers": [
+        {
+          "name": "U.S. Army Corps of Engineers",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National Corps Water Management System API and documentation.",
+      "canonical_url": "https://cwms-data.usace.army.mil/cwms-data",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USACE CWMS Data API",
+          "url": "https://cwms-data.usace.army.mil/cwms-data"
+        }
+      ],
+      "resource_type": "data_service_or_api",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "time-series water data"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Hydrologic conditions",
+        "Flood risk",
+        "Emergency planning",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://cwms-data.usace.army.mil/cwms-data"
+        },
+        {
+          "role": "documentation",
+          "url": "https://cwms-data.usace.army.mil/cwms-data/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usbr",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 64,
+      "title": "Bureau of Reclamation",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National water and power program, projects, regions, operations, and data.",
+      "canonical_url": "https://usbr.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Bureau of Reclamation",
+          "url": "https://usbr.gov/"
+        }
+      ],
+      "resource_type": "organization_homepage",
+      "temporal_character": "unknown",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "water operations"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Hydrologic conditions",
+        "Water rights",
+        "Regulatory research",
+        "Water quality",
+        "Ecosystem screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California",
+          "Nevada"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://usbr.gov/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.usbr.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usda_cropland_data_layer",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 65,
+      "title": "USDA Cropland Data Layer",
+      "providers": [
+        {
+          "name": "U.S. Department of Agriculture",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Annual crop-specific land-cover data and viewer.",
+      "canonical_url": "https://croplandcros.scinet.usda.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USDA Cropland Data Layer",
+          "url": "https://croplandcros.scinet.usda.gov/"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [
+        "crop type",
+        "land cover"
+      ],
+      "use_scopes": [
+        "Agricultural water management",
+        "Irrigation",
+        "Drought",
+        "Climate",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Groundwater",
+        "Groundwater sustainability"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California",
+          "Western United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://croplandcros.scinet.usda.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_earthexplorer",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 66,
+      "title": "USGS EarthExplorer",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Search and download Landsat, aerial imagery, elevation, and other remote-sensing data.",
+      "canonical_url": "https://earthexplorer.usgs.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS EarthExplorer",
+          "url": "https://earthexplorer.usgs.gov/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [
+        "satellite imagery",
+        "elevation"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://earthexplorer.usgs.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_groundwater_watch",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 67,
+      "title": "USGS Groundwater Watch",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Groundwater-level network maps and drought-oriented summaries.",
+      "canonical_url": "https://groundwaterwatch.usgs.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS Groundwater Watch",
+          "url": "https://groundwaterwatch.usgs.gov/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Groundwater"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "groundwater level"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://groundwaterwatch.usgs.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_national_hydrography_products",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 68,
+      "title": "USGS National Hydrography Products",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Access NHD, Watershed Boundary Dataset, and related hydrography products.",
+      "canonical_url": "https://usgs.gov/national-hydrography/access-national-hydrography-products",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS National Hydrography Products",
+          "url": "https://usgs.gov/national-hydrography/access-national-hydrography-products"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "static_reference",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "streams",
+        "waterbodies",
+        "watersheds"
+      ],
+      "use_scopes": [
+        "Remote sensing",
+        "Geospatial analysis",
+        "Flood risk",
+        "Emergency planning",
+        "Water quality",
+        "Ecosystem screening",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Snow",
+        "Water supply"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://usgs.gov/national-hydrography/access-national-hydrography-products"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.usgs.gov/national-hydrography/access-national-hydrography-products"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_streamstats",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 69,
+      "title": "USGS StreamStats",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Watershed delineation and basin-characteristic / flow-statistics tools.",
+      "canonical_url": "https://streamstats.usgs.gov/ss",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS StreamStats",
+          "url": "https://streamstats.usgs.gov/ss"
+        }
+      ],
+      "resource_type": "analysis_tool",
+      "temporal_character": "static_reference",
+      "resource_granularity": "viewer",
+      "subject_tags": [
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "watershed characteristics",
+        "flow statistics"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://streamstats.usgs.gov/ss"
+        },
+        {
+          "role": "documentation",
+          "url": "https://streamstats.usgs.gov/ss/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_water_data_apis",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 70,
+      "title": "USGS Water Data APIs",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Modern USGS water-data API documentation and endpoints.",
+      "canonical_url": "https://api.waterdata.usgs.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS Water Data APIs",
+          "url": "https://api.waterdata.usgs.gov/"
+        }
+      ],
+      "resource_type": "data_service_or_api",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [
+        "water observations"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://api.waterdata.usgs.gov/"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_water_data_nation",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 71,
+      "title": "USGS Water Data for the Nation",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National surface-water, groundwater, water-quality, and site-information portal.",
+      "canonical_url": "https://waterdata.usgs.gov/nwis",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS Water Data for the Nation",
+          "url": "https://waterdata.usgs.gov/nwis"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Groundwater",
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "streamflow",
+        "stage",
+        "groundwater level",
+        "water quality"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Streamflow"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://waterdata.usgs.gov/nwis"
+        }
+      ],
+      "publication_state": "staged"
+    },
+    {
+      "id": "resource_usgs_water_quality_portal",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 72,
+      "title": "USGS Water Quality Portal",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Joint USGS/EPA/USDA portal for water-quality data from many organizations.",
+      "canonical_url": "https://waterqualitydata.us/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS Water Quality Portal",
+          "url": "https://waterqualitydata.us/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Water Quality"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "water quality",
+        "chemistry",
+        "biology"
+      ],
+      "use_scopes": [
+        "Hydrologic conditions",
+        "Groundwater",
+        "Groundwater sustainability",
+        "Water quality",
+        "Ecosystem screening",
+        "Data integration",
+        "Remote sensing",
+        "Geospatial analysis"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States",
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://waterqualitydata.us/"
+        },
+        {
+          "role": "documentation",
+          "url": "https://www.waterqualitydata.us/"
+        }
+      ],
+      "publication_state": "staged"
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 "use strict";
 
-// Dedicated source/model contracts for the GUIDE-I2B-R8 Resource Explorer.
+// Dedicated source/model contracts for the GUIDE-I2B-R9 Resource Explorer.
 // Uses only Node built-ins and executes the pure model used by the browser.
 
 const fs = require("fs");
@@ -127,10 +127,33 @@ assert.deepStrictEqual(
   { displayed_in_brim: 0, used_by_brim: 7, related_external_resource: 10 },
   "Exact relationship type counts changed"
 );
-assert.strictEqual(registry.resources.length, 33, "Registry Resource count changed");
 assert.strictEqual(registry.schema_version, 3, "Registry schema version changed");
-assert(registry.resources.every(resource => resource.publication_state === "published"),
-  "Every R6 Resource must be published");
+const canonicalResources = registry.resources;
+const publishedResources = canonicalResources.filter(
+  resource => resource.publication_state === "published"
+);
+const stagedResources = canonicalResources.filter(
+  resource => resource.publication_state === "staged"
+);
+const publishedResourceIds = new Set(publishedResources.map(resource => resource.id));
+const stagedResourceIds = new Set(stagedResources.map(resource => resource.id));
+assert.strictEqual(canonicalResources.length, 72,
+  "Canonical registry Resource count changed");
+assert.strictEqual(publishedResources.length, 33,
+  "Canonical registry published Resource count changed");
+assert.strictEqual(stagedResources.length, 39,
+  "Canonical registry staged Resource count changed");
+assert(canonicalResources.every(resource =>
+  resource.publication_state === "published" || resource.publication_state === "staged"
+), "Canonical registry contains an unsupported publication state");
+assert(publishedResources.every(resource => resource.publication_state === "published"),
+  "Published projection admitted a non-published Resource");
+assert(stagedResources.every(resource => resource.publication_state === "staged"),
+  "Staged registry partition admitted a non-staged Resource");
+assert([...stagedResourceIds].every(id => !publishedResourceIds.has(id)),
+  "Published and staged registry partitions overlap");
+assert(relationshipRows.every(row => publishedResourceIds.has(row.id)),
+  "A staged Resource entered exact Product relationships");
 const resourceIdsByRelationshipType = Object.fromEntries(
   ["displayed_in_brim", "used_by_brim", "related_external_resource"].map(type => [
     type,
@@ -149,7 +172,7 @@ const brimLinkedIds = new Set([
   ...resourceIdsByRelationshipType.used_by_brim,
   ...resourceIdsByRelationshipType.related_external_resource
 ]);
-const beyondIds = new Set(registry.resources.map(resource => resource.id)
+const beyondIds = new Set(publishedResources.map(resource => resource.id)
   .filter(id => !brimLinkedIds.has(id)));
 assert.strictEqual(brimLinkedIds.size, 9, "BRIM-linked unique Resource count changed");
 assert.strictEqual(beyondIds.size, 24, "Beyond-BRIM complement count changed");
@@ -231,8 +254,33 @@ function projectedResource(record) {
   return result;
 }
 
-const fullResources = registry.resources.map(projectedResource);
+const fullResources = publishedResources.map(projectedResource);
 const model = createModel(fullResources);
+
+assert.strictEqual(fullResources.length, 33,
+  "Browser projection must contain exactly 33 published Resources");
+assert(fullResources.every(resource => publishedResourceIds.has(resource.id)),
+  "Browser projection contains a non-published Resource");
+assert([...stagedResourceIds].every(id =>
+  !fullResources.some(resource => resource.id === id)
+), "A staged Resource reached browser records");
+const projectedResourceJson = JSON.stringify(fullResources);
+const stagedProjectionProbes = stagedResources.flatMap(resource => [
+  resource.id,
+  ...resource.migration_aliases,
+  ...resource.access_points.map(point => point.url)
+]);
+assert(stagedProjectionProbes.every(probe => !projectedResourceJson.includes(probe)),
+  "A staged Resource ID, migration alias, or access point reached browser data");
+const allPublishedState = model.createState();
+const allPublishedResults = model.results(allPublishedState);
+assert.strictEqual(allPublishedResults.length, 33,
+  "All Resources model results must remain the 33-record published projection");
+assert(allPublishedResults.every(resource => publishedResourceIds.has(resource.id)),
+  "A staged Resource reached Resource Explorer results");
+assert(fullResources.every(resource =>
+  [...stagedResourceIds].every(id => !resource.searchText.includes(id))
+), "A staged Resource identity reached Resource search text");
 
 assert(fullResources.every(resource =>
   resource.resourceTypeLabel === metadataVocabularies.resourceType[resource.resourceType] &&
@@ -270,6 +318,8 @@ assert.deepStrictEqual(fullCounts, {
   beyond_brim: 24,
   all_resources: 33
 }, "Relationship preset truth table changed");
+assert.strictEqual(Object.values(fullCounts).filter(count => count === 33).length, 1,
+  "The all-Resources preset no longer represents the published projection");
 assert.deepStrictEqual(model.presets.map(preset => preset.id),
   ["brim_linked", "beyond_brim", "all_resources"],
   "Resource preset model order changed");
@@ -392,6 +442,9 @@ assert(model.results(providerState).every(resource =>
 const providerCounts = model.facetCounts(model.createState()).providers;
 assert.strictEqual(Object.values(providerCounts).reduce((sum, count) => sum + count, 0), 33,
   "Display-provider facet counts changed");
+assert(Object.values(model.facetCounts(model.createState())).every(counts =>
+  typeof counts !== "object" || Object.values(counts).every(count => count <= 33)
+), "A facet count exceeds the published Resource projection");
 const currentTypeCounts = model.facetCounts(model.createState()).resourceTypes;
 assert.deepStrictEqual(Object.keys(currentTypeCounts).sort(), [
   "analysis_tool", "dashboard", "data_portal_or_catalog", "dataset_or_collection",
@@ -551,6 +604,8 @@ assert.strictEqual(model.detail(detailState), null, "Detail exists before select
 detailState = model.selectResource(detailState, "resource_noaa_goes_image_viewer");
 const goesDetail = model.detail(detailState);
 assert(goesDetail, "Selected-only detail was not created");
+assert(publishedResourceIds.has(goesDetail.id) && !stagedResourceIds.has(goesDetail.id),
+  "A staged Resource reached selected detail");
 assert.strictEqual(goesDetail.temporalCharacter, "current_or_near_real_time",
   "Representative non-unknown temporal detail assignment changed");
 assert.strictEqual(goesDetail.temporalCharacterLabel, "Current or near-real-time",
@@ -569,13 +624,57 @@ assert.strictEqual(goesDetail.accessPoints.length, 5, "GOES access-point family 
 assert.deepStrictEqual(goesDetail.accessPoints[0], {
   role: "canonical", label: "Official Resource", url: "https://www.star.nesdis.noaa.gov/GOES/"
 }, "Canonical access-point rendering contract changed");
-assert.strictEqual(goesDetail.accessPoints.filter(point => point.url.includes("sector=psw")).length, 2,
-  "GOES Pacific Southwest configured-view count changed");
 const goesAccessGroups = model.accessPointGroups(goesDetail);
 assert.deepStrictEqual(goesAccessGroups.official, goesDetail.accessPoints[0],
   "Exact canonical access point was not promoted as the official action");
 assert.deepStrictEqual(goesAccessGroups.additional, goesDetail.accessPoints.slice(1),
   "Additional access-point labels, URLs, or order changed");
+assert.strictEqual(goesAccessGroups.additional.length, 4,
+  "GOES must have exactly four additional access points");
+// Reviewed projection authority: classification is explicit, never inferred from URL shape.
+const goesAdditionalAccessPointTypes = [
+  "viewer", "viewer", "configured_view", "configured_view"
+];
+const projectedGoesAdditionalAccessPoints = goesAccessGroups.additional.map(
+  (point, index) => ({
+    accessPointType: goesAdditionalAccessPointTypes[index],
+    label: point.label,
+    url: point.url
+  })
+);
+assert.deepStrictEqual(projectedGoesAdditionalAccessPoints, [
+  {
+    accessPointType: "viewer",
+    label: "GOES-West Pacific Southwest — all products",
+    url: "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=psw"
+  },
+  {
+    accessPointType: "viewer",
+    label: "GOES-West U.S. Pacific Coast — all products",
+    url: "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=wus"
+  },
+  {
+    accessPointType: "configured_view",
+    label: "GOES-West Pacific Southwest GeoColor",
+    url: "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=GEOCOLOR&length=24&dim=1"
+  },
+  {
+    accessPointType: "configured_view",
+    label: "GOES-West Pacific Southwest Fire Temperature",
+    url: "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=FireTemperature&length=12&dim=1"
+  }
+], "GOES additional access-point types, labels, URLs, or order changed");
+assert.strictEqual(projectedGoesAdditionalAccessPoints.filter(
+  point => point.accessPointType === "viewer"
+).length, 2, "GOES broad viewer/sector-page count changed");
+assert.strictEqual(projectedGoesAdditionalAccessPoints.filter(
+  point => point.accessPointType === "configured_view"
+).length, 2, "GOES configured-view count changed");
+assert(projectedGoesAdditionalAccessPoints.every(point => !point.url.includes("sector=pnw")),
+  "A Pacific Northwest GOES access point reached selected detail");
+assert(!projectedGoesAdditionalAccessPoints.some(point =>
+  point.url.includes("sector=wus") && point.url.includes("band=GEOCOLOR")
+), "The removed U.S. Pacific Coast GeoColor configured view was restored");
 
 const roundTrip = model.restore(model.snapshot(populated));
 assert.deepStrictEqual(roundTrip, model.createState(populated),
@@ -614,6 +713,13 @@ assert(!/\b(addLayer|removeLayer|show_on_map|configure_on_map)\b/.test(source),
   "Resource Explorer introduced a map/layer action");
 assert(!/favorites|recents|verification badge|\bcore\b|priority ranking/i.test(factorySource),
   "Deferred or rejected prototype state entered the Resource model");
+const quickProductIdsSource = extractFunction(source, "quickProductIds");
+assert(quickProductIdsSource.includes("memberIds") &&
+  quickProductIdsSource.includes("productId") &&
+  !quickProductIdsSource.includes("resource"),
+"Quick Access no longer resolves only typed Product identity");
+assert([...stagedResourceIds].every(id => !source.includes(id)),
+  "A staged Resource gained a browser or Quick Access implementation branch");
 assert(source.includes("oldRoot.__brimGuideTeardown()") &&
   source.includes("if (!lifecycle.detach()) return") &&
   source.includes("root.removeEventListener('click', handleRootClick)"),
@@ -781,8 +887,12 @@ assert(css.includes(".brim-guide__resource-selected-label") &&
   source.includes("row.setAttribute('aria-current', 'true')"),
   "Selected-row or primary official-access treatment is incomplete");
 
-console.log("GUIDE-I2B-R8 Resource Explorer source/model contracts passed.");
+console.log("GUIDE-I2B-R9 Resource Explorer source/model contracts passed.");
+console.log("CANONICAL_RESOURCES=72");
 console.log("PUBLISHED_RESOURCES=33");
+console.log("STAGED_RESOURCES=39");
+console.log("STAGED_BROWSER_LEAKAGE=0");
+console.log("GOES_ACCESS_POINT_TYPES=viewer,viewer,configured_view,configured_view");
 console.log("RESOURCE_TYPE_MACHINE_ID_LABELS=PASS");
 console.log("TEMPORAL_DETAIL_NONUNKNOWN_ONLY=PASS");
 console.log("GEOGRAPHY_UNKNOWN_DETAIL_OMISSION=PASS");

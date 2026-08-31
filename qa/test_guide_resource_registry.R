@@ -69,6 +69,54 @@ expected_ids <- c(
   "resource_usgs_quickdri",
   "resource_usgs_vegdri"
 )
+expected_staged_ids <- c(
+  "resource_aso_airborne_snow_observatories",
+  "resource_dwr_california_groundwater_live",
+  "resource_dwr_california_water_watch",
+  "resource_dwr_casgem",
+  "resource_dwr_cdec",
+  "resource_dwr_cimis",
+  "resource_dwr_groundwater_sustainability_agencies",
+  "resource_dwr_water_data_library",
+  "resource_epa_cyanweb",
+  "resource_ismn",
+  "resource_nasa_asf_displacement_portal",
+  "resource_nasa_cyfi_explorer",
+  "resource_nasa_ecostress_data_resources",
+  "resource_nasa_firms_global_fire_map",
+  "resource_nasa_giovanni",
+  "resource_nasa_nldas_drought_monitor",
+  "resource_nasa_opera_products",
+  "resource_nasa_stream_water_quality_tool",
+  "resource_nasa_swot_hydrology_resources",
+  "resource_nidis_soil_moisture_resources",
+  "resource_noaa_cnrfc",
+  "resource_noaa_coastwatch_data_portal",
+  "resource_noaa_coastwatch_erddap",
+  "resource_noaa_cpc_forecasts_outlooks",
+  "resource_noaa_wpc_qpf",
+  "resource_nrcs_nwcc",
+  "resource_nrcs_snow_survey_water_supply_forecasting",
+  "resource_nrcs_web_soil_survey",
+  "resource_tu_wien_soil_moisture_viewer",
+  "resource_usace_cwms_data_api",
+  "resource_usbr",
+  "resource_usda_cropland_data_layer",
+  "resource_usgs_earthexplorer",
+  "resource_usgs_groundwater_watch",
+  "resource_usgs_national_hydrography_products",
+  "resource_usgs_streamstats",
+  "resource_usgs_water_data_apis",
+  "resource_usgs_water_data_nation",
+  "resource_usgs_water_quality_portal"
+)
+expected_held_staged_ids <- c(
+  "resource_nasa_giovanni",
+  "resource_nrcs_web_soil_survey",
+  "resource_usda_cropland_data_layer",
+  "resource_usgs_earthexplorer",
+  "resource_usgs_water_data_apis"
+)
 wave1_ids <- expected_ids[10:33]
 required_fields <- c(
   "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
@@ -88,12 +136,18 @@ browser_fields <- c(
 assert_identical(raw_registry$schema_version, 3L, "Registry schema marker changed")
 assert_true(inherits(registry, "pt_guide_resource_registry"),
             "Registry reader did not mark validated records")
-assert_identical(length(registry), 33L, "Registry must contain exactly 33 Resources")
+assert_identical(length(registry), 72L, "Registry must contain exactly 72 Resources")
 registry_ids <- vapply(registry, `[[`, character(1), "id")
 published_ids <- vapply(published, `[[`, character(1), "id")
-assert_identical(registry_ids, expected_ids, "Complete Resource ID set/order changed")
+staged <- unclass(registry)[vapply(registry, `[[`, character(1), "publication_state") == "staged"]
+staged_ids <- vapply(staged, `[[`, character(1), "id")
+current_registry <- unclass(registry)[match(expected_ids, registry_ids)]
+assert_identical(registry_ids, c(expected_ids, expected_staged_ids),
+                 "Complete Resource ID set/order changed")
 assert_identical(published_ids, expected_ids,
-                 "All 33 Resources must be published in registry order")
+                 "The exact 33 published Resources changed or reordered")
+assert_identical(staged_ids, expected_staged_ids,
+                 "The exact 39 staged Resources changed or reordered")
 assert_true(!anyDuplicated(registry_ids), "Registry Resource IDs are duplicated")
 assert_true(all(vapply(registry, function(record) {
   identical(names(record), required_fields)
@@ -106,8 +160,8 @@ assert_identical(
 publication_states <- vapply(registry, `[[`, character(1), "publication_state")
 assert_identical(sum(publication_states == "published"), 33L,
                  "Published Resource count must be 33")
-assert_identical(sum(publication_states == "staged"), 0L,
-                 "No staged Resource may remain after R6 publication")
+assert_identical(sum(publication_states == "staged"), 39L,
+                 "Staged Resource count must be 39")
 assert_true(all(vapply(registry[match(wave1_ids, registry_ids)], function(record) {
   identical(record$publication_state, "published")
 }, logical(1))), "The exact approved 24-Resource cohort was not published")
@@ -196,21 +250,21 @@ expected_geographic_names <- lapply(c(
 })
 
 assert_identical(
-  vapply(registry, `[[`, character(1), "resource_type"), expected_resource_types,
+  vapply(current_registry, `[[`, character(1), "resource_type"), expected_resource_types,
   "The exact current-33 Resource Type assignments changed"
 )
 assert_identical(
-  vapply(registry, `[[`, character(1), "temporal_character"),
+  vapply(current_registry, `[[`, character(1), "temporal_character"),
   expected_temporal_characters,
   "The exact current-33 temporal-character assignments changed"
 )
 assert_identical(
-  vapply(registry, function(record) record$geographic_scope$scope_type, character(1)),
+  vapply(current_registry, function(record) record$geographic_scope$scope_type, character(1)),
   expected_geographic_scope_types,
   "The exact current-33 geographic scope-class assignments changed"
 )
 assert_identical(
-  lapply(registry, function(record) {
+  lapply(current_registry, function(record) {
     unname(as.character(unlist(record$geographic_scope$names, use.names = FALSE)))
   }),
   expected_geographic_names,
@@ -222,12 +276,12 @@ expected_temporal_unknown_ids <- c(
   "resource_nidis_grace_groundwater_soil_moisture"
 )
 assert_identical(
-  registry_ids[expected_temporal_characters == "unknown"],
+  expected_ids[expected_temporal_characters == "unknown"],
   expected_temporal_unknown_ids,
   "Temporal-character unknown Resource IDs changed"
 )
 assert_identical(
-  registry_ids[expected_geographic_scope_types == "unknown"],
+  expected_ids[expected_geographic_scope_types == "unknown"],
   "resource_prism_normals",
   "Geographic-scope unknown Resource ID changed"
 )
@@ -241,21 +295,58 @@ assert_true(!any(c("update_cadence", "cadence", "update_frequency", "time_mode")
                    unique(unlist(lapply(raw_registry$resources, names)))),
             "An unauthorized cadence/time-mode field entered canonical Resources")
 
-protected_fields <- c(
-  "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
-  "providers", "summary", "canonical_url", "access_points", "resource_granularity",
-  "subject_tags", "information_type_tags", "variables", "use_scopes", "access_class",
-  "public_source_references", "publication_state"
-)
-protected_json <- jsonlite::toJSON(
-  lapply(raw_registry$resources, function(record) record[protected_fields]),
+compact_json <- function(value) jsonlite::toJSON(
+  value,
   auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
 )
+raw_current <- raw_registry$resources[match(expected_ids, vapply(
+  raw_registry$resources, `[[`, character(1), "id"
+))]
+current_non_goes_json <- compact_json(raw_current[vapply(
+  raw_current, `[[`, character(1), "id"
+) != "resource_noaa_goes_image_viewer"])
 assert_identical(
-  digest::digest(protected_json, algo = "sha256", serialize = FALSE),
-  "10f1d4a6f4115af1ea5e8d439058f0648325676b3cd8ad8f354b94fdde8bda1b",
-  "Protected current-33 Resource fields or granularity changed from the R8 baseline"
+  digest::digest(current_non_goes_json, algo = "sha256", serialize = FALSE),
+  "ebe346a3e01dc1c98a30710438edb4f5178a23d10480be434853edb2afb4a5ab",
+  "A non-GOES current Resource changed from the R8 baseline"
 )
+raw_goes_without_access <- raw_current[[match(
+  "resource_noaa_goes_image_viewer", vapply(raw_current, `[[`, character(1), "id")
+)]]
+raw_goes_without_access$access_points <- NULL
+assert_identical(
+  digest::digest(compact_json(raw_goes_without_access), algo = "sha256", serialize = FALSE),
+  "eda688b9168714c865e0a5668ef153fc52ffac976a6ffe7ac841722e76d6fbb7",
+  "A NOAA GOES field other than access_points changed from the R8 baseline"
+)
+
+staged_json <- compact_json(staged)
+assert_identical(
+  digest::digest(staged_json, algo = "sha256", serialize = FALSE),
+  "d401ee9b1bf9c7ef381608dcc10881af53e19bba4e5311bafb540dd68f76f160",
+  "The exact 39-of-39 canonical R9 staged metadata contract changed"
+)
+assert_identical(as.integer(vapply(staged, `[[`, numeric(1), "order")), 34:72,
+                 "Staged Resource orders must be exactly 34 through 72")
+assert_true(all(vapply(staged, function(record) {
+  identical(record$publication_state, "staged") && !length(record$aliases) &&
+    !length(record$migration_aliases) && !length(record$search_aliases)
+}, logical(1))), "Staged publication state or empty alias contract changed")
+assert_true(all(vapply(staged, function(record) {
+  !length(record$information_type_tags)
+}, logical(1))), "Every staged Resource must retain an empty Information Type array")
+assert_identical(vapply(Filter(function(record) {
+  !length(record$subject_tags)
+}, staged), `[[`, character(1), "id"), expected_held_staged_ids,
+"The exact three subject-review and two taxonomy-blocked staged Resources changed")
+assert_true(!"resource_noaa_wpc_excessive_rainfall_outlook" %in% registry_ids,
+            "The unresolved WPC Excessive Rainfall Outlook entered the registry")
+assert_identical(staged[[match("resource_dwr_cdec", staged_ids)]]$resource_granularity,
+                 "unknown", "CDEC intake granularity was not normalized to schema-v3 unknown")
+assert_true(all(vapply(c(
+  "resource_noaa_coastwatch_erddap", "resource_usgs_water_data_apis"
+), function(id) identical(staged[[match(id, staged_ids)]]$resource_granularity, "platform"),
+logical(1))), "Service intake granularities were not normalized to schema-v3 platform")
 
 final_aliases <- unlist(lapply(registry, function(record) {
   unname(as.character(unlist(record$aliases, use.names = FALSE)))
@@ -279,26 +370,60 @@ all_access_valid <- vapply(registry, function(record) {
 assert_true(all(all_access_valid),
             "Registry access-point URLs/labels/canonical identity changed")
 
+duplicate_removal_ids <- c(
+  "resource_aso_airborne_snow_observatories",
+  "resource_dwr_casgem",
+  "resource_dwr_water_data_library",
+  "resource_noaa_cnrfc",
+  "resource_noaa_cpc_forecasts_outlooks",
+  "resource_noaa_wpc_qpf",
+  "resource_nrcs_nwcc",
+  "resource_nrcs_snow_survey_water_supply_forecasting",
+  "resource_nrcs_web_soil_survey",
+  "resource_usace_cwms_data_api",
+  "resource_usbr",
+  "resource_usgs_national_hydrography_products",
+  "resource_usgs_streamstats",
+  "resource_usgs_water_quality_portal"
+)
+assert_identical(length(duplicate_removal_ids), 14L,
+                 "R7C duplicate access-point removal count changed")
+assert_true(all(vapply(duplicate_removal_ids, function(id) {
+  record <- staged[[match(id, staged_ids)]]
+  length(record$access_points) == 1L &&
+    identical(record$access_points[[1]]$role, "canonical") &&
+    identical(record$access_points[[1]]$url, record$canonical_url)
+}, logical(1))), "A deduplicated R7C access point was restored or changed")
+
 goes <- registry[[match("resource_noaa_goes_image_viewer", registry_ids)]]
 expected_goes_urls <- c(
   "https://www.star.nesdis.noaa.gov/GOES/",
-  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=pnw",
-  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=FireTemperature&dim=1&length=12&sat=G18&sector=psw",
-  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=psw",
-  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?band=GEOCOLOR&dim=1&length=24&sat=G18&sector=wus"
+  "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=psw",
+  "https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&sector=wus",
+  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=GEOCOLOR&length=24&dim=1",
+  "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=FireTemperature&length=12&dim=1"
+)
+expected_goes_labels <- c(
+  "NOAA GOES Image Viewer",
+  "GOES-West Pacific Southwest — all products",
+  "GOES-West U.S. Pacific Coast — all products",
+  "GOES-West Pacific Southwest GeoColor",
+  "GOES-West Pacific Southwest Fire Temperature"
 )
 assert_identical(vapply(goes$access_points, `[[`, character(1), "url"),
-                 expected_goes_urls, "GOES configured-view URLs changed")
+                 expected_goes_urls, "GOES access-point URL order changed")
+assert_identical(vapply(goes$access_points, `[[`, character(1), "label"),
+                 expected_goes_labels, "GOES access-point label order changed")
 assert_identical(vapply(goes$access_points, `[[`, character(1), "role"),
                  c("canonical", rep("configured_view", 4L)),
-                 "GOES configured-view roles changed")
-assert_identical(sum(grepl("sector=psw", expected_goes_urls, fixed = TRUE)), 2L,
+                 "GOES schema-v3 access-point roles changed")
+assert_true(!any(grepl("sector=pnw", expected_goes_urls, fixed = TRUE)),
+            "A Pacific Northwest GOES URL remains")
+assert_identical(sum(grepl("/sector_band.php", expected_goes_urls, fixed = TRUE) &
+                       grepl("sector=psw", expected_goes_urls, fixed = TRUE)), 2L,
                  "GOES must retain exactly two Pacific Southwest configured views")
-assert_true(any(grepl("band=FireTemperature", expected_goes_urls, fixed = TRUE)) &&
-              any(grepl("band=GEOCOLOR", expected_goes_urls[grepl(
-                "sector=psw", expected_goes_urls, fixed = TRUE
-              )], fixed = TRUE)),
-            "GOES Pacific Southwest query semantics changed")
+assert_identical(goes$canonical_url, "https://www.star.nesdis.noaa.gov/GOES/",
+                 "The canonical NOAA GOES Official Resource URL changed")
 
 enrichment <- pt_guide_read_product_enrichment()
 relationship_rows <- unlist(lapply(names(enrichment), function(product_id) {
@@ -431,6 +556,16 @@ browser_json <- jsonlite::toJSON(
   browser_records, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
+assert_identical(length(browser_records), 33L,
+                 "Staged Resources changed the browser-visible Resource count")
+assert_true(!any(vapply(staged_ids, function(id) {
+  grepl(id, browser_json, fixed = TRUE)
+}, logical(1))), "A staged Resource ID entered the browser projection")
+assert_identical(
+  digest::digest(browser_json, algo = "sha256", serialize = FALSE),
+  "92ae977240a178ff235a72560f22d6a650a8757dadf6ede99b7ddc17b95d14f2",
+  "The browser Resource payload changed beyond the exact GOES access-point correction"
+)
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
   "canonical_url", "access_class", "source_refs", "editorial_state",
@@ -533,11 +668,16 @@ assert_error(
   "Browser projection accepted duplicate eligible Product IDs"
 )
 
-cat("GUIDE-I2B-R8 exact Resource metadata registry/projection contracts passed.\n")
+cat("GUIDE-I2B-R9 Wave-2 staging and GOES registry/projection contracts passed.\n")
 cat("SCHEMA_VERSION=3\n")
-cat("TOTAL_RESOURCES=33\n")
+cat("TOTAL_RESOURCES=72\n")
 cat("PUBLISHED_RESOURCES=33\n")
-cat("STAGED_RESOURCES=0\n")
+cat("STAGED_RESOURCES=39\n")
+cat("PUBLICATION_READY_STAGED_RESOURCES=34\n")
+cat("HELD_STAGED_RESOURCES=5\n")
+cat("STAGED_SUBJECT_REVIEW=3\n")
+cat("STAGED_TAXONOMY_BLOCKED=2\n")
+cat("DUPLICATE_ACCESS_POINTS_REMOVED=14\n")
 cat("EXACT_RELATIONSHIP_ROWS=17\n")
 cat("DISPLAYED_IN_BRIM=0\n")
 cat("USED_BY_BRIM=7\n")
@@ -551,8 +691,11 @@ cat("TEMPORAL_CHARACTER_VALUES=6_OF_7_CURRENT\n")
 cat("TEMPORAL_UNKNOWN_IDS=4_EXACT\n")
 cat("GEOGRAPHIC_SCOPE_VALUES=5_OF_8_CURRENT\n")
 cat("GEOGRAPHY_UNKNOWN_IDS=1_EXACT\n")
-cat("CONTRACT_MATCH=33_OF_33\n")
+cat("CONTRACT_MATCH=39_OF_39_STAGED\n")
 cat("PROTECTED_FIELD_EQUIVALENCE=PASS\n")
+cat("CURRENT_32_NON_GOES_EQUIVALENCE=PASS\n")
+cat("GOES_ALLOWED_CHANGED_FIELD=access_points_ONLY\n")
+cat("STAGED_BROWSER_LEAKAGE=0\n")
 cat("BROWSER_RESOURCE_FIELDS=22\n")
 cat("BROWSER_RESOURCE_BYTES=", nchar(browser_json, type = "bytes"), "\n", sep = "")
 cat("BROWSER_RESOURCE_SHA256=",

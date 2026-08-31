@@ -58,7 +58,7 @@ Discovery and historical evidence only. Never automatically controlling.
 - BRIM Guide source-backed Product enrichment registry:
   `/00_config/guide_product_enrichment.json` (stable-ID-keyed editorial content only; it cannot create Products or control map runtime behavior)
 - BRIM Guide canonical authored Resource metadata registry:
-  `/00_config/guide_resources.json` (one ordered schema-v3 dataset with 33 published Resources; controlled Resource Type, temporal character, and geographic scope are required descriptive metadata, granularity remains editorial-only, exact Product relationships remain solely authored in Product enrichment, and runtime authority remains elsewhere)
+  `/00_config/guide_resources.json` (one ordered schema-v3 dataset with 72 canonical Resources: 33 published/browser-visible and 39 staged; publication projection removes staged records before relationships, search, counts, facets, adaptation, and embedding; 34 staged records are publication-ready within R7C evidence while three subject-review and two taxonomy-blocked records remain held; staging adds no Product relationship or profile; controlled Resource Type, temporal character, and geographic scope are required descriptive metadata; granularity remains editorial-only; broad official access pages precede configured views where both are retained, including the California-relevant NOAA GOES Pacific Southwest and U.S. Pacific Coast access points; exact Product relationships remain solely authored in Product enrichment, and runtime authority remains elsewhere)
 - BRIM Guide build-time inventory/profile owner:
   `/03_functions/leaflet_guide_helpers.r`
 - BRIM Guide focused foundation test: `/qa/test_guide_foundation.R`

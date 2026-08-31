@@ -30,8 +30,12 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-33-record dataset, and all 33 reviewed Resources are `published`. The registry
-preserves immutable
+72-record dataset: 33 reviewed Resources are `published` and 39 identity-ready
+Wave-2 Resources are `staged`. The publication projection runs before
+relationships, search text, counts, facets, adaptation, or browser embedding,
+so only the 33 published Resources are browser-visible. Within the staged R7C
+evidence, 34 records are publication-ready and five remain held: three for
+subject review and two for taxonomy resolution. The registry preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. Every Resource has exactly one controlled Resource Type machine ID,
@@ -46,7 +50,8 @@ and geographic scope and projects deterministic labels at build time. The
 registry does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
-`00_config/guide_product_enrichment.json` is the sole authored authority for
+No Wave-2 Product relationship or Guide profile is introduced by staging.
+`00_config/guide_product_enrichment.json` remains the sole authored authority for
 Product-to-Resource relationships. Its 17 reviewed rows consist of zero
 `displayed_in_brim`, seven `used_by_brim`, and ten
 `related_external_resource` relationships. They are never inferred from
@@ -75,7 +80,12 @@ evidence, and unreviewed fields do not enter that shape.
 The selected-detail primary external action is the one access point whose role
 is `canonical` and whose URL exactly equals `canonicalUrl`; other access points
 retain their projected labels and exact URLs as secondary actions. This display
-priority does not add or infer Resource authority.
+priority does not add or infer Resource authority. Where both broad official
+landing or sector pages and configured views are retained, the broad official
+pages precede the configured views. The NOAA GOES Image Viewer retains its
+official canonical action and uses California-relevant Pacific Southwest and
+U.S. Pacific Coast sector access points before the two configured Pacific
+Southwest views.
 `default` remains the only current Guide profile, and the standalone HTML makes
 no runtime Resource-data request or browser-storage copy.
 
