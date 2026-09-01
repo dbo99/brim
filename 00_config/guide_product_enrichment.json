@@ -298,14 +298,6 @@
       "method_ids": [
         "method_how_brim_works"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_calfire_fire_perimeters",
-          "role": "Perimeter source and limitations",
-          "relationship_type": "used_by_brim",
-          "use_scope": "source_and_service_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "external_service_catalog",
@@ -334,14 +326,6 @@
       "method_ids": [
         "method_how_brim_works"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_calfire_fire_perimeters",
-          "role": "Perimeter source and limitations",
-          "relationship_type": "used_by_brim",
-          "use_scope": "source_and_service_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "external_service_catalog",
@@ -369,14 +353,6 @@
       ],
       "method_ids": [
         "method_how_brim_works"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_nifc_wfigs_current",
-          "role": "Operational perimeter source",
-          "relationship_type": "used_by_brim",
-          "use_scope": "current_operational_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -857,14 +833,6 @@
         "method_how_brim_works",
         "method_display_geometry_generalization"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "local_layer_registry",
@@ -1157,20 +1125,6 @@
         "method_how_brim_works",
         "method_display_geometry_generalization"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_dwr_bulletin118_sgma_2019",
-          "role": "Basin-priority source",
-          "relationship_type": "used_by_brim",
-          "use_scope": "attribute_join_source"
-        },
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "local_layer_registry",
@@ -1215,26 +1169,6 @@
       "method_ids": [
         "method_how_brim_works",
         "method_display_geometry_generalization"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_prism_normals",
-          "role": "Precipitation source",
-          "relationship_type": "used_by_brim",
-          "use_scope": "climate_summary_source"
-        },
-        {
-          "id": "resource_usgs_bcmv8",
-          "role": "Recharge model and source",
-          "relationship_type": "used_by_brim",
-          "use_scope": "recharge_summary_source"
-        },
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -1521,14 +1455,6 @@
       "method_ids": [
         "method_brim_live_update_timing",
         "method_how_brim_works"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_noaa_nwps",
-          "role": "Official river and forecast context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "forecast_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -1912,14 +1838,6 @@
         "method_brim_live_update_timing",
         "method_how_brim_works"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_nrcs_scan",
-          "role": "Observation network and official station context",
-          "relationship_type": "used_by_brim",
-          "use_scope": "observation_source_and_station_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "ops_live_definition",
@@ -2030,14 +1948,6 @@
       "method_ids": [
         "method_brim_live_update_timing",
         "method_how_brim_works"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_usgs_water_dashboard",
-          "role": "Official station and current-water context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "station_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -2253,14 +2163,6 @@
         "method_brim_live_update_timing",
         "method_how_brim_works"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_usgs_water_dashboard",
-          "role": "Official well and current-water context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "well_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "ops_live_definition",
@@ -2412,14 +2314,6 @@
       ],
       "method_ids": [
         "method_how_brim_works"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -2636,14 +2530,6 @@
         "method_how_brim_works",
         "method_display_geometry_generalization"
       ],
-      "resource_relationships": [
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
-      ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
         "local_layer_registry",
@@ -2730,14 +2616,6 @@
       "method_ids": [
         "method_how_brim_works",
         "method_display_geometry_generalization"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_blm_california",
-          "role": "BLM program context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "program_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
@@ -2836,14 +2714,6 @@
       "method_ids": [
         "method_brim_live_update_timing",
         "method_how_brim_works"
-      ],
-      "resource_relationships": [
-        {
-          "id": "resource_noaa_nwps",
-          "role": "Official NOAA water and forecast context",
-          "relationship_type": "related_external_resource",
-          "use_scope": "forecast_context"
-        }
       ],
       "editorial_state": "SOURCE_BACKED_RICH",
       "source_refs": [
