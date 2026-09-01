@@ -2,7 +2,7 @@
 
 "use strict";
 
-// Dedicated source/model contracts for the GUIDE-I2B-R10 Resource Explorer.
+// Dedicated source/model contracts for the GUIDE-I2B-R12A Resource Explorer.
 // Uses only Node built-ins and executes the pure model used by the browser.
 
 const fs = require("fs");
@@ -12,12 +12,16 @@ const assert = require("assert");
 const root = path.resolve(__dirname, "..");
 const guidePath = path.join(root, "03_functions", "js", "leaflet_brim_guide.js");
 const cssPath = path.join(root, "03_functions", "css", "leaflet_brim_guide.css");
+const helperPath = path.join(root, "03_functions", "leaflet_guide_helpers.r");
 const registryPath = path.join(root, "00_config", "guide_resources.json");
-const enrichmentPath = path.join(root, "00_config", "guide_product_enrichment.json");
+const relationshipPath = path.join(
+  root, "00_config", "guide_product_resource_relationships.json"
+);
 const source = fs.readFileSync(guidePath, "utf8");
 const css = fs.readFileSync(cssPath, "utf8");
+const helperSource = fs.readFileSync(helperPath, "utf8");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-const enrichment = JSON.parse(fs.readFileSync(enrichmentPath, "utf8"));
+const relationshipRegistry = JSON.parse(fs.readFileSync(relationshipPath, "utf8"));
 const metadataVocabularies = {
   resourceType: {
     program_or_mission: "Program or mission",
@@ -111,22 +115,62 @@ const factorySource = extractFunction(source, "ptCreateResourceExplorerModel");
 const createModel = new Function(`return (${factorySource})`)();
 
 function exactRelationshipRows() {
-  return enrichment.products.flatMap(product =>
-    (product.resource_relationships || []).map(relationship => ({
-      productId: product.stable_id,
-      ...relationship
-    }))
+  return relationshipRegistry.products.flatMap(product =>
+    product.resource_links.flatMap(link => {
+      const projection = link.temporary_r12a_legacy_public_projection;
+      return projection ? [{
+        productId: product.product_id,
+        id: link.resource_id,
+        ...projection
+      }] : [];
+    })
   );
 }
 
 const relationshipRows = exactRelationshipRows();
-assert.strictEqual(relationshipRows.length, 17, "Enrichment must contain 17 exact rows");
+const canonicalLinks = relationshipRegistry.products.flatMap(product =>
+  product.resource_links.map(link => ({ productId: product.product_id, ...link }))
+);
+const nonlegacyLinks = canonicalLinks.filter(
+  link => !link.temporary_r12a_legacy_public_projection
+);
+assert.strictEqual(relationshipRegistry.schema_version, 1,
+  "Product-Resource relationship registry schema version changed");
+assert.strictEqual(relationshipRegistry.products.length, 270,
+  "Product-Resource relationship Product count changed");
+assert.strictEqual(canonicalLinks.length, 36,
+  "Canonical Product-Resource link count changed");
+assert.strictEqual(nonlegacyLinks.length, 19,
+  "Calibrated nonlegacy Product-Resource link count changed");
+assert.strictEqual(relationshipRows.length, 17,
+  "Temporary R12A projection must contain 17 exact rows");
 assert.deepStrictEqual(
   Object.fromEntries(["displayed_in_brim", "used_by_brim", "related_external_resource"]
     .map(type => [type, relationshipRows.filter(row => row.relationship_type === type).length])),
   { displayed_in_brim: 0, used_by_brim: 7, related_external_resource: 10 },
   "Exact relationship type counts changed"
 );
+const publicPairs = new Set(relationshipRows.map(row => `${row.productId}\r${row.id}`));
+assert(nonlegacyLinks.every(link => !publicPairs.has(`${link.productId}\r${link.resource_id}`)),
+  "A calibrated nonlegacy link leaked into the R12A public relationship projection");
+const adapterStart = helperSource.indexOf(
+  "pt_guide_r12a_temporary_legacy_public_relationship_projection <- function"
+);
+const adapterEnd = helperSource.indexOf("\n}\n\npt_guide_read_product_enrichment", adapterStart);
+assert(adapterStart >= 0 && adapterEnd > adapterStart,
+  "The compiler-owned temporary R12A adapter is missing");
+const adapterSource = helperSource.slice(adapterStart, adapterEnd + 2);
+assert(adapterSource.includes("link$temporary_r12a_legacy_public_projection") &&
+  adapterSource.includes("link$resource_id") &&
+  !adapterSource.includes("delivery_class") &&
+  !adapterSource.includes("coverage_") &&
+  !adapterSource.includes("enrichment"),
+"The temporary adapter does not read only the new registry projection fields");
+assert(helperSource.includes('removal_gate = "GUIDE-I2B-R12B"') &&
+  helperSource.includes("canonical = FALSE"),
+"The temporary adapter lost its noncanonical R12B removal contract");
+assert(!helperSource.includes('"resource_relationships"'),
+  "An old canonical Product-enrichment relationship read remains");
 assert.strictEqual(registry.schema_version, 3, "Registry schema version changed");
 const canonicalResources = registry.resources;
 const publishedResources = canonicalResources.filter(
@@ -812,6 +856,8 @@ assert(!/fetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB/.test(s
   "Resource Explorer introduced runtime fetch or browser storage");
 assert(!/\b(addLayer|removeLayer|show_on_map|configure_on_map)\b/.test(source),
   "Resource Explorer introduced a map/layer action");
+assert(!/brim_managed|brim_enhanced|provider_hosted|delivery_class|coverage_review_state|coverage_disposition|direct_match_in_brim|selected_product_from_broader_resource|Not currently mapped|Not yet reviewed|In BRIM map|Beyond the map/.test(source),
+  "New R12 delivery, coverage, or relationship semantics entered production JavaScript");
 assert(!/favorites|recents|verification badge|\bcore\b|priority ranking/i.test(factorySource),
   "Deferred or rejected prototype state entered the Resource model");
 const quickProductIdsSource = extractFunction(source, "quickProductIds");
@@ -1005,7 +1051,7 @@ assert(css.includes(".brim-guide__resource-selected-label") &&
   source.includes("row.setAttribute('aria-current', 'true')"),
   "Selected-row or primary official-access treatment is incomplete");
 
-console.log("GUIDE-I2B-R10 Resource Explorer source/model contracts passed.");
+console.log("GUIDE-I2B-R12A Resource Explorer source/model contracts passed.");
 console.log("CANONICAL_RESOURCES=72");
 console.log("PUBLISHED_RESOURCES=67");
 console.log("STAGED_RESOURCES=5");
@@ -1028,3 +1074,7 @@ console.log("LIFECYCLE_IDEMPOTENCE=PASS");
 console.log("RUNTIME_RESOURCE_FETCH=NONE");
 console.log("RESOURCE_STORAGE_KEYS=NONE");
 console.log("RESOURCE_LAYER_ACTIONS=NONE");
+console.log("CANONICAL_RESOURCE_LINKS=36");
+console.log("NONLEGACY_PUBLIC_LEAKAGE=0");
+console.log("TEMPORARY_ADAPTER_OWNER=R_COMPILER_ONLY");
+console.log("R12B_ADAPTER_REMOVAL_GATE=PASS");

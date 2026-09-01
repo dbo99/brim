@@ -55,20 +55,38 @@ lifecycle, status, freshness, or runtime-control authority.
 
 Wave-2 publication introduces no Product relationship, Guide profile, subject,
 Information Type, controlled vocabulary, or facet.
-`00_config/guide_product_enrichment.json` remains the sole authored authority for
-Product-to-Resource relationships. Its 17 reviewed rows consist of zero
-`displayed_in_brim`, seven `used_by_brim`, and ten
-`related_external_resource` relationships. They are never inferred from
-Resource titles, providers, summaries, URLs, publication, or geographic
-intersection. Relationship Resource IDs validate against the complete
-published registry and Product IDs validate against the current projected
-Product universe; the compiler then derives the reverse Resource-to-Product
-links from those exact surviving rows.
+`00_config/guide_product_resource_relationships.json` is the sole authored
+Product–Resource relationship authority. Its schema-version-1 `products` array
+must equal the complete current compiled Product set exactly; the current
+registry therefore has one record for each of 270 Products. Each record owns a
+delivery classification, an independent coverage-review state and disposition,
+evidence, and zero or more exact links to the canonical Resource registry.
+Delivery classification does not imply Resource coverage. A Product may
+honestly remain `not_yet_reviewed` or have a reviewed no-public-Resource
+disposition with zero links; placeholder or inferred Resources are prohibited.
+Product and Resource IDs, controlled values, link cardinality, evidence paths,
+duplicates, unknown fields, and disposition-specific rules validate fail
+closed. Resource links validate against all 72 canonical Resources, including
+staged records, while publication projection removes staged Resources before
+browser relationships are derived. Product relationships are never inferred
+from Resource titles, providers, summaries, URLs, publication, or geographic
+intersection. `00_config/guide_product_enrichment.json` owns editorial Product
+content only and contains no Resource relationships. A permanent old/new dual
+authority or fallback is prohibited.
 
-The Resource Explorer derives its primary views from those rows without adding
-another relationship category. `BRIM-linked` is the union of Resources with at
-least one `displayed_in_brim`, `used_by_brim`, or
-`related_external_resource` row; it currently contains nine unique Resources.
+During R12A only, one read-only compiler-owned adapter in
+`03_functions/leaflet_guide_helpers.r` derives the accepted public R10
+relationship projection from the 17 links carrying
+`temporary_r12a_legacy_public_projection`. This compatibility projection is
+noncanonical, has no standalone configuration, and is scheduled for deletion
+in R12B. The additional 19 calibrated canonical links and all delivery and
+coverage fields remain build-time-only in R12A. Public semantics therefore
+remain zero `displayed_in_brim`, seven `used_by_brim`, and ten
+`related_external_resource` rows. The Resource Explorer derives its primary
+views from that temporary projection without adding another relationship
+category. `BRIM-linked` is the union of Resources with at least one projected
+`displayed_in_brim`, `used_by_brim`, or `related_external_resource` row; it
+currently contains nine unique Resources.
 `Beyond BRIM` is the exact 58-Resource complement within the 67 published
 Resources. The visible relationship subtype refinements preserve the canonical
 types and currently count zero Available in BRIM, six Used by BRIM, and three
@@ -115,6 +133,14 @@ and other Resource-inventory evidence remain External research/input material
 and are not tracked wholesale or embedded in the Guide. Importing a future
 inventory requires a separate reconciliation and approval; it cannot be
 treated as an automatic registry or relationship expansion.
+
+Ordinary Product relationship onboarding is declarative. When the canonical
+Resource already exists, add the new Product record to
+`guide_product_resource_relationships.json`; when a new canonical Resource is
+also required, add it to `guide_resources.json` and link it from the Product
+record. Ordinary additions do not require compiler, JavaScript, CSS, QA-source,
+or architecture-document changes unless the schema or controlled vocabulary
+changes.
 
 ## Identity and joins
 

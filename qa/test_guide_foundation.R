@@ -61,6 +61,17 @@ product_ids <- vapply(bundle$products, `[[`, character(1), "id")
 product_paths <- vapply(bundle$products, `[[`, character(1), "pathLabel")
 product_subsystems <- vapply(bundle$products, `[[`, character(1), "subsystem")
 resource_registry <- pt_guide_read_resource_registry()
+relationship_registry <- pt_guide_read_product_resource_relationship_registry(
+  product_ids, resource_registry
+)
+relationship_registry_ids <- vapply(
+  relationship_registry, `[[`, character(1), "product_id"
+)
+temporary_public_relationships <-
+  pt_guide_r12a_temporary_legacy_public_relationship_projection(
+    relationship_registry
+  )
+enrichment <- pt_guide_read_product_enrichment()
 raw_resource_registry <- jsonlite::fromJSON(
   file.path("00_config", "guide_resources.json"), simplifyVector = FALSE
 )
@@ -80,6 +91,9 @@ assert_identical(
 )
 assert_identical(bundle$counts$products, 270L,
                  "Current default Guide should derive 270 post-basemap Products")
+assert_true(setequal(relationship_registry_ids, product_ids) &&
+              length(relationship_registry_ids) == length(product_ids),
+            "The sole relationship registry does not equal the compiled Product universe")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
 assert_identical(bundle$counts$resources, 67L,
@@ -731,18 +745,42 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
   nzchar(row$layer) && nzchar(row$parameter) && nzchar(row$disclosure)
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
-enrichment <- pt_guide_read_product_enrichment()
-scan_enrichment_relationship <- enrichment$ops_scan_soil_moisture$resource_relationships[[1]]
+scan_relationship_record <- relationship_registry[[match(
+  "ops_scan_soil_moisture", relationship_registry_ids
+)]]
+scan_canonical_relationship <- scan_relationship_record$resource_links[[1]]
 assert_identical(
-  scan_enrichment_relationship,
+  scan_canonical_relationship,
   list(
-    id = "resource_nrcs_scan",
-    role = "Observation network and official station context",
-    relationship_type = "used_by_brim",
-    use_scope = "observation_source_and_station_context"
+    resource_id = "resource_nrcs_scan",
+    relationship_role = "direct_match_in_brim",
+    evidence_refs = "00_config/guide_product_enrichment.json",
+    temporary_r12a_legacy_public_projection = list(
+      relationship_type = "used_by_brim",
+      role = "Observation network and official station context",
+      use_scope = "observation_source_and_station_context"
+    )
   ),
-  "The source-backed staged SCAN relationship changed in enrichment authority"
+  "The exact migrated SCAN relationship changed in sole relationship authority"
 )
+assert_identical(scan_relationship_record$delivery_class, "brim_managed",
+                 "The explicit SCAN delivery decision changed")
+delivery_decisions <- stats::setNames(
+  vapply(relationship_registry, `[[`, character(1), "delivery_class"),
+  relationship_registry_ids
+)
+assert_identical(unname(delivery_decisions[c(
+  "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater", "winter_storm_levels"
+)]), rep("brim_managed", 3L),
+"An explicit R12A BRIM-managed delivery decision changed")
+assert_identical(unname(delivery_decisions[["ops_streamflow_multiagency"]]),
+                 "brim_enhanced",
+                 "The explicit multi-agency streamflow delivery decision changed")
+assert_identical(attr(temporary_public_relationships, "canonical"), FALSE,
+                 "The temporary R12A presentation adapter became canonical")
+assert_identical(attr(temporary_public_relationships, "removal_gate"),
+                 "GUIDE-I2B-R12B",
+                 "The temporary adapter R12B removal assertion changed")
 assert_true(
   "resource_nrcs_scan" %in% scan$relatedResourceIds &&
     any(vapply(scan$relatedResources, function(relationship) {
@@ -767,6 +805,20 @@ assert_identical(sum(exact_relationship_types == "used_by_brim"), 7L,
                  "Used-by-BRIM relationship count changed")
 assert_identical(sum(exact_relationship_types == "related_external_resource"), 10L,
                  "Related-external relationship count changed")
+nonlegacy_link_pairs <- unlist(lapply(relationship_registry, function(record) {
+  unlist(lapply(Filter(function(link) {
+    is.null(link$temporary_r12a_legacy_public_projection)
+  }, record$resource_links), function(link) {
+    paste(record$product_id, link$resource_id, sep = "\r")
+  }), use.names = FALSE)
+}), use.names = FALSE)
+public_link_pairs <- vapply(exact_relationships, function(relationship) {
+  paste(relationship$productId, relationship$id, sep = "\r")
+}, character(1))
+assert_identical(length(nonlegacy_link_pairs), 19L,
+                 "Canonical nonlegacy calibrated link count changed")
+assert_identical(length(intersect(nonlegacy_link_pairs, public_link_pairs)), 0L,
+                 "A calibrated nonlegacy link leaked into the R12A public projection")
 assert_true(all(vapply(bundle$resources[match(
   expected_newly_published_ids,
   vapply(bundle$resources, `[[`, character(1), "id")
@@ -1204,6 +1256,13 @@ loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
 panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
 bundle_json <- jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null")
+assert_true(!any(vapply(c(
+  "delivery_class", "deliveryClass", "coverage_review_state", "coverageReviewState",
+  "coverage_disposition", "coverageDisposition", "coverage_evidence_basis",
+  "relationship_role", "direct_match_in_brim",
+  "selected_product_from_broader_resource", "source_reference"
+), function(field) grepl(field, bundle_json, fixed = TRUE), logical(1))),
+"New delivery, coverage, or canonical relationship fields leaked into the browser payload")
 resource_payload_json <- jsonlite::toJSON(
   bundle$resources, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA

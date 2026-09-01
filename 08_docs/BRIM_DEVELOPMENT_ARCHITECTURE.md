@@ -83,18 +83,33 @@ owns the exact labels projected from those IDs at build time. Temporal character
 is separate from cadence, update frequency, freshness, and runtime status.
 Resource granularity remains unchanged canonical editorial metadata and is not
 a public facet.
-`guide_product_enrichment.json` is the sole authored relationship authority:
-its exact 17 rows comprise zero `displayed_in_brim`, seven `used_by_brim`, and
-ten `related_external_resource` relationships. Relationships are never inferred
-from Resource text, providers, URLs, publication, or geographic intersection.
-Wave-2 publication adds no Product relationship, Guide profile, subject,
-Information Type, controlled vocabulary, or facet.
+`guide_product_resource_relationships.json` is the sole authored Product–
+Resource relationship authority. Its schema-version-1 Product records must
+equal the complete compiled Product universe exactly—currently 270 records.
+Every Product independently declares delivery classification and coverage
+review state, an optional reviewed coverage disposition, evidence, and zero or
+more exact canonical Resource links. Delivery classification is independent of
+Resource coverage. `not_yet_reviewed`, provenance-only, internal-only, and
+missing-candidate outcomes may correctly have zero links; no fake Resource is
+required. `guide_product_enrichment.json` owns editorial Product content only
+and no longer owns or supplies Resource relationships. Relationships are never
+inferred from Resource text, providers, URLs, publication, or geographic
+intersection, and permanent dual authority or fallback is prohibited. Wave-2
+publication adds no Product relationship, Guide profile, subject, Information
+Type, controlled vocabulary, or facet.
 
-The compiler validates relationship Resource IDs against the canonical
-registry, removes staged Resources before relationship projection, and
-validates Product IDs against the current projected Product
-universe, then derives reverse Resource-to-Product links only from surviving
-exact Product relationships. The browser receives the 67 published records in
+The compiler validates exact Product-set equality, controlled values, evidence
+paths, disposition cardinality, duplicates, and every Resource link against the
+complete 72-Resource registry. Staged links remain canonical but are removed
+before browser projection. In R12A, one compiler-owned read-only adapter derives
+the accepted R10 public projection only from the 17 links containing temporary
+legacy presentation metadata: zero `displayed_in_brim`, seven `used_by_brim`,
+and ten `related_external_resource` rows. The adapter is noncanonical, has no
+standalone configuration or relationship copy, and must be deleted in R12B.
+The other 19 calibrated canonical links and all delivery and coverage fields
+remain outside the browser payload during R12A. Public labels, counts, filters,
+badges, ordering, and behavior therefore remain unchanged. The browser receives
+the 67 published records in
 registry
 order with one exact 22-field shape: identity and reviewed descriptive fields,
 labeled access points, Resource Type and temporal machine IDs with controlled
@@ -207,7 +222,7 @@ V4 behavior includes Home reset, Escape/close/focus restoration, typed stable-ID
 
 Primary Subject is an explicit controlled taxonomy: `Groundwater`, `Surface Water`, `Water Quality`, `Snow & SWE`, `Soil Moisture`, `Precipitation`, `Weather & Forecasts`, `Fire Weather`, `Climate & Drought`, `Fire & Burn Areas`, `Ecology & Habitat`, `Air Quality`, `Water Rights`, `Geology & Geophysics`, `Conservation Lands & Designations`, `Land Ownership & Administration`, `Energy & Minerals`, and `Infrastructure & Conveyance`. Assignments derive from exact Local/Ops stable-ID rules, exact maintained External themes with reviewed stable-ID overrides, or an exact enrichment record. Broad parent groups, subgroups, paths, panel titles, display-name token overlap, and unmatched-record fallback do not assign public subjects. A Product with no confident domain subject remains searchable and present in A–Z with an empty subject array; ordinary Tools rely on `Where in BRIM = Tools` rather than a generic map-tools subject. Current reviewed decisions classify all six PRISM/BCMv8 HUC levels under `Climate & Drought`, Integrated Report records under `Water Quality` plus `Surface Water`, multi-agency streamflow only under `Surface Water`, CPC outlooks under climate/weather rather than land administration, and the BLM Surface Management Agency Layer under `Land Ownership & Administration`. The two contaminated-site records retain empty subject arrays because two records do not justify a new controlled subject, while the two recreation/access records remain structured-basic and subjectless pending a broader reviewed taxonomy case.
 
-Guide I2A2 preserves automatic structured-basic coverage for all 270 post-basemap Products and applies reviewed `SOURCE_BACKED_RICH` vitals to 84 Products. Wave 1 deepens 60 existing records—20 Local, 20 External, and 20 Ops Live—while retaining the prior 24 rich records, including the four current Tools and the SMA Layer. Every Wave 1 record has a concise source-backed summary and at least two meaningful detail areas drawn from capabilities, timing/period boundaries, BRIM processing, and geometry/interpretation limits; Ops Live records also relate to the maintained BRIM Live Update Timing Method. Rich records can also carry a verified optional access hint, multiple subject and information-type tags, and role-labeled Method/Resource relationships. Empty sections are omitted. Structured sections, entity presentation, and relationship roles are compiled or selected generically; the browser JS contains no record-ID-specific content branch. Enrichment remains optional: a newly registered Product without an enrichment record continues to compile as `STRUCTURED_BASIC`.
+Guide I2A2 preserves automatic structured-basic coverage for all 270 post-basemap Products and applies reviewed `SOURCE_BACKED_RICH` vitals to 84 Products. Wave 1 deepens 60 existing records—20 Local, 20 External, and 20 Ops Live—while retaining the prior 24 rich records, including the four current Tools and the SMA Layer. Every Wave 1 record has a concise source-backed summary and at least two meaningful detail areas drawn from capabilities, timing/period boundaries, BRIM processing, and geometry/interpretation limits; Ops Live records also relate to the maintained BRIM Live Update Timing Method. Rich records can also carry a verified optional access hint, multiple subject and information-type tags, and role-labeled Method relationships; Product–Resource relationships come only from the sole relationship registry. Empty sections are omitted. Structured sections, entity presentation, and relationship roles are compiled or selected generically; the browser JS contains no record-ID-specific content branch. Enrichment remains optional: a newly registered Product without an enrichment record continues to compile as `STRUCTURED_BASIC`.
 
 Quick Access contains 11 verified typed destinations. Eight open one exact Layer: `HUC8 – PRISM/BCMv8`, `Groundwater Basins – Bulletin 118`, `NBM Snow Levels`, `Water-Supply Basin Forecasts`, `Delta Operations`, `USDA / SCAN Soil Moisture`, `Snow-Pillow SWE`, and `Water conveyance | BRIM mapped`. Three open exact stable-ID collections through the shared result renderer: `Fire Perimeters` (`EXT070`, `EXT072`, and `EXT074`), `USGS Streamflow` (Local `usgs_streamgages` plus Ops Live `ops_streamflow_usgs_ca`), and `USGS Groundwater` (Local `usgs_wells` plus Ops Live `product-ops-usgs-groundwater`). Every destination declares `entryKind` and a restrained visible type label; collections declare exact `memberIds`. Collection rows retain each Product's title, BRIM section/path, provider, and entity type rather than merging subsystem identities. The conveyance destination uses stable ID `brim_mapped_conveyance`, the normal curated combined layer assembled by BRIM from multiple reviewed sources. Older source-specific `Major Conveyance` and DeltaMAPP layers remain rollback/QA inputs and are not substituted into Quick Access. `SCAN Soil Moisture` remains a Guide-only display title for stable ID `ops_scan_soil_moisture`; the runtime label and exact map path are unchanged, and its subject tag is exactly `Soil Moisture`.
 
@@ -217,7 +232,7 @@ Guide typography follows the accepted V4 prototype and current BRIM DOI/BLM asse
 
 Guide I2A2 remains read-only with respect to map state. Layer detail pages report an exact verified BRIM path when one exists; Tool detail pages report only source-backed action/capability text and a verified access hint. Runtime/controller ownership remains internal and Guide metadata contains no layer/controller callbacks. Timing text distinguishes the observation/forecast period shown, BRIM retrieval time where supported, and upstream publication cadence; it does not imply refresh guarantees, producer freshness, or map-health status. About / Contact provides an encoded `mailto:doconnor@blm.gov` draft action with subject `BRIM Guide feedback`; there is no contact backend, persistence, or send claim. Legacy Notes is absent from current builds: there is no toolbar entry, Guide destination, search record, embedded payload, hidden renderer, modal, or handler. Historical Notes content remains available only through older HTML artifacts or Git history and is not migrated into current Methods content.
 
-New Product onboarding extends current runtime authority rather than a parallel Guide inventory: add the Local registry/controller group, External catalog row, Ops `addOpsLayer()` definition plus its stable Ops identity, or reviewed tool definition as appropriate. Runtime basemap additions remain excluded from the Guide Product projection and require the explicit basemap identity/exclusion parity check to be reconciled. Focused Guide tests must then prove stable-ID/path parity, projection, search boundaries, payload size, and descriptive-catalog independence. Keep the browser implementation to one namespaced JS source, one namespaced CSS source, and the existing R compile seam; do not introduce a frontend build, production Python compiler, duplicate controller registry, or runtime Guide-data request.
+New Product onboarding extends current runtime authority rather than a parallel Guide inventory: add the Local registry/controller group, External catalog row, Ops `addOpsLayer()` definition plus its stable Ops identity, or reviewed tool definition as appropriate. Add exactly one corresponding Product record to `guide_product_resource_relationships.json`; if its canonical Resource already exists, that relationship registry is the only relationship-data edit, and `not_yet_reviewed` with zero links is valid. If a new canonical Resource is required, add it to `guide_resources.json` and link it from the Product record. Ordinary relationship additions are data-only and do not require compiler, JavaScript, CSS, QA-source, or architecture changes unless the schema or vocabulary changes. Runtime basemap additions remain excluded from the Guide Product projection and require the explicit basemap identity/exclusion parity check to be reconciled. Focused Guide tests must then prove stable-ID/path parity, projection, search boundaries, payload size, and descriptive-catalog independence. Keep the browser implementation to one namespaced JS source, one namespaced CSS source, and the existing R compile seam; do not introduce a frontend build, production Python compiler, duplicate controller registry, or runtime Guide-data request.
 
 ## Semantic features and geometry components
 

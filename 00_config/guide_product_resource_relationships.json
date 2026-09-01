@@ -1,0 +1,4880 @@
+{
+  "schema_version": 1,
+  "products": [
+    {
+      "product_id": "blm_offices",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "field_office_outer",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_map_display.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "blm_core",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/02_huc_gw_county_pct_blm.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "blm_diffs",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/01_blm_managed_and_held.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "gw_bull118",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_bulletin118_sgma_2019",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Basin-priority source",
+            "use_scope": "attribute_join_source"
+          }
+        },
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "cnrfc_fnf_delta",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_component_manifest.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_component_manifest.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/major_water_supply_basin_component_manifest.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "gsp_areas",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_groundwater_sustainability_agencies",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "adjudicated_gw_basins",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_casgem",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "huc2",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_geometry_catalog.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "huc4",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/polygon_generalization_portfolio_v3.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "huc6",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/polygon_generalization_portfolio_v3.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "huc8",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Precipitation source",
+            "use_scope": "climate_summary_source"
+          }
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Recharge model and source",
+            "use_scope": "recharge_summary_source"
+          }
+        },
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "huc10",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_run_flags.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "huc12",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "cnrfc_stream",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "cnrfc_precip_weather_station_catalog",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "02_preprocess/54_build_cnrfc_precip_weather_link_availability.R",
+        "02_preprocess/59_update_cnrfc_local_blm_distance_fields.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "usgs_streamgages",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usgs_water_data_nation",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "usgs_wells",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usgs_water_data_nation",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "blm_noc_drilled_wells",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "02_preprocess/18_blm_groundwater_well_inventory.r",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "mojave_2025_gw_well_inventory",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "02_preprocess/18_blm_groundwater_well_inventory.r",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "swrcb_wr_list_official",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "provenance_only_no_public_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "resource_links": []
+    },
+    {
+      "product_id": "swrcb_pod_spatial_matches",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/local_layer_cache_check_20260623_132521.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "swrcb_name_text_candidates",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/local_layer_cache_check_20260623_132521.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "springs",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/local_reference_acec_components.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/local_reference_acec_components.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usgs_water_data_nation",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/local_reference_acec_components.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "calsim3_network",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "05_map_build/04_build_portatreasure2_core_map.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "county",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/external_service_catalog.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "national_scenic_historic_trails",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "national_monuments",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ca_desert_ncl",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "wilderness_study_areas",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "federal_wilderness",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "drecp",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/local_reference_acec_reference.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "acec",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_source_files.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "grazing_allotments",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/polygon_generalization_portfolio_v3.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "rwqcb_regions",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_map_display.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "water_districts",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_map_display.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "brim_mapped_conveyance",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_california_water_watch",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "wild_scenic_rivers_blm_ca_lines",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "wild_scenic_rivers_usfs_interagency_segments",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "wild_scenic_river_corridors_blm_ca",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "wild_scenic_river_corridors_usfs_lsrs",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "wild_scenic_river_legal_status_corridors_usfs_lsrs",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "cnrfc_basin_product_availability",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/52_build_cnrfc_basin_product_availability.R",
+        "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/52_build_cnrfc_basin_product_availability.R",
+        "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_map_display.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "02_preprocess/52_build_cnrfc_basin_product_availability.R",
+            "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "EXT143",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT144",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "AIRNOW_CURRENT_MONITORS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "AIRNOW_COMBINED_CONTOURS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "AIRNOW_OZONE_CONTOURS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "AIRNOW_PM25_CONTOURS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EPA_NPL_BOUNDARIES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EPA_SEMS_POINTS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT131",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT133",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT132",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT134",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT135",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT136",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT097",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT098",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT099",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT100",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CALIPC_INVASIVE_SPECIES_BY_QUAD",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CALIPC_TERRESTRIAL_INVASION_BY_QUAD",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CVPIA_WETLAND_HABITAT_REFUGES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CVPIA_REFUGE_DELIVERY_POINTS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USFWS_NWR_BOUNDARIES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT081",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT082",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT083",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT084",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT085",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT086",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT087",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "sample_data/external_service_catalog_sample.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT088",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT089",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT090",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT091",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT092",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT093",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT094",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT095",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT096",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT105",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R",
+        "qa/test_layer_inventory.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT106",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R",
+        "qa/test_layer_inventory.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USFS_INVASIVE_SPECIES_CURRENT",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT114",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT119",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT120",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT121",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT138",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT137",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT145",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT146",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT147",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT148",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT149",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT150",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT070",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_calfire_fire_perimeters",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Perimeter source and limitations",
+            "use_scope": "source_and_service_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "EXT072",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_calfire_fire_perimeters",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Perimeter source and limitations",
+            "use_scope": "source_and_service_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "EXT074",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_nifc_wfigs_current",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Operational perimeter source",
+            "use_scope": "current_operational_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "USFS_RAVG_BASAL_AREA_CHANGE",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USFS_RAVG_CANOPY_COVER_CHANGE",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USFS_RAVG_COMPOSITE_BURN_INDEX",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "VIIRS_THERMAL_HOTSPOTS_7D",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "MODIS_THERMAL_HOTSPOTS_48H",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USGS_DEBRIS_FLOW_HAZARD_SEGMENTS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USGS_DEBRIS_FLOW_PROBABILITY_BASINS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT015",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT016",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT017",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT045",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT107",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT108",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT109",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT110",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT111",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT112",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT113",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CGS_AP_FAULT_ZONES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CGS_AP_FAULT_TRACES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USGS_QFAULTS_VISUAL",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USGS_RECENT_EARTHQUAKES_24H",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USGS_RECENT_EARTHQUAKES_7D",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CGS_GEOLOGY_MAP_TILED",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "DWR_TRE_ALTAMIRA_ANNUAL_RATE_MOSAIC",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "DWR_TRE_ALTAMIRA_TOTAL_SINCE_2015_MOSAIC",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "DWR_TRE_ALTAMIRA_POINT_LOCATIONS_2026Q1",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT033",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT029",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT030",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT022",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT023",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT024",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT025",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT026",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT027",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT028",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT049",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT050",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT054",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "SWRCB_2024_IR_LINES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "SWRCB_2024_IR_POLYGONS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT005",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT006",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT007",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT053",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT002",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT003",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT004",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT019",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT020",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT021",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT011",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT013",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT014",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "USFS_PRIORITY_WATERSHEDS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT031",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT032",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT034",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT035",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT036",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT037",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT038",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT058",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT059",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT057",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT124",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT043",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT047",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT115",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT118",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT129",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT130",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT056",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT102",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "CDFW_OWNED_OPERATED_LANDS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT116",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "03_functions/js/leaflet_tools_adddata_panel.js",
+            "03_functions/layer_capability_helpers.r",
+            "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+            "qa/test_guide_foundation.R",
+            "qa/test_layer_capability_registry.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "EXT117",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT103",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "03_functions/js/leaflet_tools_adddata_panel.js",
+            "03_functions/layer_capability_helpers.r",
+            "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "EXT104",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "03_functions/js/leaflet_tools_adddata_panel.js",
+            "03_functions/layer_capability_helpers.r",
+            "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "EXT008",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT048",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R",
+        "qa/test_layer_inventory.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT055",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT018",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT040",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT041",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT042",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT051",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT077",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT078",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT079",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT066",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT067",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT068",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT069",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT073",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT071",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT075",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT076",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT080",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT125",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT126",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT127",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT128",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT139",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT140",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT141",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "EXT142",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_BLM_CA_CORRIDORS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_BLM_CA_LINES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_CA_STATE_ONLY_LINES",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_USFS_INTERAGENCY_SEGMENTS_CA",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_USFS_LSRS_AREAS_CA",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "WSR_USFS_LSRS_LEGAL_STATUS_CA",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "qa/test_layer_capability_registry.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "UIC_EPA_LIVE",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/js/brim_uic_explorer.js"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "UIC_CALGEM_POST_LIVE",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/js/brim_uic_explorer.js"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "UIC_CALGEM_PRIMACY_LIVE",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/js/brim_uic_explorer.js"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "UIC_EPA_REFERENCE_POINTS",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/js/brim_uic_explorer.js"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_hrrr_surface_wind",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_hrrr_wind_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_alertcalifornia_cameras",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_descriptive_layer_catalog.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_alertcalifornia_viewsheds",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_radar_iem_nexrad",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_radar_noaa_mrms",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_goes_geocolor",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_goes_infrared",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_goes_water_vapor",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_modis_terra_true_color",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_streamflow_multiagency",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_nwps",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_delta_snapshot",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_delta_ops_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_delta_ops_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_california_water_watch",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_delta_ops_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_streamflow_usgs_ca",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_usgs_streamflow_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usgs_water_dashboard",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "Official station and current-water context",
+            "use_scope": "station_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "product-ops-usgs-groundwater",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_usgs_groundwater_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usgs_water_dashboard",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "Official well and current-water context",
+            "use_scope": "well_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "ops_scan_soil_moisture",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_scan_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_nrcs_scan",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "used_by_brim",
+            "role": "Observation network and official station context",
+            "use_scope": "observation_source_and_station_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "ops_snow_pillow_swe",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_snow_pillow_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_cnrfc_forecast_points",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_cnrfc_forecast_points_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_major_water_supply_forecasts",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_nwps",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "Official river and forecast context",
+            "use_scope": "forecast_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "ops_cdec_reservoir_storage",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_reservoir_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_reservoir_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_cdec",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_reservoir_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "03_functions/leaflet_ops_live_helpers.r"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_nws_weather_stations",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_cnrfc_precip_weather_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_mrms_1hr",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_mrms_1day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_mrms_3day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_rfc_1day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_rfc_7day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "product-ops-cocorahs-ca-daily",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_cocorahs_conus_daily",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_qpf_day_1",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_qpf_day_2",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_qpf_day_3",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_qpf_3day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_qpf_7day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_nws_watches_warnings_advisories",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_ero_day_1",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_wpc_ero_day_2",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_wpc_ero_day_3",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_nws_wfo_boundaries",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_us_drought_monitor",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_cpc_6_10_temperature",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cpc_forecasts_outlooks",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_cpc_6_10_precipitation",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cpc_forecasts_outlooks",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_cpc_8_14_temperature",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cpc_forecasts_outlooks",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "ops_cpc_8_14_precipitation",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cpc_forecasts_outlooks",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R"
+          ]
+        }
+      ]
+    },
+    {
+      "product_id": "product-ops-nbm-accumulated-qpf",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_nbm_accumulated_qpf_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "winter_storm_levels",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_nbm_snow_levels_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_nwps",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "Official NOAA water and forecast context",
+            "use_scope": "forecast_context"
+          }
+        }
+      ]
+    },
+    {
+      "product_id": "nbm_qpf",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_nbm_snow_levels_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_nbm_wind_guidance",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_nbm_wind_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_observed_metar_wind",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_observed_wind_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_gfs_surface_wind",
+      "delivery_class": "brim_managed",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_wind_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "tool_measure",
+      "delivery_class": "not_applicable",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "internal_no_external_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": []
+    },
+    {
+      "product_id": "tool_teaching_markup",
+      "delivery_class": "not_applicable",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "internal_no_external_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": []
+    },
+    {
+      "product_id": "tool_external_gis_overlay",
+      "delivery_class": "not_applicable",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "internal_no_external_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": []
+    },
+    {
+      "product_id": "tool_local_gis_upload",
+      "delivery_class": "not_applicable",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "internal_no_external_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "qa/test_guide_foundation.R"
+      ],
+      "resource_links": []
+    },
+    {
+      "product_id": "tool_blm_sma_context",
+      "delivery_class": "provider_hosted",
+      "delivery_evidence_refs": [
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ],
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_enrichment.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_product_enrichment.json"
+          ],
+          "temporary_r12a_legacy_public_projection": {
+            "relationship_type": "related_external_resource",
+            "role": "BLM program context",
+            "use_scope": "program_context"
+          }
+        }
+      ]
+    }
+  ]
+}
