@@ -30,10 +30,13 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-72-record dataset: 67 reviewed Resources are `published` and five Wave-2
-Resources remain `staged`. GUIDE-I2B-R10 published exactly 34 of the 39
-identity-ready Wave-2 records by changing only `publication_state`. The five
-held IDs are `resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
+205-record dataset: 67 reviewed Resources are `published` and 138 Resources
+are `staged`. GUIDE-I2B-R14 appended the exact 133-Resource R13-rebased
+target-200 tranche as staged canonical candidates; they are intentionally
+absent from the public browser projection. GUIDE-I2B-R10 published exactly 34
+of the 39 identity-ready Wave-2 records by changing only
+`publication_state`. The five earlier held IDs remain
+`resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
 `resource_usgs_water_data_apis` for subject review, plus
 `resource_nrcs_web_soil_survey` and `resource_usda_cropland_data_layer` for
 taxonomy resolution. The publication projection runs before
@@ -53,12 +56,15 @@ and geographic scope and projects deterministic labels at build time. The
 registry does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
-Wave-2 publication introduces no Product relationship, Guide profile, subject,
-Information Type, controlled vocabulary, or facet.
+R10 publication and R14 staging introduce no Product relationship, Guide
+profile, controlled vocabulary, or facet. An empty `subject_tags` array is a
+valid staged value when exact evidence does not support a controlled subject;
+R14 preserves that value for 15 of its new records rather than inventing
+metadata.
 `00_config/guide_product_resource_relationships.json` is the sole authored
 Product–Resource and Resource map-representation authority. Its schema-version-2
 `products` and `resources` arrays must equal the complete current compiled
-Product set and canonical Resource set exactly: 270 Product records and 72
+Product set and canonical Resource set exactly: 270 Product records and 205
 Resource review/representation records. Each Product owns a delivery
 classification, an independent coverage-review state and disposition,
 evidence, and zero or more exact canonical Resource links. Each Resource owns
@@ -79,9 +85,16 @@ identity, three await identity or family splitting, and the lower-priority
 packet remains 42 families / 55 Products. Placeholder or inferred Resources
 are prohibited.
 
+The full Resource relationship authority contains three
+`direct_match_in_brim`, 20 `selected_products_in_brim`, 177
+`not_currently_mapped_in_brim`, and five `not_yet_reviewed` records. All 133
+R14 additions use the reviewed `not_currently_mapped_in_brim` classification;
+R14 applies no Product-link action, so the Product corpus remains 270 and the
+canonical link count remains 86.
+
 Product and Resource IDs, controlled values, set equality, link cardinality,
 evidence paths, duplicates, unknown fields, and disposition/representation
-rules validate fail closed. Resource links validate against all 72 canonical
+rules validate fail closed. Resource links validate against all 205 canonical
 Resources, while publication projection removes staged Resources before public
 relationships are derived. Product relationships and Resource map presence are
 never inferred from titles, providers, summaries, URLs, publication, or
@@ -118,6 +131,10 @@ U.S. Pacific Coast sector access points before the two configured Pacific
 Southwest views.
 `default` remains the only current Guide profile, and the standalone HTML makes
 no runtime Resource-data request or browser-storage copy.
+
+Publication and fresh endpoint QA for the 133 R14 candidates are deferred to
+GUIDE-I2B-R15. R14 changes no Guide UI/runtime/network behavior, runs no
+preprocessor, and regenerates no cache.
 
 Resource filtering uses only that projected authority. Provider, Subject,
 Information Type, and Resource type may be filtered directly; Resource type is

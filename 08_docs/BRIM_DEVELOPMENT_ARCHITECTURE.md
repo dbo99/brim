@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 72 Resource records: 67 published and five staged;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 205 Resource records: 67 published and 138 staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -65,13 +65,17 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v3 dataset with 72 ordered
-Resource records: 67 published and five Wave-2 records still staged. R10
-published exactly 34 Wave-2 records by changing only `publication_state`.
-The held subject-review IDs are `resource_nasa_giovanni`,
+`guide_resources.json` is one canonical schema-v3 dataset with 205 ordered
+Resource records: 67 published and 138 staged. R14 appended the exact 133
+R13-rebased target-200 candidates as staged records without publishing them.
+R10 published exactly 34 Wave-2 records by changing only
+`publication_state`. The five earlier held IDs remain staged: the subject-
+review IDs are `resource_nasa_giovanni`,
 `resource_usgs_earthexplorer`, and `resource_usgs_water_data_apis`; the held
 taxonomy-resolution IDs are `resource_nrcs_web_soil_survey` and
-`resource_usda_cropland_data_layer`. Final-ID aliases, build-time `res.*` migration
+`resource_usda_cropland_data_layer`. An empty controlled subject set is valid
+for a staged Resource when exact evidence does not support an assignment; 15
+R14 records preserve that empty value. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
@@ -87,7 +91,7 @@ a public facet.
 Resource relationship and Resource map-representation authority. Its
 schema-version-2 Product and Resource arrays must equal the complete compiled
 Product universe and canonical Resource universe exactly—currently 270 Product
-records and 72 Resource review/representation records. Every Product
+records and 205 Resource review/representation records. Every Product
 independently declares delivery classification, coverage review state, an
 optional reviewed coverage disposition, evidence, and zero or more exact
 canonical Resource links. Every Resource has exactly one map-review record;
@@ -99,7 +103,7 @@ have zero links; no fake Resource is required.
 
 The compiler validates exact Product/Resource set equality, controlled values,
 evidence paths, disposition and representation cardinality, duplicates, and
-every link against the complete 72-Resource registry. The current authority has
+every link against the complete 205-Resource registry. The current authority has
 70 reviewed and 200 not-yet-reviewed Products with 86 exact links: 13 direct,
 57 selected-product, and 16 source-reference roles. The three DWR/TRE Altamira
 Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
@@ -107,6 +111,10 @@ multiple-source composite. The unresolved intake remains deferred: 147 Products
 await missing canonical Resource identity, three await identity/family split,
 and the lower-priority packet remains 42 families / 55 Products. Staged Resource
 records remain canonical but are removed before browser projection.
+Across all 205 Resource review records, representation is exactly three direct,
+20 selected-products, 177 not currently mapped, and five not yet reviewed. The
+133 R14 additions are all reviewed as not currently mapped and R14 applies no
+Product-link action, preserving 270 Products and 86 canonical links.
 
 `guide_product_enrichment.json` owns editorial Product content only and no
 longer owns or supplies Resource relationships. Relationships and map presence
@@ -125,7 +133,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The staged five therefore contribute zero browser payload or visible-count/search/facet authority. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The 138 staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 23 `In BRIM map`, 44 `Beyond the map`, and 67 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -133,6 +141,9 @@ inventories, and unresolved reconciliation evidence remain External and are
 not tracked wholesale or shipped in the browser payload. Any future inventory
 import requires separate reconciliation and approval before it can change the
 registry, aliases, relationships, profiles, or visible Guide content.
+Publication and fresh endpoint QA for the 133 R14 candidates are deferred to
+R15. R14 changes no Guide UI/runtime/network behavior, runs no preprocessor,
+and regenerates no cache.
 
 The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value and selections across groups combine with search by AND. `Where in BRIM` is a radio-style dimension: choosing another value replaces the prior value, while its removable active chip restores the unfiltered state. Primary Subject and Information Type likewise replace the prior value, and their active value or chip can clear that group. Product taxonomy remains multi-valued. Removable chips appear directly beneath search only while browse filters are active, with at most one chip per group, and a contextual inline `Clear all` retains the existing reset contract by clearing query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop; an adjacent live derived status reports the current count against the complete projected Product count and marks any subset as filtered. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
 

@@ -2,7 +2,7 @@
 
 "use strict";
 
-// Source/model contracts for the GUIDE-I2B-R12B Resource Explorer.
+// Source/model contracts for the BRIM Guide Resource Explorer.
 // Uses Node built-ins only; no browser, network, or generated artifact is required.
 
 const fs = require("fs");
@@ -86,18 +86,19 @@ const createModel = new Function(
 
 assert.strictEqual(relationships.schema_version, 2,
   "Product-Resource relationship authority must use schema version 2");
-assert.strictEqual(relationships.products.length, 270,
-  "Relationship authority Product count changed");
-assert.strictEqual(relationships.resources.length, 72,
-  "Relationship authority Resource review count changed");
 assert.strictEqual(registry.schema_version, 3, "Resource registry schema changed");
-assert.strictEqual(registry.resources.length, 72, "Canonical Resource count changed");
 
 const canonicalResourceIds = registry.resources.map(resource => resource.id);
 const relationshipResourceIds = relationships.resources.map(resource => resource.resource_id);
-assert.deepStrictEqual(relationshipResourceIds, canonicalResourceIds,
-  "Relationship authority Resource universe/order changed");
-assert.strictEqual(new Set(relationships.products.map(product => product.product_id)).size, 270,
+assert.strictEqual(new Set(canonicalResourceIds).size, canonicalResourceIds.length,
+  "Canonical Resource IDs are not unique");
+assert.strictEqual(new Set(relationshipResourceIds).size, relationshipResourceIds.length,
+  "Relationship Resource IDs are not unique");
+assert.deepStrictEqual([...relationshipResourceIds].sort(), [...canonicalResourceIds].sort(),
+  "Relationship authority Resource set does not equal the canonical Resource set");
+assert.strictEqual(
+  new Set(relationships.products.map(product => product.product_id)).size,
+  relationships.products.length,
   "Relationship Product IDs are not unique");
 
 const canonicalLinks = relationships.products.flatMap(product =>
@@ -123,30 +124,31 @@ assert(!helperSource.includes("pt_guide_r12a_temporary_legacy_public_relationshi
 
 const published = registry.resources.filter(resource => resource.publication_state === "published");
 const staged = registry.resources.filter(resource => resource.publication_state === "staged");
-assert.strictEqual(published.length, 67, "Published Resource count changed");
-assert.strictEqual(staged.length, 5, "Staged Resource count changed");
+assert.strictEqual(published.length + staged.length, registry.resources.length,
+  "Canonical Resources contain an unsupported publication state");
 const publishedIds = published.map(resource => resource.id);
+const stagedIds = new Set(staged.map(resource => resource.id));
 const productById = new Map(relationships.products.map(product => [product.product_id, product]));
 const representationById = new Map(
   relationships.resources.map(resource => [resource.resource_id, resource])
 );
 const publishedRepresentations = published.map(resource => representationById.get(resource.id));
-assert(publishedRepresentations.every(record => record.map_review_state === "reviewed"),
-  "Every published Resource must be reviewed");
-assert.deepStrictEqual(Object.fromEntries([
+const publicRepresentationValues = new Set([
   "direct_match_in_brim", "selected_products_in_brim", "not_currently_mapped_in_brim"
-].map(value => [value, publishedRepresentations.filter(
-  record => record.map_representation === value
-).length])), {
-  direct_match_in_brim: 3,
-  selected_products_in_brim: 20,
-  not_currently_mapped_in_brim: 44
-}, "Published map-representation truth changed");
+]);
+assert(publishedRepresentations.every(record => record &&
+  record.map_review_state === "reviewed" &&
+  publicRepresentationValues.has(record.map_representation)),
+"Every published Resource must have reviewed public map-presence authority");
 assert(staged.every(resource => {
   const record = representationById.get(resource.id);
-  return record.map_review_state === "not_yet_reviewed" &&
+  if (!record) return false;
+  const deferred = record.map_review_state === "not_yet_reviewed" &&
     record.map_representation === null && record.evidence_refs.length === 0;
-}), "Staged Resources did not remain explicitly deferred");
+  const reviewed = record.map_review_state === "reviewed" &&
+    publicRepresentationValues.has(record.map_representation);
+  return deferred || reviewed;
+}), "A staged Resource lacks an allowed reviewed or not-yet-reviewed map state");
 
 const metadataLabels = {
   resourceType: {
@@ -237,21 +239,51 @@ function publicResource(record) {
 }
 
 const resources = published.map(publicResource);
+const browserResourceIds = resources.map(resource => resource.id);
+assert.deepStrictEqual(browserResourceIds, publishedIds,
+  "Browser projection does not exactly match canonical published Resources");
+assert.strictEqual(resources.length, published.length,
+  "Browser Resource count differs from the canonical published count");
+assert(browserResourceIds.every(resourceId => !stagedIds.has(resourceId)),
+  "A staged Resource entered the browser Resource projection");
+
 const model = createModel(resources);
 assert.deepStrictEqual(model.presets, [
   { id: "in_brim_map", label: "In BRIM map" },
   { id: "beyond_the_map", label: "Beyond the map" },
   { id: "all_resources", label: "All Resources" }
 ], "Primary Resource views changed");
+const expectedInBrimIds = published.filter(resource => {
+  const value = representationById.get(resource.id).map_representation;
+  return value === "direct_match_in_brim" || value === "selected_products_in_brim";
+}).map(resource => resource.id);
+const expectedBeyondIds = published.filter(resource =>
+  representationById.get(resource.id).map_representation === "not_currently_mapped_in_brim"
+).map(resource => resource.id);
+const inBrimIds = model.results(model.createState({ preset: "in_brim_map" }))
+  .map(resource => resource.id);
+const beyondIds = model.results(model.createState({ preset: "beyond_the_map" }))
+  .map(resource => resource.id);
+const allIds = model.results(model.createState({ preset: "all_resources" }))
+  .map(resource => resource.id);
+assert.deepStrictEqual([...inBrimIds].sort(), [...expectedInBrimIds].sort(),
+  "In BRIM map membership is not derived from published direct/selected Resources");
+assert.deepStrictEqual([...beyondIds].sort(), [...expectedBeyondIds].sort(),
+  "Beyond the map membership is not derived from published not-mapped Resources");
+assert.deepStrictEqual([...allIds].sort(), [...publishedIds].sort(),
+  "All Resources membership does not equal the complete published Resource set");
+assert(inBrimIds.every(resourceId => !beyondIds.includes(resourceId)),
+  "In BRIM map and Beyond the map memberships overlap");
+assert.deepStrictEqual([...new Set([...inBrimIds, ...beyondIds])].sort(),
+  [...publishedIds].sort(),
+  "Public primary membership union does not equal the published Resource set");
+assert([...inBrimIds, ...beyondIds, ...allIds].every(resourceId => !stagedIds.has(resourceId)),
+  "A staged Resource leaked into a public primary Resource view");
 assert.deepStrictEqual(model.facetCounts(model.createState()).presets, {
-  in_brim_map: 23, beyond_the_map: 44, all_resources: 67
-}, "Primary Resource view counts changed");
-assert.strictEqual(model.results(model.createState({ preset: "in_brim_map" })).length, 23,
-  "In BRIM map membership changed");
-assert.strictEqual(model.results(model.createState({ preset: "beyond_the_map" })).length, 44,
-  "Beyond the map membership changed");
-assert.strictEqual(model.results(model.createState({ preset: "all_resources" })).length, 67,
-  "All Resources membership changed");
+  in_brim_map: expectedInBrimIds.length,
+  beyond_the_map: expectedBeyondIds.length,
+  all_resources: publishedIds.length
+}, "Primary Resource view counts are not derived from published authority");
 
 let state = model.createState({
   preset: "all_resources", resultsScrollTop: 417, returnResultsScrollTop: 417
@@ -385,13 +417,14 @@ assert(css.includes("data-resource-preset=\"in_brim_map\"") &&
   css.includes(".brim-guide__resource-representation--beyond"),
 "Restrained map-presence color treatment is missing");
 
-console.log("GUIDE-I2B-R12B Resource Explorer source/model contracts passed.");
-console.log("CANONICAL_RESOURCES=72");
-console.log("PUBLISHED_RESOURCES=67");
-console.log("STAGED_RESOURCES=5");
-console.log("PRESET_COUNTS=23,44,67");
-console.log("MAP_REPRESENTATION_COUNTS=3,20,44");
-console.log("CANONICAL_RESOURCE_LINKS=86");
+console.log("BRIM Guide Resource Explorer source/model contracts passed.");
+console.log(`CANONICAL_RESOURCES=${canonicalResourceIds.length}`);
+console.log(`PUBLISHED_RESOURCES=${publishedIds.length}`);
+console.log(`STAGED_RESOURCES=${stagedIds.size}`);
+console.log(`PRESET_COUNTS=${expectedInBrimIds.length},${expectedBeyondIds.length},${publishedIds.length}`);
+console.log(`CANONICAL_RESOURCE_LINKS=${canonicalLinks.length}`);
+console.log("GENERIC_PROJECTION_INVARIANTS=PASS");
+console.log("STAGED_REVIEWED_RESOURCE_SUPPORT=PASS");
 console.log("LEGACY_PUBLIC_PROJECTIONS=0");
 console.log("DESKTOP_SCROLL_OWNERS=PROVIDERS,RESULTS,DETAIL");
 console.log("NARROW_ONE_PANE=PASS");
