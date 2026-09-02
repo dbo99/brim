@@ -78,10 +78,40 @@ staged_registry_ids <- vapply(staged_registry, `[[`, character(1), "id")
 held_staged_registry <- staged_registry[vapply(
   staged_registry, function(record) record$order <= 72L, logical(1)
 )]
-r14_staged_registry <- staged_registry[vapply(
+r15b_target_registry <- staged_registry[vapply(
   staged_registry, function(record) record$order > 72L, logical(1)
 )]
-r14_staged_registry_ids <- vapply(r14_staged_registry, `[[`, character(1), "id")
+r15b_target_registry_ids <- vapply(r15b_target_registry, `[[`, character(1), "id")
+r15b_selected_replacement_ids <- c(
+  "resource_dwr_snowtrax_platform",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform"
+)
+r15b_rejected_canonical_ids <- c(
+  "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
+  "resource_kern_river_watermaster_kern_river_watermaster_platform",
+  "resource_dwr_cdec_reservoir_conditions_dashboard",
+  "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_platform",
+  "resource_dwr_snowtrax_isnobal_dashboard",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_map_viewer"
+)
+r15b_authorized_access_points <- list(
+  resource_dwr_cdec = list(
+    role = "configured_view", label = "CDEC Reservoir Conditions",
+    url = "https://cdec.water.ca.gov/resapp/RescondMain"
+  ),
+  resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer = list(
+    role = "configured_view", label = "Napa Valley Rainfall and Stream Monitoring Home",
+    url = "https://napa.onerain.com/"
+  ),
+  resource_dwr_snowtrax_platform = list(
+    role = "configured_view", label = "SnowTrax iSnobal",
+    url = "https://snow.water.ca.gov/isnobal"
+  ),
+  resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform = list(
+    role = "configured_view", label = "Santa Barbara County Real-Time Hydrology – Map",
+    url = "https://rain.cosbpw.net/map"
+  )
+)
 
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
@@ -118,15 +148,22 @@ assert_identical(
   "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
   "The exact five-record held staged registry contract changed"
 )
-assert_identical(length(r14_staged_registry), 133L,
-                 "R14 must add exactly 133 staged Resources")
+assert_identical(length(r15b_target_registry), 133L,
+                 "R15B must preserve exactly 133 staged target Resources")
 assert_identical(
-  digest::digest(paste0(paste(r14_staged_registry_ids, collapse = "\n"), "\n"),
+  digest::digest(paste0(paste(r15b_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
-  "c1f168983e13817b9852dd03301d340fbdf7ab53b169affcbd16a0919cc98267",
-  "The exact ordered R14 target Resource ID set changed"
+  "ea8c2fab6c3679104195cc4db2c017821fdf77b285ab05db957451f7ea7580b6",
+  "The exact ordered R15B target Resource ID set changed"
 )
-assert_identical(sum(vapply(r14_staged_registry, function(record) {
+assert_true(!any(r15b_rejected_canonical_ids %in% registry_ids),
+            "A removed, duplicate, or subordinate R15B proposal remains canonical")
+assert_identical(
+  registry_ids[registry_ids %in% r15b_selected_replacement_ids],
+  r15b_selected_replacement_ids,
+  "The final broad R15B replacement pair is missing or reordered"
+)
+assert_identical(sum(vapply(r15b_target_registry, function(record) {
   !length(record$subject_tags)
 }, logical(1))), 15L,
 "The 15 approved empty target subject sets were not preserved for staging")
@@ -252,17 +289,40 @@ strip_publication_state <- function(record) {
   record$publication_state <- NULL
   record
 }
+strip_r15b_authorized_access_point <- function(record) {
+  expected <- r15b_authorized_access_points[[record$id]]
+  if (!is.null(expected)) {
+    record$access_points <- Filter(function(access_point) {
+      !identical(access_point, expected)
+    }, record$access_points)
+  }
+  record
+}
 assert_identical(
   digest::digest(compact_json(raw_current_resources), algo = "sha256", serialize = FALSE),
   "a86067ab046b93a165fd5944f85079ca7140fbb34efc0d0add79b0921f260190",
   "A current published Resource changed from the accepted R9 baseline"
 )
 assert_identical(
-  digest::digest(compact_json(lapply(raw_newly_published, strip_publication_state)),
+  digest::digest(compact_json(lapply(
+    lapply(raw_newly_published, strip_r15b_authorized_access_point),
+    strip_publication_state
+  )),
                  algo = "sha256", serialize = FALSE),
-  "d726b498b4292dcc46f720e2c166704c362539e312d357cb21a617a41ea6de7a",
-  "A newly published Resource field other than publication_state changed from R9"
+  "cdc21369a808d4619313034e9e07127572f4429ac26bbef6eb99365ef570cdca",
+  paste0(
+    "A newly published Resource field changed beyond publication_state and the exact ",
+    "USBR canonical-host repair"
+  )
 )
+for (owner_id in names(r15b_authorized_access_points)) {
+  record <- resource_registry[[match(owner_id, registry_ids)]]
+  expected <- r15b_authorized_access_points[[owner_id]]
+  matches <- vapply(record$access_points, identical, logical(1), expected)
+  assert_identical(sum(matches), 1L, paste(
+    "The authorized subordinate access point is not present exactly once on", owner_id
+  ))
+}
 goes_resource <- bundle$resources[[match(
   "resource_noaa_goes_image_viewer", expected_resource_ids
 )]]
@@ -273,6 +333,16 @@ assert_identical(vapply(goes_resource$accessPoints, `[[`, character(1), "url"), 
   "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=GEOCOLOR&length=24&dim=1",
   "https://www.star.nesdis.noaa.gov/GOES/sector_band.php?sat=G18&sector=psw&band=FireTemperature&length=12&dim=1"
 ), "NOAA GOES browser access-point order changed")
+usbr_resource <- bundle$resources[[match("resource_usbr", expected_resource_ids)]]
+assert_identical(usbr_resource$canonicalUrl, "https://www.usbr.gov/",
+                 "The projected USBR canonical action changed")
+assert_identical(usbr_resource$accessPoints[[1]]$url, "https://www.usbr.gov/",
+                 "The rendered USBR Official Resource href changed")
+cdec_resource <- bundle$resources[[match("resource_dwr_cdec", expected_resource_ids)]]
+assert_identical(
+  cdec_resource$accessPoints[[2]], r15b_authorized_access_points$resource_dwr_cdec,
+  "The rendered CDEC Reservoir Conditions access point changed"
+)
 assert_true(!any(grepl("sector=pnw", vapply(
   goes_resource$accessPoints, `[[`, character(1), "url"
 ), fixed = TRUE)), "A Pacific Northwest GOES access point reached the browser")
@@ -1277,9 +1347,10 @@ resource_payload_json <- jsonlite::toJSON(
 )
 assert_identical(
   digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
-  "24e1dc8ae03c3cc8d42f6c21535a87843d64655b660a61381556f30897a8bbd6",
+  "7879f0b6413fc35c72ad8625d914327ac7ea2c7e490ee58fd3ffa750ab57781b",
   paste0(
-    "The exact published Resource payload changed beyond the R12B projection; ",
+    "The exact published Resource payload changed beyond the USBR action repair ",
+    "and CDEC configured access point; ",
     "held identity, metadata, search, count, or facet leakage is possible"
   )
 )
@@ -1603,7 +1674,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R14 target-200 staging foundation contracts passed.\n")
+cat("GUIDE-I2B-R15B endpoint repair and bounded replacement foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1612,7 +1683,11 @@ cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
 cat("REGISTRY_RESOURCES=205_TOTAL,67_PUBLISHED,138_STAGED\n")
-cat("R14_NEW_STAGED_RESOURCES=133\n")
+cat("R15B_REVISED_TARGET_RESOURCES=133\n")
+cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
+cat("R15B_ACCESS_POINT_ADDITIONS=4\n")
+cat("R15B_TOTAL_URL_BEARING_FIELDS_CHANGED=82\n")
+cat("USBR_PROJECTED_ACTION=https://www.usbr.gov/\n")
 cat("EXACT_RELATIONSHIP_ROWS=86\n")
 cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,57_SELECTED,16_SOURCE_REFERENCE\n")
 cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")

@@ -7448,7 +7448,7 @@
       ]
     },
     {
-      "resource_id": "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
+      "resource_id": "resource_dwr_snowtrax_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
@@ -7672,7 +7672,7 @@
       ]
     },
     {
-      "resource_id": "resource_kern_river_watermaster_kern_river_watermaster_platform",
+      "resource_id": "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [

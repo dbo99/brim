@@ -33,7 +33,17 @@ BRIM Guide Resource metadata. Its schema version 3 contains one ordered
 205-record dataset: 67 reviewed Resources are `published` and 138 Resources
 are `staged`. GUIDE-I2B-R14 appended the exact 133-Resource R13-rebased
 target-200 tranche as staged canonical candidates; they are intentionally
-absent from the public browser projection. GUIDE-I2B-R10 published exactly 34
+absent from the public browser projection. GUIDE-I2B-R15B rehabilitates 25
+R15A-reviewed same-identity endpoint actions, separately normalizes the USBR
+homepage action to `https://www.usbr.gov/`, and replaces the two invalid
+Sacramento County and Kern River target records with the accepted broad
+SnowTrax and Santa Barbara County Real-Time Hydrology Resources. The rejected
+CDEC Reservoir Conditions, Napa monitoring-platform, iSnobal, and Santa
+Barbara map proposals are represented only as reviewed subordinate or
+alternate access points on their canonical parent Resources, not as additional
+canonical Resources.
+The revised R15 target remains exactly 133 staged Resources and the canonical
+205 / 67 published / 138 staged counts do not change. GUIDE-I2B-R10 published exactly 34
 of the 39 identity-ready Wave-2 records by changing only
 `publication_state`. The five earlier held IDs remain
 `resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
@@ -88,9 +98,12 @@ are prohibited.
 The full Resource relationship authority contains three
 `direct_match_in_brim`, 20 `selected_products_in_brim`, 177
 `not_currently_mapped_in_brim`, and five `not_yet_reviewed` records. All 133
-R14 additions use the reviewed `not_currently_mapped_in_brim` classification;
-R14 applies no Product-link action, so the Product corpus remains 270 and the
-canonical link count remains 86.
+Resources in the revised R15 target use the reviewed
+`not_currently_mapped_in_brim` classification. R15B removes the two invalid
+Resource review records and inserts matching reviewed records for the broad
+SnowTrax and Santa Barbara County replacements; it applies no Product-link
+action, so the Product
+corpus remains 270 and the canonical link count remains 86.
 
 Product and Resource IDs, controlled values, set equality, link cardinality,
 evidence paths, duplicates, unknown fields, and disposition/representation
@@ -128,13 +141,29 @@ landing or sector pages and configured views are retained, the broad official
 pages precede the configured views. The NOAA GOES Image Viewer retains its
 official canonical action and uses California-relevant Pacific Southwest and
 U.S. Pacific Coast sector access points before the two configured Pacific
-Southwest views.
+Southwest views. The same parent-first rule keeps CDEC Reservoir Conditions
+under `resource_dwr_cdec`, the Napa OneRain root under the existing Napa map
+Resource, iSnobal under the broad SnowTrax Resource, and the Santa Barbara map
+route under the broad county real-time hydrology Resource.
+HTTPS remains the default requirement for every canonical external Resource
+URL, access point, and public source reference. Three provider endpoints are
+explicit exact-pair exceptions: TID WISKI at
+`http://wiskiweb.tid.org/index.htm`, Kings River Water Association at
+`http://kingsriverwater.org/`, and Orange County Hydrology at
+`http://hydstra.ocpublicworks.com/web.htm`. The loader accepts those values
+only for their exact reviewed Resource IDs and full URLs; host, provider,
+suffix, and wildcard matching are prohibited. They remain user-initiated
+external navigation actions, never runtime fetches, embedded mixed-content
+subresources, or machine-facing dependencies. Any future HTTP exception
+requires explicit review. This bounded approval does not establish continuous
+endpoint monitoring.
 `default` remains the only current Guide profile, and the standalone HTML makes
 no runtime Resource-data request or browser-storage copy.
 
-Publication and fresh endpoint QA for the 133 R14 candidates are deferred to
-GUIDE-I2B-R15. R14 changes no Guide UI/runtime/network behavior, runs no
-preprocessor, and regenerates no cache.
+Publication of the revised 133-Resource target remains deferred to resumed
+GUIDE-I2B-R15. R15B changes no Guide UI/controller behavior, runs no
+preprocessor or build, and regenerates no cache; its bounded endpoint checks
+are point-in-time repair evidence rather than monitoring.
 
 Resource filtering uses only that projected authority. Provider, Subject,
 Information Type, and Resource type may be filtered directly; Resource type is

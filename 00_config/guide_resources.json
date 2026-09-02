@@ -2339,6 +2339,11 @@
           "role": "canonical",
           "label": "California Data Exchange Center (CDEC)",
           "url": "https://cdec.water.ca.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Reservoir Conditions",
+          "url": "https://cdec.water.ca.gov/resapp/RescondMain"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -3847,12 +3852,12 @@
         }
       ],
       "summary": "National water and power program, projects, regions, operations, and data.",
-      "canonical_url": "https://usbr.gov/",
+      "canonical_url": "https://www.usbr.gov/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Bureau of Reclamation",
-          "url": "https://usbr.gov/"
+          "url": "https://www.usbr.gov/"
         }
       ],
       "resource_type": "organization_homepage",
@@ -3886,7 +3891,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://usbr.gov/"
+          "url": "https://www.usbr.gov/"
         },
         {
           "role": "documentation",
@@ -4646,12 +4651,12 @@
         }
       ],
       "summary": "Recreational-water monitoring and beach/river safety information.",
-      "canonical_url": "https://mywaterquality.ca.gov/safe_to_swim",
+      "canonical_url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://mywaterquality.ca.gov/safe_to_swim"
+          "url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html"
         }
       ],
       "resource_type": "viewer_or_explorer",
@@ -4687,7 +4692,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://mywaterquality.ca.gov/safe_to_swim"
+          "url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html"
         }
       ],
       "publication_state": "staged"
@@ -4950,12 +4955,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Warm Springs Dam / Lake Sonoma.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
         }
       ],
       "resource_type": "report_or_publication",
@@ -4990,7 +4995,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
         }
       ],
       "publication_state": "staged"
@@ -5369,12 +5374,12 @@
         }
       ],
       "summary": "Central and West Coast Basin adjudication and watermaster information.",
-      "canonical_url": "https://wrd.org/content/watermaster",
+      "canonical_url": "https://www.wrd.org/about-watermaster",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://wrd.org/content/watermaster"
+          "url": "https://www.wrd.org/about-watermaster"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -5408,7 +5413,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://wrd.org/content/watermaster"
+          "url": "https://www.wrd.org/about-watermaster"
         }
       ],
       "publication_state": "staged"
@@ -5679,12 +5684,12 @@
         }
       ],
       "summary": "TROA implementation, reports, river information, and agreement resources.",
-      "canonical_url": "https://troa.net/",
+      "canonical_url": "https://www.troa.net/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://troa.net/"
+          "url": "https://www.troa.net/"
         }
       ],
       "resource_type": "report_or_publication",
@@ -5722,7 +5727,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://troa.net/"
+          "url": "https://www.troa.net/"
         }
       ],
       "publication_state": "staged"
@@ -5990,12 +5995,12 @@
         }
       ],
       "summary": "Map EPA water-program features, assessment units, dischargers, and watershed information.",
-      "canonical_url": "https://geopub.epa.gov/waters10",
+      "canonical_url": "https://www.epa.gov/waterdata/waters-geoviewer",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://geopub.epa.gov/waters10"
+          "url": "https://www.epa.gov/waterdata/waters-geoviewer"
         }
       ],
       "resource_type": "viewer_or_explorer",
@@ -6032,7 +6037,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://geopub.epa.gov/waters10"
+          "url": "https://www.epa.gov/waterdata/waters-geoviewer"
         }
       ],
       "publication_state": "staged"
@@ -6235,12 +6240,12 @@
         }
       ],
       "summary": "Fertilizer, irrigation, nutrient-management, and groundwater-protection resources.",
-      "canonical_url": "https://cdfa.ca.gov/is/ffldrs/frep",
+      "canonical_url": "https://www.cdfa.ca.gov/is/ffldrs/FREP/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://cdfa.ca.gov/is/ffldrs/frep"
+          "url": "https://www.cdfa.ca.gov/is/ffldrs/FREP/"
         }
       ],
       "resource_type": "program_or_mission",
@@ -6276,7 +6281,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://cdfa.ca.gov/is/ffldrs/frep"
+          "url": "https://www.cdfa.ca.gov/is/ffldrs/FREP/"
         }
       ],
       "publication_state": "staged"
@@ -6730,12 +6735,12 @@
         }
       ],
       "summary": "Adjudicated groundwater management and annual reporting for the Six Basins area.",
-      "canonical_url": "https://sixbasinswatermaster.com/",
+      "canonical_url": "https://www.6bwm.com/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://sixbasinswatermaster.com/"
+          "url": "https://www.6bwm.com/"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -6769,7 +6774,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://sixbasinswatermaster.com/"
+          "url": "https://www.6bwm.com/"
         }
       ],
       "publication_state": "staged"
@@ -6790,12 +6795,12 @@
         }
       ],
       "summary": "Map and analyze OpenET evapotranspiration data.",
-      "canonical_url": "https://explore.openetdata.org/",
+      "canonical_url": "https://explore.etdata.org/",
       "access_points": [
         {
           "role": "canonical",
           "label": "OpenET Data Explorer",
-          "url": "https://explore.openetdata.org/"
+          "url": "https://explore.etdata.org/"
         }
       ],
       "resource_type": "viewer_or_explorer",
@@ -6830,7 +6835,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://explore.openetdata.org/"
+          "url": "https://explore.etdata.org/"
         }
       ],
       "publication_state": "staged"
@@ -7215,12 +7220,12 @@
         }
       ],
       "summary": "State emergency flood operations and preparedness resources.",
-      "canonical_url": "https://caloes.ca.gov/office-of-the-director/operations/response-operations/flood-operations",
+      "canonical_url": "https://www.caloes.ca.gov/office-of-the-director/operations/planning-preparedness-prevention/planning-preparedness/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://caloes.ca.gov/office-of-the-director/operations/response-operations/flood-operations"
+          "url": "https://www.caloes.ca.gov/office-of-the-director/operations/planning-preparedness-prevention/planning-preparedness/"
         }
       ],
       "resource_type": "program_or_mission",
@@ -7254,7 +7259,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://caloes.ca.gov/office-of-the-director/operations/response-operations/flood-operations"
+          "url": "https://www.caloes.ca.gov/office-of-the-director/operations/planning-preparedness-prevention/planning-preparedness/"
         }
       ],
       "publication_state": "staged"
@@ -7579,12 +7584,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Terminus Dam / Lake Kaweah.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
         }
       ],
       "resource_type": "report_or_publication",
@@ -7619,7 +7624,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
         }
       ],
       "publication_state": "staged"
@@ -7894,12 +7899,12 @@
         }
       ],
       "summary": "Interactive test tool for NWIS site-service requests.",
-      "canonical_url": "https://waterservices.usgs.gov/rest/Site-Test-Tool.html",
+      "canonical_url": "https://waterservices.usgs.gov/test-tools/?service=site",
       "access_points": [
         {
           "role": "canonical",
           "label": "USGS Site Inventory Service",
-          "url": "https://waterservices.usgs.gov/rest/Site-Test-Tool.html"
+          "url": "https://waterservices.usgs.gov/test-tools/?service=site"
         }
       ],
       "resource_type": "analysis_tool",
@@ -7935,7 +7940,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://waterservices.usgs.gov/rest/Site-Test-Tool.html"
+          "url": "https://waterservices.usgs.gov/test-tools/?service=site"
         }
       ],
       "publication_state": "staged"
@@ -8026,12 +8031,12 @@
         }
       ],
       "summary": "Public hydrologic and operational time-series interface.",
-      "canonical_url": "https://wiskiweb.tid.org/",
+      "canonical_url": "http://wiskiweb.tid.org/index.htm",
       "access_points": [
         {
           "role": "canonical",
           "label": "Turlock Irrigation District WISKI Web",
-          "url": "https://wiskiweb.tid.org/"
+          "url": "http://wiskiweb.tid.org/index.htm"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -8070,67 +8075,72 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://wiskiweb.tid.org/"
+          "url": "http://wiskiweb.tid.org/index.htm"
         }
       ],
       "publication_state": "staged"
     },
     {
-      "id": "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
+      "id": "resource_dwr_snowtrax_platform",
       "aliases": [],
       "migration_aliases": [
-        "res.sacramento-county-water-resources.sacramento-county-rainfall-and-stream-levels-dashboards.collection"
+        "res.dwr.snowtrax.platform"
       ],
-      "search_aliases": [
-        "Sacramento County ALERT Dashboard",
-        "sacflood.org",
-        "Sac Cnty Current Stream Levels"
-      ],
+      "search_aliases": [],
       "order": 133,
-      "title": "Sacramento County Rainfall and Stream Levels – Dashboards",
+      "title": "SnowTrax",
       "providers": [
         {
-          "name": "Sacramento County Water Resources",
+          "name": "California Department of Water Resources",
           "role": "display_provider"
         }
       ],
-      "summary": "Dashboard views for Sacramento County Rainfall and Stream Levels.",
-      "canonical_url": "https://sacflood.org/dashboard/list",
+      "summary": "California snow dashboards, observations, official forecasts, and modeled snowpack.",
+      "canonical_url": "https://snow.water.ca.gov/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://sacflood.org/dashboard/list"
+          "label": "SnowTrax",
+          "url": "https://snow.water.ca.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "SnowTrax iSnobal",
+          "url": "https://snow.water.ca.gov/isnobal"
         }
       ],
-      "resource_type": "dashboard",
+      "resource_type": "data_portal_or_catalog",
       "temporal_character": "unknown",
-      "resource_granularity": "collection",
-      "subject_tags": [],
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Snow & SWE",
+        "Weather & Forecasts"
+      ],
       "information_type_tags": [],
       "variables": [
-        "precipitation",
-        "stream stage",
-        "weather"
+        "snow water equivalent",
+        "snowpack"
       ],
       "use_scopes": [
-        "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning"
+        "Snow",
+        "Water supply",
+        "Forecasting",
+        "Remote sensing",
+        "Geospatial analysis",
+        "Hydrologic conditions"
       ],
       "geographic_scope": {
-        "scope_type": "local",
+        "scope_type": "national",
         "names": [
           "California",
-          "Sacramento",
-          "Sacramento County, California"
+          "California Sierra Nevada / Western United States"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://sacflood.org/dashboard/list"
+          "url": "https://snow.water.ca.gov/"
         }
       ],
       "publication_state": "staged"
@@ -8219,12 +8229,12 @@
         }
       ],
       "summary": "Local reservoir and surface-water supply information for the San Diego region.",
-      "canonical_url": "https://sdcwa.org/your-water/local-water-supplies/surface-water",
+      "canonical_url": "https://www.sdcwa.org/your-water/local-water-supplies/surface-water/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://sdcwa.org/your-water/local-water-supplies/surface-water"
+          "url": "https://www.sdcwa.org/your-water/local-water-supplies/surface-water/"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -8262,7 +8272,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://sdcwa.org/your-water/local-water-supplies/surface-water"
+          "url": "https://www.sdcwa.org/your-water/local-water-supplies/surface-water/"
         }
       ],
       "publication_state": "staged"
@@ -9041,12 +9051,12 @@
         }
       ],
       "summary": "Kings River watermaster, flow, schedule, and basin operations information.",
-      "canonical_url": "https://kingsriverwater.org/",
+      "canonical_url": "http://kingsriverwater.org/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://kingsriverwater.org/"
+          "url": "http://kingsriverwater.org/"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -9084,72 +9094,72 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://kingsriverwater.org/"
+          "url": "http://kingsriverwater.org/"
         }
       ],
       "publication_state": "staged"
     },
     {
-      "id": "resource_kern_river_watermaster_kern_river_watermaster_platform",
+      "id": "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform",
       "aliases": [],
       "migration_aliases": [
-        "res.kern-river-watermaster.kern-river-watermaster.platform"
+        "res.santa-barbara-county-public-works.santa-barbara-county-real-time-hydrology.platform"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "Santa Barbara County Real-Time Hydrology",
+        "rain.cosbpw.net",
+        "Santa Barbara County"
+      ],
       "order": 149,
-      "title": "Kern River Watermaster",
+      "title": "Santa Barbara County Real-Time Hydrology",
       "providers": [
         {
-          "name": "Kern River Watermaster",
+          "name": "Santa Barbara County Public Works",
           "role": "display_provider"
         }
       ],
-      "summary": "Kern River watermaster reports, accounting, schedules, and records.",
-      "canonical_url": "https://kernriverwatermaster.org/",
+      "summary": "Real-time rainfall, river/stream, and reservoir data.",
+      "canonical_url": "https://rain.cosbpw.net/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://kernriverwatermaster.org/"
+          "label": "Santa Barbara County Real-Time Hydrology",
+          "url": "https://rain.cosbpw.net/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Santa Barbara County Real-Time Hydrology – Map",
+          "url": "https://rain.cosbpw.net/map"
         }
       ],
       "resource_type": "data_portal_or_catalog",
       "temporal_character": "unknown",
       "resource_granularity": "platform",
-      "subject_tags": [
-        "Surface Water",
-        "Infrastructure & Conveyance",
-        "Groundwater",
-        "Snow & SWE"
-      ],
+      "subject_tags": [],
       "information_type_tags": [],
       "variables": [
-        "watermaster accounting",
-        "streamflow"
+        "precipitation",
+        "stream stage",
+        "weather"
       ],
       "use_scopes": [
         "Hydrologic conditions",
-        "Reservoir operations",
         "Flood risk",
-        "Emergency planning",
-        "Groundwater",
-        "Groundwater sustainability",
-        "Snow",
-        "Water supply",
-        "Streamflow"
+        "Emergency planning"
       ],
       "geographic_scope": {
         "scope_type": "local",
         "names": [
           "California",
-          "California local and regional systems"
+          "Santa Barbara",
+          "Santa Barbara County, California"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://kernriverwatermaster.org/"
+          "url": "https://rain.cosbpw.net/"
         }
       ],
       "publication_state": "staged"
@@ -9486,6 +9496,11 @@
           "role": "canonical",
           "label": "Canonical landing URL",
           "url": "https://napa.onerain.com/map"
+        },
+        {
+          "role": "configured_view",
+          "label": "Napa Valley Rainfall and Stream Monitoring Home",
+          "url": "https://napa.onerain.com/"
         }
       ],
       "resource_type": "viewer_or_explorer",
@@ -10144,12 +10159,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Hidden Dam / Hensley Lake.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
         }
       ],
       "resource_type": "report_or_publication",
@@ -10184,7 +10199,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
         }
       ],
       "publication_state": "staged"
@@ -10472,12 +10487,12 @@
         }
       ],
       "summary": "Accumulated snowfall forecasts from West-WRF initialized with global models.",
-      "canonical_url": "https://cw3e.ucsd.edu/west-wrf_gfs_ecmwf_accumulatedsnow",
+      "canonical_url": "https://cw3e.ucsd.edu/west-wrf_accumulatedsnow/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://cw3e.ucsd.edu/west-wrf_gfs_ecmwf_accumulatedsnow"
+          "url": "https://cw3e.ucsd.edu/west-wrf_accumulatedsnow/"
         }
       ],
       "resource_type": "dataset_or_collection",
@@ -10510,7 +10525,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://cw3e.ucsd.edu/west-wrf_gfs_ecmwf_accumulatedsnow"
+          "url": "https://cw3e.ucsd.edu/west-wrf_accumulatedsnow/"
         }
       ],
       "publication_state": "staged"
@@ -10715,12 +10730,12 @@
         }
       ],
       "summary": "Current daily Truckee River watermaster accounting and operations report.",
-      "canonical_url": "https://troa.net/reports/dwmr",
+      "canonical_url": "https://www.troa.net/reports/dwmr/",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://troa.net/reports/dwmr"
+          "url": "https://www.troa.net/reports/dwmr/"
         }
       ],
       "resource_type": "report_or_publication",
@@ -10759,7 +10774,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://troa.net/reports/dwmr"
+          "url": "https://www.troa.net/reports/dwmr/"
         }
       ],
       "publication_state": "staged"
@@ -11093,12 +11108,12 @@
         }
       ],
       "summary": "National elevation and lidar program useful for hydrology and flood mapping.",
-      "canonical_url": "https://usgs.gov/3d-elevation-program",
+      "canonical_url": "https://www.usgs.gov/3d-elevation-program/what-3dep",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://usgs.gov/3d-elevation-program"
+          "url": "https://www.usgs.gov/3d-elevation-program/what-3dep"
         }
       ],
       "resource_type": "program_or_mission",
@@ -11134,7 +11149,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://usgs.gov/3d-elevation-program"
+          "url": "https://www.usgs.gov/3d-elevation-program/what-3dep"
         }
       ],
       "publication_state": "staged"
@@ -11216,12 +11231,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Sacramento River / Clear Creek.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
         }
       ],
       "resource_type": "report_or_publication",
@@ -11256,7 +11271,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
         }
       ],
       "publication_state": "staged"
@@ -11467,12 +11482,12 @@
         }
       ],
       "summary": "Download hourly Hydrologic Ensemble Forecast Service products in CSV format.",
-      "canonical_url": "https://cnrfc.noaa.gov/ensembleHourlyProductCSV.php",
+      "canonical_url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
+          "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
         }
       ],
       "resource_type": "data_service_or_api",
@@ -11503,7 +11518,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
+          "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
         }
       ],
       "publication_state": "staged"
@@ -11524,12 +11539,12 @@
         }
       ],
       "summary": "Orange County hydrologic time-series and station data.",
-      "canonical_url": "https://hydstra.ocpublicworks.com/",
+      "canonical_url": "http://hydstra.ocpublicworks.com/web.htm",
       "access_points": [
         {
           "role": "canonical",
           "label": "Orange County Hydrology Data Portal",
-          "url": "https://hydstra.ocpublicworks.com/"
+          "url": "http://hydstra.ocpublicworks.com/web.htm"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -11567,7 +11582,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://hydstra.ocpublicworks.com/"
+          "url": "http://hydstra.ocpublicworks.com/web.htm"
         }
       ],
       "publication_state": "staged"
@@ -11783,12 +11798,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Farmington Dam.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
         }
       ],
       "resource_type": "report_or_publication",
@@ -11823,7 +11838,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
         }
       ],
       "publication_state": "staged"
@@ -11844,12 +11859,12 @@
         }
       ],
       "summary": "Directory of GRACE interactive browsers and data-access options for land and ocean products.",
-      "canonical_url": "https://grace.jpl.nasa.gov/data/get-data/interactive-browsers",
+      "canonical_url": "https://grace.jpl.nasa.gov/data-analysis-tool/",
       "access_points": [
         {
           "role": "canonical",
           "label": "NASA GRACE Interactive Browsers and Data Access",
-          "url": "https://grace.jpl.nasa.gov/data/get-data/interactive-browsers"
+          "url": "https://grace.jpl.nasa.gov/data-analysis-tool/"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -11880,7 +11895,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://grace.jpl.nasa.gov/data/get-data/interactive-browsers"
+          "url": "https://grace.jpl.nasa.gov/data-analysis-tool/"
         }
       ],
       "publication_state": "staged"
@@ -12408,12 +12423,12 @@
         }
       ],
       "summary": "Download forecast forcing products in CSV format.",
-      "canonical_url": "https://cnrfc.noaa.gov/forcingProductCSV.php",
+      "canonical_url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://cnrfc.noaa.gov/forcingProductCSV.php"
+          "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
         }
       ],
       "resource_type": "data_service_or_api",
@@ -12445,7 +12460,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://cnrfc.noaa.gov/forcingProductCSV.php"
+          "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
         }
       ],
       "publication_state": "staged"
@@ -12594,12 +12609,12 @@
         }
       ],
       "summary": "Hourly water-control data report for Pine Flat Lake.",
-      "canonical_url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf",
+      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf",
       "access_points": [
         {
           "role": "canonical",
           "label": "Canonical landing URL",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
         }
       ],
       "resource_type": "report_or_publication",
@@ -12634,7 +12649,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
         }
       ],
       "publication_state": "staged"
