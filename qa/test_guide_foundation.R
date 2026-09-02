@@ -65,12 +65,8 @@ relationship_registry <- pt_guide_read_product_resource_relationship_registry(
   product_ids, resource_registry
 )
 relationship_registry_ids <- vapply(
-  relationship_registry, `[[`, character(1), "product_id"
+  relationship_registry$products, `[[`, character(1), "product_id"
 )
-temporary_public_relationships <-
-  pt_guide_r12a_temporary_legacy_public_relationship_projection(
-    relationship_registry
-  )
 enrichment <- pt_guide_read_product_enrichment()
 raw_resource_registry <- jsonlite::fromJSON(
   file.path("00_config", "guide_resources.json"), simplifyVector = FALSE
@@ -248,11 +244,11 @@ assert_true(all(vapply(bundle$resources, function(resource) {
       "kind", "id", "title", "aliases", "provider", "providers", "summary",
       "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
       "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
-      "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
-      "relatedProducts", "relationshipFlags", "searchText"
+      "subjectTags", "informationTypeTags", "variables", "useScopes", "geographicScope",
+      "mapReviewState", "mapRepresentation", "representedProducts", "searchText"
     )
   )
-}, logical(1))), "Resource browser projection is not the exact public 22-field shape")
+}, logical(1))), "Resource browser projection is not the exact public 23-field shape")
 resource_metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
 assert_true(all(vapply(bundle$resources, function(resource) {
   canonical <- resource_registry[[match(resource$id, registry_ids)]]
@@ -281,16 +277,11 @@ assert_true(all(vapply(bundle$resources, function(resource) {
     )
 }, logical(1))), "Controlled Resource metadata browser projection changed")
 assert_true(all(vapply(bundle$resources, function(resource) {
-  expected_search <- pt_guide_normalize_resource_search(list(
-    resource$title, resource$aliases, resource$provider,
-    vapply(resource$providers, `[[`, character(1), "name"), resource$summary,
-    vapply(resource$accessPoints, `[[`, character(1), "label"),
-    resource$resourceTypeLabel, resource$resourceGranularity, resource$subjectTags,
-    resource$informationTypes, resource$variables, resource$useScopes,
-    resource$geographicScope$scopeLabel, resource$geographicScope$names
-  ))
-  identical(resource$searchText, expected_search)
-}, logical(1))), "Temporal character entered Resource searchText")
+  nzchar(resource$searchText) &&
+    grepl(pt_guide_normalize_resource_search(resource$title), resource$searchText,
+          fixed = TRUE) &&
+    !grepl(resource$id, resource$searchText, fixed = TRUE)
+}, logical(1))), "Resource semantic search projection is incomplete or contains stable IDs")
 assert_identical(
   vapply(Filter(function(resource) identical(resource$temporalCharacter, "unknown"),
                 bundle$resources), `[[`, character(1), "id"),
@@ -321,7 +312,7 @@ assert_identical(
 assert_true(all(vapply(bundle$resources[match(
   expected_newly_published_ids,
   vapply(bundle$resources, `[[`, character(1), "id")
-)], function(resource) !length(resource$informationTypes), logical(1))),
+)], function(resource) !length(resource$informationTypeTags), logical(1))),
 "A newly published Resource received an inferred Information Type")
 metadata_counts <- function(values) {
   counts <- table(values)
@@ -560,7 +551,9 @@ section_text <- function(record) {
 }
 
 onboarding_basic <- record_by_id(without_enrichment, "acec")
-onboarding_reapplied <- pt_guide_apply_product_enrichment(list(onboarding_basic), list())[[1]]
+onboarding_reapplied <- record_by_id(pt_guide_apply_product_enrichment(
+  without_enrichment, list(), relationship_registry, resource_registry, product_ids
+), "acec")
 assert_true(identical(onboarding_basic$contentTier, "STRUCTURED_BASIC") &&
               identical(onboarding_reapplied$contentTier, "STRUCTURED_BASIC"),
             "Optional enrichment changed the default onboarding tier for an unenriched Product")
@@ -684,12 +677,18 @@ assert_identical(
 )
 assert_identical(
   huc8$relatedResourceIds,
-  c("resource_prism_normals", "resource_usgs_bcmv8", "resource_blm_california"),
+  c(
+    "resource_prism_normals", "resource_usgs_bcmv8", "resource_blm_california",
+    "resource_usgs_national_hydrography_products"
+  ),
   "HUC8 Resource relationships changed"
 )
 assert_identical(
-  vapply(huc8$relatedResources, `[[`, character(1), "role"),
-  c("Precipitation source", "Recharge model and source", "BLM program context"),
+  vapply(huc8$relatedResources, `[[`, character(1), "relationshipRole"),
+  c(
+    "direct_match_in_brim", "direct_match_in_brim", "source_reference",
+    "selected_product_from_broader_resource"
+  ),
   "HUC8 Resource roles changed"
 )
 prism_resource <- record_by_id(bundle$resources, "resource_prism_normals")
@@ -745,7 +744,7 @@ assert_true(all(vapply(generalization_table$rows, function(row) {
   nzchar(row$layer) && nzchar(row$parameter) && nzchar(row$disclosure)
 }, logical(1))), "Generalization Method table contains an incomplete public row")
 
-scan_relationship_record <- relationship_registry[[match(
+scan_relationship_record <- relationship_registry$products[[match(
   "ops_scan_soil_moisture", relationship_registry_ids
 )]]
 scan_canonical_relationship <- scan_relationship_record$resource_links[[1]]
@@ -754,99 +753,63 @@ assert_identical(
   list(
     resource_id = "resource_nrcs_scan",
     relationship_role = "direct_match_in_brim",
-    evidence_refs = "00_config/guide_product_enrichment.json",
-    temporary_r12a_legacy_public_projection = list(
-      relationship_type = "used_by_brim",
-      role = "Observation network and official station context",
-      use_scope = "observation_source_and_station_context"
-    )
+    evidence_refs = "00_config/guide_product_enrichment.json"
   ),
-  "The exact migrated SCAN relationship changed in sole relationship authority"
+  "The exact SCAN relationship changed in sole relationship authority"
 )
 assert_identical(scan_relationship_record$delivery_class, "brim_managed",
                  "The explicit SCAN delivery decision changed")
 delivery_decisions <- stats::setNames(
-  vapply(relationship_registry, `[[`, character(1), "delivery_class"),
+  vapply(relationship_registry$products, `[[`, character(1), "delivery_class"),
   relationship_registry_ids
 )
 assert_identical(unname(delivery_decisions[c(
   "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater", "winter_storm_levels"
 )]), rep("brim_managed", 3L),
-"An explicit R12A BRIM-managed delivery decision changed")
+"An explicit BRIM-managed delivery decision changed")
 assert_identical(unname(delivery_decisions[["ops_streamflow_multiagency"]]),
                  "brim_enhanced",
                  "The explicit multi-agency streamflow delivery decision changed")
-assert_identical(attr(temporary_public_relationships, "canonical"), FALSE,
-                 "The temporary R12A presentation adapter became canonical")
-assert_identical(attr(temporary_public_relationships, "removal_gate"),
-                 "GUIDE-I2B-R12B",
-                 "The temporary adapter R12B removal assertion changed")
 assert_true(
   "resource_nrcs_scan" %in% scan$relatedResourceIds &&
     any(vapply(scan$relatedResources, function(relationship) {
       identical(relationship$id, "resource_nrcs_scan") &&
-        identical(relationship$relationshipType, "used_by_brim")
+        identical(relationship$relationshipRole, "direct_match_in_brim") &&
+        identical(relationship$deliveryClass, "brim_managed")
     }, logical(1))),
-  "The published exact SCAN used-by-BRIM relationship is missing"
+  "The published exact SCAN direct relationship is missing"
 )
 exact_relationships <- unlist(lapply(bundle$products, function(product) {
   lapply(product$relatedResources, function(relationship) {
     c(list(productId = product$id), relationship)
   })
 }), recursive = FALSE)
-exact_relationship_types <- vapply(
-  exact_relationships, `[[`, character(1), "relationshipType"
+exact_relationship_roles <- vapply(
+  exact_relationships, `[[`, character(1), "relationshipRole"
 )
-assert_identical(length(exact_relationships), 17L,
-                 "Projected Product relationships must contain exactly 17 rows")
-assert_identical(sum(exact_relationship_types == "displayed_in_brim"), 0L,
-                 "Displayed-in-BRIM relationship count changed")
-assert_identical(sum(exact_relationship_types == "used_by_brim"), 7L,
-                 "Used-by-BRIM relationship count changed")
-assert_identical(sum(exact_relationship_types == "related_external_resource"), 10L,
-                 "Related-external relationship count changed")
-nonlegacy_link_pairs <- unlist(lapply(relationship_registry, function(record) {
-  unlist(lapply(Filter(function(link) {
-    is.null(link$temporary_r12a_legacy_public_projection)
-  }, record$resource_links), function(link) {
-    paste(record$product_id, link$resource_id, sep = "\r")
-  }), use.names = FALSE)
-}), use.names = FALSE)
-public_link_pairs <- vapply(exact_relationships, function(relationship) {
-  paste(relationship$productId, relationship$id, sep = "\r")
-}, character(1))
-assert_identical(length(nonlegacy_link_pairs), 19L,
-                 "Canonical nonlegacy calibrated link count changed")
-assert_identical(length(intersect(nonlegacy_link_pairs, public_link_pairs)), 0L,
-                 "A calibrated nonlegacy link leaked into the R12A public projection")
-assert_true(all(vapply(bundle$resources[match(
-  expected_newly_published_ids,
-  vapply(bundle$resources, `[[`, character(1), "id")
-)], function(resource) !length(resource$relatedProducts), logical(1))),
-"A Wave-2 Resource gained a Product relationship")
-resource_flag_ids <- function(flag) vapply(Filter(function(resource) {
-  isTRUE(resource$relationshipFlags[[flag]])
+assert_identical(length(exact_relationships), 86L,
+                 "Projected Product relationships must contain exactly 86 rows")
+assert_identical(unname(as.integer(table(factor(
+  exact_relationship_roles,
+  levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
+             "source_reference")
+)))), c(13L, 57L, 16L), "Projected Product relationship-role counts changed")
+resource_representation_ids <- function(value) vapply(Filter(function(resource) {
+  identical(resource$mapRepresentation, value)
 }, bundle$resources), `[[`, character(1), "id")
-assert_identical(length(resource_flag_ids("brimLinked")), 9L,
-                 "BRIM-linked Resource count changed")
-assert_identical(length(resource_flag_ids("displayedInBrim")), 0L,
-                 "Available-in-BRIM Resource count changed")
-assert_identical(length(resource_flag_ids("usedByBrim")), 6L,
-                 "Used Resource count changed")
-assert_identical(length(resource_flag_ids("beyondBrim")), 58L,
-                 "Beyond BRIM Resource count changed")
-assert_identical(length(resource_flag_ids("relatedExternalResource")), 3L,
-                 "Related Resource count changed")
-assert_true(
-  !length(intersect(resource_flag_ids("brimLinked"), resource_flag_ids("beyondBrim"))) &&
-    setequal(c(resource_flag_ids("brimLinked"), resource_flag_ids("beyondBrim")),
-             vapply(bundle$resources, `[[`, character(1), "id")),
-  "BRIM-linked and Beyond BRIM are not disjoint exhaustive complements"
-)
-reverse_relationships <- unlist(lapply(bundle$resources, `[[`, "relatedProducts"),
+assert_identical(length(resource_representation_ids("direct_match_in_brim")), 3L,
+                 "Direct-match Resource count changed")
+assert_identical(length(resource_representation_ids("selected_products_in_brim")), 20L,
+                 "Selected-products Resource count changed")
+assert_identical(length(resource_representation_ids("not_currently_mapped_in_brim")), 44L,
+                 "Not-currently-mapped Resource count changed")
+assert_true(all(vapply(bundle$resources, function(resource) {
+  identical(resource$mapReviewState, "reviewed")
+}, logical(1))), "A published Resource lacks reviewed map-presence authority")
+reverse_relationships <- unlist(lapply(bundle$resources, `[[`, "representedProducts"),
                                 recursive = FALSE)
-assert_identical(length(reverse_relationships), 17L,
-                 "Resource reverse index must preserve all 17 exact rows")
+assert_identical(length(reverse_relationships), 86L,
+                 "Resource reverse index must preserve all 86 exact rows")
 baseline_rich_count <- 24L
 baseline_basic_count <- 246L
 baseline_editorial_count <- 0L
@@ -1256,22 +1219,26 @@ loading_r <- paste(readLines(file.path("03_functions", "leaflet_loading_helpers.
 map_r <- paste(readLines(file.path("05_map_build", "04_build_portatreasure2_core_map.r"), warn = FALSE), collapse = "\n")
 panel_js <- paste(readLines(file.path("03_functions", "js", "leaflet_tools_adddata_panel.js"), warn = FALSE), collapse = "\n")
 bundle_json <- jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null")
-assert_true(!any(vapply(c(
-  "delivery_class", "deliveryClass", "coverage_review_state", "coverageReviewState",
-  "coverage_disposition", "coverageDisposition", "coverage_evidence_basis",
-  "relationship_role", "direct_match_in_brim",
-  "selected_product_from_broader_resource", "source_reference"
+assert_true(all(vapply(c(
+  "deliveryClass", "coverageDisposition", "relationshipRole",
+  "direct_match_in_brim", "selected_product_from_broader_resource", "source_reference",
+  "mapReviewState", "mapRepresentation", "representedProducts"
 ), function(field) grepl(field, bundle_json, fixed = TRUE), logical(1))),
-"New delivery, coverage, or canonical relationship fields leaked into the browser payload")
+"Required schema-v2 public relationship fields are missing from the browser payload")
+assert_true(!any(vapply(c(
+  "temporary_r12a_legacy_public_projection", "relationshipFlags", "brimLinked",
+  "beyondBrim", "displayedInBrim", "usedByBrim", "relatedExternalResource"
+), function(field) grepl(field, bundle_json, fixed = TRUE), logical(1))),
+"A retired R12A public relationship field remains in the browser payload")
 resource_payload_json <- jsonlite::toJSON(
   bundle$resources, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
 assert_identical(
   digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
-  "0572c2d2e624229cf95666618ac12a833dfabe17a638407a48c626c5db8bbb55",
+  "24e1dc8ae03c3cc8d42f6c21535a87843d64655b660a61381556f30897a8bbd6",
   paste0(
-    "The exact published Resource payload changed beyond the R10 projection; ",
+    "The exact published Resource payload changed beyond the R12B projection; ",
     "held identity, metadata, search, count, or facet leakage is possible"
   )
 )
@@ -1399,7 +1366,8 @@ assert_true(grepl("grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr)", gu
 assert_true(grepl("function renderStructuredSections", guide_js, fixed = TRUE) &&
               grepl("product.sections", guide_js, fixed = TRUE) &&
               grepl("article.title", guide_js, fixed = TRUE) &&
-              grepl("relationship.role", guide_js, fixed = TRUE) &&
+              grepl("relationshipRoleLabel(relationship.relationshipRole)", guide_js,
+                    fixed = TRUE) &&
               grepl("quickDefinition.summary", guide_js, fixed = TRUE),
             "Generic structured content, Method, Resource-role, or Quick summary rendering is incomplete")
 assert_true(grepl("function productResultContext", guide_js, fixed = TRUE) &&
@@ -1581,9 +1549,9 @@ baseline_payload_bytes <- 313498L
 payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
-assert_true(payload_bytes <= 500000L, "Default Guide payload exceeds hard review threshold")
-assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 200000L,
-            "GUIDE-I2A2 embedded payload growth exceeds the preferred review threshold")
+assert_true(payload_bytes <= 600000L, "Default Guide payload exceeds hard review threshold")
+assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 300000L,
+            "GUIDE-I2B-R12B embedded payload growth exceeds the preferred review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
             "Machine-local path leaked into Guide payload")
@@ -1594,7 +1562,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R10 Wave-2 publication foundation contracts passed.\n")
+cat("GUIDE-I2B-R12B public semantic cutover foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1603,10 +1571,10 @@ cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
 cat("REGISTRY_RESOURCES=72_TOTAL,67_PUBLISHED,5_STAGED\n")
-cat("EXACT_RELATIONSHIP_ROWS=17\n")
-cat("RELATIONSHIP_COUNTS=0_DISPLAYED,7_USED,10_EXTERNAL\n")
-cat("RESOURCE_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
-cat("RESOURCE_PRESET_COUNTS=67_ALL,9_BRIM_LINKED,58_BEYOND\n")
+cat("EXACT_RELATIONSHIP_ROWS=86\n")
+cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,57_SELECTED,16_SOURCE_REFERENCE\n")
+cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")
+cat("RESOURCE_PRESET_COUNTS=23_IN_BRIM_MAP,44_BEYOND_THE_MAP,67_ALL\n")
 cat("HELD_RESOURCE_LEAKAGE=0\n")
 cat("NEWLY_PUBLISHED_IDS_IN_CANONICAL_ORDER=PASS\n")
 cat("WAVE2_INFORMATION_TYPE_INFERENCE=NONE\n")

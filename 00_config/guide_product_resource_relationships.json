@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "products": [
     {
       "product_id": "blm_offices",
@@ -11,11 +11,31 @@
         "00_config/config_map_display.r",
         "00_config/config_source_files.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "field_office_outer",
@@ -27,11 +47,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/config_map_display.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "blm_core",
@@ -43,11 +83,31 @@
         "00_config/polygon_generalization_portfolio_v3.csv",
         "02_preprocess/02_huc_gw_county_pct_blm.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/02_huc_gw_county_pct_blm.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "02_preprocess/02_huc_gw_county_pct_blm.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "blm_diffs",
@@ -71,12 +131,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
         }
       ]
     },
@@ -102,24 +157,14 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Basin-priority source",
-            "use_scope": "attribute_join_source"
-          }
+          ]
         },
         {
           "resource_id": "resource_blm_california",
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
         }
       ]
     },
@@ -235,11 +280,68 @@
         "00_config/config_source_files.r",
         "00_config/major_water_supply_basin_geometry_catalog.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_labels.r",
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "05_map_build/02_build_core_map_cache.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "huc4",
@@ -251,11 +353,69 @@
         "00_config/config_source_files.r",
         "00_config/polygon_generalization_portfolio_v3.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_labels.r",
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "05_map_build/02_build_core_map_cache.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "huc6",
@@ -267,11 +427,69 @@
         "00_config/config_source_files.r",
         "00_config/polygon_generalization_portfolio_v3.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_labels.r",
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "05_map_build/02_build_core_map_cache.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_source_files.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "huc8",
@@ -285,9 +503,14 @@
       ],
       "coverage_review_state": "reviewed",
       "coverage_disposition": "multiple_source_resources",
-      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_basis": "reviewed_evidence",
       "coverage_evidence_refs": [
-        "00_config/guide_product_enrichment.json"
+        "00_config/config_local_layer_registry.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
       ],
       "resource_links": [
         {
@@ -295,36 +518,32 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Precipitation source",
-            "use_scope": "climate_summary_source"
-          }
+          ]
         },
         {
           "resource_id": "resource_usgs_bcmv8",
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Recharge model and source",
-            "use_scope": "recharge_summary_source"
-          }
+          ]
         },
         {
           "resource_id": "resource_blm_california",
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
         }
       ]
     },
@@ -338,11 +557,69 @@
         "00_config/config_map_display.r",
         "00_config/config_run_flags.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_labels.r",
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_map_display.r",
+        "00_config/config_run_flags.r",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "05_map_build/02_build_core_map_cache.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_run_flags.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_run_flags.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_run_flags.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "huc12",
@@ -354,11 +631,69 @@
         "00_config/config_map_display.r",
         "00_config/config_source_files.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_labels.r",
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+        "05_map_build/02_build_core_map_cache.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_prism_normals",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_bcmv8",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_map_display.r",
+            "00_config/config_source_files.r",
+            "00_config/guide_resources.json"
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "cnrfc_stream",
@@ -623,11 +958,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/guide_product_enrichment.json"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "national_monuments",
@@ -639,11 +994,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/guide_product_enrichment.json"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ca_desert_ncl",
@@ -655,11 +1030,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/guide_product_enrichment.json"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "wilderness_study_areas",
@@ -671,11 +1066,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/guide_product_enrichment.json"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "federal_wilderness",
@@ -687,11 +1102,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/guide_product_enrichment.json"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "drecp",
@@ -703,11 +1138,31 @@
         "00_config/guide_product_enrichment.json",
         "00_config/local_reference_acec_reference.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/local_reference_acec_reference.csv",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/guide_product_enrichment.json",
+            "00_config/local_reference_acec_reference.csv",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "acec",
@@ -719,11 +1174,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/config_source_files.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/config_source_files.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/config_source_files.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "grazing_allotments",
@@ -735,11 +1210,31 @@
         "00_config/config_local_reference_interactions.r",
         "00_config/polygon_generalization_portfolio_v3.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_california",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "00_config/config_labels.r",
+            "00_config/config_local_reference_interactions.r",
+            "00_config/polygon_generalization_portfolio_v3.csv",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "rwqcb_regions",
@@ -829,12 +1324,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
         }
       ]
     },
@@ -876,12 +1366,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
         }
       ]
     },
@@ -1289,11 +1774,25 @@
         "03_functions/layer_capability_helpers.r",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usbr",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/external_service_catalog.csv"
+          ]
+        }
+      ]
     },
     {
       "product_id": "CVPIA_REFUGE_DELIVERY_POINTS",
@@ -1305,11 +1804,25 @@
         "qa/test_layer_capability_registry.R",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_usbr",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/external_service_catalog.csv"
+          ]
+        }
+      ]
     },
     {
       "product_id": "USFWS_NWR_BOUNDARIES",
@@ -1832,12 +2345,7 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Perimeter source and limitations",
-            "use_scope": "source_and_service_context"
-          }
+          ]
         }
       ]
     },
@@ -1864,12 +2372,7 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Perimeter source and limitations",
-            "use_scope": "source_and_service_context"
-          }
+          ]
         }
       ]
     },
@@ -1896,12 +2399,7 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Operational perimeter source",
-            "use_scope": "current_operational_context"
-          }
+          ]
         }
       ]
     },
@@ -1955,11 +2453,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_nasa_firms_global_fire_map",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/external_service_catalog.csv"
+          ]
+        }
+      ]
     },
     {
       "product_id": "MODIS_THERMAL_HOTSPOTS_48H",
@@ -1969,11 +2481,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_nasa_firms_global_fire_map",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/external_service_catalog.csv"
+          ]
+        }
+      ]
     },
     {
       "product_id": "USGS_DEBRIS_FLOW_HAZARD_SEGMENTS",
@@ -2506,11 +3032,25 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_california_groundwater_live",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/external_service_catalog.csv"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT054",
@@ -2710,11 +3250,31 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_bulletin118_sgma_2019",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "03_functions/js/leaflet_tools_adddata_panel.js",
+            "03_functions/layer_capability_helpers.r",
+            "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+            "qa/test_layer_capability_registry.R",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT011",
@@ -3886,11 +4446,27 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_goes_image_viewer",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_goes_infrared",
@@ -3901,11 +4477,27 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_goes_image_viewer",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_goes_water_vapor",
@@ -3916,11 +4508,27 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_goes_image_viewer",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_modis_terra_true_color",
@@ -4031,12 +4639,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "Official station and current-water context",
-            "use_scope": "station_context"
-          }
+          ]
         }
       ]
     },
@@ -4063,12 +4666,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "Official well and current-water context",
-            "use_scope": "well_context"
-          }
+          ]
         }
       ]
     },
@@ -4095,12 +4693,7 @@
           "relationship_role": "direct_match_in_brim",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "used_by_brim",
-            "role": "Observation network and official station context",
-            "use_scope": "observation_source_and_station_context"
-          }
+          ]
         }
       ]
     },
@@ -4115,11 +4708,37 @@
         "03_functions/leaflet_guide_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_snow_pillow_helpers.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_dwr_cdec",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "03_functions/leaflet_ops_live_snow_pillow_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+          ]
+        },
+        {
+          "resource_id": "resource_nrcs_snow_survey_water_supply_forecasting",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "03_functions/leaflet_ops_live_snow_pillow_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_cnrfc_forecast_points",
@@ -4132,11 +4751,33 @@
         "03_functions/leaflet_guide_helpers.r",
         "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_cnrfc_forecast_points_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_cnrfc_forecast_points_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/config_map_display.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_major_water_supply_forecasts",
@@ -4151,9 +4792,14 @@
       ],
       "coverage_review_state": "reviewed",
       "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_evidence_basis": "reviewed_evidence",
       "coverage_evidence_refs": [
-        "00_config/guide_product_enrichment.json"
+        "00_config/config_local_layer_registry.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
       ],
       "resource_links": [
         {
@@ -4161,12 +4807,18 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "Official river and forecast context",
-            "use_scope": "forecast_context"
-          }
+          ]
+        },
+        {
+          "resource_id": "resource_usgs_national_hydrography_products",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/config_local_layer_registry.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+          ]
         }
       ]
     },
@@ -4345,11 +4997,31 @@
         "03_functions/leaflet_guide_helpers.r",
         "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_qpf_day_2",
@@ -4360,11 +5032,29 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_qpf_day_3",
@@ -4375,11 +5065,29 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_qpf_3day",
@@ -4391,11 +5099,31 @@
         "03_functions/leaflet_guide_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "qa/test_guide_foundation.R",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_qpf_7day",
@@ -4406,11 +5134,29 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "direct_resource_match",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_qpf",
+          "relationship_role": "direct_match_in_brim",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_nws_watches_warnings_advisories",
@@ -4699,12 +5445,7 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "Official NOAA water and forecast context",
-            "use_scope": "forecast_context"
-          }
+          ]
         }
       ]
     },
@@ -4867,13 +5608,1003 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
-          ],
-          "temporary_r12a_legacy_public_projection": {
-            "relationship_type": "related_external_resource",
-            "role": "BLM program context",
-            "use_scope": "program_context"
-          }
+          ]
         }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "resource_doi",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_blm_california",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/config_local_reference_interactions.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/02_huc_gw_county_pct_blm.r",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "00_config/config_run_flags.r",
+        "00_config/local_reference_acec_reference.csv",
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_guide_foundation.R",
+        "qa/test_layer_capability_registry.R"
+      ]
+    },
+    {
+      "resource_id": "resource_prism_normals",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/guide_product_enrichment.json",
+        "00_config/config_map_display.r",
+        "00_config/config_run_flags.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_bcmv8",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/guide_product_enrichment.json",
+        "00_config/config_map_display.r",
+        "00_config/config_run_flags.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_bulletin118_sgma_2019",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/layer_capability_helpers.r",
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "qa/test_layer_capability_registry.R"
+      ]
+    },
+    {
+      "resource_id": "resource_calfire_fire_perimeters",
+      "map_review_state": "reviewed",
+      "map_representation": "direct_match_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/guide_product_enrichment.json"
+      ]
+    },
+    {
+      "resource_id": "resource_nifc_wfigs_current",
+      "map_review_state": "reviewed",
+      "map_representation": "direct_match_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/guide_product_enrichment.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_water_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/guide_product_enrichment.json"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_nwps",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_goes_image_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cira_slider",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_worldview",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_climate_engine",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_smap_mission",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_smap_data",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_smap_l3_enhanced_soil_moisture",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_smops",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_smops_maps",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cpc_soil_moisture",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nidis_soil_moisture_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ncsmmn_network_map",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ncsmmn_soil_moisture_portal",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_scan",
+      "map_review_state": "reviewed",
+      "map_representation": "direct_match_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/guide_product_enrichment.json"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_grace_tellus",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_grace_data",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_grace_analysis_tool",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_grace_groundwater_soil_moisture",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nidis_grace_groundwater_soil_moisture",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_vegetation_health",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usda_crop_casma",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usda_vegscape",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_quickdri",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_vegdri",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_aso_airborne_snow_observatories",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_california_groundwater_live",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_california_water_watch",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_delta_ops_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "qa/test_guide_foundation.R"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_casgem",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_cdec",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_reservoir_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_ops_live_snow_pillow_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_cimis",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_groundwater_sustainability_agencies",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "00_config/polygon_generalization_source_row_crosswalk_v3.csv"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_water_data_library",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_epa_cyanweb",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ismn",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_asf_displacement_portal",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_cyfi_explorer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_ecostress_data_resources",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_firms_global_fire_map",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_giovanni",
+      "map_review_state": "not_yet_reviewed",
+      "map_representation": null,
+      "evidence_refs": []
+    },
+    {
+      "resource_id": "resource_nasa_nldas_drought_monitor",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_opera_products",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_stream_water_quality_tool",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_swot_hydrology_resources",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nidis_soil_moisture_resources",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cnrfc",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_map_display.r",
+        "00_config/config_source_files.r",
+        "00_config/major_water_supply_basin_component_manifest.csv",
+        "00_config/polygon_generalization_portfolio_v3.csv",
+        "02_preprocess/52_build_cnrfc_basin_product_availability.R",
+        "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R",
+        "03_functions/leaflet_ops_live_cnrfc_forecast_points_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_coastwatch_data_portal",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_coastwatch_erddap",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cpc_forecasts_outlooks",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_wpc_qpf",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "qa/test_guide_foundation.R"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_nwcc",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_snow_survey_water_supply_forecasting",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "03_functions/leaflet_ops_live_snow_pillow_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_web_soil_survey",
+      "map_review_state": "not_yet_reviewed",
+      "map_representation": null,
+      "evidence_refs": []
+    },
+    {
+      "resource_id": "resource_tu_wien_soil_moisture_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_cwms_data_api",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usda_cropland_data_layer",
+      "map_review_state": "not_yet_reviewed",
+      "map_representation": null,
+      "evidence_refs": []
+    },
+    {
+      "resource_id": "resource_usgs_earthexplorer",
+      "map_review_state": "not_yet_reviewed",
+      "map_representation": null,
+      "evidence_refs": []
+    },
+    {
+      "resource_id": "resource_usgs_groundwater_watch",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_national_hydrography_products",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/major_water_supply_basin_geometry_catalog.csv",
+        "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_streamstats",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_water_data_apis",
+      "map_review_state": "not_yet_reviewed",
+      "map_representation": null,
+      "evidence_refs": []
+    },
+    {
+      "resource_id": "resource_usgs_water_data_nation",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json",
+        "00_config/config_local_layer_registry.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "00_config/config_labels.r",
+        "00_config/config_map_display.r",
+        "00_config/guide_product_enrichment.json",
+        "00_config/config_source_files.r",
+        "00_config/local_reference_acec_components.csv"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_water_quality_portal",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
       ]
     }
   ]

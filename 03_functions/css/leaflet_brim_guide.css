@@ -667,11 +667,11 @@
   border-bottom-color: #70695d; background: rgba(104, 96, 82, 0.1); color: #34342f;
 }
 
-.brim-guide__resource-explorer[data-resource-preset="brim_linked"] .brim-guide__resource-preset.is-selected {
+.brim-guide__resource-explorer[data-resource-preset="in_brim_map"] .brim-guide__resource-preset.is-selected {
   border-bottom-color: var(--guide-accent); background: #e3ebe2; color: #24442f;
 }
 
-.brim-guide__resource-explorer[data-resource-preset="beyond_brim"] .brim-guide__resource-preset.is-selected {
+.brim-guide__resource-explorer[data-resource-preset="beyond_the_map"] .brim-guide__resource-preset.is-selected {
   border-bottom-color: var(--guide-external); background: #e3edf2; color: var(--guide-external-dark);
 }
 
@@ -687,11 +687,11 @@
   min-width: 0; display: grid; grid-template-columns: minmax(300px, 0.82fr) minmax(430px, 1.18fr); gap: 12px; padding-top: 9px; transition: background-color 120ms ease;
 }
 
-.brim-guide__resource-explorer[data-resource-preset="brim_linked"] .brim-guide__resource-layout {
+.brim-guide__resource-explorer[data-resource-preset="in_brim_map"] .brim-guide__resource-layout {
   background-color: rgba(72, 102, 79, 0.035);
 }
 
-.brim-guide__resource-explorer[data-resource-preset="beyond_brim"] .brim-guide__resource-layout {
+.brim-guide__resource-explorer[data-resource-preset="beyond_the_map"] .brim-guide__resource-layout {
   background-color: rgba(65, 107, 132, 0.055);
 }
 
@@ -709,6 +709,7 @@
 
 .brim-guide__resource-facets,
 .brim-guide__resource-results,
+.brim-guide__resource-results-scroll,
 .brim-guide__resource-detail {
   min-width: 0;
 }
@@ -817,14 +818,6 @@
   border-color: #c8c2b7; background: #f1eee6; color: #7d7d75; cursor: not-allowed;
 }
 
-.brim-guide__resource-choice--brim.is-selected:not(:disabled) {
-  border-color: #5e7864; background: #e3ebe2; color: #24442f;
-}
-
-.brim-guide__resource-choice--external.is-selected:not(:disabled) {
-  border-color: #66869a; background: #e3edf2; color: var(--guide-external-dark);
-}
-
 .brim-guide__resource-more {
   margin-top: 9px; padding-top: 7px; border-top: 1px solid var(--guide-rule);
 }
@@ -910,12 +903,30 @@
   padding: 1px 4px; border: 1px solid #b8b1a4; border-radius: 5px; background: rgba(255, 253, 247, 0.5); color: #51574f; font-size: 7px; font-weight: 700; letter-spacing: 0.035em; text-transform: uppercase;
 }
 
-.brim-guide__resource-badge--brim {
+.brim-guide__resource-representation-indicator,
+.brim-guide__resource-representation {
   border-color: #8fa393; background: #e7eee5; color: #31533a;
 }
 
-.brim-guide__resource-badge--external {
+.brim-guide__resource-representation--beyond {
   border-color: #93a9b6; background: #e8f0f4; color: var(--guide-external-dark);
+}
+
+.brim-guide__resource-representation {
+  margin: 0 0 10px; padding: 7px 8px; border: 1px solid #8fa393;
+}
+
+.brim-guide__resource-representation h3,
+.brim-guide__resource-representation p {
+  margin: 0;
+}
+
+.brim-guide__resource-representation h3 {
+  font-size: 11px;
+}
+
+.brim-guide__resource-representation p {
+  margin-top: 2px; font-size: 9px; line-height: 1.4;
 }
 
 .brim-guide__resource-selected-label {
@@ -975,7 +986,7 @@
 }
 
 .brim-guide__resource-relationship {
-  display: grid; gap: 2px; padding: 5px 0; border-bottom: 1px solid var(--guide-rule);
+  width: 100%; display: grid; gap: 2px; padding: 5px 0; border: 0; border-bottom: 1px solid var(--guide-rule); border-radius: 0; background: transparent; color: inherit; cursor: pointer; text-align: left;
 }
 
 .brim-guide__resource-relationship strong {
@@ -984,6 +995,15 @@
 
 .brim-guide__resource-relationship span {
   color: var(--guide-muted); font-size: 8px; line-height: 1.35;
+}
+
+.brim-guide__resource-relationship:hover strong,
+.brim-guide__resource-relationship:focus-visible strong {
+  color: #244f34; text-decoration: underline; text-underline-offset: 2px;
+}
+
+.brim-guide__resource-multiple-source {
+  color: #465b4c; font-style: italic;
 }
 
 .brim-guide__resource-access {
@@ -1046,6 +1066,15 @@
   }
 
   .brim-guide__resource-content {
+    min-height: 0; overflow: hidden;
+  }
+
+  .brim-guide__resource-results {
+    min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden;
+  }
+
+  .brim-guide__resource-results-scroll,
+  .brim-guide__resource-detail {
     min-height: 0; overflow-x: hidden; overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; scrollbar-gutter: stable;
   }
 

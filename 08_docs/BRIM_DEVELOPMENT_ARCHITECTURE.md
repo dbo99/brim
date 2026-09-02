@@ -84,38 +84,43 @@ is separate from cadence, update frequency, freshness, and runtime status.
 Resource granularity remains unchanged canonical editorial metadata and is not
 a public facet.
 `guide_product_resource_relationships.json` is the sole authored Product–
-Resource relationship authority. Its schema-version-1 Product records must
-equal the complete compiled Product universe exactly—currently 270 records.
-Every Product independently declares delivery classification and coverage
-review state, an optional reviewed coverage disposition, evidence, and zero or
-more exact canonical Resource links. Delivery classification is independent of
-Resource coverage. `not_yet_reviewed`, provenance-only, internal-only, and
-missing-candidate outcomes may correctly have zero links; no fake Resource is
-required. `guide_product_enrichment.json` owns editorial Product content only
-and no longer owns or supplies Resource relationships. Relationships are never
-inferred from Resource text, providers, URLs, publication, or geographic
-intersection, and permanent dual authority or fallback is prohibited. Wave-2
-publication adds no Product relationship, Guide profile, subject, Information
-Type, controlled vocabulary, or facet.
+Resource relationship and Resource map-representation authority. Its
+schema-version-2 Product and Resource arrays must equal the complete compiled
+Product universe and canonical Resource universe exactly—currently 270 Product
+records and 72 Resource review/representation records. Every Product
+independently declares delivery classification, coverage review state, an
+optional reviewed coverage disposition, evidence, and zero or more exact
+canonical Resource links. Every Resource has exactly one map-review record;
+reviewed representation is cross-validated from reverse Product links instead
+of copied into another manual relationship list. Delivery classification is
+secondary and independent of Resource map presence. `not_yet_reviewed`,
+provenance-only, internal-only, and missing-candidate outcomes may correctly
+have zero links; no fake Resource is required.
 
-The compiler validates exact Product-set equality, controlled values, evidence
-paths, disposition cardinality, duplicates, and every Resource link against the
-complete 72-Resource registry. Staged links remain canonical but are removed
-before browser projection. In R12A, one compiler-owned read-only adapter derives
-the accepted R10 public projection only from the 17 links containing temporary
-legacy presentation metadata: zero `displayed_in_brim`, seven `used_by_brim`,
-and ten `related_external_resource` rows. The adapter is noncanonical, has no
-standalone configuration or relationship copy, and must be deleted in R12B.
-The other 19 calibrated canonical links and all delivery and coverage fields
-remain outside the browser payload during R12A. Public labels, counts, filters,
-badges, ordering, and behavior therefore remain unchanged. The browser receives
-the 67 published records in
-registry
-order with one exact 22-field shape: identity and reviewed descriptive fields,
-labeled access points, Resource Type and temporal machine IDs with controlled
-labels, geography scope ID/label plus named places, derived related Products
-and relationship flags, and normalized search text. Migration aliases, raw
-source evidence, and runtime authority are excluded. Publication is not a Guide profile. The
+The compiler validates exact Product/Resource set equality, controlled values,
+evidence paths, disposition and representation cardinality, duplicates, and
+every link against the complete 72-Resource registry. The current authority has
+70 reviewed and 200 not-yet-reviewed Products with 86 exact links: 13 direct,
+57 selected-product, and 16 source-reference roles. The three DWR/TRE Altamira
+Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
+multiple-source composite. The unresolved intake remains deferred: 147 Products
+await missing canonical Resource identity, three await identity/family split,
+and the lower-priority packet remains 42 families / 55 Products. Staged Resource
+records remain canonical but are removed before browser projection.
+
+`guide_product_enrichment.json` owns editorial Product content only and no
+longer owns or supplies Resource relationships. Relationships and map presence
+are never inferred from Resource text, providers, URLs, publication, or
+geographic intersection. All temporary R12A relationship objects and the
+compiler adapter are absent; permanent compatibility shadow, dual authority,
+and fallback are prohibited. The browser receives the 67 published records in
+registry order with one exact 23-field shape: identity and reviewed descriptive
+fields, labeled access points, Resource Type and temporal machine IDs with
+controlled labels, geography scope ID/label plus named places, reviewed map
+state/representation, exact represented Products with secondary delivery and
+source-list context, and normalized search text. Migration aliases, legacy
+relationship flags/subtypes, raw evidence, and runtime authority are excluded.
+Publication is not a Guide profile. The
 registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
@@ -132,17 +137,18 @@ registry, aliases, relationships, profiles, or visible Guide content.
 The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value and selections across groups combine with search by AND. `Where in BRIM` is a radio-style dimension: choosing another value replaces the prior value, while its removable active chip restores the unfiltered state. Primary Subject and Information Type likewise replace the prior value, and their active value or chip can clear that group. Product taxonomy remains multi-valued. Removable chips appear directly beneath search only while browse filters are active, with at most one chip per group, and a contextual inline `Clear all` retains the existing reset contract by clearing query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop; an adjacent live derived status reports the current count against the complete projected Product count and marks any subset as filtered. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
 
 V4.1 extends that same shell with one Resource Explorer. The compact Resources
-destination is a gateway with exactly three actions: open BRIM-linked
-Resources, explore beyond BRIM, or search all Resources. Its orientation copy
+destination is a gateway with exactly three actions: open Resources represented
+in the BRIM map, explore Resources beyond the map, or search all Resources. Its orientation copy
 distinguishes A · Explore—Products available through BRIM—from C · Resources,
 which contains datasets, viewers, portals, official sources, and supporting
 libraries linked to BRIM or useful beyond it. The Explorer uses a
 64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
 and a measured one-pane search/results, facets, or detail flow at narrow width.
-Its three primary views appear in the consistent order 9 BRIM-linked, 58 Beyond
-BRIM, and 67 All Resources. `BRIM-linked` is the union of Resources with at least one exact
-`displayed_in_brim`, `used_by_brim`, or `related_external_resource`
-relationship; Beyond BRIM is the exact complement. The primary views form one
+Its three primary views appear in the exact order `In BRIM map` (23), `Beyond
+the map` (44), and `All Resources` (67). Membership derives only from each
+Resource's reviewed `map_representation`: three direct matches plus 20 selected-
+products Resources form `In BRIM map`, while 44 not-currently-mapped Resources
+form `Beyond the map`. The primary views form one
 mutually exclusive radio-style control, selecting one replaces the prior view,
 and primary-view changes do not create chips or clear secondary refinements.
 Search applies NFKD normalization, punctuation and whitespace
@@ -163,16 +169,17 @@ not facets; search uses the normalized scope/place labels, and an `unknown`
 scope label is omitted from public detail while retained in canonical data.
 Temporal, geographic, named-geography, access-point-type, granularity,
 verification, and priority facets remain deferred, and there are no placeholder
-controls for them. A separate visible relationship-subtype group exposes
-Available in BRIM (`displayed_in_brim`), Used by BRIM (`used_by_brim`), and
-Related resource (`related_external_resource`); those controls are OR within
-their group and AND with other dimensions, and the current unique-Resource
-counts are 0, 6, and 3. The zero-count Available control remains visible but
-disabled. Results and selected detail use the same exact subtype wording rather
-than a generic connected badge; Beyond Resources receive no relationship badge.
+controls for them. There is no relationship-subtype, delivery-class, or
+multiple-source primary filter. Every result and selected detail shows exactly
+one restrained map-representation label and selected detail adds the matching
+plain-language statement: direct representation, selected products from a
+broader Resource, or not currently represented in the BRIM map. Related Product
+rows carry relationship role and delivery class only as secondary detail.
+Multiple-source Products add one exact sentence naming all canonical source
+Resources in registry order instead of creating another primary category.
 The V4.1 warm-neutral shell remains authoritative: All Resources stays neutral,
-BRIM-linked and its direct relationship states receive restrained green
-emphasis, and Beyond BRIM, related-external badges, and external access actions
+in-map representation receives restrained green emphasis, and beyond-map
+representation and external access actions
 receive restrained muted-blue emphasis. Labels and accessible selected states,
 not color alone, remain authoritative.
 Resource filter buttons retain their existing minimum interactive heights and
@@ -187,13 +194,17 @@ orientation copy, and the primary-view ribbon remain stationary above a bounded
 workspace. The outer Refine framework is stationary; its Provider heading and
 search remain fixed while the high-cardinality Provider-value list alone absorbs
 available-height variation through internal scrolling. The single results/detail
-content region scrolls independently. Controller rerenders preserve those
-unrelated positions. Selecting a wide-layout result saves the current browsing
-position and aligns that existing selected row once at the top of the result
-viewport beside its detail without changing sort order; subsequent user
-scrolling is not overridden. Closing detail restores the saved result-list
-position and selected-row focus, while Reset all returns all three positions to
-the top.
+content region is non-scrolling. The middle results list and right selected-
+detail pane are separate native vertical scroll owners, so middle scrolling
+cannot move or blank the right detail. Controller rerenders preserve the
+independent provider, results, and detail positions. Selecting a wide-layout
+result saves the current browsing position and aligns that existing selected
+row once at the top of the results viewport beside detail reset to its own top,
+without changing sort order; subsequent user scrolling is not overridden.
+Selecting another row repeats that bounded promotion and detail-top reset.
+Closing detail restores the saved result-list position and selected-row focus,
+while Reset all returns all three positions to the top. The outer Guide and
+left Refine framework remain stationary.
 Narrow layouts keep the shared one-pane results, filters, or detail flow and use
 the Guide main region as that pane's scroll owner rather than adopting the
 desktop split-scroll hierarchy. Results initially reveal 25; repeated `Show
@@ -201,7 +212,9 @@ more` activation reveals further 25-record increments until all 67 are
 reachable, without pagination, virtualization, or hundreds of hidden startup
 cards.
 Only the selected Resource renders full metadata, exact related Products, and
-role-labeled safe access links. The exact canonical access point matching
+role-labeled safe access links. Product relationships support reverse detail and
+exact Product-context navigation but do not determine primary view membership.
+The exact canonical access point matching
 `canonicalUrl` is promoted to the restrained external-blue `Open official
 resource` primary action; any other configured access points retain their
 projected labels, URLs, and lower visual priority. When broad official landing
