@@ -819,6 +819,43 @@ pt_guide_validate_public_https_url <- function(url, label) {
   url
 }
 
+pt_guide_http_only_resource_url_exceptions <- function() {
+  c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://wiskiweb.tid.org/index.htm",
+    resource_krwa_kings_river_water_association_platform =
+      "http://kingsriverwater.org/",
+    resource_ocpw_orange_county_hydrology_data_portal_platform =
+      "http://hydstra.ocpublicworks.com/web.htm"
+  )
+}
+
+pt_guide_validate_public_resource_url <- function(url, label, resource_id) {
+  url <- pt_guide_resource_registry_scalar(url, label)
+  resource_id <- pt_guide_resource_registry_scalar(
+    resource_id, paste0(label, " Resource ID")
+  )
+  if (grepl("^https://", url)) {
+    return(pt_guide_validate_public_https_url(url, label))
+  }
+
+  exceptions <- pt_guide_http_only_resource_url_exceptions()
+  approved_url <- unname(exceptions[resource_id])
+  if (length(approved_url) != 1L || is.na(approved_url) ||
+      !identical(url, approved_url)) {
+    stop(
+      label,
+      " must use a public https:// URL or an exact reviewed HTTP-only Resource exception.",
+      call. = FALSE
+    )
+  }
+
+  pt_guide_validate_public_https_url(
+    sub("^http://", "https://", url), paste0(label, " HTTP-only exception")
+  )
+  url
+}
+
 pt_guide_read_resource_registry <- function(
     path = file.path("00_config", "guide_resources.json")) {
   if (!file.exists(path)) {
@@ -907,8 +944,8 @@ pt_guide_read_resource_registry <- function(
     orders[[index]] <- as.integer(record$order)
     pt_guide_resource_registry_scalar(record$title, paste0(label, " title"))
     pt_guide_resource_registry_scalar(record$summary, paste0(label, " summary"))
-    canonical_url <- pt_guide_validate_public_https_url(
-      record$canonical_url, paste0(label, " canonical_url")
+    canonical_url <- pt_guide_validate_public_resource_url(
+      record$canonical_url, paste0(label, " canonical_url"), ids[[index]]
     )
     resource_type <- pt_guide_resource_registry_scalar(
       record$resource_type, paste0(label, " resource_type")
@@ -968,7 +1005,9 @@ pt_guide_read_resource_registry <- function(
       list(
         role = role,
         label = pt_guide_resource_registry_scalar(point$label, paste0(point_label, " label")),
-        url = pt_guide_validate_public_https_url(point$url, paste0(point_label, " url"))
+        url = pt_guide_validate_public_resource_url(
+          point$url, paste0(point_label, " url"), ids[[index]]
+        )
       )
     })
     access_role_values <- vapply(access, `[[`, character(1), "role")
@@ -1052,7 +1091,9 @@ pt_guide_read_resource_registry <- function(
           if (!role %in% reference_roles) {
             stop(reference_label, " has an uncontrolled role.", call. = FALSE)
           }
-          pt_guide_validate_public_https_url(reference$url, paste0(reference_label, " url"))
+          pt_guide_validate_public_resource_url(
+            reference$url, paste0(reference_label, " url"), ids[[index]]
+          )
           role
         },
         character(1)

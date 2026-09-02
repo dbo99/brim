@@ -233,6 +233,15 @@ or sector pages and configured views are both retained, the broad pages precede
 configured views. The NOAA GOES Image Viewer keeps its canonical official action
 and presents California-relevant Pacific Southwest and U.S. Pacific Coast sector
 pages before its Pacific Southwest GeoColor and Fire Temperature views.
+The Resource loader keeps public HTTPS as the universal external-URL default.
+Its only HTTP exceptions are an internal exact mapping from the reviewed
+Resource ID to the full approved TID WISKI, Kings River Water Association, and
+Orange County Hydrology URLs. The mapping is applied consistently to canonical,
+access-point, and public-source validation; it does not permit host, provider,
+suffix, wildcard, or fallback matching. These links are user-initiated external
+navigation only: BRIM does not fetch or embed them at runtime or treat them as
+machine-facing services. A future HTTP exception requires explicit review, and
+the current three-record contract does not establish endpoint monitoring.
 Product-to-Resource
 navigation enters the same
 Explorer with an exact Product-ID relationship filter and relevance boost.
@@ -241,6 +250,20 @@ and Resource state restores when returning to the compact Guide. One shared
 model and controller own all responsive layouts; replacement and teardown are
 listener-idempotent. The Explorer does not fetch, persist, activate map layers,
 or introduce a second Resource authority.
+
+GUIDE-I2B-R15B preserves the 205-Resource authority and its 67 published / 138
+staged split while repairing 25 R15A-reviewed endpoint actions and the separate
+USBR canonical homepage host. It removes the invalid Sacramento County and
+Kern River target identities and substitutes the accepted broad SnowTrax and
+Santa Barbara County Real-Time Hydrology records. Both
+replacement relationship records remain reviewed
+`not_currently_mapped_in_brim`; no Product link changes, so the relationship
+authority remains 270 Product records, 205 Resource records, and 86 links. The
+revised staged R15 target remains exactly 133 Resources, and publication stays
+deferred to the resumed R15 gate. CDEC Reservoir Conditions, the Napa OneRain
+root, iSnobal, and the Santa Barbara map route are each retained exactly once
+as a configured subordinate or alternate access point on the canonical parent
+Resource; none remains as a separate canonical proposal in the revised target.
 
 V4 behavior includes Home reset, Escape/close/focus restoration, typed stable-ID Quick Access, and combined visible facets over BRIM section, multi-valued subject tags, and multi-valued `Information Type` tags. Layer details show `Find in layer list` only for a verified navigable path and otherwise use a source-backed layer-purpose summary; Tool details show `What this tool does` plus `How to open it` only when a current UI control is verified. The maintained information-type metadata vocabulary is `Static Reference`, `Live Observation`, `Forecast / Outlook`, `Model / Simulation`, `Historical Context`, `Screening / Derived`, `External On-Demand Service`, and `Tool / Workflow`; the last remains Tools metadata but is not a permanent browse choice. `Model / Simulation` is assigned only to exact verified model or simulation systems and can coexist with forecast, observation, historical, or screening metadata. User-facing result types distinguish Layer, Tool, Collection, Method, Resource, and Update while the internal Product umbrella remains unchanged. Result secondary lines are generic by entity: Layers use a verified path or purpose, Tools use an action summary, and Collections use exact member scope. Search is deterministic and gives precedence to exact titles and reviewed aliases, then explicit subject and Information Type tags, provider/program, reviewed capability terms, concise source-supported summaries, related Resource titles, and conservative title/alias typo recovery. Ordinary search does not tokenize broad group/subgroup labels, BRIM path components, Product family labels, runtime IDs, raw URLs, controller variables, DOM text, or editorial source references. Exact complete normalized BRIM paths remain discoverable through a separate equality check rather than ordinary token indexing.
 

@@ -129,6 +129,105 @@ expected_held_staged_ids <- c(
   "resource_usgs_earthexplorer",
   "resource_usgs_water_data_apis"
 )
+r15b_removed_resource_ids <- c(
+  "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
+  "resource_kern_river_watermaster_kern_river_watermaster_platform"
+)
+r15b_selected_replacement_ids <- c(
+  "resource_dwr_snowtrax_platform",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform"
+)
+r15b_accepted_candidate_ids <- c(
+  "resource_dwr_cdec_reservoir_conditions_dashboard",
+  "resource_dwr_snowtrax_platform",
+  "resource_dwr_snowtrax_isnobal_dashboard",
+  "resource_noaa_cnrfc_quick_summary_dashboard",
+  "resource_ebmud_east_bay_mud_reservoir_releases_other",
+  "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_platform",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform"
+)
+r15b_rejected_canonical_ids <- c(
+  r15b_removed_resource_ids,
+  "resource_dwr_cdec_reservoir_conditions_dashboard",
+  "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_platform",
+  "resource_dwr_snowtrax_isnobal_dashboard",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_map_viewer"
+)
+r15b_authorized_access_points <- list(
+  resource_dwr_cdec = list(
+    role = "configured_view",
+    label = "CDEC Reservoir Conditions",
+    url = "https://cdec.water.ca.gov/resapp/RescondMain"
+  ),
+  resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer = list(
+    role = "configured_view",
+    label = "Napa Valley Rainfall and Stream Monitoring Home",
+    url = "https://napa.onerain.com/"
+  ),
+  resource_dwr_snowtrax_platform = list(
+    role = "configured_view",
+    label = "SnowTrax iSnobal",
+    url = "https://snow.water.ca.gov/isnobal"
+  ),
+  resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform = list(
+    role = "configured_view",
+    label = "Santa Barbara County Real-Time Hydrology – Map",
+    url = "https://rain.cosbpw.net/map"
+  )
+)
+r15b_parent_canonical_urls <- c(
+  resource_dwr_cdec = "https://cdec.water.ca.gov/",
+  resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer =
+    "https://napa.onerain.com/map",
+  resource_dwr_snowtrax_platform = "https://snow.water.ca.gov/",
+  resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform =
+    "https://rain.cosbpw.net/"
+)
+r15b_url_repairs <- c(
+  resource_water_quality_and_ecosystem_data_provide_safe_to_swim_map_viewer = "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html",
+  resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs",
+  resource_wrd_water_replenishment_district_watermaster_platform = "https://www.wrd.org/about-watermaster",
+  resource_troa_truckee_river_operating_agreement_platform = "https://www.troa.net/",
+  resource_epa_epa_waters_geoviewer_viewer = "https://www.epa.gov/waterdata/waters-geoviewer",
+  resource_cdfa_california_department_of_food_and_agriculture_frep_program = "https://www.cdfa.ca.gov/is/ffldrs/FREP/",
+  resource_six_basins_watermaster_six_basins_watermaster_platform = "https://www.6bwm.com/",
+  resource_agricultural_water_and_evapotranspiratio_openet_data_explorer_viewer = "https://explore.etdata.org/",
+  resource_cal_oes_california_flood_preparedness_program = "https://www.caloes.ca.gov/office-of-the-director/operations/planning-preparedness-prevention/planning-preparedness/",
+  resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm",
+  resource_usgs_usgs_site_inventory_service_other = "https://waterservices.usgs.gov/test-tools/?service=site",
+  resource_tid_turlock_irrigation_district_wiski_web_platform = "http://wiskiweb.tid.org/index.htm",
+  resource_sdcwa_san_diego_county_water_authority_surface_water_other = "https://www.sdcwa.org/your-water/local-water-supplies/surface-water/",
+  resource_krwa_kings_river_water_association_platform = "http://kingsriverwater.org/",
+  resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid",
+  resource_cw3e_cw3e_west_wrf_accumulated_snow_product = "https://cw3e.ucsd.edu/west-wrf_accumulatedsnow/",
+  resource_troa_truckee_river_daily_watermaster_report_product = "https://www.troa.net/reports/dwmr/",
+  resource_usgs_usgs_3d_elevation_program_program = "https://www.usgs.gov/3d-elevation-program/what-3dep",
+  resource_usace_usace_sacramento_river_clear_creek_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc",
+  resource_noaa_cnrfc_hourly_hefs_csv_service = "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php",
+  resource_ocpw_orange_county_hydrology_data_portal_platform = "http://hydstra.ocpublicworks.com/web.htm",
+  resource_usace_usace_farmington_dam_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm",
+  resource_nasa_nasa_grace_interactive_browsers_and_data_access_collection = "https://grace.jpl.nasa.gov/data-analysis-tool/",
+  resource_noaa_cnrfc_forcing_csv_service = "https://www.cnrfc.noaa.gov/forcingProductCSV.php",
+  resource_usace_usace_pine_flat_lake_hourly_data_product = "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
+)
+r15b_http_only_exceptions <- c(
+  resource_tid_turlock_irrigation_district_wiski_web_platform =
+    "http://wiskiweb.tid.org/index.htm",
+  resource_krwa_kings_river_water_association_platform =
+    "http://kingsriverwater.org/",
+  resource_ocpw_orange_county_hydrology_data_portal_platform =
+    "http://hydstra.ocpublicworks.com/web.htm"
+)
+r15b_usbr_resource_id <- "resource_usbr"
+r15b_usbr_canonical_url_before <- "https://usbr.gov/"
+r15b_usbr_canonical_url_after <- "https://www.usbr.gov/"
+r15b_checker_artifact_ids <- c(
+  "resource_sonoma_water_sonoma_county_sonoma_county_alert2_dashboards_collection",
+  "resource_marin_county_flood_control_marin_county_rainfall_and_creek_data_dashboards_collection",
+  "resource_santa_cruz_county_flood_control_santa_cruz_county_hydrologic_monitoring_map_viewer",
+  "resource_san_joaquin_county_san_joaquin_county_hydrometeorological_data_map_viewer",
+  "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer"
+)
 expected_newly_published_ids <- expected_wave2_ids[
   !expected_wave2_ids %in% expected_held_staged_ids
 ]
@@ -161,27 +260,38 @@ staged_ids <- vapply(staged, `[[`, character(1), "id")
 current_registry <- unclass(registry)[match(expected_ids, registry_ids)]
 wave2_registry <- unclass(registry)[match(expected_wave2_ids, registry_ids)]
 newly_published <- unclass(registry)[match(expected_newly_published_ids, registry_ids)]
-r14_registry <- unclass(registry)[seq.int(length(expected_baseline_resource_ids) + 1L,
-                                          length(registry))]
-r14_registry_ids <- vapply(r14_registry, `[[`, character(1), "id")
+r15b_target_registry <- unclass(registry)[seq.int(
+  length(expected_baseline_resource_ids) + 1L, length(registry)
+)]
+r15b_target_registry_ids <- vapply(r15b_target_registry, `[[`, character(1), "id")
 held_staged <- staged[match(expected_held_staged_ids, staged_ids)]
 assert_identical(registry_ids[seq_along(expected_baseline_resource_ids)],
                  expected_baseline_resource_ids,
                  "The accepted 72-Resource baseline ID set/order changed")
 assert_identical(
-  digest::digest(paste0(paste(r14_registry_ids, collapse = "\n"), "\n"),
+  digest::digest(paste0(paste(r15b_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
-  "c1f168983e13817b9852dd03301d340fbdf7ab53b169affcbd16a0919cc98267",
-  "The exact ordered R14 133-Resource target ID set changed"
+  "ea8c2fab6c3679104195cc4db2c017821fdf77b285ab05db957451f7ea7580b6",
+  "The exact ordered R15B 133-Resource target ID set changed"
 )
 assert_identical(published_ids, expected_published_ids,
                  "The exact 67 published Resources changed or reordered")
 assert_identical(vapply(held_staged, `[[`, character(1), "id"), expected_held_staged_ids,
                  "The exact five held staged Resources changed or reordered")
-assert_identical(staged_ids[staged_ids %in% r14_registry_ids], r14_registry_ids,
-                 "The exact R14 target Resources are not all staged in contract order")
-assert_identical(length(r14_registry_ids), 133L,
-                 "R14 must add exactly 133 target Resources")
+assert_identical(staged_ids[staged_ids %in% r15b_target_registry_ids],
+                 r15b_target_registry_ids,
+                 "The exact R15B target Resources are not all staged in contract order")
+assert_identical(length(r15b_target_registry_ids), 133L,
+                 "R15B must preserve exactly 133 target Resources")
+assert_true(!any(r15b_removed_resource_ids %in% registry_ids),
+            "An R15A-invalid Resource remains in canonical authority")
+assert_true(!any(r15b_rejected_canonical_ids %in% registry_ids),
+            "A removed, duplicate, or subordinate R15B proposal remains canonical")
+assert_identical(registry_ids[registry_ids %in% r15b_selected_replacement_ids],
+                 r15b_selected_replacement_ids,
+                 "The two selected R15B replacements are missing or reordered")
+assert_true(all(r15b_selected_replacement_ids %in% r15b_accepted_candidate_ids),
+            "An R15B replacement is outside the accepted R13 candidate corpus")
 assert_true(!"resource_nasa_nasa_grace_map_comparison_slider_viewer" %in% registry_ids,
             "The blocked GRACE comparison-slider access point became a Resource")
 assert_identical(sum(registry_ids == "resource_noaa_noaa_sea_level_rise_viewer_viewer"), 1L,
@@ -200,10 +310,10 @@ assert_identical(sum(publication_states == "published"), 67L,
                  "Published Resource count must be 67")
 assert_identical(sum(publication_states == "staged"), 138L,
                  "Staged Resource count must be 138")
-assert_true(all(vapply(r14_registry, function(record) {
+assert_true(all(vapply(r15b_target_registry, function(record) {
   identical(record$publication_state, "staged")
-}, logical(1))), "Every R14 target Resource must remain staged")
-assert_identical(sum(vapply(r14_registry, function(record) {
+}, logical(1))), "Every R15B target Resource must remain staged")
+assert_identical(sum(vapply(r15b_target_registry, function(record) {
   !length(record$subject_tags)
 }, logical(1))), 15L,
 "The approved 15 empty subject sets were not preserved exactly for staging")
@@ -379,6 +489,117 @@ compact_json <- function(value) jsonlite::toJSON(
   value,
   auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
 )
+strip_r15b_authorized_access_point <- function(record) {
+  expected <- r15b_authorized_access_points[[record$id]]
+  if (!is.null(expected)) {
+    record$access_points <- Filter(function(access_point) {
+      !identical(access_point, expected)
+    }, record$access_points)
+  }
+  record
+}
+raw_registry_ids <- vapply(
+  raw_registry$resources, `[[`, character(1), "id"
+)
+r15b_repaired_records <- raw_registry$resources[match(
+  names(r15b_url_repairs), raw_registry_ids
+)]
+assert_identical(length(r15b_repaired_records), 25L,
+                 "R15B must contain exactly 25 authorized URL repairs")
+for (i in seq_along(r15b_repaired_records)) {
+  record <- r15b_repaired_records[[i]]
+  expected_url <- unname(r15b_url_repairs[[record$id]])
+  canonical_access_points <- Filter(function(access_point) {
+    identical(access_point$role, "canonical")
+  }, record$access_points)
+  official_source_references <- Filter(function(reference) {
+    identical(reference$role, "official_source")
+  }, record$public_source_references)
+  assert_identical(record$canonical_url, expected_url,
+                   paste("R15B canonical URL repair changed:", record$id))
+  assert_identical(length(canonical_access_points), 1L,
+                   paste("R15B canonical access-point count changed:", record$id))
+  assert_identical(canonical_access_points[[1]]$url, expected_url,
+                   paste("R15B canonical access-point repair changed:", record$id))
+  assert_identical(length(official_source_references), 1L,
+                   paste("R15B official-source reference count changed:", record$id))
+  assert_identical(official_source_references[[1]]$url, expected_url,
+                   paste("R15B official-source repair changed:", record$id))
+}
+assert_identical(length(r15b_url_repairs), 25L,
+                 "The historical R15A deterministic repair count changed")
+assert_true(!r15b_usbr_resource_id %in% names(r15b_url_repairs),
+            "The separate USBR host repair was folded into the R15A 25-repair count")
+usbr_record <- raw_registry$resources[[match(r15b_usbr_resource_id, raw_registry_ids)]]
+usbr_canonical_access_points <- Filter(function(access_point) {
+  identical(access_point$role, "canonical")
+}, usbr_record$access_points)
+usbr_official_source_references <- Filter(function(reference) {
+  identical(reference$role, "official_source")
+}, usbr_record$public_source_references)
+assert_identical(usbr_record$canonical_url, r15b_usbr_canonical_url_after,
+                 "The USBR canonical host repair changed")
+assert_identical(length(usbr_canonical_access_points), 1L,
+                 "The USBR canonical access-point count changed")
+assert_identical(usbr_canonical_access_points[[1]]$url, r15b_usbr_canonical_url_after,
+                 "The USBR canonical access-point host repair changed")
+assert_identical(length(usbr_official_source_references), 1L,
+                 "The USBR official-source reference count changed")
+assert_identical(usbr_official_source_references[[1]]$url,
+                 r15b_usbr_canonical_url_after,
+                 "The USBR official-source host repair changed")
+strip_authorized_endpoint_fields <- function(record) {
+  record$canonical_url <- NULL
+  record$access_points <- lapply(record$access_points, function(access_point) {
+    if (identical(access_point$role, "canonical")) access_point$url <- NULL
+    access_point
+  })
+  record$public_source_references <- lapply(
+    record$public_source_references,
+    function(reference) {
+      if (identical(reference$role, "official_source")) reference$url <- NULL
+      reference
+    }
+  )
+  record
+}
+assert_identical(
+  digest::digest(compact_json(lapply(
+    r15b_repaired_records, strip_authorized_endpoint_fields
+  )), algo = "sha256", serialize = FALSE),
+  "e7049ce710270fc8477741992909b55a0bf47a0818f48c0e2d5b3201e47611bc",
+  "A protected field changed in the 25 repaired R15B Resources"
+)
+assert_identical(
+  digest::digest(compact_json(strip_authorized_endpoint_fields(usbr_record)),
+                 algo = "sha256", serialize = FALSE),
+  "23a5b927aec4c904a75b01d695d463c0c428955038b255c6c2a5c19ae0a65802",
+  "A protected USBR field changed during the canonical-host repair"
+)
+assert_identical(
+  digest::digest(compact_json(lapply(raw_registry$resources[match(
+    r15b_checker_artifact_ids, raw_registry_ids
+  )], strip_r15b_authorized_access_point)), algo = "sha256", serialize = FALSE),
+  "2bad10e8701add940bbd47f2f56f61eb8d644bb97d14041e232d68d4104ae60a",
+  "An R15A OneRain checker-artifact field outside the authorized Napa access point changed"
+)
+r15b_replacement_records_without_order <- lapply(
+  raw_registry$resources[match(r15b_selected_replacement_ids, raw_registry_ids)],
+  function(record) {
+    record <- strip_r15b_authorized_access_point(record)
+    record$order <- NULL
+    record
+  }
+)
+assert_identical(
+  digest::digest(compact_json(r15b_replacement_records_without_order),
+                 algo = "sha256", serialize = FALSE),
+  "cc7d86bcce4cf69c81d5328be3cc201f0bf4f770df237e7c17cd8ef9a05c5366",
+  paste0(
+    "An R15B replacement differs from its exact accepted R13 schema-v3 record ",
+    "outside the authorized subordinate access point"
+  )
+)
 raw_current <- raw_registry$resources[match(expected_ids, vapply(
   raw_registry$resources, `[[`, character(1), "id"
 ))]
@@ -410,24 +631,31 @@ strip_publication_state <- function(record) {
   record
 }
 newly_published_without_state_json <- compact_json(lapply(
-  newly_published, strip_publication_state
+  lapply(newly_published, strip_r15b_authorized_access_point),
+  strip_publication_state
 ))
 assert_identical(
   digest::digest(newly_published_without_state_json, algo = "sha256", serialize = FALSE),
-  "d726b498b4292dcc46f720e2c166704c362539e312d357cb21a617a41ea6de7a",
-  "A newly published Resource field other than publication_state changed from R9"
+  "cdc21369a808d4619313034e9e07127572f4429ac26bbef6eb99365ef570cdca",
+  paste0(
+    "A newly published Resource field changed beyond publication_state and the exact ",
+    "USBR canonical-host repair"
+  )
 )
-baseline_registry <- raw_registry$resources[seq_along(expected_baseline_resource_ids)]
+baseline_registry <- lapply(
+  raw_registry$resources[seq_along(expected_baseline_resource_ids)],
+  strip_r15b_authorized_access_point
+)
 assert_identical(
   digest::digest(compact_json(baseline_registry), algo = "sha256", serialize = FALSE),
-  "de214a316a4842bc76db1276beaa8d6ec4d2f66679d25d8ae6a2d90bdfa58113",
-  "One of the accepted 72 baseline Resources changed during R14 staging"
+  "bcc56bd0930cbc09ba47a513e1512d0a6e0767d90281813e50d1b518baeac181",
+  "A baseline Resource changed beyond the exact USBR canonical-host repair"
 )
 assert_identical(
   digest::digest(compact_json(raw_registry$resources[73:205]),
                  algo = "sha256", serialize = FALSE),
-  "d09228500cf73aa111336f5d2541bcb9a6ad771509b23a85917be5e0145a7a48",
-  "An R14 schema-v3 Resource record differs from the reviewed target contract"
+  "285ad8cc5406caf0383dcfa94c4826cab761e69b464f00f9867ca8998b5004e3",
+  "An R15B schema-v3 Resource record differs from the reviewed target contract"
 )
 held_json <- compact_json(held_staged)
 assert_identical(
@@ -480,12 +708,52 @@ all_access_valid <- vapply(registry, function(record) {
   urls <- vapply(record$access_points, `[[`, character(1), "url")
   roles <- vapply(record$access_points, `[[`, character(1), "role")
   labels <- vapply(record$access_points, `[[`, character(1), "label")
-  all(grepl("^https://", urls)) && !anyDuplicated(urls) && all(nzchar(labels)) &&
+  approved_http_url <- unname(r15b_http_only_exceptions[record$id])
+  all(vapply(urls, function(url) {
+    grepl("^https://", url) ||
+      (length(approved_http_url) == 1L && !is.na(approved_http_url) &&
+         identical(url, approved_http_url))
+  }, logical(1))) &&
+    !anyDuplicated(urls) && all(nzchar(labels)) &&
     sum(roles == "canonical") == 1L &&
     identical(urls[[match("canonical", roles)]], record$canonical_url)
 }, logical(1))
 assert_true(all(all_access_valid),
             "Registry access-point URLs/labels/canonical identity changed")
+for (owner_id in names(r15b_authorized_access_points)) {
+  record <- registry[[match(owner_id, registry_ids)]]
+  expected <- r15b_authorized_access_points[[owner_id]]
+  matches <- vapply(record$access_points, identical, logical(1), expected)
+  assert_identical(sum(matches), 1L, paste(
+    "The authorized subordinate access point is not present exactly once on", owner_id
+  ))
+  normalized_urls <- tolower(sub("/$", "", vapply(
+    record$access_points, `[[`, character(1), "url"
+  )))
+  assert_identical(sum(normalized_urls == tolower(sub("/$", "", expected$url))), 1L,
+                   paste("A normalized duplicate access point remains on", owner_id))
+  assert_identical(record$canonical_url, unname(r15b_parent_canonical_urls[[owner_id]]),
+                   paste("The canonical parent URL changed for", owner_id))
+}
+assert_identical(length(r15b_authorized_access_points), 4L,
+                 "The exact R15B access-point addition count changed")
+assert_identical(
+  pt_guide_http_only_resource_url_exceptions(), r15b_http_only_exceptions,
+  "The exact three-entry HTTP-only Resource exception contract changed"
+)
+http_url_fields <- unlist(lapply(registry, function(record) c(
+  record$canonical_url,
+  vapply(record$access_points, `[[`, character(1), "url"),
+  vapply(record$public_source_references, `[[`, character(1), "url")
+)), use.names = FALSE)
+assert_identical(sum(grepl("^http://", http_url_fields)), 9L,
+                 "The exact three HTTP-only actions must occupy nine URL-bearing fields")
+unauthorized_http_canonical_ids <- registry_ids[vapply(registry, function(record) {
+  grepl("^http://", record$canonical_url) &&
+    !identical(record$canonical_url, unname(r15b_http_only_exceptions[record$id]))
+}, logical(1))]
+assert_identical(length(unauthorized_http_canonical_ids), 0L,
+                 "An unauthorized HTTP canonical URL entered the registry")
 
 duplicate_removal_ids <- c(
   "resource_aso_airborne_snow_observatories",
@@ -568,8 +836,8 @@ assert_identical(
 assert_identical(
   digest::digest(compact_json(raw_relationship_registry$resources[73:205]),
                  algo = "sha256", serialize = FALSE),
-  "b6f366a98d54f26d1ba2f3463d74174f8288a50f4e9d41e8ffe0f9b1bfd0b9d8",
-  "An R14 schema-v2 Resource relationship record differs from the reviewed contract"
+  "5b63afca37acbc83ea681e1629ddf9c0b2a40b98d07d18ea33922e6506a2de7c",
+  "An R15B schema-v2 Resource relationship record differs from the reviewed contract"
 )
 assert_identical(
   digest::digest(paste0(paste(relationship_product_ids, collapse = "\n"), "\n"),
@@ -616,6 +884,9 @@ assert_identical(unname(as.integer(table(factor(
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
 )))), c(13L, 57L, 16L), "Canonical relationship-role counts changed")
+assert_true(!any(vapply(canonical_links, function(link) {
+  link$resource_id %in% r15b_selected_replacement_ids
+}, logical(1))), "An R15B replacement gained an unauthorized Product link")
 
 swrcb_relationship <- relationship_registry$products[[match(
   "swrcb_wr_list_official", relationship_product_ids
@@ -659,14 +930,22 @@ assert_true(all(vapply(staged_relationship_resources, function(record) {
   identical(record$map_review_state, "not_yet_reviewed") &&
     is.null(record$map_representation) && !length(record$evidence_refs)
 }, logical(1))), "Staged Resources must retain explicit deferred review records")
-r14_relationship_resources <- relationship_resources[
-  match(r14_registry_ids, relationship_resource_ids)
+r15b_target_relationship_resources <- relationship_resources[
+  match(r15b_target_registry_ids, relationship_resource_ids)
 ]
-assert_true(all(vapply(r14_relationship_resources, function(record) {
+assert_true(all(vapply(r15b_target_relationship_resources, function(record) {
   identical(record$map_review_state, "reviewed") &&
     identical(record$map_representation, "not_currently_mapped_in_brim") &&
     length(record$evidence_refs) > 0L
-}, logical(1))), "Every R14 Resource must retain its reviewed not-mapped relationship record")
+}, logical(1))), "Every R15B target Resource must retain its reviewed not-mapped relationship record")
+selected_replacement_relationships <- relationship_resources[
+  match(r15b_selected_replacement_ids, relationship_resource_ids)
+]
+assert_true(all(vapply(selected_replacement_relationships, function(record) {
+  identical(record$map_review_state, "reviewed") &&
+    identical(record$map_representation, "not_currently_mapped_in_brim") &&
+    length(record$evidence_refs) > 0L
+}, logical(1))), "An R15B replacement relationship record is not reviewed and not-mapped")
 all_resource_representations <- vapply(relationship_resources, function(record) {
   if (is.null(record$map_representation)) "not_yet_reviewed" else record$map_representation
 }, character(1))
@@ -795,6 +1074,16 @@ assert_true(all(vapply(browser_records, function(record) {
 projected_goes <- browser_records[[match("resource_noaa_goes_image_viewer", expected_published_ids)]]
 assert_identical(vapply(projected_goes$accessPoints, `[[`, character(1), "url"),
                  expected_goes_urls, "GOES access points changed in browser projection")
+projected_usbr <- browser_records[[match(r15b_usbr_resource_id, expected_published_ids)]]
+assert_identical(projected_usbr$canonicalUrl, r15b_usbr_canonical_url_after,
+                 "The projected USBR canonical action changed")
+assert_identical(projected_usbr$accessPoints[[1]]$url, r15b_usbr_canonical_url_after,
+                 "The rendered USBR Official Resource href changed")
+projected_cdec <- browser_records[[match("resource_dwr_cdec", expected_published_ids)]]
+assert_identical(
+  projected_cdec$accessPoints[[2]], r15b_authorized_access_points$resource_dwr_cdec,
+  "The rendered CDEC Reservoir Conditions access point changed"
+)
 
 assert_identical(pt_guide_normalize_resource_search("Weather—Water / Forecast"),
                  "weather water forecast",
@@ -810,8 +1099,11 @@ assert_true(!any(vapply(staged_ids, function(id) {
 }, logical(1))), "A staged Resource ID entered the browser projection")
 assert_identical(
   digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "66e7a271c738ea9626aa6cad39ece66d043afa5c8eba88cdf62f74abbcb0a1c2",
-  "The browser Resource payload changed beyond the exact R12B public projection"
+  "ba23f7c30ad9bf9bf6ae93aae72348ea45437ac907fe19669956781fdc32ffa5",
+  paste0(
+    "The browser Resource payload changed beyond the exact USBR action repair ",
+    "and CDEC configured access point"
+  )
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
@@ -854,6 +1146,56 @@ expect_invalid <- function(value, pattern, message) {
 }
 fresh_registry <- function() jsonlite::fromJSON(registry_path, simplifyVector = FALSE)
 
+assert_identical(length(r15b_http_only_exceptions), 3L,
+                 "The HTTP-only exception map must contain exactly three entries")
+for (resource_id in names(r15b_http_only_exceptions)) {
+  approved_url <- unname(r15b_http_only_exceptions[[resource_id]])
+  assert_identical(
+    pt_guide_validate_public_resource_url(
+      approved_url, "Approved HTTP-only fixture", resource_id
+    ),
+    approved_url,
+    paste("An exact approved HTTP-only Resource pair failed:", resource_id)
+  )
+}
+assert_error(
+  pt_guide_validate_public_resource_url(
+    "http://wiskiweb.tid.org/different.htm", "Wrong URL fixture",
+    "resource_tid_turlock_irrigation_district_wiski_web_platform"
+  ),
+  "exact reviewed HTTP-only Resource exception",
+  "An approved Resource ID accepted a different HTTP path"
+)
+assert_error(
+  pt_guide_validate_public_resource_url(
+    "http://wiskiweb.tid.org/index.htm", "Wrong ID fixture", "resource_doi"
+  ),
+  "exact reviewed HTTP-only Resource exception",
+  "An unapproved Resource ID accepted an approved HTTP URL"
+)
+assert_error(
+  pt_guide_validate_public_resource_url(
+    "http://example.gov/resource", "Fourth HTTP fixture", "resource_doi"
+  ),
+  "exact reviewed HTTP-only Resource exception",
+  "An arbitrary fourth HTTP canonical URL was accepted"
+)
+assert_error(
+  pt_guide_validate_public_resource_url(
+    "http://www.kingsriverwater.org/", "Host wildcard fixture",
+    "resource_krwa_kings_river_water_association_platform"
+  ),
+  "exact reviewed HTTP-only Resource exception",
+  "A host-only or wildcard HTTP exception was accepted"
+)
+assert_identical(
+  pt_guide_validate_public_resource_url(
+    "https://example.gov/resource", "Ordinary HTTPS fixture", "resource_doi"
+  ),
+  "https://example.gov/resource",
+  "An ordinary valid public HTTPS URL no longer passes"
+)
+
 bad <- fresh_registry()
 bad$schema_version <- 1L
 expect_invalid(bad, "schema_version 3", "Unsupported schema version was accepted")
@@ -895,6 +1237,17 @@ bad$resources[[1]]$canonical_url <- "https://localhost/private"
 bad$resources[[1]]$access_points[[1]]$url <- "https://localhost/private"
 expect_invalid(bad, "local, private, or restricted host",
                "Private URL was accepted")
+bad <- fresh_registry()
+bad$resources[[1]]$access_points[[1]]$url <- "http://example.gov/access"
+expect_invalid(bad, "exact reviewed HTTP-only Resource exception",
+               "An arbitrary HTTP access-point URL was accepted")
+bad <- fresh_registry()
+bad_fixture_ids <- vapply(bad$resources, `[[`, character(1), "id")
+bad_usbr_index <- match(r15b_usbr_resource_id, bad_fixture_ids)
+bad$resources[[bad_usbr_index]]$public_source_references[[1]]$url <-
+  "http://example.gov/source"
+expect_invalid(bad, "exact reviewed HTTP-only Resource exception",
+               "An arbitrary HTTP public-source reference was accepted")
 bad <- fresh_registry()
 bad$resources[[1]]$summary <- paste0("Local file /", "Users/example/resource.csv")
 expect_invalid(bad, "machine-local filesystem path",
@@ -1096,7 +1449,9 @@ assert_error(
   "no-public-Resource coverage requires zero", "Provenance-only coverage with a link was accepted"
 )
 bad_relationships <- clone_value(timber_fixture)
-bad_relationships$products[[1]]$delivery_evidence_refs <- list("/Users/example/private.csv")
+bad_relationships$products[[1]]$delivery_evidence_refs <- list(paste0(
+  "/", "Users/example/private.csv"
+))
 assert_error(
   validate_relationship_fixture(bad_relationships, timber_ids),
   "normalized repository-relative", "A machine-local evidence path was accepted"
@@ -1141,13 +1496,25 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R14 target-200 staging contracts passed.\n")
+cat("GUIDE-I2B-R15B endpoint repair and bounded replacement contracts passed.\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
 cat("TOTAL_RESOURCES=205\n")
 cat("PUBLISHED_RESOURCES=67\n")
 cat("STAGED_RESOURCES=138\n")
-cat("R14_NEW_STAGED_RESOURCES=133\n")
+cat("R15B_REVISED_TARGET_RESOURCES=133\n")
+cat("R15B_URL_REPAIRS=25\n")
+cat("R15B_ADDITIONAL_USBR_HOST_REPAIR=1\n")
+cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
+cat("CANONICAL_URL_ACTIONS_CHANGED=26\n")
+cat("ACCESS_POINT_ADDITIONS_COUNT=4\n")
+cat("TOTAL_URL_BEARING_FIELDS_CHANGED=82\n")
+cat("HTTP_ONLY_EXCEPTION_COUNT=3\n")
+cat("UNAUTHORIZED_HTTP_CANONICAL_URL_COUNT=0\n")
+cat("HTTPS_DEFAULT_VALIDATOR=PASS\n")
+cat("R15B_REMOVED_RESOURCES=2\n")
+cat("R15B_SELECTED_REPLACEMENTS=2\n")
+cat("R15B_PRODUCT_LINK_ACTIONS=0\n")
 cat("NEWLY_PUBLISHED_RESOURCES=34\n")
 cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
