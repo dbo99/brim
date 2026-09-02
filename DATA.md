@@ -56,49 +56,57 @@ lifecycle, status, freshness, or runtime-control authority.
 Wave-2 publication introduces no Product relationship, Guide profile, subject,
 Information Type, controlled vocabulary, or facet.
 `00_config/guide_product_resource_relationships.json` is the sole authored
-Product–Resource relationship authority. Its schema-version-1 `products` array
-must equal the complete current compiled Product set exactly; the current
-registry therefore has one record for each of 270 Products. Each record owns a
-delivery classification, an independent coverage-review state and disposition,
-evidence, and zero or more exact links to the canonical Resource registry.
-Delivery classification does not imply Resource coverage. A Product may
-honestly remain `not_yet_reviewed` or have a reviewed no-public-Resource
-disposition with zero links; placeholder or inferred Resources are prohibited.
-Product and Resource IDs, controlled values, link cardinality, evidence paths,
-duplicates, unknown fields, and disposition-specific rules validate fail
-closed. Resource links validate against all 72 canonical Resources, including
-staged records, while publication projection removes staged Resources before
-browser relationships are derived. Product relationships are never inferred
-from Resource titles, providers, summaries, URLs, publication, or geographic
-intersection. `00_config/guide_product_enrichment.json` owns editorial Product
-content only and contains no Resource relationships. A permanent old/new dual
-authority or fallback is prohibited.
+Product–Resource and Resource map-representation authority. Its schema-version-2
+`products` and `resources` arrays must equal the complete current compiled
+Product set and canonical Resource set exactly: 270 Product records and 72
+Resource review/representation records. Each Product owns a delivery
+classification, an independent coverage-review state and disposition,
+evidence, and zero or more exact canonical Resource links. Each Resource owns
+exactly one map-review state, an optional reviewed map representation, and
+evidence. Resource representation is validated from the reverse Product links
+rather than maintained as a second relationship list.
 
-During R12A only, one read-only compiler-owned adapter in
-`03_functions/leaflet_guide_helpers.r` derives the accepted public R10
-relationship projection from the 17 links carrying
-`temporary_r12a_legacy_public_projection`. This compatibility projection is
-noncanonical, has no standalone configuration, and is scheduled for deletion
-in R12B. The additional 19 calibrated canonical links and all delivery and
-coverage fields remain build-time-only in R12A. Public semantics therefore
-remain zero `displayed_in_brim`, seven `used_by_brim`, and ten
-`related_external_resource` rows. The Resource Explorer derives its primary
-views from that temporary projection without adding another relationship
-category. `BRIM-linked` is the union of Resources with at least one projected
-`displayed_in_brim`, `used_by_brim`, or `related_external_resource` row; it
-currently contains nine unique Resources.
-`Beyond BRIM` is the exact 58-Resource complement within the 67 published
-Resources. The visible relationship subtype refinements preserve the canonical
-types and currently count zero Available in BRIM, six Used by BRIM, and three
-Related resource records by unique Resource rather than relationship row.
+The current authority contains 70 reviewed and 200 `not_yet_reviewed` Products,
+86 exact links, and the exact supported relationship roles: 13 direct matches,
+57 selected-product links, and 16 source references. Delivery class is
+secondary descriptive context and does not imply Resource coverage or create a
+primary public filter. Multiple-source Products expose the exact canonical
+source Resource list in registry order. The three DWR/TRE Altamira Products
+remain one source family, while `EXT033` remains the separate DWR/USGS/TRE
+multiple-source composite. Only accepted apply actions are present. The staged
+intake backlogs remain deferred: 147 Products await missing canonical Resource
+identity, three await identity or family splitting, and the lower-priority
+packet remains 42 families / 55 Products. Placeholder or inferred Resources
+are prohibited.
+
+Product and Resource IDs, controlled values, set equality, link cardinality,
+evidence paths, duplicates, unknown fields, and disposition/representation
+rules validate fail closed. Resource links validate against all 72 canonical
+Resources, while publication projection removes staged Resources before public
+relationships are derived. Product relationships and Resource map presence are
+never inferred from titles, providers, summaries, URLs, publication, or
+geographic intersection. `00_config/guide_product_enrichment.json` owns
+editorial Product content only and contains no Resource relationships. The
+R12A compatibility objects and compiler adapter have been deleted; permanent
+compatibility shadow, old/new dual authority, and fallback are prohibited.
+
+All 67 published Resources have reviewed map-presence authority: three are
+`direct_match_in_brim`, 20 are `selected_products_in_brim`, and 44 are
+`not_currently_mapped_in_brim`. The public primary views derive only from those
+Resource records and are exactly `In BRIM map` (23), `Beyond the map` (44), and
+`All Resources` (67). Product relationships support detail and exact
+Product-context navigation but do not create another primary Resource filter.
 
 The browser projection contains the 67 published records in registry order and
-only the reviewed 22-field Resource shape: identity and descriptive metadata,
+only the reviewed 23-field Resource shape: identity and descriptive metadata,
 labeled access points, Resource Type and temporal machine IDs with build-derived
 labels, normalized geographic scope with its build-derived scope label and
-independent named places, derived related Products and relationship flags, and
-normalized search text. Migration aliases, runtime authority, raw source
-evidence, and unreviewed fields do not enter that shape.
+independent named places, `mapReviewState`, `mapRepresentation`, exact
+`representedProducts`, and normalized search text. Represented Product entries
+carry only Product identity/title plus secondary delivery, coverage, role, and
+exact source-Resource IDs. Migration aliases, legacy relationship flags and
+subtypes, runtime authority, raw source evidence, and unreviewed fields do not
+enter that shape.
 The selected-detail primary external action is the one access point whose role
 is `canonical` and whose URL exactly equals `canonicalUrl`; other access points
 retain their projected labels and exact URLs as secondary actions. This display

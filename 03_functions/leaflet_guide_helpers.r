@@ -1115,26 +1115,8 @@ pt_guide_normalize_resource_search <- function(values) {
   trimws(gsub("[[:space:]]+", " ", value, perl = TRUE))
 }
 
-pt_guide_resource_relationship_flags <- function(related_products) {
-  relationship_types <- if (length(related_products)) {
-    vapply(related_products, `[[`, character(1), "relationshipType")
-  } else {
-    character(0)
-  }
-  displayed <- "displayed_in_brim" %in% relationship_types
-  used <- "used_by_brim" %in% relationship_types
-  related <- "related_external_resource" %in% relationship_types
-  brim_linked <- displayed || used || related
-  list(
-    brimLinked = brim_linked,
-    beyondBrim = !brim_linked,
-    displayedInBrim = displayed,
-    usedByBrim = used,
-    relatedExternalResource = related
-  )
-}
-
-pt_guide_resource_browser_records <- function(registry, products) {
+pt_guide_resource_browser_records <- function(
+    registry, products, relationship_registry) {
   if (!inherits(registry, "pt_guide_resource_registry")) {
     stop("Guide Resource browser adaptation requires a validated registry.",
          call. = FALSE)
@@ -1148,29 +1130,72 @@ pt_guide_resource_browser_records <- function(registry, products) {
     stop("Guide Resource browser adaptation requires eligible projected Products.",
          call. = FALSE)
   }
+  if (!inherits(
+        relationship_registry,
+        "pt_guide_product_resource_relationship_registry"
+      )) {
+    stop("Guide Resource browser adaptation requires the validated relationship authority.",
+         call. = FALSE)
+  }
   product_ids <- vapply(products, function(product) pt_guide_or(product$id), character(1))
   if (any(!nzchar(product_ids)) || anyDuplicated(product_ids)) {
     stop("Guide Resource browser adaptation requires unique eligible Product IDs.",
          call. = FALSE)
   }
   metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
+  relationship_products <- relationship_registry$products
+  relationship_resources <- relationship_registry$resources
+  relationship_product_ids <- vapply(
+    relationship_products, `[[`, character(1), "product_id"
+  )
+  relationship_resource_ids <- vapply(
+    relationship_resources, `[[`, character(1), "resource_id"
+  )
+  published_resource_ids <- vapply(registry, `[[`, character(1), "id")
+  resource_titles <- stats::setNames(
+    vapply(registry, `[[`, character(1), "title"),
+    published_resource_ids
+  )
   lapply(registry, function(record) {
     display_providers <- Filter(
       function(provider) identical(provider$role, "display_provider"), record$providers
     )
-    related_products <- list()
+    represented_products <- list()
     for (product in products) {
-      for (relationship in product$relatedResources) {
-        if (!identical(pt_guide_or(relationship$id), record$id)) next
-        related_products[[length(related_products) + 1L]] <- list(
-          id = product$id,
+      relationship_record <- relationship_products[[match(
+        product$id, relationship_product_ids
+      )]]
+      if (is.null(relationship_record)) {
+        stop("Guide Resource browser adaptation found a Product outside relationship authority.",
+             call. = FALSE)
+      }
+      source_resource_ids <- intersect(
+        published_resource_ids,
+        vapply(
+          relationship_record$resource_links,
+          `[[`,
+          character(1),
+          "resource_id"
+        )
+      )
+      for (relationship in relationship_record$resource_links) {
+        if (!identical(relationship$resource_id, record$id)) next
+        represented_products[[length(represented_products) + 1L]] <- list(
+          productId = product$id,
           title = product$title,
-          entityType = product$entityType,
-          relationshipType = relationship$relationshipType,
-          role = relationship$role,
-          useScope = relationship$useScope
+          deliveryClass = relationship_record$delivery_class,
+          coverageDisposition = relationship_record$coverage_disposition,
+          relationshipRole = relationship$relationship_role,
+          sourceResourceIds = unname(source_resource_ids)
         )
       }
+    }
+    representation_record <- relationship_resources[[match(
+      record$id, relationship_resource_ids
+    )]]
+    if (is.null(representation_record)) {
+      stop("Guide Resource browser adaptation found a Resource outside relationship authority.",
+           call. = FALSE)
     }
     aliases <- unname(as.character(unlist(record$search_aliases, use.names = FALSE)))
     providers <- lapply(record$providers, function(provider) list(
@@ -1213,7 +1238,14 @@ pt_guide_resource_browser_records <- function(registry, products) {
       unlist(record$variables, use.names = FALSE),
       unlist(record$use_scopes, use.names = FALSE),
       geographic_scope$scopeLabel,
-      geographic_scope$names
+      geographic_scope$names,
+      vapply(represented_products, `[[`, character(1), "title"),
+      unname(resource_titles[published_resource_ids %in% unlist(lapply(
+        Filter(function(product) {
+          identical(product$coverageDisposition, "multiple_source_resources")
+        }, represented_products),
+        `[[`, "sourceResourceIds"
+      ), use.names = FALSE)])
     ))
     list(
       kind = "Resource",
@@ -1231,14 +1263,15 @@ pt_guide_resource_browser_records <- function(registry, products) {
       temporalCharacterLabel = temporal_character_label,
       resourceGranularity = record$resource_granularity,
       subjectTags = unname(as.character(unlist(record$subject_tags, use.names = FALSE))),
-      informationTypes = unname(as.character(unlist(
+      informationTypeTags = unname(as.character(unlist(
         record$information_type_tags, use.names = FALSE
       ))),
       variables = unname(as.character(unlist(record$variables, use.names = FALSE))),
       useScopes = unname(as.character(unlist(record$use_scopes, use.names = FALSE))),
       geographicScope = geographic_scope,
-      relatedProducts = unname(related_products),
-      relationshipFlags = pt_guide_resource_relationship_flags(related_products),
+      mapReviewState = representation_record$map_review_state,
+      mapRepresentation = representation_record$map_representation,
+      representedProducts = unname(represented_products),
       searchText = search_text
     )
   })
@@ -1292,19 +1325,17 @@ pt_guide_relationship_registry_tracked_paths <- function(repository_root = ".") 
 
 pt_guide_validate_product_resource_relationship_registry <- function(
     source, product_universe_ids, resource_registry,
-    repository_root = ".", tracked_paths = NULL,
-    required_r12a_legacy_projection_count = NULL) {
-  top_fields <- c("schema_version", "products")
+    repository_root = ".", tracked_paths = NULL) {
+  top_fields <- c("schema_version", "products", "resources")
   product_fields <- c(
     "product_id", "delivery_class", "delivery_evidence_refs",
     "coverage_review_state", "coverage_disposition", "coverage_evidence_basis",
     "coverage_evidence_refs", "resource_links"
   )
-  link_fields <- c(
-    "resource_id", "relationship_role", "evidence_refs",
-    "temporary_r12a_legacy_public_projection"
+  link_fields <- c("resource_id", "relationship_role", "evidence_refs")
+  resource_fields <- c(
+    "resource_id", "map_review_state", "map_representation", "evidence_refs"
   )
-  legacy_fields <- c("relationship_type", "role", "use_scope")
   delivery_values <- c(
     "provider_hosted", "brim_enhanced", "brim_managed", "not_applicable"
   )
@@ -1322,6 +1353,10 @@ pt_guide_validate_product_resource_relationship_registry <- function(
   link_role_values <- c(
     "direct_match_in_brim", "selected_product_from_broader_resource",
     "source_reference"
+  )
+  representation_values <- c(
+    "direct_match_in_brim", "selected_products_in_brim",
+    "not_currently_mapped_in_brim"
   )
 
   assert_fields <- function(record, required, allowed = required, label) {
@@ -1347,8 +1382,9 @@ pt_guide_validate_product_resource_relationship_registry <- function(
 
   assert_fields(source, top_fields, label = "Guide Product-Resource relationship registry")
   assert_array(source$products, "Guide Product-Resource relationship registry products")
-  if (!identical(source$schema_version, 1L)) {
-    stop("Guide Product-Resource relationship registry must use schema_version 1.",
+  assert_array(source$resources, "Guide Product-Resource relationship registry resources")
+  if (!identical(source$schema_version, 2L)) {
+    stop("Guide Product-Resource relationship registry must use schema_version 2.",
          call. = FALSE)
   }
   product_universe_ids <- unname(as.character(product_universe_ids))
@@ -1367,7 +1403,6 @@ pt_guide_validate_product_resource_relationship_registry <- function(
   }
 
   ids <- character(length(source$products))
-  legacy_projection_count <- 0L
   validated <- vector("list", length(source$products))
   for (index in seq_along(source$products)) {
     record <- source$products[[index]]
@@ -1417,10 +1452,7 @@ pt_guide_validate_product_resource_relationship_registry <- function(
     for (link_index in seq_along(record$resource_links)) {
       link <- record$resource_links[[link_index]]
       link_label <- paste0(label, " resource link ", link_index)
-      assert_fields(
-        link, setdiff(link_fields, "temporary_r12a_legacy_public_projection"),
-        link_fields, link_label
-      )
+      assert_fields(link, link_fields, label = link_label)
       resource_id <- pt_guide_resource_registry_scalar(
         link$resource_id, paste0(link_label, " resource_id")
       )
@@ -1439,40 +1471,11 @@ pt_guide_validate_product_resource_relationship_registry <- function(
       )
       if (!length(evidence_refs)) stop(link_label, " requires evidence.", call. = FALSE)
       link_keys[[link_index]] <- paste(product_id, resource_id, relationship_role, sep = "\r")
-      projection <- link$temporary_r12a_legacy_public_projection
-      if (!is.null(projection)) {
-        assert_fields(projection, legacy_fields, label = paste0(link_label, " temporary projection"))
-        relationship_type <- pt_guide_resource_registry_scalar(
-          projection$relationship_type, paste0(link_label, " relationship_type")
-        )
-        role <- pt_guide_resource_registry_scalar(
-          projection$role, paste0(link_label, " role")
-        )
-        use_scope <- pt_guide_resource_registry_scalar(
-          projection$use_scope, paste0(link_label, " use_scope")
-        )
-        if (!relationship_type %in% c("used_by_brim", "related_external_resource") ||
-            !identical(evidence_basis, "legacy_exact_relationship") ||
-            (identical(relationship_type, "used_by_brim") &&
-             !identical(relationship_role, "direct_match_in_brim")) ||
-            (identical(relationship_type, "related_external_resource") &&
-             !identical(relationship_role, "source_reference"))) {
-          stop(link_label, " has an invalid temporary R12A legacy public projection.",
-               call. = FALSE)
-        }
-        projection <- list(
-          relationship_type = relationship_type, role = role, use_scope = use_scope
-        )
-        legacy_projection_count <- legacy_projection_count + 1L
-      }
       links[[link_index]] <- list(
         resource_id = resource_id,
         relationship_role = relationship_role,
         evidence_refs = unname(evidence_refs)
       )
-      if (!is.null(projection)) {
-        links[[link_index]]$temporary_r12a_legacy_public_projection <- projection
-      }
     }
     if (anyDuplicated(link_keys)) {
       stop(label, " contains a duplicate Product/Resource/role link.", call. = FALSE)
@@ -1536,10 +1539,83 @@ pt_guide_validate_product_resource_relationship_registry <- function(
       call. = FALSE
     )
   }
-  if (!is.null(required_r12a_legacy_projection_count) &&
-      !identical(legacy_projection_count, as.integer(required_r12a_legacy_projection_count))) {
-    stop("Guide Product-Resource relationship registry must contain the exact R12A legacy projection count.",
+
+  validated_resources <- vector("list", length(source$resources))
+  representation_ids <- character(length(source$resources))
+  for (index in seq_along(source$resources)) {
+    record <- source$resources[[index]]
+    label <- paste0("Guide Product-Resource representation record ", index)
+    assert_fields(record, resource_fields, label = label)
+    resource_id <- pt_guide_resource_registry_scalar(
+      record$resource_id, paste0(label, " resource_id")
+    )
+    review_state <- pt_guide_resource_registry_scalar(
+      record$map_review_state, paste0(label, " map_review_state")
+    )
+    if (!review_state %in% review_values) {
+      stop(label, " has an uncontrolled map_review_state.", call. = FALSE)
+    }
+    representation <- record$map_representation
+    evidence_refs <- pt_guide_relationship_registry_evidence_refs(
+      record$evidence_refs, paste0(label, " evidence_refs"),
+      repository_root, tracked_paths
+    )
+    reverse_roles <- unlist(lapply(validated, function(product) {
+      vapply(
+        Filter(function(link) identical(link$resource_id, resource_id),
+               product$resource_links),
+        `[[`, character(1), "relationship_role"
+      )
+    }), use.names = FALSE)
+    if (identical(review_state, "not_yet_reviewed")) {
+      if (!is.null(representation) || length(evidence_refs) || length(reverse_roles)) {
+        stop(label, " not_yet_reviewed requires null representation, no evidence, and no links.",
+             call. = FALSE)
+      }
+    } else {
+      representation <- pt_guide_resource_registry_scalar(
+        representation, paste0(label, " map_representation")
+      )
+      if (!representation %in% representation_values || !length(evidence_refs)) {
+        stop(label, " reviewed representation requires a controlled value and evidence.",
+             call. = FALSE)
+      }
+      if (identical(representation, "direct_match_in_brim") &&
+          !"direct_match_in_brim" %in% reverse_roles) {
+        stop(label, " direct representation requires an exact direct Product link.",
+             call. = FALSE)
+      }
+      if (identical(representation, "selected_products_in_brim") &&
+          !length(reverse_roles)) {
+        stop(label, " selected representation requires at least one exact Product link.",
+             call. = FALSE)
+      }
+      if (identical(representation, "not_currently_mapped_in_brim") &&
+          length(reverse_roles)) {
+        stop(label, " not-currently-mapped representation cannot have a Product link.",
+             call. = FALSE)
+      }
+    }
+    representation_ids[[index]] <- resource_id
+    validated_resources[[index]] <- list(
+      resource_id = resource_id,
+      map_review_state = review_state,
+      map_representation = representation,
+      evidence_refs = unname(evidence_refs)
+    )
+  }
+  if (anyDuplicated(representation_ids)) {
+    stop("Guide Product-Resource relationship registry contains duplicate Resource records.",
          call. = FALSE)
+  }
+  missing_resource_ids <- setdiff(resource_ids, representation_ids)
+  extra_resource_ids <- setdiff(representation_ids, resource_ids)
+  if (length(missing_resource_ids) || length(extra_resource_ids)) {
+    stop(
+      "Guide Product-Resource relationship Resource IDs must equal the complete Resource universe; missing: ",
+      paste(missing_resource_ids, collapse = ", "), "; extra: ",
+      paste(extra_resource_ids, collapse = ", "), call. = FALSE
+    )
   }
   values <- as.character(unlist(source, recursive = TRUE, use.names = FALSE))
   if (any(grepl(
@@ -1553,9 +1629,8 @@ pt_guide_validate_product_resource_relationship_registry <- function(
          call. = FALSE)
   }
   structure(
-    unname(validated),
-    class = c("pt_guide_product_resource_relationship_registry", "list"),
-    r12a_legacy_projection_count = legacy_projection_count
+    list(products = unname(validated), resources = unname(validated_resources)),
+    class = c("pt_guide_product_resource_relationship_registry", "list")
   )
 }
 
@@ -1579,39 +1654,7 @@ pt_guide_read_product_resource_relationship_registry <- function(
   )
   pt_guide_validate_product_resource_relationship_registry(
     source, product_universe_ids, resource_registry,
-    repository_root = repository_root,
-    required_r12a_legacy_projection_count = 17L
-  )
-}
-
-# Temporary GUIDE-I2B-R12A presentation-only adapter. It derives the accepted
-# public R10 relationship rows solely from compatibility metadata in the new
-# canonical registry. It is noncanonical, read-only, and must be deleted in R12B.
-pt_guide_r12a_temporary_legacy_public_relationship_projection <- function(registry) {
-  if (!inherits(registry, "pt_guide_product_resource_relationship_registry")) {
-    stop("The temporary R12A adapter requires the validated sole relationship registry.",
-         call. = FALSE)
-  }
-  projection <- list()
-  for (record in registry) {
-    rows <- list()
-    for (link in record$resource_links) {
-      legacy <- link$temporary_r12a_legacy_public_projection
-      if (is.null(legacy)) next
-      rows[[length(rows) + 1L]] <- list(
-        id = link$resource_id,
-        role = legacy$role,
-        relationship_type = legacy$relationship_type,
-        use_scope = legacy$use_scope
-      )
-    }
-    if (length(rows)) projection[[record$product_id]] <- unname(rows)
-  }
-  structure(
-    projection,
-    class = c("pt_guide_r12a_temporary_public_relationship_projection", "list"),
-    canonical = FALSE,
-    removal_gate = "GUIDE-I2B-R12B"
+    repository_root = repository_root
   )
 }
 
@@ -1679,7 +1722,7 @@ pt_guide_enrichment_sections <- function(record) {
 }
 
 pt_guide_apply_product_enrichment <- function(
-    products, enrichment, public_relationships = list(),
+    products, enrichment, relationship_registry,
     resource_registry = pt_guide_read_resource_registry(),
     product_universe_ids = NULL) {
   product_ids <- vapply(products, `[[`, character(1), "id")
@@ -1694,78 +1737,88 @@ pt_guide_apply_product_enrichment <- function(
   }
   missing <- setdiff(names(enrichment), product_universe_ids)
   if (length(missing)) {
-    stop("Guide Product enrichment references unavailable Product(s): ", paste(missing, collapse = ", "), call. = FALSE)
+    stop("Guide Product enrichment references unavailable Product(s): ",
+         paste(missing, collapse = ", "), call. = FALSE)
   }
   if (!inherits(resource_registry, "pt_guide_resource_registry")) {
     stop("Guide Product enrichment requires the validated canonical Resource registry.",
          call. = FALSE)
   }
-  if (length(public_relationships) &&
-      !inherits(public_relationships, "pt_guide_r12a_temporary_public_relationship_projection")) {
-    stop("Guide public Product-Resource rows must come from the temporary R12A adapter.",
+  if (!inherits(
+        relationship_registry,
+        "pt_guide_product_resource_relationship_registry"
+      )) {
+    stop("Guide Product enrichment requires the validated sole relationship authority.",
          call. = FALSE)
   }
-  if (length(public_relationships) &&
-      any(!names(public_relationships) %in% product_universe_ids)) {
-    stop("The temporary R12A adapter references unavailable Product(s).", call. = FALSE)
-  }
-  resource_ids <- vapply(resource_registry, `[[`, character(1), "id")
   published_resource_ids <- vapply(
     pt_guide_resource_published_records(resource_registry), `[[`, character(1), "id"
   )
-  for (product_id in names(public_relationships)) {
-    relationships <- public_relationships[[product_id]]
-    relationship_ids <- if (length(relationships)) {
-      vapply(relationships, function(relationship) {
-        pt_guide_or(relationship$id)
-      }, character(1))
-    } else {
-      character(0)
-    }
-    if (any(!relationship_ids %in% resource_ids)) {
-      stop("The temporary R12A adapter references unavailable Resource(s): ",
-           paste(setdiff(relationship_ids, resource_ids), collapse = ", "), call. = FALSE)
-    }
+  relationship_products <- relationship_registry$products
+  relationship_product_ids <- vapply(
+    relationship_products, `[[`, character(1), "product_id"
+  )
+  if (!setequal(relationship_product_ids, product_universe_ids)) {
+    stop("Guide Product enrichment relationship authority must equal the Product universe.",
+         call. = FALSE)
   }
   lapply(products, function(product) {
     product$relatedResourceIds <- character(0)
     product$relatedResources <- list()
+    if (!product$id %in% product_universe_ids) return(product)
     record <- enrichment[[product$id]]
-    if (is.null(record)) return(product)
-    if (nzchar(pt_guide_or(record$summary))) product$summary <- pt_guide_or(record$summary)
-    product$accessHint <- pt_guide_or(record$access_hint, product$accessHint)
-    if (!is.null(record$subject_tags)) {
-      subjects <- unname(as.character(unlist(record$subject_tags, use.names = FALSE)))
-      product$subjectTags <- unique(subjects[nzchar(trimws(subjects))])
-      product$subject <- pt_guide_or(product$subjectTags)
+    if (!is.null(record)) {
+      if (nzchar(pt_guide_or(record$summary))) product$summary <- pt_guide_or(record$summary)
+      product$accessHint <- pt_guide_or(record$access_hint, product$accessHint)
+      if (!is.null(record$subject_tags)) {
+        subjects <- unname(as.character(unlist(record$subject_tags, use.names = FALSE)))
+        product$subjectTags <- unique(subjects[nzchar(trimws(subjects))])
+        product$subject <- pt_guide_or(product$subjectTags)
+      }
+      information_types <- unname(as.character(unlist(
+        record$information_type_tags, use.names = FALSE
+      )))
+      if (length(information_types)) {
+        product$informationTypes <- unique(information_types)
+        product$mode <- product$informationTypes[[1]]
+      }
+      capabilities <- unname(as.character(unlist(record$capabilities, use.names = FALSE)))
+      product$searchTerms <- unique(c(
+        product$searchTerms,
+        capabilities[nzchar(trimws(capabilities))]
+      ))
+      product$sections <- pt_guide_enrichment_sections(record)
+      product$relatedArticleIds <- unname(unique(as.character(unlist(
+        record$method_ids, use.names = FALSE
+      ))))
+      product$contentTier <- pt_guide_or(record$editorial_state)
     }
-    information_types <- unname(as.character(unlist(record$information_type_tags, use.names = FALSE)))
-    if (length(information_types)) {
-      product$informationTypes <- unique(information_types)
-      product$mode <- product$informationTypes[[1]]
+    relationship_record <- relationship_products[[match(
+      product$id, relationship_product_ids
+    )]]
+    if (is.null(relationship_record)) {
+      stop("Guide Product enrichment found a Product outside relationship authority.",
+           call. = FALSE)
     }
-    capabilities <- unname(as.character(unlist(record$capabilities, use.names = FALSE)))
-    product$searchTerms <- unique(c(
-      product$searchTerms,
-      capabilities[nzchar(trimws(capabilities))]
-    ))
-    product$sections <- pt_guide_enrichment_sections(record)
-    product$relatedArticleIds <- unname(unique(as.character(unlist(record$method_ids, use.names = FALSE))))
     relationships <- Filter(function(relationship) {
-      pt_guide_or(relationship$id) %in% published_resource_ids
-    }, public_relationships[[product$id]])
+      relationship$resource_id %in% published_resource_ids
+    }, relationship_record$resource_links)
     if (length(relationships)) {
+      source_resource_ids <- intersect(
+        published_resource_ids,
+        vapply(relationships, `[[`, character(1), "resource_id")
+      )
       product$relatedResources <- lapply(relationships, function(relationship) list(
-        id = pt_guide_or(relationship$id),
-        role = pt_guide_or(relationship$role),
-        relationshipType = pt_guide_or(relationship$relationship_type),
-        useScope = pt_guide_or(relationship$use_scope)
+        id = relationship$resource_id,
+        relationshipRole = relationship$relationship_role,
+        deliveryClass = relationship_record$delivery_class,
+        coverageDisposition = relationship_record$coverage_disposition,
+        sourceResourceIds = unname(source_resource_ids)
       ))
       product$relatedResourceIds <- unname(vapply(
         product$relatedResources, `[[`, character(1), "id"
       ))
     }
-    product$contentTier <- pt_guide_or(record$editorial_state)
     product
   })
 }
@@ -2016,6 +2069,12 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
     product$relatedResources <- Filter(function(relationship) {
       pt_guide_or(relationship$id) %in% resource_ids
     }, product$relatedResources)
+    product$relatedResources <- lapply(product$relatedResources, function(relationship) {
+      relationship$sourceResourceIds <- intersect(
+        relationship$sourceResourceIds, resource_ids
+      )
+      relationship
+    })
     product$relatedResourceIds <- unname(vapply(
       product$relatedResources,
       `[[`,
@@ -2025,12 +2084,41 @@ pt_project_guide_bundle <- function(bundle, excluded_ids = character(0), profile
     product
   })
   bundle$resources <- lapply(bundle$resources, function(resource) {
-    resource$relatedProducts <- Filter(function(product) {
-      pt_guide_or(product$id) %in% product_ids
-    }, resource$relatedProducts)
-    resource$relationshipFlags <- pt_guide_resource_relationship_flags(
-      resource$relatedProducts
+    resource$representedProducts <- Filter(function(product) {
+      pt_guide_or(product$productId) %in% product_ids
+    }, resource$representedProducts)
+    resource$representedProducts <- lapply(
+      resource$representedProducts,
+      function(product) {
+        product$sourceResourceIds <- intersect(product$sourceResourceIds, resource_ids)
+        product
+      }
     )
+    resource$searchText <- pt_guide_normalize_resource_search(list(
+      resource$title,
+      resource$aliases,
+      resource$provider,
+      vapply(resource$providers, `[[`, character(1), "name"),
+      resource$summary,
+      vapply(resource$accessPoints, `[[`, character(1), "label"),
+      resource$resourceTypeLabel,
+      resource$resourceGranularity,
+      resource$subjectTags,
+      resource$informationTypeTags,
+      resource$variables,
+      resource$useScopes,
+      resource$geographicScope$scopeLabel,
+      resource$geographicScope$names,
+      vapply(resource$representedProducts, `[[`, character(1), "title"),
+      vapply(Filter(function(candidate) {
+        candidate$id %in% unique(unlist(lapply(
+          Filter(function(product) {
+            identical(product$coverageDisposition, "multiple_source_resources")
+          }, resource$representedProducts),
+          `[[`, "sourceResourceIds"
+        ), use.names = FALSE))
+      }, bundle$resources), `[[`, character(1), "title")
+    ))
     resource
   })
   bundle$profileId <- profile_id
@@ -2081,8 +2169,8 @@ pt_validate_guide_bundle <- function(bundle) {
     "kind", "id", "title", "aliases", "provider", "providers", "summary",
     "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
     "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
-    "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
-    "relatedProducts", "relationshipFlags", "searchText"
+    "subjectTags", "informationTypeTags", "variables", "useScopes", "geographicScope",
+    "mapReviewState", "mapRepresentation", "representedProducts", "searchText"
   )
   metadata_vocabularies <- pt_guide_resource_metadata_vocabularies()
   for (resource in bundle$resources) {
@@ -2093,7 +2181,7 @@ pt_validate_guide_bundle <- function(bundle) {
                       resource$resourceTypeLabel, resource$temporalCharacter,
                       resource$temporalCharacterLabel, resource$resourceGranularity,
                       resource$searchText)))) {
-      stop("BRIM Guide Resources require the exact public 22-field projection.",
+      stop("BRIM Guide Resources require the exact schema-v2 public projection.",
            call. = FALSE)
     }
     if (!resource$resourceType %in% names(metadata_vocabularies$resource_type) ||
@@ -2154,26 +2242,30 @@ pt_validate_guide_bundle <- function(bundle) {
         )) {
       stop("BRIM Guide Resource geographic scope shape changed.", call. = FALSE)
     }
-    expected_related <- list()
+    if (!identical(resource$mapReviewState, "reviewed") ||
+        !resource$mapRepresentation %in% c(
+          "direct_match_in_brim", "selected_products_in_brim",
+          "not_currently_mapped_in_brim"
+        )) {
+      stop("Published BRIM Guide Resources require reviewed map representation.",
+           call. = FALSE)
+    }
+    expected_represented <- list()
     for (product in bundle$products) {
       for (relationship in product$relatedResources) {
         if (!identical(pt_guide_or(relationship$id), resource$id)) next
-        expected_related[[length(expected_related) + 1L]] <- list(
-          id = product$id,
+        expected_represented[[length(expected_represented) + 1L]] <- list(
+          productId = product$id,
           title = product$title,
-          entityType = product$entityType,
-          relationshipType = relationship$relationshipType,
-          role = relationship$role,
-          useScope = relationship$useScope
+          deliveryClass = relationship$deliveryClass,
+          coverageDisposition = relationship$coverageDisposition,
+          relationshipRole = relationship$relationshipRole,
+          sourceResourceIds = unname(relationship$sourceResourceIds)
         )
       }
     }
-    if (!identical(resource$relatedProducts, unname(expected_related)) ||
-        !identical(
-          resource$relationshipFlags,
-          pt_guide_resource_relationship_flags(resource$relatedProducts)
-        )) {
-      stop("BRIM Guide Resource relationships must reverse-index exact eligible temporary R12A projection rows.",
+    if (!identical(resource$representedProducts, unname(expected_represented))) {
+      stop("BRIM Guide Resource relationships must reverse-index exact eligible schema-v2 Product links.",
            call. = FALSE)
     }
     expected_search <- pt_guide_normalize_resource_search(list(
@@ -2186,11 +2278,20 @@ pt_validate_guide_bundle <- function(bundle) {
       resource$resourceTypeLabel,
       resource$resourceGranularity,
       resource$subjectTags,
-      resource$informationTypes,
+      resource$informationTypeTags,
       resource$variables,
       resource$useScopes,
       resource$geographicScope$scopeLabel,
-      resource$geographicScope$names
+      resource$geographicScope$names,
+      vapply(resource$representedProducts, `[[`, character(1), "title"),
+      unname(vapply(Filter(function(candidate) {
+        candidate$id %in% unique(unlist(lapply(
+          Filter(function(product) {
+            identical(product$coverageDisposition, "multiple_source_resources")
+          }, resource$representedProducts),
+          `[[`, "sourceResourceIds"
+        ), use.names = FALSE))
+      }, bundle$resources), `[[`, character(1), "title"))
     ))
     if (!identical(resource$searchText, expected_search)) {
       stop("BRIM Guide Resource search text is not the deterministic allowed-field projection.",
@@ -2248,22 +2349,40 @@ pt_validate_guide_bundle <- function(bundle) {
       character(0)
     }
     relationship_roles <- if (length(relationships)) {
-      vapply(relationships, function(x) pt_guide_or(x$role), character(1))
+      vapply(relationships, function(x) pt_guide_or(x$relationshipRole), character(1))
     } else {
       character(0)
     }
-    relationship_types <- if (length(relationships)) vapply(
-      relationships, function(x) pt_guide_or(x$relationshipType), character(1)
+    relationship_deliveries <- if (length(relationships)) vapply(
+      relationships, function(x) pt_guide_or(x$deliveryClass), character(1)
     ) else character(0)
-    use_scopes <- if (length(relationships)) vapply(
-      relationships, function(x) pt_guide_or(x$useScope), character(1)
+    relationship_dispositions <- if (length(relationships)) vapply(
+      relationships, function(x) pt_guide_or(x$coverageDisposition), character(1)
     ) else character(0)
+    relationship_sources_valid <- if (length(relationships)) vapply(
+      relationships, function(x) {
+        source_ids <- unname(as.character(x$sourceResourceIds))
+        length(source_ids) > 0L && !anyDuplicated(source_ids) &&
+          all(source_ids %in% resource_ids) && x$id %in% source_ids
+      }, logical(1)
+    ) else logical(0)
     if (any(!nzchar(relationship_ids)) || any(!nzchar(relationship_roles)) ||
-        any(!relationship_types %in% c("displayed_in_brim", "used_by_brim", "related_external_resource")) ||
-        any(!nzchar(use_scopes)) ||
+        any(!relationship_roles %in% c(
+          "direct_match_in_brim", "selected_product_from_broader_resource",
+          "source_reference"
+        )) ||
+        any(!relationship_deliveries %in% c(
+          "provider_hosted", "brim_enhanced", "brim_managed", "not_applicable"
+        )) ||
+        any(!relationship_dispositions %in% c(
+          "direct_resource_match", "selected_product_from_broader_resource",
+          "multiple_source_resources", "provenance_only_no_public_resource",
+          "internal_no_external_resource", "missing_resource_candidate"
+        )) || any(!relationship_sources_valid) ||
         any(!relationship_ids %in% resource_ids) ||
         !identical(unname(as.character(product$relatedResourceIds)), unname(relationship_ids))) {
-      stop("BRIM Guide Product Resource relationships must resolve with nonblank roles.", call. = FALSE)
+      stop("BRIM Guide Product Resource relationships must resolve exact schema-v2 links.",
+           call. = FALSE)
     }
   }
   section_records <- c(bundle$products, bundle$articles)
@@ -2321,12 +2440,8 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
   relationship_registry <- pt_guide_read_product_resource_relationship_registry(
     product_universe_ids, resource_registry
   )
-  public_relationships <-
-    pt_guide_r12a_temporary_legacy_public_relationship_projection(
-      relationship_registry
-    )
   products <- pt_guide_apply_product_enrichment(
-    products, enrichment, public_relationships,
+    products, enrichment, relationship_registry,
     resource_registry = resource_registry,
     product_universe_ids = product_universe_ids
   )
@@ -2335,7 +2450,8 @@ pt_build_guide_bundle <- function(overlay_groups, map_display, profile_id = "def
   }, products)
   browser_resources <- pt_guide_resource_browser_records(
     published_resources,
-    eligible_products
+    eligible_products,
+    relationship_registry
   )
   content <- pt_guide_authored_content(browser_resources)
   bundle <- c(

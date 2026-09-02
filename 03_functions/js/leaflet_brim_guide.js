@@ -41,18 +41,9 @@ function(el, x, data) {
     var sourceResources = Array.isArray(inputResources) ? inputResources.slice() : [];
     var pageSize = 25;
     var presetDefinitions = [
-      { id: 'brim_linked', label: 'BRIM-linked', flag: 'brimLinked' },
-      { id: 'beyond_brim', label: 'Beyond BRIM', flag: 'beyondBrim' },
-      { id: 'all_resources', label: 'All Resources', flag: '' }
-    ];
-    var relationshipSubtypeDefinitions = [
-      { id: 'displayed_in_brim', label: 'Available in BRIM', flag: 'displayedInBrim' },
-      { id: 'used_by_brim', label: 'Used by BRIM', flag: 'usedByBrim' },
-      {
-        id: 'related_external_resource',
-        label: 'Related resource',
-        flag: 'relatedExternalResource'
-      }
+      { id: 'in_brim_map', label: 'In BRIM map' },
+      { id: 'beyond_the_map', label: 'Beyond the map' },
+      { id: 'all_resources', label: 'All Resources' }
     ];
 
     function array(value) {
@@ -129,20 +120,10 @@ function(el, x, data) {
       return [scope.scopeLabel].concat(array(scope.names)).filter(Boolean);
     }
 
-    function relationshipTypes(resource) {
-      return array(resource.relatedProducts).map(function(product) {
-        return product.relationshipType;
-      }).filter(function(value, index, values) {
-        return relationshipSubtypeDefinitions.some(function(definition) {
-          return definition.id === value;
-        }) && values.indexOf(value) === index;
-      });
-    }
-
     function hasProductContext(resource, productId) {
       if (!productId) return true;
-      return array(resource.relatedProducts).some(function(product) {
-        return product.id === productId;
+      return array(resource.representedProducts).some(function(product) {
+        return product.productId === productId;
       });
     }
 
@@ -180,7 +161,7 @@ function(el, x, data) {
           array(resource.variables).concat(array(resource.useScopes)),
           600, 570, 390
         ));
-        score = Math.max(score, fieldScore(query, array(resource.informationTypes), 560, 530, 370));
+        score = Math.max(score, fieldScore(query, array(resource.informationTypeTags), 560, 530, 370));
         score = Math.max(score, fieldScore(query, geographyValues(resource), 520, 490, 340));
         score = Math.max(score, fieldScore(
           query,
@@ -207,7 +188,6 @@ function(el, x, data) {
         subject: String(value.subject || ''),
         informationType: String(value.informationType || ''),
         resourceType: String(value.resourceType || ''),
-        relationshipTypes: array(value.relationshipTypes).slice(),
         moreFiltersOpen: Boolean(value.moreFiltersOpen),
         sortMode: String(value.sortMode || ''),
         selectedId: String(value.selectedId || ''),
@@ -218,6 +198,8 @@ function(el, x, data) {
         facetScrollTop: Math.max(0, Number(value.facetScrollTop) || 0),
         resultsScrollTop: Math.max(0, Number(value.resultsScrollTop) || 0),
         detailScrollTop: Math.max(0, Number(value.detailScrollTop) || 0),
+        returnResultsScrollTop: Math.max(0, Number(value.returnResultsScrollTop) || 0),
+        selectedFocusKey: String(value.selectedFocusKey || ''),
         focusKey: String(value.focusKey || 'resource-search')
       };
     }
@@ -230,11 +212,6 @@ function(el, x, data) {
       initial.providers = initial.providers.filter(function(value, index, values) {
         return value && values.indexOf(value) === index;
       });
-      initial.relationshipTypes = initial.relationshipTypes.filter(function(value, index, values) {
-        return relationshipSubtypeDefinitions.some(function(definition) {
-          return definition.id === value;
-        }) && values.indexOf(value) === index;
-      });
       initial.renderLimit = Math.max(pageSize, initial.renderLimit);
       if (!initial.sortMode) {
         initial.sortMode = initial.query || initial.productContextId ? 'relevance' : 'title';
@@ -243,10 +220,14 @@ function(el, x, data) {
     }
 
     function presetMatch(resource, presetId) {
-      var preset = presetDefinitions.find(function(item) { return item.id === presetId; });
-      return !preset || !preset.flag || Boolean(
-        resource.relationshipFlags && resource.relationshipFlags[preset.flag]
-      );
+      if (presetId === 'in_brim_map') {
+        return resource.mapRepresentation === 'direct_match_in_brim' ||
+          resource.mapRepresentation === 'selected_products_in_brim';
+      }
+      if (presetId === 'beyond_the_map') {
+        return resource.mapRepresentation === 'not_currently_mapped_in_brim';
+      }
+      return true;
     }
 
     function dimensionMatch(resource, state, ignored) {
@@ -258,13 +239,9 @@ function(el, x, data) {
       if (ignored !== 'subject' && state.subject &&
           array(resource.subjectTags).indexOf(state.subject) < 0) return false;
       if (ignored !== 'informationType' && state.informationType &&
-          array(resource.informationTypes).indexOf(state.informationType) < 0) return false;
+          array(resource.informationTypeTags).indexOf(state.informationType) < 0) return false;
       if (ignored !== 'resourceType' && state.resourceType &&
           resource.resourceType !== state.resourceType) return false;
-      if (ignored !== 'relationshipTypes' && state.relationshipTypes.length &&
-          !relationshipTypes(resource).some(function(value) {
-            return state.relationshipTypes.indexOf(value) >= 0;
-          })) return false;
       if (ignored !== 'query' && scoreResource(resource, state) === null) return false;
       return true;
     }
@@ -338,12 +315,11 @@ function(el, x, data) {
           return array(resource.subjectTags);
         }),
         informationTypes: countValues(state, 'informationType', function(resource) {
-          return array(resource.informationTypes);
+          return array(resource.informationTypeTags);
         }),
         resourceTypes: countValues(state, 'resourceType', function(resource) {
           return [resource.resourceType];
-        }),
-        relationshipTypes: countValues(state, 'relationshipTypes', relationshipTypes)
+        })
       };
     }
 
@@ -380,11 +356,6 @@ function(el, x, data) {
           )
         });
       });
-      relationshipSubtypeDefinitions.forEach(function(definition) {
-        if (state.relationshipTypes.indexOf(definition.id) >= 0) output.push({
-          key: 'relationshipType', value: definition.id, label: definition.label
-        });
-      });
       return output;
     }
 
@@ -393,11 +364,6 @@ function(el, x, data) {
       if (key === 'provider') state.providers = state.providers.filter(function(item) {
         return item !== value;
       });
-      else if (key === 'relationshipType') {
-        state.relationshipTypes = state.relationshipTypes.filter(function(item) {
-          return item !== value;
-        });
-      }
       else if (Object.prototype.hasOwnProperty.call(state, key)) state[key] = '';
       state.selectedId = '';
       state.renderLimit = pageSize;
@@ -450,23 +416,6 @@ function(el, x, data) {
       return state;
     }
 
-    function toggleRelationshipType(stateInput, relationshipType) {
-      var state = createState(stateInput);
-      if (!relationshipSubtypeDefinitions.some(function(definition) {
-        return definition.id === relationshipType;
-      })) return state;
-      state.relationshipTypes = state.relationshipTypes.indexOf(relationshipType) >= 0
-        ? state.relationshipTypes.filter(function(value) { return value !== relationshipType; })
-        : state.relationshipTypes.concat(relationshipType);
-      state.selectedId = '';
-      state.renderLimit = pageSize;
-      state.pane = 'results';
-      state.facetsOpen = false;
-      state.focusKey = 'resource-relationship-' +
-        normalizeText(relationshipType).replace(/ /g, '-');
-      return state;
-    }
-
     function setPreset(stateInput, presetId) {
       var state = createState(stateInput);
       state.preset = presetDefinitions.some(function(preset) {
@@ -500,6 +449,8 @@ function(el, x, data) {
       state.selectedId = resourceId;
       state.pane = 'detail';
       state.focusKey = 'resource-result-' + resourceId;
+      state.selectedFocusKey = state.focusKey;
+      state.detailScrollTop = 0;
       return state;
     }
 
@@ -540,10 +491,13 @@ function(el, x, data) {
     function escape(stateInput) {
       var state = createState(stateInput);
       if (state.pane === 'detail' || state.selectedId) {
-        var selected = state.selectedId;
+        var selectedFocusKey = state.selectedFocusKey ||
+          (state.selectedId ? 'resource-result-' + state.selectedId : 'resource-search');
         state.selectedId = '';
         state.pane = 'results';
-        state.focusKey = selected ? 'resource-result-' + selected : 'resource-search';
+        state.resultsScrollTop = state.returnResultsScrollTop;
+        state.detailScrollTop = 0;
+        state.focusKey = selectedFocusKey;
         return { action: 'nested', state: state };
       }
       if (state.pane === 'facets' || state.facetsOpen) {
@@ -596,7 +550,6 @@ function(el, x, data) {
       reset: reset,
       setQuery: setQuery,
       toggleProvider: toggleProvider,
-      toggleRelationshipType: toggleRelationshipType,
       setPreset: setPreset,
       patchState: patchState,
       selectResource: selectResource,
@@ -609,10 +562,7 @@ function(el, x, data) {
       snapshot: snapshot,
       restore: restore,
       createLifecycle: createLifecycle,
-      presets: presetDefinitions.map(function(preset) { return Object.assign({}, preset); }),
-      relationshipSubtypes: relationshipSubtypeDefinitions.map(function(definition) {
-        return Object.assign({}, definition);
-      })
+      presets: presetDefinitions.map(function(preset) { return Object.assign({}, preset); })
     });
   }
 
@@ -1420,7 +1370,10 @@ function(el, x, data) {
             'product-resource-' + product.id + '-' + resource.id
           );
           relatedButton.appendChild(node('span', 'brim-guide__related-title', resource.title));
-          relatedButton.appendChild(node('span', 'brim-guide__related-role', relationship.role));
+          relatedButton.appendChild(node(
+            'span', 'brim-guide__related-role',
+            relationshipRoleLabel(relationship.relationshipRole)
+          ));
           related.appendChild(relatedButton);
         });
         relatedColumn.appendChild(related);
@@ -1507,16 +1460,18 @@ function(el, x, data) {
     ));
     var actions = node('div', 'brim-guide__resource-gateway-actions');
     [
-      ['brim_linked', 'BRIM-linked', counts.brim_linked, false],
-      ['beyond_brim', 'Explore beyond BRIM', counts.beyond_brim, false],
-      ['all_resources', 'Search all Resources', counts.all_resources, true]
+      ['in_brim_map', 'In BRIM map', counts.in_brim_map, false,
+        'View ' + counts.in_brim_map + ' Resources represented in the BRIM map'],
+      ['beyond_the_map', 'Beyond the map', counts.beyond_the_map, false,
+        'View ' + counts.beyond_the_map + ' Resources reviewed as beyond the map'],
+      ['all_resources', 'All Resources', counts.all_resources, true,
+        'View all ' + counts.all_resources + ' Resources']
     ].forEach(function(definition) {
-      var action = button('brim-guide__resource-gateway-action', '', 'resource-open');
+      var action = button(
+        'brim-guide__resource-gateway-action', '', 'resource-open', definition[4]
+      );
       action.setAttribute('data-resource-preset', definition[0]);
       action.setAttribute('data-resource-focus-search', definition[3] ? 'true' : 'false');
-      if (definition[0] === 'brim_linked') {
-        action.title = 'Resources with at least one exact reviewed BRIM Product relationship.';
-      }
       resourceFocusKey(action, 'resource-gateway-' + definition[0]);
       action.appendChild(node('strong', '', definition[1]));
       action.appendChild(node('span', '', definition[2] + ' Resources'));
@@ -1588,47 +1543,6 @@ function(el, x, data) {
     return section;
   }
 
-  function resourceRelationshipChoices(resourceState, counts) {
-    var section = node(
-      'section',
-      'brim-guide__resource-choice-group brim-guide__resource-relationship-group'
-    );
-    section.appendChild(node('h3', '', 'Relationship to BRIM'));
-    var choices = node('div', 'brim-guide__resource-choices');
-    choices.setAttribute('role', 'group');
-    choices.setAttribute('aria-label', 'Exact relationship subtype refinements');
-    resourceExplorerModel.relationshipSubtypes.forEach(function(definition) {
-      var count = counts[definition.id] || 0;
-      var selected = resourceState.relationshipTypes.indexOf(definition.id) >= 0;
-      var choice = button(
-        'brim-guide__resource-choice',
-        definition.label + ' ' + count,
-        'resource-relationship-choice',
-        definition.label + ': ' + count + ' Resources'
-      );
-      choice.setAttribute('data-resource-relationship-type', definition.id);
-      choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
-      choice.classList.toggle('is-selected', selected);
-      choice.classList.add(
-        definition.id === 'related_external_resource'
-          ? 'brim-guide__resource-choice--external'
-          : 'brim-guide__resource-choice--brim'
-      );
-      choice.disabled = count === 0 && !selected;
-      if (definition.id === 'displayed_in_brim' && count === 0) {
-        choice.title = 'No Resources currently have an exact reviewed displayed-in-BRIM relationship.';
-      }
-      resourceFocusKey(
-        choice,
-        'resource-relationship-' +
-          resourceExplorerModel.normalize(definition.id).replace(/ /g, '-')
-      );
-      choices.appendChild(choice);
-    });
-    section.appendChild(choices);
-    return section;
-  }
-
   function renderResourceFacets(resourceState, counts) {
     var facets = node('aside', 'brim-guide__resource-facets');
     facets.id = 'brim-guide-resource-facets';
@@ -1691,9 +1605,6 @@ function(el, x, data) {
     facets.appendChild(providerBlock);
 
     var choiceStack = node('div', 'brim-guide__resource-facet-choices');
-    choiceStack.appendChild(resourceRelationshipChoices(
-      resourceState, counts.relationshipTypes
-    ));
     choiceStack.appendChild(resourceFacetChoices(
       'Subject', 'subject', resourceState.subject, counts.subjects
     ));
@@ -1723,32 +1634,52 @@ function(el, x, data) {
     return facets;
   }
 
-  function resourceRelationshipBadges(resource) {
-    var values = [];
-    var flags = resource.relationshipFlags || {};
-    if (flags.displayedInBrim) values.push('Available in BRIM');
-    if (flags.usedByBrim) values.push('Used by BRIM');
-    if (flags.relatedExternalResource) values.push('Related resource');
-    return values;
+  function resourceRepresentation(resource) {
+    var definitions = {
+      direct_match_in_brim: {
+        label: 'Direct match in BRIM',
+        sentence: 'This Resource is represented directly in the BRIM map.',
+        className: 'brim-guide__resource-representation--direct'
+      },
+      selected_products_in_brim: {
+        label: 'Selected products in BRIM',
+        sentence: 'BRIM includes selected products from this broader Resource.',
+        className: 'brim-guide__resource-representation--selected'
+      },
+      not_currently_mapped_in_brim: {
+        label: 'Not currently mapped in BRIM',
+        sentence: 'This Resource is not currently represented in the BRIM map.',
+        className: 'brim-guide__resource-representation--beyond'
+      }
+    };
+    return definitions[resource.mapRepresentation] || null;
+  }
+
+  function deliveryLabel(value) {
+    return {
+      provider_hosted: 'Provider-hosted',
+      brim_enhanced: 'BRIM-enhanced',
+      brim_managed: 'BRIM-managed',
+      not_applicable: 'Not applicable'
+    }[value] || '';
+  }
+
+  function relationshipRoleLabel(value) {
+    return {
+      direct_match_in_brim: 'Direct match',
+      selected_product_from_broader_resource: 'Selected product',
+      source_reference: 'Source reference'
+    }[value] || '';
   }
 
   function resourceBadges(resource) {
     var values = [];
     if (asArray(resource.subjectTags).length) values.push(asArray(resource.subjectTags)[0]);
     if (resource.resourceTypeLabel) values.push(resource.resourceTypeLabel);
-    values = values.concat(resourceRelationshipBadges(resource));
     if (asArray(resource.accessPoints).length > 1) {
       values.push(asArray(resource.accessPoints).length + ' access points');
     }
     return values;
-  }
-
-  function resourceBadgeClass(value) {
-    if (value === 'Available in BRIM' || value === 'Used by BRIM') {
-      return ' brim-guide__resource-badge--brim';
-    }
-    if (value === 'Related resource') return ' brim-guide__resource-badge--external';
-    return '';
   }
 
   function renderResourceResult(resource, selected) {
@@ -1771,9 +1702,22 @@ function(el, x, data) {
     }
     resourceBadges(resource).forEach(function(value) {
       badges.appendChild(node(
-        'span', 'brim-guide__resource-badge' + resourceBadgeClass(value), value
+        'span', 'brim-guide__resource-badge', value
       ));
     });
+    var representation = resourceRepresentation(resource);
+    if (representation) {
+      var representationBadge = node(
+        'span',
+        'brim-guide__resource-badge brim-guide__resource-representation-indicator ' +
+          representation.className,
+        representation.label
+      );
+      representationBadge.setAttribute(
+        'aria-label', 'Map representation: ' + representation.label
+      );
+      badges.appendChild(representationBadge);
+    }
     row.appendChild(badges);
     return row;
   }
@@ -1797,15 +1741,16 @@ function(el, x, data) {
     detail.appendChild(node('p', 'brim-guide__eyebrow', 'Selected Resource'));
     detail.appendChild(node('h2', '', resource.title));
     detail.appendChild(node('p', 'brim-guide__resource-detail-summary', resource.summary));
-    var relationshipBadges = node(
-      'div', 'brim-guide__resource-badges brim-guide__resource-detail-badges'
-    );
-    resourceRelationshipBadges(resource).forEach(function(value) {
-      relationshipBadges.appendChild(node(
-        'span', 'brim-guide__resource-badge' + resourceBadgeClass(value), value
-      ));
-    });
-    if (relationshipBadges.children.length) detail.appendChild(relationshipBadges);
+    var representation = resourceRepresentation(resource);
+    if (representation) {
+      var representationStatement = node(
+        'section',
+        'brim-guide__resource-representation ' + representation.className
+      );
+      representationStatement.appendChild(node('h3', '', representation.label));
+      representationStatement.appendChild(node('p', '', representation.sentence));
+      detail.appendChild(representationStatement);
+    }
     var accessGroups = resourceExplorerModel.accessPointGroups(resource);
     var access = node('section', 'brim-guide__resource-detail-section brim-guide__resource-access-section');
     access.appendChild(node('h3', '', 'Official Resource'));
@@ -1850,7 +1795,7 @@ function(el, x, data) {
       })
     );
     appendResourceDetailRow(list, 'Subjects', asArray(resource.subjectTags));
-    appendResourceDetailRow(list, 'Information Types', asArray(resource.informationTypes));
+    appendResourceDetailRow(list, 'Information Types', asArray(resource.informationTypeTags));
     appendResourceDetailRow(list, 'Resource type', resource.resourceTypeLabel);
     if (resource.temporalCharacter && resource.temporalCharacter !== 'unknown') {
       appendResourceDetailRow(
@@ -1870,18 +1815,33 @@ function(el, x, data) {
     );
     detail.appendChild(list);
 
-    var relationships = asArray(resource.relatedProducts);
+    var relationships = asArray(resource.representedProducts);
     if (relationships.length) {
       var related = node('section', 'brim-guide__resource-detail-section');
-      related.appendChild(node('h3', '', 'Exact BRIM relationships'));
+      related.appendChild(node('h3', '', 'Related BRIM Products'));
       relationships.forEach(function(relationship) {
-        var item = node('div', 'brim-guide__resource-relationship');
+        var item = button(
+          'brim-guide__resource-relationship', '', 'record',
+          'Open BRIM Product: ' + relationship.title
+        );
+        item.setAttribute('data-guide-record', relationship.productId);
         item.appendChild(node('strong', '', relationship.title));
         item.appendChild(node(
           'span', '',
-          [relationship.entityType, relationship.relationshipType.replace(/_/g, ' '),
-           relationship.role, relationship.useScope.replace(/_/g, ' ')].join(' · ')
+          [relationshipRoleLabel(relationship.relationshipRole),
+           'Delivery: ' + deliveryLabel(relationship.deliveryClass)]
+            .filter(Boolean).join(' · ')
         ));
+        if (relationship.coverageDisposition === 'multiple_source_resources') {
+          var sourceTitles = asArray(relationship.sourceResourceIds).map(function(id) {
+            return resourcesById[id] && resourcesById[id].title;
+          }).filter(Boolean);
+          item.appendChild(node(
+            'span', 'brim-guide__resource-multiple-source',
+            'BRIM combines this Product from multiple sources: ' +
+              sourceTitles.join('; ') + '.'
+          ));
+        }
         related.appendChild(item);
       });
       detail.appendChild(related);
@@ -1936,7 +1896,7 @@ function(el, x, data) {
 
     var presets = node('div', 'brim-guide__resource-presets');
     presets.setAttribute('role', 'radiogroup');
-    presets.setAttribute('aria-label', 'Resource relationship views');
+    presets.setAttribute('aria-label', 'Resource map-presence views');
     resourceExplorerModel.presets.forEach(function(preset) {
       var count = counts.presets[preset.id] || 0;
       var presetButton = button(
@@ -1950,9 +1910,6 @@ function(el, x, data) {
       presetButton.tabIndex = resourceState.preset === preset.id ? 0 : -1;
       presetButton.classList.toggle('is-selected', resourceState.preset === preset.id);
       resourceFocusKey(presetButton, 'resource-preset-' + preset.id);
-      if (preset.id === 'brim_linked') {
-        presetButton.title = 'Resources with at least one exact reviewed BRIM Product relationship.';
-      }
       presets.appendChild(presetButton);
     });
     explorer.appendChild(presets);
@@ -2004,6 +1961,10 @@ function(el, x, data) {
     sortLabel.appendChild(sort);
     resultsHeader.appendChild(sortLabel);
     resultsSection.appendChild(resultsHeader);
+    var resultsScroll = node('div', 'brim-guide__resource-results-scroll');
+    resultsScroll.tabIndex = 0;
+    resultsScroll.setAttribute('role', 'region');
+    resultsScroll.setAttribute('aria-label', 'Scrollable Resource results');
     var resultList = node('div', 'brim-guide__resource-result-list');
     if (!visibleResults.length) {
       var empty = node('div', 'brim-guide__resource-empty');
@@ -2017,7 +1978,7 @@ function(el, x, data) {
         ));
       });
     }
-    resultsSection.appendChild(resultList);
+    resultsScroll.appendChild(resultList);
     if (visibleResults.length < allResults.length) {
       var showMore = button(
         'brim-guide__resource-show-more',
@@ -2025,8 +1986,14 @@ function(el, x, data) {
         'resource-show-more'
       );
       resourceFocusKey(showMore, 'resource-show-more');
-      resultsSection.appendChild(showMore);
+      resultsScroll.appendChild(showMore);
     }
+    if (selected) {
+      var alignmentSpacer = node('div', 'brim-guide__resource-result-alignment-spacer');
+      alignmentSpacer.setAttribute('aria-hidden', 'true');
+      resultsScroll.appendChild(alignmentSpacer);
+    }
+    resultsSection.appendChild(resultsScroll);
     var content = node('div', 'brim-guide__resource-content');
     content.appendChild(resultsSection);
     if (selected) content.appendChild(renderResourceDetail(selected));
@@ -2107,17 +2074,13 @@ function(el, x, data) {
     var existing = main.querySelector('.brim-guide__resource-explorer');
     if (!existing) return;
     var facets = existing.querySelector('.brim-guide__resource-facets');
-    var content = existing.querySelector('.brim-guide__resource-content');
+    var results = existing.querySelector('.brim-guide__resource-results-scroll');
+    var detail = existing.querySelector('.brim-guide__resource-detail');
     var wide = window.matchMedia('(min-width: 1101px)').matches;
     if (wide) {
       if (facets) state.resourceExplorer.facetScrollTop = facets.scrollTop;
-      if (content) {
-        if (existing.querySelector('.brim-guide__resource-detail')) {
-          state.resourceExplorer.detailScrollTop = content.scrollTop;
-        } else {
-          state.resourceExplorer.resultsScrollTop = content.scrollTop;
-        }
-      }
+      if (results) state.resourceExplorer.resultsScrollTop = results.scrollTop;
+      if (detail) state.resourceExplorer.detailScrollTop = detail.scrollTop;
       return;
     }
     var pane = existing.getAttribute('data-resource-pane') || 'results';
@@ -2133,24 +2096,11 @@ function(el, x, data) {
     if (wide) {
       main.scrollTop = 0;
       var facets = existing.querySelector('.brim-guide__resource-facets');
-      var content = existing.querySelector('.brim-guide__resource-content');
+      var results = existing.querySelector('.brim-guide__resource-results-scroll');
+      var detail = existing.querySelector('.brim-guide__resource-detail');
       if (facets) facets.scrollTop = state.resourceExplorer.facetScrollTop;
-      if (content) {
-        var detail = existing.querySelector('.brim-guide__resource-detail');
-        var selectedRow = existing.querySelector(
-          '[data-resource-id="' + state.resourceExplorer.selectedId + '"]'
-        );
-        if (detail && selectedRow) {
-          detail.style.marginTop = Math.max(
-            0,
-            content.scrollTop + selectedRow.getBoundingClientRect().top -
-              content.getBoundingClientRect().top
-          ) + 'px';
-        }
-        content.scrollTop = detail
-          ? state.resourceExplorer.detailScrollTop
-          : state.resourceExplorer.resultsScrollTop;
-      }
+      if (results) results.scrollTop = state.resourceExplorer.resultsScrollTop;
+      if (detail) detail.scrollTop = state.resourceExplorer.detailScrollTop;
       return;
     }
     var pane = existing.getAttribute('data-resource-pane') || 'results';
@@ -2160,12 +2110,16 @@ function(el, x, data) {
   }
 
   function prepareResourceResultAlignment(resourceId) {
-    pendingResourceResultAlignment = window.matchMedia('(min-width: 1101px)').matches
-      ? String(resourceId || '') : '';
-    if (!pendingResourceResultAlignment) return;
+    var wide = window.matchMedia('(min-width: 1101px)').matches;
+    pendingResourceResultAlignment = wide ? String(resourceId || '') : '';
     var existing = main.querySelector('.brim-guide__resource-explorer');
-    var content = existing && existing.querySelector('.brim-guide__resource-content');
-    if (content) state.resourceExplorer.resultsScrollTop = content.scrollTop;
+    var results = existing && existing.querySelector('.brim-guide__resource-results-scroll');
+    var currentResultsScrollTop = wide && results ? results.scrollTop : main.scrollTop;
+    state.resourceExplorer.resultsScrollTop = currentResultsScrollTop;
+    state.resourceExplorer.returnResultsScrollTop = currentResultsScrollTop;
+    state.resourceExplorer.detailScrollTop = 0;
+    state.resourceExplorer.selectedFocusKey = resourceId
+      ? 'resource-result-' + resourceId : 'resource-search';
   }
 
   function alignPendingResourceResult() {
@@ -2173,7 +2127,8 @@ function(el, x, data) {
     pendingResourceResultAlignment = '';
     if (!resourceId || !window.matchMedia('(min-width: 1101px)').matches) return;
     var existing = main.querySelector('.brim-guide__resource-explorer');
-    var content = existing && existing.querySelector('.brim-guide__resource-content');
+    var results = existing && existing.querySelector('.brim-guide__resource-results-scroll');
+    var detail = existing && existing.querySelector('.brim-guide__resource-detail');
     var rows = existing ? existing.querySelectorAll('[data-resource-id]') : [];
     var selectedRow = null;
     for (var index = 0; index < rows.length; index += 1) {
@@ -2182,11 +2137,24 @@ function(el, x, data) {
         break;
       }
     }
-    if (!content || !selectedRow) return;
-    var contentTop = content.getBoundingClientRect().top;
+    if (!results || !selectedRow) return;
+    var contentTop = results.getBoundingClientRect().top;
     var rowTop = selectedRow.getBoundingClientRect().top;
-    content.scrollTop = Math.max(0, content.scrollTop + rowTop - contentTop);
-    state.resourceExplorer.detailScrollTop = content.scrollTop;
+    var desiredScrollTop = Math.max(0, results.scrollTop + rowTop - contentTop);
+    var alignmentSpacer = results.querySelector(
+      '.brim-guide__resource-result-alignment-spacer'
+    );
+    if (alignmentSpacer) {
+      alignmentSpacer.style.height = '0px';
+      alignmentSpacer.style.height = Math.ceil(Math.max(
+        0,
+        desiredScrollTop - Math.max(0, results.scrollHeight - results.clientHeight)
+      )) + 'px';
+    }
+    results.scrollTop = desiredScrollTop;
+    state.resourceExplorer.resultsScrollTop = results.scrollTop;
+    if (detail) detail.scrollTop = 0;
+    state.resourceExplorer.detailScrollTop = 0;
   }
 
   function render(preserveResourceScroll) {
@@ -2439,13 +2407,6 @@ function(el, x, data) {
         'resource-facet-' + facetField + '-' +
           resourceExplorerModel.normalize(facetValue).replace(/ /g, '-')
       );
-    } else if (action === 'resource-relationship-choice') {
-      state.resourceExplorer = resourceExplorerModel.toggleRelationshipType(
-        state.resourceExplorer,
-        target.getAttribute('data-resource-relationship-type') || ''
-      );
-      render();
-      focusResourceTarget(state.resourceExplorer.focusKey);
     } else if (action === 'resource-more-filters') {
       state.resourceExplorer = resourceExplorerModel.patchState(
         state.resourceExplorer,
@@ -2485,16 +2446,20 @@ function(el, x, data) {
       render();
       focusResourceTarget('resource-facets-toggle');
     } else if (action === 'resource-detail-back') {
-      var detailFocusKey = state.resourceExplorer.selectedId
-        ? 'resource-result-' + state.resourceExplorer.selectedId : 'resource-search';
+      var detailFocusKey = state.resourceExplorer.selectedFocusKey ||
+        (state.resourceExplorer.selectedId
+          ? 'resource-result-' + state.resourceExplorer.selectedId : 'resource-search');
       state.resourceExplorer = resourceExplorerModel.patchState(
         state.resourceExplorer,
         {
           selectedId: '', pane: 'results',
-          renderLimit: state.resourceExplorer.renderLimit
+          renderLimit: state.resourceExplorer.renderLimit,
+          resultsScrollTop: state.resourceExplorer.returnResultsScrollTop,
+          detailScrollTop: 0,
+          selectedFocusKey: detailFocusKey
         }
       );
-      render();
+      render(false);
       focusResourceTarget(detailFocusKey);
     } else if (action === 'resource-provider-clear') {
       state.resourceExplorer = resourceExplorerModel.clearProviders(state.resourceExplorer);
@@ -2519,7 +2484,7 @@ function(el, x, data) {
         state.resourceExplorer,
         resourceId
       );
-      render();
+      render(false);
       focusMain(false);
     } else if (action === 'resource-show-more') {
       state.resourceExplorer = resourceExplorerModel.showMore(state.resourceExplorer);
@@ -2705,7 +2670,7 @@ function(el, x, data) {
         var escapeResult = resourceExplorerModel.escape(state.resourceExplorer);
         if (escapeResult.action === 'nested') {
           state.resourceExplorer = escapeResult.state;
-          render();
+          render(false);
           focusResourceTarget(state.resourceExplorer.focusKey);
           return;
         }

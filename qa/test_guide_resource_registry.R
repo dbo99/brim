@@ -45,10 +45,6 @@ relationship_product_ids <- vapply(
 relationship_registry <- pt_guide_read_product_resource_relationship_registry(
   relationship_product_ids, registry, relationship_registry_path
 )
-public_relationships <-
-  pt_guide_r12a_temporary_legacy_public_relationship_projection(
-    relationship_registry
-  )
 
 expected_ids <- c(
   "resource_doi",
@@ -149,8 +145,8 @@ browser_fields <- c(
   "kind", "id", "title", "aliases", "provider", "providers", "summary",
   "canonicalUrl", "accessPoints", "resourceType", "resourceTypeLabel",
   "temporalCharacter", "temporalCharacterLabel", "resourceGranularity",
-  "subjectTags", "informationTypes", "variables", "useScopes", "geographicScope",
-  "relatedProducts", "relationshipFlags", "searchText"
+  "subjectTags", "informationTypeTags", "variables", "useScopes", "geographicScope",
+  "mapReviewState", "mapRepresentation", "representedProducts", "searchText"
 )
 
 assert_identical(raw_registry$schema_version, 3L, "Registry schema marker changed")
@@ -506,16 +502,18 @@ relationship_json <- jsonlite::toJSON(
   raw_relationship_registry, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
-assert_identical(raw_relationship_registry$schema_version, 1L,
+assert_identical(raw_relationship_registry$schema_version, 2L,
                  "Product-Resource relationship schema version changed")
 assert_identical(length(relationship_product_ids), 270L,
                  "Product-Resource relationship Product count changed")
+assert_identical(length(raw_relationship_registry$resources), 72L,
+                 "Product-Resource relationship Resource count changed")
 assert_true(!anyDuplicated(relationship_product_ids),
             "Product-Resource relationship Product IDs are not unique")
 assert_identical(
   digest::digest(relationship_json, algo = "sha256", serialize = FALSE),
-  "9f6e4266899a036ced2c3f3f87f4920ad60e83f0fb5200a3dcaea376fa610bb9",
-  "The sole Product-Resource relationship registry no longer matches the exact R12A contract"
+  "6b4847dbd038cb23161bcda385d7385f894d137c9f1de8f6957607874d3cec9b",
+  "The sole Product-Resource relationship registry no longer matches the exact R12B contract"
 )
 assert_identical(
   digest::digest(paste0(paste(relationship_product_ids, collapse = "\n"), "\n"),
@@ -525,15 +523,15 @@ assert_identical(
 )
 
 delivery_classes <- vapply(
-  relationship_registry, `[[`, character(1), "delivery_class"
+  relationship_registry$products, `[[`, character(1), "delivery_class"
 )
 review_states <- vapply(
-  relationship_registry, `[[`, character(1), "coverage_review_state"
+  relationship_registry$products, `[[`, character(1), "coverage_review_state"
 )
-coverage_dispositions <- vapply(relationship_registry, function(record) {
+coverage_dispositions <- vapply(relationship_registry$products, function(record) {
   if (is.null(record$coverage_disposition)) "not_yet_reviewed" else record$coverage_disposition
 }, character(1))
-canonical_links <- unlist(lapply(relationship_registry, function(record) {
+canonical_links <- unlist(lapply(relationship_registry$products, function(record) {
   lapply(record$resource_links, function(link) c(list(product_id = record$product_id), link))
 }), recursive = FALSE)
 canonical_link_roles <- vapply(
@@ -545,7 +543,7 @@ assert_identical(unname(as.integer(table(factor(
 )))), c(61L, 150L, 55L, 4L), "Delivery classification counts changed")
 assert_identical(unname(as.integer(table(factor(
   review_states, levels = c("reviewed", "not_yet_reviewed")
-)))), c(38L, 232L), "Coverage review-state counts changed")
+)))), c(70L, 200L), "Coverage review-state counts changed")
 assert_identical(unname(as.integer(table(factor(
   coverage_dispositions,
   levels = c(
@@ -553,17 +551,17 @@ assert_identical(unname(as.integer(table(factor(
     "multiple_source_resources", "provenance_only_no_public_resource",
     "internal_no_external_resource", "not_yet_reviewed"
   )
-)))), c(4L, 27L, 2L, 1L, 4L, 232L),
+)))), c(10L, 47L, 8L, 1L, 4L, 200L),
 "Coverage-disposition counts changed")
-assert_identical(length(canonical_links), 36L,
+assert_identical(length(canonical_links), 86L,
                  "Canonical Product-Resource link count changed")
 assert_identical(unname(as.integer(table(factor(
   canonical_link_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(7L, 19L, 10L), "Canonical relationship-role counts changed")
+)))), c(13L, 57L, 16L), "Canonical relationship-role counts changed")
 
-swrcb_relationship <- relationship_registry[[match(
+swrcb_relationship <- relationship_registry$products[[match(
   "swrcb_wr_list_official", relationship_product_ids
 )]]
 assert_identical(swrcb_relationship$delivery_class, "brim_managed",
@@ -576,27 +574,59 @@ assert_identical(swrcb_relationship$coverage_disposition,
 assert_identical(length(swrcb_relationship$resource_links), 0L,
                  "The SWRCB provenance-only decision gained a fake Resource")
 
-relationship_rows <- unlist(lapply(names(public_relationships), function(product_id) {
-  lapply(public_relationships[[product_id]], function(relationship) {
-    c(list(productId = product_id), relationship)
-  })
-}), recursive = FALSE)
-relationship_types <- vapply(relationship_rows, `[[`, character(1), "relationship_type")
-assert_identical(length(relationship_rows), 17L,
-                 "Temporary R12A public projection row count changed")
-assert_identical(sum(relationship_types == "displayed_in_brim"), 0L,
-                 "Displayed-in-BRIM relationship count changed")
-assert_identical(sum(relationship_types == "used_by_brim"), 7L,
-                 "Used-by-BRIM relationship count changed")
-assert_identical(sum(relationship_types == "related_external_resource"), 10L,
-                 "Related-external relationship count changed")
-assert_identical(attr(public_relationships, "canonical"), FALSE,
-                 "The temporary R12A adapter became canonical")
-assert_identical(attr(public_relationships, "removal_gate"), "GUIDE-I2B-R12B",
-                 "The temporary adapter R12B removal gate changed")
-assert_true(!any(vapply(relationship_rows, `[[`, character(1), "id") %in%
-                  expected_newly_published_ids),
-            "A calibrated nonlegacy or newly published Resource leaked through the adapter")
+relationship_resources <- relationship_registry$resources
+relationship_resource_ids <- vapply(
+  relationship_resources, `[[`, character(1), "resource_id"
+)
+assert_identical(relationship_resource_ids, registry_ids,
+                 "Relationship Resource universe/order changed")
+published_relationship_resources <- relationship_resources[
+  match(published_ids, relationship_resource_ids)
+]
+published_map_states <- vapply(
+  published_relationship_resources, `[[`, character(1), "map_review_state"
+)
+published_representations <- vapply(
+  published_relationship_resources, `[[`, character(1), "map_representation"
+)
+assert_true(all(published_map_states == "reviewed"),
+            "Every published Resource must have a reviewed representation")
+assert_identical(unname(as.integer(table(factor(
+  published_representations,
+  levels = c("direct_match_in_brim", "selected_products_in_brim",
+             "not_currently_mapped_in_brim")
+)))), c(3L, 20L, 44L), "Published Resource representation counts changed")
+staged_relationship_resources <- relationship_resources[
+  match(staged_ids, relationship_resource_ids)
+]
+assert_true(all(vapply(staged_relationship_resources, function(record) {
+  identical(record$map_review_state, "not_yet_reviewed") &&
+    is.null(record$map_representation) && !length(record$evidence_refs)
+}, logical(1))), "Staged Resources must retain explicit deferred review records")
+
+direct_resource_ids <- c(
+  "resource_calfire_fire_perimeters", "resource_nifc_wfigs_current",
+  "resource_nrcs_scan"
+)
+selected_resource_ids <- c(
+  "resource_blm_california", "resource_prism_normals", "resource_usgs_bcmv8",
+  "resource_dwr_bulletin118_sgma_2019", "resource_usgs_water_dashboard",
+  "resource_noaa_nwps", "resource_noaa_goes_image_viewer",
+  "resource_dwr_california_groundwater_live", "resource_dwr_california_water_watch",
+  "resource_dwr_casgem", "resource_dwr_cdec",
+  "resource_dwr_groundwater_sustainability_agencies",
+  "resource_nasa_firms_global_fire_map", "resource_noaa_cnrfc",
+  "resource_noaa_cpc_forecasts_outlooks", "resource_noaa_wpc_qpf",
+  "resource_nrcs_snow_survey_water_supply_forecasting", "resource_usbr",
+  "resource_usgs_national_hydrography_products", "resource_usgs_water_data_nation"
+)
+representation_ids <- function(value) vapply(Filter(function(record) {
+  identical(record$map_representation, value)
+}, published_relationship_resources), `[[`, character(1), "resource_id")
+assert_identical(representation_ids("direct_match_in_brim"), direct_resource_ids,
+                 "Exact direct-match Resource membership changed")
+assert_identical(representation_ids("selected_products_in_brim"), selected_resource_ids,
+                 "Exact selected-products Resource membership changed")
 
 enrichment_raw <- jsonlite::fromJSON(
   file.path("00_config", "guide_product_enrichment.json"), simplifyVector = FALSE
@@ -614,36 +644,21 @@ assert_identical(
   "Unrelated Product enrichment changed during relationship-authority removal"
 )
 
-enrichment_product_ids <- vapply(
-  enrichment_raw$products, `[[`, character(1), "stable_id"
-)
-linked_product_ids <- enrichment_product_ids[
-  enrichment_product_ids %in% names(public_relationships)
-]
-product_fixtures <- lapply(linked_product_ids, function(product_id) {
-  relationships <- lapply(public_relationships[[product_id]],
-                          function(relationship) list(
-    id = relationship$id,
-    role = relationship$role,
-    relationshipType = relationship$relationship_type,
-    useScope = relationship$use_scope
-  ))
+product_fixtures <- lapply(relationship_product_ids, function(product_id) {
   list(
     id = product_id,
     title = paste("Eligible Product", product_id),
-    entityType = "Layer",
-    relatedResources = unname(relationships),
-    relatedResourceIds = if (length(relationships)) {
-      vapply(relationships, `[[`, character(1), "id")
-    } else character(0)
+    entityType = "Layer"
   )
 })
-browser_records <- pt_guide_resource_browser_records(published, product_fixtures)
+browser_records <- pt_guide_resource_browser_records(
+  published, product_fixtures, relationship_registry
+)
 assert_identical(vapply(browser_records, `[[`, character(1), "id"), expected_published_ids,
                  "Browser projection changed Resource order or identity")
 assert_true(all(vapply(browser_records, function(record) {
   identical(names(record), browser_fields)
-}, logical(1))), "Resource browser projection is not the exact 22-field shape")
+}, logical(1))), "Resource browser projection is not the exact 23-field shape")
 assert_true(all(vapply(seq_along(browser_records), function(index) {
   record <- browser_records[[index]]
   canonical <- registry[[match(record$id, registry_ids)]]
@@ -665,55 +680,34 @@ assert_true(all(vapply(seq_along(browser_records), function(index) {
       ]])
     )
 }, logical(1))), "Build-derived controlled Resource metadata labels changed")
-assert_true(all(vapply(browser_records, function(record) {
-  expected_search <- pt_guide_normalize_resource_search(list(
-    record$title, record$aliases, record$provider,
-    vapply(record$providers, `[[`, character(1), "name"), record$summary,
-    vapply(record$accessPoints, `[[`, character(1), "label"),
-    record$resourceTypeLabel, record$resourceGranularity, record$subjectTags,
-    record$informationTypes, record$variables, record$useScopes,
-    record$geographicScope$scopeLabel, record$geographicScope$names
-  ))
-  identical(record$searchText, expected_search)
-}, logical(1))), "Temporal character entered searchText or label search drifted")
-
-projected_relationships <- unlist(lapply(browser_records, `[[`, "relatedProducts"),
+projected_relationships <- unlist(lapply(browser_records, `[[`, "representedProducts"),
                                   recursive = FALSE)
-projected_types <- vapply(projected_relationships, `[[`, character(1), "relationshipType")
-assert_identical(length(projected_relationships), 17L,
+projected_roles <- vapply(projected_relationships, `[[`, character(1), "relationshipRole")
+assert_identical(length(projected_relationships), 86L,
                  "Browser reverse relationship index lost exact rows")
-assert_identical(sum(projected_types == "displayed_in_brim"), 0L,
-                 "Projected displayed relationship count changed")
-assert_identical(sum(projected_types == "used_by_brim"), 7L,
-                 "Projected used relationship count changed")
-assert_identical(sum(projected_types == "related_external_resource"), 10L,
-                 "Projected external relationship count changed")
-
-flag_ids <- function(field) vapply(Filter(function(record) {
-  isTRUE(record$relationshipFlags[[field]])
-}, browser_records), `[[`, character(1), "id")
-expected_used <- c(
-  "resource_prism_normals", "resource_usgs_bcmv8",
-  "resource_dwr_bulletin118_sgma_2019", "resource_calfire_fire_perimeters",
-  "resource_nifc_wfigs_current", "resource_nrcs_scan"
+assert_identical(unname(as.integer(table(factor(
+  projected_roles,
+  levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
+             "source_reference")
+)))), c(13L, 57L, 16L), "Projected relationship-role counts changed")
+assert_true(all(vapply(projected_relationships, function(relationship) {
+  identical(names(relationship), c(
+    "productId", "title", "deliveryClass", "coverageDisposition",
+    "relationshipRole", "sourceResourceIds"
+  ))
+}, logical(1))), "Represented Product public shape changed")
+assert_identical(
+  vapply(Filter(function(record) {
+    identical(record$mapRepresentation, "direct_match_in_brim")
+  }, browser_records), `[[`, character(1), "id"),
+  direct_resource_ids, "Projected direct-match Resource membership changed"
 )
-expected_related <- c(
-  "resource_blm_california", "resource_usgs_water_dashboard", "resource_noaa_nwps"
-)
-expected_brim_linked <- c(expected_used, expected_related)
-assert_true(setequal(flag_ids("brimLinked"), expected_brim_linked),
-            "BRIM-linked Resource IDs changed")
-assert_true(setequal(flag_ids("usedByBrim"), expected_used),
-            "Used Resource IDs changed")
-assert_identical(length(flag_ids("displayedInBrim")), 0L,
-                 "Available-in-BRIM Resource count must remain zero")
-assert_true(setequal(flag_ids("relatedExternalResource"), expected_related),
-            "Related Resource IDs changed")
-assert_identical(length(flag_ids("beyondBrim")), 58L,
-                 "Beyond BRIM count must be 58")
-assert_true(!length(intersect(flag_ids("brimLinked"), flag_ids("beyondBrim"))) &&
-              setequal(c(flag_ids("brimLinked"), flag_ids("beyondBrim")), expected_published_ids),
-            "BRIM-linked and Beyond BRIM must be disjoint exhaustive complements")
+assert_identical(sum(vapply(browser_records, function(record) {
+  identical(record$mapRepresentation, "selected_products_in_brim")
+}, logical(1))), 20L, "Projected selected-products Resource count changed")
+assert_identical(sum(vapply(browser_records, function(record) {
+  identical(record$mapRepresentation, "not_currently_mapped_in_brim")
+}, logical(1))), 44L, "Projected not-mapped Resource count changed")
 
 assert_true(all(vapply(browser_records, function(record) {
   identical(record$accessPoints[[1]], list(
@@ -743,13 +737,15 @@ assert_true(!any(vapply(staged_ids, function(id) {
 }, logical(1))), "A staged Resource ID entered the browser projection")
 assert_identical(
   digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "d291ab3357efa47939a2cc7303aaf5794f9a4a2bd7769ed7fdf7151f5eeaaad2",
-  "The browser Resource payload changed beyond the exact R10 publication projection"
+  "66e7a271c738ea9626aa6cad39ece66d043afa5c8eba88cdf62f74abbcb0a1c2",
+  "The browser Resource payload changed beyond the exact R12B public projection"
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
   "canonical_url", "access_class", "source_refs", "editorial_state",
-  "verification", "freshness", "lifecycle", "relatedProductIds"
+  "verification", "freshness", "lifecycle", "relatedProductIds",
+  "relatedProducts", "relationshipFlags", "brimLinked", "beyondBrim",
+  "displayedInBrim", "usedByBrim", "relatedExternalResource"
 )
 assert_true(!any(vapply(forbidden_fields, function(field) {
   grepl(paste0('"', field, '"'), browser_json, fixed = TRUE)
@@ -836,22 +832,27 @@ expect_invalid(bad, "prohibited authority/provenance field",
                "Product relationship authority entered the Resource registry")
 
 assert_error(
-  pt_guide_resource_browser_records(unclass(published), product_fixtures),
+  pt_guide_resource_browser_records(
+    unclass(published), product_fixtures, relationship_registry
+  ),
   "requires a validated registry",
   "Browser projection accepted an unvalidated registry"
 )
 duplicate_products <- product_fixtures
 duplicate_products[[2]]$id <- duplicate_products[[1]]$id
 assert_error(
-  pt_guide_resource_browser_records(published, duplicate_products),
+  pt_guide_resource_browser_records(
+    published, duplicate_products, relationship_registry
+  ),
   "unique eligible Product IDs",
   "Browser projection accepted duplicate eligible Product IDs"
 )
 
 all_relationship_evidence_refs <- unique(c(
-  unlist(lapply(relationship_registry, `[[`, "delivery_evidence_refs"), use.names = FALSE),
-  unlist(lapply(relationship_registry, `[[`, "coverage_evidence_refs"), use.names = FALSE),
-  unlist(lapply(canonical_links, `[[`, "evidence_refs"), use.names = FALSE)
+  unlist(lapply(relationship_registry$products, `[[`, "delivery_evidence_refs"), use.names = FALSE),
+  unlist(lapply(relationship_registry$products, `[[`, "coverage_evidence_refs"), use.names = FALSE),
+  unlist(lapply(canonical_links, `[[`, "evidence_refs"), use.names = FALSE),
+  unlist(lapply(relationship_registry$resources, `[[`, "evidence_refs"), use.names = FALSE)
 ))
 tracked_paths <- pt_guide_relationship_registry_tracked_paths(".")
 if (is.null(tracked_paths)) {
@@ -896,7 +897,7 @@ fixture_product <- function(
   )
 }
 timber_fixture <- list(
-  schema_version = 1L,
+  schema_version = 2L,
   products = list(
     fixture_product(
       "fixture_timber_canopy", "brim_managed",
@@ -922,27 +923,35 @@ timber_fixture <- list(
       "fixture_timber_provenance", "provider_hosted",
       disposition = "provenance_only_no_public_resource"
     )
-  )
+  ),
+  resources = lapply(registry_ids, function(resource_id) list(
+    resource_id = resource_id,
+    map_review_state = "reviewed",
+    map_representation = if (resource_id %in% c(
+      "resource_blm_california", "resource_doi"
+    )) "selected_products_in_brim" else "not_currently_mapped_in_brim",
+    evidence_refs = list(fixture_evidence)
+  ))
 )
 timber_ids <- vapply(timber_fixture$products, `[[`, character(1), "product_id")
 validated_timber <- validate_relationship_fixture(timber_fixture, timber_ids)
-assert_identical(length(validated_timber), 5L,
+assert_identical(length(validated_timber$products), 5L,
                  "Synthetic timber-family onboarding fixture did not validate")
-assert_identical(sum(vapply(validated_timber, function(record) {
+assert_identical(sum(vapply(validated_timber$products, function(record) {
   any(vapply(record$resource_links, function(link) {
     identical(link$resource_id, "resource_blm_california")
   }, logical(1)))
 }, logical(1))), 3L, "Many-Products-to-one-Resource fixture changed")
-assert_identical(length(validated_timber[[3]]$resource_links), 2L,
+assert_identical(length(validated_timber$products[[3]]$resource_links), 2L,
                  "One-Product-to-many-Resources fixture changed")
-assert_true(identical(validated_timber[[1]]$coverage_disposition,
-                      validated_timber[[2]]$coverage_disposition) &&
-              !identical(validated_timber[[1]]$delivery_class,
-                         validated_timber[[2]]$delivery_class),
+assert_true(identical(validated_timber$products[[1]]$coverage_disposition,
+                      validated_timber$products[[2]]$coverage_disposition) &&
+              !identical(validated_timber$products[[1]]$delivery_class,
+                         validated_timber$products[[2]]$delivery_class),
             "Delivery classification became coupled to Resource coverage")
-assert_identical(length(validated_timber[[4]]$resource_links), 0L,
+assert_identical(length(validated_timber$products[[4]]$resource_links), 0L,
                  "Not-yet-reviewed fixture gained a Resource link")
-assert_identical(length(validated_timber[[5]]$resource_links), 0L,
+assert_identical(length(validated_timber$products[[5]]$resource_links), 0L,
                  "Provenance-only fixture gained a fake Resource link")
 
 bad_relationships <- clone_value(timber_fixture)
@@ -1028,36 +1037,40 @@ assert_error(
   "raw bookmark material", "Raw bookmark provenance was accepted"
 )
 
-bad_relationships <- clone_value(raw_relationship_registry)
-legacy_index <- which(vapply(bad_relationships$products, function(record) {
-  any(vapply(record$resource_links, function(link) {
-    !is.null(link$temporary_r12a_legacy_public_projection)
-  }, logical(1)))
-}, logical(1)))[[1]]
-legacy_link_index <- which(vapply(
-  bad_relationships$products[[legacy_index]]$resource_links,
-  function(link) !is.null(link$temporary_r12a_legacy_public_projection), logical(1)
-))[[1]]
-bad_relationships$products[[legacy_index]]$resource_links[[legacy_link_index]]$
-  temporary_r12a_legacy_public_projection <- NULL
+bad_relationships <- clone_value(timber_fixture)
+bad_relationships$resources <- bad_relationships$resources[-1]
 assert_error(
-  pt_guide_validate_product_resource_relationship_registry(
-    bad_relationships, relationship_product_ids, registry,
-    repository_root = ".", tracked_paths = tracked_paths,
-    required_r12a_legacy_projection_count = 17L
-  ),
-  "exact R12A legacy projection count",
-  "A registry missing one temporary compatibility object was accepted"
+  validate_relationship_fixture(bad_relationships, timber_ids),
+  "must equal the complete Resource universe",
+  "A relationship registry missing one Resource review record was accepted"
+)
+bad_relationships <- clone_value(timber_fixture)
+bad_relationships$resources[[1]]$map_representation <- "direct_match_in_brim"
+assert_error(
+  validate_relationship_fixture(bad_relationships, timber_ids),
+  "direct representation requires",
+  "A direct Resource representation without a direct Product link was accepted"
+)
+bad_relationships <- clone_value(timber_fixture)
+bad_relationships$resources[[1]]$legacy_relationship_flags <- list()
+assert_error(
+  validate_relationship_fixture(bad_relationships, timber_ids),
+  "unsupported field",
+  "A legacy Resource relationship field was accepted"
 )
 
 assert_true(!grepl('"resource_relationships"', helper_source, fixed = TRUE),
             "The compiler retains an old canonical Product-enrichment relationship read")
-assert_true(grepl("pt_guide_r12a_temporary_legacy_public_relationship_projection",
-                  helper_source, fixed = TRUE),
-            "The single temporary R12A adapter is missing")
+assert_true(!grepl("pt_guide_r12a_temporary_legacy_public_relationship_projection",
+                   helper_source, fixed = TRUE),
+            "The temporary R12A compiler adapter remains")
+assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
+                   fixed = TRUE),
+            "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R12A sole relationship registry/projection contracts passed.\n")
-cat("SCHEMA_VERSION=3\n")
+cat("GUIDE-I2B-R12B sole relationship and representation contracts passed.\n")
+cat("RESOURCE_SCHEMA_VERSION=3\n")
+cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
 cat("TOTAL_RESOURCES=72\n")
 cat("PUBLISHED_RESOURCES=67\n")
 cat("STAGED_RESOURCES=5\n")
@@ -1066,14 +1079,8 @@ cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
 cat("STAGED_TAXONOMY_BLOCKED=2\n")
 cat("DUPLICATE_ACCESS_POINTS_REMOVED=14\n")
-cat("EXACT_RELATIONSHIP_ROWS=17\n")
-cat("DISPLAYED_IN_BRIM=0\n")
-cat("USED_BY_BRIM=7\n")
-cat("RELATED_EXTERNAL_RESOURCE=10\n")
-cat("RELATIONSHIP_SUBTYPE_UNIQUE_COUNTS=0_DISPLAYED,6_USED,3_RELATED\n")
-cat("BRIM_LINKED_RESOURCE_IDS=9\n")
-cat("BEYOND_BRIM_RESOURCE_IDS=58\n")
-cat("PRESET_COUNTS=67,9,58\n")
+cat("MAP_REPRESENTATION=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")
+cat("PRESET_COUNTS=23,44,67\n")
 cat("RESOURCE_TYPE_VALUES=9_OF_10_CURRENT\n")
 cat("TEMPORAL_CHARACTER_VALUES=7_OF_7_CURRENT\n")
 cat("TEMPORAL_UNKNOWN_IDS=15_EXACT\n")
@@ -1088,14 +1095,14 @@ cat("HELD_5_EQUIVALENCE=PASS\n")
 cat("CURRENT_32_NON_GOES_EQUIVALENCE=PASS\n")
 cat("GOES_ALLOWED_CHANGED_FIELD=access_points_ONLY\n")
 cat("HELD_BROWSER_LEAKAGE=0\n")
-cat("BROWSER_RESOURCE_FIELDS=22\n")
+cat("BROWSER_RESOURCE_FIELDS=23\n")
 cat("BROWSER_RESOURCE_BYTES=", nchar(browser_json, type = "bytes"), "\n", sep = "")
 cat("BROWSER_RESOURCE_SHA256=",
     digest::digest(browser_json, algo = "sha256", serialize = FALSE), "\n", sep = "")
 cat("DEFAULT_PROFILE_ONLY=YES\n")
 cat("RELATIONSHIP_HEURISTICS=0\n")
 cat("PRODUCT_RELATIONSHIP_RECORDS=270\n")
-cat("CANONICAL_RESOURCE_LINKS=36\n")
-cat("LEGACY_PUBLIC_PROJECTIONS=17\n")
+cat("CANONICAL_RESOURCE_LINKS=86\n")
+cat("LEGACY_PUBLIC_PROJECTIONS=0\n")
 cat("SYNTHETIC_TIMBER_ONBOARDING=PASS\n")
-cat("R12B_ADAPTER_REMOVAL_GATE=PASS\n")
+cat("R12B_ADAPTER_REMOVED=PASS\n")
