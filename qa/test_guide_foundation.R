@@ -75,6 +75,13 @@ registry_ids <- vapply(resource_registry, `[[`, character(1), "id")
 registry_states <- vapply(resource_registry, `[[`, character(1), "publication_state")
 staged_registry <- unclass(resource_registry)[registry_states == "staged"]
 staged_registry_ids <- vapply(staged_registry, `[[`, character(1), "id")
+held_staged_registry <- staged_registry[vapply(
+  staged_registry, function(record) record$order <= 72L, logical(1)
+)]
+r14_staged_registry <- staged_registry[vapply(
+  staged_registry, function(record) record$order > 72L, logical(1)
+)]
+r14_staged_registry_ids <- vapply(r14_staged_registry, `[[`, character(1), "id")
 
 assert_identical(names(pt_guide_supported_profiles()), "default",
                  "Guide must name only the one actual current build profile")
@@ -94,16 +101,16 @@ assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
 assert_identical(bundle$counts$resources, 67L,
                  "Current Guide must include all 67 published Resources")
-assert_identical(length(resource_registry), 72L,
-                 "Canonical Resource registry must validate all 72 records")
+assert_identical(length(resource_registry), 205L,
+                 "Canonical Resource registry must validate all 205 records")
 assert_identical(raw_resource_registry$schema_version, 3L,
                  "Canonical Resource registry schema version changed")
 assert_identical(sum(registry_states == "published"), 67L,
                  "Canonical Resource registry published count changed")
-assert_identical(sum(registry_states == "staged"), 5L,
+assert_identical(sum(registry_states == "staged"), 138L,
                  "Canonical Resource registry staged count changed")
 staged_registry_json <- jsonlite::toJSON(
-  staged_registry, auto_unbox = TRUE, null = "null", na = "null",
+  held_staged_registry, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
 assert_identical(
@@ -111,6 +118,39 @@ assert_identical(
   "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
   "The exact five-record held staged registry contract changed"
 )
+assert_identical(length(r14_staged_registry), 133L,
+                 "R14 must add exactly 133 staged Resources")
+assert_identical(
+  digest::digest(paste0(paste(r14_staged_registry_ids, collapse = "\n"), "\n"),
+                 algo = "sha256", serialize = FALSE),
+  "c1f168983e13817b9852dd03301d340fbdf7ab53b169affcbd16a0919cc98267",
+  "The exact ordered R14 target Resource ID set changed"
+)
+assert_identical(sum(vapply(r14_staged_registry, function(record) {
+  !length(record$subject_tags)
+}, logical(1))), 15L,
+"The 15 approved empty target subject sets were not preserved for staging")
+assert_true(!"resource_nasa_nasa_grace_map_comparison_slider_viewer" %in% registry_ids,
+            "The blocked GRACE comparison-slider access point became a Resource")
+assert_identical(sum(registry_ids == "resource_noaa_noaa_sea_level_rise_viewer_viewer"), 1L,
+                 "The NOAA Sea Level Rise target replacement is not present exactly once")
+relationship_resource_representations <- vapply(
+  relationship_registry$resources,
+  function(record) if (is.null(record$map_representation)) {
+    "not_yet_reviewed"
+  } else {
+    record$map_representation
+  },
+  character(1)
+)
+assert_identical(length(relationship_registry$resources), 205L,
+                 "Relationship Resource authority must contain all 205 Resources")
+assert_identical(unname(as.integer(table(factor(
+  relationship_resource_representations,
+  levels = c("direct_match_in_brim", "selected_products_in_brim",
+             "not_currently_mapped_in_brim", "not_yet_reviewed")
+)))), c(3L, 20L, 177L, 5L),
+"Full relationship Resource representation counts changed")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
 expected_current_resource_ids <- c(
@@ -194,7 +234,8 @@ expected_held_staged_ids <- c(
 expected_resource_ids <- c(expected_current_resource_ids, expected_newly_published_ids)
 assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
                  "Current Resource ID set/order changed")
-assert_identical(staged_registry_ids, expected_held_staged_ids,
+assert_identical(vapply(held_staged_registry, `[[`, character(1), "id"),
+                 expected_held_staged_ids,
                  "The five held staged Resource IDs changed")
 raw_registry_ids <- vapply(raw_resource_registry$resources, `[[`, character(1), "id")
 raw_current_resources <- raw_resource_registry$resources[match(
@@ -1562,7 +1603,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R12B public semantic cutover foundation contracts passed.\n")
+cat("GUIDE-I2B-R14 target-200 staging foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1570,12 +1611,13 @@ cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
-cat("REGISTRY_RESOURCES=72_TOTAL,67_PUBLISHED,5_STAGED\n")
+cat("REGISTRY_RESOURCES=205_TOTAL,67_PUBLISHED,138_STAGED\n")
+cat("R14_NEW_STAGED_RESOURCES=133\n")
 cat("EXACT_RELATIONSHIP_ROWS=86\n")
 cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,57_SELECTED,16_SOURCE_REFERENCE\n")
 cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")
 cat("RESOURCE_PRESET_COUNTS=23_IN_BRIM_MAP,44_BEYOND_THE_MAP,67_ALL\n")
-cat("HELD_RESOURCE_LEAKAGE=0\n")
+cat("STAGED_RESOURCE_LEAKAGE=0\n")
 cat("NEWLY_PUBLISHED_IDS_IN_CANONICAL_ORDER=PASS\n")
 cat("WAVE2_INFORMATION_TYPE_INFERENCE=NONE\n")
 cat("RESOURCE_METADATA_LABEL_PROJECTION=PASS\n")

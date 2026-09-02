@@ -6606,6 +6606,1868 @@
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r"
       ]
+    },
+    {
+      "resource_id": "resource_zone_7_zone_7_water_agency_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_wwd_westlands_water_management_plan_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_weather_and_mesonet_services_tropical_tidbits_forecast_models_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_swrcb_state_water_board_division_of_water_rights_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_water_quality_and_ecosystem_data_provide_safe_to_swim_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cpc_monthly_global_soil_moisture_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_usgs_water_services_apis_service",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_srwsld_sacramento_river_west_side_levee_district_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_nrcs_snotel_historic_data_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_clms_copernicus_daily_surface_soil_moisture_europe_1_km_dataset",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usda_nass_usda_crop_casma_metadata_and_documentation_documentation",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_sgma_data_viewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_synoptic_data_synoptic_weather_api_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sonoma_water_sonoma_water_reservoir_projections_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_climate_and_drought_data_providers_climate_toolbox_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_wrd_water_replenishment_district_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cvfpb_central_valley_flood_protection_board_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_geospatial_and_remote_sensing_data_provi_fema_national_flood_hazard_layer_viewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usda_usda_ag_data_commons_isnobal_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_cvp_long_term_operations_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_troa_truckee_river_operating_agreement_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_nasa_veda_earth_information_dashboard_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ccvfca_california_central_valley_flood_control_association_membership_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sacramento_water_forum_sacramento_water_forum_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_pivotal_weather_pivotal_weather_model_maps_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_epa_epa_waters_geoviewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_esa_esa_climate_change_initiative_soil_moisture_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cw3e_cw3e_micro_rain_radar_snow_levels_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_scwa_solano_county_flood_monitoring_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cdfa_california_department_of_food_and_agriculture_frep_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ulara_upper_los_angeles_river_area_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_meteologix_meteologix_model_charts_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ebmud_east_bay_mud_water_supply_reports_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_bafpaa_bay_area_flood_protection_agencies_association_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_california_and_western_snow_research_org_global_cryosphere_watch_snow_dataset_inventory_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_fema_fema_flood_map_service_center_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_rcfcwcd_riverside_county_rainfall_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_six_basins_watermaster_six_basins_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_agricultural_water_and_evapotranspiratio_openet_data_explorer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_flood_and_levee_programs_california_coastal_commission_sea_level_rise_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_mwa_mojave_basin_area_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_windy_windy_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_contra_costa_county_flood_control_and_wa_contra_costa_county_rainmap_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_h_saf_eumetsat_h_saf_soil_moisture_products_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_wwa_western_water_assessment_swe_fusion_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cal_oes_california_flood_preparedness_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_main_san_gabriel_basin_watermaster_main_san_gabriel_basin_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cocorahs_cocorahs_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nsidc_nsidc_snow_today_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sonoma_water_sonoma_county_sonoma_county_alert2_dashboards_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_itrc_cal_poly_irrigation_training_and_research_center_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_chino_basin_watermaster_chino_basin_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_california_water_rights_and_watermaster_california_voluntary_agreements_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cssl_uc_berkeley_central_sierra_snow_lab_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ywa_yuba_river_conditions_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_usgs_site_inventory_service_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ventura_county_watershed_protection_dist_ventura_county_flood_warning_system_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_tid_turlock_irrigation_district_wiski_web_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sfpuc_san_francisco_public_utilities_commission_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sdcwa_san_diego_county_water_authority_surface_water_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sdcfcd_san_diego_county_flood_control_data_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_scvwd_valley_water_surface_water_data_portal_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_santa_barbara_county_public_works_santa_barbara_county_hydrology_section_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_clms_copernicus_daily_soil_water_index_europe_1_km_dataset",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_pcwa_placer_county_water_agency_american_river_flows_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ocpw_orange_county_monitoring_and_data_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nid_nevada_irrigation_district_telemetry_map_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_mid_modesto_irrigation_district_weather_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_mcwra_monterey_county_water_resources_agency_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_lacpw_los_angeles_county_precipitation_data_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_marin_county_flood_control_marin_county_rainfall_and_creek_data_dashboards_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_noaa_coastwatch_data_access_tools_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_krwa_kings_river_water_association_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_kern_river_watermaster_kern_river_watermaster_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_eid_el_dorado_irrigation_district_project_184_water_data_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_city_of_san_diego_public_utilities_depar_city_of_san_diego_reservoir_water_levels_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_california_local_water_and_flood_agencie_middle_fork_american_river_conditions_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_santa_cruz_county_flood_control_santa_cruz_county_hydrologic_monitoring_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_san_joaquin_county_san_joaquin_county_hydrometeorological_data_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_soil_data_access_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_rd_830_reclamation_district_830_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_rd_2039_reclamation_district_2039_jones_tract_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_swrcb_california_environmental_data_exchange_network_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_rd_17_reclamation_district_17_mossdale_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_klrdd_knights_landing_ridge_drainage_district_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_city_of_stockton_city_of_stockton_reclamation_district_directory_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_dwr_land_use_viewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_water_quality_and_ecosystem_data_provide_interagency_ecological_program_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_pivotal_weather_pivotal_weather_soundings_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_noaa_sea_level_rise_viewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_climate_and_drought_data_providers_terraclimate_dataset",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_reclamation_watersmart_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_geospatial_and_remote_sensing_data_provi_copernicus_browser_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cw3e_cw3e_west_wrf_accumulated_snow_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_nwps_api_service",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_synoptic_data_synoptic_data_viewer_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_epa_epa_hows_my_waterway_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_troa_truckee_river_daily_watermaster_report_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_agricultural_water_and_evapotranspiratio_openet_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_weather_and_mesonet_services_western_regional_climate_center_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_sonoma_water_sonoma_water_current_water_supply_levels_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ebmud_east_bay_mud_daily_water_supply_report_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nsidc_nsidc_airborne_snow_observatory_data_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_usgs_3d_elevation_program_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_cdec_station_search_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_water_quality_and_ecosystem_data_provide_delta_science_program_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_swrcb_safer_dashboard_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_climate_and_drought_data_providers_gridmet_dataset",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cnrfc_hourly_hefs_csv_service",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_ocpw_orange_county_hydrology_data_portal_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nid_nevada_irrigation_district_river_and_reservoir_data_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_eid_eid_project_184_portal_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_farmington_dam_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nasa_nasa_grace_interactive_browsers_and_data_access_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_nrcs_nrcs_snotel_update_report_selector_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_synoptic_data_mesowest_california_surface_weather_map_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_cw3e_cw3e_california_weather_and_water_portal_viewer",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_geospatial_and_remote_sensing_data_provi_opentopography_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_cdec_station_metadata_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_usgs_the_national_map_downloader_other",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_epa_epa_echo_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_swrcb_impaired_waters_and_tmdls_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_cnrfc_forcing_csv_service",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_weather_and_mesonet_services_ncar_real_time_weather_data_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
+    },
+    {
+      "resource_id": "resource_usace_usace_pine_flat_lake_hourly_data_product",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r"
+      ]
     }
   ]
 }

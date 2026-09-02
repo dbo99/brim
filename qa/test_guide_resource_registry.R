@@ -133,6 +133,7 @@ expected_newly_published_ids <- expected_wave2_ids[
   !expected_wave2_ids %in% expected_held_staged_ids
 ]
 expected_published_ids <- c(expected_ids, expected_newly_published_ids)
+expected_baseline_resource_ids <- c(expected_ids, expected_wave2_ids)
 wave1_ids <- expected_ids[10:33]
 required_fields <- c(
   "id", "aliases", "migration_aliases", "search_aliases", "order", "title",
@@ -152,7 +153,7 @@ browser_fields <- c(
 assert_identical(raw_registry$schema_version, 3L, "Registry schema marker changed")
 assert_true(inherits(registry, "pt_guide_resource_registry"),
             "Registry reader did not mark validated records")
-assert_identical(length(registry), 72L, "Registry must contain exactly 72 Resources")
+assert_identical(length(registry), 205L, "Registry must contain exactly 205 Resources")
 registry_ids <- vapply(registry, `[[`, character(1), "id")
 published_ids <- vapply(published, `[[`, character(1), "id")
 staged <- unclass(registry)[vapply(registry, `[[`, character(1), "publication_state") == "staged"]
@@ -160,12 +161,31 @@ staged_ids <- vapply(staged, `[[`, character(1), "id")
 current_registry <- unclass(registry)[match(expected_ids, registry_ids)]
 wave2_registry <- unclass(registry)[match(expected_wave2_ids, registry_ids)]
 newly_published <- unclass(registry)[match(expected_newly_published_ids, registry_ids)]
-assert_identical(registry_ids, c(expected_ids, expected_wave2_ids),
-                 "Complete Resource ID set/order changed")
+r14_registry <- unclass(registry)[seq.int(length(expected_baseline_resource_ids) + 1L,
+                                          length(registry))]
+r14_registry_ids <- vapply(r14_registry, `[[`, character(1), "id")
+held_staged <- staged[match(expected_held_staged_ids, staged_ids)]
+assert_identical(registry_ids[seq_along(expected_baseline_resource_ids)],
+                 expected_baseline_resource_ids,
+                 "The accepted 72-Resource baseline ID set/order changed")
+assert_identical(
+  digest::digest(paste0(paste(r14_registry_ids, collapse = "\n"), "\n"),
+                 algo = "sha256", serialize = FALSE),
+  "c1f168983e13817b9852dd03301d340fbdf7ab53b169affcbd16a0919cc98267",
+  "The exact ordered R14 133-Resource target ID set changed"
+)
 assert_identical(published_ids, expected_published_ids,
                  "The exact 67 published Resources changed or reordered")
-assert_identical(staged_ids, expected_held_staged_ids,
+assert_identical(vapply(held_staged, `[[`, character(1), "id"), expected_held_staged_ids,
                  "The exact five held staged Resources changed or reordered")
+assert_identical(staged_ids[staged_ids %in% r14_registry_ids], r14_registry_ids,
+                 "The exact R14 target Resources are not all staged in contract order")
+assert_identical(length(r14_registry_ids), 133L,
+                 "R14 must add exactly 133 target Resources")
+assert_true(!"resource_nasa_nasa_grace_map_comparison_slider_viewer" %in% registry_ids,
+            "The blocked GRACE comparison-slider access point became a Resource")
+assert_identical(sum(registry_ids == "resource_noaa_noaa_sea_level_rise_viewer_viewer"), 1L,
+                 "The deterministic NOAA Sea Level Rise replacement is not present exactly once")
 assert_true(!anyDuplicated(registry_ids), "Registry Resource IDs are duplicated")
 assert_true(all(vapply(registry, function(record) {
   identical(names(record), required_fields)
@@ -178,8 +198,15 @@ assert_identical(
 publication_states <- vapply(registry, `[[`, character(1), "publication_state")
 assert_identical(sum(publication_states == "published"), 67L,
                  "Published Resource count must be 67")
-assert_identical(sum(publication_states == "staged"), 5L,
-                 "Staged Resource count must be five")
+assert_identical(sum(publication_states == "staged"), 138L,
+                 "Staged Resource count must be 138")
+assert_true(all(vapply(r14_registry, function(record) {
+  identical(record$publication_state, "staged")
+}, logical(1))), "Every R14 target Resource must remain staged")
+assert_identical(sum(vapply(r14_registry, function(record) {
+  !length(record$subject_tags)
+}, logical(1))), 15L,
+"The approved 15 empty subject sets were not preserved exactly for staging")
 assert_true(all(vapply(registry[match(wave1_ids, registry_ids)], function(record) {
   identical(record$publication_state, "published")
 }, logical(1))), "The exact approved 24-Resource cohort was not published")
@@ -390,7 +417,19 @@ assert_identical(
   "d726b498b4292dcc46f720e2c166704c362539e312d357cb21a617a41ea6de7a",
   "A newly published Resource field other than publication_state changed from R9"
 )
-held_json <- compact_json(staged)
+baseline_registry <- raw_registry$resources[seq_along(expected_baseline_resource_ids)]
+assert_identical(
+  digest::digest(compact_json(baseline_registry), algo = "sha256", serialize = FALSE),
+  "de214a316a4842bc76db1276beaa8d6ec4d2f66679d25d8ae6a2d90bdfa58113",
+  "One of the accepted 72 baseline Resources changed during R14 staging"
+)
+assert_identical(
+  digest::digest(compact_json(raw_registry$resources[73:205]),
+                 algo = "sha256", serialize = FALSE),
+  "d09228500cf73aa111336f5d2541bcb9a6ad771509b23a85917be5e0145a7a48",
+  "An R14 schema-v3 Resource record differs from the reviewed target contract"
+)
+held_json <- compact_json(held_staged)
 assert_identical(
   digest::digest(held_json, algo = "sha256", serialize = FALSE),
   "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
@@ -428,8 +467,13 @@ migration_aliases <- unlist(lapply(registry, function(record) {
   unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
 }), use.names = FALSE)
 assert_true(!length(final_aliases), "Unreviewed final-ID aliases entered the registry")
-assert_identical(length(migration_aliases), 26L,
-                 "Migration alias inventory changed")
+baseline_migration_aliases <- unlist(lapply(
+  unclass(registry)[seq_along(expected_baseline_resource_ids)], function(record) {
+    unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
+  }
+), use.names = FALSE)
+assert_identical(length(baseline_migration_aliases), 26L,
+                 "The accepted baseline migration alias inventory changed")
 assert_true(!anyDuplicated(migration_aliases), "Migration aliases are duplicated")
 
 all_access_valid <- vapply(registry, function(record) {
@@ -506,14 +550,26 @@ assert_identical(raw_relationship_registry$schema_version, 2L,
                  "Product-Resource relationship schema version changed")
 assert_identical(length(relationship_product_ids), 270L,
                  "Product-Resource relationship Product count changed")
-assert_identical(length(raw_relationship_registry$resources), 72L,
+assert_identical(length(raw_relationship_registry$resources), 205L,
                  "Product-Resource relationship Resource count changed")
 assert_true(!anyDuplicated(relationship_product_ids),
             "Product-Resource relationship Product IDs are not unique")
+baseline_relationship_registry <- list(
+  schema_version = raw_relationship_registry$schema_version,
+  products = raw_relationship_registry$products,
+  resources = raw_relationship_registry$resources[seq_along(expected_baseline_resource_ids)]
+)
 assert_identical(
-  digest::digest(relationship_json, algo = "sha256", serialize = FALSE),
+  digest::digest(compact_json(baseline_relationship_registry),
+                 algo = "sha256", serialize = FALSE),
   "6b4847dbd038cb23161bcda385d7385f894d137c9f1de8f6957607874d3cec9b",
-  "The sole Product-Resource relationship registry no longer matches the exact R12B contract"
+  "The schema marker, 270 Products, links, or accepted 72 Resource reviews changed from R12B"
+)
+assert_identical(
+  digest::digest(compact_json(raw_relationship_registry$resources[73:205]),
+                 algo = "sha256", serialize = FALSE),
+  "b6f366a98d54f26d1ba2f3463d74174f8288a50f4e9d41e8ffe0f9b1bfd0b9d8",
+  "An R14 schema-v2 Resource relationship record differs from the reviewed contract"
 )
 assert_identical(
   digest::digest(paste0(paste(relationship_product_ids, collapse = "\n"), "\n"),
@@ -597,12 +653,29 @@ assert_identical(unname(as.integer(table(factor(
              "not_currently_mapped_in_brim")
 )))), c(3L, 20L, 44L), "Published Resource representation counts changed")
 staged_relationship_resources <- relationship_resources[
-  match(staged_ids, relationship_resource_ids)
+  match(expected_held_staged_ids, relationship_resource_ids)
 ]
 assert_true(all(vapply(staged_relationship_resources, function(record) {
   identical(record$map_review_state, "not_yet_reviewed") &&
     is.null(record$map_representation) && !length(record$evidence_refs)
 }, logical(1))), "Staged Resources must retain explicit deferred review records")
+r14_relationship_resources <- relationship_resources[
+  match(r14_registry_ids, relationship_resource_ids)
+]
+assert_true(all(vapply(r14_relationship_resources, function(record) {
+  identical(record$map_review_state, "reviewed") &&
+    identical(record$map_representation, "not_currently_mapped_in_brim") &&
+    length(record$evidence_refs) > 0L
+}, logical(1))), "Every R14 Resource must retain its reviewed not-mapped relationship record")
+all_resource_representations <- vapply(relationship_resources, function(record) {
+  if (is.null(record$map_representation)) "not_yet_reviewed" else record$map_representation
+}, character(1))
+assert_identical(unname(as.integer(table(factor(
+  all_resource_representations,
+  levels = c("direct_match_in_brim", "selected_products_in_brim",
+             "not_currently_mapped_in_brim", "not_yet_reviewed")
+)))), c(3L, 20L, 177L, 5L),
+"Full Resource representation counts changed")
 
 direct_resource_ids <- c(
   "resource_calfire_fire_perimeters", "resource_nifc_wfigs_current",
@@ -1068,12 +1141,13 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R12B sole relationship and representation contracts passed.\n")
+cat("GUIDE-I2B-R14 target-200 staging contracts passed.\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
-cat("TOTAL_RESOURCES=72\n")
+cat("TOTAL_RESOURCES=205\n")
 cat("PUBLISHED_RESOURCES=67\n")
-cat("STAGED_RESOURCES=5\n")
+cat("STAGED_RESOURCES=138\n")
+cat("R14_NEW_STAGED_RESOURCES=133\n")
 cat("NEWLY_PUBLISHED_RESOURCES=34\n")
 cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
@@ -1094,7 +1168,7 @@ cat("NEWLY_PUBLISHED_34_ONLY_PUBLICATION_STATE=PASS\n")
 cat("HELD_5_EQUIVALENCE=PASS\n")
 cat("CURRENT_32_NON_GOES_EQUIVALENCE=PASS\n")
 cat("GOES_ALLOWED_CHANGED_FIELD=access_points_ONLY\n")
-cat("HELD_BROWSER_LEAKAGE=0\n")
+cat("STAGED_BROWSER_LEAKAGE=0\n")
 cat("BROWSER_RESOURCE_FIELDS=23\n")
 cat("BROWSER_RESOURCE_BYTES=", nchar(browser_json, type = "bytes"), "\n", sep = "")
 cat("BROWSER_RESOURCE_SHA256=",
@@ -1103,6 +1177,8 @@ cat("DEFAULT_PROFILE_ONLY=YES\n")
 cat("RELATIONSHIP_HEURISTICS=0\n")
 cat("PRODUCT_RELATIONSHIP_RECORDS=270\n")
 cat("CANONICAL_RESOURCE_LINKS=86\n")
+cat("RELATIONSHIP_RESOURCE_RECORDS=205\n")
+cat("ALL_RESOURCE_REPRESENTATIONS=3_DIRECT,20_SELECTED,177_NOT_MAPPED,5_NOT_REVIEWED\n")
 cat("LEGACY_PUBLIC_PROJECTIONS=0\n")
 cat("SYNTHETIC_TIMBER_ONBOARDING=PASS\n")
 cat("R12B_ADAPTER_REMOVED=PASS\n")
