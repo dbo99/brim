@@ -231,7 +231,7 @@ r15b_checker_artifact_ids <- c(
 expected_newly_published_ids <- expected_wave2_ids[
   !expected_wave2_ids %in% expected_held_staged_ids
 ]
-expected_published_ids <- c(expected_ids, expected_newly_published_ids)
+expected_published_ids_before_r15c <- c(expected_ids, expected_newly_published_ids)
 expected_baseline_resource_ids <- c(expected_ids, expected_wave2_ids)
 wave1_ids <- expected_ids[10:33]
 required_fields <- c(
@@ -260,29 +260,30 @@ staged_ids <- vapply(staged, `[[`, character(1), "id")
 current_registry <- unclass(registry)[match(expected_ids, registry_ids)]
 wave2_registry <- unclass(registry)[match(expected_wave2_ids, registry_ids)]
 newly_published <- unclass(registry)[match(expected_newly_published_ids, registry_ids)]
-r15b_target_registry <- unclass(registry)[seq.int(
+r15c_target_registry <- unclass(registry)[seq.int(
   length(expected_baseline_resource_ids) + 1L, length(registry)
 )]
-r15b_target_registry_ids <- vapply(r15b_target_registry, `[[`, character(1), "id")
+r15c_target_registry_ids <- vapply(r15c_target_registry, `[[`, character(1), "id")
 held_staged <- staged[match(expected_held_staged_ids, staged_ids)]
 assert_identical(registry_ids[seq_along(expected_baseline_resource_ids)],
                  expected_baseline_resource_ids,
                  "The accepted 72-Resource baseline ID set/order changed")
 assert_identical(
-  digest::digest(paste0(paste(r15b_target_registry_ids, collapse = "\n"), "\n"),
+  digest::digest(paste0(paste(r15c_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
   "ea8c2fab6c3679104195cc4db2c017821fdf77b285ab05db957451f7ea7580b6",
-  "The exact ordered R15B 133-Resource target ID set changed"
+  "The exact ordered R15C 133-Resource target ID set changed"
 )
+expected_published_ids <- c(expected_published_ids_before_r15c, r15c_target_registry_ids)
 assert_identical(published_ids, expected_published_ids,
-                 "The exact 67 published Resources changed or reordered")
+                 "The exact 200 published Resources changed or reordered")
 assert_identical(vapply(held_staged, `[[`, character(1), "id"), expected_held_staged_ids,
                  "The exact five held staged Resources changed or reordered")
-assert_identical(staged_ids[staged_ids %in% r15b_target_registry_ids],
-                 r15b_target_registry_ids,
-                 "The exact R15B target Resources are not all staged in contract order")
-assert_identical(length(r15b_target_registry_ids), 133L,
-                 "R15B must preserve exactly 133 target Resources")
+assert_identical(published_ids[published_ids %in% r15c_target_registry_ids],
+                 r15c_target_registry_ids,
+                 "The exact R15C target Resources are not all published in contract order")
+assert_identical(length(r15c_target_registry_ids), 133L,
+                 "R15C must publish exactly 133 target Resources")
 assert_true(!any(r15b_removed_resource_ids %in% registry_ids),
             "An R15A-invalid Resource remains in canonical authority")
 assert_true(!any(r15b_rejected_canonical_ids %in% registry_ids),
@@ -306,17 +307,17 @@ assert_identical(
   "Registry order is not unique, complete, and in file order"
 )
 publication_states <- vapply(registry, `[[`, character(1), "publication_state")
-assert_identical(sum(publication_states == "published"), 67L,
-                 "Published Resource count must be 67")
-assert_identical(sum(publication_states == "staged"), 138L,
-                 "Staged Resource count must be 138")
-assert_true(all(vapply(r15b_target_registry, function(record) {
-  identical(record$publication_state, "staged")
-}, logical(1))), "Every R15B target Resource must remain staged")
-assert_identical(sum(vapply(r15b_target_registry, function(record) {
+assert_identical(sum(publication_states == "published"), 200L,
+                 "Published Resource count must be 200")
+assert_identical(sum(publication_states == "staged"), 5L,
+                 "Staged Resource count must be 5")
+assert_true(all(vapply(r15c_target_registry, function(record) {
+  identical(record$publication_state, "published")
+}, logical(1))), "Every R15C target Resource must be published")
+assert_identical(sum(vapply(r15c_target_registry, function(record) {
   !length(record$subject_tags)
 }, logical(1))), 15L,
-"The approved 15 empty subject sets were not preserved exactly for staging")
+"The approved 15 empty subject sets were not preserved exactly for publication")
 assert_true(all(vapply(registry[match(wave1_ids, registry_ids)], function(record) {
   identical(record$publication_state, "published")
 }, logical(1))), "The exact approved 24-Resource cohort was not published")
@@ -460,10 +461,11 @@ metadata_counts <- function(values) {
 assert_identical(
   metadata_counts(vapply(published, `[[`, character(1), "resource_type")),
   c(
-    analysis_tool = 3L, dashboard = 9L, data_portal_or_catalog = 15L,
-    data_service_or_api = 2L, dataset_or_collection = 10L,
-    organization_homepage = 4L, program_or_mission = 8L,
-    report_or_publication = 1L, viewer_or_explorer = 15L
+    analysis_tool = 9L, dashboard = 19L, data_portal_or_catalog = 71L,
+    data_service_or_api = 8L, dataset_or_collection = 21L,
+    documentation_or_guide = 2L, organization_homepage = 4L,
+    program_or_mission = 19L, report_or_publication = 15L,
+    viewer_or_explorer = 32L
   ),
   "Published Resource Type distribution changed"
 )
@@ -472,7 +474,7 @@ assert_identical(
   c(
     climatology_or_normals = 1L, current_or_near_real_time = 15L,
     forecast = 2L, historical_archive = 7L, mixed = 18L,
-    static_reference = 9L, unknown = 15L
+    static_reference = 9L, unknown = 148L
   ),
   "Published temporal-character distribution changed"
 )
@@ -480,8 +482,8 @@ assert_identical(
   metadata_counts(vapply(published, function(record) {
     record$geographic_scope$scope_type
   }, character(1))),
-  c(global = 20L, multi_state = 2L, multinational = 4L, national = 29L,
-    state = 11L, unknown = 1L),
+  c(global = 46L, local = 46L, multi_state = 2L, multinational = 4L,
+    national = 64L, regional = 5L, state = 29L, unknown = 4L),
   "Published geographic-scope distribution changed"
 )
 
@@ -489,6 +491,12 @@ compact_json <- function(value) jsonlite::toJSON(
   value,
   auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
 )
+normalize_r15c_publication_state <- function(record) {
+  if (record$id %in% r15c_target_registry_ids) {
+    record$publication_state <- "staged"
+  }
+  record
+}
 strip_r15b_authorized_access_point <- function(record) {
   expected <- r15b_authorized_access_points[[record$id]]
   if (!is.null(expected)) {
@@ -565,7 +573,8 @@ strip_authorized_endpoint_fields <- function(record) {
 }
 assert_identical(
   digest::digest(compact_json(lapply(
-    r15b_repaired_records, strip_authorized_endpoint_fields
+    lapply(r15b_repaired_records, normalize_r15c_publication_state),
+    strip_authorized_endpoint_fields
   )), algo = "sha256", serialize = FALSE),
   "e7049ce710270fc8477741992909b55a0bf47a0818f48c0e2d5b3201e47611bc",
   "A protected field changed in the 25 repaired R15B Resources"
@@ -577,15 +586,17 @@ assert_identical(
   "A protected USBR field changed during the canonical-host repair"
 )
 assert_identical(
-  digest::digest(compact_json(lapply(raw_registry$resources[match(
+  digest::digest(compact_json(lapply(lapply(raw_registry$resources[match(
     r15b_checker_artifact_ids, raw_registry_ids
-  )], strip_r15b_authorized_access_point)), algo = "sha256", serialize = FALSE),
+  )], normalize_r15c_publication_state), strip_r15b_authorized_access_point)),
+  algo = "sha256", serialize = FALSE),
   "2bad10e8701add940bbd47f2f56f61eb8d644bb97d14041e232d68d4104ae60a",
   "An R15A OneRain checker-artifact field outside the authorized Napa access point changed"
 )
 r15b_replacement_records_without_order <- lapply(
   raw_registry$resources[match(r15b_selected_replacement_ids, raw_registry_ids)],
   function(record) {
+    record <- normalize_r15c_publication_state(record)
     record <- strip_r15b_authorized_access_point(record)
     record$order <- NULL
     record
@@ -651,11 +662,13 @@ assert_identical(
   "bcc56bd0930cbc09ba47a513e1512d0a6e0767d90281813e50d1b518baeac181",
   "A baseline Resource changed beyond the exact USBR canonical-host repair"
 )
+r15c_target_without_state_json <- compact_json(lapply(
+  raw_registry$resources[73:205], strip_publication_state
+))
 assert_identical(
-  digest::digest(compact_json(raw_registry$resources[73:205]),
-                 algo = "sha256", serialize = FALSE),
-  "285ad8cc5406caf0383dcfa94c4826cab761e69b464f00f9867ca8998b5004e3",
-  "An R15B schema-v3 Resource record differs from the reviewed target contract"
+  digest::digest(r15c_target_without_state_json, algo = "sha256", serialize = FALSE),
+  "405a014a6fd51234e4b2dbc4be3ec395aa7b601d084ad840613d2de0ac6f6a6b",
+  "An R15C target field changed beyond publication_state"
 )
 held_json <- compact_json(held_staged)
 assert_identical(
@@ -922,7 +935,7 @@ assert_identical(unname(as.integer(table(factor(
   published_representations,
   levels = c("direct_match_in_brim", "selected_products_in_brim",
              "not_currently_mapped_in_brim")
-)))), c(3L, 20L, 44L), "Published Resource representation counts changed")
+)))), c(3L, 20L, 177L), "Published Resource representation counts changed")
 staged_relationship_resources <- relationship_resources[
   match(expected_held_staged_ids, relationship_resource_ids)
 ]
@@ -930,14 +943,14 @@ assert_true(all(vapply(staged_relationship_resources, function(record) {
   identical(record$map_review_state, "not_yet_reviewed") &&
     is.null(record$map_representation) && !length(record$evidence_refs)
 }, logical(1))), "Staged Resources must retain explicit deferred review records")
-r15b_target_relationship_resources <- relationship_resources[
-  match(r15b_target_registry_ids, relationship_resource_ids)
+r15c_target_relationship_resources <- relationship_resources[
+  match(r15c_target_registry_ids, relationship_resource_ids)
 ]
-assert_true(all(vapply(r15b_target_relationship_resources, function(record) {
+assert_true(all(vapply(r15c_target_relationship_resources, function(record) {
   identical(record$map_review_state, "reviewed") &&
     identical(record$map_representation, "not_currently_mapped_in_brim") &&
     length(record$evidence_refs) > 0L
-}, logical(1))), "Every R15B target Resource must retain its reviewed not-mapped relationship record")
+}, logical(1))), "Every R15C target Resource must retain its reviewed not-mapped relationship record")
 selected_replacement_relationships <- relationship_resources[
   match(r15b_selected_replacement_ids, relationship_resource_ids)
 ]
@@ -1059,7 +1072,7 @@ assert_identical(sum(vapply(browser_records, function(record) {
 }, logical(1))), 20L, "Projected selected-products Resource count changed")
 assert_identical(sum(vapply(browser_records, function(record) {
   identical(record$mapRepresentation, "not_currently_mapped_in_brim")
-}, logical(1))), 44L, "Projected not-mapped Resource count changed")
+}, logical(1))), 177L, "Projected not-mapped Resource count changed")
 
 assert_true(all(vapply(browser_records, function(record) {
   identical(record$accessPoints[[1]], list(
@@ -1092,18 +1105,15 @@ browser_json <- jsonlite::toJSON(
   browser_records, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
-assert_identical(length(browser_records), 67L,
-                 "Browser projection must contain exactly 67 published Resources")
+assert_identical(length(browser_records), 200L,
+                 "Browser projection must contain exactly 200 published Resources")
 assert_true(!any(vapply(staged_ids, function(id) {
   grepl(id, browser_json, fixed = TRUE)
 }, logical(1))), "A staged Resource ID entered the browser projection")
 assert_identical(
   digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "ba23f7c30ad9bf9bf6ae93aae72348ea45437ac907fe19669956781fdc32ffa5",
-  paste0(
-    "The browser Resource payload changed beyond the exact USBR action repair ",
-    "and CDEC configured access point"
-  )
+  "dce7d8876f9f03ba88eb931e5829e4d849543ee77daf105b98278c138b1362bf",
+  "The exact R15C 200-Resource browser payload changed"
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
@@ -1132,6 +1142,16 @@ assert_true(!grepl("pt_guide_resource_product_relationships", helper_source, fix
             "Legacy untyped Resource reverse map remains")
 assert_true(!grepl("related_resource_ids =", helper_source, fixed = TRUE),
             "Product constructors still accept a parallel Resource relationship authority")
+for (approved_url in unname(r15b_http_only_exceptions)) {
+  assert_identical(
+    lengths(regmatches(
+      helper_source,
+      gregexpr(approved_url, helper_source, fixed = TRUE)
+    )),
+    1L,
+    paste("An HTTP-only exception URL has more than one helper authority:", approved_url)
+  )
+}
 
 write_registry_fixture <- function(value) {
   path <- tempfile("guide_resource_registry_", tmpdir = tempdir(), fileext = ".json")
@@ -1145,11 +1165,31 @@ expect_invalid <- function(value, pattern, message) {
   assert_error(pt_guide_read_resource_registry(write_registry_fixture(value)), pattern, message)
 }
 fresh_registry <- function() jsonlite::fromJSON(registry_path, simplifyVector = FALSE)
+registry_with_canonical_url <- function(resource_id, url) {
+  fixture <- fresh_registry()
+  fixture_ids <- vapply(fixture$resources, `[[`, character(1), "id")
+  resource_index <- match(resource_id, fixture_ids)
+  assert_true(!is.na(resource_index), paste("Missing URL-policy fixture Resource:", resource_id))
+  canonical_index <- match(
+    "canonical",
+    vapply(fixture$resources[[resource_index]]$access_points, `[[`, character(1), "role")
+  )
+  assert_true(!is.na(canonical_index), paste("Missing canonical access point for:", resource_id))
+  fixture$resources[[resource_index]]$canonical_url <- url
+  fixture$resources[[resource_index]]$access_points[[canonical_index]]$url <- url
+  fixture
+}
 
 assert_identical(length(r15b_http_only_exceptions), 3L,
                  "The HTTP-only exception map must contain exactly three entries")
 for (resource_id in names(r15b_http_only_exceptions)) {
   approved_url <- unname(r15b_http_only_exceptions[[resource_id]])
+  canonical_record <- registry[[match(resource_id, registry_ids)]]
+  assert_identical(
+    canonical_record$canonical_url,
+    approved_url,
+    paste("The registry loader did not retain an exact HTTP-only Resource pair:", resource_id)
+  )
   assert_identical(
     pt_guide_validate_public_resource_url(
       approved_url, "Approved HTTP-only fixture", resource_id
@@ -1196,6 +1236,52 @@ assert_identical(
   "An ordinary valid public HTTPS URL no longer passes"
 )
 
+registry_url_rejections <- list(
+  wrong_path = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://wiskiweb.tid.org/different.htm"
+  ),
+  wrong_id = c(resource_doi = "http://wiskiweb.tid.org/index.htm"),
+  same_host_different_path = c(
+    resource_krwa_kings_river_water_association_platform =
+      "http://kingsriverwater.org/data"
+  ),
+  suffix_match = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://wiskiweb.tid.org/index.htm/extra"
+  ),
+  substring_match = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://example.gov/?next=http://wiskiweb.tid.org/index.htm"
+  ),
+  host_variant = c(
+    resource_krwa_kings_river_water_association_platform =
+      "http://www.kingsriverwater.org/"
+  ),
+  arbitrary_fourth = c(resource_doi = "http://example.gov/resource"),
+  relative = c(resource_doi = "/resource"),
+  scheme_relative = c(resource_doi = "//example.gov/resource"),
+  malformed = c(resource_doi = "http:///missing-host")
+)
+for (fixture_name in names(registry_url_rejections)) {
+  probe <- registry_url_rejections[[fixture_name]]
+  expect_invalid(
+    registry_with_canonical_url(names(probe), unname(probe)),
+    "exact reviewed HTTP-only Resource exception",
+    paste("The registry loader accepted a prohibited public URL fixture:", fixture_name)
+  )
+}
+valid_https_registry <- pt_guide_read_resource_registry(write_registry_fixture(
+  registry_with_canonical_url("resource_doi", "https://example.gov/resource")
+))
+assert_identical(
+  valid_https_registry[[match("resource_doi", vapply(
+    valid_https_registry, `[[`, character(1), "id"
+  ))]]$canonical_url,
+  "https://example.gov/resource",
+  "The registry loader rejected an ordinary valid public HTTPS URL"
+)
+
 bad <- fresh_registry()
 bad$schema_version <- 1L
 expect_invalid(bad, "schema_version 3", "Unsupported schema version was accepted")
@@ -1230,7 +1316,7 @@ expect_invalid(bad, "globally unique", "Duplicate stable ID was accepted")
 bad <- fresh_registry()
 bad$resources[[1]]$publication_state <- "staged"
 validated_staged <- pt_guide_read_resource_registry(write_registry_fixture(bad))
-assert_identical(length(pt_guide_resource_published_records(validated_staged)), 66L,
+assert_identical(length(pt_guide_resource_published_records(validated_staged)), 199L,
                  "Publication projection did not exclude a staged negative fixture")
 bad <- fresh_registry()
 bad$resources[[1]]$canonical_url <- "https://localhost/private"
@@ -1496,13 +1582,13 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R15B endpoint repair and bounded replacement contracts passed.\n")
+cat("GUIDE-I2B-R15C target-200 publication contracts passed.\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
 cat("TOTAL_RESOURCES=205\n")
-cat("PUBLISHED_RESOURCES=67\n")
-cat("STAGED_RESOURCES=138\n")
-cat("R15B_REVISED_TARGET_RESOURCES=133\n")
+cat("PUBLISHED_RESOURCES=200\n")
+cat("STAGED_RESOURCES=5\n")
+cat("R15C_PUBLICATION_TARGET_RESOURCES=133\n")
 cat("R15B_URL_REPAIRS=25\n")
 cat("R15B_ADDITIONAL_USBR_HOST_REPAIR=1\n")
 cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
@@ -1515,23 +1601,25 @@ cat("HTTPS_DEFAULT_VALIDATOR=PASS\n")
 cat("R15B_REMOVED_RESOURCES=2\n")
 cat("R15B_SELECTED_REPLACEMENTS=2\n")
 cat("R15B_PRODUCT_LINK_ACTIONS=0\n")
-cat("NEWLY_PUBLISHED_RESOURCES=34\n")
+cat("R10_NEWLY_PUBLISHED_RESOURCES=34\n")
+cat("R15C_NEWLY_PUBLISHED_RESOURCES=133\n")
 cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
 cat("STAGED_TAXONOMY_BLOCKED=2\n")
 cat("DUPLICATE_ACCESS_POINTS_REMOVED=14\n")
-cat("MAP_REPRESENTATION=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")
-cat("PRESET_COUNTS=23,44,67\n")
-cat("RESOURCE_TYPE_VALUES=9_OF_10_CURRENT\n")
+cat("MAP_REPRESENTATION=3_DIRECT,20_SELECTED,177_NOT_MAPPED\n")
+cat("PRESET_COUNTS=23,177,200\n")
+cat("RESOURCE_TYPE_VALUES=10_OF_10_CURRENT\n")
 cat("TEMPORAL_CHARACTER_VALUES=7_OF_7_CURRENT\n")
-cat("TEMPORAL_UNKNOWN_IDS=15_EXACT\n")
-cat("GEOGRAPHIC_SCOPE_VALUES=6_OF_8_CURRENT\n")
-cat("GEOGRAPHY_UNKNOWN_IDS=1_EXACT\n")
-cat("PUBLICATION_TRANSITIONS=34_OF_34_EXACT\n")
+cat("TEMPORAL_UNKNOWN_IDS=148_EXACT\n")
+cat("GEOGRAPHIC_SCOPE_VALUES=8_OF_8_CURRENT\n")
+cat("GEOGRAPHY_UNKNOWN_IDS=4_EXACT\n")
+cat("PUBLICATION_TRANSITIONS=133_OF_133_EXACT\n")
 cat("HELD_CONTRACT_MATCH=5_OF_5_STAGED\n")
 cat("PROTECTED_FIELD_EQUIVALENCE=PASS\n")
 cat("CURRENT_33_EQUIVALENCE=PASS\n")
-cat("NEWLY_PUBLISHED_34_ONLY_PUBLICATION_STATE=PASS\n")
+cat("R10_NEWLY_PUBLISHED_34_ONLY_PUBLICATION_STATE=PASS\n")
+cat("R15C_TARGET_133_ONLY_PUBLICATION_STATE=PASS\n")
 cat("HELD_5_EQUIVALENCE=PASS\n")
 cat("CURRENT_32_NON_GOES_EQUIVALENCE=PASS\n")
 cat("GOES_ALLOWED_CHANGED_FIELD=access_points_ONLY\n")

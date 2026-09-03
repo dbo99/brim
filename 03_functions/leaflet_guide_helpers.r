@@ -2257,9 +2257,19 @@ pt_validate_guide_bundle <- function(bundle) {
         any(vapply(resource$accessPoints, function(point) {
           !identical(names(point), c("role", "label", "url")) ||
             any(!nzchar(c(point$role, point$label, point$url))) ||
-            !grepl("^https://", point$url)
+            !identical(
+              tryCatch(
+                pt_guide_validate_public_resource_url(
+                  point$url,
+                  "BRIM Guide Resource access-point URL",
+                  resource$id
+                ),
+                error = function(error) ""
+              ),
+              point$url
+            )
         }, logical(1)))) {
-      stop("BRIM Guide Resource access points require exact labeled HTTPS actions.",
+      stop("BRIM Guide Resource access points require exact labeled public URL actions.",
            call. = FALSE)
     }
     canonical_points <- Filter(function(point) {
