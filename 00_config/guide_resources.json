@@ -4451,7 +4451,7 @@
           "url": "https://zone7water.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_wwd_westlands_water_management_plan_platform",
@@ -4512,7 +4512,7 @@
           "url": "https://wwd.ca.gov/water-management/additional-water-management/water-management-plan"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_weather_and_mesonet_services_tropical_tidbits_forecast_models_platform",
@@ -4573,7 +4573,7 @@
           "url": "https://tropicaltidbits.com/analysis/models"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_swrcb_state_water_board_division_of_water_rights_program",
@@ -4633,7 +4633,7 @@
           "url": "https://waterboards.ca.gov/waterrights"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_water_quality_and_ecosystem_data_provide_safe_to_swim_map_viewer",
@@ -4695,7 +4695,7 @@
           "url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cpc_monthly_global_soil_moisture_product",
@@ -4750,7 +4750,7 @@
           "url": "https://www.cpc.ncep.noaa.gov/products/Soilmst_Monitoring/gl_Soil-Moisture-Monthly.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_usgs_water_services_apis_service",
@@ -4815,7 +4815,7 @@
           "url": "https://waterservices.usgs.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_srwsld_sacramento_river_west_side_levee_district_other",
@@ -4875,7 +4875,7 @@
           "url": "https://rd108.org/sacramento-river-west-side-levee-district"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_nrcs_snotel_historic_data_other",
@@ -4937,7 +4937,7 @@
           "url": "https://wcc.sc.egov.usda.gov/nwcc/tabget"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
@@ -4998,7 +4998,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_clms_copernicus_daily_surface_soil_moisture_europe_1_km_dataset",
@@ -5053,7 +5053,7 @@
           "url": "https://land.copernicus.eu/en/products/soil-moisture/daily-surface-soil-moisture-v1.0"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usda_nass_usda_crop_casma_metadata_and_documentation_documentation",
@@ -5108,7 +5108,7 @@
           "url": "https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/metadata_cropcasma.htm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_sgma_data_viewer_viewer",
@@ -5174,7 +5174,7 @@
           "url": "https://sgma.water.ca.gov/sgmadataviewer"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_synoptic_data_synoptic_weather_api_platform",
@@ -5232,7 +5232,7 @@
           "url": "https://synopticdata.com/weatherapi"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sonoma_water_sonoma_water_reservoir_projections_dashboard",
@@ -5295,7 +5295,7 @@
           "url": "https://sonomawater.org/WaterSupplyProjections"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_climate_and_drought_data_providers_climate_toolbox_platform",
@@ -5356,7 +5356,7 @@
           "url": "https://climatetoolbox.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_wrd_water_replenishment_district_watermaster_platform",
@@ -5416,7 +5416,7 @@
           "url": "https://www.wrd.org/about-watermaster"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cvfpb_central_valley_flood_protection_board_platform",
@@ -5476,7 +5476,7 @@
           "url": "https://cvfpb.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_geospatial_and_remote_sensing_data_provi_fema_national_flood_hazard_layer_viewer_viewer",
@@ -5541,7 +5541,7 @@
           "url": "https://hazards-fema.maps.arcgis.com/apps/webappviewer/index.html?id=8b0adb51996444d4879338b5529aa9cd"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usda_usda_ag_data_commons_isnobal_other",
@@ -5600,7 +5600,7 @@
           "url": "https://agdatacommons.nal.usda.gov/articles/model/iSnobal/25126874"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usbr_cvp_long_term_operations_program",
@@ -5663,7 +5663,7 @@
           "url": "https://usbr.gov/mp/bdo/lto"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_troa_truckee_river_operating_agreement_platform",
@@ -5730,7 +5730,7 @@
           "url": "https://www.troa.net/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_nasa_veda_earth_information_dashboard_platform",
@@ -5792,7 +5792,7 @@
           "url": "https://www.earthdata.nasa.gov/dashboard"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ccvfca_california_central_valley_flood_control_association_membership_collection",
@@ -5852,7 +5852,7 @@
           "url": "https://floodassociation.net/membership.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sacramento_water_forum_sacramento_water_forum_platform",
@@ -5912,7 +5912,7 @@
           "url": "https://waterforum.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_pivotal_weather_pivotal_weather_model_maps_platform",
@@ -5977,7 +5977,7 @@
           "url": "https://pivotalweather.com/model.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_epa_epa_waters_geoviewer_viewer",
@@ -6040,7 +6040,7 @@
           "url": "https://www.epa.gov/waterdata/waters-geoviewer"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_esa_esa_climate_change_initiative_soil_moisture_program",
@@ -6098,7 +6098,7 @@
           "url": "https://climate.esa.int/en/projects/soil-moisture"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cw3e_cw3e_micro_rain_radar_snow_levels_dashboard",
@@ -6158,7 +6158,7 @@
           "url": "https://cw3e.ucsd.edu/cw3e_observations_mrrs"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_scwa_solano_county_flood_monitoring_map_viewer",
@@ -6222,7 +6222,7 @@
           "url": "https://scwamonitoring.com/floodmap/index.htm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cdfa_california_department_of_food_and_agriculture_frep_program",
@@ -6284,7 +6284,7 @@
           "url": "https://www.cdfa.ca.gov/is/ffldrs/FREP/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ulara_upper_los_angeles_river_area_watermaster_platform",
@@ -6344,7 +6344,7 @@
           "url": "https://ularawatermaster.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_meteologix_meteologix_model_charts_platform",
@@ -6405,7 +6405,7 @@
           "url": "https://meteologix.com/us/model-charts"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ebmud_east_bay_mud_water_supply_reports_dashboard",
@@ -6470,7 +6470,7 @@
           "url": "https://ebmud.com/water/about-your-water/water-supply/water-supply-reports"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_bafpaa_bay_area_flood_protection_agencies_association_platform",
@@ -6530,7 +6530,7 @@
           "url": "https://bafpaa.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_california_and_western_snow_research_org_global_cryosphere_watch_snow_dataset_inventory_collection",
@@ -6589,7 +6589,7 @@
           "url": "https://globalcryospherewatch.org/snow-inventory"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_fema_fema_flood_map_service_center_platform",
@@ -6654,7 +6654,7 @@
           "url": "https://msc.fema.gov/portal/home"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_rcfcwcd_riverside_county_rainfall_map_viewer",
@@ -6717,7 +6717,7 @@
           "url": "https://content.rcflood.org/RainfallMap"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_six_basins_watermaster_six_basins_watermaster_platform",
@@ -6777,7 +6777,7 @@
           "url": "https://www.6bwm.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_agricultural_water_and_evapotranspiratio_openet_data_explorer_viewer",
@@ -6838,7 +6838,7 @@
           "url": "https://explore.etdata.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_flood_and_levee_programs_california_coastal_commission_sea_level_rise_program",
@@ -6898,7 +6898,7 @@
           "url": "https://coastal.ca.gov/climate/slr"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_mwa_mojave_basin_area_watermaster_platform",
@@ -6958,7 +6958,7 @@
           "url": "https://mojavewater.org/watermaster"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_windy_windy_other",
@@ -7019,7 +7019,7 @@
           "url": "https://windy.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_contra_costa_county_flood_control_and_wa_contra_costa_county_rainmap_viewer",
@@ -7083,7 +7083,7 @@
           "url": "https://ccflood.us/rainmap.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_h_saf_eumetsat_h_saf_soil_moisture_products_collection",
@@ -7143,7 +7143,7 @@
           "url": "https://hsaf.meteoam.it/products/soil-moisture"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_wwa_western_water_assessment_swe_fusion_other",
@@ -7202,7 +7202,7 @@
           "url": "https://wwa.colorado.edu/outreach/events/swe-fusion-multi-source-real-time-snow-water-equivalent-data-support-water-resource"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cal_oes_california_flood_preparedness_program",
@@ -7262,7 +7262,7 @@
           "url": "https://www.caloes.ca.gov/office-of-the-director/operations/planning-preparedness-prevention/planning-preparedness/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_main_san_gabriel_basin_watermaster_main_san_gabriel_basin_watermaster_platform",
@@ -7324,7 +7324,7 @@
           "url": "https://watermaster.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cocorahs_cocorahs_other",
@@ -7388,7 +7388,7 @@
           "url": "https://cocorahs.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nsidc_nsidc_snow_today_platform",
@@ -7448,7 +7448,7 @@
           "url": "https://nsidc.org/snow-today"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sonoma_water_sonoma_county_sonoma_county_alert2_dashboards_collection",
@@ -7504,7 +7504,7 @@
           "url": "https://sonoma.onerain.com/dashboard"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_itrc_cal_poly_irrigation_training_and_research_center_platform",
@@ -7566,7 +7566,7 @@
           "url": "https://itrc.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
@@ -7627,7 +7627,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_chino_basin_watermaster_chino_basin_watermaster_platform",
@@ -7690,7 +7690,7 @@
           "url": "https://cbwm.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_california_water_rights_and_watermaster_california_voluntary_agreements_platform",
@@ -7750,7 +7750,7 @@
           "url": "https://resources.ca.gov/Initiatives/Voluntary-Agreements-Page"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cssl_uc_berkeley_central_sierra_snow_lab_other",
@@ -7811,7 +7811,7 @@
           "url": "https://cssl.berkeley.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ywa_yuba_river_conditions_other",
@@ -7881,7 +7881,7 @@
           "url": "https://yubawater.org/190/Yuba-River-Conditions"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_usgs_site_inventory_service_other",
@@ -7943,7 +7943,7 @@
           "url": "https://waterservices.usgs.gov/test-tools/?service=site"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ventura_county_watershed_protection_dist_ventura_county_flood_warning_system_platform",
@@ -8013,7 +8013,7 @@
           "url": "https://hydrology.venturacounty.gov/fws"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_tid_turlock_irrigation_district_wiski_web_platform",
@@ -8078,7 +8078,7 @@
           "url": "http://wiskiweb.tid.org/index.htm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_snowtrax_platform",
@@ -8143,7 +8143,7 @@
           "url": "https://snow.water.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sfpuc_san_francisco_public_utilities_commission_platform",
@@ -8207,7 +8207,7 @@
           "url": "https://sfpuc.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sdcwa_san_diego_county_water_authority_surface_water_other",
@@ -8275,7 +8275,7 @@
           "url": "https://www.sdcwa.org/your-water/local-water-supplies/surface-water/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sdcfcd_san_diego_county_flood_control_data_collection",
@@ -8340,7 +8340,7 @@
           "url": "https://sdcfcd.org/content/sdc/sdcfcd/data.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_scvwd_valley_water_surface_water_data_portal_platform",
@@ -8409,7 +8409,7 @@
           "url": "https://alert.valleywater.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_santa_barbara_county_public_works_santa_barbara_county_hydrology_section_collection",
@@ -8474,7 +8474,7 @@
           "url": "https://countyofsb.org/pw-hydrology-section"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_clms_copernicus_daily_soil_water_index_europe_1_km_dataset",
@@ -8530,7 +8530,7 @@
           "url": "https://land.copernicus.eu/en/products/soil-moisture/daily-soil-water-index-europe-1km-v2"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_pcwa_placer_county_water_agency_american_river_flows_other",
@@ -8595,7 +8595,7 @@
           "url": "https://pcwa.net/recreation/river-flows"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ocpw_orange_county_monitoring_and_data_collection",
@@ -8659,7 +8659,7 @@
           "url": "https://pwws.oc.gov/service-areas/oc-environmental-resources/monitoring-and-data"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nid_nevada_irrigation_district_telemetry_map_platform",
@@ -8724,7 +8724,7 @@
           "url": "https://river-lake.nidwater.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_mid_modesto_irrigation_district_weather_other",
@@ -8788,7 +8788,7 @@
           "url": "https://mid.org/weather"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_mcwra_monterey_county_water_resources_agency_other",
@@ -8855,7 +8855,7 @@
           "url": "https://mcwater.info/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_lacpw_los_angeles_county_precipitation_data_platform",
@@ -8922,7 +8922,7 @@
           "url": "https://dpw.lacounty.gov/wrd/precip"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_marin_county_flood_control_marin_county_rainfall_and_creek_data_dashboards_collection",
@@ -8978,7 +8978,7 @@
           "url": "https://marin.onerain.com/dashboard"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_noaa_coastwatch_data_access_tools_collection",
@@ -9033,7 +9033,7 @@
           "url": "https://coastwatch.noaa.gov/cwn/data-access-tools.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_krwa_kings_river_water_association_platform",
@@ -9097,7 +9097,7 @@
           "url": "http://kingsriverwater.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform",
@@ -9162,7 +9162,7 @@
           "url": "https://rain.cosbpw.net/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_eid_el_dorado_irrigation_district_project_184_water_data_platform",
@@ -9231,7 +9231,7 @@
           "url": "https://eid.org/our-services/hydroelectric/project-184/current-water-data"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_city_of_san_diego_public_utilities_depar_city_of_san_diego_reservoir_water_levels_other",
@@ -9295,7 +9295,7 @@
           "url": "https://sandiego.gov/reservoirs-lakes/about/water-levels"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_california_local_water_and_flood_agencie_middle_fork_american_river_conditions_platform",
@@ -9360,7 +9360,7 @@
           "url": "https://middleforkfun.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_santa_cruz_county_flood_control_santa_cruz_county_hydrologic_monitoring_map_viewer",
@@ -9416,7 +9416,7 @@
           "url": "https://santacruz.onerain.com/map"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_san_joaquin_county_san_joaquin_county_hydrometeorological_data_map_viewer",
@@ -9472,7 +9472,7 @@
           "url": "https://sanjoaquin.onerain.com/map"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer",
@@ -9533,7 +9533,7 @@
           "url": "https://napa.onerain.com/map"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_soil_data_access_platform",
@@ -9593,7 +9593,7 @@
           "url": "https://sdmdataaccess.nrcs.usda.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_rd_830_reclamation_district_830_other",
@@ -9653,7 +9653,7 @@
           "url": "https://ironhousesanitarydistrict.ca.gov/rd-830"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_rd_2039_reclamation_district_2039_jones_tract_other",
@@ -9713,7 +9713,7 @@
           "url": "https://sjlafco.org/reclamation-district-2039-jones-tract"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_swrcb_california_environmental_data_exchange_network_other",
@@ -9777,7 +9777,7 @@
           "url": "https://ceden.waterboards.ca.gov/AdvancedQueryTool"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_rd_17_reclamation_district_17_mossdale_other",
@@ -9837,7 +9837,7 @@
           "url": "https://sjlafco.org/reclamation-district-17-mossdale"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_klrdd_knights_landing_ridge_drainage_district_other",
@@ -9897,7 +9897,7 @@
           "url": "https://rd108.org/knights-landing-ridge-drainage-district"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_city_of_stockton_city_of_stockton_reclamation_district_directory_collection",
@@ -9955,7 +9955,7 @@
           "url": "https://stocktonca.gov/services/water%2C_sewer___stormwater/reclamationdistrict.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_dwr_land_use_viewer_viewer",
@@ -10020,7 +10020,7 @@
           "url": "https://gis.water.ca.gov/app/CADWRLandUseViewer"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_water_quality_and_ecosystem_data_provide_interagency_ecological_program_program",
@@ -10083,7 +10083,7 @@
           "url": "https://iep.ca.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_pivotal_weather_pivotal_weather_soundings_product",
@@ -10141,7 +10141,7 @@
           "url": "https://pivotalweather.com/sounding.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
@@ -10202,7 +10202,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_noaa_sea_level_rise_viewer_viewer",
@@ -10267,7 +10267,7 @@
           "url": "https://coast.noaa.gov/slr"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_climate_and_drought_data_providers_terraclimate_dataset",
@@ -10331,7 +10331,7 @@
           "url": "https://climatologylab.org/terraclimate.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usbr_reclamation_watersmart_program",
@@ -10393,7 +10393,7 @@
           "url": "https://usbr.gov/watersmart"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_geospatial_and_remote_sensing_data_provi_copernicus_browser_viewer",
@@ -10469,7 +10469,7 @@
           "url": "https://browser.dataspace.copernicus.eu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cw3e_cw3e_west_wrf_accumulated_snow_product",
@@ -10528,7 +10528,7 @@
           "url": "https://cw3e.ucsd.edu/west-wrf_accumulatedsnow/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_nwps_api_service",
@@ -10586,7 +10586,7 @@
           "url": "https://water.noaa.gov/about/api"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_synoptic_data_synoptic_data_viewer_viewer",
@@ -10646,7 +10646,7 @@
           "url": "https://viewer.synopticdata.com/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_epa_epa_hows_my_waterway_platform",
@@ -10708,7 +10708,7 @@
           "url": "https://mywaterway.epa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_troa_truckee_river_daily_watermaster_report_product",
@@ -10777,7 +10777,7 @@
           "url": "https://www.troa.net/reports/dwmr/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_agricultural_water_and_evapotranspiratio_openet_platform",
@@ -10838,7 +10838,7 @@
           "url": "https://openetdata.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_weather_and_mesonet_services_western_regional_climate_center_platform",
@@ -10901,7 +10901,7 @@
           "url": "https://wrcc.dri.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_sonoma_water_sonoma_water_current_water_supply_levels_dashboard",
@@ -10965,7 +10965,7 @@
           "url": "https://sonomawater.org/current-water-supply-levels"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ebmud_east_bay_mud_daily_water_supply_report_product",
@@ -11029,7 +11029,7 @@
           "url": "https://ebmud.com/water/about-your-water/water-supply/water-supply-reports/daily-water-supply-report"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nsidc_nsidc_airborne_snow_observatory_data_other",
@@ -11090,7 +11090,7 @@
           "url": "https://nsidc.org/data/aso"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_usgs_3d_elevation_program_program",
@@ -11152,7 +11152,7 @@
           "url": "https://www.usgs.gov/3d-elevation-program/what-3dep"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_cdec_station_search_other",
@@ -11213,7 +11213,7 @@
           "url": "https://cdec.water.ca.gov/dynamicapp/staSearch"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
@@ -11274,7 +11274,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_water_quality_and_ecosystem_data_provide_delta_science_program_program",
@@ -11335,7 +11335,7 @@
           "url": "https://deltacouncil.ca.gov/delta-science-program"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_swrcb_safer_dashboard_dashboard",
@@ -11398,7 +11398,7 @@
           "url": "https://waterboards.ca.gov/drinking_water/certlic/drinkingwater/saferdashboard.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_climate_and_drought_data_providers_gridmet_dataset",
@@ -11461,7 +11461,7 @@
           "url": "https://climatologylab.org/gridmet.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cnrfc_hourly_hefs_csv_service",
@@ -11521,7 +11521,7 @@
           "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_ocpw_orange_county_hydrology_data_portal_platform",
@@ -11585,7 +11585,7 @@
           "url": "http://hydstra.ocpublicworks.com/web.htm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product",
@@ -11644,7 +11644,7 @@
           "url": "https://usbr.gov/mp/bdo/docs/lto-rod-12-19-24.pdf"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nid_nevada_irrigation_district_river_and_reservoir_data_platform",
@@ -11711,7 +11711,7 @@
           "url": "https://nidwater.com/river-reservoir-data"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_eid_eid_project_184_portal_platform",
@@ -11780,7 +11780,7 @@
           "url": "https://project184.eid.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_farmington_dam_hourly_data_product",
@@ -11841,7 +11841,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nasa_nasa_grace_interactive_browsers_and_data_access_collection",
@@ -11898,7 +11898,7 @@
           "url": "https://grace.jpl.nasa.gov/data-analysis-tool/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_nrcs_nrcs_snotel_update_report_selector_product",
@@ -11959,7 +11959,7 @@
           "url": "https://wcc.sc.egov.usda.gov/reports/SelectUpdateReport.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_synoptic_data_mesowest_california_surface_weather_map_viewer",
@@ -12023,7 +12023,7 @@
           "url": "https://mesowest.utah.edu/cgi-bin/droman/mesomap.cgi?rawsflag=3&state=CA"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_cw3e_cw3e_california_weather_and_water_portal_viewer",
@@ -12086,7 +12086,7 @@
           "url": "https://cw3e.ucsd.edu/DSMaps/DS_CW3E_Obs.html"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_geospatial_and_remote_sensing_data_provi_opentopography_platform",
@@ -12152,7 +12152,7 @@
           "url": "https://portal.opentopography.org/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_dwr_cdec_station_metadata_other",
@@ -12213,7 +12213,7 @@
           "url": "https://cdec.water.ca.gov/dynamicapp/staMeta"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usgs_usgs_the_national_map_downloader_other",
@@ -12276,7 +12276,7 @@
           "url": "https://apps.nationalmap.gov/downloader"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_epa_epa_echo_platform",
@@ -12339,7 +12339,7 @@
           "url": "https://echo.epa.gov/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_swrcb_impaired_waters_and_tmdls_program",
@@ -12402,7 +12402,7 @@
           "url": "https://waterboards.ca.gov/water_issues/programs/tmdl/integrated2010.shtml"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_noaa_cnrfc_forcing_csv_service",
@@ -12463,7 +12463,7 @@
           "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
@@ -12528,7 +12528,7 @@
           "url": "https://drought.gov/states/california"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_weather_and_mesonet_services_ncar_real_time_weather_data_platform",
@@ -12591,7 +12591,7 @@
           "url": "https://weather.rap.ucar.edu/"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     },
     {
       "id": "resource_usace_usace_pine_flat_lake_hourly_data_product",
@@ -12652,7 +12652,7 @@
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
         }
       ],
-      "publication_state": "staged"
+      "publication_state": "published"
     }
   ]
 }

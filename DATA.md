@@ -30,10 +30,9 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-205-record dataset: 67 reviewed Resources are `published` and 138 Resources
+205-record dataset: 200 reviewed Resources are `published` and five Resources
 are `staged`. GUIDE-I2B-R14 appended the exact 133-Resource R13-rebased
-target-200 tranche as staged canonical candidates; they are intentionally
-absent from the public browser projection. GUIDE-I2B-R15B rehabilitates 25
+target-200 tranche as staged canonical candidates. GUIDE-I2B-R15B rehabilitates 25
 R15A-reviewed same-identity endpoint actions, separately normalizes the USBR
 homepage action to `https://www.usbr.gov/`, and replaces the two invalid
 Sacramento County and Kern River target records with the accepted broad
@@ -41,9 +40,12 @@ SnowTrax and Santa Barbara County Real-Time Hydrology Resources. The rejected
 CDEC Reservoir Conditions, Napa monitoring-platform, iSnobal, and Santa
 Barbara map proposals are represented only as reviewed subordinate or
 alternate access points on their canonical parent Resources, not as additional
-canonical Resources.
-The revised R15 target remains exactly 133 staged Resources and the canonical
-205 / 67 published / 138 staged counts do not change. GUIDE-I2B-R10 published exactly 34
+canonical Resources. GUIDE-I2B-R15C performed fresh, bounded endpoint
+verification for all exact 133 canonical URLs and then published that complete
+tranche by changing only `publication_state`; this point-in-time publication
+gate is not continuous endpoint monitoring.
+The canonical authority is therefore 205 Resources / 200 published / five
+staged. GUIDE-I2B-R10 published exactly 34
 of the 39 identity-ready Wave-2 records by changing only
 `publication_state`. The five earlier held IDs remain
 `resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
@@ -51,7 +53,7 @@ of the 39 identity-ready Wave-2 records by changing only
 `resource_nrcs_web_soil_survey` and `resource_usda_cropland_data_layer` for
 taxonomy resolution. The publication projection runs before
 relationships, search text, counts, facets, adaptation, or browser embedding,
-so only the 67 published Resources are browser-visible. The registry preserves immutable
+so only the 200 published Resources are browser-visible. The registry preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. Every Resource has exactly one controlled Resource Type machine ID,
@@ -66,11 +68,11 @@ and geographic scope and projects deterministic labels at build time. The
 registry does not contain Product relationships or profile, layer,
 lifecycle, status, freshness, or runtime-control authority.
 
-R10 publication and R14 staging introduce no Product relationship, Guide
-profile, controlled vocabulary, or facet. An empty `subject_tags` array is a
-valid staged value when exact evidence does not support a controlled subject;
-R14 preserves that value for 15 of its new records rather than inventing
-metadata.
+R10 publication, R14 staging, and R15C publication introduce no Product
+relationship, Guide profile, controlled vocabulary, or facet. An empty
+`subject_tags` array is valid when exact evidence does not support a controlled
+subject; R15C preserves that value for 15 of its newly published records rather
+than inventing metadata.
 `00_config/guide_product_resource_relationships.json` is the sole authored
 Product–Resource and Resource map-representation authority. Its schema-version-2
 `products` and `resources` arrays must equal the complete current compiled
@@ -116,14 +118,14 @@ editorial Product content only and contains no Resource relationships. The
 R12A compatibility objects and compiler adapter have been deleted; permanent
 compatibility shadow, old/new dual authority, and fallback are prohibited.
 
-All 67 published Resources have reviewed map-presence authority: three are
-`direct_match_in_brim`, 20 are `selected_products_in_brim`, and 44 are
+All 200 published Resources have reviewed map-presence authority: three are
+`direct_match_in_brim`, 20 are `selected_products_in_brim`, and 177 are
 `not_currently_mapped_in_brim`. The public primary views derive only from those
-Resource records and are exactly `In BRIM map` (23), `Beyond the map` (44), and
-`All Resources` (67). Product relationships support detail and exact
+Resource records and are exactly `In BRIM map` (23), `Beyond the map` (177), and
+`All Resources` (200). Product relationships support detail and exact
 Product-context navigation but do not create another primary Resource filter.
 
-The browser projection contains the 67 published records in registry order and
+The browser projection contains the 200 published records in registry order and
 only the reviewed 23-field Resource shape: identity and descriptive metadata,
 labeled access points, Resource Type and temporal machine IDs with build-derived
 labels, normalized geographic scope with its build-derived scope label and
@@ -150,9 +152,10 @@ URL, access point, and public source reference. Three provider endpoints are
 explicit exact-pair exceptions: TID WISKI at
 `http://wiskiweb.tid.org/index.htm`, Kings River Water Association at
 `http://kingsriverwater.org/`, and Orange County Hydrology at
-`http://hydstra.ocpublicworks.com/web.htm`. The loader accepts those values
-only for their exact reviewed Resource IDs and full URLs; host, provider,
-suffix, and wildcard matching are prohibited. They remain user-initiated
+`http://hydstra.ocpublicworks.com/web.htm`. One shared validator accepts those
+values only for their exact reviewed Resource IDs and full URLs; both registry
+loading and compiled Guide-bundle validation route through that policy. Host,
+provider, suffix, and wildcard matching are prohibited. They remain user-initiated
 external navigation actions, never runtime fetches, embedded mixed-content
 subresources, or machine-facing dependencies. Any future HTTP exception
 requires explicit review. This bounded approval does not establish continuous
@@ -160,10 +163,11 @@ endpoint monitoring.
 `default` remains the only current Guide profile, and the standalone HTML makes
 no runtime Resource-data request or browser-storage copy.
 
-Publication of the revised 133-Resource target remains deferred to resumed
-GUIDE-I2B-R15. R15B changes no Guide UI/controller behavior, runs no
-preprocessor or build, and regenerates no cache; its bounded endpoint checks
-are point-in-time repair evidence rather than monitoring.
+GUIDE-I2B-R15C publishes the exact revised 133-Resource target after fresh,
+bounded endpoint verification of all 133 stored canonical URLs. It changes no
+Guide UI/controller behavior, relationship authority, or URL policy; runs no
+preprocessor; and regenerates no cache. The endpoint checks are point-in-time
+publication evidence rather than monitoring.
 
 Resource filtering uses only that projected authority. Provider, Subject,
 Information Type, and Resource type may be filtered directly; Resource type is
@@ -178,7 +182,7 @@ descriptive fields, not controlled facet vocabularies. Temporal, geographic,
 named-geography, access-point-type, granularity, verification, and priority
 facets are not current Guide authority.
 The Explorer initially renders at most 25 result rows and exposes further rows
-in deterministic 25-record increments, so all 67 published Resources remain
+in deterministic 25-record increments, so all 200 published Resources remain
 reachable without embedding hidden card copies or introducing pagination,
 virtualization, runtime fetching, or browser-storage authority.
 

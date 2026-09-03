@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 205 Resource records: 67 published and 138 staged;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 205 Resource records: 200 published and five staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -66,16 +66,18 @@ Guide basic Product coverage is automatic for every included visible Product in 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
 `guide_resources.json` is one canonical schema-v3 dataset with 205 ordered
-Resource records: 67 published and 138 staged. R14 appended the exact 133
-R13-rebased target-200 candidates as staged records without publishing them.
+Resource records: 200 published and five staged. R14 appended the exact 133
+R13-rebased target-200 candidates as staged records, and R15C publishes that
+complete tranche by changing only `publication_state` after fresh bounded
+verification of all 133 exact canonical URLs.
 R10 published exactly 34 Wave-2 records by changing only
 `publication_state`. The five earlier held IDs remain staged: the subject-
-review IDs are `resource_nasa_giovanni`,
+review IDs remain `resource_nasa_giovanni`,
 `resource_usgs_earthexplorer`, and `resource_usgs_water_data_apis`; the held
 taxonomy-resolution IDs are `resource_nrcs_web_soil_survey` and
 `resource_usda_cropland_data_layer`. An empty controlled subject set is valid
-for a staged Resource when exact evidence does not support an assignment; 15
-R14 records preserve that empty value. Final-ID aliases, build-time `res.*` migration
+for a Resource when exact evidence does not support an assignment; 15
+newly published R15C records preserve that empty value. Final-ID aliases, build-time `res.*` migration
 aliases, future human search aliases, publication state, controlled taxonomy,
 variables, use scopes, geography, labeled access points, and public access
 class are distinct validated fields. The registry is the tracked authority for
@@ -121,7 +123,7 @@ longer owns or supplies Resource relationships. Relationships and map presence
 are never inferred from Resource text, providers, URLs, publication, or
 geographic intersection. All temporary R12A relationship objects and the
 compiler adapter are absent; permanent compatibility shadow, dual authority,
-and fallback are prohibited. The browser receives the 67 published records in
+and fallback are prohibited. The browser receives the 200 published records in
 registry order with one exact 23-field shape: identity and reviewed descriptive
 fields, labeled access points, Resource Type and temporal machine IDs with
 controlled labels, geography scope ID/label plus named places, reviewed map
@@ -133,7 +135,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The 138 staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 23 `In BRIM map`, 44 `Beyond the map`, and 67 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The five staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 23 `In BRIM map`, 177 `Beyond the map`, and 200 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -141,9 +143,9 @@ inventories, and unresolved reconciliation evidence remain External and are
 not tracked wholesale or shipped in the browser payload. Any future inventory
 import requires separate reconciliation and approval before it can change the
 registry, aliases, relationships, profiles, or visible Guide content.
-Publication and fresh endpoint QA for the 133 R14 candidates are deferred to
-R15. R14 changes no Guide UI/runtime/network behavior, runs no preprocessor,
-and regenerates no cache.
+Publication and fresh endpoint QA for the 133 R14 candidates were deferred in
+R14 and are complete in R15C. R15C changes no Guide UI/runtime/network
+behavior, runs no preprocessor, and regenerates no cache.
 
 The accepted V4 shell uses a dark contour outer field around one large warm off-white surface, a compact fixed left rail, and a search utility band confined to the main column. The rail owns Home identity, compact A Explore / B Methods & Guides / C Resources / D Updates navigation, one bounded typed Quick Access list, About / Contact, and lower DOI/BLM marks. The main Explore view uses a compact two-column identity introduction, scope note, three visible compact single-select facet groups (`Where in BRIM`, `Primary Subject`, and `Information Type`), and the complete profile-projected layer/tool inventory sorted case-insensitively by display name with stable ID as the tie-breaker. Each group holds zero or one selected value and selections across groups combine with search by AND. `Where in BRIM` is a radio-style dimension: choosing another value replaces the prior value, while its removable active chip restores the unfiltered state. Primary Subject and Information Type likewise replace the prior value, and their active value or chip can clear that group. Product taxonomy remains multi-valued. Removable chips appear directly beneath search only while browse filters are active, with at most one chip per group, and a contextual inline `Clear all` retains the existing reset contract by clearing query, facets, and collection/result context before returning focus to search. No modifier-key or touch gesture enables within-group multi-selection. `Entity type` remains record metadata rather than a permanent facet; `Tools` is a Where choice, so `Tool / Workflow` is omitted from the permanent Information Type choices. The A–Z inventory uses the same query/facet state, Product corpus, and compact result renderer in one bounded scroll region so its first rows and browse facets remain visible on desktop; an adjacent live derived status reports the current count against the complete projected Product count and marks any subset as filtered. The shell has no masthead, footer, card grid, pill navigation, pagination, virtualization, or duplicate responsive implementation. Intermediate layouts retain a reduced rail; the mobile layout becomes one full-screen surface with one upper-right close control, search below the top bar, compact horizontal A–D navigation, the same Quick Access list, and no footer or horizontal overflow.
 
@@ -156,9 +158,9 @@ libraries linked to BRIM or useful beyond it. The Explorer uses a
 64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
 and a measured one-pane search/results, facets, or detail flow at narrow width.
 Its three primary views appear in the exact order `In BRIM map` (23), `Beyond
-the map` (44), and `All Resources` (67). Membership derives only from each
+the map` (177), and `All Resources` (200). Membership derives only from each
 Resource's reviewed `map_representation`: three direct matches plus 20 selected-
-products Resources form `In BRIM map`, while 44 not-currently-mapped Resources
+products Resources form `In BRIM map`, while 177 not-currently-mapped Resources
 form `Beyond the map`. The primary views form one
 mutually exclusive radio-style control, selecting one replaces the prior view,
 and primary-view changes do not create chips or clear secondary refinements.
@@ -219,7 +221,7 @@ left Refine framework remain stationary.
 Narrow layouts keep the shared one-pane results, filters, or detail flow and use
 the Guide main region as that pane's scroll owner rather than adopting the
 desktop split-scroll hierarchy. Results initially reveal 25; repeated `Show
-more` activation reveals further 25-record increments until all 67 are
+more` activation reveals further 25-record increments until all 200 are
 reachable, without pagination, virtualization, or hundreds of hidden startup
 cards.
 Only the selected Resource renders full metadata, exact related Products, and
@@ -236,7 +238,8 @@ pages before its Pacific Southwest GeoColor and Fire Temperature views.
 The Resource loader keeps public HTTPS as the universal external-URL default.
 Its only HTTP exceptions are an internal exact mapping from the reviewed
 Resource ID to the full approved TID WISKI, Kings River Water Association, and
-Orange County Hydrology URLs. The mapping is applied consistently to canonical,
+Orange County Hydrology URLs. Registry loading and compiled Guide-bundle
+validation call the same validator and exact mapping for canonical,
 access-point, and public-source validation; it does not permit host, provider,
 suffix, wildcard, or fallback matching. These links are user-initiated external
 navigation only: BRIM does not fetch or embed them at runtime or treat them as
@@ -251,16 +254,18 @@ model and controller own all responsive layouts; replacement and teardown are
 listener-idempotent. The Explorer does not fetch, persist, activate map layers,
 or introduce a second Resource authority.
 
-GUIDE-I2B-R15B preserves the 205-Resource authority and its 67 published / 138
+GUIDE-I2B-R15B preserved the 205-Resource authority and its 67 published / 138
 staged split while repairing 25 R15A-reviewed endpoint actions and the separate
 USBR canonical homepage host. It removes the invalid Sacramento County and
 Kern River target identities and substitutes the accepted broad SnowTrax and
 Santa Barbara County Real-Time Hydrology records. Both
 replacement relationship records remain reviewed
 `not_currently_mapped_in_brim`; no Product link changes, so the relationship
-authority remains 270 Product records, 205 Resource records, and 86 links. The
-revised staged R15 target remains exactly 133 Resources, and publication stays
-deferred to the resumed R15 gate. CDEC Reservoir Conditions, the Napa OneRain
+authority remains 270 Product records, 205 Resource records, and 86 links.
+GUIDE-I2B-R15C then performed fresh bounded verification of all 133 exact
+canonical URLs and published the complete revised target by changing only
+`publication_state`; this point-in-time gate does not establish continuous
+endpoint monitoring. CDEC Reservoir Conditions, the Napa OneRain
 root, iSnobal, and the Santa Barbara map route are each retained exactly once
 as a configured subordinate or alternate access point on the canonical parent
 Resource; none remains as a separate canonical proposal in the revised target.

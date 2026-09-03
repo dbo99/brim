@@ -78,10 +78,10 @@ staged_registry_ids <- vapply(staged_registry, `[[`, character(1), "id")
 held_staged_registry <- staged_registry[vapply(
   staged_registry, function(record) record$order <= 72L, logical(1)
 )]
-r15b_target_registry <- staged_registry[vapply(
-  staged_registry, function(record) record$order > 72L, logical(1)
+r15c_target_registry <- unclass(resource_registry)[vapply(
+  resource_registry, function(record) record$order > 72L, logical(1)
 )]
-r15b_target_registry_ids <- vapply(r15b_target_registry, `[[`, character(1), "id")
+r15c_target_registry_ids <- vapply(r15c_target_registry, `[[`, character(1), "id")
 r15b_selected_replacement_ids <- c(
   "resource_dwr_snowtrax_platform",
   "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform"
@@ -129,15 +129,15 @@ assert_true(setequal(relationship_registry_ids, product_ids) &&
             "The sole relationship registry does not equal the compiled Product universe")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
-assert_identical(bundle$counts$resources, 67L,
-                 "Current Guide must include all 67 published Resources")
+assert_identical(bundle$counts$resources, 200L,
+                 "Current Guide must include all 200 published Resources")
 assert_identical(length(resource_registry), 205L,
                  "Canonical Resource registry must validate all 205 records")
 assert_identical(raw_resource_registry$schema_version, 3L,
                  "Canonical Resource registry schema version changed")
-assert_identical(sum(registry_states == "published"), 67L,
+assert_identical(sum(registry_states == "published"), 200L,
                  "Canonical Resource registry published count changed")
-assert_identical(sum(registry_states == "staged"), 138L,
+assert_identical(sum(registry_states == "staged"), 5L,
                  "Canonical Resource registry staged count changed")
 staged_registry_json <- jsonlite::toJSON(
   held_staged_registry, auto_unbox = TRUE, null = "null", na = "null",
@@ -148,14 +148,17 @@ assert_identical(
   "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
   "The exact five-record held staged registry contract changed"
 )
-assert_identical(length(r15b_target_registry), 133L,
-                 "R15B must preserve exactly 133 staged target Resources")
+assert_identical(length(r15c_target_registry), 133L,
+                 "R15C must publish exactly 133 target Resources")
 assert_identical(
-  digest::digest(paste0(paste(r15b_target_registry_ids, collapse = "\n"), "\n"),
+  digest::digest(paste0(paste(r15c_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
   "ea8c2fab6c3679104195cc4db2c017821fdf77b285ab05db957451f7ea7580b6",
-  "The exact ordered R15B target Resource ID set changed"
+  "The exact ordered R15C target Resource ID set changed"
 )
+assert_true(all(vapply(r15c_target_registry, function(record) {
+  identical(record$publication_state, "published")
+}, logical(1))), "Every R15C target Resource must be published")
 assert_true(!any(r15b_rejected_canonical_ids %in% registry_ids),
             "A removed, duplicate, or subordinate R15B proposal remains canonical")
 assert_identical(
@@ -163,10 +166,10 @@ assert_identical(
   r15b_selected_replacement_ids,
   "The final broad R15B replacement pair is missing or reordered"
 )
-assert_identical(sum(vapply(r15b_target_registry, function(record) {
+assert_identical(sum(vapply(r15c_target_registry, function(record) {
   !length(record$subject_tags)
 }, logical(1))), 15L,
-"The 15 approved empty target subject sets were not preserved for staging")
+"The 15 approved empty target subject sets were not preserved for publication")
 assert_true(!"resource_nasa_nasa_grace_map_comparison_slider_viewer" %in% registry_ids,
             "The blocked GRACE comparison-slider access point became a Resource")
 assert_identical(sum(registry_ids == "resource_noaa_noaa_sea_level_rise_viewer_viewer"), 1L,
@@ -268,7 +271,10 @@ expected_held_staged_ids <- c(
   "resource_usgs_earthexplorer",
   "resource_usgs_water_data_apis"
 )
-expected_resource_ids <- c(expected_current_resource_ids, expected_newly_published_ids)
+expected_resource_ids <- c(
+  expected_current_resource_ids, expected_newly_published_ids,
+  r15c_target_registry_ids
+)
 assert_identical(vapply(bundle$resources, `[[`, character(1), "id"), expected_resource_ids,
                  "Current Resource ID set/order changed")
 assert_identical(vapply(held_staged_registry, `[[`, character(1), "id"),
@@ -343,6 +349,85 @@ assert_identical(
   cdec_resource$accessPoints[[2]], r15b_authorized_access_points$resource_dwr_cdec,
   "The rendered CDEC Reservoir Conditions access point changed"
 )
+r15c_http_only_exceptions <- pt_guide_http_only_resource_url_exceptions()
+assert_identical(length(r15c_http_only_exceptions), 3L,
+                 "The bundle validator HTTP-only policy must contain exactly three pairs")
+for (resource_id in names(r15c_http_only_exceptions)) {
+  resource <- bundle$resources[[match(resource_id, expected_resource_ids)]]
+  approved_url <- unname(r15c_http_only_exceptions[[resource_id]])
+  assert_true(!is.null(resource), paste("Missing HTTP-only bundle Resource:", resource_id))
+  assert_identical(resource$canonicalUrl, approved_url,
+                   paste("The HTTP-only bundle canonical URL changed for", resource_id))
+  assert_true(approved_url %in% vapply(resource$accessPoints, `[[`, character(1), "url"),
+              paste("The exact HTTP-only access action is missing for", resource_id))
+}
+assert_true(is.list(pt_validate_guide_bundle(bundle)),
+            "The final bundle validator rejected an exact approved HTTP-only pair")
+
+clone_bundle <- function(value) unserialize(serialize(value, NULL))
+bundle_with_canonical_url <- function(resource_id, url) {
+  fixture <- clone_bundle(bundle)
+  resource_index <- match(resource_id, vapply(fixture$resources, `[[`, character(1), "id"))
+  assert_true(!is.na(resource_index), paste("Missing bundle URL fixture Resource:", resource_id))
+  canonical_index <- match(
+    "canonical",
+    vapply(fixture$resources[[resource_index]]$accessPoints, `[[`, character(1), "role")
+  )
+  assert_true(!is.na(canonical_index), paste("Missing bundle canonical access point for:", resource_id))
+  fixture$resources[[resource_index]]$canonicalUrl <- url
+  fixture$resources[[resource_index]]$accessPoints[[canonical_index]]$url <- url
+  fixture
+}
+bundle_url_rejections <- list(
+  wrong_path = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://wiskiweb.tid.org/different.htm"
+  ),
+  wrong_id = c(resource_doi = "http://wiskiweb.tid.org/index.htm"),
+  same_host_different_path = c(
+    resource_krwa_kings_river_water_association_platform =
+      "http://kingsriverwater.org/data"
+  ),
+  suffix_match = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://wiskiweb.tid.org/index.htm/extra"
+  ),
+  substring_match = c(
+    resource_tid_turlock_irrigation_district_wiski_web_platform =
+      "http://example.gov/?next=http://wiskiweb.tid.org/index.htm"
+  ),
+  host_variant = c(
+    resource_krwa_kings_river_water_association_platform =
+      "http://www.kingsriverwater.org/"
+  ),
+  arbitrary_fourth = c(resource_doi = "http://example.gov/resource"),
+  relative = c(resource_doi = "/resource"),
+  scheme_relative = c(resource_doi = "//example.gov/resource"),
+  malformed = c(resource_doi = "http:///missing-host")
+)
+for (fixture_name in names(bundle_url_rejections)) {
+  probe <- bundle_url_rejections[[fixture_name]]
+  assert_error(
+    pt_validate_guide_bundle(bundle_with_canonical_url(names(probe), unname(probe))),
+    "exact labeled public URL actions",
+    paste("The final bundle validator accepted a prohibited public URL fixture:", fixture_name)
+  )
+}
+arbitrary_access_bundle <- clone_bundle(bundle)
+arbitrary_access_resource_index <- match(
+  "resource_dwr_cdec",
+  vapply(arbitrary_access_bundle$resources, `[[`, character(1), "id")
+)
+arbitrary_access_bundle$resources[[arbitrary_access_resource_index]]$accessPoints[[2]]$url <-
+  "http://example.gov/access"
+assert_error(
+  pt_validate_guide_bundle(arbitrary_access_bundle),
+  "exact labeled public URL actions",
+  "The final bundle validator accepted an arbitrary HTTP access-point action"
+)
+assert_true(is.list(pt_validate_guide_bundle(bundle_with_canonical_url(
+  "resource_doi", "https://example.gov/resource"
+))), "The final bundle validator rejected an ordinary valid public HTTPS URL")
 assert_true(!any(grepl("sector=pnw", vapply(
   goes_resource$accessPoints, `[[`, character(1), "url"
 ), fixed = TRUE)), "A Pacific Northwest GOES access point reached the browser")
@@ -396,28 +481,21 @@ assert_true(all(vapply(bundle$resources, function(resource) {
 assert_identical(
   vapply(Filter(function(resource) identical(resource$temporalCharacter, "unknown"),
                 bundle$resources), `[[`, character(1), "id"),
-  c(
-    "resource_blm_california", "resource_usgs_bcmv8",
-    "resource_nidis_soil_moisture_dashboard",
-    "resource_nidis_grace_groundwater_soil_moisture",
-    "resource_aso_airborne_snow_observatories",
-    "resource_epa_cyanweb",
-    "resource_nasa_asf_displacement_portal",
-    "resource_nasa_cyfi_explorer",
-    "resource_nasa_ecostress_data_resources",
-    "resource_nasa_opera_products",
-    "resource_nasa_swot_hydrology_resources",
-    "resource_nidis_soil_moisture_resources",
-    "resource_noaa_coastwatch_data_portal",
-    "resource_noaa_coastwatch_erddap",
-    "resource_usbr"
-  ),
+  registry_ids[registry_states == "published" & vapply(
+    resource_registry,
+    function(resource) identical(resource$temporal_character, "unknown"),
+    logical(1)
+  )],
   "Temporal unknown Resource projection changed"
 )
 assert_identical(
   vapply(Filter(function(resource) identical(resource$geographicScope$scopeType, "unknown"),
                 bundle$resources), `[[`, character(1), "id"),
-  "resource_prism_normals",
+  registry_ids[registry_states == "published" & vapply(
+    resource_registry,
+    function(resource) identical(resource$geographic_scope$scope_type, "unknown"),
+    logical(1)
+  )],
   "Geography unknown Resource projection changed"
 )
 assert_true(all(vapply(bundle$resources[match(
@@ -432,10 +510,11 @@ metadata_counts <- function(values) {
 assert_identical(
   metadata_counts(vapply(bundle$resources, `[[`, character(1), "resourceType")),
   c(
-    analysis_tool = 3L, dashboard = 9L, data_portal_or_catalog = 15L,
-    data_service_or_api = 2L, dataset_or_collection = 10L,
-    organization_homepage = 4L, program_or_mission = 8L,
-    report_or_publication = 1L, viewer_or_explorer = 15L
+    analysis_tool = 9L, dashboard = 19L, data_portal_or_catalog = 71L,
+    data_service_or_api = 8L, dataset_or_collection = 21L,
+    documentation_or_guide = 2L, organization_homepage = 4L,
+    program_or_mission = 19L, report_or_publication = 15L,
+    viewer_or_explorer = 32L
   ),
   "Published Resource Type distribution changed"
 )
@@ -444,7 +523,7 @@ assert_identical(
   c(
     climatology_or_normals = 1L, current_or_near_real_time = 15L,
     forecast = 2L, historical_archive = 7L, mixed = 18L,
-    static_reference = 9L, unknown = 15L
+    static_reference = 9L, unknown = 148L
   ),
   "Published temporal-character distribution changed"
 )
@@ -452,8 +531,8 @@ assert_identical(
   metadata_counts(vapply(bundle$resources, function(resource) {
     resource$geographicScope$scopeType
   }, character(1))),
-  c(global = 20L, multi_state = 2L, multinational = 4L, national = 29L,
-    state = 11L, unknown = 1L),
+  c(global = 46L, local = 46L, multi_state = 2L, multinational = 4L,
+    national = 64L, regional = 5L, state = 29L, unknown = 4L),
   "Published geographic-scope distribution changed"
 )
 assert_true(requireNamespace("digest", quietly = TRUE),
@@ -462,7 +541,7 @@ resource_projection_json <- jsonlite::toJSON(
   bundle$resources,
   auto_unbox = TRUE, null = "null", na = "null", pretty = TRUE, digits = NA
 )
-assert_true(nchar(resource_projection_json, type = "bytes") < 200000L,
+assert_true(nchar(resource_projection_json, type = "bytes") < 600000L,
             "Browser Resource projection exceeds the focused payload review threshold")
 assert_identical(sum(product_subsystems == "External Layers"), 176L,
                  "External visible Product projection changed")
@@ -912,7 +991,7 @@ assert_identical(length(resource_representation_ids("direct_match_in_brim")), 3L
                  "Direct-match Resource count changed")
 assert_identical(length(resource_representation_ids("selected_products_in_brim")), 20L,
                  "Selected-products Resource count changed")
-assert_identical(length(resource_representation_ids("not_currently_mapped_in_brim")), 44L,
+assert_identical(length(resource_representation_ids("not_currently_mapped_in_brim")), 177L,
                  "Not-currently-mapped Resource count changed")
 assert_true(all(vapply(bundle$resources, function(resource) {
   identical(resource$mapReviewState, "reviewed")
@@ -1347,10 +1426,9 @@ resource_payload_json <- jsonlite::toJSON(
 )
 assert_identical(
   digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
-  "7879f0b6413fc35c72ad8625d914327ac7ea2c7e490ee58fd3ffa750ab57781b",
+  "8e59fd165289b2389d70f37f384b274cdea8f2b6ebc51ceb198c8fb9af8e4172",
   paste0(
-    "The exact published Resource payload changed beyond the USBR action repair ",
-    "and CDEC configured access point; ",
+    "The exact R15C 200-Resource browser payload changed; ",
     "held identity, metadata, search, count, or facet leakage is possible"
   )
 )
@@ -1661,9 +1739,9 @@ baseline_payload_bytes <- 313498L
 payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
-assert_true(payload_bytes <= 600000L, "Default Guide payload exceeds hard review threshold")
-assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 300000L,
-            "GUIDE-I2B-R12B embedded payload growth exceeds the preferred review threshold")
+assert_true(payload_bytes <= 800000L, "R15C default Guide payload exceeds hard review threshold")
+assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 500000L,
+            "GUIDE-I2B-R15C embedded payload growth exceeds the preferred review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
             "Machine-local path leaked into Guide payload")
@@ -1674,7 +1752,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R15B endpoint repair and bounded replacement foundation contracts passed.\n")
+cat("GUIDE-I2B-R15C target-200 publication foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1682,16 +1760,16 @@ cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
-cat("REGISTRY_RESOURCES=205_TOTAL,67_PUBLISHED,138_STAGED\n")
-cat("R15B_REVISED_TARGET_RESOURCES=133\n")
+cat("REGISTRY_RESOURCES=205_TOTAL,200_PUBLISHED,5_STAGED\n")
+cat("R15C_PUBLICATION_TARGET_RESOURCES=133\n")
 cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
 cat("R15B_ACCESS_POINT_ADDITIONS=4\n")
 cat("R15B_TOTAL_URL_BEARING_FIELDS_CHANGED=82\n")
 cat("USBR_PROJECTED_ACTION=https://www.usbr.gov/\n")
 cat("EXACT_RELATIONSHIP_ROWS=86\n")
 cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,57_SELECTED,16_SOURCE_REFERENCE\n")
-cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,44_NOT_MAPPED\n")
-cat("RESOURCE_PRESET_COUNTS=23_IN_BRIM_MAP,44_BEYOND_THE_MAP,67_ALL\n")
+cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,177_NOT_MAPPED\n")
+cat("RESOURCE_PRESET_COUNTS=23_IN_BRIM_MAP,177_BEYOND_THE_MAP,200_ALL\n")
 cat("STAGED_RESOURCE_LEAKAGE=0\n")
 cat("NEWLY_PUBLISHED_IDS_IN_CANONICAL_ORDER=PASS\n")
 cat("WAVE2_INFORMATION_TYPE_INFERENCE=NONE\n")
