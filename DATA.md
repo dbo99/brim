@@ -30,7 +30,7 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-205-record dataset: 200 reviewed Resources are `published` and five Resources
+211-record dataset: 206 reviewed Resources are `published` and five Resources
 are `staged`. GUIDE-I2B-R14 appended the exact 133-Resource R13-rebased
 target-200 tranche as staged canonical candidates. GUIDE-I2B-R15B rehabilitates 25
 R15A-reviewed same-identity endpoint actions, separately normalizes the USBR
@@ -44,7 +44,24 @@ canonical Resources. GUIDE-I2B-R15C performed fresh, bounded endpoint
 verification for all exact 133 canonical URLs and then published that complete
 tranche by changing only `publication_state`; this point-in-time publication
 gate is not continuous endpoint monitoring.
-The canonical authority is therefore 205 Resources / 200 published / five
+GUIDE-I2B-R16B applies the approved balanced USACE/USBR catalog model: 13
+canonical additions, seven exact canonical merges, and 123 curated child
+access points. Six over-granular Sacramento District reports are retained as
+truthfully labeled current or legacy/standby access points of the Sacramento
+District Water Control Data System, and the 2024 Long-Term Operations Record
+of Decision is retained under the existing Long-Term Operations program. The
+retired stable IDs remain aliases of their parents. Report code `scc` is
+publicly labeled `Success Dam & Lake`; the false Sacramento River / Clear
+Creek phrase is not public search metadata. Water Control Manuals remains held
+and absent because its reviewed collection endpoint was empty.
+The final R16B visual-review currentness correction retains
+`resource_swrcb_impaired_waters_and_tmdls_program` as the stable statewide
+program identity, replaces its obsolete 2010 action with the evergreen Surface
+Water Quality Assessment Program page, and adds accurately labeled 2024 and
+2026 Integrated Report cycle pages. The current 2024 line and polygon Products
+are exact selected Products of that parent; the 270-Product authority contains
+no 2026 Integrated Report Product, so no 2026 Product relationship is inferred.
+The canonical authority is therefore 211 Resources / 206 published / five
 staged. GUIDE-I2B-R10 published exactly 34
 of the 39 identity-ready Wave-2 records by changing only
 `publication_state`. The five earlier held IDs remain
@@ -53,7 +70,7 @@ of the 39 identity-ready Wave-2 records by changing only
 `resource_nrcs_web_soil_survey` and `resource_usda_cropland_data_layer` for
 taxonomy resolution. The publication projection runs before
 relationships, search text, counts, facets, adaptation, or browser embedding,
-so only the 200 published Resources are browser-visible. The registry preserves immutable
+so only the 206 published Resources are browser-visible. The registry preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. Every Resource has exactly one controlled Resource Type machine ID,
@@ -76,7 +93,7 @@ than inventing metadata.
 `00_config/guide_product_resource_relationships.json` is the sole authored
 Product–Resource and Resource map-representation authority. Its schema-version-2
 `products` and `resources` arrays must equal the complete current compiled
-Product set and canonical Resource set exactly: 270 Product records and 205
+Product set and canonical Resource set exactly: 270 Product records and 211
 Resource review/representation records. Each Product owns a delivery
 classification, an independent coverage-review state and disposition,
 evidence, and zero or more exact canonical Resource links. Each Resource owns
@@ -84,32 +101,42 @@ exactly one map-review state, an optional reviewed map representation, and
 evidence. Resource representation is validated from the reverse Product links
 rather than maintained as a second relationship list.
 
-The current authority contains 70 reviewed and 200 `not_yet_reviewed` Products,
-86 exact links, and the exact supported relationship roles: 13 direct matches,
-57 selected-product links, and 16 source references. Delivery class is
+The current authority contains 73 reviewed and 197 `not_yet_reviewed` Products,
+90 exact links, and the exact supported relationship roles: 13 direct matches,
+60 selected-product links, and 17 source references. Delivery class is
 secondary descriptive context and does not imply Resource coverage or create a
 primary public filter. Multiple-source Products expose the exact canonical
 source Resource list in registry order. The three DWR/TRE Altamira Products
 remain one source family, while `EXT033` remains the separate DWR/USGS/TRE
 multiple-source composite. Only accepted apply actions are present. The staged
-intake backlogs remain deferred: 147 Products await missing canonical Resource
-identity, three await identity or family splitting, and the lower-priority
-packet remains 42 families / 55 Products. Placeholder or inferred Resources
-are prohibited.
+intake backlog remains deferred under its existing evidence packets.
+Placeholder or inferred Resources are prohibited.
 
 The full Resource relationship authority contains three
-`direct_match_in_brim`, 20 `selected_products_in_brim`, 177
+`direct_match_in_brim`, 23 `selected_products_in_brim`, 180
 `not_currently_mapped_in_brim`, and five `not_yet_reviewed` records. All 133
 Resources in the revised R15 target use the reviewed
 `not_currently_mapped_in_brim` classification. R15B removes the two invalid
 Resource review records and inserts matching reviewed records for the broad
 SnowTrax and Santa Barbara County replacements; it applies no Product-link
-action, so the Product
-corpus remains 270 and the canonical link count remains 86.
+action, so the Product corpus remained 270 and the canonical link count
+remained 86 at R15B. The base R16B batch adds the exact crosswalk-proven
+`source_reference` from `ops_cdec_reservoir_storage` to the Sacramento District
+parent, preserving the existing CDEC link and the two existing USBR links. That
+parent is the one new `selected_products_in_brim` Resource; the other 12
+additions are reviewed as `not_currently_mapped_in_brim`. The consolidated
+visual-review correction then adds selected-product links from Drought.gov
+California to `ops_us_drought_monitor` and from CoCoRaHS to its exact California
+and 50-state Products, while removing the unsupported provider-similarity links
+from California Water Watch to BRIM-mapped conveyance and the Delta operations
+snapshot. California Water Watch is therefore not currently mapped. The
+final currentness correction then adds the two exact 2024 Integrated Report
+line/polygon links to the evergreen statewide assessment-program parent. The
+resulting authority is 270 Products, 211 Resource records, and 90 canonical links.
 
 Product and Resource IDs, controlled values, set equality, link cardinality,
 evidence paths, duplicates, unknown fields, and disposition/representation
-rules validate fail closed. Resource links validate against all 205 canonical
+rules validate fail closed. Resource links validate against all 211 canonical
 Resources, while publication projection removes staged Resources before public
 relationships are derived. Product relationships and Resource map presence are
 never inferred from titles, providers, summaries, URLs, publication, or
@@ -118,14 +145,14 @@ editorial Product content only and contains no Resource relationships. The
 R12A compatibility objects and compiler adapter have been deleted; permanent
 compatibility shadow, old/new dual authority, and fallback are prohibited.
 
-All 200 published Resources have reviewed map-presence authority: three are
-`direct_match_in_brim`, 20 are `selected_products_in_brim`, and 177 are
+All 206 published Resources have reviewed map-presence authority: three are
+`direct_match_in_brim`, 23 are `selected_products_in_brim`, and 180 are
 `not_currently_mapped_in_brim`. The public primary views derive only from those
-Resource records and are exactly `In BRIM map` (23), `Beyond the map` (177), and
-`All Resources` (200). Product relationships support detail and exact
+Resource records and are exactly `In BRIM map` (26), `Beyond the map` (180), and
+`All Resources` (206). Product relationships support detail and exact
 Product-context navigation but do not create another primary Resource filter.
 
-The browser projection contains the 200 published records in registry order and
+The browser projection contains the 206 published records in registry order and
 only the reviewed 23-field Resource shape: identity and descriptive metadata,
 labeled access points, Resource Type and temporal machine IDs with build-derived
 labels, normalized geographic scope with its build-derived scope label and
@@ -147,6 +174,15 @@ Southwest views. The same parent-first rule keeps CDEC Reservoir Conditions
 under `resource_dwr_cdec`, the Napa OneRain root under the existing Napa map
 Resource, iSnobal under the broad SnowTrax Resource, and the Santa Barbara map
 route under the broad county real-time hydrology Resource.
+R16B extends that parent-first rule without changing the R or JavaScript search
+runtime. It adds 30 Sacramento WCDS, five Los Angeles water-management, 50 CVO,
+two national/regional directory, one LTO Record of Decision, five Lower
+Colorado, six Upper Colorado, three Colorado Basin hub, three Klamath, two
+Truckee/TROA, five RISE, three CVP Water Supply, four Hydromet, and four AgriMet
+access points. Truthful labels and curated `search_aliases` preserve reservoir,
+project, Section 7, regional, program, and legacy discovery; URLs and stable IDs
+remain excluded from public search text. CVO retains exactly 42 searchable
+user-facing actions and eight ordinary accounting/derived actions.
 HTTPS remains the default requirement for every canonical external Resource
 URL, access point, and public source reference. Three provider endpoints are
 explicit exact-pair exceptions: TID WISKI at
@@ -182,7 +218,7 @@ descriptive fields, not controlled facet vocabularies. Temporal, geographic,
 named-geography, access-point-type, granularity, verification, and priority
 facets are not current Guide authority.
 The Explorer initially renders at most 25 result rows and exposes further rows
-in deterministic 25-record increments, so all 200 published Resources remain
+in deterministic 25-record increments, so all 206 published Resources remain
 reachable without embedding hidden card copies or introducing pagination,
 virtualization, runtime fetching, or browser-storage authority.
 

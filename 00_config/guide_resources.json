@@ -104,7 +104,9 @@
       "resource_type": "dataset_or_collection",
       "temporal_character": "climatology_or_normals",
       "resource_granularity": "unknown",
-      "subject_tags": [],
+      "subject_tags": [
+        "Precipitation"
+      ],
       "information_type_tags": [],
       "variables": [],
       "use_scopes": [],
@@ -3858,6 +3860,16 @@
           "role": "canonical",
           "label": "Bureau of Reclamation",
           "url": "https://www.usbr.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Reclamation Water Operations",
+          "url": "https://www.usbr.gov/main/water/"
+        },
+        {
+          "role": "configured_view",
+          "label": "California-Great Basin Water Operations and Information",
+          "url": "https://www.usbr.gov/mp/wateroperations.html"
         }
       ],
       "resource_type": "organization_homepage",
@@ -4940,34 +4952,206 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
-      "aliases": [],
-      "migration_aliases": [
-        "res.usace.usace-warm-springs-dam-lake-sonoma-hourly-data.product"
+      "id": "resource_usace_sacramento_district_water_control_data_system",
+      "aliases": [
+        "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
+        "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
+        "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
+        "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
+        "resource_usace_usace_farmington_dam_hourly_data_product",
+        "resource_usace_usace_pine_flat_lake_hourly_data_product"
       ],
-      "search_aliases": [],
+      "migration_aliases": [
+        "res.usace.usace-warm-springs-dam-lake-sonoma-hourly-data.product",
+        "res.usace.usace-terminus-dam-lake-kaweah-hourly-data.product",
+        "res.usace.usace-hidden-dam-hensley-lake-hourly-data.product",
+        "res.usace.usace-sacramento-river-clear-creek-hourly-data.product",
+        "res.usace.usace-farmington-dam-hourly-data.product",
+        "res.usace.usace-pine-flat-lake-hourly-data.product"
+      ],
+      "search_aliases": [
+        "SPK WCDS",
+        "Sacramento Water Control Data System",
+        "Section 7",
+        "San Joaquin",
+        "Tulare Lake",
+        "North Coast",
+        "Truckee",
+        "Upper Colorado"
+      ],
       "order": 82,
-      "title": "USACE Warm Springs Dam / Lake Sonoma Hourly Data",
+      "title": "Sacramento District Water Control Data System",
       "providers": [
         {
           "name": "U.S. Army Corps of Engineers",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Warm Springs Dam / Lake Sonoma.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs",
+      "summary": "Current and legacy Sacramento District water-control reports, plots, reservoir conditions, and Section 7 information for California, Great Basin, and Upper Colorado projects.",
+      "canonical_url": "https://water.usace.army.mil/office/spk",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
+          "label": "Sacramento District Water Control Data System",
+          "url": "https://water.usace.army.mil/office/spk"
+        },
+        {
+          "role": "configured_view",
+          "label": "Bear Dam & Reservoir Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=bar"
+        },
+        {
+          "role": "configured_view",
+          "label": "Black Butte Dam & Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=blb"
+        },
+        {
+          "role": "configured_view",
+          "label": "Buchanan Dam & H.V. Eastman Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=buc"
+        },
+        {
+          "role": "configured_view",
+          "label": "Burns Dam & Reservoir Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=bur"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Coyote Valley Dam / Lake Mendocino Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=coy"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Englebright Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=eng"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Farmington Dam Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=frm"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Hidden Dam / Hensley Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=hid"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Isabella Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=isb"
+        },
+        {
+          "role": "configured_view",
+          "label": "Mariposa Dam & Reservoir Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=mar"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Martis Creek Project Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=mrt"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE New Hogan Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=nhg"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Owens River / Great Basin Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=own"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Pine Flat Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=pnf"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Daily Project Report",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/midnight.py?days=0&report=COE"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Flood-Control Report",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/midnight.py?days=0&report=FCR"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Precipitation Report",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/midnight.py?days=0&report=PPT"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Release Changes",
+          "url": "https://www.spk-wc.usace.army.mil/reports/release_changes.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Success Dam & Lake Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=scc"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Seven-Day Report",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/midnight.py?days=0&report=SC7"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Water Control Data System – California",
+          "url": "https://www.spk-wc.usace.army.mil/plots/california.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Sacramento Water Control Data System – Great Basin",
+          "url": "https://www.spk-wc.usace.army.mil/plots/greatbasin.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Terminus Dam / Lake Kaweah Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=trm"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Warm Springs Dam / Lake Sonoma Hourly Data",
+          "url": "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=wrs"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Sacramento District Water Control Data System",
+          "url": "https://www.spk-wc.usace.army.mil/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Warm Springs Dam / Lake Sonoma Hourly Data",
           "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Terminus Dam / Lake Kaweah Hourly Data",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Hidden Dam / Hensley Lake Hourly Data",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Farmington Dam Hourly Data",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy/standby Pine Flat Lake Hourly Data",
+          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
         "Surface Water",
+        "Precipitation",
         "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
@@ -4976,7 +5160,8 @@
         "storage",
         "inflow",
         "release",
-        "river stage"
+        "river stage",
+        "precipitation"
       ],
       "use_scopes": [
         "Reservoir operations",
@@ -4985,17 +5170,18 @@
         "Emergency planning"
       ],
       "geographic_scope": {
-        "scope_type": "local",
+        "scope_type": "multi_state",
         "names": [
           "California",
-          "Warm Springs Dam / Lake Sonoma project / California-Great Basin"
+          "Colorado",
+          "Utah"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=wrs"
+          "url": "https://water.usace.army.mil/office/spk"
         }
       ],
       "publication_state": "published"
@@ -5604,11 +5790,17 @@
     },
     {
       "id": "resource_usbr_cvp_long_term_operations_program",
-      "aliases": [],
-      "migration_aliases": [
-        "res.usbr.cvp-long-term-operations.program"
+      "aliases": [
+        "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product"
       ],
-      "search_aliases": [],
+      "migration_aliases": [
+        "res.usbr.cvp-long-term-operations.program",
+        "res.usbr.cvp-swp-long-term-operations-record-of-decision.product"
+      ],
+      "search_aliases": [
+        "CVP/SWP Long-Term Operations",
+        "2024 Long-Term Operations Record of Decision"
+      ],
       "order": 93,
       "title": "CVP Long-Term Operations",
       "providers": [
@@ -5624,6 +5816,11 @@
           "role": "canonical",
           "label": "Canonical landing URL",
           "url": "https://usbr.gov/mp/bdo/lto"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVP/SWP Long-Term Operations Record of Decision",
+          "url": "https://www.usbr.gov/mp/bdo/docs/lto-rod-12-19-24.pdf"
         }
       ],
       "resource_type": "program_or_mission",
@@ -6129,7 +6326,8 @@
       "resource_granularity": "dashboard",
       "subject_tags": [
         "Snow & SWE",
-        "Weather & Forecasts"
+        "Weather & Forecasts",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -6191,7 +6389,8 @@
         "Surface Water",
         "Infrastructure & Conveyance",
         "Groundwater",
-        "Snow & SWE"
+        "Snow & SWE",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -6687,7 +6886,8 @@
         "Surface Water",
         "Infrastructure & Conveyance",
         "Groundwater",
-        "Snow & SWE"
+        "Snow & SWE",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -7052,7 +7252,8 @@
         "Surface Water",
         "Infrastructure & Conveyance",
         "Groundwater",
-        "Snow & SWE"
+        "Snow & SWE",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -7359,7 +7560,8 @@
       "resource_granularity": "unknown",
       "subject_tags": [
         "Weather & Forecasts",
-        "Climate & Drought"
+        "Climate & Drought",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -7569,62 +7771,61 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
+      "id": "resource_usace_usace_water_management_data_platform",
       "aliases": [],
       "migration_aliases": [
-        "res.usace.usace-terminus-dam-lake-kaweah-hourly-data.product"
+        "res.usace.usace-water-management-data.platform"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "USACE Water Data",
+        "Access to Water"
+      ],
       "order": 125,
-      "title": "USACE Terminus Dam / Lake Kaweah Hourly Data",
+      "title": "USACE Water Management Data",
       "providers": [
         {
           "name": "U.S. Army Corps of Engineers",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Terminus Dam / Lake Kaweah.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm",
+      "summary": "National entry point for current Corps water-management locations, maps, reports, and operational data.",
+      "canonical_url": "https://water.usace.army.mil/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
+          "label": "USACE Water Management Data",
+          "url": "https://water.usace.army.mil/"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
         "Surface Water",
         "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
       "variables": [
-        "reservoir elevation",
-        "storage",
-        "inflow",
-        "release",
-        "river stage"
+        "water control data"
       ],
       "use_scopes": [
         "Reservoir operations",
         "Hydrologic conditions",
         "Flood risk",
-        "Emergency planning"
+        "Emergency planning",
+        "Data integration"
       ],
       "geographic_scope": {
-        "scope_type": "local",
+        "scope_type": "national",
         "names": [
-          "California",
-          "Terminus Dam / Lake Kaweah project / California-Great Basin"
+          "United States"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=trm"
+          "url": "https://water.usace.army.mil/"
         }
       ],
       "publication_state": "published"
@@ -8892,7 +9093,8 @@
         "Surface Water",
         "Infrastructure & Conveyance",
         "Groundwater",
-        "Snow & SWE"
+        "Snow & SWE",
+        "Precipitation"
       ],
       "information_type_tags": [],
       "variables": [
@@ -8951,7 +9153,9 @@
       "resource_type": "dashboard",
       "temporal_character": "unknown",
       "resource_granularity": "collection",
-      "subject_tags": [],
+      "subject_tags": [
+        "Precipitation"
+      ],
       "information_type_tags": [],
       "variables": [
         "precipitation",
@@ -9135,7 +9339,9 @@
       "resource_type": "data_portal_or_catalog",
       "temporal_character": "unknown",
       "resource_granularity": "platform",
-      "subject_tags": [],
+      "subject_tags": [
+        "Precipitation"
+      ],
       "information_type_tags": [],
       "variables": [
         "precipitation",
@@ -9389,7 +9595,9 @@
       "resource_type": "viewer_or_explorer",
       "temporal_character": "unknown",
       "resource_granularity": "viewer",
-      "subject_tags": [],
+      "subject_tags": [
+        "Precipitation"
+      ],
       "information_type_tags": [],
       "variables": [
         "precipitation",
@@ -9506,7 +9714,9 @@
       "resource_type": "viewer_or_explorer",
       "temporal_character": "unknown",
       "resource_granularity": "viewer",
-      "subject_tags": [],
+      "subject_tags": [
+        "Precipitation"
+      ],
       "information_type_tags": [],
       "variables": [
         "precipitation",
@@ -10144,43 +10354,69 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
+      "id": "resource_usace_los_angeles_district_water_management_platform",
       "aliases": [],
-      "migration_aliases": [
-        "res.usace.usace-hidden-dam-hensley-lake-hourly-data.product"
+      "migration_aliases": [],
+      "search_aliases": [
+        "SPL Water Management",
+        "Los Angeles Reservoir Regulation"
       ],
-      "search_aliases": [],
       "order": 166,
-      "title": "USACE Hidden Dam / Hensley Lake Hourly Data",
+      "title": "Los Angeles District Water Management",
       "providers": [
         {
           "name": "U.S. Army Corps of Engineers",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Hidden Dam / Hensley Lake.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid",
+      "summary": "Los Angeles District water-management locations, maps, hydrologic queries, and legacy reservoir-regulation reports.",
+      "canonical_url": "https://water.usace.army.mil/office/spl/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
+          "label": "Los Angeles District Water Management",
+          "url": "https://water.usace.army.mil/office/spl/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy — USACE Los Angeles Reservoir Regulation",
+          "url": "https://resreg.spl.usace.army.mil/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Legacy — USACE Los Angeles Weather Report",
+          "url": "https://resreg.spl.usace.army.mil/spl/wx-report"
+        },
+        {
+          "role": "configured_view",
+          "label": "USACE Water Management Data Map",
+          "url": "https://water.usace.army.mil/map"
+        },
+        {
+          "role": "configured_view",
+          "label": "Los Angeles District Water Management Overview",
+          "url": "https://water.usace.army.mil/overview/spl"
+        },
+        {
+          "role": "configured_view",
+          "label": "Los Angeles District Water Management Data Query",
+          "url": "https://water.usace.army.mil/office/spl/reports/data-query"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
         "Surface Water",
+        "Precipitation",
         "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
       "variables": [
-        "reservoir elevation",
-        "storage",
-        "inflow",
-        "release",
-        "river stage"
+        "reservoir conditions",
+        "streamflow",
+        "precipitation",
+        "weather"
       ],
       "use_scopes": [
         "Reservoir operations",
@@ -10189,17 +10425,18 @@
         "Emergency planning"
       ],
       "geographic_scope": {
-        "scope_type": "local",
+        "scope_type": "multi_state",
         "names": [
           "California",
-          "Hidden Dam / Hensley Lake project / California-Great Basin"
+          "Arizona",
+          "Nevada"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=hid"
+          "url": "https://water.usace.army.mil/office/spl/"
         }
       ],
       "publication_state": "published"
@@ -11216,62 +11453,319 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
+      "id": "resource_usbr_central_valley_operations_office_platform",
       "aliases": [],
       "migration_aliases": [
-        "res.usace.usace-sacramento-river-clear-creek-hourly-data.product"
+        "res.usbr.central-valley-operations-office.platform"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "CVO",
+        "Central Valley Operations",
+        "CVO reports"
+      ],
       "order": 183,
-      "title": "USACE Sacramento River / Clear Creek Hourly Data",
+      "title": "Central Valley Operations Office",
       "providers": [
         {
-          "name": "U.S. Army Corps of Engineers",
+          "name": "Bureau of Reclamation",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Sacramento River / Clear Creek.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc",
+      "summary": "Central Valley Project operational reports for reservoirs, deliveries, Delta operations, temperature, water quality, fish, schedules, and accounting.",
+      "canonical_url": "https://www.usbr.gov/mp/cvo/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
+          "label": "Central Valley Operations Office",
+          "url": "https://www.usbr.gov/mp/cvo/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Contra Costa Canal Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/cchdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Coordinated Operations Agreement Accounting",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/coanew.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO CVP Water Supply Reports",
+          "url": "https://www.usbr.gov/mp/cvo/cvpwtsply.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Daily Operational Data",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/daily.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Daily Reservoir Data",
+          "url": "https://www.usbr.gov/mp/cvo/current.html"
+        },
+        {
+          "role": "archive",
+          "label": "CVO Delivery Report Archive",
+          "url": "https://www.usbr.gov/mp/cvo/deliv.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Delivery Reports",
+          "url": "https://www.usbr.gov/mp/cvo/delivrpt.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Fish Reports",
+          "url": "https://www.usbr.gov/mp/cvo/fishrpt.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Midnight Reservoir Elevation and Flows",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/wtr_rpt.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO OCAP and Operations Criteria",
+          "url": "https://www.usbr.gov/mp/cvo/ocap.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Project Management Documents",
+          "url": "https://www.usbr.gov/mp/cvo/pmdoc.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Reservoir Operations Reports",
+          "url": "https://www.usbr.gov/mp/cvo/reports.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Temperature Reports",
+          "url": "https://www.usbr.gov/mp/cvo/temperature.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVO Water Quality Reports",
+          "url": "https://www.usbr.gov/mp/cvo/wqrpt.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "CVP Water Supply Report",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/dayrpt.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Delta Operations Summary",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/deltaop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Delta Outflow and Water Quality Report",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/doutdly.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Englebright Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/epkdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Federal Share of San Luis Reservoir",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/fedslu.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Folsom Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/foldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Goodwin Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/gdwdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Keswick Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/kesdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lake Berryessa Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/berdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lewiston Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/lewdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Millerton Full-Natural Flow",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/milfln.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Millerton Lake Daily Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/sccao_mildop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Millerton Lake Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/mildop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Natoma Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/natdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "New Melones Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/nmldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Normal Full-Natural Flow",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/nmlfln.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Oroville-New Bullards Bar/Folsom Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/onfdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Sacramento River Temperature and Flow Report",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/sactemprpt.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "San Luis Reservoir Daily Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/sccao_snldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "San Luis Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/snldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "San Luis Unit Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/slunit.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Shasta Flood-Control Diagram",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/shafcr.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Shasta Full-Natural Flow",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/shafln.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Shasta Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/shadop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Solano Project Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/soldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Spring Creek Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/sprdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Stony Creek Reservoir Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/stony.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Stony Gorge Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/stgdop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Term 91 Status",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/term91.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tracy Pumping Plant Report",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/tracy_pump.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Trinity Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/trndop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Trinity River Operations Report",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/trinity.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tulloch Release Schedule",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/tull_sch.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tulloch Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/tuldop.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Whiskeytown Release Schedule",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/whi_sch.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Whiskeytown Reservoir Monthly Operations",
+          "url": "https://www.usbr.gov/mp/cvo/vungvari/whidop.pdf"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
         "Surface Water",
-        "Infrastructure & Conveyance"
+        "Infrastructure & Conveyance",
+        "Water Rights",
+        "Water Quality",
+        "Ecology & Habitat"
       ],
       "information_type_tags": [],
       "variables": [
-        "reservoir elevation",
-        "storage",
-        "inflow",
+        "reservoir storage",
         "release",
-        "river stage"
+        "delivery",
+        "Delta operations"
       ],
       "use_scopes": [
         "Reservoir operations",
         "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning"
+        "Water rights",
+        "Regulatory research",
+        "Water quality",
+        "Ecosystem screening"
       ],
       "geographic_scope": {
-        "scope_type": "regional",
+        "scope_type": "state",
         "names": [
-          "California",
-          "Sacramento River / Clear Creek project / California-Great Basin"
+          "California"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=scc"
+          "url": "https://www.usbr.gov/mp/cvo/"
         }
       ],
       "publication_state": "published"
@@ -11588,60 +12082,92 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product",
+      "id": "resource_usbr_lower_colorado_river_operations",
       "aliases": [],
-      "migration_aliases": [
-        "res.usbr.cvp-swp-long-term-operations-record-of-decision.product"
+      "migration_aliases": [],
+      "search_aliases": [
+        "Lower Colorado operations",
+        "Boulder Canyon Operations Office",
+        "Lake Mead",
+        "Hoover Dam"
       ],
-      "search_aliases": [],
       "order": 189,
-      "title": "CVP/SWP Long-Term Operations Record of Decision",
+      "title": "Lower Colorado River Operations",
       "providers": [
         {
           "name": "Bureau of Reclamation",
           "role": "display_provider"
         }
       ],
-      "summary": "2024 federal record of decision governing long-term coordinated CVP/SWP operations.",
-      "canonical_url": "https://usbr.gov/mp/bdo/docs/lto-rod-12-19-24.pdf",
+      "summary": "Lower Colorado River conditions, schedules, projections, historical data, water accounting, and operating information.",
+      "canonical_url": "https://www.usbr.gov/lc/riverops.html",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://usbr.gov/mp/bdo/docs/lto-rod-12-19-24.pdf"
+          "label": "Lower Colorado River Operations",
+          "url": "https://www.usbr.gov/lc/riverops.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lower Colorado Current Conditions — Past 6 Days",
+          "url": "https://www.usbr.gov/lc/region/g4000/riverops/hourly7.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Boulder Canyon Operations Office Data Explorer",
+          "url": "https://www.usbr.gov/lc/region/g4000/riverops/BcooDataExplorer.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lower Colorado River Operations Schedule",
+          "url": "https://www.usbr.gov/lc/region/g4000/riverops/FridayReport.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lower Colorado 24-Month Study Archive",
+          "url": "https://www.usbr.gov/lc/region/g4000/24mo/index.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Lower Colorado Water Accounting Reports and Activities",
+          "url": "https://www.usbr.gov/lc/region/g4000/wtracct.html"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
-        "Water Rights",
         "Surface Water",
-        "Infrastructure & Conveyance",
-        "Groundwater"
+        "Climate & Drought",
+        "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
       "variables": [
-        "operating criteria"
+        "reservoir elevation",
+        "storage",
+        "release",
+        "river flow",
+        "water accounting"
       ],
       "use_scopes": [
-        "Water rights",
-        "Regulatory research",
         "Reservoir operations",
-        "Groundwater",
-        "Groundwater sustainability"
+        "Hydrologic conditions",
+        "Drought tracking",
+        "Water supply planning"
       ],
       "geographic_scope": {
-        "scope_type": "state",
+        "scope_type": "multi_state",
         "names": [
-          "California"
+          "Arizona",
+          "California",
+          "Nevada"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://usbr.gov/mp/bdo/docs/lto-rod-12-19-24.pdf"
+          "url": "https://www.usbr.gov/lc/riverops.html"
         }
       ],
       "publication_state": "published"
@@ -11783,62 +12309,103 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_farmington_dam_hourly_data_product",
+      "id": "resource_usbr_upper_colorado_basin_water_operations",
       "aliases": [],
-      "migration_aliases": [
-        "res.usace.usace-farmington-dam-hourly-data.product"
+      "migration_aliases": [],
+      "search_aliases": [
+        "Upper Colorado Water Operations",
+        "HydroData",
+        "Colorado River Storage Project",
+        "CRSP"
       ],
-      "search_aliases": [],
       "order": 192,
-      "title": "USACE Farmington Dam Hourly Data",
+      "title": "Upper Colorado Basin Water Operations",
       "providers": [
         {
-          "name": "U.S. Army Corps of Engineers",
+          "name": "Bureau of Reclamation",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Farmington Dam.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm",
+      "summary": "Upper Colorado Basin reservoir and gage data, basin maps, operating studies, monthly summaries, and annual operating plans.",
+      "canonical_url": "https://www.usbr.gov/uc/water/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
+          "label": "Upper Colorado Basin Water Operations",
+          "url": "https://www.usbr.gov/uc/water/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado HydroData Reservoir Data",
+          "url": "https://www.usbr.gov/uc/water/hydrodata/reservoir_data/site_map.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado HydroData Gage Data",
+          "url": "https://www.usbr.gov/uc/water/hydrodata/gage_data/site_map.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado HydroData Basin Maps",
+          "url": "https://www.usbr.gov/uc/water/hydrodata/status_maps/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado 24-Month Study",
+          "url": "https://www.usbr.gov/uc/water/crsp/studies/index.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado Monthly Summary Reports",
+          "url": "https://www.usbr.gov/uc/water/rsvrs/ops/monthly_summaries/index.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Upper Colorado Annual Operating Plans",
+          "url": "https://www.usbr.gov/uc/water/rsvrs/ops/aop/index.html"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
       "subject_tags": [
         "Surface Water",
+        "Climate & Drought",
         "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
       "variables": [
-        "reservoir elevation",
-        "storage",
+        "reservoir storage",
         "inflow",
         "release",
-        "river stage"
+        "streamflow",
+        "snow",
+        "precipitation"
       ],
       "use_scopes": [
         "Reservoir operations",
         "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning"
+        "Drought tracking",
+        "Water supply planning"
       ],
       "geographic_scope": {
-        "scope_type": "local",
+        "scope_type": "multi_state",
         "names": [
-          "California",
-          "Farmington Dam project / California-Great Basin"
+          "Arizona",
+          "Colorado",
+          "Idaho",
+          "Nevada",
+          "New Mexico",
+          "Texas",
+          "Utah",
+          "Wyoming"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=frm"
+          "url": "https://www.usbr.gov/uc/water/"
         }
       ],
       "publication_state": "published"
@@ -12347,32 +12914,49 @@
       "migration_aliases": [
         "res.swrcb.impaired-waters-and-tmdls.program"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "Impaired Waters and TMDLs",
+        "303(d)",
+        "305(b)",
+        "California Integrated Report",
+        "impaired waters",
+        "TMDL",
+        "surface water quality assessment"
+      ],
       "order": 201,
-      "title": "Impaired Waters and TMDLs",
+      "title": "California Integrated Reports & Impaired Waters",
       "providers": [
         {
           "name": "California State Water Resources Control Board",
           "role": "display_provider"
         }
       ],
-      "summary": "Integrated-report and impaired-water information and supporting data.",
-      "canonical_url": "https://waterboards.ca.gov/water_issues/programs/tmdl/integrated2010.shtml",
+      "summary": "California's recurring surface-water assessments combine Clean Water Act 303(d) impaired-waters lists and 305(b) condition reports, with maps and downloadable assessment information that support TMDL prioritization and other restoration work.",
+      "canonical_url": "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://waterboards.ca.gov/water_issues/programs/tmdl/integrated2010.shtml"
+          "label": "Surface Water Quality Assessment Program",
+          "url": "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/"
+        },
+        {
+          "role": "configured_view",
+          "label": "2024 California Integrated Report — EPA partial approval / partial disapproval",
+          "url": "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/2024-integrated-report.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "2026 California Integrated Report — State Board approved; submitted to EPA",
+          "url": "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/2026_integrated_report.html"
         }
       ],
       "resource_type": "program_or_mission",
-      "temporal_character": "unknown",
+      "temporal_character": "mixed",
       "resource_granularity": "program",
       "subject_tags": [
-        "Water Rights",
+        "Surface Water",
         "Water Quality",
-        "Ecology & Habitat",
-        "Groundwater"
+        "Ecology & Habitat"
       ],
       "information_type_tags": [],
       "variables": [
@@ -12380,12 +12964,9 @@
         "water quality standard"
       ],
       "use_scopes": [
-        "Water rights",
         "Regulatory research",
         "Water quality",
         "Ecosystem screening",
-        "Groundwater",
-        "Groundwater sustainability",
         "Data integration"
       ],
       "geographic_scope": {
@@ -12399,7 +12980,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://waterboards.ca.gov/water_issues/programs/tmdl/integrated2010.shtml"
+          "url": "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/"
         }
       ],
       "publication_state": "published"
@@ -12594,62 +13175,574 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_usace_usace_pine_flat_lake_hourly_data_product",
+      "id": "resource_usbr_colorado_river_basin_hub",
       "aliases": [],
-      "migration_aliases": [
-        "res.usace.usace-pine-flat-lake-hourly-data.product"
+      "migration_aliases": [],
+      "search_aliases": [
+        "Colorado River Basin hub",
+        "Colorado River policy",
+        "Post-2026 Colorado River Operations"
       ],
-      "search_aliases": [],
       "order": 205,
-      "title": "USACE Pine Flat Lake Hourly Data",
+      "title": "Colorado River Basin",
       "providers": [
         {
-          "name": "U.S. Army Corps of Engineers",
+          "name": "Bureau of Reclamation",
           "role": "display_provider"
         }
       ],
-      "summary": "Hourly water-control data report for Pine Flat Lake.",
-      "canonical_url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf",
+      "summary": "Basin-wide Colorado River policy and operations hub for post-2026 operations, near-term operating decisions, and drought-response agreements.",
+      "canonical_url": "https://www.usbr.gov/ColoradoRiverBasin/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
+          "label": "Colorado River Basin",
+          "url": "https://www.usbr.gov/ColoradoRiverBasin/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Post-2026 Colorado River Operations",
+          "url": "https://www.usbr.gov/ColoradoRiverBasin/post2026/index.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Supplemental EIS for Near-term Colorado River Operations",
+          "url": "https://www.usbr.gov/ColoradoRiverBasin/interimguidelines/seis/index.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Drought Response Operations Agreement",
+          "url": "https://www.usbr.gov/ColoradoRiverBasin/dcp/droa.html"
         }
       ],
-      "resource_type": "report_or_publication",
-      "temporal_character": "unknown",
-      "resource_granularity": "product",
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
       "subject_tags": [
         "Surface Water",
+        "Climate & Drought",
         "Infrastructure & Conveyance"
       ],
       "information_type_tags": [],
       "variables": [
-        "reservoir elevation",
-        "storage",
-        "inflow",
-        "release",
-        "river stage"
+        "basin operations",
+        "operating policy",
+        "drought response"
       ],
       "use_scopes": [
         "Reservoir operations",
-        "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning"
+        "Drought tracking",
+        "Water supply planning",
+        "Regulatory research"
       ],
       "geographic_scope": {
-        "scope_type": "regional",
+        "scope_type": "multinational",
         "names": [
-          "California",
-          "Pine Flat Lake project / California-Great Basin"
+          "United States",
+          "Mexico",
+          "Colorado River Basin"
         ]
       },
       "access_class": "public",
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://www.spk-wc.usace.army.mil/fcgi-bin/hourly.py?report=pnf"
+          "url": "https://www.usbr.gov/ColoradoRiverBasin/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_klamath_project_water_operations_platform",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.klamath-project-water-operations.platform"
+      ],
+      "search_aliases": [
+        "Klamath Water Operations",
+        "KBAO water operations",
+        "Klamath Hydromet"
+      ],
+      "order": 206,
+      "title": "Klamath Project Water Operations",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Klamath Project water-operations information, reservoir teacup conditions, project planning context, and hydrology data.",
+      "canonical_url": "https://www.usbr.gov/mp/kbao/programs/water-ops.html",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Klamath Project Water Operations",
+          "url": "https://www.usbr.gov/mp/kbao/programs/water-ops.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Klamath Basin Reservoir Teacup Diagram",
+          "url": "https://www.usbr.gov/pn/hydromet/klamath/teacup.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Klamath Project Information",
+          "url": "https://www.usbr.gov/projects/index.php?id=470"
+        },
+        {
+          "role": "configured_view",
+          "label": "Klamath Hydrology Database",
+          "url": "https://www.usbr.gov/mp/kbao/programs/hydrology/index.html"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance",
+        "Water Rights",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "project allocation",
+        "reservoir operations",
+        "streamflow"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Hydrologic conditions",
+        "Water rights",
+        "Ecosystem screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "California",
+          "Oregon",
+          "Klamath Project"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/mp/kbao/programs/water-ops.html"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_truckee_river_operating_agreement_platform",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.truckee-river-operating-agreement.platform"
+      ],
+      "search_aliases": [
+        "TROA",
+        "Truckee River operations",
+        "Truckee Basin reservoirs",
+        "Lahontan Basin Area Office"
+      ],
+      "order": 207,
+      "title": "Truckee River Operating Agreement",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Operating agreement and related decision documents coordinating Truckee Basin reservoir operations, water supply, water rights, fisheries, and water quality.",
+      "canonical_url": "https://www.usbr.gov/mp/lbao/programs/troa.html",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Truckee River Operating Agreement",
+          "url": "https://www.usbr.gov/mp/lbao/programs/troa.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Truckee River Operating Agreement — September 2008",
+          "url": "https://www.usbr.gov/mp/lbao/programs/docs/troa-09-08-full.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Truckee River Operating Agreement Record of Decision",
+          "url": "https://www.usbr.gov/mp/lbao/programs/docs/TROA-Record-Decision-080905%20.pdf"
+        }
+      ],
+      "resource_type": "report_or_publication",
+      "temporal_character": "static_reference",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance",
+        "Water Rights",
+        "Water Quality",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "river operations",
+        "water rights agreement"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Water rights",
+        "Regulatory research",
+        "Water quality",
+        "Ecosystem screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "California",
+          "Nevada",
+          "Truckee River Basin"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/mp/lbao/programs/troa.html"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_reclamation_information_sharing_environment_platform",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.reclamation-information-sharing-environment.platform"
+      ],
+      "search_aliases": [
+        "RISE",
+        "USBR RISE",
+        "Reclamation open data"
+      ],
+      "order": 208,
+      "title": "Reclamation Information Sharing Environment",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Reclamation open-data system for catalog, map, time-series, API, and reservoir-condition access.",
+      "canonical_url": "https://data.usbr.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Reclamation Information Sharing Environment",
+          "url": "https://data.usbr.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "RISE Data Catalog",
+          "url": "https://data.usbr.gov/catalog"
+        },
+        {
+          "role": "configured_view",
+          "label": "RISE Map Interface",
+          "url": "https://data.usbr.gov/rise-map/"
+        },
+        {
+          "role": "configured_view",
+          "label": "RISE Time Series Query",
+          "url": "https://data.usbr.gov/time-series"
+        },
+        {
+          "role": "configured_view",
+          "label": "RISE API",
+          "url": "https://data.usbr.gov/rise/api"
+        },
+        {
+          "role": "configured_view",
+          "label": "Reclamation Reservoir Conditions Dashboard",
+          "url": "https://data.usbr.gov/visualizations/reservoir-conditions"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "reservoir operations",
+        "hydrometeorology"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Hydrologic conditions",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://data.usbr.gov/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_central_valley_project_water_supply_program",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.central-valley-project-water-supply.program"
+      ],
+      "search_aliases": [
+        "CVP Water Supply",
+        "Central Valley Project allocations",
+        "CVP carryover"
+      ],
+      "order": 209,
+      "title": "Central Valley Project Water Supply",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Central Valley Project water-supply program collection for plans, allocations, and water-year carryover information.",
+      "canonical_url": "https://www.usbr.gov/mp/cvp-water/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Central Valley Project Water Supply",
+          "url": "https://www.usbr.gov/mp/cvp-water/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Central Valley Project Water Supply Plan",
+          "url": "https://www.usbr.gov/mp/cvp-water/docs/latest-water-plan.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "Central Valley Project Water Allocations",
+          "url": "https://www.usbr.gov/mp/cvp-water/allocations.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Central Valley Project Water Year Carryover",
+          "url": "https://www.usbr.gov/mp/cvp-water/carryover.html"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Infrastructure & Conveyance",
+        "Water Rights",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "allocation",
+        "water supply",
+        "carryover"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Water supply planning",
+        "Water rights",
+        "Ecosystem screening"
+      ],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Central Valley Project service areas"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/mp/cvp-water/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_reclamation_hydromet_platform",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.reclamation-hydromet.platform"
+      ],
+      "search_aliases": [
+        "Hydromet",
+        "USBR Hydromet",
+        "Reclamation hydrologic and meteorologic data"
+      ],
+      "order": 210,
+      "title": "Reclamation Hydromet",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Pacific Northwest hydrologic and meteorologic monitoring platform for reservoir storage, streamflow, stations, and current and historical conditions.",
+      "canonical_url": "https://www.usbr.gov/pn/hydromet/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Reclamation Hydromet",
+          "url": "https://www.usbr.gov/pn/hydromet/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Hydromet Reservoir Storage Teacup Diagrams",
+          "url": "https://www.usbr.gov/pn/hydromet/select.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Hydromet Station Listing",
+          "url": "https://www.usbr.gov/pn/hydromet/mcf_list.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Hydromet Daily Data by River Basin",
+          "url": "https://www.usbr.gov/pn/hydromet/datamenu.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "Hydromet Real-Time Data",
+          "url": "https://www.usbr.gov/pn/hydromet/realtime.html"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Weather & Forecasts",
+        "Infrastructure & Conveyance"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "reservoir storage",
+        "streamflow",
+        "weather"
+      ],
+      "use_scopes": [
+        "Reservoir operations",
+        "Hydrologic conditions",
+        "Streamflow",
+        "Water supply planning"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "Idaho",
+          "Oregon",
+          "Washington",
+          "Montana",
+          "Wyoming"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/pn/hydromet/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_reclamation_agrimet_platform",
+      "aliases": [],
+      "migration_aliases": [
+        "res.usbr.reclamation-agrimet.platform"
+      ],
+      "search_aliases": [
+        "AgriMet",
+        "USBR AgriMet",
+        "crop evapotranspiration"
+      ],
+      "order": 211,
+      "title": "Reclamation AgriMet",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Agricultural weather-station and crop-water-use platform with historical weather data and station exports.",
+      "canonical_url": "https://www.usbr.gov/pn/agrimet/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Reclamation AgriMet",
+          "url": "https://www.usbr.gov/pn/agrimet/"
+        },
+        {
+          "role": "configured_view",
+          "label": "AgriMet Historical Weather Data",
+          "url": "https://www.usbr.gov/pn/agrimet/wxdata.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "AgriMet Station Locations and Links",
+          "url": "https://www.usbr.gov/pn/agrimet/location.html"
+        },
+        {
+          "role": "configured_view",
+          "label": "AgriMet Station Locations — JSON",
+          "url": "https://www.usbr.gov/pn/agrimet/agrimetmap/usbr_map.json"
+        },
+        {
+          "role": "configured_view",
+          "label": "AgriMet Station Locations — CSV",
+          "url": "https://www.usbr.gov/pn/agrimet/location.csv"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Weather & Forecasts",
+        "Surface Water"
+      ],
+      "information_type_tags": [],
+      "variables": [
+        "weather",
+        "crop evapotranspiration"
+      ],
+      "use_scopes": [
+        "Water supply planning",
+        "Hydrologic conditions",
+        "Data integration"
+      ],
+      "geographic_scope": {
+        "scope_type": "multi_state",
+        "names": [
+          "Idaho",
+          "Oregon",
+          "Washington",
+          "Montana",
+          "Wyoming"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/pn/agrimet/"
         }
       ],
       "publication_state": "published"

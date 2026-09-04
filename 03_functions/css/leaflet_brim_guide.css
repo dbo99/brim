@@ -276,16 +276,20 @@
   display: flex; flex-wrap: wrap; gap: 4px;
 }
 
+.brim-guide__facet-button,
+.brim-guide__resource-choice {
+  max-width: 100%; min-height: 24px; display: inline-flex; align-items: center; gap: 5px; padding: 2px 4px; border: 1px solid #a7a093; border-radius: 5px; background: #fffdf8; color: #3d4e42; cursor: pointer; font-size: 8px; font-weight: 650; line-height: 1.2; white-space: normal;
+}
+
 .brim-guide__facet-button {
-  display: inline-flex; align-items: center; justify-content: center; min-height: 28px; max-width: 100%; padding: 4px 8px; border: 1px solid rgba(109, 111, 102, 0.5); border-radius: 2px; background: rgba(255, 253, 247, 0.72); color: #39443b; cursor: pointer; font-size: 9px; line-height: 1.2; text-align: center; white-space: normal;
+  justify-content: center; text-align: center;
 }
 
-.brim-guide__facet-button:hover {
-  border-color: rgba(72, 102, 79, 0.8); background: rgba(72, 102, 79, 0.07);
-}
-
-.brim-guide__facet-button.is-selected {
-  border-color: var(--guide-accent); background: rgba(72, 102, 79, 0.15); color: #203728; font-weight: 700;
+.brim-guide__facet-button:hover,
+.brim-guide__facet-button.is-selected,
+.brim-guide__resource-choice:hover,
+.brim-guide__resource-choice.is-selected {
+  border-color: #657a69; background: rgba(72, 102, 79, 0.12); color: #203728;
 }
 
 .brim-guide__results {
@@ -660,7 +664,7 @@
 }
 
 .brim-guide__resource-preset {
-  flex: 1 0 auto; min-height: 33px; padding: 5px 10px; border: 0; border-right: 1px solid var(--guide-rule); border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: #3d4e42; cursor: pointer; font-size: 9px; font-weight: 650; white-space: nowrap;
+  flex: 1 0 auto; min-height: 33px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 10px; border: 0; border-right: 1px solid var(--guide-rule); border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: #3d4e42; cursor: pointer; font-size: 9px; font-weight: 650; white-space: nowrap;
 }
 
 .brim-guide__resource-preset.is-selected {
@@ -806,12 +810,15 @@
 }
 
 .brim-guide__resource-choice {
-  min-height: 24px; padding: 2px 4px; border: 1px solid #a7a093; border-radius: 5px; background: #fffdf8; color: #3d4e42; cursor: pointer; font-size: 8px; font-weight: 650; line-height: 1.2; text-align: left;
+  justify-content: space-between; text-align: left;
 }
 
-.brim-guide__resource-choice:hover,
-.brim-guide__resource-choice.is-selected {
-  border-color: #657a69; background: rgba(72, 102, 79, 0.12); color: #203728;
+.brim-guide__resource-facet-label {
+  min-width: 0; overflow-wrap: anywhere;
+}
+
+.brim-guide__resource-facet-count {
+  flex: 0 0 auto; min-width: 18px; display: inline-flex; align-items: center; justify-content: center; padding: 1px 4px; border: 1px solid rgba(76, 91, 79, 0.34); border-radius: 999px; background: rgba(72, 102, 79, 0.1); color: #354a3b; font-size: 8px; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.15;
 }
 
 .brim-guide__resource-choice:disabled {
