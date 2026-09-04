@@ -86,6 +86,31 @@ r15b_selected_replacement_ids <- c(
   "resource_dwr_snowtrax_platform",
   "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform"
 )
+r16b_added_resource_ids <- c(
+  "resource_usace_usace_water_management_data_platform",
+  "resource_usace_sacramento_district_water_control_data_system",
+  "resource_usace_los_angeles_district_water_management_platform",
+  "resource_usbr_central_valley_operations_office_platform",
+  "resource_usbr_lower_colorado_river_operations",
+  "resource_usbr_upper_colorado_basin_water_operations",
+  "resource_usbr_colorado_river_basin_hub",
+  "resource_usbr_klamath_project_water_operations_platform",
+  "resource_usbr_truckee_river_operating_agreement_platform",
+  "resource_usbr_reclamation_information_sharing_environment_platform",
+  "resource_usbr_central_valley_project_water_supply_program",
+  "resource_usbr_reclamation_hydromet_platform",
+  "resource_usbr_reclamation_agrimet_platform"
+)
+r16b_retired_resource_ids <- c(
+  "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
+  "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
+  "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
+  "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
+  "resource_usace_usace_farmington_dam_hourly_data_product",
+  "resource_usace_usace_pine_flat_lake_hourly_data_product",
+  "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product"
+)
+r16b_spk_id <- "resource_usace_sacramento_district_water_control_data_system"
 r15b_rejected_canonical_ids <- c(
   "resource_sacramento_county_water_resources_sacramento_county_rainfall_and_stream_levels_dashboards_collection",
   "resource_kern_river_watermaster_kern_river_watermaster_platform",
@@ -129,13 +154,13 @@ assert_true(setequal(relationship_registry_ids, product_ids) &&
             "The sole relationship registry does not equal the compiled Product universe")
 assert_identical(bundle$counts$articles, 7L,
                  "Current Guide must include the seven maintained Methods")
-assert_identical(bundle$counts$resources, 200L,
-                 "Current Guide must include all 200 published Resources")
-assert_identical(length(resource_registry), 205L,
-                 "Canonical Resource registry must validate all 205 records")
+assert_identical(bundle$counts$resources, 206L,
+                 "Current Guide must include all 206 published Resources")
+assert_identical(length(resource_registry), 211L,
+                 "Canonical Resource registry must validate all 211 records")
 assert_identical(raw_resource_registry$schema_version, 3L,
                  "Canonical Resource registry schema version changed")
-assert_identical(sum(registry_states == "published"), 200L,
+assert_identical(sum(registry_states == "published"), 206L,
                  "Canonical Resource registry published count changed")
 assert_identical(sum(registry_states == "staged"), 5L,
                  "Canonical Resource registry staged count changed")
@@ -148,19 +173,25 @@ assert_identical(
   "b76edaea607d39160f83855d3e8ab09d06dcf9e86fa0da6c7e732b45afdde807",
   "The exact five-record held staged registry contract changed"
 )
-assert_identical(length(r15c_target_registry), 133L,
-                 "R15C must publish exactly 133 target Resources")
+assert_identical(length(r15c_target_registry), 139L,
+                 "The post-baseline authority must publish exactly 139 Resources")
 assert_identical(
   digest::digest(paste0(paste(r15c_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
-  "ea8c2fab6c3679104195cc4db2c017821fdf77b285ab05db957451f7ea7580b6",
-  "The exact ordered R15C target Resource ID set changed"
+  "49e451cd07255cc589d5b4973dcedc03eed99bcd277a59f0270a375d8ef3c18d",
+  "The exact ordered R16B post-baseline Resource ID set changed"
 )
 assert_true(all(vapply(r15c_target_registry, function(record) {
   identical(record$publication_state, "published")
 }, logical(1))), "Every R15C target Resource must be published")
 assert_true(!any(r15b_rejected_canonical_ids %in% registry_ids),
             "A removed, duplicate, or subordinate R15B proposal remains canonical")
+assert_true(setequal(registry_ids[registry_ids %in% r16b_added_resource_ids],
+                     r16b_added_resource_ids) &&
+              sum(registry_ids %in% r16b_added_resource_ids) == 13L,
+            "The exact 13 R16B canonical additions changed")
+assert_true(!any(r16b_retired_resource_ids %in% registry_ids),
+            "An exact R16B merged Resource remains canonical")
 assert_identical(
   registry_ids[registry_ids %in% r15b_selected_replacement_ids],
   r15b_selected_replacement_ids,
@@ -168,8 +199,8 @@ assert_identical(
 )
 assert_identical(sum(vapply(r15c_target_registry, function(record) {
   !length(record$subject_tags)
-}, logical(1))), 15L,
-"The 15 approved empty target subject sets were not preserved for publication")
+}, logical(1))), 11L,
+"The precipitation micro-pass empty target subject-set count changed")
 assert_true(!"resource_nasa_nasa_grace_map_comparison_slider_viewer" %in% registry_ids,
             "The blocked GRACE comparison-slider access point became a Resource")
 assert_identical(sum(registry_ids == "resource_noaa_noaa_sea_level_rise_viewer_viewer"), 1L,
@@ -183,13 +214,13 @@ relationship_resource_representations <- vapply(
   },
   character(1)
 )
-assert_identical(length(relationship_registry$resources), 205L,
-                 "Relationship Resource authority must contain all 205 Resources")
+assert_identical(length(relationship_registry$resources), 211L,
+                 "Relationship Resource authority must contain all 211 Resources")
 assert_identical(unname(as.integer(table(factor(
   relationship_resource_representations,
   levels = c("direct_match_in_brim", "selected_products_in_brim",
              "not_currently_mapped_in_brim", "not_yet_reviewed")
-)))), c(3L, 20L, 177L, 5L),
+)))), c(3L, 23L, 180L, 5L),
 "Full relationship Resource representation counts changed")
 assert_identical(bundle$counts$updates, 3L,
                  "Current Guide must include the three verified Updates")
@@ -304,14 +335,49 @@ strip_r15b_authorized_access_point <- function(record) {
   }
   record
 }
+strip_r16b_existing_resource_access_points <- function(record) {
+  if (identical(record$id, "resource_usbr")) {
+    added_urls <- c(
+      "https://www.usbr.gov/main/water/",
+      "https://www.usbr.gov/mp/wateroperations.html"
+    )
+    record$access_points <- Filter(function(access_point) {
+      !access_point$url %in% added_urls
+    }, record$access_points)
+  }
+  record
+}
+precipitation_micro_pass_resource_ids <- c(
+  "resource_prism_normals",
+  "resource_cw3e_cw3e_micro_rain_radar_snow_levels_dashboard",
+  "resource_scwa_solano_county_flood_monitoring_map_viewer",
+  "resource_rcfcwcd_riverside_county_rainfall_map_viewer",
+  "resource_contra_costa_county_flood_control_and_wa_contra_costa_county_rainmap_viewer",
+  "resource_cocorahs_cocorahs_other",
+  "resource_lacpw_los_angeles_county_precipitation_data_platform",
+  "resource_marin_county_flood_control_marin_county_rainfall_and_creek_data_dashboards_collection",
+  "resource_santa_barbara_county_public_works_santa_barbara_county_real_time_hydrology_platform",
+  "resource_santa_cruz_county_flood_control_santa_cruz_county_hydrologic_monitoring_map_viewer",
+  "resource_napa_county_flood_control_napa_valley_rainfall_and_stream_monitoring_map_viewer"
+)
+strip_precipitation_micro_pass <- function(record) {
+  if (record$id %in% precipitation_micro_pass_resource_ids) {
+    record$subject_tags <- Filter(function(value) {
+      !identical(value, "Precipitation")
+    }, record$subject_tags)
+  }
+  record
+}
 assert_identical(
-  digest::digest(compact_json(raw_current_resources), algo = "sha256", serialize = FALSE),
+  digest::digest(compact_json(lapply(raw_current_resources, strip_precipitation_micro_pass)),
+                 algo = "sha256", serialize = FALSE),
   "a86067ab046b93a165fd5944f85079ca7140fbb34efc0d0add79b0921f260190",
   "A current published Resource changed from the accepted R9 baseline"
 )
 assert_identical(
   digest::digest(compact_json(lapply(
-    lapply(raw_newly_published, strip_r15b_authorized_access_point),
+    lapply(lapply(lapply(raw_newly_published, strip_r15b_authorized_access_point),
+           strip_r16b_existing_resource_access_points), strip_precipitation_micro_pass),
     strip_publication_state
   )),
                  algo = "sha256", serialize = FALSE),
@@ -510,10 +576,10 @@ metadata_counts <- function(values) {
 assert_identical(
   metadata_counts(vapply(bundle$resources, `[[`, character(1), "resourceType")),
   c(
-    analysis_tool = 9L, dashboard = 19L, data_portal_or_catalog = 71L,
+    analysis_tool = 9L, dashboard = 19L, data_portal_or_catalog = 81L,
     data_service_or_api = 8L, dataset_or_collection = 21L,
     documentation_or_guide = 2L, organization_homepage = 4L,
-    program_or_mission = 19L, report_or_publication = 15L,
+    program_or_mission = 21L, report_or_publication = 9L,
     viewer_or_explorer = 32L
   ),
   "Published Resource Type distribution changed"
@@ -522,8 +588,8 @@ assert_identical(
   metadata_counts(vapply(bundle$resources, `[[`, character(1), "temporalCharacter")),
   c(
     climatology_or_normals = 1L, current_or_near_real_time = 15L,
-    forecast = 2L, historical_archive = 7L, mixed = 18L,
-    static_reference = 9L, unknown = 148L
+    forecast = 2L, historical_archive = 7L, mixed = 31L,
+    static_reference = 10L, unknown = 140L
   ),
   "Published temporal-character distribution changed"
 )
@@ -531,8 +597,8 @@ assert_identical(
   metadata_counts(vapply(bundle$resources, function(resource) {
     resource$geographicScope$scopeType
   }, character(1))),
-  c(global = 46L, local = 46L, multi_state = 2L, multinational = 4L,
-    national = 64L, regional = 5L, state = 29L, unknown = 4L),
+  c(global = 46L, local = 42L, multi_state = 10L, multinational = 5L,
+    national = 66L, regional = 3L, state = 30L, unknown = 4L),
   "Published geographic-scope distribution changed"
 )
 assert_true(requireNamespace("digest", quietly = TRUE),
@@ -977,29 +1043,121 @@ exact_relationships <- unlist(lapply(bundle$products, function(product) {
 exact_relationship_roles <- vapply(
   exact_relationships, `[[`, character(1), "relationshipRole"
 )
-assert_identical(length(exact_relationships), 86L,
-                 "Projected Product relationships must contain exactly 86 rows")
+assert_identical(length(exact_relationships), 90L,
+                 "Projected Product relationships must contain exactly 90 rows")
 assert_identical(unname(as.integer(table(factor(
   exact_relationship_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 57L, 16L), "Projected Product relationship-role counts changed")
+)))), c(13L, 60L, 17L), "Projected Product relationship-role counts changed")
+d10_product <- bundle$products[[match("ops_cdec_reservoir_storage", product_ids)]]
+assert_identical(vapply(d10_product$relatedResources, `[[`, character(1), "id"),
+                 c("resource_dwr_cdec", r16b_spk_id),
+                 "D10 must preserve CDEC and add only the exact SPK source Resource")
+assert_identical(vapply(d10_product$relatedResources, `[[`, character(1),
+                        "relationshipRole"),
+                 c("selected_product_from_broader_resource", "source_reference"),
+                 "The compiled D10 relationship roles changed")
+spk_resource <- bundle$resources[[match(r16b_spk_id, expected_resource_ids)]]
+assert_identical(spk_resource$mapRepresentation, "selected_products_in_brim",
+                 "The SPK parent must be selected-products-in-BRIM")
+assert_true(any(vapply(spk_resource$representedProducts, function(product) {
+  identical(product$productId, "ops_cdec_reservoir_storage") &&
+    identical(product$relationshipRole, "source_reference")
+}, logical(1))), "The exact SPK reverse source relationship is missing")
+drought_product <- bundle$products[[match("ops_us_drought_monitor", product_ids)]]
+assert_identical(
+  lapply(drought_product$relatedResources, function(relationship) list(
+    id = relationship$id,
+    relationshipRole = relationship$relationshipRole,
+    deliveryClass = relationship$deliveryClass
+  )),
+  list(list(
+    id = "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+    relationshipRole = "selected_product_from_broader_resource",
+    deliveryClass = "brim_enhanced"
+  )),
+  "The compiled Drought.gov California relationship fixture changed"
+)
+cocorahs_products <- bundle$products[match(
+  c("product-ops-cocorahs-ca-daily", "ops_cocorahs_conus_daily"), product_ids
+)]
+assert_true(all(vapply(cocorahs_products, function(product) {
+  length(product$relatedResources) == 1L &&
+    identical(product$relatedResources[[1]]$id, "resource_cocorahs_cocorahs_other") &&
+    identical(product$relatedResources[[1]]$relationshipRole,
+              "selected_product_from_broader_resource") &&
+    identical(product$relatedResources[[1]]$deliveryClass, "brim_managed")
+}, logical(1))), "The compiled two-Product CoCoRaHS relationship fixture changed")
+california_water_watch_product_ids <- c("brim_mapped_conveyance", "ops_delta_snapshot")
+assert_true(all(vapply(bundle$products[match(california_water_watch_product_ids, product_ids)],
+                       function(product) !length(product$relatedResources), logical(1))),
+            "An unsupported California Water Watch Product relationship remains")
+cocorahs_resource <- bundle$resources[[match(
+  "resource_cocorahs_cocorahs_other", expected_resource_ids
+)]]
+drought_resource <- bundle$resources[[match(
+  "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+  expected_resource_ids
+)]]
+california_water_watch_resource <- bundle$resources[[match(
+  "resource_dwr_california_water_watch", expected_resource_ids
+)]]
+assert_identical(cocorahs_resource$mapRepresentation, "selected_products_in_brim",
+                 "CoCoRaHS Resource map representation changed")
+assert_identical(vapply(cocorahs_resource$representedProducts, `[[`, character(1), "productId"),
+                 c("product-ops-cocorahs-ca-daily", "ops_cocorahs_conus_daily"),
+                 "CoCoRaHS Resource must represent exactly the two maintained Products")
+assert_identical(drought_resource$mapRepresentation, "selected_products_in_brim",
+                 "Drought.gov California Resource map representation changed")
+assert_identical(vapply(drought_resource$representedProducts, `[[`, character(1), "productId"),
+                 "ops_us_drought_monitor",
+                 "Drought.gov California Resource must represent only U.S. Drought Monitor")
+assert_identical(california_water_watch_resource$mapRepresentation,
+                 "not_currently_mapped_in_brim",
+                 "California Water Watch must remain not currently mapped")
+assert_identical(length(california_water_watch_resource$representedProducts), 0L,
+                 "California Water Watch retained an unsupported represented Product")
+integrated_report_resource <- bundle$resources[[match(
+  "resource_swrcb_impaired_waters_and_tmdls_program", expected_resource_ids
+)]]
+assert_identical(integrated_report_resource$title,
+                 "California Integrated Reports & Impaired Waters",
+                 "The evergreen Integrated Report title changed")
+assert_identical(integrated_report_resource$canonicalUrl,
+                 paste0("https://www.waterboards.ca.gov/water_issues/programs/",
+                        "water_quality_assessment/"),
+                 "The evergreen Integrated Report action changed")
+assert_identical(integrated_report_resource$mapRepresentation,
+                 "selected_products_in_brim",
+                 "The Integrated Report map representation was not derived from exact links")
+assert_identical(
+  vapply(integrated_report_resource$representedProducts, `[[`, character(1), "productId"),
+  c("SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS"),
+  "The Integrated Report parent must represent exactly its two 2024 Products"
+)
+assert_true(all(vapply(integrated_report_resource$representedProducts, function(product) {
+  identical(product$relationshipRole, "selected_product_from_broader_resource")
+}, logical(1))), "An Integrated Report Product has the wrong relationship role")
+assert_true(!grepl("integrated2010.shtml", compact_json(integrated_report_resource),
+                   fixed = TRUE),
+            "The obsolete 2010 Integrated Report action entered the browser payload")
 resource_representation_ids <- function(value) vapply(Filter(function(resource) {
   identical(resource$mapRepresentation, value)
 }, bundle$resources), `[[`, character(1), "id")
 assert_identical(length(resource_representation_ids("direct_match_in_brim")), 3L,
                  "Direct-match Resource count changed")
-assert_identical(length(resource_representation_ids("selected_products_in_brim")), 20L,
+assert_identical(length(resource_representation_ids("selected_products_in_brim")), 23L,
                  "Selected-products Resource count changed")
-assert_identical(length(resource_representation_ids("not_currently_mapped_in_brim")), 177L,
+assert_identical(length(resource_representation_ids("not_currently_mapped_in_brim")), 180L,
                  "Not-currently-mapped Resource count changed")
 assert_true(all(vapply(bundle$resources, function(resource) {
   identical(resource$mapReviewState, "reviewed")
 }, logical(1))), "A published Resource lacks reviewed map-presence authority")
 reverse_relationships <- unlist(lapply(bundle$resources, `[[`, "representedProducts"),
                                 recursive = FALSE)
-assert_identical(length(reverse_relationships), 86L,
-                 "Resource reverse index must preserve all 86 exact rows")
+assert_identical(length(reverse_relationships), 90L,
+                 "Resource reverse index must preserve all 90 exact rows")
 baseline_rich_count <- 24L
 baseline_basic_count <- 246L
 baseline_editorial_count <- 0L
@@ -1129,7 +1287,7 @@ assert_true(any(vapply(bundle$products, function(product) length(product$subject
 subject_counts <- table(unlist(lapply(bundle$products, `[[`, "subjectTags"), use.names = FALSE))
 expected_subject_counts <- c(
   "Groundwater" = 40L, "Surface Water" = 54L, "Water Quality" = 7L,
-  "Snow & SWE" = 8L, "Soil Moisture" = 2L, "Precipitation" = 27L,
+  "Snow & SWE" = 8L, "Soil Moisture" = 2L, "Precipitation" = 28L,
   "Weather & Forecasts" = 54L, "Fire Weather" = 8L, "Climate & Drought" = 25L,
   "Fire & Burn Areas" = 12L, "Ecology & Habitat" = 34L, "Air Quality" = 6L,
   "Water Rights" = 4L, "Geology & Geophysics" = 12L,
@@ -1140,10 +1298,24 @@ assert_identical(as.integer(subject_counts[names(expected_subject_counts)]), unn
                  "Corrected Primary Subject counts changed")
 assert_true(all(subject_counts <= 0.25 * length(bundle$products)),
             "A Primary Subject exceeds the 25 percent focused-review threshold")
+precipitation_product_ids <- vapply(Filter(function(product) {
+  "Precipitation" %in% product$subjectTags
+}, bundle$products), `[[`, character(1), "id")
+assert_true(setequal(precipitation_product_ids, c(
+  "huc2", "huc4", "huc6", "huc8", "huc10", "huc12",
+  "cnrfc_precip_weather_station_catalog", "EXT140", "EXT142",
+  "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
+  "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day",
+  "ops_qpe_rfc_7day", "product-ops-cocorahs-ca-daily",
+  "ops_cocorahs_conus_daily", "ops_wpc_qpf_day_1", "ops_wpc_qpf_day_2",
+  "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
+  "ops_wpc_ero_day_1", "ops_cpc_6_10_precipitation",
+  "ops_cpc_8_14_precipitation", "product-ops-nbm-accumulated-qpf", "nbm_qpf"
+)), "The exact 28-Product Precipitation membership changed")
 subject_lengths <- lengths(lapply(bundle$products, `[[`, "subjectTags"))
 assert_identical(sum(subject_lengths == 0L), 8L, "Zero-subject Product count changed")
-assert_identical(sum(subject_lengths == 1L), 155L, "One-subject Product count changed")
-assert_identical(sum(subject_lengths > 1L), 107L, "Multi-subject Product count changed")
+assert_identical(sum(subject_lengths == 1L), 154L, "One-subject Product count changed")
+assert_identical(sum(subject_lengths > 1L), 108L, "Multi-subject Product count changed")
 subjectless_ids <- product_ids[subject_lengths == 0L]
 assert_true(setequal(subjectless_ids, c(
   "EPA_NPL_BOUNDARIES", "EPA_SEMS_POINTS", "EXT116", "EXT117",
@@ -1229,8 +1401,20 @@ integrated_report_ids <- c("SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS")
 assert_true(all(vapply(integrated_report_ids, function(id) {
   product <- record_by_id(bundle$products, id)
   setequal(product$subjectTags, c("Surface Water", "Water Quality")) &&
-    !"Groundwater" %in% product$subjectTags
+    !"Groundwater" %in% product$subjectTags &&
+    identical(product$subsystem, "External Layers") &&
+    identical(vapply(product$relatedResources, `[[`, character(1), "id"),
+              "resource_swrcb_impaired_waters_and_tmdls_program") &&
+    identical(vapply(product$relatedResources, `[[`, character(1), "relationshipRole"),
+              "selected_product_from_broader_resource")
 }, logical(1))), "SWRCB Integrated Report taxonomy is not exact Water Quality and Surface Water")
+assert_identical(
+  vapply(bundle$products[grepl("Integrated Report", vapply(
+    bundle$products, `[[`, character(1), "title"
+  ), fixed = TRUE)], `[[`, character(1), "id"),
+  integrated_report_ids,
+  "The complete 270-Product universe has an unexpected Integrated Report Product"
+)
 multiagency_streamflow <- record_by_id(bundle$products, "ops_streamflow_multiagency")
 assert_identical(multiagency_streamflow$subjectTags, "Surface Water",
                  "Multi-agency streamflow inherited an unrelated Snow & SWE subject")
@@ -1426,10 +1610,9 @@ resource_payload_json <- jsonlite::toJSON(
 )
 assert_identical(
   digest::digest(resource_payload_json, algo = "sha256", serialize = FALSE),
-  "8e59fd165289b2389d70f37f384b274cdea8f2b6ebc51ceb198c8fb9af8e4172",
+  "789f04153e8573ede69d7b17fc628fd56b29d174a5aa77f43388243525f1ff26",
   paste0(
-    "The exact R15C 200-Resource browser payload changed; ",
-    "held identity, metadata, search, count, or facet leakage is possible"
+    "The exact R16B precipitation-micro-pass 206-Resource browser payload changed"
   )
 )
 staged_migration_aliases <- unlist(lapply(staged_registry, function(record) {
@@ -1739,9 +1922,9 @@ baseline_payload_bytes <- 313498L
 payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
-assert_true(payload_bytes <= 800000L, "R15C default Guide payload exceeds hard review threshold")
+assert_true(payload_bytes <= 825000L, "R16B default Guide payload exceeds hard review threshold")
 assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 500000L,
-            "GUIDE-I2B-R15C embedded payload growth exceeds the preferred review threshold")
+            "GUIDE-I2B-R16B embedded payload growth exceeds the preferred review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
             "Machine-local path leaked into Guide payload")
@@ -1752,7 +1935,7 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R15C target-200 publication foundation contracts passed.\n")
+cat("GUIDE-I2B-R16B balanced catalog foundation contracts passed.\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -1760,16 +1943,16 @@ cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
-cat("REGISTRY_RESOURCES=205_TOTAL,200_PUBLISHED,5_STAGED\n")
-cat("R15C_PUBLICATION_TARGET_RESOURCES=133\n")
+cat("REGISTRY_RESOURCES=211_TOTAL,206_PUBLISHED,5_STAGED\n")
+cat("R16B_CANONICAL_CHANGES=13_ADDED,7_MERGED,123_ACCESS_POINTS\n")
 cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
 cat("R15B_ACCESS_POINT_ADDITIONS=4\n")
 cat("R15B_TOTAL_URL_BEARING_FIELDS_CHANGED=82\n")
 cat("USBR_PROJECTED_ACTION=https://www.usbr.gov/\n")
-cat("EXACT_RELATIONSHIP_ROWS=86\n")
-cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,57_SELECTED,16_SOURCE_REFERENCE\n")
-cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,20_SELECTED,177_NOT_MAPPED\n")
-cat("RESOURCE_PRESET_COUNTS=23_IN_BRIM_MAP,177_BEYOND_THE_MAP,200_ALL\n")
+cat("EXACT_RELATIONSHIP_ROWS=90\n")
+cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,60_SELECTED,17_SOURCE_REFERENCE\n")
+cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,23_SELECTED,180_NOT_MAPPED\n")
+cat("RESOURCE_PRESET_COUNTS=26_IN_BRIM_MAP,180_BEYOND_THE_MAP,206_ALL\n")
 cat("STAGED_RESOURCE_LEAKAGE=0\n")
 cat("NEWLY_PUBLISHED_IDS_IN_CANONICAL_ORDER=PASS\n")
 cat("WAVE2_INFORMATION_TYPE_INFERENCE=NONE\n")

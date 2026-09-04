@@ -1278,29 +1278,11 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
-      "coverage_evidence_refs": [
-        "00_config/config_local_layer_registry.r",
-        "05_map_build/02_build_core_map_cache.r",
-        "00_config/config_map_display.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r"
-      ],
-      "resource_links": [
-        {
-          "resource_id": "resource_dwr_california_water_watch",
-          "relationship_role": "selected_product_from_broader_resource",
-          "evidence_refs": [
-            "00_config/config_local_layer_registry.r",
-            "05_map_build/02_build_core_map_cache.r",
-            "00_config/config_map_display.r",
-            "00_config/guide_product_enrichment.json",
-            "03_functions/leaflet_guide_helpers.r"
-          ]
-        }
-      ]
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
     },
     {
       "product_id": "wild_scenic_rivers_blm_ca_lines",
@@ -3078,11 +3060,27 @@
         "qa/test_guide_foundation.R",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_swrcb_impaired_waters_and_tmdls_program",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "SWRCB_2024_IR_POLYGONS",
@@ -3095,11 +3093,27 @@
         "qa/test_guide_foundation.R",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_product_enrichment.json",
+        "00_config/guide_product_resource_relationships.json",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_swrcb_impaired_waters_and_tmdls_program",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_product_enrichment.json",
+            "00_config/guide_product_resource_relationships.json",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT005",
@@ -4590,31 +4604,11 @@
         "03_functions/leaflet_guide_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
-      "coverage_evidence_refs": [
-        "03_functions/leaflet_ops_live_delta_ops_helpers.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "00_config/config_map_display.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
-      ],
-      "resource_links": [
-        {
-          "resource_id": "resource_dwr_california_water_watch",
-          "relationship_role": "selected_product_from_broader_resource",
-          "evidence_refs": [
-            "03_functions/leaflet_ops_live_delta_ops_helpers.r",
-            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-            "00_config/config_map_display.r",
-            "00_config/guide_product_enrichment.json",
-            "03_functions/leaflet_guide_helpers.r",
-            "qa/test_guide_foundation.R"
-          ]
-        }
-      ]
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
     },
     {
       "product_id": "ops_streamflow_usgs_ca",
@@ -4856,6 +4850,15 @@
             "03_functions/leaflet_guide_helpers.r",
             "03_functions/leaflet_ops_live_helpers.r"
           ]
+        },
+        {
+          "resource_id": "resource_usace_sacramento_district_water_control_data_system",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_reservoir_helpers.r",
+            "00_config/guide_resources.json",
+            "00_config/guide_product_resource_relationships.json"
+          ]
         }
       ]
     },
@@ -4965,11 +4968,29 @@
         "00_config/config_map_display.r",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_cocorahs_cocorahs_other",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/config_map_display.r",
+            "03_functions/leaflet_guide_helpers.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_cocorahs_conus_daily",
@@ -4981,11 +5002,31 @@
         "03_functions/leaflet_guide_helpers.r",
         "03_functions/leaflet_ops_live_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_cocorahs_cocorahs_other",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_cocorahs_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/config_map_display.r",
+            "03_functions/leaflet_guide_helpers.r",
+            "03_functions/leaflet_ops_live_helpers.r",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_qpf_day_1",
@@ -5263,11 +5304,33 @@
         "03_functions/leaflet_guide_helpers.r",
         "08_docs/catalog/BRIM_LAYER_CATALOG.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "maintainer_clarification",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_service_helpers.r",
+            "00_config/guide_product_enrichment.json",
+            "03_functions/leaflet_guide_helpers.r",
+            "08_docs/catalog/BRIM_LAYER_CATALOG.csv",
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_cpc_6_10_temperature",
@@ -6113,18 +6176,15 @@
     {
       "resource_id": "resource_dwr_california_water_watch",
       "map_review_state": "reviewed",
-      "map_representation": "selected_products_in_brim",
+      "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
-        "00_config/guide_product_resource_relationships.json",
         "00_config/guide_resources.json",
-        "00_config/config_local_layer_registry.r",
-        "05_map_build/02_build_core_map_cache.r",
-        "00_config/config_map_display.r",
+        "00_config/guide_product_resource_relationships.json",
         "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r",
-        "03_functions/leaflet_ops_live_delta_ops_helpers.r",
+        "00_config/external_service_catalog.csv",
+        "00_config/config_local_layer_registry.r",
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "qa/test_guide_foundation.R"
+        "03_functions/leaflet_ops_live_service_helpers.r"
       ]
     },
     {
@@ -6734,17 +6794,12 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_warm_springs_dam_lake_sonoma_hourly_data_product",
+      "resource_id": "resource_usace_sacramento_district_water_control_data_system",
       "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
+      "map_representation": "selected_products_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -7282,15 +7337,15 @@
     {
       "resource_id": "resource_cocorahs_cocorahs_other",
       "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
+      "map_representation": "selected_products_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
         "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
+        "03_functions/leaflet_ops_live_cocorahs_helpers.r",
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/config_map_display.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "03_functions/leaflet_ops_live_helpers.r"
       ]
     },
     {
@@ -7336,17 +7391,12 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_terminus_dam_lake_kaweah_hourly_data_product",
+      "resource_id": "resource_usace_usace_water_management_data_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -7910,17 +7960,12 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_hidden_dam_hensley_lake_hourly_data_product",
+      "resource_id": "resource_usace_los_angeles_district_water_management_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -8148,17 +8193,12 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_sacramento_river_clear_creek_hourly_data_product",
+      "resource_id": "resource_usbr_central_valley_operations_office_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -8232,17 +8272,12 @@
       ]
     },
     {
-      "resource_id": "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product",
+      "resource_id": "resource_usbr_lower_colorado_river_operations",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -8274,17 +8309,12 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_farmington_dam_hourly_data_product",
+      "resource_id": "resource_usbr_upper_colorado_basin_water_operations",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
       ]
     },
     {
@@ -8402,15 +8432,12 @@
     {
       "resource_id": "resource_swrcb_impaired_waters_and_tmdls_program",
       "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
+      "map_representation": "selected_products_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
         "00_config/guide_product_resource_relationships.json",
         "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/external_service_catalog.csv"
       ]
     },
     {
@@ -8430,7 +8457,7 @@
     {
       "resource_id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
       "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
+      "map_representation": "selected_products_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
         "00_config/guide_product_resource_relationships.json",
@@ -8456,17 +8483,66 @@
       ]
     },
     {
-      "resource_id": "resource_usace_usace_pine_flat_lake_hourly_data_product",
+      "resource_id": "resource_usbr_colorado_river_basin_hub",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_klamath_project_water_operations_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_truckee_river_operating_agreement_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_reclamation_information_sharing_environment_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_central_valley_project_water_supply_program",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_reclamation_hydromet_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_reclamation_agrimet_platform",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json"
       ]
     }
   ]

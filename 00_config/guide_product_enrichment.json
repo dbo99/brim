@@ -1994,7 +1994,8 @@
       "stable_id": "ops_wpc_ero_day_1",
       "summary": "Weather Prediction Center Day 1 Excessive Rainfall Outlook polygons for current short-range rainfall-risk screening.",
       "subject_tags": [
-        "Weather & Forecasts"
+        "Weather & Forecasts",
+        "Precipitation"
       ],
       "information_type_tags": [
         "Forecast / Outlook"

@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 205 Resource records: 200 published and five staged;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 211 Resource records: 206 published and five staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -65,8 +65,8 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v3 dataset with 205 ordered
-Resource records: 200 published and five staged. R14 appended the exact 133
+`guide_resources.json` is one canonical schema-v3 dataset with 211 ordered
+Resource records: 206 published and five staged. R14 appended the exact 133
 R13-rebased target-200 candidates as staged records, and R15C publishes that
 complete tranche by changing only `publication_state` after fresh bounded
 verification of all 133 exact canonical URLs.
@@ -93,7 +93,7 @@ a public facet.
 Resource relationship and Resource map-representation authority. Its
 schema-version-2 Product and Resource arrays must equal the complete compiled
 Product universe and canonical Resource universe exactly—currently 270 Product
-records and 205 Resource review/representation records. Every Product
+records and 211 Resource review/representation records. Every Product
 independently declares delivery classification, coverage review state, an
 optional reviewed coverage disposition, evidence, and zero or more exact
 canonical Resource links. Every Resource has exactly one map-review record;
@@ -105,25 +105,33 @@ have zero links; no fake Resource is required.
 
 The compiler validates exact Product/Resource set equality, controlled values,
 evidence paths, disposition and representation cardinality, duplicates, and
-every link against the complete 205-Resource registry. The current authority has
-70 reviewed and 200 not-yet-reviewed Products with 86 exact links: 13 direct,
-57 selected-product, and 16 source-reference roles. The three DWR/TRE Altamira
+every link against the complete 211-Resource registry. The current authority has
+73 reviewed and 197 not-yet-reviewed Products with 90 exact links: 13 direct,
+60 selected-product, and 17 source-reference roles. The three DWR/TRE Altamira
 Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
-multiple-source composite. The unresolved intake remains deferred: 147 Products
-await missing canonical Resource identity, three await identity/family split,
-and the lower-priority packet remains 42 families / 55 Products. Staged Resource
-records remain canonical but are removed before browser projection.
-Across all 205 Resource review records, representation is exactly three direct,
-20 selected-products, 177 not currently mapped, and five not yet reviewed. The
+multiple-source composite. The unresolved intake remains deferred under its
+existing evidence packets. Staged Resource records remain canonical but are
+removed before browser projection.
+Across all 211 Resource review records, representation is exactly three direct,
+23 selected-products, 180 not currently mapped, and five not yet reviewed. The
 133 R14 additions are all reviewed as not currently mapped and R14 applies no
-Product-link action, preserving 270 Products and 86 canonical links.
+Product-link action, preserving 270 Products and 86 canonical links at that
+stage. The base R16B batch adds one exact SPK source-reference link. The
+consolidated visual-review correction adds three exact selected-product links
+for Drought.gov California and CoCoRaHS, removes two unsupported
+provider-similarity links from California Water Watch, and leaves California
+Water Watch not currently mapped. The final currentness correction links the
+exact 2024 Integrated Report line and polygon Products to their evergreen
+statewide Surface Water Quality Assessment parent; the complete Product
+authority contains no 2026 Integrated Report Product. Current relationship
+authority is therefore 270 Products and 90 canonical links.
 
 `guide_product_enrichment.json` owns editorial Product content only and no
 longer owns or supplies Resource relationships. Relationships and map presence
 are never inferred from Resource text, providers, URLs, publication, or
 geographic intersection. All temporary R12A relationship objects and the
 compiler adapter are absent; permanent compatibility shadow, dual authority,
-and fallback are prohibited. The browser receives the 200 published records in
+and fallback are prohibited. The browser receives the 206 published records in
 registry order with one exact 23-field shape: identity and reviewed descriptive
 fields, labeled access points, Resource Type and temporal machine IDs with
 controlled labels, geography scope ID/label plus named places, reviewed map
@@ -135,7 +143,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The five staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 23 `In BRIM map`, 177 `Beyond the map`, and 200 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The five staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 26 `In BRIM map`, 180 `Beyond the map`, and 206 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -154,13 +162,24 @@ destination is a gateway with exactly three actions: open Resources represented
 in the BRIM map, explore Resources beyond the map, or search all Resources. Its orientation copy
 distinguishes A · Explore—Products available through BRIM—from C · Resources,
 which contains datasets, viewers, portals, official sources, and supporting
-libraries linked to BRIM or useful beyond it. The Explorer uses a
+libraries linked to BRIM or useful beyond it. While that gateway is active, the
+shared utility search has a Resource-specific label and placeholder. Focus or
+whitespace alone leaves the gateway in place; the first non-whitespace input
+opens `All Resources` with the complete query and input focus preserved under
+C · Resources. Later keystrokes and query clearing stay within that Explorer
+view, and its Back action restores the Resource gateway. Explicit entry into
+any of the three Resource views retains the same in-view search behavior. The
+shared utility bar binds its visible query, filter tokens, counts, clear
+actions, and routing to the active top-level section. Inactive A · Explore
+Product filters may be preserved privately but are hidden and inactive in C ·
+Resources; C-owned Resource filters clear without routing into A · Explore.
+The Explorer uses a
 64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
 and a measured one-pane search/results, facets, or detail flow at narrow width.
-Its three primary views appear in the exact order `In BRIM map` (23), `Beyond
-the map` (177), and `All Resources` (200). Membership derives only from each
-Resource's reviewed `map_representation`: three direct matches plus 20 selected-
-products Resources form `In BRIM map`, while 177 not-currently-mapped Resources
+Its three primary views appear in the exact order `In BRIM map` (26), `Beyond
+the map` (180), and `All Resources` (206). Membership derives only from each
+Resource's reviewed `map_representation`: three direct matches plus 23 selected-
+products Resources form `In BRIM map`, while 180 not-currently-mapped Resources
 form `Beyond the map`. The primary views form one
 mutually exclusive radio-style control, selecting one replaces the prior view,
 and primary-view changes do not create chips or clear secondary refinements.
@@ -221,7 +240,7 @@ left Refine framework remain stationary.
 Narrow layouts keep the shared one-pane results, filters, or detail flow and use
 the Guide main region as that pane's scroll owner rather than adopting the
 desktop split-scroll hierarchy. Results initially reveal 25; repeated `Show
-more` activation reveals further 25-record increments until all 200 are
+more` activation reveals further 25-record increments until all 206 are
 reachable, without pagination, virtualization, or hundreds of hidden startup
 cards.
 Only the selected Resource renders full metadata, exact related Products, and
@@ -269,6 +288,42 @@ endpoint monitoring. CDEC Reservoir Conditions, the Napa OneRain
 root, iSnobal, and the Santa Barbara map route are each retained exactly once
 as a configured subordinate or alternate access point on the canonical parent
 Resource; none remains as a separate canonical proposal in the revised target.
+
+GUIDE-I2B-R16B implements the balanced USACE/USBR parent-and-access-point
+model. It adds exactly 13 published canonical Resources, merges seven exact
+over-granular cards into their parents, and adds 123 curated access points with
+the approved family counts. Six retired Sacramento District cards remain
+discoverable through stable-ID aliases and truthfully labeled current or
+legacy/standby child actions on the Sacramento District Water Control Data
+System; the retired 2024 Long-Term Operations Record of Decision remains one
+child action of the existing LTO program. Report code `scc` is labeled
+`Success Dam & Lake`, and the false Sacramento River / Clear Creek phrase is
+not public search metadata. Water Control Manuals remains absent as a held
+empty-collection candidate.
+
+The base R16B Product relationship is the exact source-code-to-child-URL
+crosswalk-proven `source_reference` from `ops_cdec_reservoir_storage` to the
+Sacramento District parent. Its existing CDEC relationship and the two existing
+USBR links are preserved. The Sacramento parent is reviewed as
+`selected_products_in_brim`; the other 12 additions are reviewed as
+`not_currently_mapped_in_brim`. The consolidated visual-review correction adds
+the exact Drought.gov California and two CoCoRaHS selected-product links and
+removes the two unsupported California Water Watch links. Current authority is
+therefore 211 Resources, 206 published, five staged, 270 Products, 211
+relationship Resource records, and 90 canonical links. The final currentness
+correction retains the stable statewide Integrated Report Resource, replaces
+its obsolete 2010 action with the evergreen Water Boards assessment-program
+page, adds accurate 2024 and 2026 cycle actions, and links its exact 2024 line
+and polygon Products; no 2026 Product exists in the current 270-Product
+authority. The public views are 26 / 180 / 206. Resource indexing and matching semantics remain unchanged:
+truthful access-point labels plus curated
+`search_aliases` preserve reservoir, project, Section 7, regional, program, and
+legacy names without indexing URLs or stable IDs. The 123-child distribution
+is 30 Sacramento WCDS, five Los Angeles water management, 50 CVO, two national
+or regional directories, one LTO decision, five Lower Colorado, six Upper
+Colorado, three Colorado Basin hub, three Klamath, two Truckee/TROA, five RISE,
+three CVP Water Supply, four Hydromet, and four AgriMet; CVO retains 42
+searchable/user-facing and eight ordinary accounting/derived actions.
 
 V4 behavior includes Home reset, Escape/close/focus restoration, typed stable-ID Quick Access, and combined visible facets over BRIM section, multi-valued subject tags, and multi-valued `Information Type` tags. Layer details show `Find in layer list` only for a verified navigable path and otherwise use a source-backed layer-purpose summary; Tool details show `What this tool does` plus `How to open it` only when a current UI control is verified. The maintained information-type metadata vocabulary is `Static Reference`, `Live Observation`, `Forecast / Outlook`, `Model / Simulation`, `Historical Context`, `Screening / Derived`, `External On-Demand Service`, and `Tool / Workflow`; the last remains Tools metadata but is not a permanent browse choice. `Model / Simulation` is assigned only to exact verified model or simulation systems and can coexist with forecast, observation, historical, or screening metadata. User-facing result types distinguish Layer, Tool, Collection, Method, Resource, and Update while the internal Product umbrella remains unchanged. Result secondary lines are generic by entity: Layers use a verified path or purpose, Tools use an action summary, and Collections use exact member scope. Search is deterministic and gives precedence to exact titles and reviewed aliases, then explicit subject and Information Type tags, provider/program, reviewed capability terms, concise source-supported summaries, related Resource titles, and conservative title/alias typo recovery. Ordinary search does not tokenize broad group/subgroup labels, BRIM path components, Product family labels, runtime IDs, raw URLs, controller variables, DOM text, or editorial source references. Exact complete normalized BRIM paths remain discoverable through a separate equality check rather than ordinary token indexing.
 

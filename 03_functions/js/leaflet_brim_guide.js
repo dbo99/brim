@@ -617,6 +617,12 @@ function(el, x, data) {
   };
   var pendingResourceResultAlignment = '';
 
+  function guideFilterOwner(section) {
+    if (section === 'explore') return 'products';
+    if (section === 'resources') return 'resources';
+    return '';
+  }
+
   function normalize(value) {
     return String(value || '')
       .normalize('NFKD')
@@ -956,15 +962,23 @@ function(el, x, data) {
     main.scrollTop = saved.scrollTop || 0;
   }
 
-  function setSearchPresentation(resourceMode) {
-    searchLabel.textContent = resourceMode
-      ? 'Search Resources'
-      : 'Search layers, tools, methods, resources, and updates';
-    searchInput.placeholder = resourceMode
-      ? 'Search titles, providers, subjects, variables, and places'
-      : 'Search layers, tools, methods, resources, and updates';
+  function setSearchPresentation(resourceMode, resourceGatewayMode) {
+    searchLabel.textContent = resourceGatewayMode
+      ? 'Search Resource titles, providers, subjects, variables, and places'
+      : (resourceMode
+        ? 'Search Resources'
+        : 'Search layers, tools, methods, resources, and updates');
+    searchInput.placeholder = resourceGatewayMode
+      ? 'Search Resource titles, providers, subjects, variables, and places'
+      : (resourceMode
+        ? 'Search titles, providers, subjects, variables, and places'
+        : 'Search layers, tools, methods, resources, and updates');
     searchInput.setAttribute('aria-label', searchLabel.textContent);
-    if (resourceMode) searchInput.setAttribute('data-guide-focus-key', 'resource-search');
+    if (resourceGatewayMode) {
+      searchInput.setAttribute('data-guide-focus-key', 'resource-gateway-search');
+    } else if (resourceMode) {
+      searchInput.setAttribute('data-guide-focus-key', 'resource-search');
+    }
     else searchInput.removeAttribute('data-guide-focus-key');
     searchInput.value = resourceMode ? state.resourceExplorer.query : state.query;
   }
@@ -1442,6 +1456,22 @@ function(el, x, data) {
     return element;
   }
 
+  function resourceCountText(count) {
+    var numericCount = Math.max(0, Number(count) || 0);
+    return numericCount + (numericCount === 1 ? ' Resource' : ' Resources');
+  }
+
+  function appendResourceFacetLabel(control, label, count) {
+    control.appendChild(node(
+      'span', 'brim-guide__resource-facet-label', label
+    ));
+    var badge = node(
+      'span', 'brim-guide__resource-facet-count', String(Math.max(0, Number(count) || 0))
+    );
+    badge.setAttribute('aria-hidden', 'true');
+    control.appendChild(badge);
+  }
+
   function renderResourceGateway() {
     var fragment = document.createDocumentFragment();
     var gatewayState = resourceExplorerModel.createState();
@@ -1498,16 +1528,18 @@ function(el, x, data) {
     choices.setAttribute('aria-label', label);
     sortedCountKeys(counts).forEach(function(optionValue) {
       var selected = optionValue === value;
+      var count = counts[optionValue];
       var choice = button(
         'brim-guide__resource-choice',
-        optionValue + ' ' + counts[optionValue],
+        '',
         'resource-facet-choice',
-        label + ': ' + optionValue + ', ' + counts[optionValue] + ' Resources'
+        label + ': ' + optionValue + ', ' + resourceCountText(count)
       );
       choice.setAttribute('data-resource-field', field);
       choice.setAttribute('data-resource-value', optionValue);
       choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
       choice.classList.toggle('is-selected', selected);
+      appendResourceFacetLabel(choice, optionValue, count);
       resourceFocusKey(
         choice,
         'resource-facet-' + field + '-' +
@@ -1901,14 +1933,16 @@ function(el, x, data) {
       var count = counts.presets[preset.id] || 0;
       var presetButton = button(
         'brim-guide__resource-preset',
-        preset.label + ' ' + count,
-        'resource-preset'
+        '',
+        'resource-preset',
+        preset.label + ', ' + resourceCountText(count)
       );
       presetButton.setAttribute('data-resource-preset', preset.id);
       presetButton.setAttribute('role', 'radio');
       presetButton.setAttribute('aria-checked', resourceState.preset === preset.id ? 'true' : 'false');
       presetButton.tabIndex = resourceState.preset === preset.id ? 0 : -1;
       presetButton.classList.toggle('is-selected', resourceState.preset === preset.id);
+      appendResourceFacetLabel(presetButton, preset.label, count);
       resourceFocusKey(presetButton, 'resource-preset-' + preset.id);
       presets.appendChild(presetButton);
     });
@@ -2159,14 +2193,16 @@ function(el, x, data) {
 
   function render(preserveResourceScroll) {
     var resourceMode = state.view === 'resource-explorer';
+    var resourceGatewayMode = state.section === 'resources' && state.view === 'landing';
+    var filterOwner = guideFilterOwner(state.section);
     if (resourceMode && preserveResourceScroll !== false) {
       captureResourceScrollPositions();
     }
     root.classList.toggle('brim-guide--resource-explorer', resourceMode);
     resourceSpine.hidden = !resourceMode;
-    setSearchPresentation(resourceMode);
+    setSearchPresentation(resourceMode, resourceGatewayMode);
     activeNav();
-    if (resourceMode) {
+    if (filterOwner !== 'products') {
       activeSummary.replaceChildren();
       activeSummary.hidden = true;
     } else {
@@ -2306,6 +2342,7 @@ function(el, x, data) {
     state.view = 'resource-explorer';
     state.resourceExplorer = resourceExplorerModel.createState({
       preset: options.preset || 'all_resources',
+      query: String(options.query || ''),
       productContextId: options.productContextId || '',
       sortMode: options.productContextId ? 'relevance' : '',
       focusKey: options.focusSearch ? 'resource-search' : 'resource-facets-toggle'
@@ -2550,6 +2587,18 @@ function(el, x, data) {
     }
   }
 
+  function resourceGatewaySearchOptions(section, view, query) {
+    var exactQuery = String(query || '');
+    if (section !== 'resources' || view !== 'landing' || !/\S/.test(exactQuery)) {
+      return null;
+    }
+    return {
+      preset: 'all_resources',
+      query: exactQuery,
+      focusSearch: true
+    };
+  }
+
   function handleSearchInput(event) {
     if (state.view === 'resource-explorer') {
       state.resourceExplorer = resourceExplorerModel.setQuery(
@@ -2558,6 +2607,14 @@ function(el, x, data) {
       render();
       return;
     }
+    var gatewayOptions = resourceGatewaySearchOptions(
+      state.section, state.view, event.target.value
+    );
+    if (gatewayOptions) {
+      openResourceExplorer(gatewayOptions, event.target);
+      return;
+    }
+    if (state.section === 'resources' && state.view === 'landing') return;
     state.section = 'explore';
     state.view = 'landing';
     state.query = event.target.value;
