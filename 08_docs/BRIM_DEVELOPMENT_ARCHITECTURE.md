@@ -106,8 +106,8 @@ have zero links; no fake Resource is required.
 The compiler validates exact Product/Resource set equality, controlled values,
 evidence paths, disposition and representation cardinality, duplicates, and
 every link against the complete 211-Resource registry. The current authority has
-73 reviewed and 197 not-yet-reviewed Products with 90 exact links: 13 direct,
-60 selected-product, and 17 source-reference roles. The three DWR/TRE Altamira
+75 reviewed and 195 not-yet-reviewed Products with 94 exact links: 13 direct,
+62 selected-product, and 19 source-reference roles. The three DWR/TRE Altamira
 Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
 multiple-source composite. The unresolved intake remains deferred under its
 existing evidence packets. Staged Resource records remain canonical but are
@@ -123,8 +123,26 @@ provider-similarity links from California Water Watch, and leaves California
 Water Watch not currently mapped. The final currentness correction links the
 exact 2024 Integrated Report line and polygon Products to their evergreen
 statewide Surface Water Quality Assessment parent; the complete Product
-authority contains no 2026 Integrated Report Product. Current relationship
-authority is therefore 270 Products and 90 canonical links.
+authority contains no 2026 Integrated Report Product. The CNRFC relationship
+review adds selected-product links for the Local river/reservoir and weather
+station catalogs and source-reference links for the Ops major water-supply and
+reservoir-storage Products. The CNRFC Resource consequently represents exactly
+seven current Products, while the public Resource views remain 26 in BRIM map,
+180 beyond the map, and 206 all. Current relationship authority is therefore
+270 Products and 94 canonical links, covering 70 Products and 26 Resources.
+
+BRIM's CNRFC FNF display geometries were created by grouping and dissolving
+downloadable CNRFC subbasin geometries outside the current scripted
+preprocessing pipeline. The current pipeline reads and generalizes the
+prepared geometry while retaining river, reservoir, and CNRFC/NWS identifiers.
+Where CDEC and CNRFC FNF products represent the same river-reservoir system,
+BRIM uses a common display geometry; minor differences in agency watershed
+delineations are not represented separately. These are BRIM's final grouped
+display geometries; CNRFC provides the downloadable source subbasins and the
+forecast/FNF context. The current preprocessor does not reconstruct the
+original grouping or dissolve, and the exact historical GIS toolchain is not
+established. BRIM does not assert that CDEC and CNRFC FNF values or source
+boundaries are always identical.
 
 `guide_product_enrichment.json` owns editorial Product content only and no
 longer owns or supplies Resource relationships. Relationships and map presence
@@ -308,9 +326,15 @@ USBR links are preserved. The Sacramento parent is reviewed as
 `selected_products_in_brim`; the other 12 additions are reviewed as
 `not_currently_mapped_in_brim`. The consolidated visual-review correction adds
 the exact Drought.gov California and two CoCoRaHS selected-product links and
-removes the two unsupported California Water Watch links. Current authority is
+removes the two unsupported California Water Watch links. The CNRFC relationship
+review preserves every existing Product link and adds exactly four:
+`cnrfc_stream` and `cnrfc_precip_weather_station_catalog` select the broader
+CNRFC Resource, while `ops_major_water_supply_forecasts` and
+`ops_cdec_reservoir_storage` gain CNRFC source references. Current authority is
 therefore 211 Resources, 206 published, five staged, 270 Products, 211
-relationship Resource records, and 90 canonical links. The final currentness
+relationship Resource records, and 94 canonical links: 13 direct, 62 selected,
+and 19 source-reference roles. The 94 links cover 70 Products and 26 Resources.
+The final currentness
 correction retains the stable statewide Integrated Report Resource, replaces
 its obsolete 2010 action with the evergreen Water Boards assessment-program
 page, adds accurate 2024 and 2026 cycle actions, and links its exact 2024 line

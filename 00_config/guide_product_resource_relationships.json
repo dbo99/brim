@@ -705,11 +705,31 @@
         "00_config/config_map_display.r",
         "00_config/config_source_files.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "00_config/config_source_files.r",
+        "02_preprocess/03_cnrfc_stream_gages.r",
+        "03_functions/leaflet_layer_local_cnrfc_helpers.r",
+        "05_map_build/02_build_core_map_cache.r",
+        "05_map_build/04_build_portatreasure2_core_map.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "00_config/config_source_files.r",
+            "02_preprocess/03_cnrfc_stream_gages.r",
+            "03_functions/leaflet_layer_local_cnrfc_helpers.r",
+            "05_map_build/02_build_core_map_cache.r",
+            "05_map_build/04_build_portatreasure2_core_map.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "cnrfc_precip_weather_station_catalog",
@@ -721,11 +741,31 @@
         "02_preprocess/54_build_cnrfc_precip_weather_link_availability.R",
         "02_preprocess/59_update_cnrfc_local_blm_distance_fields.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "reviewed_evidence",
+      "coverage_evidence_refs": [
+        "00_config/config_local_layer_registry.r",
+        "02_preprocess/04_cnrfc_precip_gages.r",
+        "02_preprocess/54_build_cnrfc_precip_weather_link_availability.R",
+        "02_preprocess/55_build_cnrfc_precip_weather_precip_timeseries_availability.R",
+        "03_functions/leaflet_layer_local_cnrfc_helpers.r",
+        "05_map_build/04_build_portatreasure2_core_map.r"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "00_config/config_local_layer_registry.r",
+            "02_preprocess/04_cnrfc_precip_gages.r",
+            "02_preprocess/54_build_cnrfc_precip_weather_link_availability.R",
+            "02_preprocess/55_build_cnrfc_precip_weather_precip_timeseries_availability.R",
+            "03_functions/leaflet_layer_local_cnrfc_helpers.r",
+            "05_map_build/04_build_portatreasure2_core_map.r"
+          ]
+        }
+      ]
     },
     {
       "product_id": "usgs_streamgages",
@@ -4813,6 +4853,21 @@
             "00_config/major_water_supply_basin_geometry_catalog.csv",
             "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r"
           ]
+        },
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_map_display.r",
+            "00_config/major_water_supply_basin_geometry_catalog.csv",
+            "00_config/major_water_supply_basin_product_mapping.csv",
+            "02_preprocess/52_build_cnrfc_basin_product_availability.R",
+            "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R",
+            "02_preprocess/69_build_major_water_supply_basin_geometry.R",
+            "03_functions/leaflet_ops_live_helpers.r",
+            "03_functions/leaflet_ops_live_major_water_supply_basin_helpers.r",
+            "05_map_build/04_build_portatreasure2_core_map.r"
+          ]
         }
       ]
     },
@@ -4858,6 +4913,19 @@
             "03_functions/leaflet_ops_live_reservoir_helpers.r",
             "00_config/guide_resources.json",
             "00_config/guide_product_resource_relationships.json"
+          ]
+        },
+        {
+          "resource_id": "resource_noaa_cnrfc",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/config_map_display.r",
+            "00_config/major_water_supply_basin_reservoir_crosswalk.csv",
+            "02_preprocess/53_build_cnrfc_forecast_point_product_availability.R",
+            "03_functions/leaflet_ops_live_helpers.r",
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "03_functions/leaflet_ops_live_reservoir_helpers.r",
+            "05_map_build/04_build_portatreasure2_core_map.r"
           ]
         }
       ]

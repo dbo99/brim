@@ -51,10 +51,26 @@ const r16bRetiredResourceIds = [
   "resource_usbr_cvp_swp_long_term_operations_record_of_decision_product"
 ];
 const spkId = "resource_usace_sacramento_district_water_control_data_system";
+const cnrfcId = "resource_noaa_cnrfc";
+const cnrfcSummaryBefore =
+  "Operational river, precipitation, temperature, snow-level, and water-supply forecasting for California and Nevada.";
+const cnrfcSummaryAfter =
+  "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada.";
+const cnrfcCanonicalUrlBefore = "https://cnrfc.noaa.gov/";
+const cnrfcCanonicalUrlAfter = "https://www.cnrfc.noaa.gov/";
 const integratedReportId = "resource_swrcb_impaired_waters_and_tmdls_program";
 const integratedReportProductIds = ["SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS"];
 const integratedReportCanonicalUrl =
   "https://www.waterboards.ca.gov/water_issues/programs/water_quality_assessment/";
+const productTitleFixtures = {
+  cnrfc_fnf_delta: "CNRFC FNF Sha/Tri/west Sierra Basins",
+  cnrfc_stream: "CNRFC river/reservoir catalog",
+  cnrfc_precip_weather_station_catalog: "CNRFC weather station catalog",
+  cnrfc_basin_product_availability: "CNRFC Product Availability",
+  ops_cnrfc_forecast_points: "CNRFC forecast points | river/reservoir",
+  ops_major_water_supply_forecasts: "Major Water-Supply Basin Forecasts",
+  ops_cdec_reservoir_storage: "Reservoirs | storage-centric | CDEC / CNRFC / USACE"
+};
 
 new Function(`return (${source})`)();
 
@@ -242,14 +258,22 @@ assert.strictEqual(
 const canonicalLinks = relationships.products.flatMap(product =>
   product.resource_links.map(link => ({ productId: product.product_id, ...link }))
 );
-assert.strictEqual(canonicalLinks.length, 90, "Canonical relationship link count changed");
+assert.strictEqual(canonicalLinks.length, 94, "Canonical relationship link count changed");
 assert.deepStrictEqual(Object.fromEntries([
   "direct_match_in_brim", "selected_product_from_broader_resource", "source_reference"
 ].map(role => [role, canonicalLinks.filter(link => link.relationship_role === role).length])), {
   direct_match_in_brim: 13,
-  selected_product_from_broader_resource: 60,
-  source_reference: 17
+  selected_product_from_broader_resource: 62,
+  source_reference: 19
 }, "Canonical relationship-role counts changed");
+assert.strictEqual(new Set(canonicalLinks.map(link =>
+  `${link.productId}\r${link.resource_id}`)).size, canonicalLinks.length,
+"A duplicate canonical Product-Resource pair was introduced");
+assert.strictEqual(relationships.products.filter(product =>
+  product.resource_links.length > 0).length, 70,
+"Products-with-Resource-links count changed");
+assert.strictEqual(new Set(canonicalLinks.map(link => link.resource_id)).size, 26,
+"Resources-with-Product-links count changed");
 const d10Product = relationships.products.find(
   product => product.product_id === "ops_cdec_reservoir_storage"
 );
@@ -261,8 +285,9 @@ assert.deepStrictEqual(d10Product.resource_links.map(link => ({
     resourceId: "resource_dwr_cdec",
     role: "selected_product_from_broader_resource"
   },
-  { resourceId: spkId, role: "source_reference" }
-], "D10 must preserve CDEC and add only the exact SPK source reference");
+  { resourceId: spkId, role: "source_reference" },
+  { resourceId: cnrfcId, role: "source_reference" }
+], "D10 must preserve CDEC/SPK and add only the exact CNRFC source reference");
 
 function exactRelationshipFixture(productId) {
   const product = relationships.products.find(record => record.product_id === productId);
@@ -276,6 +301,34 @@ function exactRelationshipFixture(productId) {
     }))
   };
 }
+assert.deepStrictEqual(exactRelationshipFixture("cnrfc_stream"), {
+  reviewState: "reviewed",
+  disposition: "selected_product_from_broader_resource",
+  evidenceBasis: "reviewed_evidence",
+  links: [{
+    resourceId: cnrfcId,
+    role: "selected_product_from_broader_resource"
+  }]
+}, "The exact CNRFC stream relationship fixture changed");
+assert.deepStrictEqual(exactRelationshipFixture("cnrfc_precip_weather_station_catalog"), {
+  reviewState: "reviewed",
+  disposition: "selected_product_from_broader_resource",
+  evidenceBasis: "reviewed_evidence",
+  links: [{
+    resourceId: cnrfcId,
+    role: "selected_product_from_broader_resource"
+  }]
+}, "The exact CNRFC weather-station relationship fixture changed");
+assert.deepStrictEqual(exactRelationshipFixture("ops_major_water_supply_forecasts"), {
+  reviewState: "reviewed",
+  disposition: "selected_product_from_broader_resource",
+  evidenceBasis: "reviewed_evidence",
+  links: [
+    { resourceId: "resource_noaa_nwps", role: "source_reference" },
+    { resourceId: "resource_usgs_national_hydrography_products", role: "source_reference" },
+    { resourceId: cnrfcId, role: "source_reference" }
+  ]
+}, "The exact major water-supply CNRFC source fixture changed");
 assert.deepStrictEqual(exactRelationshipFixture("ops_us_drought_monitor"), {
   reviewState: "reviewed",
   disposition: "selected_product_from_broader_resource",
@@ -445,7 +498,7 @@ function publicResource(record) {
     product.resource_links.filter(link => link.resource_id === record.id).forEach(link => {
       representedProducts.push({
         productId: product.product_id,
-        title: `Product ${product.product_id}`,
+        title: productTitleFixtures[product.product_id] || `Product ${product.product_id}`,
         deliveryClass: product.delivery_class,
         coverageDisposition: product.coverage_disposition,
         relationshipRole: link.relationship_role,
@@ -512,6 +565,46 @@ const californiaWaterWatchResource = resources.find(resource =>
   resource.id === "resource_dwr_california_water_watch"
 );
 const integratedReportResource = resources.find(resource => resource.id === integratedReportId);
+const cnrfcResource = resources.find(resource => resource.id === cnrfcId);
+const cnrfcRawResource = registry.resources.find(resource => resource.id === cnrfcId);
+assert.strictEqual(cnrfcRawResource.canonical_url, cnrfcCanonicalUrlAfter,
+  "The repaired CNRFC canonical URL changed");
+assert.strictEqual(cnrfcRawResource.access_points[0].url, cnrfcCanonicalUrlAfter,
+  "The repaired CNRFC canonical access point changed");
+assert.strictEqual(cnrfcRawResource.public_source_references.find(reference =>
+  reference.role === "official_source"
+).url, cnrfcCanonicalUrlAfter, "The repaired CNRFC official-source reference changed");
+assert(!JSON.stringify(cnrfcRawResource).includes(cnrfcCanonicalUrlBefore),
+  "The non-resolving bare CNRFC root remains in the canonical Resource");
+assert.strictEqual(cnrfcResource.canonicalUrl, cnrfcCanonicalUrlAfter,
+  "The projected CNRFC official action changed");
+assert.deepStrictEqual(cnrfcResource.accessPoints[0], {
+  role: "canonical", label: "Official Resource", url: cnrfcCanonicalUrlAfter
+}, "The rendered CNRFC Official Resource action changed");
+assert.strictEqual(new Set(cnrfcResource.accessPoints.map(point =>
+  point.url.toLowerCase().replace(/\/+$/, "")
+)).size, cnrfcResource.accessPoints.length,
+"The projected CNRFC access actions contain a normalized duplicate");
+assert.strictEqual(cnrfcResource.summary, cnrfcSummaryAfter,
+  "The exact corrected CNRFC Resource summary changed");
+assert(!JSON.stringify(registry).includes(cnrfcSummaryBefore),
+  "The superseded CNRFC Resource summary remains in authority");
+assert.strictEqual(cnrfcResource.mapReviewState, "reviewed",
+  "The CNRFC Resource review state changed");
+assert.strictEqual(cnrfcResource.mapRepresentation, "selected_products_in_brim",
+  "The CNRFC Resource representation changed");
+assert.deepStrictEqual(cnrfcResource.representedProducts.map(product => ({
+  productId: product.productId,
+  role: product.relationshipRole
+})), [
+  { productId: "cnrfc_fnf_delta", role: "selected_product_from_broader_resource" },
+  { productId: "cnrfc_stream", role: "selected_product_from_broader_resource" },
+  { productId: "cnrfc_precip_weather_station_catalog", role: "selected_product_from_broader_resource" },
+  { productId: "cnrfc_basin_product_availability", role: "selected_product_from_broader_resource" },
+  { productId: "ops_cnrfc_forecast_points", role: "direct_match_in_brim" },
+  { productId: "ops_major_water_supply_forecasts", role: "source_reference" },
+  { productId: "ops_cdec_reservoir_storage", role: "source_reference" }
+], "The CNRFC Resource must expose exactly seven current Products and roles");
 assert.strictEqual(integratedReportResource.mapRepresentation, "selected_products_in_brim",
   "The Integrated Report map representation was not derived from exact Product links");
 assert.deepStrictEqual(integratedReportResource.representedProducts.map(product => ({
@@ -679,6 +772,17 @@ function searchIds(query) {
 }
 assert(searchIds("coco").includes("resource_cocorahs_cocorahs_other"),
   "Resource gateway target query no longer finds the CoCoRaHS Resource");
+assert(searchIds("reservoir inflow").includes(cnrfcId),
+  "The corrected CNRFC Resource summary is not indexed for reservoir inflow");
+assert(searchIds("freezing-level").includes(cnrfcId),
+  "The corrected CNRFC Resource summary is not indexed for freezing-level");
+assert.deepStrictEqual(searchIds("CNRFC").sort(), [
+  "resource_dwr_cdec",
+  "resource_noaa_cnrfc",
+  "resource_noaa_cnrfc_forcing_csv_service",
+  "resource_noaa_cnrfc_hourly_hefs_csv_service",
+  spkId
+].sort(), "The exact five-Resource CNRFC search membership changed");
 const requiredSearchParents = {
   Kaweah: [spkId],
   Terminus: [spkId],
@@ -826,6 +930,18 @@ assert(source.includes("'Delivery: ' + deliveryLabel(relationship.deliveryClass)
   source.includes("BRIM combines this Product from multiple sources: ") &&
   source.includes("sourceTitles.join('; ') + '.'"),
 "Secondary delivery or exact multiple-source explanation is missing");
+[
+  "provider_hosted: 'Provider-hosted'",
+  "brim_enhanced: 'BRIM-enhanced'",
+  "brim_managed: 'BRIM-managed'",
+  "not_applicable: 'Not applicable'"
+].forEach(mapping => assert(source.includes(mapping),
+  `The accepted Product-delivery label mapping changed: ${mapping}`));
+assert.strictEqual(
+  (source.match(/deliveryLabel\(relationship\.deliveryClass\)/g) || []).length,
+  1,
+  "Product delivery must remain visible only as secondary C · Resources relationship text"
+);
 assert(!source.includes("delivery-filter") && !source.includes("multiple-source-filter"),
   "Delivery or multiple-source status became a primary filter");
 assert(source.includes("presets.setAttribute('role', 'radiogroup')") &&
@@ -894,12 +1010,16 @@ assert(css.includes("data-resource-preset=\"in_brim_map\"") &&
   css.includes(".brim-guide__resource-representation--beyond"),
 "Restrained map-presence color treatment is missing");
 
-console.log("BRIM Guide Resource Explorer source/model contracts passed.");
+console.log("BRIM Guide Resource Explorer R17B CNRFC contracts passed.");
 console.log(`CANONICAL_RESOURCES=${canonicalResourceIds.length}`);
 console.log(`PUBLISHED_RESOURCES=${publishedIds.length}`);
 console.log(`STAGED_RESOURCES=${stagedIds.size}`);
 console.log(`PRESET_COUNTS=${expectedInBrimIds.length},${expectedBeyondIds.length},${publishedIds.length}`);
 console.log(`CANONICAL_RESOURCE_LINKS=${canonicalLinks.length}`);
+console.log("PRODUCTS_WITH_RESOURCE_LINKS=70");
+console.log("RESOURCES_WITH_PRODUCT_LINKS=26");
+console.log("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,62_SELECTED,19_SOURCE_REFERENCE");
+console.log("CNRFC_RELATED_PRODUCTS=7");
 console.log("GENERIC_PROJECTION_INVARIANTS=PASS");
 console.log("STAGED_REVIEWED_RESOURCE_SUPPORT=PASS");
 console.log("LEGACY_PUBLIC_PROJECTIONS=0");

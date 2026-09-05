@@ -971,6 +971,130 @@
       ]
     },
     {
+      "stable_id": "cnrfc_basin_product_availability",
+      "summary": "A captured CNRFC basin-product availability reference that maps reviewed basin polygons by confirmed product families; it displays availability, not forecast values.",
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Inspect forecast groups and captured basin availability for water-supply, ensemble, QPF/snow-level, and temperature products.",
+        "Open CNRFC links confirmed by the captured availability review."
+      ],
+      "processing": [
+        "BRIM joins prepared CNRFC basin and FNF-basin availability records to retained display geometries and presents the confirmed categories and source links."
+      ],
+      "timing": [
+        "This is a periodically regenerated availability snapshot; a listed product does not guarantee a current or successful upstream issuance."
+      ],
+      "geometry_limitations": [
+        "The polygons are reference display boundaries, not forecast extents or forecast values.",
+        "Availability reflects the captured review state; an unconfirmed product in that snapshot is not a claim of permanent unavailability."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "cnrfc_basin_availability_builder",
+        "cnrfc_basin_availability_controller",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "cnrfc_fnf_delta",
+      "summary": "Reference outlines for BRIM's retained CNRFC Full Natural Flow basin set above major reservoirs connected to the Delta, covering Shasta, Trinity, and western Sierra basins.",
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Inspect basin outlines, river names, CNRFC/NWS identifiers, and associated reservoirs.",
+        "Open the CNRFC water-year Full Natural Flow product and separate DWR Full Natural Flow report."
+      ],
+      "processing": [
+        "BRIM created the displayed FNF geometries by grouping and dissolving downloadable CNRFC subbasin geometries. The current pipeline thins vertex density for map performance and retains river, reservoir, and CNRFC/NWS identifiers. Popups link separately to the CDEC/DWR Full Natural Flow report and to CNRFC water-year ensemble reservoir-inflow plots. The CNRFC plots display observed values alongside forecast traces for unregulated/full natural flow."
+      ],
+      "timing": [
+        "The mapped basin inventory is static reference context; values on linked CNRFC products depend on water year and source issuance."
+      ],
+      "geometry_limitations": [
+        "The polygons are generalized forecast-context display boundaries, not Full Natural Flow values or current conditions.",
+        "CNRFC and DWR Full Natural Flow products remain separate source authorities; BRIM does not assert that their numerical values are identical.",
+        "Where CDEC and CNRFC FNF products represent the same river-reservoir system, BRIM uses a common display geometry; minor differences in agency watershed delineations are not represented separately."
+      ],
+      "method_ids": [
+        "method_how_brim_works",
+        "method_display_geometry_generalization"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "cnrfc_fnf_local_artifact",
+        "cnrfc_fnf_popup_actions",
+        "local_geometry_generalization_registry"
+      ]
+    },
+    {
+      "stable_id": "cnrfc_precip_weather_station_catalog",
+      "summary": "A broad CNRFC precipitation and weather station reference catalog with maintained station links and reviewed time-series availability cues; it is not a live observation feed.",
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Inspect CNRFC station identifiers, names, types, elevations, and catalog status.",
+        "Distinguish catalog-only stations from verified NWS/WRH time-series sites and open maintained links."
+      ],
+      "processing": [
+        "BRIM reads the prepared station catalog, retains CNRFC identities and source links, and presents exact reviewed fields for link and time-series availability."
+      ],
+      "timing": [
+        "The catalog and availability fields are periodically prepared reference snapshots; reporting cadence and time-series coverage vary by station, and some ALERT stations report mainly during events."
+      ],
+      "geometry_limitations": [
+        "Station points locate catalog records and do not represent precipitation amounts, current weather, or guaranteed reporting.",
+        "A maintained page or time-series link is not a proven stable direct CSV download and does not establish current observation availability."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "cnrfc_weather_station_catalog_builder",
+        "cnrfc_feature_inventory",
+        "cnrfc_weather_timeseries_availability",
+        "cnrfc_local_catalog_controller"
+      ]
+    },
+    {
+      "stable_id": "cnrfc_stream",
+      "summary": "A CNRFC river and reservoir station-location catalog for reference and navigation; it does not display live streamflow or reservoir-storage values.",
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "capabilities": [
+        "Inspect CNRFC/NWS station identifiers, names, river or reservoir class, and elevation.",
+        "Filter by location type, elevation, and maintained BLM proximity context."
+      ],
+      "processing": [
+        "BRIM parses the prepared CNRFC river-gage inventory, retains station identity and type, limits it to the mostly-California buffered network, and packages WGS84 point locations for the map."
+      ],
+      "timing": [
+        "The mapped inventory is a prepared catalog snapshot; it is not a live observation feed and does not indicate the issue time of an upstream product."
+      ],
+      "geometry_limitations": [
+        "Points are reference station locations and classifications, not current flow, stage, forecast, release, or storage values.",
+        "The mostly-California buffer retains useful nearby stations and is not the complete CNRFC network."
+      ],
+      "method_ids": [
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "cnrfc_stream_gage_builder",
+        "cnrfc_stream_cache_builder",
+        "cnrfc_local_catalog_controller"
+      ]
+    },
+    {
       "stable_id": "drecp",
       "summary": "The Desert Renewable Energy Conservation Plan planning-area boundary retained as Local context for California desert planning review.",
       "subject_tags": [
