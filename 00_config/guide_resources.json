@@ -3257,13 +3257,13 @@
           "role": "display_provider"
         }
       ],
-      "summary": "Operational river, precipitation, temperature, snow-level, and water-supply forecasting for California and Nevada.",
-      "canonical_url": "https://cnrfc.noaa.gov/",
+      "summary": "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada.",
+      "canonical_url": "https://www.cnrfc.noaa.gov/",
       "access_points": [
         {
           "role": "canonical",
           "label": "California-Nevada River Forecast Center",
-          "url": "https://cnrfc.noaa.gov/"
+          "url": "https://www.cnrfc.noaa.gov/"
         }
       ],
       "resource_type": "program_or_mission",
@@ -3300,7 +3300,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://cnrfc.noaa.gov/"
+          "url": "https://www.cnrfc.noaa.gov/"
         },
         {
           "role": "documentation",

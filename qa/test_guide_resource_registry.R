@@ -183,6 +183,40 @@ r16b_recall_only_product_ids <- c(
   "ops_cnrfc_forecast_points", "ops_major_water_supply_forecasts"
 )
 r16b_spk_id <- "resource_usace_sacramento_district_water_control_data_system"
+r17b_cnrfc_resource_id <- "resource_noaa_cnrfc"
+r17b_cnrfc_resource_summary_before <- paste(
+  "Operational river, precipitation, temperature, snow-level, and water-supply",
+  "forecasting for California and Nevada."
+)
+r17b_cnrfc_resource_summary_after <- paste(
+  "Operational river, reservoir-inflow, precipitation, temperature,",
+  "freezing-level, and short- to long-term water-supply forecasting for California and Nevada."
+)
+r17b_cnrfc_canonical_url_before <- "https://cnrfc.noaa.gov/"
+r17b_cnrfc_canonical_url_after <- "https://www.cnrfc.noaa.gov/"
+r17b_cnrfc_fnf_processing_before <- paste(
+  "BRIM reads the prepared basin artifact, retains its river, reservoir, and",
+  "CNRFC/NWS identifiers, and applies reviewed display geometry for the map."
+)
+r17b_cnrfc_fnf_processing_after <- paste(
+  "BRIM created the displayed FNF geometries by grouping and dissolving downloadable CNRFC subbasin geometries.",
+  "The current pipeline thins vertex density for map performance and retains river, reservoir, and CNRFC/NWS identifiers.",
+  "Popups link separately to the CDEC/DWR Full Natural Flow report and to CNRFC water-year ensemble reservoir-inflow plots.",
+  "The CNRFC plots display observed values alongside forecast traces for unregulated/full natural flow."
+)
+r17b_cnrfc_fnf_boundary_limitation <- paste(
+  "Where CDEC and CNRFC FNF products represent the same river-reservoir system,",
+  "BRIM uses a common display geometry; minor differences in agency watershed delineations are not represented separately."
+)
+r17b_newly_linked_product_ids <- c(
+  "cnrfc_stream", "cnrfc_precip_weather_station_catalog"
+)
+r17b_existing_products_gaining_cnrfc <- c(
+  "ops_major_water_supply_forecasts", "ops_cdec_reservoir_storage"
+)
+r17b_target_product_ids <- c(
+  r17b_newly_linked_product_ids, r17b_existing_products_gaining_cnrfc
+)
 integrated_report_resource_id <- "resource_swrcb_impaired_waters_and_tmdls_program"
 integrated_report_product_ids <- c("SWRCB_2024_IR_LINES", "SWRCB_2024_IR_POLYGONS")
 integrated_report_canonical_url <- paste0(
@@ -611,6 +645,79 @@ compact_json <- function(value) jsonlite::toJSON(
   value,
   auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
 )
+strip_r17b_cnrfc_resource_summary_correction <- function(record) {
+  if (identical(record$id, r17b_cnrfc_resource_id)) {
+    record$summary <- r17b_cnrfc_resource_summary_before
+  }
+  record
+}
+strip_r17b_cnrfc_canonical_host_repair <- function(record) {
+  if (identical(record$id, r17b_cnrfc_resource_id)) {
+    record$canonical_url <- r17b_cnrfc_canonical_url_before
+    record$access_points <- lapply(record$access_points, function(point) {
+      if (identical(point$role, "canonical")) {
+        point$url <- r17b_cnrfc_canonical_url_before
+      }
+      point
+    })
+    record$public_source_references <- lapply(
+      record$public_source_references,
+      function(reference) {
+        if (identical(reference$role, "official_source")) {
+          reference$url <- r17b_cnrfc_canonical_url_before
+        }
+        reference
+      }
+    )
+  }
+  record
+}
+cnrfc_raw_resource <- raw_registry$resources[[match(
+  r17b_cnrfc_resource_id,
+  vapply(raw_registry$resources, `[[`, character(1), "id")
+)]]
+assert_identical(cnrfc_raw_resource$canonical_url, r17b_cnrfc_canonical_url_after,
+                 "The repaired CNRFC canonical URL changed")
+assert_identical(cnrfc_raw_resource$access_points[[1]]$url,
+                 r17b_cnrfc_canonical_url_after,
+                 "The repaired CNRFC canonical access point changed")
+assert_identical(cnrfc_raw_resource$public_source_references[[1]]$url,
+                 r17b_cnrfc_canonical_url_after,
+                 "The repaired CNRFC official-source reference changed")
+assert_true(!grepl(r17b_cnrfc_canonical_url_before,
+                   compact_json(cnrfc_raw_resource), fixed = TRUE),
+            "The non-resolving bare CNRFC root remains in the canonical Resource")
+reconstructed_pre_host_registry <- raw_registry
+reconstructed_pre_host_registry$resources <- lapply(
+  reconstructed_pre_host_registry$resources,
+  strip_r17b_cnrfc_canonical_host_repair
+)
+assert_identical(
+  digest::digest(compact_json(reconstructed_pre_host_registry),
+                 algo = "sha256", serialize = FALSE),
+  "c604267fe017d58bb33efd50a6a5d2341d39f2633624c328fd21cd9edb68bba9",
+  "The Resource registry changed beyond the exact three-field CNRFC host repair"
+)
+reconstructed_pre_copy_registry <- reconstructed_pre_host_registry
+reconstructed_cnrfc_index <- match(r17b_cnrfc_resource_id, vapply(
+  reconstructed_pre_copy_registry$resources, `[[`, character(1), "id"
+))
+assert_identical(
+  reconstructed_pre_copy_registry$resources[[reconstructed_cnrfc_index]]$summary,
+  r17b_cnrfc_resource_summary_after,
+  "The exact corrected CNRFC Resource summary is absent"
+)
+reconstructed_pre_copy_registry$resources[[reconstructed_cnrfc_index]]$summary <-
+  r17b_cnrfc_resource_summary_before
+assert_identical(
+  digest::digest(compact_json(reconstructed_pre_copy_registry),
+                 algo = "sha256", serialize = FALSE),
+  "5d106ee503cd66942ce9aee21ab57449214b706a40fd02bbcd1102cd92b62b43",
+  "The Resource registry changed beyond the one CNRFC summary correction"
+)
+assert_true(!grepl(r17b_cnrfc_resource_summary_before,
+                   compact_json(raw_registry), fixed = TRUE),
+            "The superseded CNRFC Resource summary remains in authority")
 normalize_r15c_publication_state <- function(record) {
   if (record$id %in% r15c_target_registry_ids) {
     record$publication_state <- "staged"
@@ -803,10 +910,11 @@ strip_publication_state <- function(record) {
   record$publication_state <- NULL
   record
 }
-newly_published_without_state_json <- compact_json(lapply(
+newly_published_without_state_json <- compact_json(lapply(lapply(lapply(
   lapply(lapply(lapply(newly_published, strip_r15b_authorized_access_point),
          strip_r16b_existing_resource_access_points), strip_precipitation_micro_pass),
-  strip_publication_state
+  strip_r17b_cnrfc_resource_summary_correction),
+  strip_r17b_cnrfc_canonical_host_repair), strip_publication_state
 ))
 assert_identical(
   digest::digest(newly_published_without_state_json, algo = "sha256", serialize = FALSE),
@@ -822,6 +930,8 @@ baseline_registry <- lapply(
 )
 baseline_registry <- lapply(baseline_registry, strip_r16b_existing_resource_access_points)
 baseline_registry <- lapply(baseline_registry, strip_precipitation_micro_pass)
+baseline_registry <- lapply(baseline_registry, strip_r17b_cnrfc_resource_summary_correction)
+baseline_registry <- lapply(baseline_registry, strip_r17b_cnrfc_canonical_host_repair)
 assert_identical(
   digest::digest(compact_json(baseline_registry), algo = "sha256", serialize = FALSE),
   "bcc56bd0930cbc09ba47a513e1512d0a6e0767d90281813e50d1b518baeac181",
@@ -1092,11 +1202,32 @@ assert_identical(raw_relationship_registry$schema_version, 2L,
                  "Product-Resource relationship schema version changed")
 assert_identical(length(relationship_product_ids), 270L,
                  "Product-Resource relationship Product count changed")
+assert_identical(
+  digest::digest(file = relationship_registry_path, algo = "sha256"),
+  "49239c8b3a264c834c24efaeddc115906651eb69158166210d9f1d54944ccda5",
+  "The completed four-action R17B relationship file changed byte-for-byte"
+)
 assert_identical(length(raw_relationship_registry$resources), 211L,
                  "Product-Resource relationship Resource count changed")
 assert_true(!anyDuplicated(relationship_product_ids),
             "Product-Resource relationship Product IDs are not unique")
-baseline_relationship_products <- raw_relationship_registry$products
+strip_r17b_relationship_actions <- function(record) {
+  if (record$product_id %in% r17b_newly_linked_product_ids) {
+    record$coverage_review_state <- "not_yet_reviewed"
+    record["coverage_disposition"] <- list(NULL)
+    record$coverage_evidence_basis <- "not_yet_reviewed"
+    record$coverage_evidence_refs <- list()
+    record$resource_links <- list()
+  } else if (record$product_id %in% r17b_existing_products_gaining_cnrfc) {
+    record$resource_links <- Filter(function(link) {
+      !identical(link$resource_id, r17b_cnrfc_resource_id)
+    }, record$resource_links)
+  }
+  record
+}
+baseline_relationship_products <- lapply(
+  raw_relationship_registry$products, strip_r17b_relationship_actions
+)
 baseline_d10_index <- match(
   "ops_cdec_reservoir_storage",
   vapply(baseline_relationship_products, `[[`, character(1), "product_id")
@@ -1150,7 +1281,7 @@ assert_identical(unname(as.integer(table(factor(
 )))), c(61L, 150L, 55L, 4L), "Delivery classification counts changed")
 assert_identical(unname(as.integer(table(factor(
   review_states, levels = c("reviewed", "not_yet_reviewed")
-)))), c(73L, 197L), "Coverage review-state counts changed")
+)))), c(75L, 195L), "Coverage review-state counts changed")
 assert_identical(unname(as.integer(table(factor(
   coverage_dispositions,
   levels = c(
@@ -1158,15 +1289,24 @@ assert_identical(unname(as.integer(table(factor(
     "multiple_source_resources", "provenance_only_no_public_resource",
     "internal_no_external_resource", "not_yet_reviewed"
   )
-)))), c(10L, 50L, 8L, 1L, 4L, 197L),
+)))), c(10L, 52L, 8L, 1L, 4L, 195L),
 "Coverage-disposition counts changed")
-assert_identical(length(canonical_links), 90L,
+assert_identical(length(canonical_links), 94L,
                  "Canonical Product-Resource link count changed")
 assert_identical(unname(as.integer(table(factor(
   canonical_link_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 60L, 17L), "Canonical relationship-role counts changed")
+)))), c(13L, 62L, 19L), "Canonical relationship-role counts changed")
+assert_true(!anyDuplicated(vapply(canonical_links, function(link) {
+  paste(link$product_id, link$resource_id, sep = "\r")
+}, character(1))), "A duplicate Product-Resource pair entered canonical authority")
+assert_identical(sum(vapply(relationship_registry$products, function(record) {
+  length(record$resource_links) > 0L
+}, logical(1))), 70L, "Products-with-Resource-links count changed")
+assert_identical(length(unique(vapply(canonical_links, `[[`, character(1),
+                                      "resource_id"))), 26L,
+                 "Resources-with-Product-links count changed")
 assert_true(!any(vapply(canonical_links, function(link) {
   link$resource_id %in% r15b_selected_replacement_ids
 }, logical(1))), "An R15B replacement gained an unauthorized Product link")
@@ -1175,14 +1315,56 @@ d10_relationship <- relationship_registry$products[[match(
 )]]
 assert_identical(
   vapply(d10_relationship$resource_links, `[[`, character(1), "resource_id"),
-  c("resource_dwr_cdec", r16b_spk_id),
-  "D10 must preserve CDEC and add only the exact SPK source Resource"
+  c("resource_dwr_cdec", r16b_spk_id, r17b_cnrfc_resource_id),
+  "D10 must preserve CDEC/SPK and add only the exact CNRFC source Resource"
 )
 assert_identical(
   vapply(d10_relationship$resource_links, `[[`, character(1), "relationship_role"),
-  c("selected_product_from_broader_resource", "source_reference"),
+  c("selected_product_from_broader_resource", "source_reference", "source_reference"),
   "The exact D10 relationship roles changed"
 )
+r17b_relationship_fixture <- function(product_id) {
+  record <- relationship_registry$products[[match(product_id, relationship_product_ids)]]
+  list(
+    review_state = record$coverage_review_state,
+    disposition = record$coverage_disposition,
+    evidence_basis = record$coverage_evidence_basis,
+    resources = vapply(record$resource_links, `[[`, character(1), "resource_id"),
+    roles = vapply(record$resource_links, `[[`, character(1), "relationship_role")
+  )
+}
+assert_identical(r17b_relationship_fixture("cnrfc_stream"), list(
+  review_state = "reviewed",
+  disposition = "selected_product_from_broader_resource",
+  evidence_basis = "reviewed_evidence",
+  resources = r17b_cnrfc_resource_id,
+  roles = "selected_product_from_broader_resource"
+), "The exact CNRFC stream relationship fixture changed")
+assert_identical(r17b_relationship_fixture("cnrfc_precip_weather_station_catalog"), list(
+  review_state = "reviewed",
+  disposition = "selected_product_from_broader_resource",
+  evidence_basis = "reviewed_evidence",
+  resources = r17b_cnrfc_resource_id,
+  roles = "selected_product_from_broader_resource"
+), "The exact CNRFC weather-station relationship fixture changed")
+assert_identical(r17b_relationship_fixture("ops_major_water_supply_forecasts"), list(
+  review_state = "reviewed",
+  disposition = "selected_product_from_broader_resource",
+  evidence_basis = "reviewed_evidence",
+  resources = c(
+    "resource_noaa_nwps", "resource_usgs_national_hydrography_products",
+    r17b_cnrfc_resource_id
+  ),
+  roles = rep("source_reference", 3L)
+), "The exact major water-supply CNRFC source fixture changed")
+cnrfc_related_product_ids <- vapply(Filter(function(link) {
+  identical(link$resource_id, r17b_cnrfc_resource_id)
+}, canonical_links), `[[`, character(1), "product_id")
+assert_identical(cnrfc_related_product_ids, c(
+  "cnrfc_fnf_delta", "cnrfc_stream", "cnrfc_precip_weather_station_catalog",
+  "cnrfc_basin_product_availability", "ops_cnrfc_forecast_points",
+  "ops_major_water_supply_forecasts", "ops_cdec_reservoir_storage"
+), "The CNRFC Resource must have exactly seven related Products")
 drought_relationship <- relationship_registry$products[[match(
   "ops_us_drought_monitor", relationship_product_ids
 )]]
@@ -1403,6 +1585,63 @@ enrichment_without_precipitation_micro_pass$products[[ero_index]]$subject_tags <
   function(value) !identical(value, "Precipitation"),
   enrichment_without_precipitation_micro_pass$products[[ero_index]]$subject_tags
 )
+r17b_cnrfc_detail_ids <- c(
+  "cnrfc_basin_product_availability", "cnrfc_fnf_delta",
+  "cnrfc_precip_weather_station_catalog", "cnrfc_stream"
+)
+r17b_cnrfc_detail_records <- Filter(function(record) {
+  record$stable_id %in% r17b_cnrfc_detail_ids
+}, enrichment_raw$products)
+cnrfc_fnf_enrichment_index <- match("cnrfc_fnf_delta", vapply(
+  enrichment_raw$products, `[[`, character(1), "stable_id"
+))
+cnrfc_fnf_enrichment <- enrichment_raw$products[[cnrfc_fnf_enrichment_index]]
+assert_identical(cnrfc_fnf_enrichment$processing, list(r17b_cnrfc_fnf_processing_after),
+                 "The exact four-sentence CNRFC FNF processing entry changed")
+assert_identical(sum(vapply(
+  cnrfc_fnf_enrichment$geometry_limitations, identical, logical(1),
+  r17b_cnrfc_fnf_boundary_limitation
+)), 1L, "The exact CNRFC FNF boundary limitation is absent or duplicated")
+assert_true(!grepl(r17b_cnrfc_fnf_processing_before,
+                   compact_json(enrichment_raw), fixed = TRUE),
+            "The superseded CNRFC FNF processing sentence remains in authority")
+reconstructed_pre_copy_enrichment <- enrichment_raw
+reconstructed_pre_copy_enrichment$products[[cnrfc_fnf_enrichment_index]]$processing <-
+  list(r17b_cnrfc_fnf_processing_before)
+reconstructed_pre_copy_enrichment$products[[cnrfc_fnf_enrichment_index]]$geometry_limitations <-
+  Filter(function(value) !identical(value, r17b_cnrfc_fnf_boundary_limitation),
+         reconstructed_pre_copy_enrichment$products[[cnrfc_fnf_enrichment_index]]$geometry_limitations)
+assert_identical(
+  digest::digest(compact_json(reconstructed_pre_copy_enrichment),
+                 algo = "sha256", serialize = FALSE),
+  "c05f103c2b1eda0f55bcc28f912d814235dfe335e86f5644e41178fc99a2f4c7",
+  "Product enrichment changed beyond cnrfc_fnf_delta processing and geometry_limitations"
+)
+assert_identical(vapply(r17b_cnrfc_detail_records, `[[`, character(1), "stable_id"),
+                 r17b_cnrfc_detail_ids,
+                 "The exact R17B CNRFC Product-detail enrichment set changed")
+assert_true(length(r17b_cnrfc_detail_records) <= 5L &&
+              all(vapply(r17b_cnrfc_detail_records, function(record) {
+                identical(record$editorial_state, "SOURCE_BACKED_RICH") &&
+                  identical(unname(as.character(unlist(
+                    record$information_type_tags, use.names = FALSE
+                  ))), "Static Reference") &&
+                  nzchar(record$summary) &&
+                  all(c("capabilities", "timing", "processing",
+                        "geometry_limitations", "method_ids", "source_refs") %in%
+                        names(record)) &&
+                  all(vapply(record[c(
+                    "capabilities", "timing", "processing", "geometry_limitations",
+                    "method_ids", "source_refs"
+                  )], function(values) {
+                    values <- unname(as.character(unlist(values, use.names = FALSE)))
+                    length(values) > 0L && all(nzchar(values))
+                  }, logical(1)))
+              }, logical(1))),
+            "R17B CNRFC Product detail is incomplete, unsupported, or above its ceiling")
+enrichment_without_precipitation_micro_pass$products <- Filter(function(record) {
+  !record$stable_id %in% r17b_cnrfc_detail_ids
+}, enrichment_without_precipitation_micro_pass$products)
 enrichment_json <- jsonlite::toJSON(
   enrichment_without_precipitation_micro_pass,
   auto_unbox = TRUE, null = "null", na = "null",
@@ -1411,7 +1650,7 @@ enrichment_json <- jsonlite::toJSON(
 assert_identical(
   digest::digest(enrichment_json, algo = "sha256", serialize = FALSE),
   "e83984f53fc4db9fb1c3916c3c871b19ccf78c1f9404db3c2a5e4520868ce500",
-  "Product enrichment changed outside the approved Precipitation subject addition"
+  "Product enrichment changed outside the approved Precipitation subject and R17B CNRFC detail additions"
 )
 
 product_fixtures <- lapply(relationship_product_ids, function(product_id) {
@@ -1424,6 +1663,24 @@ product_fixtures <- lapply(relationship_product_ids, function(product_id) {
 browser_records <- pt_guide_resource_browser_records(
   published, product_fixtures, relationship_registry
 )
+projected_cnrfc_resource <- browser_records[[match(
+  r17b_cnrfc_resource_id, expected_published_ids
+)]]
+assert_identical(projected_cnrfc_resource$summary, r17b_cnrfc_resource_summary_after,
+                 "The projected CNRFC Resource summary changed")
+assert_identical(projected_cnrfc_resource$canonicalUrl,
+                 r17b_cnrfc_canonical_url_after,
+                 "The projected CNRFC official action changed")
+assert_identical(projected_cnrfc_resource$accessPoints[[1]], list(
+  role = "canonical", label = "Official Resource",
+  url = r17b_cnrfc_canonical_url_after
+), "The rendered CNRFC Official Resource action changed")
+assert_identical(length(unique(vapply(
+  projected_cnrfc_resource$accessPoints, function(point) {
+    sub("/+$", "", tolower(point$url))
+  }, character(1)
+))), length(projected_cnrfc_resource$accessPoints),
+"The projected CNRFC access actions contain a normalized duplicate")
 assert_identical(vapply(browser_records, `[[`, character(1), "id"), expected_published_ids,
                  "Browser projection changed Resource order or identity")
 assert_true(all(vapply(browser_records, function(record) {
@@ -1453,13 +1710,13 @@ assert_true(all(vapply(seq_along(browser_records), function(index) {
 projected_relationships <- unlist(lapply(browser_records, `[[`, "representedProducts"),
                                   recursive = FALSE)
 projected_roles <- vapply(projected_relationships, `[[`, character(1), "relationshipRole")
-assert_identical(length(projected_relationships), 90L,
+assert_identical(length(projected_relationships), 94L,
                  "Browser reverse relationship index lost exact rows")
 assert_identical(unname(as.integer(table(factor(
   projected_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 60L, 17L), "Projected relationship-role counts changed")
+)))), c(13L, 62L, 19L), "Projected relationship-role counts changed")
 assert_true(all(vapply(projected_relationships, function(relationship) {
   identical(names(relationship), c(
     "productId", "title", "deliveryClass", "coverageDisposition",
@@ -1517,8 +1774,8 @@ assert_true(!any(vapply(staged_ids, function(id) {
 }, logical(1))), "A staged Resource ID entered the browser projection")
 assert_identical(
   digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "8314831965cb5869e7e599c8340aa31938314ceab3f700b9eb16e0cf22d130fc",
-  "The exact R16B precipitation-micro-pass 206-Resource browser payload changed"
+  "6f21971ed818771f02a45be0ad6e70834702869690e1d140dda68e8f448a1686",
+  "The exact R17B relationship-enriched 206-Resource browser payload changed"
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
@@ -1987,7 +2244,7 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R16B balanced USACE/USBR catalog contracts passed.\n")
+cat("GUIDE-I2B-R17B CNRFC relationship-enrichment contracts passed.\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
 cat("TOTAL_RESOURCES=211\n")
@@ -2035,7 +2292,11 @@ cat("BROWSER_RESOURCE_SHA256=",
 cat("DEFAULT_PROFILE_ONLY=YES\n")
 cat("RELATIONSHIP_HEURISTICS=0\n")
 cat("PRODUCT_RELATIONSHIP_RECORDS=270\n")
-cat("CANONICAL_RESOURCE_LINKS=90\n")
+cat("CANONICAL_RESOURCE_LINKS=94\n")
+cat("PRODUCTS_WITH_RESOURCE_LINKS=70\n")
+cat("RESOURCES_WITH_PRODUCT_LINKS=26\n")
+cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,62_SELECTED,19_SOURCE_REFERENCE\n")
+cat("CNRFC_RELATED_PRODUCTS=7\n")
 cat("RELATIONSHIP_RESOURCE_RECORDS=211\n")
 cat("ALL_RESOURCE_REPRESENTATIONS=3_DIRECT,23_SELECTED,180_NOT_MAPPED,5_NOT_REVIEWED\n")
 cat("LEGACY_PUBLIC_PROJECTIONS=0\n")
