@@ -5295,24 +5295,20 @@
       ],
       "coverage_review_state": "reviewed",
       "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_evidence_basis": "tracked_product_definition",
       "coverage_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "00_config/guide_resources.json",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
       "resource_links": [
         {
-          "resource_id": "resource_noaa_wpc_qpf",
+          "resource_id": "resource_noaa_wpc_excessive_rainfall_outlook",
           "relationship_role": "selected_product_from_broader_resource",
           "evidence_refs": [
             "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-            "03_functions/leaflet_ops_live_service_helpers.r",
-            "00_config/guide_product_enrichment.json",
-            "03_functions/leaflet_guide_helpers.r",
-            "qa/test_guide_foundation.R"
+            "00_config/guide_resources.json",
+            "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
           ]
         }
       ]
@@ -5326,11 +5322,25 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/guide_resources.json",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_excessive_rainfall_outlook",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/guide_resources.json",
+            "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_wpc_ero_day_3",
@@ -5341,11 +5351,25 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "00_config/guide_resources.json",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_noaa_wpc_excessive_rainfall_outlook",
+          "relationship_role": "selected_product_from_broader_resource",
+          "evidence_refs": [
+            "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+            "00_config/guide_resources.json",
+            "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
+          ]
+        }
+      ]
     },
     {
       "product_id": "ops_nws_wfo_boundaries",
@@ -8312,20 +8336,6 @@
       ]
     },
     {
-      "resource_id": "resource_noaa_cnrfc_hourly_hefs_csv_service",
-      "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
-      "evidence_refs": [
-        "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
-      ]
-    },
-    {
       "resource_id": "resource_ocpw_orange_county_hydrology_data_portal_platform",
       "map_review_state": "reviewed",
       "map_representation": "not_currently_mapped_in_brim",
@@ -8509,20 +8519,6 @@
       ]
     },
     {
-      "resource_id": "resource_noaa_cnrfc_forcing_csv_service",
-      "map_review_state": "reviewed",
-      "map_representation": "not_currently_mapped_in_brim",
-      "evidence_refs": [
-        "00_config/guide_resources.json",
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_product_enrichment.json",
-        "00_config/external_service_catalog.csv",
-        "00_config/config_local_layer_registry.r",
-        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
-      ]
-    },
-    {
       "resource_id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
       "map_review_state": "reviewed",
       "map_representation": "selected_products_in_brim",
@@ -8611,6 +8607,54 @@
       "evidence_refs": [
         "00_config/guide_resources.json",
         "00_config/guide_product_resource_relationships.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usgs_usgs_california_river_basin_schematics_collection",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_nws_graphical_forecasts",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_polarwx_tropical",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_brightband_operational_weatherbench",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_geolibre",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_noaa_wpc_excessive_rainfall_outlook",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json"
       ]
     }
   ]

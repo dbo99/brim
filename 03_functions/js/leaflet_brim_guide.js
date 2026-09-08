@@ -62,6 +62,334 @@ function(el, x, data) {
         .replace(/\s+/g, ' ');
     }
 
+
+    // Curated browsing associations only; original attribution and search stay intact.
+    // Checkbox membership and order are an explicit maintainer decision. Counts are display only.
+    var providerPolicy = {
+      "provider_roles": [
+        "display_provider",
+        "publisher",
+        "maintainer",
+        "partner"
+      ],
+      "groups": [
+        {
+          "id": "federal",
+          "label": "Federal"
+        },
+        {
+          "id": "state",
+          "label": "State"
+        }
+      ],
+      "families": [
+        {
+          "id": "blm",
+          "label": "BLM",
+          "group": "federal",
+          "exact_provider_names": [
+            "Bureau of Land Management"
+          ]
+        },
+        {
+          "id": "epa",
+          "label": "EPA",
+          "group": "federal",
+          "exact_provider_names": [
+            "U.S. Environmental Protection Agency"
+          ]
+        },
+        {
+          "id": "fema",
+          "label": "FEMA",
+          "group": "federal",
+          "exact_provider_names": [
+            "Federal Emergency Management Agency"
+          ]
+        },
+        {
+          "id": "nasa",
+          "label": "NASA",
+          "group": "federal",
+          "exact_provider_names": [
+            "NASA",
+            "National Aeronautics and Space Administration",
+            "NASA / JPL",
+            "NASA Jet Propulsion Laboratory",
+            "NASA / NSIDC DAAC",
+            "NASA / University of Nebraska–Lincoln"
+          ]
+        },
+        {
+          "id": "noaa",
+          "label": "NOAA",
+          "group": "federal",
+          "exact_provider_names": [
+            "National Oceanic and Atmospheric Administration",
+            "National Weather Service",
+            "NOAA / National Weather Service",
+            "NOAA / NESDIS STAR",
+            "NOAA National Environmental Satellite, Data, and Information Service / Center for Satellite Applications and Research",
+            "NOAA Climate Prediction Center",
+            "NOAA Weather Prediction Center",
+            "CIRA / NOAA RAMMB",
+            "NOAA Regional and Mesoscale Meteorology Branch",
+            "National Integrated Drought Information System",
+            "NIDIS / NOAA",
+            "NCSMMN / NIDIS"
+          ]
+        },
+        {
+          "id": "usace",
+          "label": "USACE",
+          "group": "federal",
+          "exact_provider_names": [
+            "U.S. Army Corps of Engineers"
+          ]
+        },
+        {
+          "id": "usbr",
+          "label": "USBR",
+          "group": "federal",
+          "exact_provider_names": [
+            "Bureau of Reclamation"
+          ]
+        },
+        {
+          "id": "usda",
+          "label": "USDA",
+          "group": "federal",
+          "exact_provider_names": [
+            "U.S. Department of Agriculture",
+            "U.S. Department of Agriculture National Agricultural Statistics Service",
+            "USDA NASS / George Mason University",
+            "USDA Natural Resources Conservation Service",
+            "USDA NRCS"
+          ]
+        },
+        {
+          "id": "usgs",
+          "label": "USGS",
+          "group": "federal",
+          "exact_provider_names": [
+            "U.S. Geological Survey",
+            "USGS / National Drought Mitigation Center"
+          ]
+        },
+        {
+          "id": "dwr",
+          "label": "DWR",
+          "group": "state",
+          "exact_provider_names": [
+            "California Department of Water Resources"
+          ]
+        },
+        {
+          "id": "waterboards",
+          "label": "Water Boards",
+          "group": "state",
+          "exact_provider_names": [
+            "California State Water Resources Control Board"
+          ]
+        }
+      ],
+      "exact_resource_rules": [
+        {
+          "resource_id": "resource_geospatial_and_remote_sensing_data_provi_fema_national_flood_hazard_layer_viewer_viewer",
+          "families": [
+            "fema"
+          ],
+          "expected_provider": "Geospatial and remote-sensing data providers",
+          "expected_title": "FEMA National Flood Hazard Layer Viewer",
+          "expected_canonical_url": "https://hazards-fema.maps.arcgis.com/apps/webappviewer/index.html?id=8b0adb51996444d4879338b5529aa9cd"
+        },
+        {
+          "resource_id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+          "families": [
+            "noaa"
+          ],
+          "expected_provider": "Climate and drought data providers",
+          "expected_title": "Drought.gov California",
+          "expected_canonical_url": "https://drought.gov/states/california"
+        },
+        {
+          "resource_id": "resource_water_quality_and_ecosystem_data_provide_safe_to_swim_map_viewer",
+          "families": [
+            "waterboards"
+          ],
+          "expected_provider": "Water quality and ecosystem data providers",
+          "expected_title": "Safe to Swim Map",
+          "expected_canonical_url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html"
+        }
+      ],
+      "legacy_families": [
+        {
+          "id": "nifc",
+          "label": "NIFC / WFIGS — Interagency fire information",
+          "exact_provider_names": [
+            "NIFC / WFIGS"
+          ]
+        },
+        {
+          "id": "calfire",
+          "label": "CAL FIRE / FRAP",
+          "exact_provider_names": [
+            "CAL FIRE / FRAP"
+          ]
+        },
+        {
+          "id": "caloes",
+          "label": "Cal OES — Emergency Services",
+          "exact_provider_names": [
+            "California Governor's Office of Emergency Services"
+          ]
+        },
+        {
+          "id": "cdfa",
+          "label": "CDFA — Food & Agriculture",
+          "exact_provider_names": [
+            "California Department of Food and Agriculture"
+          ]
+        },
+        {
+          "id": "cvfpb",
+          "label": "Central Valley Flood Protection Board",
+          "exact_provider_names": [
+            "Central Valley Flood Protection Board"
+          ]
+        },
+        {
+          "id": "aso",
+          "label": "Airborne Snow Observatories",
+          "exact_provider_names": [
+            "Airborne Snow Observatories, Inc."
+          ]
+        },
+        {
+          "id": "cw3e",
+          "label": "CW3E — Western Weather & Water Extremes",
+          "exact_provider_names": [
+            "Center for Western Weather and Water Extremes"
+          ]
+        },
+        {
+          "id": "climateengine",
+          "label": "Climate Engine",
+          "exact_provider_names": [
+            "Climate Engine"
+          ]
+        },
+        {
+          "id": "nsidc",
+          "label": "NSIDC — Snow & Ice Data Center",
+          "exact_provider_names": [
+            "National Snow and Ice Data Center",
+            "National Snow and Ice Data Center Distributed Active Archive Center",
+            "NASA / NSIDC DAAC"
+          ]
+        },
+        {
+          "id": "pivotal",
+          "label": "Pivotal Weather",
+          "exact_provider_names": [
+            "Pivotal Weather"
+          ]
+        },
+        {
+          "id": "prism",
+          "label": "PRISM — Oregon State University",
+          "exact_provider_names": [
+            "PRISM Climate Group, Oregon State University"
+          ]
+        },
+        {
+          "id": "synoptic",
+          "label": "Synoptic Data / MesoWest",
+          "exact_provider_names": [
+            "Synoptic Data"
+          ]
+        },
+        {
+          "id": "windy",
+          "label": "Windy",
+          "exact_provider_names": [
+            "Windy"
+          ]
+        }
+      ]
+    };
+    var allProviderFamilies = providerPolicy.families.concat(providerPolicy.legacy_families);
+
+    function normalizeProvider(value) {
+      return String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function providerFamily(value) {
+      return allProviderFamilies.find(function(family) {
+        return value === 'family:' + family.id;
+      });
+    }
+
+    function providerMembership(resource) {
+      var names = [resource.provider].concat(array(resource.providers).filter(function(provider) {
+        return providerPolicy.provider_roles.indexOf(provider.role) >= 0;
+      }).map(function(provider) { return provider.name; })).map(normalizeProvider);
+      var members = allProviderFamilies.filter(function(family) {
+        return family.exact_provider_names.some(function(name) {
+          return names.indexOf(normalizeProvider(name)) >= 0;
+        });
+      }).map(function(family) { return 'family:' + family.id; });
+      providerPolicy.exact_resource_rules.forEach(function(rule) {
+        if (resource.id !== rule.resource_id) return;
+        if (resource.provider !== rule.expected_provider || resource.title !== rule.expected_title ||
+            resource.canonicalUrl !== rule.expected_canonical_url) {
+          throw new Error('Selected provider Resource guard mismatch: ' + resource.id);
+        }
+        rule.families.forEach(function(id) {
+          if (members.indexOf('family:' + id) < 0) members.push('family:' + id);
+        });
+      });
+      return members;
+    }
+
+    var providerMemberships = new Map();
+    sourceResources.forEach(function(resource) {
+      providerMemberships.set(resource.id, providerMembership(resource));
+    });
+
+    function providerMatches(resource, selection) {
+      // Existing raw-name selections remain exact, including search-only local sources.
+      return providerFamily(selection)
+        ? providerMemberships.get(resource.id).indexOf(selection) >= 0
+        : resource.provider === selection;
+    }
+
+    function providerFocusKey(selection) {
+      return 'resource-provider-' + encodeURIComponent(selection);
+    }
+
+    function providerGroups() {
+      return providerPolicy.groups.map(function(group) {
+        return { id: group.id, label: group.label };
+      });
+    }
+
+    function providerCounts(stateInput) {
+      var state = createState(stateInput);
+      var matches = new Map(allProviderFamilies.map(function(family) {
+        return ['family:' + family.id, new Set()];
+      }));
+      sourceResources.forEach(function(resource) {
+        if (!dimensionMatch(resource, state, 'providers')) return;
+        providerMemberships.get(resource.id).forEach(function(value) {
+          matches.get(value).add(resource.id);
+        });
+      });
+      var counts = {};
+      matches.forEach(function(ids, value) { counts[value] = ids.size; });
+      return counts;
+    }
+
     function tokenWords(value) {
       var normalized = normalizeText(value);
       return normalized ? normalized.split(' ') : [];
@@ -184,7 +512,8 @@ function(el, x, data) {
         query: String(value.query || ''),
         preset: String(value.preset || 'all_resources'),
         providers: array(value.providers).slice(),
-        providerQuery: String(value.providerQuery || ''),
+        // Ignore obsolete provider-only search state; it cannot hide the shortlist.
+        providerQuery: '',
         subject: String(value.subject || ''),
         informationType: String(value.informationType || ''),
         resourceType: String(value.resourceType || ''),
@@ -210,7 +539,7 @@ function(el, x, data) {
         initial.preset = 'all_resources';
       }
       initial.providers = initial.providers.filter(function(value, index, values) {
-        return value && values.indexOf(value) === index;
+        return typeof value === 'string' && value && values.indexOf(value) === index;
       });
       initial.renderLimit = Math.max(pageSize, initial.renderLimit);
       if (!initial.sortMode) {
@@ -235,7 +564,7 @@ function(el, x, data) {
       if (ignored !== 'productContext' &&
           !hasProductContext(resource, state.productContextId)) return false;
       if (ignored !== 'providers' && state.providers.length &&
-          state.providers.indexOf(resource.provider) < 0) return false;
+          !state.providers.some(function(value) { return providerMatches(resource, value); })) return false;
       if (ignored !== 'subject' && state.subject &&
           array(resource.subjectTags).indexOf(state.subject) < 0) return false;
       if (ignored !== 'informationType' && state.informationType &&
@@ -308,9 +637,7 @@ function(el, x, data) {
       });
       return {
         presets: presets,
-        providers: countValues(state, 'providers', function(resource) {
-          return [resource.provider];
-        }),
+        providers: providerCounts(state),
         subjects: countValues(state, 'subject', function(resource) {
           return array(resource.subjectTags);
         }),
@@ -323,17 +650,12 @@ function(el, x, data) {
       };
     }
 
-    function providerOptions(state) {
-      var counts = facetCounts(state).providers;
-      var query = normalizeText(state.providerQuery);
-      return uniqueSorted(Object.keys(counts)).filter(function(displayProvider) {
-        if (!query) return true;
-        return sourceResources.some(function(resource) {
-          return resource.provider === displayProvider &&
-            normalizeText([displayProvider].concat(providerNames(resource)).join(' '))
-              .indexOf(query) >= 0;
-        });
-      }).map(function(value) { return { value: value, count: counts[value] || 0 }; });
+    function providerOptions(state, counts) {
+      counts = counts || providerCounts(state);
+      return providerPolicy.families.map(function(family) {
+        var value = 'family:' + family.id;
+        return { value: value, label: family.label, group: family.group, count: counts[value] || 0 };
+      });
     }
 
     function chips(stateInput) {
@@ -342,7 +664,11 @@ function(el, x, data) {
       state.providers.slice().sort(function(a, b) {
         return normalizeText(a).localeCompare(normalizeText(b));
       }).forEach(function(value) {
-        output.push({ key: 'provider', value: value, label: value });
+        var family = providerFamily(value);
+        var exact = sourceResources.some(function(resource) { return resource.provider === value; });
+        output.push({ key: 'provider', value: value,
+          label: family ? family.label : (exact ? 'Exact provider: ' : 'Unavailable provider: ') + value
+        });
       });
       [
         ['subject', state.subject, 'Subject'],
@@ -379,11 +705,11 @@ function(el, x, data) {
       state.selectedId = '';
       state.renderLimit = pageSize;
       state.pane = 'results';
-      state.focusKey = 'resource-provider-search';
+      state.focusKey = 'resource-provider-family%3Ablm';
       return state;
     }
 
-    function reset(stateInput) {
+    function reset() {
       var state = createState({ productContextId: '' });
       state.focusKey = 'resource-search';
       return state;
@@ -412,7 +738,7 @@ function(el, x, data) {
       state.selectedId = '';
       state.renderLimit = pageSize;
       state.pane = 'results';
-      state.focusKey = 'resource-provider-' + normalizeText(provider).replace(/ /g, '-');
+      state.focusKey = providerFocusKey(provider);
       return state;
     }
 
@@ -544,6 +870,10 @@ function(el, x, data) {
       resultItems: resultItems,
       facetCounts: facetCounts,
       providerOptions: providerOptions,
+      providerGroups: providerGroups,
+      providerMembership: providerMembership,
+      providerFocusKey: providerFocusKey,
+      providerPolicy: function() { return JSON.parse(JSON.stringify(providerPolicy)); },
       chips: chips,
       removeChip: removeChip,
       clearProviders: clearProviders,
@@ -1575,67 +1905,63 @@ function(el, x, data) {
     return section;
   }
 
+  function renderResourceProviders(resourceState, counts) {
+    var providerBlock = node('section', 'brim-guide__resource-provider');
+    var providerHeader = node('div', 'brim-guide__resource-provider-heading');
+    providerHeader.appendChild(node('h3', '', 'Selected providers'));
+    var providerClear = button(
+      'brim-guide__text-button', 'Clear', 'resource-provider-clear', 'Clear providers only'
+    );
+    providerClear.disabled = !resourceState.providers.length;
+    providerHeader.appendChild(providerClear);
+    providerBlock.appendChild(providerHeader);
+    providerBlock.appendChild(node(
+      'p', 'brim-guide__resource-provider-help', 'Other providers remain in results and searchable above.'
+    ));
+    var options = resourceExplorerModel.providerOptions(resourceState, counts);
+    resourceExplorerModel.providerGroups().forEach(function(group) {
+      var section = node('fieldset', 'brim-guide__resource-provider-group');
+      section.appendChild(node('legend', '', group.label));
+      var panel = node('div', 'brim-guide__resource-provider-options');
+      options.filter(function(option) { return option.group === group.id; }).forEach(function(option) {
+        var label = node('label', 'brim-guide__resource-provider-option');
+        var checkbox = node('input', '');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'brim-guide-provider-' + option.value.slice('family:'.length);
+        checkbox.checked = resourceState.providers.indexOf(option.value) >= 0;
+        // All declared choices stay focusable at zero; counts never determine the roster.
+        checkbox.setAttribute('data-resource-provider', option.value);
+        checkbox.setAttribute('aria-label', option.label + ', ' + resourceCountText(option.count));
+        resourceFocusKey(checkbox, resourceExplorerModel.providerFocusKey(option.value));
+        label.setAttribute('for', checkbox.id);
+        label.appendChild(checkbox);
+        label.appendChild(node('span', '', option.label));
+        var count = node('small', '', String(option.count));
+        count.setAttribute('aria-hidden', 'true');
+        label.appendChild(count);
+        panel.appendChild(label);
+      });
+      section.appendChild(panel);
+      providerBlock.appendChild(section);
+    });
+    return providerBlock;
+  }
+
   function renderResourceFacets(resourceState, counts) {
     var facets = node('aside', 'brim-guide__resource-facets');
     facets.id = 'brim-guide-resource-facets';
     facets.setAttribute('aria-label', 'Resource filters');
     facets.classList.toggle('is-open', resourceState.facetsOpen);
-    var narrowBack = button(
+    facets.appendChild(button(
       'brim-guide__resource-pane-back', '← Results', 'resource-pane-results'
-    );
-    facets.appendChild(narrowBack);
+    ));
     var heading = node('div', 'brim-guide__resource-facet-heading');
     heading.appendChild(node('h2', '', 'Refine Resources'));
-    heading.appendChild(button(
-      'brim-guide__text-button',
-      'Reset all',
-      'resource-reset'
-    ));
     facets.appendChild(heading);
 
-    var providerBlock = node('section', 'brim-guide__resource-provider');
-    var providerHeader = node('div', 'brim-guide__resource-provider-heading');
-    providerHeader.appendChild(node('h3', '', 'Provider'));
-    var providerClear = button(
-      'brim-guide__text-button', 'Clear', 'resource-provider-clear', 'Clear providers only'
-    );
-    providerClear.disabled = !resourceState.providers.length && !resourceState.providerQuery;
-    providerHeader.appendChild(providerClear);
-    providerBlock.appendChild(providerHeader);
-    var providerSearchLabel = node('label', 'brim-guide__resource-provider-search-label');
-    providerSearchLabel.appendChild(node('span', '', 'Search providers'));
-    var providerSearch = node('input', 'brim-guide__resource-provider-search');
-    providerSearch.type = 'search';
-    providerSearch.value = resourceState.providerQuery;
-    providerSearch.autocomplete = 'off';
-    providerSearch.setAttribute('data-resource-provider-search', 'true');
-    resourceFocusKey(providerSearch, 'resource-provider-search');
-    providerSearchLabel.appendChild(providerSearch);
-    providerBlock.appendChild(providerSearchLabel);
-    var providerOptions = node('div', 'brim-guide__resource-provider-options');
-    providerOptions.setAttribute('role', 'group');
-    providerOptions.setAttribute('aria-label', 'Exact display providers');
-    resourceExplorerModel.providerOptions(resourceState).forEach(function(option) {
-      var label = node('label', 'brim-guide__resource-provider-option');
-      var checkbox = node('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = resourceState.providers.indexOf(option.value) >= 0;
-      checkbox.setAttribute('data-resource-provider', option.value);
-      resourceFocusKey(
-        checkbox,
-        'resource-provider-' + resourceExplorerModel.normalize(option.value).replace(/ /g, '-')
-      );
-      label.appendChild(checkbox);
-      label.appendChild(node('span', '', option.value));
-      label.appendChild(node('small', '', String(option.count)));
-      providerOptions.appendChild(label);
-    });
-    if (!providerOptions.children.length) {
-      providerOptions.appendChild(node('p', 'brim-guide__resource-facet-empty', 'No providers match.'));
-    }
-    providerBlock.appendChild(providerOptions);
-    facets.appendChild(providerBlock);
-
+    // The filter body owns desktop scrolling; the action row reserves its own space.
+    var body = node('div', 'brim-guide__resource-filter-body');
+    body.appendChild(renderResourceProviders(resourceState, counts.providers));
     var choiceStack = node('div', 'brim-guide__resource-facet-choices');
     choiceStack.appendChild(resourceFacetChoices(
       'Subject', 'subject', resourceState.subject, counts.subjects
@@ -1644,16 +1970,7 @@ function(el, x, data) {
       'Information Type', 'informationType', resourceState.informationType,
       counts.informationTypes
     ));
-    facets.appendChild(choiceStack);
-
-    var more = node('section', 'brim-guide__resource-more');
-    var moreToggle = button(
-      'brim-guide__resource-more-toggle', 'More filters', 'resource-more-filters'
-    );
-    moreToggle.setAttribute('aria-expanded', resourceState.moreFiltersOpen ? 'true' : 'false');
-    moreToggle.setAttribute('aria-controls', 'brim-guide-resource-more-panel');
-    resourceFocusKey(moreToggle, 'resource-more-filters');
-    more.appendChild(moreToggle);
+    body.appendChild(choiceStack);
     var morePanel = node('div', 'brim-guide__resource-more-panel');
     morePanel.id = 'brim-guide-resource-more-panel';
     morePanel.hidden = !resourceState.moreFiltersOpen;
@@ -1661,8 +1978,19 @@ function(el, x, data) {
       'Resource type', 'resourceType', resourceState.resourceType,
       counts.resourceTypes, 'All Resource types', resourceExplorerModel.resourceTypeLabel
     ));
-    more.appendChild(morePanel);
-    facets.appendChild(more);
+    body.appendChild(morePanel);
+    facets.appendChild(body);
+
+    var actions = node('div', 'brim-guide__resource-filter-actions');
+    var moreToggle = button(
+      'brim-guide__resource-more-toggle', 'More filters', 'resource-more-filters'
+    );
+    moreToggle.setAttribute('aria-expanded', resourceState.moreFiltersOpen ? 'true' : 'false');
+    moreToggle.setAttribute('aria-controls', morePanel.id);
+    resourceFocusKey(moreToggle, 'resource-more-filters');
+    actions.appendChild(moreToggle);
+    actions.appendChild(button('brim-guide__text-button', 'Reset all', 'resource-reset'));
+    facets.appendChild(actions);
     return facets;
   }
 
@@ -2107,7 +2435,7 @@ function(el, x, data) {
   function captureResourceScrollPositions() {
     var existing = main.querySelector('.brim-guide__resource-explorer');
     if (!existing) return;
-    var facets = existing.querySelector('.brim-guide__resource-facets');
+    var facets = existing.querySelector('.brim-guide__resource-filter-body');
     var results = existing.querySelector('.brim-guide__resource-results-scroll');
     var detail = existing.querySelector('.brim-guide__resource-detail');
     var wide = window.matchMedia('(min-width: 1101px)').matches;
@@ -2129,7 +2457,7 @@ function(el, x, data) {
     var wide = window.matchMedia('(min-width: 1101px)').matches;
     if (wide) {
       main.scrollTop = 0;
-      var facets = existing.querySelector('.brim-guide__resource-facets');
+      var facets = existing.querySelector('.brim-guide__resource-filter-body');
       var results = existing.querySelector('.brim-guide__resource-results-scroll');
       var detail = existing.querySelector('.brim-guide__resource-detail');
       if (facets) facets.scrollTop = state.resourceExplorer.facetScrollTop;
@@ -2293,7 +2621,7 @@ function(el, x, data) {
     });
   }
 
-  function focusResourceTarget(key) {
+  function focusResourceTarget(key, reveal) {
     window.setTimeout(function() {
       if (key === 'resource-search') {
         try {
@@ -2309,10 +2637,11 @@ function(el, x, data) {
         if (candidates[index].getAttribute('data-guide-focus-key') === key &&
             candidates[index].offsetParent !== null) {
           try {
-            candidates[index].focus({ preventScroll: true });
+            candidates[index].focus({ preventScroll: !reveal });
           } catch (error) {
             candidates[index].focus();
           }
+          if (reveal) captureResourceScrollPositions();
           restoreResourceScrollAfterFocus();
           return;
         }
@@ -2456,7 +2785,8 @@ function(el, x, data) {
         }
       );
       render();
-      focusResourceTarget('resource-more-filters');
+      focusResourceTarget(state.resourceExplorer.moreFiltersOpen
+        ? 'resource-more-resourceType' : 'resource-more-filters', true);
     } else if (action === 'resource-facets-toggle') {
       var openingFacets = !state.resourceExplorer.facetsOpen;
       state.resourceExplorer = resourceExplorerModel.patchState(
@@ -2469,7 +2799,7 @@ function(el, x, data) {
         }
       );
       render();
-      focusResourceTarget(openingFacets ? 'resource-provider-search' : 'resource-facets-toggle');
+      focusResourceTarget(openingFacets ? 'resource-provider-family%3Ablm' : 'resource-facets-toggle', true);
     } else if (action === 'resource-pane-results') {
       state.resourceExplorer = resourceExplorerModel.patchState(
         state.resourceExplorer,
@@ -2501,7 +2831,7 @@ function(el, x, data) {
     } else if (action === 'resource-provider-clear') {
       state.resourceExplorer = resourceExplorerModel.clearProviders(state.resourceExplorer);
       render();
-      focusResourceTarget('resource-provider-search');
+      focusResourceTarget('resource-provider-family%3Ablm', true);
     } else if (action === 'resource-reset') {
       state.resourceExplorer = resourceExplorerModel.reset(state.resourceExplorer);
       render(false);
@@ -2626,27 +2956,6 @@ function(el, x, data) {
     render();
   }
 
-  function handleResourceInput(event) {
-    var target = event.target;
-    if (!target || !target.hasAttribute('data-resource-provider-search')) return;
-    state.resourceExplorer = resourceExplorerModel.patchState(
-      state.resourceExplorer,
-      {
-        providerQuery: target.value,
-        facetsOpen: true,
-        pane: 'facets',
-        renderLimit: state.resourceExplorer.renderLimit
-      }
-    );
-    render();
-    window.setTimeout(function() {
-      var replacement = root.querySelector('[data-resource-provider-search]');
-      if (!replacement) return;
-      replacement.focus();
-      replacement.setSelectionRange(replacement.value.length, replacement.value.length);
-    }, 0);
-  }
-
   function handleResourceChange(event) {
     var target = event.target;
     if (!target) return;
@@ -2756,7 +3065,6 @@ function(el, x, data) {
   function teardownGuide() {
     if (!lifecycle.detach()) return;
     root.removeEventListener('click', handleRootClick);
-    root.removeEventListener('input', handleResourceInput);
     root.removeEventListener('change', handleResourceChange);
     root.removeEventListener('keydown', handleRootKeydown);
     searchInput.removeEventListener('input', handleSearchInput);
@@ -2766,7 +3074,6 @@ function(el, x, data) {
   root.__brimGuideTeardown = teardownGuide;
   if (lifecycle.attach()) {
     root.addEventListener('click', handleRootClick);
-    root.addEventListener('input', handleResourceInput);
     root.addEventListener('change', handleResourceChange);
     root.addEventListener('keydown', handleRootKeydown);
     searchInput.addEventListener('input', handleSearchInput);

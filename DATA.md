@@ -30,7 +30,7 @@ BRIM local source geometry and raw fields outrank research-package geometry or p
 
 `00_config/guide_resources.json` is the canonical tracked source for authored
 BRIM Guide Resource metadata. Its schema version 3 contains one ordered
-211-record dataset: 206 reviewed Resources are `published` and five Resources
+215-record dataset: 210 reviewed Resources are `published` and five Resources
 are `staged`. GUIDE-I2B-R14 appended the exact 133-Resource R13-rebased
 target-200 tranche as staged canonical candidates. GUIDE-I2B-R15B rehabilitates 25
 R15A-reviewed same-identity endpoint actions, separately normalizes the USBR
@@ -61,8 +61,8 @@ Water Quality Assessment Program page, and adds accurately labeled 2024 and
 2026 Integrated Report cycle pages. The current 2024 line and polygon Products
 are exact selected Products of that parent; the 270-Product authority contains
 no 2026 Integrated Report Product, so no 2026 Product relationship is inferred.
-The canonical authority is therefore 211 Resources / 206 published / five
-staged. GUIDE-I2B-R10 published exactly 34
+CNRFC CSV-child consolidation and six reviewed canonical additions bring the
+canonical authority to 215 Resources / 210 published / five staged. GUIDE-I2B-R10 published exactly 34
 of the 39 identity-ready Wave-2 records by changing only
 `publication_state`. The five earlier held IDs remain
 `resource_nasa_giovanni`, `resource_usgs_earthexplorer`, and
@@ -70,7 +70,7 @@ of the 39 identity-ready Wave-2 records by changing only
 `resource_nrcs_web_soil_survey` and `resource_usda_cropland_data_layer` for
 taxonomy resolution. The publication projection runs before
 relationships, search text, counts, facets, adaptation, or browser embedding,
-so only the 206 published Resources are browser-visible. The registry preserves immutable
+so only the 210 published Resources are browser-visible. The registry preserves immutable
 `resource_*` IDs, separates final-ID aliases, build-time `res.*` migration
 aliases, and future human search aliases, and stores only reviewed descriptive
 fields. Every Resource has exactly one controlled Resource Type machine ID,
@@ -93,7 +93,7 @@ than inventing metadata.
 `00_config/guide_product_resource_relationships.json` is the sole authored
 Product–Resource and Resource map-representation authority. Its schema-version-2
 `products` and `resources` arrays must equal the complete current compiled
-Product set and canonical Resource set exactly: 270 Product records and 211
+Product set and canonical Resource set exactly: 270 Product records and 215
 Resource review/representation records. Each Product owns a delivery
 classification, an independent coverage-review state and disposition,
 evidence, and zero or more exact canonical Resource links. Each Resource owns
@@ -113,7 +113,7 @@ intake backlog remains deferred under its existing evidence packets.
 Placeholder or inferred Resources are prohibited.
 
 The full Resource relationship authority contains three
-`direct_match_in_brim`, 23 `selected_products_in_brim`, 180
+`direct_match_in_brim`, 24 `selected_products_in_brim`, 183
 `not_currently_mapped_in_brim`, and five `not_yet_reviewed` records. All 133
 Resources in the revised R15 target use the reviewed
 `not_currently_mapped_in_brim` classification. R15B removes the two invalid
@@ -132,11 +132,14 @@ from California Water Watch to BRIM-mapped conveyance and the Delta operations
 snapshot. California Water Watch is therefore not currently mapped. The
 final currentness correction then adds the two exact 2024 Integrated Report
 line/polygon links to the evergreen statewide assessment-program parent. The
-resulting authority is 270 Products, 211 Resource records, and 90 canonical links.
+R16B authority was 270 Products, 211 Resource records, and 90 canonical links.
+The subsequent CNRFC review preserved seven parent links and reached 94 links.
+The WPC ERO ownership review below brings current authority to 96 links across
+72 Products and 27 Resources, with all 270 Product identities unchanged.
 
 Product and Resource IDs, controlled values, set equality, link cardinality,
 evidence paths, duplicates, unknown fields, and disposition/representation
-rules validate fail closed. Resource links validate against all 211 canonical
+rules validate fail closed. Resource links validate against all 215 canonical
 Resources, while publication projection removes staged Resources before public
 relationships are derived. Product relationships and Resource map presence are
 never inferred from titles, providers, summaries, URLs, publication, or
@@ -145,14 +148,14 @@ editorial Product content only and contains no Resource relationships. The
 R12A compatibility objects and compiler adapter have been deleted; permanent
 compatibility shadow, old/new dual authority, and fallback are prohibited.
 
-All 206 published Resources have reviewed map-presence authority: three are
-`direct_match_in_brim`, 23 are `selected_products_in_brim`, and 180 are
+All 210 published Resources have reviewed map-presence authority: three are
+`direct_match_in_brim`, 24 are `selected_products_in_brim`, and 183 are
 `not_currently_mapped_in_brim`. The public primary views derive only from those
-Resource records and are exactly `In BRIM map` (26), `Beyond the map` (180), and
-`All Resources` (206). Product relationships support detail and exact
+Resource records and are exactly `In BRIM map` (27), `Beyond the map` (183), and
+`All Resources` (210). Product relationships support detail and exact
 Product-context navigation but do not create another primary Resource filter.
 
-The browser projection contains the 206 published records in registry order and
+The browser projection contains the 210 published records in registry order and
 only the reviewed 23-field Resource shape: identity and descriptive metadata,
 labeled access points, Resource Type and temporal machine IDs with build-derived
 labels, normalized geographic scope with its build-derived scope label and
@@ -218,7 +221,7 @@ descriptive fields, not controlled facet vocabularies. Temporal, geographic,
 named-geography, access-point-type, granularity, verification, and priority
 facets are not current Guide authority.
 The Explorer initially renders at most 25 result rows and exposes further rows
-in deterministic 25-record increments, so all 206 published Resources remain
+in deterministic 25-record increments, so all 210 published Resources remain
 reachable without embedding hidden card copies or introducing pagination,
 virtualization, runtime fetching, or browser-storage authority.
 
@@ -235,6 +238,57 @@ also required, add it to `guide_resources.json` and link it from the Product
 record. Ordinary additions do not require compiler, JavaScript, CSS, QA-source,
 or architecture-document changes unless the schema or controlled vocabulary
 changes.
+
+## Documentation-only Resource intake and ownership
+
+`08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json` is a schema-version-1
+`DOCUMENTATION_ONLY` decision ledger. It retains 97 intake entries, 27 linked
+water-year action children, and 278 station/name alias children for 139
+established CNRFC station identities. It separates submitted and replacement
+URLs, canonical identity, access points, aliases, and exact relationship
+operations, with immutable packet/member hashes and row pointers. Original
+proposals remain historical evidence; actual maintainer decisions are recorded
+separately. Builders and runtime do not read this ledger. It creates no feed,
+facet, current-year classification, automatic publication, or eligibility rule.
+
+The CNRFC parent owns 23 actions: one canonical landing, the Water Resources
+regional forecast map, the HD6RSA daily basin QPF/freezing-level page, 15 selected
+station views, and five CSV/archive actions. The two retired CSV-child stable IDs and
+their migration/search identities resolve to that parent. Its seven Product
+links are unchanged. The WPC ERO parent owns the Day 1–3 selected Products;
+the source-backed distinction from QPF and the unchanged Product delivery
+classifications are documented in the architecture's WPC ERO subsection.
+Runtime authority has 381 distinct action URLs (376 public) and 9 stable-ID, 167 migration,
+and 425 parent-local search aliases. Alias text remains distinct from a
+station join, feed, or generated menu.
+The station labels name the river and forecast point for full natural flow
+(FNF) water-year trends; URLs and default-year behavior are unchanged. They
+make no equivalence claim about observed flows, regulated releases or storage.
+Michigan Bar remains a river point; EXQC1 uses Lake McClure / New Exchequer.
+Water Resources is the wider regional entry point. HD6RSA covers 24-hour basin
+QPF and freezing levels for Days 1–6, not general temperature or a BRIM feed.
+One documentation-only A5 amendment records 15 label changes and two new action
+submissions; the original 97 entries and all 27/278 children remain unchanged.
+A future C2 after-image must preserve these labels and both pages before any
+SACC0 addition (22 becomes 24 actions if retained after rebase). No C2 execution,
+future payload allowance, acceptance or hold release is implied.
+The full default Guide JSON cap remains 835000 bytes, with at most 521502 bytes
+of growth over the unchanged 313498-byte baseline and 200000 bytes of combined
+Guide JS/CSS. The pre-polish corpus measured 832232 bytes (518734 growth); this
+historical measurement is not the size of the changed corpus. Candidate evidence
+must record a fresh full compiler/serializer measurement without field exclusions.
+
+The ledger records BRIM-R17C-G2-01 scope decisions and the separate
+BRIM-R17C1-EXEC-01 execution decision. Scheduled R17C2 entries remain
+execution-not-authorized. All 36 held entries, deferred Weather Lab, and the
+duplicate CDEC confirmation retain their dispositions. `APPROVED_*` means
+scope approval; it does not mean accepted implementation. PR, accepted SHA/tree,
+and implemented date remain null until separately verified human acceptance.
+The historical R17C-G1-V2-CTIME-01 exception is limited to its 24 enumerated
+transitions, with cause `UNESTABLISHED`; it never excuses fresh drift or
+releases a dependency for cleanup. Water-year values remain
+`external_source_only_no_runtime_feed` and cross-scheme labels are not
+scientific equivalence joins.
 
 ## Identity and joins
 

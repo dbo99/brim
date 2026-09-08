@@ -2346,6 +2346,11 @@
           "role": "configured_view",
           "label": "CDEC Reservoir Conditions",
           "url": "https://cdec.water.ca.gov/resapp/RescondMain"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Monthly Full Natural Flow Summary",
+          "url": "https://cdec.water.ca.gov/reportapp/javareports?name=FNFSUM"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -3246,9 +3251,301 @@
     },
     {
       "id": "resource_noaa_cnrfc",
-      "aliases": [],
-      "migration_aliases": [],
-      "search_aliases": [],
+      "aliases": [
+        "resource_noaa_cnrfc_forcing_csv_service",
+        "resource_noaa_cnrfc_hourly_hefs_csv_service"
+      ],
+      "migration_aliases": [
+        "res.noaa.cnrfc-forcing-csv.service",
+        "res.noaa.cnrfc-hourly-hefs-csv.service"
+      ],
+      "search_aliases": [
+        "CNRFC Forcings CSV",
+        "cnrfc.noaa.gov",
+        "CNRFC Hourly HEFS CSV",
+        "SF American nr Kyburz",
+        "AKYC1",
+        "Antelope Lake - Taylorsville nr",
+        "ANTC1",
+        "Napa - Napa",
+        "APCC1",
+        "Mad River - Arcata",
+        "ARCC1",
+        "Pajaro - Chittenden",
+        "AROC1",
+        "NF Stanislaus - Avery",
+        "AVYC1",
+        "Little Truckee - Boca Dam",
+        "BCAC1",
+        "Bear Ck - Bear Res",
+        "BCKC1",
+        "Sacramento - Bend Bridge",
+        "BDBC1",
+        "Chowchilla - Buchanan Dam",
+        "BHNC1",
+        "Butte Ck - Chico",
+        "BKCC1",
+        "Burns Ck - Burns Res",
+        "BNCC1",
+        "East Walker - Bridgeport",
+        "BPRC1",
+        "Van Duzen - Bridgeville",
+        "BRGC1",
+        "San Lorenzo River - Big Trees",
+        "BTEC1",
+        "Sprague R - Beatty",
+        "BTYO3",
+        "SF American - Placerville",
+        "CBAC1",
+        "Trinity R at Clair Engle Reservoir",
+        "CEGC1",
+        "EF Carson - Markleeville",
+        "CEMC1",
+        "Sprague nr Chiloquin",
+        "CHSO3",
+        "Cherry Ck - Cherry Valley Dam",
+        "CHVC1",
+        "Lost R - Clear Lake",
+        "CKEC1",
+        "Calleguas Ck - Camarillo",
+        "CLLC1",
+        "Mokelumne - Pardee Dam",
+        "CMPC1",
+        "Pit River nr Canby",
+        "CNBC1",
+        "Battle Ck - Cottonwood",
+        "COTC1",
+        "Coyote Ck - Coyote Res",
+        "COYC1",
+        "Smith - Jed Smith nr Crescent City",
+        "CREC1",
+        "Castaic Lake",
+        "CSKC1",
+        "Cottonwood Ck - Cottonwood",
+        "CWAC1",
+        "Cow Creek - Millville",
+        "CWCC1",
+        "Deer Ck - Vina",
+        "DCVC1",
+        "Deep Creek nr Hesperia",
+        "DKHC1",
+        "Sacramento - Delta",
+        "DLTC1",
+        "Donner Lake",
+        "DNRC1",
+        "MF Eel - Dos Rios",
+        "DOSC1",
+        "Elder Ck - Paskenta",
+        "EDCC1",
+        "NF Cosumnes - El Dorado",
+        "EDOC1",
+        "Elderberry Forebay",
+        "EFBC1",
+        "Little Stony Ck - East Park Dam",
+        "EPRC1",
+        "Merced - New Exchequer Dam",
+        "EXQC1",
+        "Truckee - Farad",
+        "FARC1",
+        "MF American - French Meadows",
+        "FMDC1",
+        "American River - Folsom Dam",
+        "FOLC1",
+        "San Joaquin - Friant Dam",
+        "FRAC1",
+        "Eel - Fernbridge",
+        "FRNC1",
+        "Carson R nr Fort Churchill",
+        "FTCN2",
+        "Scott - Fort Jones",
+        "FTJC1",
+        "Eel - Fort Seward",
+        "FTSC1",
+        "Sisquoc - Garey",
+        "GARC1",
+        "Gerber Reservoir",
+        "GERO3",
+        "EF Carson - Gardnerville",
+        "GRDN2",
+        "NF Yuba - Goodyears Bar",
+        "GYRC1",
+        "Indian Ck - Happy Camp",
+        "HAPC1",
+        "San Luis Rey R - Lake Henshaw",
+        "HAWC1",
+        "Tuolomne - Hetch Hetchy Dam",
+        "HETC1",
+        "Fresno - Hidden Dam",
+        "HIDC1",
+        "Yuba - Englebright Dam",
+        "HLEC1",
+        "Rubicon River - Hell Hole Resvr",
+        "HLLC1",
+        "San Benito - Hollister",
+        "HOSC1",
+        "Merced R - Happy Isles Br",
+        "HPIC1",
+        "SF Trinity - Hyampom",
+        "HYMC1",
+        "Ice House Res nr Kyburz",
+        "ICHC1",
+        "Independence Lake",
+        "ILAC1",
+        "NF Cache Ck - Indian Valley Dam",
+        "INVC1",
+        "Kern - Isabella Dam",
+        "ISAC1",
+        "Kern - Fairview Dam",
+        "KKVC1",
+        "Upper Klamath Lake",
+        "KLAO3",
+        "Kaweah - Three Rivers",
+        "KTRC1",
+        "EF Russian - Coyote Dam",
+        "LAMC1",
+        "Putah Ck - Lake Berryessa",
+        "LBEC1",
+        "SF Eel - Leggett",
+        "LEGC1",
+        "Santa Ynez - Los Laurels Canyon",
+        "LLYC1",
+        "Eleanor Ck - Lake Eleanor Dam",
+        "LNRC1",
+        "MF American - Foresthill",
+        "MFAC1",
+        "MF American - Abv Middle Fork Powerhouse",
+        "MFPC1",
+        "Cosumnes - Michigan Bar",
+        "MHBC1",
+        "Mill Ck - Los Molinos",
+        "MLMC1",
+        "McCloud R nr McCloud",
+        "MMCC1",
+        "MF Feather - Merrimac",
+        "MRMC1",
+        "SF Eel - Miranda",
+        "MRNC1",
+        "Martis Ck Reservoir",
+        "MTSC1",
+        "Mojave Forks Dam",
+        "MVDC1",
+        "Mojave River nr Victorville",
+        "MVVC1",
+        "NF Yuba - New Bullards Bar",
+        "NBBC1",
+        "Tuolumne - New Don Pedro Dam",
+        "NDPC1",
+        "NF Stanislaus - Diversion Dam",
+        "NDVC1",
+        "NF American - North Fork Dam",
+        "NFDC1",
+        "Calaveras - New Hogan Dam",
+        "NHGC1",
+        "NF MF American R nr Foresthill",
+        "NMFC1",
+        "Stanislaus - New Melones Dam",
+        "NMSC1",
+        "Highland Ck - New Spicer Meadows Rsvr",
+        "NSWC1",
+        "Navarro - Navarro",
+        "NVRC1",
+        "Feather - Oroville Dam",
+        "ORDC1",
+        "Redwood Ck - Orick",
+        "ORIC1",
+        "Owens Ck - Owens Dam",
+        "OWCC1",
+        "Kings - Pine Flat Dam",
+        "PFTC1",
+        "San Benito - Willow Creek",
+        "PIIC1",
+        "Eel R - Lk Pillsbury",
+        "PLBC1",
+        "NF Feather - Lk Almanor",
+        "PLLC1",
+        "SF Pit  nr Likely",
+        "PLYC1",
+        "Merced R - Pohono Bridge",
+        "POHC1",
+        "Salinas - Paso Robles",
+        "PRBC1",
+        "Prosser Ck - Prosser Ck Dam",
+        "PSRC1",
+        "Carmel - Robles Del Rio",
+        "RDRC1",
+        "Salmon - Somes bar",
+        "SBRC1",
+        "Spanish Ck - Keddie",
+        "SCBC1",
+        "Sycan R - Beatty",
+        "SCNO3",
+        "Eel - Scotia",
+        "SCOC1",
+        "Tule - Success Dam",
+        "SCSC1",
+        "Saghen Ck - Truckee",
+        "SGNC1",
+        "Sacramento - Shasta Dam",
+        "SHDC1",
+        "Napa - St. Helena",
+        "SHEC1",
+        "SF Kern - Onyx",
+        "SKRC1",
+        "San Luis Rey R at Oceanside",
+        "SLOC1",
+        "Salsipudes Ck - Lompoc",
+        "SLUC1",
+        "MF Cosumnes - Somerset",
+        "SOSC1",
+        "Pilot Ck - Stumpy Meadows Res",
+        "SPYC1",
+        "Santa Ana - Mentone",
+        "SRWC1",
+        "Sisquoc R - Sisquoc",
+        "SSQC1",
+        "Little Truckee - Stampede Dam",
+        "STPC1",
+        "Carson Rvr - Carson City",
+        "STWN2",
+        "Trinity - Coffee Ck above",
+        "TCCC1",
+        "Thomes Creek - Paskenta",
+        "TCRC1",
+        "Kaweah - Terminus Dam",
+        "TMDC1",
+        "Truckee nr Truckee",
+        "TRCC1",
+        "SF Tule - Reservation Boundary",
+        "TVRC1",
+        "Cuyama - Twitchell Dam",
+        "TWDC1",
+        "Russian R - Ukiah",
+        "UKAC1",
+        "Silver Ck - Union Valley Reservoir",
+        "UNVC1",
+        "Ventura River nr Ventura",
+        "VRVC1",
+        "Whiskey Ck - Whiskeytown Dam",
+        "WHSC1",
+        "Williamson R nr Agency",
+        "WKAO3",
+        "Williamson - blo Sprague River",
+        "WMSO3",
+        "WF Carson - Woodfords",
+        "WOOC1",
+        "Dry Ck - Warm Springs Dam",
+        "WSDC1",
+        "West Walker blw Little Walker",
+        "WWBC1",
+        "Santa Margarita - Ysidora",
+        "YDRC1",
+        "Shasta nr Yreka",
+        "YREC1",
+        "CNRFC Forcing CSV",
+        "Short-range hourly deterministic CSV",
+        "Long-range daily ensemble CSV",
+        "CNRFC Data Archive"
+      ],
       "order": 54,
       "title": "California-Nevada River Forecast Center",
       "providers": [
@@ -3257,13 +3554,123 @@
           "role": "display_provider"
         }
       ],
-      "summary": "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada.",
+      "summary": "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada. Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network.",
       "canonical_url": "https://www.cnrfc.noaa.gov/",
       "access_points": [
         {
           "role": "canonical",
           "label": "California-Nevada River Forecast Center",
           "url": "https://www.cnrfc.noaa.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Water Resources — Regional Forecast Map",
+          "url": "https://www.cnrfc.noaa.gov/water_resources_update.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "Daily Basin QPF & Freezing Levels — Days 1–6 (HD6RSA)",
+          "url": "https://www.cnrfc.noaa.gov/awipsProducts/RNOHD6RSA.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "Trinity River — Trinity Lake — FNF water-year trend (CEGC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CEGC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Mokelumne River — Pardee Reservoir — FNF water-year trend (CMPC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CMPC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Merced River — Lake McClure / New Exchequer — FNF water-year trend (EXQC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "American River — Folsom Lake — FNF water-year trend (FOLC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FOLC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "San Joaquin River — Millerton Reservoir — FNF water-year trend (FRAC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FRAC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Yuba River — Englebright Reservoir — FNF water-year trend (HLEC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=HLEC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Kern River — Lake Isabella — FNF water-year trend (ISAC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ISAC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Cosumnes River — Michigan Bar — FNF water-year trend (MHBC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=MHBC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tuolumne River — New Don Pedro Reservoir — FNF water-year trend (NDPC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NDPC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Stanislaus River — New Melones Reservoir — FNF water-year trend (NMSC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NMSC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Feather River — Lake Oroville — FNF water-year trend (ORDC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ORDC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Kings River — Pine Flat Reservoir — FNF water-year trend (PFTC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=PFTC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tule River — Lake Success — FNF water-year trend (SCSC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SCSC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Sacramento River — Shasta Lake — FNF water-year trend (SHDC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SHDC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "Kaweah River — Lake Kaweah — FNF water-year trend (TMDC1)",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=TMDC1&prodID=9"
+        },
+        {
+          "role": "configured_view",
+          "label": "CNRFC Forcing CSV",
+          "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "CNRFC Short-Range Hourly Deterministic CSV",
+          "url": "https://www.cnrfc.noaa.gov/deterministicHourlyProductCSV.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "CNRFC Hourly HEFS CSV",
+          "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "CNRFC Long-Range Daily Ensemble CSV",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProductCSV.php"
+        },
+        {
+          "role": "archive",
+          "label": "CNRFC Data Archive",
+          "url": "https://www.cnrfc.noaa.gov/arc_search.php"
         }
       ],
       "resource_type": "program_or_mission",
@@ -3559,6 +3966,11 @@
           "role": "canonical",
           "label": "NRCS National Water and Climate Center",
           "url": "https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and"
+        },
+        {
+          "role": "configured_view",
+          "label": "NRCS Snow and Climate Monitoring Predefined Reports and Maps",
+          "url": "https://wcc.sc.egov.usda.gov/reports/"
         }
       ],
       "resource_type": "program_or_mission",
@@ -11958,73 +12370,13 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_noaa_cnrfc_hourly_hefs_csv_service",
-      "aliases": [],
-      "migration_aliases": [
-        "res.noaa.cnrfc-hourly-hefs-csv.service"
-      ],
-      "search_aliases": [
-        "CNRFC Hourly HEFS CSV",
-        "cnrfc.noaa.gov"
-      ],
-      "order": 187,
-      "title": "CNRFC Hourly HEFS CSV",
-      "providers": [
-        {
-          "name": "National Oceanic and Atmospheric Administration",
-          "role": "display_provider"
-        }
-      ],
-      "summary": "Download hourly Hydrologic Ensemble Forecast Service products in CSV format.",
-      "canonical_url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php",
-      "access_points": [
-        {
-          "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
-        }
-      ],
-      "resource_type": "data_service_or_api",
-      "temporal_character": "unknown",
-      "resource_granularity": "platform",
-      "subject_tags": [
-        "Weather & Forecasts"
-      ],
-      "information_type_tags": [],
-      "variables": [
-        "probabilistic river forecast"
-      ],
-      "use_scopes": [
-        "Forecasting",
-        "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning",
-        "Data integration"
-      ],
-      "geographic_scope": {
-        "scope_type": "national",
-        "names": [
-          "California",
-          "United States with California-focused regional products"
-        ]
-      },
-      "access_class": "public",
-      "public_source_references": [
-        {
-          "role": "official_source",
-          "url": "https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php"
-        }
-      ],
-      "publication_state": "published"
-    },
-    {
       "id": "resource_ocpw_orange_county_hydrology_data_portal_platform",
       "aliases": [],
       "migration_aliases": [
         "res.ocpw.orange-county-hydrology-data-portal.platform"
       ],
       "search_aliases": [],
-      "order": 188,
+      "order": 187,
       "title": "Orange County Hydrology Data Portal",
       "providers": [
         {
@@ -12091,7 +12443,7 @@
         "Lake Mead",
         "Hoover Dam"
       ],
-      "order": 189,
+      "order": 188,
       "title": "Lower Colorado River Operations",
       "providers": [
         {
@@ -12179,7 +12531,7 @@
         "res.nid.nevada-irrigation-district-river-and-reservoir-data.platform"
       ],
       "search_aliases": [],
-      "order": 190,
+      "order": 189,
       "title": "Nevada Irrigation District River and Reservoir Data",
       "providers": [
         {
@@ -12250,7 +12602,7 @@
         "El Dorado Irrigation District",
         "EID American River Data"
       ],
-      "order": 191,
+      "order": 190,
       "title": "EID Project 184 Portal",
       "providers": [
         {
@@ -12318,7 +12670,7 @@
         "Colorado River Storage Project",
         "CRSP"
       ],
-      "order": 192,
+      "order": 191,
       "title": "Upper Colorado Basin Water Operations",
       "providers": [
         {
@@ -12417,7 +12769,7 @@
         "res.nasa.nasa-grace-interactive-browsers-and-data-access.collection"
       ],
       "search_aliases": [],
-      "order": 193,
+      "order": 192,
       "title": "NASA GRACE Interactive Browsers and Data Access",
       "providers": [
         {
@@ -12474,7 +12826,7 @@
         "res.nrcs.nrcs-snotel-update-report-selector.product"
       ],
       "search_aliases": [],
-      "order": 194,
+      "order": 193,
       "title": "NRCS SNOTEL Update Report Selector",
       "providers": [
         {
@@ -12539,7 +12891,7 @@
         "mesowest.utah.edu",
         "MesoWest Surface Weather Maps"
       ],
-      "order": 195,
+      "order": 194,
       "title": "MesoWest California Surface Weather Map",
       "providers": [
         {
@@ -12599,7 +12951,7 @@
         "res.cw3e.cw3e-california-weather-and-water-portal.viewer"
       ],
       "search_aliases": [],
-      "order": 196,
+      "order": 195,
       "title": "CW3E California Weather and Water Portal",
       "providers": [
         {
@@ -12662,7 +13014,7 @@
         "res.geospatial-and-remote-sensing-data-provi.opentopography.platform"
       ],
       "search_aliases": [],
-      "order": 197,
+      "order": 196,
       "title": "OpenTopography",
       "providers": [
         {
@@ -12728,7 +13080,7 @@
         "res.dwr.cdec-station-metadata.other"
       ],
       "search_aliases": [],
-      "order": 198,
+      "order": 197,
       "title": "CDEC Station Metadata",
       "providers": [
         {
@@ -12789,7 +13141,7 @@
         "res.usgs.usgs-the-national-map-downloader.other"
       ],
       "search_aliases": [],
-      "order": 199,
+      "order": 198,
       "title": "USGS The National Map Downloader",
       "providers": [
         {
@@ -12852,7 +13204,7 @@
         "res.epa.epa-echo.platform"
       ],
       "search_aliases": [],
-      "order": 200,
+      "order": 199,
       "title": "EPA ECHO",
       "providers": [
         {
@@ -12923,7 +13275,7 @@
         "TMDL",
         "surface water quality assessment"
       ],
-      "order": 201,
+      "order": 200,
       "title": "California Integrated Reports & Impaired Waters",
       "providers": [
         {
@@ -12986,74 +13338,13 @@
       "publication_state": "published"
     },
     {
-      "id": "resource_noaa_cnrfc_forcing_csv_service",
-      "aliases": [],
-      "migration_aliases": [
-        "res.noaa.cnrfc-forcing-csv.service"
-      ],
-      "search_aliases": [
-        "CNRFC Forcings CSV",
-        "cnrfc.noaa.gov"
-      ],
-      "order": 202,
-      "title": "CNRFC Forcing CSV",
-      "providers": [
-        {
-          "name": "National Oceanic and Atmospheric Administration",
-          "role": "display_provider"
-        }
-      ],
-      "summary": "Download forecast forcing products in CSV format.",
-      "canonical_url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php",
-      "access_points": [
-        {
-          "role": "canonical",
-          "label": "Canonical landing URL",
-          "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
-        }
-      ],
-      "resource_type": "data_service_or_api",
-      "temporal_character": "unknown",
-      "resource_granularity": "platform",
-      "subject_tags": [
-        "Weather & Forecasts"
-      ],
-      "information_type_tags": [],
-      "variables": [
-        "precipitation forecast",
-        "temperature forecast"
-      ],
-      "use_scopes": [
-        "Forecasting",
-        "Hydrologic conditions",
-        "Flood risk",
-        "Emergency planning",
-        "Data integration"
-      ],
-      "geographic_scope": {
-        "scope_type": "national",
-        "names": [
-          "California",
-          "United States with California-focused regional products"
-        ]
-      },
-      "access_class": "public",
-      "public_source_references": [
-        {
-          "role": "official_source",
-          "url": "https://www.cnrfc.noaa.gov/forcingProductCSV.php"
-        }
-      ],
-      "publication_state": "published"
-    },
-    {
       "id": "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
       "aliases": [],
       "migration_aliases": [
         "res.climate-and-drought-data-providers.drought-gov-california.dashboard"
       ],
       "search_aliases": [],
-      "order": 203,
+      "order": 201,
       "title": "Drought.gov California",
       "providers": [
         {
@@ -13122,7 +13413,7 @@
         "weather.rap.ucar.edu",
         "RAP"
       ],
-      "order": 204,
+      "order": 202,
       "title": "NCAR Real-Time Weather Data",
       "providers": [
         {
@@ -13183,7 +13474,7 @@
         "Colorado River policy",
         "Post-2026 Colorado River Operations"
       ],
-      "order": 205,
+      "order": 203,
       "title": "Colorado River Basin",
       "providers": [
         {
@@ -13263,7 +13554,7 @@
         "KBAO water operations",
         "Klamath Hydromet"
       ],
-      "order": 206,
+      "order": 204,
       "title": "Klamath Project Water Operations",
       "providers": [
         {
@@ -13345,7 +13636,7 @@
         "Truckee Basin reservoirs",
         "Lahontan Basin Area Office"
       ],
-      "order": 207,
+      "order": 205,
       "title": "Truckee River Operating Agreement",
       "providers": [
         {
@@ -13422,7 +13713,7 @@
         "USBR RISE",
         "Reclamation open data"
       ],
-      "order": 208,
+      "order": 206,
       "title": "Reclamation Information Sharing Environment",
       "providers": [
         {
@@ -13507,7 +13798,7 @@
         "Central Valley Project allocations",
         "CVP carryover"
       ],
-      "order": 209,
+      "order": 207,
       "title": "Central Valley Project Water Supply",
       "providers": [
         {
@@ -13587,7 +13878,7 @@
         "USBR Hydromet",
         "Reclamation hydrologic and meteorologic data"
       ],
-      "order": 210,
+      "order": 208,
       "title": "Reclamation Hydromet",
       "providers": [
         {
@@ -13674,7 +13965,7 @@
         "USBR AgriMet",
         "crop evapotranspiration"
       ],
-      "order": 211,
+      "order": 209,
       "title": "Reclamation AgriMet",
       "providers": [
         {
@@ -13743,6 +14034,294 @@
         {
           "role": "official_source",
           "url": "https://www.usbr.gov/pn/agrimet/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usgs_usgs_california_river_basin_schematics_collection",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 210,
+      "title": "USGS California River Basin Schematics",
+      "providers": [
+        {
+          "name": "U.S. Geological Survey",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Collection of USGS California river-basin schematics showing principal inflows, diversions, and storage, with links to the archived PDF diagrams.",
+      "canonical_url": "https://ca.water.usgs.gov/data/waterdata/schematics2007.html",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "USGS California River Basin Schematics",
+          "url": "https://ca.water.usgs.gov/data/waterdata/schematics2007.html"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "collection",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://ca.water.usgs.gov/data/waterdata/schematics2007.html"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_noaa_nws_graphical_forecasts",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 211,
+      "title": "NWS Graphical Forecasts",
+      "providers": [
+        {
+          "name": "National Weather Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National Weather Service graphical forecasts with national and regional map views, including Northern and Southern California sectors.",
+      "canonical_url": "https://graphical.weather.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "NWS Graphical Forecasts",
+          "url": "https://graphical.weather.gov/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Northern California Graphical Forecast",
+          "url": "https://graphical.weather.gov/sectors/northcalifornia.php"
+        },
+        {
+          "role": "configured_view",
+          "label": "Southern California Graphical Forecast",
+          "url": "https://graphical.weather.gov/sectors/southcalifornia.php"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "forecast",
+      "resource_granularity": "viewer",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://graphical.weather.gov/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_polarwx_tropical",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 212,
+      "title": "PolarWx Tropical",
+      "providers": [
+        {
+          "name": "PolarWx",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Tropical-cyclone viewing tools from PolarWx, including storm views, forecast cones, and reconnaissance displays.",
+      "canonical_url": "https://polarwx.com/tropical/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "PolarWx Tropical",
+          "url": "https://polarwx.com/tropical/"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "forecast",
+      "resource_granularity": "viewer",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://polarwx.com/tropical/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_brightband_operational_weatherbench",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 213,
+      "title": "Brightband Operational WeatherBench",
+      "providers": [
+        {
+          "name": "Brightband",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Operational WeatherBench provides a leaderboard for comparing weather-forecast model performance, including AI weather forecasts.",
+      "canonical_url": "https://owb.brightband.com/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Brightband Operational WeatherBench",
+          "url": "https://owb.brightband.com/"
+        }
+      ],
+      "resource_type": "analysis_tool",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://owb.brightband.com/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_geolibre",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 214,
+      "title": "GeoLibre",
+      "providers": [
+        {
+          "name": "GeoLibre",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "GeoLibre provides a map workspace for viewing, styling, and analyzing geospatial data, with documentation and a separate web application.",
+      "canonical_url": "https://geolibre.app/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "GeoLibre",
+          "url": "https://geolibre.app/"
+        },
+        {
+          "role": "configured_view",
+          "label": "GeoLibre Web",
+          "url": "https://web.geolibre.app/"
+        }
+      ],
+      "resource_type": "analysis_tool",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": []
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://geolibre.app/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_noaa_wpc_excessive_rainfall_outlook",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 215,
+      "title": "Weather Prediction Center Excessive Rainfall Outlook",
+      "providers": [
+        {
+          "name": "NOAA Weather Prediction Center",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Weather Prediction Center excessive-rainfall outlooks describe the risk of rainfall exceeding flash-flood guidance, with separate Day 1, Day 2, and Day 3 views.",
+      "canonical_url": "https://www.wpc.ncep.noaa.gov/#page=ero",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Weather Prediction Center Excessive Rainfall Outlook",
+          "url": "https://www.wpc.ncep.noaa.gov/#page=ero"
+        },
+        {
+          "role": "configured_view",
+          "label": "WPC Excessive Rainfall Outlook Day 1",
+          "url": "https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=1&opt=curr"
+        },
+        {
+          "role": "configured_view",
+          "label": "WPC Excessive Rainfall Outlook Day 2",
+          "url": "https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=2&opt=curr"
+        },
+        {
+          "role": "configured_view",
+          "label": "WPC Excessive Rainfall Outlook Day 3",
+          "url": "https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=3&opt=curr"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "forecast",
+      "resource_granularity": "product",
+      "subject_tags": [],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.wpc.ncep.noaa.gov/#page=ero"
         }
       ],
       "publication_state": "published"
