@@ -26,6 +26,18 @@ const relationships = JSON.parse(fs.readFileSync(
   path.join(root, "00_config", "guide_product_resource_relationships.json"), "utf8"
 ));
 
+const r17c1AddedResourceIds = [
+  "resource_usgs_usgs_california_river_basin_schematics_collection",
+  "resource_noaa_nws_graphical_forecasts",
+  "resource_polarwx_tropical",
+  "resource_brightband_operational_weatherbench",
+  "resource_geolibre",
+  "resource_noaa_wpc_excessive_rainfall_outlook"
+];
+const r17c1RetiredResourceIds = [
+  "resource_noaa_cnrfc_forcing_csv_service",
+  "resource_noaa_cnrfc_hourly_hefs_csv_service"
+];
 const r16bAddedResourceIds = [
   "resource_usace_usace_water_management_data_platform",
   "resource_usace_sacramento_district_water_control_data_system",
@@ -56,6 +68,111 @@ const cnrfcSummaryBefore =
   "Operational river, precipitation, temperature, snow-level, and water-supply forecasting for California and Nevada.";
 const cnrfcSummaryAfter =
   "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada.";
+const a5SummaryAppend = " Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network.";
+const a5LabelChanges = [
+  {
+    "station_code": "CEGC1",
+    "old_label": "Trinity",
+    "new_label": "Trinity River — Trinity Lake — FNF water-year trend (CEGC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CEGC1&prodID=9"
+  },
+  {
+    "station_code": "CMPC1",
+    "old_label": "Mokelumne",
+    "new_label": "Mokelumne River — Pardee Reservoir — FNF water-year trend (CMPC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CMPC1&prodID=9"
+  },
+  {
+    "station_code": "EXQC1",
+    "old_label": "Merced",
+    "new_label": "Merced River — Lake McClure / New Exchequer — FNF water-year trend (EXQC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&prodID=9"
+  },
+  {
+    "station_code": "FOLC1",
+    "old_label": "American",
+    "new_label": "American River — Folsom Lake — FNF water-year trend (FOLC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FOLC1&prodID=9"
+  },
+  {
+    "station_code": "FRAC1",
+    "old_label": "San Joaquin",
+    "new_label": "San Joaquin River — Millerton Reservoir — FNF water-year trend (FRAC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FRAC1&prodID=9"
+  },
+  {
+    "station_code": "HLEC1",
+    "old_label": "Yuba",
+    "new_label": "Yuba River — Englebright Reservoir — FNF water-year trend (HLEC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=HLEC1&prodID=9"
+  },
+  {
+    "station_code": "ISAC1",
+    "old_label": "Kern",
+    "new_label": "Kern River — Lake Isabella — FNF water-year trend (ISAC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ISAC1&prodID=9"
+  },
+  {
+    "station_code": "MHBC1",
+    "old_label": "Cosumnes",
+    "new_label": "Cosumnes River — Michigan Bar — FNF water-year trend (MHBC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=MHBC1&prodID=9"
+  },
+  {
+    "station_code": "NDPC1",
+    "old_label": "Tuolumne",
+    "new_label": "Tuolumne River — New Don Pedro Reservoir — FNF water-year trend (NDPC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NDPC1&prodID=9"
+  },
+  {
+    "station_code": "NMSC1",
+    "old_label": "Stanislaus",
+    "new_label": "Stanislaus River — New Melones Reservoir — FNF water-year trend (NMSC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NMSC1&prodID=9"
+  },
+  {
+    "station_code": "ORDC1",
+    "old_label": "Feather",
+    "new_label": "Feather River — Lake Oroville — FNF water-year trend (ORDC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ORDC1&prodID=9"
+  },
+  {
+    "station_code": "PFTC1",
+    "old_label": "Kings",
+    "new_label": "Kings River — Pine Flat Reservoir — FNF water-year trend (PFTC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=PFTC1&prodID=9"
+  },
+  {
+    "station_code": "SCSC1",
+    "old_label": "Tule",
+    "new_label": "Tule River — Lake Success — FNF water-year trend (SCSC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SCSC1&prodID=9"
+  },
+  {
+    "station_code": "SHDC1",
+    "old_label": "Sacramento/McCloud/Pit",
+    "new_label": "Sacramento River — Shasta Lake — FNF water-year trend (SHDC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SHDC1&prodID=9"
+  },
+  {
+    "station_code": "TMDC1",
+    "old_label": "Kaweah",
+    "new_label": "Kaweah River — Lake Kaweah — FNF water-year trend (TMDC1)",
+    "url": "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=TMDC1&prodID=9"
+  }
+];
+const a5NewActions = [
+  {
+    "role": "configured_view",
+    "label": "Water Resources — Regional Forecast Map",
+    "url": "https://www.cnrfc.noaa.gov/water_resources_update.php"
+  },
+  {
+    "role": "configured_view",
+    "label": "Daily Basin QPF & Freezing Levels — Days 1–6 (HD6RSA)",
+    "url": "https://www.cnrfc.noaa.gov/awipsProducts/RNOHD6RSA.php"
+  }
+];
 const cnrfcCanonicalUrlBefore = "https://cnrfc.noaa.gov/";
 const cnrfcCanonicalUrlAfter = "https://www.cnrfc.noaa.gov/";
 const integratedReportId = "resource_swrcb_impaired_waters_and_tmdls_program";
@@ -169,7 +286,7 @@ const crossSurfaceFixture = {
   view: "landing",
   productSubject: "Precipitation",
   productResultCount: 28,
-  resourceResultCount: 206
+  resourceResultCount: 210
 };
 assert.strictEqual(guideFilterOwner(crossSurfaceFixture.section), "products",
   "A Explore did not own its Product filter state");
@@ -180,7 +297,7 @@ assert.strictEqual(guideFilterOwner(crossSurfaceFixture.section), "resources",
   "C Resources did not become the active filter owner");
 assert.strictEqual(crossSurfaceFixture.productSubject, "Precipitation",
   "The privately preserved A filter fixture was destroyed during A-to-C navigation");
-assert.strictEqual(crossSurfaceFixture.resourceResultCount, 206,
+assert.strictEqual(crossSurfaceFixture.resourceResultCount, 210,
   "A Product filter implicitly changed the clean C Resource gateway count");
 const renderSourceStart = source.indexOf("function render(preserveResourceScroll)");
 const renderSource = source.slice(
@@ -234,8 +351,8 @@ assert.strictEqual(new Set(canonicalResourceIds).size, canonicalResourceIds.leng
   "Canonical Resource IDs are not unique");
 assert.strictEqual(new Set(relationshipResourceIds).size, relationshipResourceIds.length,
   "Relationship Resource IDs are not unique");
-assert.strictEqual(canonicalResourceIds.length, 211,
-  "R16B canonical Resource count must be exactly 211");
+assert.strictEqual(canonicalResourceIds.length, 215,
+  "R17C1 canonical Resource count must be exactly 215");
 assert.deepStrictEqual(
   canonicalResourceIds.filter(id => r16bAddedResourceIds.includes(id)).sort(),
   [...r16bAddedResourceIds].sort(),
@@ -245,8 +362,8 @@ assert(r16bRetiredResourceIds.every(id => !canonicalResourceIds.includes(id)),
   "An exact R16B merged Resource remains canonical");
 assert.deepStrictEqual(
   registry.resources.flatMap(resource => resource.aliases).sort(),
-  [...r16bRetiredResourceIds].sort(),
-  "The exact seven retired stable IDs are not preserved as aliases"
+  [...r16bRetiredResourceIds, ...r17c1RetiredResourceIds].sort(),
+  "The exact nine retired stable IDs are not preserved as aliases"
 );
 assert.deepStrictEqual([...relationshipResourceIds].sort(), [...canonicalResourceIds].sort(),
   "Relationship authority Resource set does not equal the canonical Resource set");
@@ -258,21 +375,21 @@ assert.strictEqual(
 const canonicalLinks = relationships.products.flatMap(product =>
   product.resource_links.map(link => ({ productId: product.product_id, ...link }))
 );
-assert.strictEqual(canonicalLinks.length, 94, "Canonical relationship link count changed");
+assert.strictEqual(canonicalLinks.length, 96, "Canonical relationship link count changed");
 assert.deepStrictEqual(Object.fromEntries([
   "direct_match_in_brim", "selected_product_from_broader_resource", "source_reference"
 ].map(role => [role, canonicalLinks.filter(link => link.relationship_role === role).length])), {
   direct_match_in_brim: 13,
-  selected_product_from_broader_resource: 62,
+  selected_product_from_broader_resource: 64,
   source_reference: 19
 }, "Canonical relationship-role counts changed");
 assert.strictEqual(new Set(canonicalLinks.map(link =>
   `${link.productId}\r${link.resource_id}`)).size, canonicalLinks.length,
 "A duplicate canonical Product-Resource pair was introduced");
 assert.strictEqual(relationships.products.filter(product =>
-  product.resource_links.length > 0).length, 70,
+  product.resource_links.length > 0).length, 72,
 "Products-with-Resource-links count changed");
-assert.strictEqual(new Set(canonicalLinks.map(link => link.resource_id)).size, 26,
+assert.strictEqual(new Set(canonicalLinks.map(link => link.resource_id)).size, 27,
 "Resources-with-Product-links count changed");
 const d10Product = relationships.products.find(
   product => product.product_id === "ops_cdec_reservoir_storage"
@@ -431,7 +548,7 @@ assert(!helperSource.includes("pt_guide_r12a_temporary_legacy_public_relationshi
 
 const published = registry.resources.filter(resource => resource.publication_state === "published");
 const staged = registry.resources.filter(resource => resource.publication_state === "staged");
-assert.strictEqual(published.length, 206, "R16B published Resource count must be exactly 206");
+assert.strictEqual(published.length, 210, "R17C1 published Resource count must be exactly 210");
 assert.strictEqual(staged.length, 5, "The exact five staged Resources changed");
 assert.strictEqual(published.length + staged.length, registry.resources.length,
   "Canonical Resources contain an unsupported publication state");
@@ -585,7 +702,7 @@ assert.strictEqual(new Set(cnrfcResource.accessPoints.map(point =>
   point.url.toLowerCase().replace(/\/+$/, "")
 )).size, cnrfcResource.accessPoints.length,
 "The projected CNRFC access actions contain a normalized duplicate");
-assert.strictEqual(cnrfcResource.summary, cnrfcSummaryAfter,
+assert.strictEqual(cnrfcResource.summary, cnrfcSummaryAfter + a5SummaryAppend,
   "The exact corrected CNRFC Resource summary changed");
 assert(!JSON.stringify(registry).includes(cnrfcSummaryBefore),
   "The superseded CNRFC Resource summary remains in authority");
@@ -725,8 +842,8 @@ assert.strictEqual(cClearedState.subject, "",
   "Clearing the C-owned Precipitation token left the Resource filter active");
 assert.strictEqual(cClearedState.preset, "all_resources",
   "Clearing the C-owned Precipitation token left All Resources");
-assert.strictEqual(model.results(cClearedState).length, 206,
-  "Clearing the C-owned Precipitation token did not restore 206 Resources");
+assert.strictEqual(model.results(cClearedState).length, 210,
+  "Clearing the C-owned Precipitation token did not restore 210 Resources");
 assert.deepStrictEqual(model.presets, [
   { id: "in_brim_map", label: "In BRIM map" },
   { id: "beyond_the_map", label: "Beyond the map" },
@@ -756,8 +873,8 @@ assert(inBrimIds.every(resourceId => !beyondIds.includes(resourceId)),
 assert.deepStrictEqual([...new Set([...inBrimIds, ...beyondIds])].sort(),
   [...publishedIds].sort(),
   "Public primary membership union does not equal the published Resource set");
-assert.deepStrictEqual([inBrimIds.length, beyondIds.length, allIds.length], [26, 180, 206],
-  "R16B public Resource view counts changed");
+assert.deepStrictEqual([inBrimIds.length, beyondIds.length, allIds.length], [27, 183, 210],
+  "R17C1 public Resource view counts changed");
 assert([...inBrimIds, ...beyondIds, ...allIds].every(resourceId => !stagedIds.has(resourceId)),
   "A staged Resource leaked into a public primary Resource view");
 assert.deepStrictEqual(model.facetCounts(model.createState()).presets, {
@@ -779,10 +896,49 @@ assert(searchIds("freezing-level").includes(cnrfcId),
 assert.deepStrictEqual(searchIds("CNRFC").sort(), [
   "resource_dwr_cdec",
   "resource_noaa_cnrfc",
-  "resource_noaa_cnrfc_forcing_csv_service",
-  "resource_noaa_cnrfc_hourly_hefs_csv_service",
   spkId
-].sort(), "The exact five-Resource CNRFC search membership changed");
+].sort(), "The exact three-Resource CNRFC search membership changed");
+assert(r17c1AddedResourceIds.every(id => canonicalResourceIds.includes(id)) &&
+  r17c1RetiredResourceIds.every(id => !canonicalResourceIds.includes(id)),
+  "The exact C1 canonical additions/retirements changed");
+for (const id of r17c1RetiredResourceIds) {
+  assert.deepStrictEqual(registry.resources.filter(resource => resource.aliases.includes(id))
+    .map(resource => resource.id), [cnrfcId], "A retired CNRFC ID does not recover exactly one parent");
+}
+assert.strictEqual(cnrfcResource.accessPoints.length, 23, "CNRFC must expose 23 curated actions");
+assert.deepStrictEqual(cnrfcResource.accessPoints.slice(1, 3), a5NewActions,
+  "A5 entry points or their second/third placement changed");
+for (const change of a5LabelChanges) {
+  assert.deepStrictEqual(cnrfcResource.accessPoints.filter(point => point.url === change.url),
+    [{role: "configured_view", label: change.new_label, url: change.url}],
+    "A5 station label/unchanged URL mapping changed");
+  assert(searchIds(change.new_label).includes(cnrfcId), `A5 named forecast point not searchable: ${change.station_code}`);
+}
+for (const query of ["FNF", "full natural flow", "FNF water-year trend", "Water Resources", "HD6RSA", "freezing levels",
+  "Trinity Lake", "Pardee Reservoir", "Lake McClure", "Folsom Lake", "Millerton Reservoir", "Englebright Reservoir",
+  "Lake Isabella", "Michigan Bar", "New Don Pedro Reservoir", "New Melones Reservoir", "Lake Oroville",
+  "Pine Flat Reservoir", "Lake Success", "Shasta Lake", "Lake Kaweah"]) {
+  assert(searchIds(query).includes(cnrfcId), `A5 CNRFC recovery failed: ${query}`);
+}
+const cnrfcStationIds = ["CEGC1", "CMPC1", "EXQC1", "FOLC1", "FRAC1", "HLEC1", "ISAC1",
+  "MHBC1", "NDPC1", "NMSC1", "ORDC1", "PFTC1", "SCSC1", "SHDC1", "TMDC1"];
+assert.deepStrictEqual(cnrfcResource.accessPoints.filter(point =>
+  point.url.includes("ensembleProduct.php?")).map(point => point.url),
+  cnrfcStationIds.map(id => `https://www.cnrfc.noaa.gov/ensembleProduct.php?id=${id}&prodID=9`),
+  "The exact 15 CNRFC configured station destinations changed");
+for (const query of ["AKYC1", "CNRFC Forcings CSV", "CNRFC Hourly HEFS CSV"]) {
+  assert(searchIds(query).includes(cnrfcId), `CNRFC parent search recovery failed: ${query}`);
+}
+const eroId = "resource_noaa_wpc_excessive_rainfall_outlook";
+const eroResource = resources.find(resource => resource.id === eroId);
+assert.deepStrictEqual(eroResource.representedProducts.map(product => ({
+  productId: product.productId, role: product.relationshipRole
+})), [1, 2, 3].map(day => ({productId: `ops_wpc_ero_day_${day}`,
+  role: "selected_product_from_broader_resource"})), "ERO chips/roles changed");
+assert(inBrimIds.includes(eroId) && !beyondIds.includes(eroId),
+  "The ERO owner is in the wrong public Resource view");
+assert(!registry.resources.flatMap(resource => resource.access_points)
+  .some(point => point.url.includes("id=SACC0&year=2026")), "A C2 action leaked into C1");
 const requiredSearchParents = {
   Kaweah: [spkId],
   Terminus: [spkId],
@@ -818,8 +974,33 @@ Object.entries(requiredSearchParents).forEach(([query, expectedIds]) => {
   expectedIds.forEach(id => assert(matches.includes(id),
     `Required search '${query}' did not return ${id}`));
 });
-assert.strictEqual(searchIds("Success Dam")[0], spkId,
-  "The truthful Success Dam & Lake identity did not lead scc search");
+// The pinned R17B fixture characterized USACE alone for Success Dam.
+// The expanded C1 catalog has two legitimate providers; no generic agency precedence.
+const successDamMatches = searchIds("Success Dam");
+[spkId, cnrfcId].forEach(id => assert(successDamMatches.includes(id),
+  `Success Dam must retain the distinct provider Resource ${id}`));
+assert(searchIds("SCSC1").includes(cnrfcId),
+  "The exact CNRFC SCSC1 alias no longer recovers its Resource");
+assert(searchIds("Tule - Success Dam").includes(cnrfcId),
+  "The approved CNRFC station/place alias no longer recovers its Resource");
+assert(searchIds("Success Dam & Lake Hourly Data").includes(spkId),
+  "The exact USACE action label no longer recovers its Resource");
+assert(searchIds("USACE Success Dam").includes(spkId),
+  "The qualified query lost the USACE Resource; provider exclusivity is not implied");
+const successDamSpk = resources.find(resource => resource.id === spkId);
+const successDamCnrfc = resources.find(resource => resource.id === cnrfcId);
+assert.notStrictEqual(successDamSpk.id, successDamCnrfc.id,
+  "The two provider Resources were conflated");
+assert(successDamSpk.accessPoints.some(point => point.role === "configured_view" &&
+  point.label === "Success Dam & Lake Hourly Data" &&
+  point.url === "https://water.usace.army.mil/office/spk/reports/getreport.html?type=hourly&report=scc"),
+  "The USACE scc action identity or destination changed");
+assert(successDamCnrfc.accessPoints.some(point => point.role === "configured_view" &&
+  point.label === "Tule River — Lake Success — FNF water-year trend (SCSC1)" &&
+  point.url === "https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SCSC1&prodID=9"),
+  "The CNRFC SCSC1 action identity or destination changed");
+// Bare scc returned no Resource in all three A3B scenarios. Do not invent a
+// positive recovery expectation or promote a URL query value into search data.
 assert(resources.every(resource => !resource.searchText.includes("https://") &&
   !resource.searchText.includes(resource.id)),
 "A URL or Resource ID leaked into public Resource search text");
@@ -1010,21 +1191,69 @@ assert(css.includes("data-resource-preset=\"in_brim_map\"") &&
   css.includes(".brim-guide__resource-representation--beyond"),
 "Restrained map-presence color treatment is missing");
 
-console.log("BRIM Guide Resource Explorer R17B CNRFC contracts passed.");
+// The return tab changes paint only; generic button typography and keyboard focus remain shared.
+const returnTabPaint = css.match(/\n\.brim-guide \.brim-guide__resource-spine-back \{\s*([^}]+)\}/);
+const returnTabFeedback = css.match(
+  /\n\.brim-guide \.brim-guide__resource-spine-back:hover,\s*\.brim-guide \.brim-guide__resource-spine-back:focus-visible \{\s*([^}]+)\}/
+);
+assert(returnTabPaint && returnTabFeedback, "Return tab needs scoped rest, hover and keyboard-focus paint");
+assert.strictEqual(returnTabPaint[1].trim(),
+  "background: #dce8d5; color: var(--guide-accent-dark); box-shadow: inset 0 0 0 1px #6b8064;",
+  "Return tab paint must beat generic button color without changing geometry or typography");
+assert.strictEqual(returnTabFeedback[1].trim(), "background: #cfddc6;",
+  "Return tab feedback must preserve the shared focus outline and default forced-color behavior");
+const returnTabDesktop = css.match(/\n\.brim-guide__resource-spine-back \{\s*([^}]+)\}/);
+assert(returnTabDesktop, "Desktop return tab rule is missing");
+assert.strictEqual(returnTabDesktop[1].trim(),
+  "padding: 8px 3px; border: 0; border-top: 1px solid var(--guide-rule); border-bottom: 1px solid var(--guide-rule); border-radius: 0; background: transparent; color: #294735; cursor: pointer; font-size: 9px; font-weight: 700; line-height: 1.2; writing-mode: vertical-rl; transform: rotate(180deg);",
+  "Desktop return tab geometry, orientation and typography changed");
+const returnTabNarrow = css.slice(css.lastIndexOf("@media (max-width: 700px)")).match(
+  /\.brim-guide--resource-explorer \.brim-guide__resource-spine-back \{\s*([^}]+)\}/
+);
+assert(returnTabNarrow, "Return tab narrow rule must remain in its existing media context");
+assert.strictEqual(returnTabNarrow[1].trim(),
+  "min-height: 28px; padding: 3px 8px; writing-mode: horizontal-tb; transform: none;",
+  "Narrow return tab dimensions or horizontal orientation changed");
+assert(css.includes(".brim-guide button,\n.brim-guide input,\n.brim-guide select {\n  font: inherit;") &&
+  /\.brim-guide button:focus-visible,[^{]+\{\s*outline: 2px solid #236fa1; outline-offset: 2px;\s*\}/.test(css),
+"Shared button typography or visible keyboard-focus outline changed");
+assert(/resourceSpine\.appendChild\(button\(\s*'brim-guide__resource-spine-back',\s*'Back to Guide',\s*'resource-back-guide',\s*'Back to compact BRIM Guide'\s*\)\)/.test(source) &&
+  /action === 'resource-back-guide'\) \{\s*backToCompactGuide\(\);\s*\} else/.test(source),
+"Actual return button label, accessible name or navigation action changed");
+function returnTabLuminance(hex) {
+  const channels = hex.slice(1).match(/../g).map(value => parseInt(value, 16) / 255)
+    .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+}
+const returnTabTextColor = css.match(/--guide-accent-dark:\s*(#[0-9a-f]{6})/)[1];
+const returnTabContrast = [returnTabPaint, returnTabFeedback].map(rule => {
+  const fill = rule[1].match(/background:\s*(#[0-9a-f]{6})/)[1];
+  const values = [returnTabLuminance(fill), returnTabLuminance(returnTabTextColor)].sort((a, b) => a - b);
+  return (values[1] + 0.05) / (values[0] + 0.05);
+});
+assert(returnTabContrast.every(ratio => ratio >= 4.5),
+  "Return tab text must meet 4.5:1 against rest and hover/focus fills");
+console.log(`RETURN_TAB_STATIC_CONTRAST=${returnTabContrast.map(ratio => ratio.toFixed(3)).join(",")}`);
+console.log("RETURN_TAB_PAINT_GEOMETRY_FOCUS_ACTION=STATIC_PASS; RENDERED_VISUAL_REVIEW=PENDING");
+
+console.log("BRIM Guide Resource Explorer R17C1 CNRFC and WPC contracts passed.");
 console.log(`CANONICAL_RESOURCES=${canonicalResourceIds.length}`);
 console.log(`PUBLISHED_RESOURCES=${publishedIds.length}`);
 console.log(`STAGED_RESOURCES=${stagedIds.size}`);
 console.log(`PRESET_COUNTS=${expectedInBrimIds.length},${expectedBeyondIds.length},${publishedIds.length}`);
 console.log(`CANONICAL_RESOURCE_LINKS=${canonicalLinks.length}`);
-console.log("PRODUCTS_WITH_RESOURCE_LINKS=70");
-console.log("RESOURCES_WITH_PRODUCT_LINKS=26");
-console.log("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,62_SELECTED,19_SOURCE_REFERENCE");
+console.log("PRODUCTS_WITH_RESOURCE_LINKS=72");
+console.log("RESOURCES_WITH_PRODUCT_LINKS=27");
+console.log("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,64_SELECTED,19_SOURCE_REFERENCE");
 console.log("CNRFC_RELATED_PRODUCTS=7");
 console.log("GENERIC_PROJECTION_INVARIANTS=PASS");
 console.log("STAGED_REVIEWED_RESOURCE_SUPPORT=PASS");
 console.log("LEGACY_PUBLIC_PROJECTIONS=0");
-console.log("DESKTOP_SCROLL_OWNERS=PROVIDERS,RESULTS,DETAIL");
+console.log("DESKTOP_SCROLL_OWNERS=FILTER_BODY,RESULTS,DETAIL");
 console.log("NARROW_ONE_PANE=PASS");
 console.log("LIFECYCLE_IDEMPOTENCE=PASS");
 console.log("CROSS_SURFACE_FILTER_OWNERSHIP=PASS");
 console.log("FILTER_BUTTON_VISUAL_PARITY=PASS");
+
+// Reuse the same public projection and source extraction in the focused provider suite.
+module.exports = { createModel, resources, registry, relationships, extractFunction };

@@ -46,6 +46,200 @@ relationship_registry <- pt_guide_read_product_resource_relationship_registry(
   relationship_product_ids, registry, relationship_registry_path
 )
 
+# R17C1 fixtures: the exact bounded delta from accepted R17B. Historical
+# snapshots below reverse only this delta; the real registry reader above and
+# every negative fixture still use the actual worktree and tracked-path policy.
+r17c1_added_ids <- unlist(jsonlite::fromJSON("[\"resource_usgs_usgs_california_river_basin_schematics_collection\",\"resource_noaa_nws_graphical_forecasts\",\"resource_polarwx_tropical\",\"resource_brightband_operational_weatherbench\",\"resource_geolibre\",\"resource_noaa_wpc_excessive_rainfall_outlook\"]", simplifyVector = FALSE), use.names = FALSE)
+r17c1_retired_ids <- unlist(jsonlite::fromJSON("[\"resource_noaa_cnrfc_forcing_csv_service\",\"resource_noaa_cnrfc_hourly_hefs_csv_service\"]", simplifyVector = FALSE), use.names = FALSE)
+r17c1_parent_preimages <- jsonlite::fromJSON("{\"resource_dwr_cdec\":{\"access_points\":[{\"role\":\"canonical\",\"label\":\"California Data Exchange Center (CDEC)\",\"url\":\"https://cdec.water.ca.gov/\"},{\"role\":\"configured_view\",\"label\":\"CDEC Reservoir Conditions\",\"url\":\"https://cdec.water.ca.gov/resapp/RescondMain\"}],\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_noaa_cnrfc\":{\"access_points\":[{\"role\":\"canonical\",\"label\":\"California-Nevada River Forecast Center\",\"url\":\"https://www.cnrfc.noaa.gov/\"}],\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_nrcs_nwcc\":{\"access_points\":[{\"role\":\"canonical\",\"label\":\"NRCS National Water and Climate Center\",\"url\":\"https://nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program/national-water-and\"}],\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]}}", simplifyVector = FALSE)
+r17c1_retired_records <- jsonlite::fromJSON("[{\"id\":\"resource_noaa_cnrfc_hourly_hefs_csv_service\",\"aliases\":[],\"migration_aliases\":[\"res.noaa.cnrfc-hourly-hefs-csv.service\"],\"search_aliases\":[\"CNRFC Hourly HEFS CSV\",\"cnrfc.noaa.gov\"],\"order\":187,\"title\":\"CNRFC Hourly HEFS CSV\",\"providers\":[{\"name\":\"National Oceanic and Atmospheric Administration\",\"role\":\"display_provider\"}],\"summary\":\"Download hourly Hydrologic Ensemble Forecast Service products in CSV format.\",\"canonical_url\":\"https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php\",\"access_points\":[{\"role\":\"canonical\",\"label\":\"Canonical landing URL\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php\"}],\"resource_type\":\"data_service_or_api\",\"temporal_character\":\"unknown\",\"resource_granularity\":\"platform\",\"subject_tags\":[\"Weather & Forecasts\"],\"information_type_tags\":[],\"variables\":[\"probabilistic river forecast\"],\"use_scopes\":[\"Forecasting\",\"Hydrologic conditions\",\"Flood risk\",\"Emergency planning\",\"Data integration\"],\"geographic_scope\":{\"scope_type\":\"national\",\"names\":[\"California\",\"United States with California-focused regional products\"]},\"access_class\":\"public\",\"public_source_references\":[{\"role\":\"official_source\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php\"}],\"publication_state\":\"published\"},{\"id\":\"resource_noaa_cnrfc_forcing_csv_service\",\"aliases\":[],\"migration_aliases\":[\"res.noaa.cnrfc-forcing-csv.service\"],\"search_aliases\":[\"CNRFC Forcings CSV\",\"cnrfc.noaa.gov\"],\"order\":202,\"title\":\"CNRFC Forcing CSV\",\"providers\":[{\"name\":\"National Oceanic and Atmospheric Administration\",\"role\":\"display_provider\"}],\"summary\":\"Download forecast forcing products in CSV format.\",\"canonical_url\":\"https://www.cnrfc.noaa.gov/forcingProductCSV.php\",\"access_points\":[{\"role\":\"canonical\",\"label\":\"Canonical landing URL\",\"url\":\"https://www.cnrfc.noaa.gov/forcingProductCSV.php\"}],\"resource_type\":\"data_service_or_api\",\"temporal_character\":\"unknown\",\"resource_granularity\":\"platform\",\"subject_tags\":[\"Weather & Forecasts\"],\"information_type_tags\":[],\"variables\":[\"precipitation forecast\",\"temperature forecast\"],\"use_scopes\":[\"Forecasting\",\"Hydrologic conditions\",\"Flood risk\",\"Emergency planning\",\"Data integration\"],\"geographic_scope\":{\"scope_type\":\"national\",\"names\":[\"California\",\"United States with California-focused regional products\"]},\"access_class\":\"public\",\"public_source_references\":[{\"role\":\"official_source\",\"url\":\"https://www.cnrfc.noaa.gov/forcingProductCSV.php\"}],\"publication_state\":\"published\"}]", simplifyVector = FALSE)
+r17c1_hash <- function(value) digest::digest(jsonlite::toJSON(
+  value, auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
+), algo = "sha256", serialize = FALSE)
+# A5 is an explicit URL-keyed overlay on the frozen C1/A4 expectations.
+# Its strict inverse is used only for historical fixtures; live validation stays intact.
+a5_label_changes <- jsonlite::fromJSON("[{\"station_code\":\"CEGC1\",\"old_label\":\"Trinity\",\"new_label\":\"Trinity River — Trinity Lake — FNF water-year trend (CEGC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CEGC1&prodID=9\"},{\"station_code\":\"CMPC1\",\"old_label\":\"Mokelumne\",\"new_label\":\"Mokelumne River — Pardee Reservoir — FNF water-year trend (CMPC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CMPC1&prodID=9\"},{\"station_code\":\"EXQC1\",\"old_label\":\"Merced\",\"new_label\":\"Merced River — Lake McClure / New Exchequer — FNF water-year trend (EXQC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&prodID=9\"},{\"station_code\":\"FOLC1\",\"old_label\":\"American\",\"new_label\":\"American River — Folsom Lake — FNF water-year trend (FOLC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FOLC1&prodID=9\"},{\"station_code\":\"FRAC1\",\"old_label\":\"San Joaquin\",\"new_label\":\"San Joaquin River — Millerton Reservoir — FNF water-year trend (FRAC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FRAC1&prodID=9\"},{\"station_code\":\"HLEC1\",\"old_label\":\"Yuba\",\"new_label\":\"Yuba River — Englebright Reservoir — FNF water-year trend (HLEC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=HLEC1&prodID=9\"},{\"station_code\":\"ISAC1\",\"old_label\":\"Kern\",\"new_label\":\"Kern River — Lake Isabella — FNF water-year trend (ISAC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ISAC1&prodID=9\"},{\"station_code\":\"MHBC1\",\"old_label\":\"Cosumnes\",\"new_label\":\"Cosumnes River — Michigan Bar — FNF water-year trend (MHBC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=MHBC1&prodID=9\"},{\"station_code\":\"NDPC1\",\"old_label\":\"Tuolumne\",\"new_label\":\"Tuolumne River — New Don Pedro Reservoir — FNF water-year trend (NDPC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NDPC1&prodID=9\"},{\"station_code\":\"NMSC1\",\"old_label\":\"Stanislaus\",\"new_label\":\"Stanislaus River — New Melones Reservoir — FNF water-year trend (NMSC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NMSC1&prodID=9\"},{\"station_code\":\"ORDC1\",\"old_label\":\"Feather\",\"new_label\":\"Feather River — Lake Oroville — FNF water-year trend (ORDC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ORDC1&prodID=9\"},{\"station_code\":\"PFTC1\",\"old_label\":\"Kings\",\"new_label\":\"Kings River — Pine Flat Reservoir — FNF water-year trend (PFTC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=PFTC1&prodID=9\"},{\"station_code\":\"SCSC1\",\"old_label\":\"Tule\",\"new_label\":\"Tule River — Lake Success — FNF water-year trend (SCSC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SCSC1&prodID=9\"},{\"station_code\":\"SHDC1\",\"old_label\":\"Sacramento/McCloud/Pit\",\"new_label\":\"Sacramento River — Shasta Lake — FNF water-year trend (SHDC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SHDC1&prodID=9\"},{\"station_code\":\"TMDC1\",\"old_label\":\"Kaweah\",\"new_label\":\"Kaweah River — Lake Kaweah — FNF water-year trend (TMDC1)\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=TMDC1&prodID=9\"}]", simplifyVector = FALSE)
+a5_new_actions <- jsonlite::fromJSON("[{\"role\":\"configured_view\",\"label\":\"Water Resources — Regional Forecast Map\",\"url\":\"https://www.cnrfc.noaa.gov/water_resources_update.php\"},{\"role\":\"configured_view\",\"label\":\"Daily Basin QPF & Freezing Levels — Days 1–6 (HD6RSA)\",\"url\":\"https://www.cnrfc.noaa.gov/awipsProducts/RNOHD6RSA.php\"}]", simplifyVector = FALSE)
+a5_summary_append <- " Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network."
+a5_expected_action <- function(action) {
+  for (change in a5_label_changes) if (identical(action$url, change$url)) {
+    assert_identical(action$label, change$old_label, "Frozen C1 station label changed")
+    assert_identical(action$role, "configured_view", "Frozen C1 station role changed")
+    action$label <- change$new_label
+  }
+  action
+}
+a5_reverse_resource <- function(record) {
+  if (!identical(record$id, "resource_noaa_cnrfc")) return(record)
+  assert_identical(length(record$access_points), 23L, "A5 CNRFC must have 23 actions")
+  assert_identical(record$access_points[2:3], a5_new_actions,
+                   "A5 new entry points or their second/third placement changed")
+  assert_true(endsWith(record$summary, a5_summary_append), "A5 summary append changed")
+  record$summary <- substr(record$summary, 1L, nchar(record$summary) - nchar(a5_summary_append))
+  assert_true(!grepl(a5_summary_append, record$summary, fixed = TRUE), "A5 summary append duplicated")
+  record$access_points <- record$access_points[-c(2L, 3L)]
+  for (change in a5_label_changes) {
+    indexes <- which(vapply(record$access_points, function(action) identical(action$url, change$url), logical(1)))
+    assert_identical(length(indexes), 1L, "A5 station URL is absent or duplicated")
+    assert_identical(record$access_points[[indexes]]$role, "configured_view", "A5 station role changed")
+    assert_identical(record$access_points[[indexes]]$label, change$new_label, "A5 station label changed")
+    record$access_points[[indexes]]$label <- change$old_label
+  }
+  record
+}
+a5_reverse_registry <- function(raw) {
+  raw$resources <- lapply(raw$resources, a5_reverse_resource)
+  raw
+}
+a5_historical_registry <- function(raw) {
+  # The existing reader validates the historical copy in invocation-owned temp storage.
+  fixture <- tempfile("a5-historical-registry-", fileext = ".json")
+  writeLines(as.character(jsonlite::toJSON(a5_reverse_registry(raw),
+    auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA)), fixture)
+  pt_guide_read_resource_registry(fixture)
+}
+r17c1_strip_resource <- function(record) {
+  record <- a5_reverse_resource(record)
+  before <- r17c1_parent_preimages[[record$id]]
+  if (!is.null(before)) for (field in names(before)) record[[field]] <- before[[field]]
+  record
+}
+r17c1_r17b_raw <- raw_registry
+r17c1_r17b_raw$resources <- lapply(Filter(function(record) {
+  !record$id %in% r17c1_added_ids
+}, r17c1_r17b_raw$resources), r17c1_strip_resource)
+for (record in r17c1_retired_records) {
+  r17c1_r17b_raw$resources <- append(r17c1_r17b_raw$resources,
+                                    list(record), after = record$order - 1L)
+}
+for (i in seq_along(r17c1_r17b_raw$resources)) r17c1_r17b_raw$resources[[i]]$order <- i
+assert_identical(r17c1_hash(r17c1_r17b_raw),
+                 "6b1ece99034e9153f7a38983962d7d8e9839c118b1cc28bd6b7a6f7b306e525d", "R17C1 changed a field outside its exact Resource delta")
+assert_identical(r17c1_hash(a5_reverse_registry(raw_registry)),
+                 "ea850773107f0f821b33942b5900e055df91a25fb348c83902218ff4ae7e18dc", "The approved R17C1 Resource snapshot changed")
+
+# Exact approved R1 tuples; A1 substitutes only the third evidence leaf in
+# coverage_evidence_refs and resource_links[[1]]$evidence_refs for three ERO Products.
+r17c1_expected_actions <- jsonlite::fromJSON("[{\"owner\":\"resource_usgs_usgs_california_river_basin_schematics_collection\",\"action\":{\"role\":\"canonical\",\"label\":\"USGS California River Basin Schematics\",\"url\":\"https://ca.water.usgs.gov/data/waterdata/schematics2007.html\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_nws_graphical_forecasts\",\"action\":{\"role\":\"canonical\",\"label\":\"NWS Graphical Forecasts\",\"url\":\"https://graphical.weather.gov/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_polarwx_tropical\",\"action\":{\"role\":\"canonical\",\"label\":\"PolarWx Tropical\",\"url\":\"https://polarwx.com/tropical/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_brightband_operational_weatherbench\",\"action\":{\"role\":\"canonical\",\"label\":\"Brightband Operational WeatherBench\",\"url\":\"https://owb.brightband.com/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_geolibre\",\"action\":{\"role\":\"canonical\",\"label\":\"GeoLibre\",\"url\":\"https://geolibre.app/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"action\":{\"role\":\"canonical\",\"label\":\"Weather Prediction Center Excessive Rainfall Outlook\",\"url\":\"https://www.wpc.ncep.noaa.gov/#page=ero\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_nrcs_nwcc\",\"action\":{\"role\":\"configured_view\",\"label\":\"NRCS Snow and Climate Monitoring Predefined Reports and Maps\",\"url\":\"https://wcc.sc.egov.usda.gov/reports/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_nws_graphical_forecasts\",\"action\":{\"role\":\"configured_view\",\"label\":\"Northern California Graphical Forecast\",\"url\":\"https://graphical.weather.gov/sectors/northcalifornia.php\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_nws_graphical_forecasts\",\"action\":{\"role\":\"configured_view\",\"label\":\"Southern California Graphical Forecast\",\"url\":\"https://graphical.weather.gov/sectors/southcalifornia.php\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_geolibre\",\"action\":{\"role\":\"configured_view\",\"label\":\"GeoLibre Web\",\"url\":\"https://web.geolibre.app/\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_dwr_cdec\",\"action\":{\"role\":\"configured_view\",\"label\":\"CDEC Monthly Full Natural Flow Summary\",\"url\":\"https://cdec.water.ca.gov/reportapp/javareports?name=FNFSUM\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"action\":{\"role\":\"configured_view\",\"label\":\"WPC Excessive Rainfall Outlook Day 1\",\"url\":\"https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=1&opt=curr\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"action\":{\"role\":\"configured_view\",\"label\":\"WPC Excessive Rainfall Outlook Day 2\",\"url\":\"https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=2&opt=curr\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"action\":{\"role\":\"configured_view\",\"label\":\"WPC Excessive Rainfall Outlook Day 3\",\"url\":\"https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=3&opt=curr\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Trinity\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CEGC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Mokelumne\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=CMPC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Merced\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"American\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FOLC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"San Joaquin\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=FRAC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Yuba\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=HLEC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Kern\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ISAC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Cosumnes\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=MHBC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Tuolumne\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NDPC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Stanislaus\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=NMSC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Feather\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=ORDC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Kings\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=PFTC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Tule\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SCSC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Sacramento/McCloud/Pit\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=SHDC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"Kaweah\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProduct.php?id=TMDC1&prodID=9\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"CNRFC Forcing CSV\",\"url\":\"https://www.cnrfc.noaa.gov/forcingProductCSV.php\"},\"kind\":\"REHOME\",\"old_owner\":\"resource_noaa_cnrfc_forcing_csv_service\"},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"CNRFC Short-Range Hourly Deterministic CSV\",\"url\":\"https://www.cnrfc.noaa.gov/deterministicHourlyProductCSV.php\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"CNRFC Hourly HEFS CSV\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleHourlyProductCSV.php\"},\"kind\":\"REHOME\",\"old_owner\":\"resource_noaa_cnrfc_hourly_hefs_csv_service\"},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"configured_view\",\"label\":\"CNRFC Long-Range Daily Ensemble CSV\",\"url\":\"https://www.cnrfc.noaa.gov/ensembleProductCSV.php\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null},{\"owner\":\"resource_noaa_cnrfc\",\"action\":{\"role\":\"archive\",\"label\":\"CNRFC Data Archive\",\"url\":\"https://www.cnrfc.noaa.gov/arc_search.php\"},\"kind\":\"GLOBALLY_NEW\",\"old_owner\":null}]", simplifyVector = FALSE)
+r17c1_expected_aliases <- jsonlite::fromJSON("{\"resource_dwr_cdec\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_noaa_cnrfc\":{\"aliases\":[\"resource_noaa_cnrfc_forcing_csv_service\",\"resource_noaa_cnrfc_hourly_hefs_csv_service\"],\"migration_aliases\":[\"res.noaa.cnrfc-forcing-csv.service\",\"res.noaa.cnrfc-hourly-hefs-csv.service\"],\"search_aliases\":[\"CNRFC Forcings CSV\",\"cnrfc.noaa.gov\",\"CNRFC Hourly HEFS CSV\",\"SF American nr Kyburz\",\"AKYC1\",\"Antelope Lake - Taylorsville nr\",\"ANTC1\",\"Napa - Napa\",\"APCC1\",\"Mad River - Arcata\",\"ARCC1\",\"Pajaro - Chittenden\",\"AROC1\",\"NF Stanislaus - Avery\",\"AVYC1\",\"Little Truckee - Boca Dam\",\"BCAC1\",\"Bear Ck - Bear Res\",\"BCKC1\",\"Sacramento - Bend Bridge\",\"BDBC1\",\"Chowchilla - Buchanan Dam\",\"BHNC1\",\"Butte Ck - Chico\",\"BKCC1\",\"Burns Ck - Burns Res\",\"BNCC1\",\"East Walker - Bridgeport\",\"BPRC1\",\"Van Duzen - Bridgeville\",\"BRGC1\",\"San Lorenzo River - Big Trees\",\"BTEC1\",\"Sprague R - Beatty\",\"BTYO3\",\"SF American - Placerville\",\"CBAC1\",\"Trinity R at Clair Engle Reservoir\",\"CEGC1\",\"EF Carson - Markleeville\",\"CEMC1\",\"Sprague nr Chiloquin\",\"CHSO3\",\"Cherry Ck - Cherry Valley Dam\",\"CHVC1\",\"Lost R - Clear Lake\",\"CKEC1\",\"Calleguas Ck - Camarillo\",\"CLLC1\",\"Mokelumne - Pardee Dam\",\"CMPC1\",\"Pit River nr Canby\",\"CNBC1\",\"Battle Ck - Cottonwood\",\"COTC1\",\"Coyote Ck - Coyote Res\",\"COYC1\",\"Smith - Jed Smith nr Crescent City\",\"CREC1\",\"Castaic Lake\",\"CSKC1\",\"Cottonwood Ck - Cottonwood\",\"CWAC1\",\"Cow Creek - Millville\",\"CWCC1\",\"Deer Ck - Vina\",\"DCVC1\",\"Deep Creek nr Hesperia\",\"DKHC1\",\"Sacramento - Delta\",\"DLTC1\",\"Donner Lake\",\"DNRC1\",\"MF Eel - Dos Rios\",\"DOSC1\",\"Elder Ck - Paskenta\",\"EDCC1\",\"NF Cosumnes - El Dorado\",\"EDOC1\",\"Elderberry Forebay\",\"EFBC1\",\"Little Stony Ck - East Park Dam\",\"EPRC1\",\"Merced - New Exchequer Dam\",\"EXQC1\",\"Truckee - Farad\",\"FARC1\",\"MF American - French Meadows\",\"FMDC1\",\"American River - Folsom Dam\",\"FOLC1\",\"San Joaquin - Friant Dam\",\"FRAC1\",\"Eel - Fernbridge\",\"FRNC1\",\"Carson R nr Fort Churchill\",\"FTCN2\",\"Scott - Fort Jones\",\"FTJC1\",\"Eel - Fort Seward\",\"FTSC1\",\"Sisquoc - Garey\",\"GARC1\",\"Gerber Reservoir\",\"GERO3\",\"EF Carson - Gardnerville\",\"GRDN2\",\"NF Yuba - Goodyears Bar\",\"GYRC1\",\"Indian Ck - Happy Camp\",\"HAPC1\",\"San Luis Rey R - Lake Henshaw\",\"HAWC1\",\"Tuolomne - Hetch Hetchy Dam\",\"HETC1\",\"Fresno - Hidden Dam\",\"HIDC1\",\"Yuba - Englebright Dam\",\"HLEC1\",\"Rubicon River - Hell Hole Resvr\",\"HLLC1\",\"San Benito - Hollister\",\"HOSC1\",\"Merced R - Happy Isles Br\",\"HPIC1\",\"SF Trinity - Hyampom\",\"HYMC1\",\"Ice House Res nr Kyburz\",\"ICHC1\",\"Independence Lake\",\"ILAC1\",\"NF Cache Ck - Indian Valley Dam\",\"INVC1\",\"Kern - Isabella Dam\",\"ISAC1\",\"Kern - Fairview Dam\",\"KKVC1\",\"Upper Klamath Lake\",\"KLAO3\",\"Kaweah - Three Rivers\",\"KTRC1\",\"EF Russian - Coyote Dam\",\"LAMC1\",\"Putah Ck - Lake Berryessa\",\"LBEC1\",\"SF Eel - Leggett\",\"LEGC1\",\"Santa Ynez - Los Laurels Canyon\",\"LLYC1\",\"Eleanor Ck - Lake Eleanor Dam\",\"LNRC1\",\"MF American - Foresthill\",\"MFAC1\",\"MF American - Abv Middle Fork Powerhouse\",\"MFPC1\",\"Cosumnes - Michigan Bar\",\"MHBC1\",\"Mill Ck - Los Molinos\",\"MLMC1\",\"McCloud R nr McCloud\",\"MMCC1\",\"MF Feather - Merrimac\",\"MRMC1\",\"SF Eel - Miranda\",\"MRNC1\",\"Martis Ck Reservoir\",\"MTSC1\",\"Mojave Forks Dam\",\"MVDC1\",\"Mojave River nr Victorville\",\"MVVC1\",\"NF Yuba - New Bullards Bar\",\"NBBC1\",\"Tuolumne - New Don Pedro Dam\",\"NDPC1\",\"NF Stanislaus - Diversion Dam\",\"NDVC1\",\"NF American - North Fork Dam\",\"NFDC1\",\"Calaveras - New Hogan Dam\",\"NHGC1\",\"NF MF American R nr Foresthill\",\"NMFC1\",\"Stanislaus - New Melones Dam\",\"NMSC1\",\"Highland Ck - New Spicer Meadows Rsvr\",\"NSWC1\",\"Navarro - Navarro\",\"NVRC1\",\"Feather - Oroville Dam\",\"ORDC1\",\"Redwood Ck - Orick\",\"ORIC1\",\"Owens Ck - Owens Dam\",\"OWCC1\",\"Kings - Pine Flat Dam\",\"PFTC1\",\"San Benito - Willow Creek\",\"PIIC1\",\"Eel R - Lk Pillsbury\",\"PLBC1\",\"NF Feather - Lk Almanor\",\"PLLC1\",\"SF Pit  nr Likely\",\"PLYC1\",\"Merced R - Pohono Bridge\",\"POHC1\",\"Salinas - Paso Robles\",\"PRBC1\",\"Prosser Ck - Prosser Ck Dam\",\"PSRC1\",\"Carmel - Robles Del Rio\",\"RDRC1\",\"Salmon - Somes bar\",\"SBRC1\",\"Spanish Ck - Keddie\",\"SCBC1\",\"Sycan R - Beatty\",\"SCNO3\",\"Eel - Scotia\",\"SCOC1\",\"Tule - Success Dam\",\"SCSC1\",\"Saghen Ck - Truckee\",\"SGNC1\",\"Sacramento - Shasta Dam\",\"SHDC1\",\"Napa - St. Helena\",\"SHEC1\",\"SF Kern - Onyx\",\"SKRC1\",\"San Luis Rey R at Oceanside\",\"SLOC1\",\"Salsipudes Ck - Lompoc\",\"SLUC1\",\"MF Cosumnes - Somerset\",\"SOSC1\",\"Pilot Ck - Stumpy Meadows Res\",\"SPYC1\",\"Santa Ana - Mentone\",\"SRWC1\",\"Sisquoc R - Sisquoc\",\"SSQC1\",\"Little Truckee - Stampede Dam\",\"STPC1\",\"Carson Rvr - Carson City\",\"STWN2\",\"Trinity - Coffee Ck above\",\"TCCC1\",\"Thomes Creek - Paskenta\",\"TCRC1\",\"Kaweah - Terminus Dam\",\"TMDC1\",\"Truckee nr Truckee\",\"TRCC1\",\"SF Tule - Reservation Boundary\",\"TVRC1\",\"Cuyama - Twitchell Dam\",\"TWDC1\",\"Russian R - Ukiah\",\"UKAC1\",\"Silver Ck - Union Valley Reservoir\",\"UNVC1\",\"Ventura River nr Ventura\",\"VRVC1\",\"Whiskey Ck - Whiskeytown Dam\",\"WHSC1\",\"Williamson R nr Agency\",\"WKAO3\",\"Williamson - blo Sprague River\",\"WMSO3\",\"WF Carson - Woodfords\",\"WOOC1\",\"Dry Ck - Warm Springs Dam\",\"WSDC1\",\"West Walker blw Little Walker\",\"WWBC1\",\"Santa Margarita - Ysidora\",\"YDRC1\",\"Shasta nr Yreka\",\"YREC1\",\"CNRFC Forcing CSV\",\"Short-range hourly deterministic CSV\",\"Long-range daily ensemble CSV\",\"CNRFC Data Archive\"]},\"resource_nrcs_nwcc\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_usgs_usgs_california_river_basin_schematics_collection\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_noaa_nws_graphical_forecasts\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_polarwx_tropical\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_brightband_operational_weatherbench\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_geolibre\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]},\"resource_noaa_wpc_excessive_rainfall_outlook\":{\"aliases\":[],\"migration_aliases\":[],\"search_aliases\":[]}}", simplifyVector = FALSE)
+r17c1_review_fixture <- jsonlite::fromJSON("{\"before_products\":[{\"product_id\":\"ops_wpc_ero_day_1\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\",\"qa/test_guide_foundation.R\"],\"coverage_review_state\":\"reviewed\",\"coverage_disposition\":\"selected_product_from_broader_resource\",\"coverage_evidence_basis\":\"maintainer_calibration\",\"coverage_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\",\"qa/test_guide_foundation.R\"],\"resource_links\":[{\"resource_id\":\"resource_noaa_wpc_qpf\",\"relationship_role\":\"selected_product_from_broader_resource\",\"evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\",\"qa/test_guide_foundation.R\"]}]},{\"product_id\":\"ops_wpc_ero_day_2\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\"],\"coverage_review_state\":\"not_yet_reviewed\",\"coverage_disposition\":null,\"coverage_evidence_basis\":\"not_yet_reviewed\",\"coverage_evidence_refs\":[],\"resource_links\":[]},{\"product_id\":\"ops_wpc_ero_day_3\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\"],\"coverage_review_state\":\"not_yet_reviewed\",\"coverage_disposition\":null,\"coverage_evidence_basis\":\"not_yet_reviewed\",\"coverage_evidence_refs\":[],\"resource_links\":[]}],\"after_products\":[{\"product_id\":\"ops_wpc_ero_day_1\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\",\"qa/test_guide_foundation.R\"],\"coverage_review_state\":\"reviewed\",\"coverage_disposition\":\"selected_product_from_broader_resource\",\"coverage_evidence_basis\":\"tracked_product_definition\",\"coverage_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"],\"resource_links\":[{\"resource_id\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"relationship_role\":\"selected_product_from_broader_resource\",\"evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"]}]},{\"product_id\":\"ops_wpc_ero_day_2\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\"],\"coverage_review_state\":\"reviewed\",\"coverage_disposition\":\"selected_product_from_broader_resource\",\"coverage_evidence_basis\":\"tracked_product_definition\",\"coverage_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"],\"resource_links\":[{\"resource_id\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"relationship_role\":\"selected_product_from_broader_resource\",\"evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"]}]},{\"product_id\":\"ops_wpc_ero_day_3\",\"delivery_class\":\"brim_enhanced\",\"delivery_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\",\"00_config/guide_product_enrichment.json\",\"03_functions/leaflet_guide_helpers.r\"],\"coverage_review_state\":\"reviewed\",\"coverage_disposition\":\"selected_product_from_broader_resource\",\"coverage_evidence_basis\":\"tracked_product_definition\",\"coverage_evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"],\"resource_links\":[{\"resource_id\":\"resource_noaa_wpc_excessive_rainfall_outlook\",\"relationship_role\":\"selected_product_from_broader_resource\",\"evidence_refs\":[\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"00_config/guide_resources.json\",\"08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md\"]}]}],\"retired_reviews\":[{\"order\":187,\"record\":{\"resource_id\":\"resource_noaa_cnrfc_hourly_hefs_csv_service\",\"map_review_state\":\"reviewed\",\"map_representation\":\"not_currently_mapped_in_brim\",\"evidence_refs\":[\"00_config/guide_resources.json\",\"00_config/guide_product_resource_relationships.json\",\"00_config/guide_product_enrichment.json\",\"00_config/external_service_catalog.csv\",\"00_config/config_local_layer_registry.r\",\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\"]}},{\"order\":202,\"record\":{\"resource_id\":\"resource_noaa_cnrfc_forcing_csv_service\",\"map_review_state\":\"reviewed\",\"map_representation\":\"not_currently_mapped_in_brim\",\"evidence_refs\":[\"00_config/guide_resources.json\",\"00_config/guide_product_resource_relationships.json\",\"00_config/guide_product_enrichment.json\",\"00_config/external_service_catalog.csv\",\"00_config/config_local_layer_registry.r\",\"03_functions/leaflet_ops_live_layer_definition_helpers.r\",\"03_functions/leaflet_ops_live_service_helpers.r\"]}}]}", simplifyVector = FALSE)
+r17c1_current_ids <- vapply(raw_registry$resources, `[[`, character(1), "id")
+for (op in r17c1_expected_actions) {
+  record <- raw_registry$resources[[match(op$owner, r17c1_current_ids)]]
+  assert_identical(sum(vapply(record$access_points, identical, logical(1), a5_expected_action(op$action))),
+                   1L, paste("Exact R1 C1 action tuple changed:", op$action$url))
+}
+assert_identical(length(r17c1_expected_actions), 34L, "C1 action operation count changed")
+assert_identical(sum(vapply(r17c1_expected_actions, function(op) {
+  identical(op$kind, "GLOBALLY_NEW")
+}, logical(1))), 32L, "C1 must contain 32 globally new actions and two rehomes")
+for (id in names(r17c1_expected_aliases)) {
+  record <- raw_registry$resources[[match(id, r17c1_current_ids)]]
+  for (field in names(r17c1_expected_aliases[[id]])) {
+    assert_identical(record[[field]], r17c1_expected_aliases[[id]][[field]],
+                     paste("Exact C1 alias namespace/set changed:", id, field))
+  }
+}
+r17c1_all_urls <- unlist(lapply(raw_registry$resources, function(record) {
+  vapply(record$access_points, `[[`, character(1), "url")
+}), use.names = FALSE)
+assert_identical(length(r17c1_all_urls), 381L, "C1 action row count changed")
+assert_identical(length(unique(r17c1_all_urls)), 381L, "C1 action URL uniqueness changed")
+assert_true(!any(grepl("id=SACC0&year=2026", r17c1_all_urls, fixed = TRUE)),
+            "The deferred C2 CNRFC year action leaked into runtime")
+for (record in r17c1_review_fixture$after_products) {
+  assert_identical(raw_relationship_registry$products[[match(record$product_id,
+                   relationship_product_ids)]], record,
+                   paste("Exact approved R1/A1 WPC Product row changed:", record$product_id))
+}
+r17c1_r17b_relationships <- raw_relationship_registry
+for (record in r17c1_review_fixture$before_products) {
+  r17c1_r17b_relationships$products[[match(record$product_id, relationship_product_ids)]] <- record
+}
+r17c1_r17b_relationships$resources <- Filter(function(record) {
+  !record$resource_id %in% r17c1_added_ids
+}, r17c1_r17b_relationships$resources)
+for (row in r17c1_review_fixture$retired_reviews) {
+  r17c1_r17b_relationships$resources <- append(r17c1_r17b_relationships$resources,
+                                             list(row$record), after = row$order - 1L)
+}
+assert_identical(r17c1_hash(r17c1_r17b_relationships), "1947cd49162e09070848fbb11fdc0f9b5fd02bc3b23877f0888a055933a55889",
+                 "A Product, retained link, delivery field, or Resource review changed outside C1")
+assert_identical(r17c1_hash(raw_relationship_registry), "89d5f6879bcf1b19f3ffa2fcec382b84d5f023882b859cf797d5ef4cdd043aff",
+                 "The exact R17C1/A1 relationship snapshot changed")
+
+a5_public_urls <- unlist(lapply(Filter(function(record) identical(record$publication_state, "published"),
+  raw_registry$resources), function(record) vapply(record$access_points, `[[`, character(1), "url")), use.names = FALSE)
+assert_identical(length(a5_public_urls), 376L, "A5 public action row count changed")
+assert_identical(length(unique(a5_public_urls)), 376L, "A5 public action URLs are not unique")
+
+# The new untracked ledger is tested as documentation content only. It is
+# deliberately never supplied as runtime evidence or to a builder/registry reader.
+r17c1_intake <- jsonlite::fromJSON(
+  file.path("08_docs", "catalog", "BRIM_RESOURCE_INTAKE_LEDGER.json"), simplifyVector = FALSE
+)
+a5_original_intake <- r17c1_intake
+a5_original_intake$amendments <- NULL
+assert_identical(r17c1_hash(a5_original_intake),
+  "46ce17e8fe7f0bd4dc075d99b6c0725b60257ba2b814352eb55392697df061c2",
+  "A5 changed the original 97-row ledger or its historical semantics")
+assert_identical(length(r17c1_intake$amendments), 1L, "A5 must append exactly one documentation amendment")
+a5_amendment <- r17c1_intake$amendments[[1]]
+assert_identical(a5_amendment$amendment_id, "BRIM-R17C1-A5", "A5 amendment identity changed")
+assert_identical(a5_amendment$ledger_role, "DOCUMENTATION_ONLY", "A5 amendment became runtime input")
+assert_identical(a5_amendment$label_changes, a5_label_changes, "A5 amendment label provenance changed")
+assert_identical(vapply(a5_amendment$new_action_submissions, `[[`, character(1), "child_intake_key"),
+  c("CNRFC_WATER_RESOURCES_MAP", "CNRFC_HD6RSA_DAILY_BASIN"), "A5 child intake keys changed")
+assert_identical(lapply(a5_amendment$new_action_submissions, `[[`, "action"), a5_new_actions,
+  "A5 amendment action provenance changed")
+assert_identical(a5_amendment$summary_append, a5_summary_append, "A5 amendment summary provenance changed")
+assert_identical(a5_amendment$maintainer_authorization$execution, "BRIM-R17C1-A5", "A5 execution authority missing")
+assert_identical(a5_amendment$maintainer_authorization$continuation, "BRIM-R17C1-A5C", "A5C continuation authority missing")
+assert_identical(a5_amendment$counts, jsonlite::fromJSON("{\"original_intake_entries\":97,\"water_year_children\":27,\"station_alias_children\":278,\"label_changes\":15,\"new_action_submissions\":2,\"new_canonical_resources\":0,\"cnrfc_actions\":23,\"cnrfc_product_links\":7,\"global_actions\":381,\"public_actions\":376}", simplifyVector = FALSE),
+  "A5 amendment accounting changed")
+assert_identical(length(a5_amendment$verification_evidence), 3L, "A5 verification provenance missing")
+assert_true(all(vapply(a5_amendment$verification_evidence, function(evidence) {
+  startsWith(evidence$reference, "BRIM_G_R17C1_G4_A5C_CANDIDATE_REVIEW/evidence/") &&
+    grepl("^[0-9a-f]{64}$", evidence$sha256)
+}, logical(1))), "A5 verification evidence is not portable and hash-pinned")
+assert_true(identical(a5_amendment$candidate_accepted, FALSE) && is.null(a5_amendment$accepted_sha) &&
+  is.null(a5_amendment$PR) && is.null(a5_amendment$implemented_on) &&
+  identical(a5_amendment$C2_execution_authorized, FALSE), "A5 execution was confused with acceptance or C2")
+assert_identical(r17c1_intake$schema_version, 1L, "Intake ledger schema changed")
+assert_identical(r17c1_intake$ledger_role, "DOCUMENTATION_ONLY", "Intake ledger role changed")
+assert_identical(vapply(r17c1_intake$entries, `[[`, character(1), "intake_id"),
+                 sprintf("L%03d", 1:97), "The exact 97 intake entries changed")
+r17c1_children <- unlist(lapply(r17c1_intake$entries, `[[`, "children"), recursive = FALSE)
+r17c1_alias_children <- Filter(function(child) identical(child$kind, "CNRFC_RAW_ALIAS"),
+                                r17c1_children)
+r17c1_year_children <- Filter(function(child) identical(child$kind, "WATER_YEAR_EMBEDDED_ACTION"),
+                               r17c1_children)
+assert_identical(length(r17c1_alias_children), 278L, "Station/name child accounting changed")
+assert_identical(length(unique(vapply(r17c1_alias_children, function(child) {
+  child$source_record$station_code
+}, character(1)))), 139L, "The 139 established CNRFC station identities changed")
+assert_true(all(vapply(r17c1_alias_children, function(child) {
+  child$source_record$value %in% r17c1_expected_aliases$resource_noaa_cnrfc$search_aliases
+}, logical(1))), "A preserved station/name child is not searchable on the CNRFC parent")
+assert_identical(length(r17c1_year_children), 27L, "Water-year child accounting changed")
+assert_true(all(vapply(r17c1_year_children, function(child) {
+  identical(child$value_update_policy, "external_source_only_no_runtime_feed") &&
+    identical(child$execution_authorized, FALSE) && is.null(child$implemented_on)
+}, logical(1))), "A water-year child gained execution or implementation status")
+assert_true(all(vapply(r17c1_intake$entries, function(entry) {
+  !identical(entry$lifecycle, "IMPLEMENTED") &&
+    all(vapply(entry$implementation, is.null, logical(1))) &&
+    is.null(entry$decision$candidate_acceptance) &&
+    (!identical(entry$decision$scheduled_wave, "R17C2") ||
+       identical(entry$decision$execution_authorized, FALSE))
+}, logical(1))), "Intake scope approval was confused with acceptance or C2 execution")
+assert_identical(sum(vapply(r17c1_intake$entries, function(entry) {
+  identical(entry$lifecycle, "HOLD_FOR_REVIEW")
+}, logical(1))), 36L, "An intake hold was lifted")
+assert_identical(r17c1_intake$entries[[6]]$lifecycle, "DEFERRED", "Weather Lab deferral changed")
+assert_identical(r17c1_intake$entries[[83]]$lifecycle, "REJECTED_DUPLICATE",
+                 "The duplicate CDEC confirmation was published")
+
 expected_ids <- c(
   "resource_doi",
   "resource_blm_california",
@@ -370,7 +564,7 @@ browser_fields <- c(
 assert_identical(raw_registry$schema_version, 3L, "Registry schema marker changed")
 assert_true(inherits(registry, "pt_guide_resource_registry"),
             "Registry reader did not mark validated records")
-assert_identical(length(registry), 211L, "Registry must contain exactly 211 Resources")
+assert_identical(length(registry), 215L, "Registry must contain exactly 215 Resources")
 registry_ids <- vapply(registry, `[[`, character(1), "id")
 published_ids <- vapply(published, `[[`, character(1), "id")
 staged <- unclass(registry)[vapply(registry, `[[`, character(1), "publication_state") == "staged"]
@@ -389,19 +583,19 @@ assert_identical(registry_ids[seq_along(expected_baseline_resource_ids)],
 assert_identical(
   digest::digest(paste0(paste(r15c_target_registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
-  "49e451cd07255cc589d5b4973dcedc03eed99bcd277a59f0270a375d8ef3c18d",
-  "The exact ordered post-baseline 139-Resource target ID set changed"
+  "ad89c408956727320038090e799deee98b2a70697fa993351031d061d092e1a2",
+  "The exact ordered post-baseline 143-Resource target ID set changed"
 )
 expected_published_ids <- c(expected_published_ids_before_r15c, r15c_target_registry_ids)
 assert_identical(published_ids, expected_published_ids,
-                 "The exact 206 published Resources changed or reordered")
+                 "The exact 210 published Resources changed or reordered")
 assert_identical(vapply(held_staged, `[[`, character(1), "id"), expected_held_staged_ids,
                  "The exact five held staged Resources changed or reordered")
 assert_identical(published_ids[published_ids %in% r15c_target_registry_ids],
                  r15c_target_registry_ids,
                  "The exact R15C target Resources are not all published in contract order")
-assert_identical(length(r15c_target_registry_ids), 139L,
-                 "The post-baseline authority must contain exactly 139 Resources")
+assert_identical(length(r15c_target_registry_ids), 143L,
+                 "The post-baseline authority must contain exactly 143 Resources")
 assert_true(setequal(registry_ids[registry_ids %in% r16b_added_resource_ids],
                      r16b_added_resource_ids) &&
               sum(registry_ids %in% r16b_added_resource_ids) == 13L,
@@ -411,8 +605,8 @@ assert_true(!any(r16b_retired_resource_ids %in% registry_ids),
 assert_identical(
   digest::digest(paste0(paste(registry_ids, collapse = "\n"), "\n"),
                  algo = "sha256", serialize = FALSE),
-  "1a42cb88a6092b72e57b0a442e9c038b7083bdeb5034d6ca5c0e958e719d5d3f",
-  "The exact ordered R16B 211-Resource identity set changed"
+  "a43fda6c04b25ca663ba68c1664f77b978fc61aacf490f40ff4de27c1dccf2f5",
+  "The exact ordered R16B 215-Resource identity set changed"
 )
 assert_true(!any(r15b_removed_resource_ids %in% registry_ids),
             "An R15A-invalid Resource remains in canonical authority")
@@ -437,8 +631,8 @@ assert_identical(
   "Registry order is not unique, complete, and in file order"
 )
 publication_states <- vapply(registry, `[[`, character(1), "publication_state")
-assert_identical(sum(publication_states == "published"), 206L,
-                 "Published Resource count must be 206")
+assert_identical(sum(publication_states == "published"), 210L,
+                 "Published Resource count must be 210")
 assert_identical(sum(publication_states == "staged"), 5L,
                  "Staged Resource count must be 5")
 assert_true(all(vapply(r15c_target_registry, function(record) {
@@ -446,7 +640,7 @@ assert_true(all(vapply(r15c_target_registry, function(record) {
 }, logical(1))), "Every R15C target Resource must be published")
 assert_identical(sum(vapply(r15c_target_registry, function(record) {
   !length(record$subject_tags)
-}, logical(1))), 11L,
+}, logical(1))), 17L,
 "The precipitation micro-pass empty subject-set count changed")
 precipitation_resource_ids <- vapply(Filter(function(record) {
   "Precipitation" %in% unname(as.character(unlist(
@@ -615,11 +809,11 @@ metadata_counts <- function(values) {
 assert_identical(
   metadata_counts(vapply(published, `[[`, character(1), "resource_type")),
   c(
-    analysis_tool = 9L, dashboard = 19L, data_portal_or_catalog = 81L,
-    data_service_or_api = 8L, dataset_or_collection = 21L,
+    analysis_tool = 11L, dashboard = 19L, data_portal_or_catalog = 81L,
+    data_service_or_api = 6L, dataset_or_collection = 22L,
     documentation_or_guide = 2L, organization_homepage = 4L,
     program_or_mission = 21L, report_or_publication = 9L,
-    viewer_or_explorer = 32L
+    viewer_or_explorer = 35L
   ),
   "Published Resource Type distribution changed"
 )
@@ -627,8 +821,8 @@ assert_identical(
   metadata_counts(vapply(published, `[[`, character(1), "temporal_character")),
   c(
     climatology_or_normals = 1L, current_or_near_real_time = 15L,
-    forecast = 2L, historical_archive = 7L, mixed = 31L,
-    static_reference = 10L, unknown = 140L
+    forecast = 5L, historical_archive = 8L, mixed = 33L,
+    static_reference = 10L, unknown = 138L
   ),
   "Published temporal-character distribution changed"
 )
@@ -636,8 +830,8 @@ assert_identical(
   metadata_counts(vapply(published, function(record) {
     record$geographic_scope$scope_type
   }, character(1))),
-  c(global = 46L, local = 42L, multi_state = 10L, multinational = 5L,
-    national = 66L, regional = 3L, state = 30L, unknown = 4L),
+  c(global = 49L, local = 42L, multi_state = 10L, multinational = 5L,
+    national = 66L, regional = 3L, state = 31L, unknown = 4L),
   "Published geographic-scope distribution changed"
 )
 
@@ -687,7 +881,7 @@ assert_identical(cnrfc_raw_resource$public_source_references[[1]]$url,
 assert_true(!grepl(r17b_cnrfc_canonical_url_before,
                    compact_json(cnrfc_raw_resource), fixed = TRUE),
             "The non-resolving bare CNRFC root remains in the canonical Resource")
-reconstructed_pre_host_registry <- raw_registry
+reconstructed_pre_host_registry <- r17c1_r17b_raw
 reconstructed_pre_host_registry$resources <- lapply(
   reconstructed_pre_host_registry$resources,
   strip_r17b_cnrfc_canonical_host_repair
@@ -718,12 +912,50 @@ assert_identical(
 assert_true(!grepl(r17b_cnrfc_resource_summary_before,
                    compact_json(raw_registry), fixed = TRUE),
             "The superseded CNRFC Resource summary remains in authority")
+# Historical snapshots use the R17B cohort, including the two retired CNRFC
+# children. The live C1 cohort above continues to own current-state checks.
+r15c_historical_registry_ids <- vapply(
+  r17c1_r17b_raw$resources[73:211], `[[`, character(1), "id"
+)
+assert_identical(length(r15c_historical_registry_ids), 139L,
+                 "The historical R15C normalization cohort changed")
+assert_identical(
+  digest::digest(paste0(paste(r15c_historical_registry_ids, collapse = "\n"), "\n"),
+                 algo = "sha256", serialize = FALSE),
+  "49e451cd07255cc589d5b4973dcedc03eed99bcd277a59f0270a375d8ef3c18d",
+  "The exact ordered historical R15C normalization cohort changed"
+)
+assert_identical(setdiff(r15c_historical_registry_ids, r15c_target_registry_ids), c(
+  "resource_noaa_cnrfc_hourly_hefs_csv_service",
+  "resource_noaa_cnrfc_forcing_csv_service"
+), "The historical-only cohort must contain exactly the two retired CNRFC children")
+assert_identical(setdiff(r15c_target_registry_ids, r15c_historical_registry_ids),
+                 r17c1_added_ids,
+                 "The live-only cohort must contain exactly the six ordered C1 additions")
 normalize_r15c_publication_state <- function(record) {
-  if (record$id %in% r15c_target_registry_ids) {
+  if (record$id %in% r15c_historical_registry_ids) {
     record$publication_state <- "staged"
   }
   record
 }
+r17c1_retired_historical_projection <- lapply(
+  r17c1_retired_records, normalize_r15c_publication_state
+)
+assert_identical(vapply(r17c1_retired_historical_projection, `[[`, character(1),
+                        "publication_state"), rep("staged", 2L),
+                 "Both retired children must receive the historical staged projection")
+assert_identical(vapply(r17c1_retired_records, `[[`, character(1), "publication_state"),
+                 rep("published", 2L),
+                 "Historical normalization mutated the original retired-record fixtures")
+assert_identical(r17c1_hash(r17c1_r17b_raw),
+                 "6b1ece99034e9153f7a38983962d7d8e9839c118b1cc28bd6b7a6f7b306e525d",
+                 "Historical normalization mutated the reconstructed R17B snapshot")
+assert_true(!any(r17c1_retired_ids %in% registry_ids) &&
+              length(registry) == 215L && length(published) == 210L && length(staged) == 5L,
+            "Historical normalization changed the live C1 membership or publication counts")
+assert_identical(r17c1_hash(a5_reverse_registry(raw_registry)),
+                 "ea850773107f0f821b33942b5900e055df91a25fb348c83902218ff4ae7e18dc",
+                 "Historical normalization mutated the current C1 registry")
 strip_r15b_authorized_access_point <- function(record) {
   expected <- r15b_authorized_access_points[[record$id]]
   if (!is.null(expected)) {
@@ -772,8 +1004,8 @@ raw_registry_ids <- vapply(
 r15b_surviving_url_repairs <- r15b_url_repairs[
   !names(r15b_url_repairs) %in% r16b_retired_resource_ids
 ]
-r15b_repaired_records <- raw_registry$resources[match(
-  names(r15b_surviving_url_repairs), raw_registry_ids
+r15b_repaired_records <- r17c1_r17b_raw$resources[match(
+  names(r15b_surviving_url_repairs), vapply(r17c1_r17b_raw$resources, `[[`, character(1), "id")
 )]
 assert_identical(length(r15b_repaired_records), 19L,
                  "The exact 19 surviving R15B URL repairs changed")
@@ -852,8 +1084,8 @@ assert_identical(
   "A protected USBR field changed during the canonical-host repair"
 )
 assert_identical(
-  digest::digest(compact_json(lapply(lapply(raw_registry$resources[match(
-    r15b_checker_artifact_ids, raw_registry_ids
+  digest::digest(compact_json(lapply(lapply(r17c1_r17b_raw$resources[match(
+    r15b_checker_artifact_ids, vapply(r17c1_r17b_raw$resources, `[[`, character(1), "id")
   )], normalize_r15c_publication_state), strip_r15b_authorized_access_point) |>
     lapply(strip_precipitation_micro_pass)),
   algo = "sha256", serialize = FALSE),
@@ -911,7 +1143,7 @@ strip_publication_state <- function(record) {
   record
 }
 newly_published_without_state_json <- compact_json(lapply(lapply(lapply(
-  lapply(lapply(lapply(newly_published, strip_r15b_authorized_access_point),
+  lapply(lapply(lapply(lapply(newly_published, r17c1_strip_resource), strip_r15b_authorized_access_point),
          strip_r16b_existing_resource_access_points), strip_precipitation_micro_pass),
   strip_r17b_cnrfc_resource_summary_correction),
   strip_r17b_cnrfc_canonical_host_repair), strip_publication_state
@@ -925,7 +1157,7 @@ assert_identical(
   )
 )
 baseline_registry <- lapply(
-  raw_registry$resources[seq_along(expected_baseline_resource_ids)],
+  r17c1_r17b_raw$resources[seq_along(expected_baseline_resource_ids)],
   strip_r15b_authorized_access_point
 )
 baseline_registry <- lapply(baseline_registry, strip_r16b_existing_resource_access_points)
@@ -938,7 +1170,7 @@ assert_identical(
   "A baseline Resource changed beyond the exact USBR canonical-host repair"
 )
 r15c_target_without_state_json <- compact_json(lapply(
-  lapply(raw_registry$resources[73:211], strip_precipitation_micro_pass),
+  lapply(r17c1_r17b_raw$resources[73:211], strip_precipitation_micro_pass),
   strip_publication_state
 ))
 assert_identical(
@@ -957,10 +1189,12 @@ assert_identical(as.integer(vapply(wave2_registry, `[[`, numeric(1), "order")), 
 assert_identical(as.integer(vapply(newly_published, `[[`, numeric(1), "order")),
                  setdiff(34:72, c(48L, 61L, 65L, 66L, 70L)),
                  "The exact R10 publication orders changed")
-assert_true(all(vapply(wave2_registry, function(record) {
+assert_true(all(vapply(Filter(function(record) {
+  !identical(record$id, "resource_noaa_cnrfc")
+}, wave2_registry), function(record) {
   !length(record$aliases) &&
     !length(record$migration_aliases) && !length(record$search_aliases)
-}, logical(1))), "Wave-2 empty alias contract changed")
+}, logical(1))), "The 38 unaffected Wave-2 empty alias arrays changed")
 assert_true(all(vapply(wave2_registry, function(record) {
   !length(record$information_type_tags)
 }, logical(1))), "Every Wave-2 Resource must retain an empty Information Type array")
@@ -968,8 +1202,8 @@ assert_identical(vapply(Filter(function(record) {
   !length(record$subject_tags)
 }, wave2_registry), `[[`, character(1), "id"), expected_held_staged_ids,
 "The exact three subject-review and two taxonomy-blocked Resources changed")
-assert_true(!"resource_noaa_wpc_excessive_rainfall_outlook" %in% registry_ids,
-            "The unresolved WPC Excessive Rainfall Outlook entered the registry")
+assert_true(all(r17c1_added_ids %in% registry_ids) && !any(r17c1_retired_ids %in% registry_ids),
+            "The exact six C1 additions or two retirements changed")
 assert_identical(wave2_registry[[match("resource_dwr_cdec", expected_wave2_ids)]]$resource_granularity,
                  "unknown", "CDEC intake granularity was not normalized to schema-v3 unknown")
 assert_true(all(vapply(c(
@@ -983,15 +1217,15 @@ final_aliases <- unlist(lapply(registry, function(record) {
 migration_aliases <- unlist(lapply(registry, function(record) {
   unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
 }), use.names = FALSE)
-assert_true(setequal(final_aliases, r16b_retired_resource_ids) &&
-              length(final_aliases) == length(r16b_retired_resource_ids),
-            "The exact seven retired stable IDs are not preserved as final-ID aliases")
+assert_true(setequal(final_aliases, c(r16b_retired_resource_ids, r17c1_retired_ids)) &&
+              length(final_aliases) == length(c(r16b_retired_resource_ids, r17c1_retired_ids)),
+            "The exact nine retired stable IDs are not preserved as final-ID aliases")
 baseline_migration_aliases <- unlist(lapply(
   unclass(registry)[seq_along(expected_baseline_resource_ids)], function(record) {
     unname(as.character(unlist(record$migration_aliases, use.names = FALSE)))
   }
 ), use.names = FALSE)
-assert_identical(length(baseline_migration_aliases), 26L,
+assert_identical(length(baseline_migration_aliases), 28L,
                  "The accepted baseline migration alias inventory changed")
 assert_true(!anyDuplicated(migration_aliases), "Migration aliases are duplicated")
 
@@ -1158,7 +1392,7 @@ assert_identical(length(duplicate_removal_ids), 14L,
                  "R7C duplicate access-point removal count changed")
 assert_true(all(vapply(duplicate_removal_ids, function(id) {
   record <- wave2_registry[[match(id, expected_wave2_ids)]]
-  record <- strip_r16b_existing_resource_access_points(record)
+  record <- strip_r16b_existing_resource_access_points(r17c1_strip_resource(record))
   length(record$access_points) == 1L &&
     identical(record$access_points[[1]]$role, "canonical") &&
     identical(record$access_points[[1]]$url, record$canonical_url)
@@ -1204,10 +1438,10 @@ assert_identical(length(relationship_product_ids), 270L,
                  "Product-Resource relationship Product count changed")
 assert_identical(
   digest::digest(file = relationship_registry_path, algo = "sha256"),
-  "49239c8b3a264c834c24efaeddc115906651eb69158166210d9f1d54944ccda5",
-  "The completed four-action R17B relationship file changed byte-for-byte"
+  "0324bcd7f284bcd2382b032b64ee3e1127da739a86238d10e3910f09759435dc",
+  "The approved four-operation R17C1/A1 relationship file changed byte-for-byte"
 )
-assert_identical(length(raw_relationship_registry$resources), 211L,
+assert_identical(length(raw_relationship_registry$resources), 215L,
                  "Product-Resource relationship Resource count changed")
 assert_true(!anyDuplicated(relationship_product_ids),
             "Product-Resource relationship Product IDs are not unique")
@@ -1226,7 +1460,7 @@ strip_r17b_relationship_actions <- function(record) {
   record
 }
 baseline_relationship_products <- lapply(
-  raw_relationship_registry$products, strip_r17b_relationship_actions
+  r17c1_r17b_relationships$products, strip_r17b_relationship_actions
 )
 baseline_d10_index <- match(
   "ops_cdec_reservoir_storage",
@@ -1248,7 +1482,7 @@ assert_identical(
   "The schema marker, 270 Products, corrected links, or accepted 72 Resource reviews changed"
 )
 assert_identical(
-  digest::digest(compact_json(raw_relationship_registry$resources[73:211]),
+  digest::digest(compact_json(r17c1_r17b_relationships$resources[73:211]),
                  algo = "sha256", serialize = FALSE),
   "f830ee50be605a74baf0218267304aeb2056afa29009e534f93a606f1076dd85",
   "The exact R16B corrected post-baseline relationship Resource authority changed"
@@ -1281,7 +1515,7 @@ assert_identical(unname(as.integer(table(factor(
 )))), c(61L, 150L, 55L, 4L), "Delivery classification counts changed")
 assert_identical(unname(as.integer(table(factor(
   review_states, levels = c("reviewed", "not_yet_reviewed")
-)))), c(75L, 195L), "Coverage review-state counts changed")
+)))), c(77L, 193L), "Coverage review-state counts changed")
 assert_identical(unname(as.integer(table(factor(
   coverage_dispositions,
   levels = c(
@@ -1289,23 +1523,23 @@ assert_identical(unname(as.integer(table(factor(
     "multiple_source_resources", "provenance_only_no_public_resource",
     "internal_no_external_resource", "not_yet_reviewed"
   )
-)))), c(10L, 52L, 8L, 1L, 4L, 195L),
+)))), c(10L, 54L, 8L, 1L, 4L, 193L),
 "Coverage-disposition counts changed")
-assert_identical(length(canonical_links), 94L,
+assert_identical(length(canonical_links), 96L,
                  "Canonical Product-Resource link count changed")
 assert_identical(unname(as.integer(table(factor(
   canonical_link_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 62L, 19L), "Canonical relationship-role counts changed")
+)))), c(13L, 64L, 19L), "Canonical relationship-role counts changed")
 assert_true(!anyDuplicated(vapply(canonical_links, function(link) {
   paste(link$product_id, link$resource_id, sep = "\r")
 }, character(1))), "A duplicate Product-Resource pair entered canonical authority")
 assert_identical(sum(vapply(relationship_registry$products, function(record) {
   length(record$resource_links) > 0L
-}, logical(1))), 70L, "Products-with-Resource-links count changed")
+}, logical(1))), 72L, "Products-with-Resource-links count changed")
 assert_identical(length(unique(vapply(canonical_links, `[[`, character(1),
-                                      "resource_id"))), 26L,
+                                      "resource_id"))), 27L,
                  "Resources-with-Product-links count changed")
 assert_true(!any(vapply(canonical_links, function(link) {
   link$resource_id %in% r15b_selected_replacement_ids
@@ -1499,7 +1733,7 @@ assert_identical(unname(as.integer(table(factor(
   published_representations,
   levels = c("direct_match_in_brim", "selected_products_in_brim",
              "not_currently_mapped_in_brim")
-)))), c(3L, 23L, 180L), "Published Resource representation counts changed")
+)))), c(3L, 24L, 183L), "Published Resource representation counts changed")
 staged_relationship_resources <- relationship_resources[
   match(expected_held_staged_ids, relationship_resource_ids)
 ]
@@ -1515,7 +1749,8 @@ assert_true(all(vapply(r15c_target_relationship_resources, function(record) {
     r16b_spk_id,
     "resource_cocorahs_cocorahs_other",
     "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
-    integrated_report_resource_id
+    integrated_report_resource_id,
+    "resource_noaa_wpc_excessive_rainfall_outlook"
   )
   expected_representation <- if (record$resource_id %in% selected_post_baseline_ids) {
     "selected_products_in_brim"
@@ -1541,7 +1776,7 @@ assert_identical(unname(as.integer(table(factor(
   all_resource_representations,
   levels = c("direct_match_in_brim", "selected_products_in_brim",
              "not_currently_mapped_in_brim", "not_yet_reviewed")
-)))), c(3L, 23L, 180L, 5L),
+)))), c(3L, 24L, 183L, 5L),
 "Full Resource representation counts changed")
 
 direct_resource_ids <- c(
@@ -1561,7 +1796,8 @@ selected_resource_ids <- c(
   "resource_usgs_national_hydrography_products", "resource_usgs_water_data_nation",
   r16b_spk_id, "resource_cocorahs_cocorahs_other",
   integrated_report_resource_id,
-  "resource_climate_and_drought_data_providers_drought_gov_california_dashboard"
+  "resource_climate_and_drought_data_providers_drought_gov_california_dashboard",
+  "resource_noaa_wpc_excessive_rainfall_outlook"
 )
 representation_ids <- function(value) vapply(Filter(function(record) {
   identical(record$map_representation, value)
@@ -1666,8 +1902,20 @@ browser_records <- pt_guide_resource_browser_records(
 projected_cnrfc_resource <- browser_records[[match(
   r17b_cnrfc_resource_id, expected_published_ids
 )]]
-assert_identical(projected_cnrfc_resource$summary, r17b_cnrfc_resource_summary_after,
+assert_identical(projected_cnrfc_resource$summary, paste0(r17b_cnrfc_resource_summary_after, a5_summary_append),
                  "The projected CNRFC Resource summary changed")
+assert_identical(length(projected_cnrfc_resource$accessPoints), 23L, "A5 compiled CNRFC action count changed")
+assert_identical(projected_cnrfc_resource$accessPoints[2:3], a5_new_actions, "A5 compiled entry points/placement changed")
+for (change in a5_label_changes) {
+  matches <- Filter(function(action) identical(action$url, change$url), projected_cnrfc_resource$accessPoints)
+  assert_identical(matches, list(list(role = "configured_view", label = change$new_label, url = change$url)),
+                   "A5 compiled station label/URL mapping changed")
+}
+for (query in c("full natural flow", "FNF water-year trend", "Water Resources", "HD6RSA", "freezing levels",
+               vapply(a5_label_changes, `[[`, character(1), "new_label"))) {
+  assert_true(grepl(pt_guide_normalize_resource_search(query), projected_cnrfc_resource$searchText, fixed = TRUE),
+              paste("A5 compiled CNRFC search text lost", query))
+}
 assert_identical(projected_cnrfc_resource$canonicalUrl,
                  r17b_cnrfc_canonical_url_after,
                  "The projected CNRFC official action changed")
@@ -1710,13 +1958,13 @@ assert_true(all(vapply(seq_along(browser_records), function(index) {
 projected_relationships <- unlist(lapply(browser_records, `[[`, "representedProducts"),
                                   recursive = FALSE)
 projected_roles <- vapply(projected_relationships, `[[`, character(1), "relationshipRole")
-assert_identical(length(projected_relationships), 94L,
+assert_identical(length(projected_relationships), 96L,
                  "Browser reverse relationship index lost exact rows")
 assert_identical(unname(as.integer(table(factor(
   projected_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 62L, 19L), "Projected relationship-role counts changed")
+)))), c(13L, 64L, 19L), "Projected relationship-role counts changed")
 assert_true(all(vapply(projected_relationships, function(relationship) {
   identical(names(relationship), c(
     "productId", "title", "deliveryClass", "coverageDisposition",
@@ -1731,10 +1979,10 @@ assert_identical(
 )
 assert_identical(sum(vapply(browser_records, function(record) {
   identical(record$mapRepresentation, "selected_products_in_brim")
-}, logical(1))), 23L, "Projected selected-products Resource count changed")
+}, logical(1))), 24L, "Projected selected-products Resource count changed")
 assert_identical(sum(vapply(browser_records, function(record) {
   identical(record$mapRepresentation, "not_currently_mapped_in_brim")
-}, logical(1))), 180L, "Projected not-mapped Resource count changed")
+}, logical(1))), 183L, "Projected not-mapped Resource count changed")
 
 assert_true(all(vapply(browser_records, function(record) {
   identical(record$accessPoints[[1]], list(
@@ -1767,15 +2015,19 @@ browser_json <- jsonlite::toJSON(
   browser_records, auto_unbox = TRUE, null = "null", na = "null",
   pretty = FALSE, digits = NA
 )
-assert_identical(length(browser_records), 206L,
-                 "Browser projection must contain exactly 206 published Resources")
+assert_identical(length(browser_records), 210L,
+                 "Browser projection must contain exactly 210 published Resources")
 assert_true(!any(vapply(staged_ids, function(id) {
   grepl(id, browser_json, fixed = TRUE)
 }, logical(1))), "A staged Resource ID entered the browser projection")
+a5_a4_browser_json <- jsonlite::toJSON(pt_guide_resource_browser_records(
+  pt_guide_resource_published_records(a5_historical_registry(raw_registry)),
+  product_fixtures, relationship_registry), auto_unbox = TRUE, null = "null", na = "null",
+  pretty = FALSE, digits = NA)
 assert_identical(
-  digest::digest(browser_json, algo = "sha256", serialize = FALSE),
-  "6f21971ed818771f02a45be0ad6e70834702869690e1d140dda68e8f448a1686",
-  "The exact R17B relationship-enriched 206-Resource browser payload changed"
+  digest::digest(a5_a4_browser_json, algo = "sha256", serialize = FALSE),
+  "2f45e27c37063a25e1753664d2fec2aaba5a373364e8ea9d7a87659b1852ef5a",
+  "The exact R17C1 relationship-enriched 210-Resource browser payload changed"
 )
 forbidden_fields <- c(
   "migration_aliases", "publication_state", "public_source_references",
@@ -1975,11 +2227,42 @@ expect_invalid(bad, "uncontrolled or inconsistent geographic scope",
 bad <- fresh_registry()
 bad$resources[[2]]$id <- bad$resources[[1]]$id
 expect_invalid(bad, "globally unique", "Duplicate stable ID was accepted")
-bad <- fresh_registry()
-bad$resources[[1]]$publication_state <- "staged"
-validated_staged <- pt_guide_read_resource_registry(write_registry_fixture(bad))
-assert_identical(length(pt_guide_resource_published_records(validated_staged)), 205L,
-                 "Publication projection did not exclude a staged negative fixture")
+assert_one_staged_resource_projection <- function(fixture, expected_count, label) {
+  original <- unserialize(serialize(fixture, NULL))
+  assert_identical(fixture$resources[[1]]$id, "resource_doi",
+                   paste(label, "staging target changed"))
+  assert_identical(fixture$resources[[1]]$publication_state, "published",
+                   paste(label, "staging target is not initially published"))
+  before <- pt_guide_resource_published_records(
+    pt_guide_read_resource_registry(write_registry_fixture(fixture))
+  )
+  before_ids <- vapply(before, `[[`, character(1), "id")
+  prior_staged_ids <- vapply(Filter(function(record) {
+    identical(record$publication_state, "staged")
+  }, fixture$resources), `[[`, character(1), "id")
+  assert_identical(length(before), expected_count,
+                   paste(label, "initial published count changed"))
+  assert_identical(length(prior_staged_ids), 5L,
+                   paste(label, "held staged cohort changed"))
+  fixture$resources[[1]]$publication_state <- "staged"
+  validated <- pt_guide_read_resource_registry(write_registry_fixture(fixture))
+  after <- pt_guide_resource_published_records(validated)
+  after_ids <- vapply(after, `[[`, character(1), "id")
+  assert_identical(length(after), expected_count - 1L,
+                   paste(label, "staging must exclude exactly one published Resource"))
+  assert_identical(after_ids, before_ids[before_ids != "resource_doi"],
+                   paste(label, "staging changed unaffected published ID order"))
+  assert_identical(unclass(after), unclass(before)[before_ids != "resource_doi"],
+                   paste(label, "staging changed unaffected published records"))
+  assert_true(!any(prior_staged_ids %in% after_ids),
+              paste(label, "a held staged Resource leaked into publication"))
+  restored <- unclass(validated)
+  restored[[1]]$publication_state <- "published"
+  assert_identical(restored, original$resources,
+                   paste(label, "fixture changed beyond the one publication state"))
+}
+assert_one_staged_resource_projection(r17c1_r17b_raw, 206L, "Historical R17B")
+assert_one_staged_resource_projection(fresh_registry(), 210L, "Current C1")
 bad <- fresh_registry()
 bad$resources[[1]]$canonical_url <- "https://localhost/private"
 bad$resources[[1]]$access_points[[1]]$url <- "https://localhost/private"
@@ -2244,11 +2527,11 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R17B CNRFC relationship-enrichment contracts passed.\n")
+cat("GUIDE-I2B-R17C1 CNRFC/WPC and A1 contracts passed.\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
-cat("TOTAL_RESOURCES=211\n")
-cat("PUBLISHED_RESOURCES=206\n")
+cat("TOTAL_RESOURCES=215\n")
+cat("PUBLISHED_RESOURCES=210\n")
 cat("STAGED_RESOURCES=5\n")
 cat("R16B_CANONICAL_ADDITIONS=13\n")
 cat("R16B_CANONICAL_MERGES=7\n")
@@ -2270,11 +2553,11 @@ cat("HELD_STAGED_RESOURCES=5\n")
 cat("STAGED_SUBJECT_REVIEW=3\n")
 cat("STAGED_TAXONOMY_BLOCKED=2\n")
 cat("DUPLICATE_ACCESS_POINTS_REMOVED=14\n")
-cat("MAP_REPRESENTATION=3_DIRECT,23_SELECTED,180_NOT_MAPPED\n")
-cat("PRESET_COUNTS=26,180,206\n")
+cat("MAP_REPRESENTATION=3_DIRECT,24_SELECTED,183_NOT_MAPPED\n")
+cat("PRESET_COUNTS=27,183,210\n")
 cat("RESOURCE_TYPE_VALUES=10_OF_10_CURRENT\n")
 cat("TEMPORAL_CHARACTER_VALUES=7_OF_7_CURRENT\n")
-cat("TEMPORAL_UNKNOWN_IDS=141_EXACT\n")
+cat("TEMPORAL_UNKNOWN_IDS=139_EXACT\n")
 cat("GEOGRAPHIC_SCOPE_VALUES=8_OF_8_CURRENT\n")
 cat("GEOGRAPHY_UNKNOWN_IDS=4_EXACT\n")
 cat("HELD_CONTRACT_MATCH=5_OF_5_STAGED\n")
@@ -2292,13 +2575,14 @@ cat("BROWSER_RESOURCE_SHA256=",
 cat("DEFAULT_PROFILE_ONLY=YES\n")
 cat("RELATIONSHIP_HEURISTICS=0\n")
 cat("PRODUCT_RELATIONSHIP_RECORDS=270\n")
-cat("CANONICAL_RESOURCE_LINKS=94\n")
-cat("PRODUCTS_WITH_RESOURCE_LINKS=70\n")
-cat("RESOURCES_WITH_PRODUCT_LINKS=26\n")
-cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,62_SELECTED,19_SOURCE_REFERENCE\n")
+cat("CANONICAL_RESOURCE_LINKS=96\n")
+cat("PRODUCTS_WITH_RESOURCE_LINKS=72\n")
+cat("RESOURCES_WITH_PRODUCT_LINKS=27\n")
+cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,64_SELECTED,19_SOURCE_REFERENCE\n")
 cat("CNRFC_RELATED_PRODUCTS=7\n")
-cat("RELATIONSHIP_RESOURCE_RECORDS=211\n")
-cat("ALL_RESOURCE_REPRESENTATIONS=3_DIRECT,23_SELECTED,180_NOT_MAPPED,5_NOT_REVIEWED\n")
+cat("R17C1_ACTIONS=381;CNRFC_ACTIONS=23;INTAKE_ENTRIES=97;CHILDREN=27_WATER_YEAR,278_STATION_ALIAS\n")
+cat("RELATIONSHIP_RESOURCE_RECORDS=215\n")
+cat("ALL_RESOURCE_REPRESENTATIONS=3_DIRECT,24_SELECTED,183_NOT_MAPPED,5_NOT_REVIEWED\n")
 cat("LEGACY_PUBLIC_PROJECTIONS=0\n")
 cat("SYNTHETIC_TIMBER_ONBOARDING=PASS\n")
 cat("R12B_ADAPTER_REMOVED=PASS\n")
