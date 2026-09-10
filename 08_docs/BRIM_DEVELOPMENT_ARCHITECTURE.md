@@ -47,7 +47,7 @@ Catalog and Layer Explorer coverage is explicitly partial. The current 26 record
 
 BRIM Guide is one build-time-compiled, embedded browser surface owned by:
 
-- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 215 Resource records: 210 published and five staged;
+- `00_config/guide_resources.json` for the canonical schema-v3 authored metadata of 233 Resource records: 228 published and five staged;
 - `00_config/guide_product_enrichment.json` for the compact, source-backed Product enrichment records that are keyed only by existing stable Product IDs;
 - `03_functions/leaflet_guide_helpers.r` for runtime-inventory adaptation, enrichment validation, current-profile projection, compact authored Guide content, asset embedding, and htmlwidgets registration;
 - `03_functions/js/leaflet_brim_guide.js` for the V4.1 shell, deterministic Product and Resource search, combined browse filters, detail/history/focus behavior, one Resource Explorer model/controller, and the small `window.BRIM_GUIDE` host API;
@@ -65,8 +65,8 @@ Guide basic Product coverage is automatic for every included visible Product in 
 
 Local registry keys and External layer IDs remain the primary stable IDs. Ops, basemap, and tool Products use compact durable keys near their existing structured authority. IDs do not depend on display order, counts, or profile. Paths derive from the same runtime grouping structures and present the Local point category as `Monitoring Sites/Records`. `guide_product_enrichment.json` can enrich only an existing, included Product and is rejected for unknown, duplicate, or unsorted stable IDs; it cannot create Products or change runtime map behavior. Its source references support editorial review but are not embedded in the browser payload. `BRIM_LAYER_CATALOG.csv` may enrich a matching Product but cannot create, activate, hide, or suppress it.
 
-`guide_resources.json` is one canonical schema-v3 dataset with 215 ordered
-Resource records: 210 published and five staged. R14 appended the exact 133
+`guide_resources.json` is one canonical schema-v3 dataset with 233 ordered
+Resource records: 228 published and five staged. R14 appended the exact 133
 R13-rebased target-200 candidates as staged records, and R15C publishes that
 complete tranche by changing only `publication_state` after fresh bounded
 verification of all 133 exact canonical URLs.
@@ -93,7 +93,7 @@ a public facet.
 Resource relationship and Resource map-representation authority. Its
 schema-version-2 Product and Resource arrays must equal the complete compiled
 Product universe and canonical Resource universe exactly—currently 270 Product
-records and 215 Resource review/representation records. Every Product
+records and 233 Resource review/representation records. Every Product
 independently declares delivery classification, coverage review state, an
 optional reviewed coverage disposition, evidence, and zero or more exact
 canonical Resource links. Every Resource has exactly one map-review record;
@@ -105,15 +105,15 @@ have zero links; no fake Resource is required.
 
 The compiler validates exact Product/Resource set equality, controlled values,
 evidence paths, disposition and representation cardinality, duplicates, and
-every link against the complete 215-Resource registry. The current authority has
-77 reviewed and 193 not-yet-reviewed Products with 96 exact links: 13 direct,
-64 selected-product, and 19 source-reference roles. The three DWR/TRE Altamira
+every link against the complete 233-Resource registry. The current authority has
+98 reviewed and 172 not-yet-reviewed Products with 121 exact links: 13 direct,
+64 selected-product, and 44 source-reference roles. The three DWR/TRE Altamira
 Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
 multiple-source composite. The unresolved intake remains deferred under its
 existing evidence packets. Staged Resource records remain canonical but are
 removed before browser projection.
-Across all 215 Resource review records, representation is exactly three direct,
-24 selected-products, 183 not currently mapped, and five not yet reviewed. The
+Across all 233 Resource review records, representation is exactly three direct,
+25 selected-products, 200 not currently mapped, and five not yet reviewed. The
 133 R14 additions are all reviewed as not currently mapped and R14 applies no
 Product-link action, preserving 270 Products and 86 canonical links at that
 stage. The base R16B batch adds one exact SPK source-reference link. The
@@ -127,10 +127,110 @@ authority contains no 2026 Integrated Report Product. The CNRFC relationship
 review adds selected-product links for the Local river/reservoir and weather
 station catalogs and source-reference links for the Ops major water-supply and
 reservoir-storage Products. The CNRFC Resource consequently represents exactly
-seven current Products, while the public Resource views remain 27 in BRIM map,
-183 beyond the map, and 210 all. Current relationship authority is therefore
-270 Products and 96 canonical links, covering 72 Products and 27 Resources,
-after the separate WPC ERO ownership changes described below.
+seven current Products, preserving its seven exact links. With the subsequent WPC ERO and 25 BLM
+source-reference additions, current public views are 28 in BRIM map, 200 beyond
+the map, and 228 all. Current authority is 270 Products and 121 links, covering
+93 Products and 28 Resources.
+
+### Combined Resource content and finishing behavior
+
+The current combined wave adds eighteen canonical Resources, including one
+BLM California Wildfire Dashboard and one action with no Product relationship.
+The archived official BLM notice dated 2022-06-29 refers through
+`https://bit.ly/39IubK0` to ArcGIS item `1c4565c092da44478befc12722cf0486`;
+the submitted trailing `#` is retained. The referral establishes the exact
+external destination, not current legal restrictions, dataset ownership,
+update frequency, completeness, or interactive browser health.
+Weather Lab and the existing OPERA parent's DIST action are external discovery
+links. The published USGS service Resource uses `https://api.waterdata.usgs.gov/`
+and preserves its former name as a search alias; operational API consumers are
+unchanged. Petitions, forecasts, reconstructed classifications, and operating
+methods remain separately described.
+
+The startup map uses zoom 6.5 at longitude -118.73584 / latitude 37.36, retaining
+half-step zoom controls, wheel settings, startup layers, and label settings.
+The shared native search cancel receives a targeted pointer-cursor rule; editable
+text retains its text cursor. The existing input/focus/lifecycle handling remains
+unchanged. Actual hit-area styling and focus behavior require human visual
+review where browser policy prevents automation; no fallback clear button is
+introduced without supported-browser evidence.
+
+Ops delivery badges abbreviate the existing Guide Delivery presentations.
+`products[].delivery_class` and `delivery_evidence_refs` in
+`00_config/guide_product_resource_relationships.json` remain the sole authored
+classification and evidence authority. `pt_ops_live_delivery_projection()` in the
+existing Ops R wrapper reads that local registry at build time and joins by
+stable Product ID through `pt_ops_live_guide_identity_registry()`. The compact
+ID/source-token/class projection enters the existing `htmlwidgets::onRender`
+data. The definition helper resolves the four existing runtime constants when
+each row registers; no second M/E list, browser Guide dependency, network lookup,
+or runtime class inference is involved. Guide compilation and relationship
+presentations continue to use the same registry. Unlinked Products can have a
+valid delivery classification without a public Resource relationship.
+
+`brim_managed` (Guide **BRIM-managed**, Ops **BRIM-M**) means BRIM prepares,
+curates, or maintains the data product or collection in addition to map display.
+The exact prepared-feed map still identifies 16 prepared and 32 unprepared Ops
+consumer identities. The NWS weather-station and CNRFC river/reservoir forecast-
+point collections are also Managed: their detailed text-file auditing and
+curation are maintainer-reported provenance, not a newly reproduced inventory
+audit. These two collections do not become scheduled/prepared-feed consumers.
+`brim_enhanced` (Guide **BRIM-enhanced**, Ops **BRIM-E**) requires a specific
+current BRIM presentation, interpretation, or interaction feature, such as
+interpreted legends, tailored hover/popups, meaningful period handling, or custom
+current-view rendering. A generic service connection or checkbox is insufficient;
+the standard IEM NEXRAD WMS is Provider-hosted. `provider_hosted` and
+`not_applicable` have no M/E badge. Missing eligible authored classes, duplicate
+IDs/tokens, and invalid classes fail build-time validation. Unknown or malformed
+optional browser metadata yields no badge without changing layer availability.
+
+The maintainer conservatively classifies `ops_radar_noaa_mrms`,
+`ops_qpe_mrms_1hr`, `ops_qpe_mrms_1day`, `ops_qpe_mrms_3day`,
+`ops_qpe_rfc_1day`, and `ops_qpe_rfc_7day` as `provider_hosted`, with no M/E
+badge. Their existing current-view adapters, legend configuration and freshness
+handling remain intact; the prior enhancement rationale is retained in the audit.
+Those capabilities do not earn the maintainer's Enhanced designation for these
+six current presentations. Planned enhancements do not automatically restore E.
+The other 18 Managed and 22 Enhanced Ops identities, IEM's Provider-hosted class,
+and the disabled wind-barb identity are unchanged. These six unlinked Products
+have no compiled Guide delivery occurrences; their classification still comes
+from the shared authored authority.
+
+The legacy Ops source footer and lower status/freshness list remain unchanged.
+Their catalog reconciliation and status-meaning review, including the six named
+air-quality leads, are recorded as deferred watchlist follow-ups requiring a
+separate approval; no source deletion or freshness redesign is implied.
+
+One compact, noninteractive badge follows the primary title and stays with its
+last short word while earlier text wraps. Managed titles and pale-blue badges
+use normal-weight dark-blue text; Enhanced badges use a quiet neutral outline.
+Each row badge supplies one accessible Managed/Enhanced expansion. The visible
+key explains both codes, preserves original-source credit, and notes varying
+features and refresh schedules. Classification supplies no ownership,
+endorsement, loading, health, freshness, or lifecycle authority. Operational
+loading, warning, error, and disabled states retain styling priority.
+
+The paired forecast rows use the same two-line presentation: `Water-Supply Basin
+Forecasts` above `CNRFC / CBRFC`, and `Reservoirs | storage + forecast links` above
+`CDEC / CNRFC / USACE`. Each badge belongs to the primary title; the agency line
+uses smaller neutral text. Both original internal names, stable Product IDs,
+Forecasts / Outlooks grouping, symbols, and lifecycle remain unchanged. The
+reservoir's accessible description distinguishes observed-storage symbols from
+popup links to forecasts and operations. Shared row markup associates each
+checkbox with its main label and keeps action links and label/z controls outside
+that label. The text and wrapping tools share a column beside the checkbox at
+the existing panel width. Rendered fit and startup framing require human visual
+acceptance where browser policy prevents automation. CNRFC's panel title is
+`CNRFC river/reservoir forecast points`; its original internal name
+`CNRFC forecast points | river/reservoir` and separate CNRFC homepage link remain.
+
+The documentation-only C2 amendment preserves the old 97 entries, all 27/278
+children, and the A5 amendment. It accounts for 129 named rows, 305 children,
+22 metadata findings, eleven related-work items, and all 270 Product dispositions.
+The 151 deferred Products and remaining residual groups stay explicit; a
+classification is not proof of metadata completeness. All other exclusions and
+individual holds and all 45 housekeeping/dependency holds remain. Candidate
+acceptance, commit, PR, and release facts remain pending.
 
 ### WPC ERO Resource ownership and evidence
 
@@ -182,9 +282,8 @@ with this architecture document in exactly six reference-array positions:
 of the three ERO Products (zero-based positions). The other references remain
 `03_functions/leaflet_ops_live_layer_definition_helpers.r` and
 `00_config/guide_resources.json`. The unchanged validator requires existing
-tracked source paths. The new intake ledger remains documentation-only and
-untracked before acceptance; it is neither runtime evidence authority nor a
-future automatic replacement for these architecture citations.
+tracked source paths. The tracked intake ledger remains documentation-only; it is not a runtime
+catalog or an automatic replacement for these architecture citations.
 
 ### Documentation-only intake decisions
 
@@ -193,29 +292,30 @@ future automatic replacement for these architecture citations.
 Its schema version is 1 and role is `DOCUMENTATION_ONLY`. It preserves
 submitted versus curated values, immutable packet/member/hash/row provenance,
 endpoint limitations, exact mutation grains, approval decisions, holds,
-dependencies, and separately pending implementation records. Builders and
-runtime do not consume it. Only reviewed edits to the two existing runtime
+dependencies, and separately pending acceptance records. The unchanged
+relationship validator checks the referenced tracked file exists; the builder
+does not parse it as a catalog or embed its contents. Only reviewed edits to the two existing runtime
 registries change Guide behavior; there is no automatic publisher, feed,
 profile, facet, or current-year calculation.
 
 BRIM-R17C-G2-01 scope approval and BRIM-R17C1-EXEC-01 execution approval are
-separate from visual acceptance. Scheduled R17C2 remains execution-not-authorized;
-36 held entries, deferred Weather Lab, and the duplicate CDEC entry retain
-those dispositions. In-progress entries retain `APPROVED_*`, never
+separate from visual acceptance. The appended C2 amendment records the approved
+combined scope and execution, including Weather Lab and the exact L082 dashboard.
+All other individual holds/exclusions and all 45 dependency holds remain. In-progress entries retain `APPROVED_*`, never
 `IMPLEMENTED`; PR, accepted SHA/tree, and implemented dates remain null.
 The ledger documents the original WPC citation proposal separately from the
 A1 amendment. Its 24-transition historical ctime exception retains cause
 `UNESTABLISHED` and gives no waiver for fresh drift or cleanup release.
 
 The consolidated CNRFC Resource retains seven Product links and exactly
-23 actions: one canonical landing, the Water Resources regional forecast map,
-the HD6RSA daily basin QPF/freezing-level page, 15 station views, and five
-CSV/archive actions. Retired CSV-child IDs, migration aliases, and human search names are
+24 actions: one canonical landing, the Water Resources regional forecast map,
+the HD6RSA daily basin QPF/freezing-level page, 15 station views, five
+CSV/archive actions, and the dated WY2026 SACC0 action. Retired CSV-child IDs, migration aliases, and human search names are
 preserved on the parent. This is an authored finite set, not a generated
-station menu or an equivalence join. R17C2's SACC0 year-specific action is
-not present. The six canonical additions and two retirements yield the
-215-Resource corpus with 381 distinct action URLs (376 public) and 9 stable-ID, 167
-migration, and 425 parent-local search aliases.
+station menu or an equivalence join. C2 retains every C1 action and label. The current 233-Resource corpus has
+457 action rows / 456 distinct URLs, 452 unique public actions, and 690 alias
+occurrences across the three existing namespaces. The staged/public USGS URL
+overlap is deliberate and does not merge the two stable identities.
 
 The 15 station labels name the river, forecast point and FNF water-year trend
 product, retaining the original station codes and default-year URLs. FNF means
@@ -227,10 +327,9 @@ basin QPF and freezing levels for Days 1–6, not general temperature. Both are
 external pages, without an automatic BRIM feed or update guarantee. Canonical
 stays first, the two broad pages follow, and the prior 20 actions retain order.
 The documentation-only ledger amendment preserves the original 97 intake rows.
-A future R17C2 CNRFC after-image must retain these 15 labels and two actions
-before adding SACC0; its former 22-action expectation becomes 24 only if that
-planned action survives rebase. R17C2 remains unapplied, with no future budget
-approval or release of any dependency hold.
+C2 preserves the 15 labels and two broad actions before appending SACC0.
+Its scope approval does not imply human visual acceptance or release of any
+dependency hold.
 
 BRIM's CNRFC FNF display geometries were created by grouping and dissolving
 downloadable CNRFC subbasin geometries outside the current scripted
@@ -250,7 +349,7 @@ longer owns or supplies Resource relationships. Relationships and map presence
 are never inferred from Resource text, providers, URLs, publication, or
 geographic intersection. All temporary R12A relationship objects and the
 compiler adapter are absent; permanent compatibility shadow, dual authority,
-and fallback are prohibited. The browser receives the 210 published records in
+and fallback are prohibited. The browser receives the 228 published records in
 registry order with one exact 23-field shape: identity and reviewed descriptive
 fields, labeled access points, Resource Type and temporal machine IDs with
 controlled labels, geography scope ID/label plus named places, reviewed map
@@ -262,7 +361,7 @@ registry is descriptive Guide content only: it cannot create or control layers,
 visibility, order, controllers, lifecycle, clear/reset behavior, legends,
 popups, status/freshness, or BRIM Live behavior.
 
-The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The five staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 27 `In BRIM map`, 183 `Beyond the map`, and 210 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
+The repository currently has one actual output profile: `default`, naming the existing `MAP_DISPLAY` plus `OVERLAY_GROUPS` build. Publication projection occurs before relationships, Resource search text, counts, facets, adaptation, or embedding, while profile projection explicitly excludes all runtime-derived basemap records. The five staged Resources therefore contribute zero browser payload or visible-count/search/facet authority. Public views remain exactly 28 `In BRIM map`, 200 `Beyond the map`, and 228 `All Resources`. This is a Guide-content boundary only: basemap construction, controls, ordering, assets, and defaults remain unchanged. The projection contract removes excluded records, aliases/search content, relationships, Quick Access membership, and count contributions rather than hiding them in browser state. Collections prune excluded members and disappear only when no members remain. Do not add a runtime profile selector or invent DOI/public/custom publication policy without an authoritative repository profile mechanism.
 
 The standalone HTML embeds the projected Resource records and makes no runtime
 Resource-data request or browser-storage copy. Raw bookmark exports, intake workbooks, candidate
@@ -295,10 +394,10 @@ Resources; C-owned Resource filters clear without routing into A · Explore.
 The Explorer uses a
 64-pixel Resource spine on wide layouts; an intermediate disclosure layout;
 and a measured one-pane search/results, facets, or detail flow at narrow width.
-Its three primary views appear in the exact order `In BRIM map` (27), `Beyond
-the map` (183), and `All Resources` (210). Membership derives only from each
-Resource's reviewed `map_representation`: three direct matches plus 24 selected-
-products Resources form `In BRIM map`, while 183 not-currently-mapped Resources
+Its three primary views appear in the exact order `In BRIM map` (28), `Beyond
+the map` (200), and `All Resources` (228). Membership derives only from each
+Resource's reviewed `map_representation`: three direct matches plus 25 selected-
+products Resources form `In BRIM map`, while 200 not-currently-mapped Resources
 form `Beyond the map`. The primary views form one
 mutually exclusive radio-style control, selecting one replaces the prior view,
 and primary-view changes do not create chips or clear secondary refinements.
@@ -313,26 +412,41 @@ then stable ID; explicit user-selected sorts remain authoritative. Explore's
 `All Layers & Tools A-Z` remains alphabetical even when filtered. Cross-surface
 alphabetical tie unification and any bare-`scc` discovery are separately deferred
 scope; neither is implemented by the current Resource search contract.
-Selected providers offers eleven explicit maintainer-selected browsing shortcuts
-in two always-open fieldsets. Federal contains BLM, EPA, FEMA, NASA, NOAA, USACE,
-USBR, USDA and USGS, in that order. State contains DWR and Water Boards. The
-existing JavaScript model declares the roster once with stable IDs, short labels
-and groups. Membership is a maintainer decision; no count, threshold, popularity
-score, exception list or automatic promotion/demotion chooses visible agencies.
-All eleven stay visible and removable at zero matches as filters and the catalog
-change. Counts describe distinct public Resources under the other facets; they
-are not layer counts or total agency holdings. The short checkbox labels also
-label newly selected chips. Native fieldsets and legends have no group toggle.
+Selected providers offers eleven named agency choices and five provider types
+in three always-open fieldsets: Federal, State, and Provider types. Federal contains
+BLM, EPA, FEMA, NASA, NOAA, USACE, USBR, USDA and USGS, in that order. State contains
+DWR and Water Boards. Provider types contains, in alphabetical displayed and DOM
+order, County; Nonprofits / NGOs; Other; Private; Regional/local. The existing model
+declares this fixed roster once. All sixteen choices remain visible, focusable,
+and removable at zero matches. Counts describe distinct public Resources under
+the other filters, and never choose which controls exist.
 
-The compact heading has the adjacent helper “Other providers remain in results
-and searchable above.” The complete Resource search remains above the filter
-block; there is no provider-only search, exhaustive organization list or Other
-major sources group. NIFC/WFIGS and every omitted provider remain in the catalog
-and name-based discovery. A previously selected hidden family retains its honest
-removable chip and original filter meaning; NIFC never becomes BLM. Obsolete
-accordion state is ignored. Relative normal-weight text, associated clickable
-labels of at least 24 CSS pixels in height, visible focus, and a wrapping grid
-keep this secondary control compact without clipping text or reducing targets.
+County means reviewed county operation, not geographic location. Regional/local
+covers other local public-service organizations; Private covers reviewed
+companies/commercial services; Nonprofits / NGOs covers reviewed nonprofit,
+community, conservation, and advocacy organizations without asserting tax status.
+Ten terminology aliases provide NGO/nonprofit discovery for the five reviewed
+Resources. Original provider attribution and roles remain unchanged.
+Other is the full published Resource universe minus the union of every offered
+non-Other group, computed during full-catalog initialization before query, view,
+facets, or checkbox narrowing. Hidden legacy families never subtract from Other.
+Non-Other groups may overlap; OR selection deduplicates Resource identities.
+
+The visible helper reads "Filter by agency or type; search above for any provider."
+Other's checkbox has a concise accessible description of its full-catalog
+complement meaning without an additional visible paragraph. Full Resource search
+remains above the filter block. Existing
+hidden-family and exact-provider selections retain honest removable chips;
+NIFC does not become BLM. Native fieldsets, normal-weight text, associated
+24-pixel-or-larger labels and visible focus retain usable controls. Each compact
+checkbox/label/count unit wraps as a whole where it fits; counts immediately
+follow their own labels. Labels use 13-pixel-equivalent text and quiet headings.
+Federal spans the full width and uses balanced three- or five-column rows when
+the container can accommodate them, with wrapping at smaller widths. State uses
+its intrinsic width beside Provider types; they stack in that order when the
+available width or enlarged text requires it. The provider container's font-relative
+queries do not scale the main search, titles, results or other facets. No group
+toggle, provider dropdown, provider-only scroller, or extra category is present.
 
 The existing JavaScript Resource Explorer model owns one explicit provider
 mapping, exposed through its standalone test seam. Family selectors use stable
@@ -340,12 +454,13 @@ mapping, exposed through its standalone test seam. Family selectors use stable
 display provider or a named `display_provider`, `publisher`, `maintainer`, or
 `partner` using NFC, trimmed/collapsed whitespace, and lowercase only. A
 `data_owner` alone is excluded. There is no substring, URL-domain, title,
-related-Product, or search-text inference. Three exact Resource rules associate
+related-Product, or search-text inference. Five exact Resource rules associate
 FEMA National Flood Hazard Layer Viewer with FEMA, Drought.gov California with
-NOAA, and Safe to Swim Map with Water Boards; each checks its ID, original
+NOAA, Safe to Swim Map with Water Boards, and the two OpenET Resources with
+Nonprofits / NGOs; each checks its ID, original
 display provider, title, and canonical URL before association. A guard mismatch
-fails instead of silently broadening a generic attribution. Other unselected
-providers deliberately remain search-only. The full mapping stays in JavaScript,
+fails instead of silently broadening a generic attribution. Remaining
+providers stay discoverable through Other and name-based search. The full mapping stays in JavaScript,
 without changing the catalog JSON or any original attribution, role, or URL.
 
 Selected families combine with OR; query, primary view, other facets, and exact
@@ -415,28 +530,35 @@ Selecting another row repeats that bounded promotion and detail-top reset.
 Closing detail restores the saved result-list position and selected-row focus,
 while Reset all returns all three positions to the top. The outer Guide and
 three-column workspace remain stationary.
-Narrow layouts keep the shared one-pane results, filters, or detail flow and use
-the Guide main region as that pane's scroll owner rather than adopting the
-desktop split-scroll hierarchy. Filter actions and expanded controls remain in
-normal document flow in this layout. The narrow filter pane uses non-sticky
-orientation and primary-view rows so text zoom cannot place them over focused
-filter controls. Results initially reveal 25; repeated `Show
-more` activation reveals further 25-record increments until all 210 are
+Narrow layouts keep the shared one-pane results, filters, or detail flow. Results
+and detail retain the Guide main region as their scroll owner. The narrow filter
+pane instead bounds its filter body above an in-layout More filters/Reset footer,
+with captured/restored filter scrolling owned by that body and no second outer
+scroller. The last expanded control remains before the footer in reading and
+keyboard order. Non-sticky orientation and primary-view rows cannot overlay
+focused filter controls. Intermediate disclosure layouts retain their existing
+main-region scrolling. Actual reachability, focus visibility and compaction at
+the required viewports and enlarged text still require rendered review; static
+structure and state tests do not establish visual acceptance.
+Results initially reveal 25; repeated `Show
+more` activation reveals further 25-record increments until all 228 are
 reachable, without pagination, virtualization, or hundreds of hidden startup
 cards.
 Only the selected Resource renders full metadata, exact related Products, and
 role-labeled safe access links. Product relationships support reverse detail and
 exact Product-context navigation but do not determine primary view membership.
-BLM selection filters Resources to the existing BLM California Resource; its
-Resource count is one. Opening that Resource exposes all 25 declared related
+BLM selection includes BLM California, BLM Maps and Geospatial Data, and the
+public California Wildfire Dashboard. Opening BLM California retains its 25 related
 Products through the existing detail renderer and shared Product navigation,
 including ACECs, Federal Wilderness, Wilderness Study Areas, BLM National PLSS /
 CadNSDI, BLM-CA PLSS Aliquots / Sections and BLM Surface Management Agency context.
 Each link retains its declared role and exact Product reverse Resource entry.
 These are related Products, not extra Resource results. Shared HUC/groundwater
 links do not make USGS, PRISM or DWR BLM publishers, and publication/hosting does
-not establish management authority. This interface adds no relationships or
-broader land-classification equivalence.
+not establish management authority. The Maps and Geospatial Data collection
+adds 25 exact source-reference links for existing consumed services; the wildfire
+dashboard has none. These decisions imply no broader land-classification
+equivalence, new Product, or map layer.
 
 The exact canonical access point matching
 `canonicalUrl` is promoted to the restrained external-blue `Open official
@@ -504,7 +626,7 @@ removes the two unsupported California Water Watch links. The CNRFC relationship
 review preserves every existing Product link and adds exactly four:
 `cnrfc_stream` and `cnrfc_precip_weather_station_catalog` select the broader
 CNRFC Resource, while `ops_major_water_supply_forecasts` and
-`ops_cdec_reservoir_storage` gain CNRFC source references. Current authority is
+`ops_cdec_reservoir_storage` gain CNRFC source references. At the C1 gate, authority was
 therefore 215 Resources, 210 published, five staged, 270 Products, 215
 relationship Resource records, and 96 canonical links: 13 direct, 64 selected,
 and 19 source-reference roles. The 96 links cover 72 Products and 27 Resources.
@@ -513,7 +635,7 @@ correction retains the stable statewide Integrated Report Resource, replaces
 its obsolete 2010 action with the evergreen Water Boards assessment-program
 page, adds accurate 2024 and 2026 cycle actions, and links its exact 2024 line
 and polygon Products; no 2026 Product exists in the current 270-Product
-authority. The public views are 27 / 183 / 210. Resource indexing and matching semantics remain unchanged:
+authority. The C1 public views were 27 / 183 / 210. Resource indexing and matching semantics remain unchanged:
 truthful access-point labels plus curated
 `search_aliases` preserve reservoir, project, Section 7, regional, program, and
 legacy names without indexing URLs or stable IDs. The 123-child distribution
@@ -627,15 +749,17 @@ User-facing narrative and management claims retain evidence, verification date, 
 - Avoid duplicate geometry, labels, hidden copies, and unbounded listeners.
 - Test realistic HTML size, browser responsiveness, and narrow viewports.
 
-The C1 payload policy approved by `BRIM-R17C1-A4` enforces an 835000-byte
-hard cap for the full default Guide JSON and a 521502-byte growth cap over the
-unchanged 313498-byte historical baseline. Both yield an 835000-byte total
+The combined payload policy approved by `BRIM-R17C2-G2-02` enforces a 940000-byte
+hard cap for the full default Guide JSON and a 626502-byte growth cap over the
+unchanged 313498-byte historical baseline. Both yield a 940000-byte total
 ceiling; the nonnegative-growth check and 200000-byte combined Guide JS/CSS
 guard remain. The pre-polish C1 default fixture measured 832232 bytes,
 518734 above the historical baseline, with 2768 bytes of headroom. That earlier
 measurement does not establish the size of a changed corpus: each candidate
-requires its own full compiler measurement against the same caps. This policy
-allocates no R17C2 content or allowance. Browser responsiveness, performance
+requires its own full compiler measurement against the same caps. The complete L082-inclusive selected metadata measured 896387 bytes, with
+582889 bytes of growth and 43613 bytes of headroom. The single allowance covers
+the complete approved wave; the full serializer and baseline are unchanged.
+Browser responsiveness, performance
 judgment, and human visual acceptance remain pending; a payload-size assertion
 alone does not establish them.
 
@@ -646,8 +770,8 @@ Author in the lean source repository, integrate/test in `codex_ship`, and deploy
 ## Testing standard
 
 Resource publication staging tests cover both the historical R17B fixture
-(206 published Resources becoming 205) and the current C1 fixture (210 becoming
-209). Each stages only `resource_doi`, preserves ordered unaffected IDs and full
+(206 published Resources becoming 205), frozen C1 fixture (210 becoming 209),
+and current C2 fixture (228 becoming 227). Each stages only `resource_doi`, preserves ordered unaffected IDs and full
 records, excludes all five already-staged Resources, and proves that restoring
 the one publication state restores the original fixture. Historical golden
 hashes and the 139-ID historical cohort normalization remain protected.

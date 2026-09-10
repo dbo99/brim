@@ -49,8 +49,8 @@ MAP_DISPLAY <- list(
   ## Nevada with enough context to see the BLM-CA managed lands, field-office
   ## boundaries, and BLM office points.
   default_lng  = -118.73584,
-  default_lat  = 38.30517,
-  default_zoom = 6,
+  default_lat  = 37.36,
+  default_zoom = 6.5,
   
   # ---- Radar and basemaps ---------------------------------------------------
   ##

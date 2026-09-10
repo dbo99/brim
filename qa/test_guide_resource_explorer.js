@@ -26,6 +26,39 @@ const relationships = JSON.parse(fs.readFileSync(
   path.join(root, "00_config", "guide_product_resource_relationships.json"), "utf8"
 ));
 
+
+// Current approved addition identities and exact public overlay boundaries.
+const r17c2NewResourceIds = [
+  "resource_dwr_sgma_water_year_type_dataset",
+  "resource_smud_upper_american_river_project_conditions",
+  "resource_sjrrp_friant_releases_and_allocations",
+  "resource_sonoma_water_russian_river_operating_conditions",
+  "resource_usbr_stanislaus_watershed_team",
+  "resource_trrp_flows_and_releases",
+  "resource_sce_flow_and_reservoir_portal",
+  "resource_sce_big_creek_project",
+  "resource_google_deepmind_weather_lab",
+  "resource_california_environmental_flows_framework",
+  "resource_california_natural_flows",
+  "resource_uswfs_public_information",
+  "resource_inciweb_incident_information",
+  "resource_nifc_public_fire_information",
+  "resource_northern_california_fire_coordination",
+  "resource_southern_california_fire_coordination",
+  "resource_blm_maps_and_geospatial_data",
+  "resource_blm_california_wildfire_dashboard_public"
+];
+assert.deepStrictEqual(registry.resources.slice(215).map(r => r.id),r17c2NewResourceIds);
+const l082 = registry.resources.find(r => r.id === 'resource_blm_california_wildfire_dashboard_public');
+assert.equal(l082.canonical_url,'https://nifc.maps.arcgis.com/apps/dashboards/1c4565c092da44478befc12722cf0486#');
+assert.equal(l082.access_points.length,1);
+assert(!relationships.products.some(p=>p.resource_links.some(l=>l.resource_id===l082.id)));
+const usgsAPI = registry.resources.find(r=>r.id==='resource_usgs_usgs_water_services_apis_service');
+assert.equal(usgsAPI.canonical_url,'https://api.waterdata.usgs.gov/');
+assert(usgsAPI.search_aliases.includes('USGS Water Services APIs'));
+const allActionURLs = registry.resources.flatMap(r=>r.access_points.map(a=>a.url));
+assert.equal(allActionURLs.length,457);assert.equal(new Set(allActionURLs).size,456);
+
 const r17c1AddedResourceIds = [
   "resource_usgs_usgs_california_river_basin_schematics_collection",
   "resource_noaa_nws_graphical_forecasts",
@@ -351,8 +384,8 @@ assert.strictEqual(new Set(canonicalResourceIds).size, canonicalResourceIds.leng
   "Canonical Resource IDs are not unique");
 assert.strictEqual(new Set(relationshipResourceIds).size, relationshipResourceIds.length,
   "Relationship Resource IDs are not unique");
-assert.strictEqual(canonicalResourceIds.length, 215,
-  "R17C1 canonical Resource count must be exactly 215");
+assert.strictEqual(canonicalResourceIds.length, 233,
+  "R17C2 canonical Resource count must be exactly 233");
 assert.deepStrictEqual(
   canonicalResourceIds.filter(id => r16bAddedResourceIds.includes(id)).sort(),
   [...r16bAddedResourceIds].sort(),
@@ -375,21 +408,21 @@ assert.strictEqual(
 const canonicalLinks = relationships.products.flatMap(product =>
   product.resource_links.map(link => ({ productId: product.product_id, ...link }))
 );
-assert.strictEqual(canonicalLinks.length, 96, "Canonical relationship link count changed");
+assert.strictEqual(canonicalLinks.length, 121, "Canonical relationship link count changed");
 assert.deepStrictEqual(Object.fromEntries([
   "direct_match_in_brim", "selected_product_from_broader_resource", "source_reference"
 ].map(role => [role, canonicalLinks.filter(link => link.relationship_role === role).length])), {
   direct_match_in_brim: 13,
   selected_product_from_broader_resource: 64,
-  source_reference: 19
+  source_reference: 44
 }, "Canonical relationship-role counts changed");
 assert.strictEqual(new Set(canonicalLinks.map(link =>
   `${link.productId}\r${link.resource_id}`)).size, canonicalLinks.length,
 "A duplicate canonical Product-Resource pair was introduced");
 assert.strictEqual(relationships.products.filter(product =>
-  product.resource_links.length > 0).length, 72,
+  product.resource_links.length > 0).length, 93,
 "Products-with-Resource-links count changed");
-assert.strictEqual(new Set(canonicalLinks.map(link => link.resource_id)).size, 27,
+assert.strictEqual(new Set(canonicalLinks.map(link => link.resource_id)).size, 28,
 "Resources-with-Product-links count changed");
 const d10Product = relationships.products.find(
   product => product.product_id === "ops_cdec_reservoir_storage"
@@ -548,7 +581,7 @@ assert(!helperSource.includes("pt_guide_r12a_temporary_legacy_public_relationshi
 
 const published = registry.resources.filter(resource => resource.publication_state === "published");
 const staged = registry.resources.filter(resource => resource.publication_state === "staged");
-assert.strictEqual(published.length, 210, "R17C1 published Resource count must be exactly 210");
+assert.strictEqual(published.length, 228, "R17C2 published Resource count must be exactly 228");
 assert.strictEqual(staged.length, 5, "The exact five staged Resources changed");
 assert.strictEqual(published.length + staged.length, registry.resources.length,
   "Canonical Resources contain an unsupported publication state");
@@ -702,7 +735,7 @@ assert.strictEqual(new Set(cnrfcResource.accessPoints.map(point =>
   point.url.toLowerCase().replace(/\/+$/, "")
 )).size, cnrfcResource.accessPoints.length,
 "The projected CNRFC access actions contain a normalized duplicate");
-assert.strictEqual(cnrfcResource.summary, cnrfcSummaryAfter + a5SummaryAppend,
+assert.strictEqual(cnrfcResource.summary, "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada. Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network. The SACC0 tabular shortcut is explicitly dated WY2026 forecast information, not a categorical water-year classification.",
   "The exact corrected CNRFC Resource summary changed");
 assert(!JSON.stringify(registry).includes(cnrfcSummaryBefore),
   "The superseded CNRFC Resource summary remains in authority");
@@ -842,8 +875,8 @@ assert.strictEqual(cClearedState.subject, "",
   "Clearing the C-owned Precipitation token left the Resource filter active");
 assert.strictEqual(cClearedState.preset, "all_resources",
   "Clearing the C-owned Precipitation token left All Resources");
-assert.strictEqual(model.results(cClearedState).length, 210,
-  "Clearing the C-owned Precipitation token did not restore 210 Resources");
+assert.strictEqual(model.results(cClearedState).length, 228,
+  "Clearing the C-owned Precipitation token did not restore 228 Resources");
 assert.deepStrictEqual(model.presets, [
   { id: "in_brim_map", label: "In BRIM map" },
   { id: "beyond_the_map", label: "Beyond the map" },
@@ -873,7 +906,7 @@ assert(inBrimIds.every(resourceId => !beyondIds.includes(resourceId)),
 assert.deepStrictEqual([...new Set([...inBrimIds, ...beyondIds])].sort(),
   [...publishedIds].sort(),
   "Public primary membership union does not equal the published Resource set");
-assert.deepStrictEqual([inBrimIds.length, beyondIds.length, allIds.length], [27, 183, 210],
+assert.deepStrictEqual([inBrimIds.length, beyondIds.length, allIds.length], [28, 200, 228],
   "R17C1 public Resource view counts changed");
 assert([...inBrimIds, ...beyondIds, ...allIds].every(resourceId => !stagedIds.has(resourceId)),
   "A staged Resource leaked into a public primary Resource view");
@@ -886,6 +919,10 @@ assert.deepStrictEqual(model.facetCounts(model.createState()).presets, {
 function searchIds(query) {
   const searchState = model.setQuery(model.createState({ preset: "all_resources" }), query);
   return model.results(searchState).map(resource => resource.id);
+}
+for(const id of r17c2NewResourceIds) {
+  const r=resources.find(r=>r.id===id);
+  assert(r && searchIds(r.title).includes(id),`New Resource title not discoverable: ${id}`);
 }
 assert(searchIds("coco").includes("resource_cocorahs_cocorahs_other"),
   "Resource gateway target query no longer finds the CoCoRaHS Resource");
@@ -905,7 +942,7 @@ for (const id of r17c1RetiredResourceIds) {
   assert.deepStrictEqual(registry.resources.filter(resource => resource.aliases.includes(id))
     .map(resource => resource.id), [cnrfcId], "A retired CNRFC ID does not recover exactly one parent");
 }
-assert.strictEqual(cnrfcResource.accessPoints.length, 23, "CNRFC must expose 23 curated actions");
+assert.strictEqual(cnrfcResource.accessPoints.length, 24, "CNRFC must expose 24 curated actions");
 assert.deepStrictEqual(cnrfcResource.accessPoints.slice(1, 3), a5NewActions,
   "A5 entry points or their second/third placement changed");
 for (const change of a5LabelChanges) {
@@ -923,7 +960,7 @@ for (const query of ["FNF", "full natural flow", "FNF water-year trend", "Water 
 const cnrfcStationIds = ["CEGC1", "CMPC1", "EXQC1", "FOLC1", "FRAC1", "HLEC1", "ISAC1",
   "MHBC1", "NDPC1", "NMSC1", "ORDC1", "PFTC1", "SCSC1", "SHDC1", "TMDC1"];
 assert.deepStrictEqual(cnrfcResource.accessPoints.filter(point =>
-  point.url.includes("ensembleProduct.php?")).map(point => point.url),
+  point.url.includes("ensembleProduct.php?") && point.url !== "https://www.cnrfc.noaa.gov/ensembleProductTabular.php?id=SACC0&prodID=9&year=2026").map(point => point.url),
   cnrfcStationIds.map(id => `https://www.cnrfc.noaa.gov/ensembleProduct.php?id=${id}&prodID=9`),
   "The exact 15 CNRFC configured station destinations changed");
 for (const query of ["AKYC1", "CNRFC Forcings CSV", "CNRFC Hourly HEFS CSV"]) {
@@ -937,8 +974,8 @@ assert.deepStrictEqual(eroResource.representedProducts.map(product => ({
   role: "selected_product_from_broader_resource"})), "ERO chips/roles changed");
 assert(inBrimIds.includes(eroId) && !beyondIds.includes(eroId),
   "The ERO owner is in the wrong public Resource view");
-assert(!registry.resources.flatMap(resource => resource.access_points)
-  .some(point => point.url.includes("id=SACC0&year=2026")), "A C2 action leaked into C1");
+assert.deepStrictEqual(cnrfcResource.accessPoints.filter(point => point.url === "https://www.cnrfc.noaa.gov/ensembleProductTabular.php?id=SACC0&prodID=9&year=2026"),
+  [{"role": "archive", "label": "CNRFC Sacramento Valley Water Resources Index — WY2026 Forecast View", "url": "https://www.cnrfc.noaa.gov/ensembleProductTabular.php?id=SACC0&prodID=9&year=2026"}], "The exact dated SACC0 action changed");
 const requiredSearchParents = {
   Kaweah: [spkId],
   Terminus: [spkId],
@@ -1236,15 +1273,15 @@ assert(returnTabContrast.every(ratio => ratio >= 4.5),
 console.log(`RETURN_TAB_STATIC_CONTRAST=${returnTabContrast.map(ratio => ratio.toFixed(3)).join(",")}`);
 console.log("RETURN_TAB_PAINT_GEOMETRY_FOCUS_ACTION=STATIC_PASS; RENDERED_VISUAL_REVIEW=PENDING");
 
-console.log("BRIM Guide Resource Explorer R17C1 CNRFC and WPC contracts passed.");
+console.log("BRIM Guide Resource Explorer R17C2 current catalog and preserved C1 contracts passed.");
 console.log(`CANONICAL_RESOURCES=${canonicalResourceIds.length}`);
 console.log(`PUBLISHED_RESOURCES=${publishedIds.length}`);
 console.log(`STAGED_RESOURCES=${stagedIds.size}`);
 console.log(`PRESET_COUNTS=${expectedInBrimIds.length},${expectedBeyondIds.length},${publishedIds.length}`);
 console.log(`CANONICAL_RESOURCE_LINKS=${canonicalLinks.length}`);
-console.log("PRODUCTS_WITH_RESOURCE_LINKS=72");
-console.log("RESOURCES_WITH_PRODUCT_LINKS=27");
-console.log("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,64_SELECTED,19_SOURCE_REFERENCE");
+console.log("PRODUCTS_WITH_RESOURCE_LINKS=93");
+console.log("RESOURCES_WITH_PRODUCT_LINKS=28");
+console.log("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,64_SELECTED,44_SOURCE_REFERENCE");
 console.log("CNRFC_RELATED_PRODUCTS=7");
 console.log("GENERIC_PROJECTION_INVARIANTS=PASS");
 console.log("STAGED_REVIEWED_RESOURCE_SUPPORT=PASS");

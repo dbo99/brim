@@ -251,11 +251,52 @@ pt_ops_live_default_feed_url <- function(path) {
   )
 }
 
+# Descriptive build-time projection of the sole authored delivery authority.
+# This deliberately needs neither Guide compilation nor browser Guide state.
+pt_ops_live_delivery_projection <- function(
+    path = file.path("00_config", "guide_product_resource_relationships.json"),
+    source = NULL, identities = pt_ops_live_guide_identity_registry()) {
+  fail <- function(message) stop(paste("Ops delivery projection:", message), call. = FALSE)
+  object <- function(value) is.list(value) && !is.null(names(value)) &&
+    !anyDuplicated(names(value))
+  scalar <- function(value) is.character(value) && length(value) == 1L &&
+    !is.na(value) && nzchar(trimws(value))
+  safe_key <- function(value) scalar(value) &&
+    !value %in% c("__proto__", "prototype", "constructor", "toString", "hasOwnProperty")
+  classes <- c("brim_managed", "brim_enhanced", "provider_hosted", "not_applicable")
+  if (is.null(source)) source <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  if (!object(source) || !is.list(source$products) ||
+      !is.null(names(source$products)) || !length(source$products)) fail("malformed products array")
+  products <- source$products
+  valid <- vapply(products, function(p) object(p) && safe_key(p$product_id) &&
+    scalar(p$delivery_class) && p$delivery_class %in% classes, logical(1))
+  if (!all(valid)) fail("invalid Product identity or delivery class")
+  ids <- vapply(products, `[[`, character(1), "product_id")
+  if (anyDuplicated(ids)) fail("duplicate Product identity")
+  if (!is.data.frame(identities) ||
+      !all(c("stable_id", "source_token", "included_by_default") %in% names(identities)) ||
+      !is.logical(identities$included_by_default) || anyNA(identities$included_by_default) ||
+      !nrow(identities)) fail("malformed identity registry")
+  if (!all(vapply(identities$stable_id, safe_key, logical(1))) ||
+      !all(vapply(identities$source_token, safe_key, logical(1)))) fail("invalid identity registry key")
+  if (anyDuplicated(identities$stable_id) || anyDuplicated(identities$source_token))
+    fail("duplicate identity registry ID or source token")
+  eligible <- identities[identities$included_by_default, , drop = FALSE]
+  matched <- match(eligible$stable_id, ids)
+  if (anyNA(matched)) fail("missing eligible Product identity")
+  unname(lapply(seq_len(nrow(eligible)), function(i) list(
+    stable_id = eligible$stable_id[[i]], source_token = eligible$source_token[[i]],
+    delivery_class = products[[matched[[i]]]]$delivery_class
+  )))
+}
+
 pt_add_ops_live_layers <- function(m, map_display, cnrfc_river_reservoir_forecast_points = NULL, cnrfc_precip_weather_stations = NULL, major_water_supply_basin_geometry = NULL) {
 
   if (!isTRUE(map_display$add_ops_live_layers)) {
     return(m)
   }
+
+  delivery_projection <- pt_ops_live_delivery_projection()
 
   js <- r"---(
 function(el, x, data) {
@@ -309,6 +350,7 @@ function(el, x, data) {
   var MAJOR_WATER_SUPPLY_RESERVOIR_CROSSWALK = data && data.majorWaterSupplyReservoirCrosswalk ? data.majorWaterSupplyReservoirCrosswalk : [];
   var MAJOR_WATER_SUPPLY_RELATED_LINKS = data && data.majorWaterSupplyRelatedLinks ? data.majorWaterSupplyRelatedLinks : [];
   var OPS_CATALOG_PRIMARY_PANEL = data && data.opsCatalogPrimaryPanel ? data.opsCatalogPrimaryPanel : {};
+  var OPS_DELIVERY_PROJECTION = data && data.opsDeliveryProjection;
   var includeGfsSurfaceWind = !!(data && data.includeGfsSurfaceWind);
   var GFS_SURFACE_WIND_MANIFEST_URL = data && data.gfsSurfaceWindManifestUrl ? String(data.gfsSurfaceWindManifestUrl) : '';
   var includeHrrrSurfaceWind = !!(data && data.includeHrrrSurfaceWind);
@@ -431,6 +473,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     m,
     js,
     data = list(
+      opsDeliveryProjection = delivery_projection,
       includeRadar = if (!is.null(map_display$add_ops_conus_radar)) {
         isTRUE(map_display$add_ops_conus_radar)
       } else {
