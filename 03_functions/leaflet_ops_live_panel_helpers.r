@@ -87,8 +87,37 @@ pt_ops_live_panel_helpers_js <- function() {
     return entries;
   }
 
+  function ptOpsDeliveryKind(def) {
+    if (!def || !Object.prototype.hasOwnProperty.call(def, 'guideProductId') ||
+        typeof def.guideProductId !== 'string' || !def.guideProductId ||
+        !Object.prototype.hasOwnProperty.call(def, 'deliveryClass')) return '';
+    return def.deliveryClass === 'brim_managed' ? 'managed' :
+      def.deliveryClass === 'brim_enhanced' ? 'enhanced' : '';
+  }
+
+  function ptOpsDeliveryBadgeHtml(kind, keyTerm) {
+    if (kind !== 'managed' && kind !== 'enhanced') return '';
+    return '<span class="pt-ops-delivery-badge pt-ops-delivery-' + kind + '"' +
+      (keyTerm ? '' : ' role="img" aria-label="BRIM-' + kind + '"') + '>' +
+      (kind === 'managed' ? 'BRIM-M' : 'BRIM-E') + '</span>';
+  }
+
+  function ptOpsPrimaryTitleHtml(def) {
+    var title = String(def.panelLabel || def.name);
+    var badge = ptOpsDeliveryBadgeHtml(ptOpsDeliveryKind(def), false);
+    if (!badge) return escapeHtml(title);
+    // Keep only the last short title token with its badge; earlier words can wrap.
+    var tail = title.match(/^(.*\s)?(\S{1,12})$/);
+    return tail ? escapeHtml(tail[1] || '') + '<span class="pt-ops-primary-tail">' +
+      escapeHtml(tail[2]) + ' ' + badge + '</span>' : escapeHtml(title) + ' ' + badge;
+  }
+
   function buildOpsPanelHtml() {
     var html = '<div class="pt-ops-small">Live weather, precipitation, satellite, observation, and hazard overlays are fetched from public services when checked. Turn on only one or two image-heavy layers at a time when possible. Use Clear ops in the ribbon to remove active Ops layers.</div>';
+    html += '<div id="pt-ops-delivery-key" class="pt-ops-delivery-key"><div>' +
+      ptOpsDeliveryBadgeHtml('managed', true) + ' — Managed: BRIM-prepared data or curated collections.</div><div>' +
+      ptOpsDeliveryBadgeHtml('enhanced', true) + ' — Enhanced: External services with BRIM-added features.</div>' +
+      '<div>Original sources remain credited. Features and refresh schedules vary by layer.</div></div>';
 
     var entries = ptOpsPanelEntries();
     var lastCat = null;
@@ -114,17 +143,30 @@ pt_ops_live_panel_helpers_js <- function() {
         lastSubgroup = subgroup;
       }
 
-      html += '<div class="pt-ops-layer-row" data-pt-ops-row-index="' + idx + '">' +
-        '<label class="pt-ops-layer-label">' +
-        '<input type="checkbox" data-pt-ops-index="' + idx + '"> ' +
-        '<span class="pt-ops-layer-name">' + escapeHtml(def.panelLabel || def.name) + '</span>' +
+      var reservoirRow = def.name === 'Reservoirs | storage-centric | CDEC / CNRFC / USACE';
+      var agencyRow = reservoirRow || def.name === 'Major Water-Supply Basin Forecasts';
+      var toggleId = 'pt-ops-layer-toggle-' + idx;
+      var descriptions = [];
+      if (reservoirRow) descriptions.push('pt-ops-reservoir-description');
+      html += '<div class="pt-ops-layer-row' +
+        (ptOpsDeliveryKind(def) === 'managed' ? ' pt-ops-layer-managed' : '') +
+        '" data-pt-ops-row-index="' + idx + '">' +
+        '<input type="checkbox" id="' + toggleId + '" data-pt-ops-index="' + idx + '"' +
+        (descriptions.length ? ' aria-describedby="' + descriptions.join(' ') + '"' : '') + '>' +
+        '<div class="pt-ops-row-content">' +
+        '<label class="pt-ops-layer-label" for="' + toggleId + '">' +
+        '<span class="pt-ops-layer-name"><span class="pt-ops-primary-title">' + ptOpsPrimaryTitleHtml(def) + '</span>' +
         '<span class="pt-ops-layer-spinner" aria-hidden="true">loading…</span>' +
+        (agencyRow && def.helperText ? '<span class="pt-ops-layer-agencies">' + escapeHtml(def.helperText) + '</span>' : '') + '</span>' +
         '</label>' +
-        layerRowLinksHtml(def) +
-        (def.extraRowHtml ? String(def.extraRowHtml) : '') +
-        '</div>';
+        '<div class="pt-ops-row-actions">' + layerRowLinksHtml(def) +
+        (def.extraRowHtml ? String(def.extraRowHtml) : '') + '</div>' +
+        '</div></div>';
 
-      if (def.helperText) {
+      if (reservoirRow) {
+        html += '<span id="pt-ops-reservoir-description" hidden>Symbols show observed storage; popups link to forecasts and reservoir operations.</span>';
+      }
+      if (def.helperText && !agencyRow) {
         html += '<div class="pt-ops-layer-help">' + escapeHtml(def.helperText) + '</div>';
       }
 

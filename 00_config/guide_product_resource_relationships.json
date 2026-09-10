@@ -1599,11 +1599,25 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT133",
@@ -1616,11 +1630,25 @@
         "03_functions/leaflet_guide_helpers.r",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT132",
@@ -1633,11 +1661,25 @@
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT134",
@@ -1650,11 +1692,25 @@
         "03_functions/leaflet_guide_helpers.r",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT135",
@@ -1667,11 +1723,25 @@
         "03_functions/leaflet_guide_helpers.r",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT136",
@@ -1684,11 +1754,25 @@
         "03_functions/leaflet_guide_helpers.r",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT097",
@@ -1701,11 +1785,25 @@
         "qa/test_layer_capability_registry.R",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT098",
@@ -1717,11 +1815,25 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT099",
@@ -1733,11 +1845,25 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT100",
@@ -1749,11 +1875,25 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "sample_data/external_service_catalog_sample.csv"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "CALIPC_INVASIVE_SPECIES_BY_QUAD",
@@ -2234,11 +2374,25 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT137",
@@ -2251,11 +2405,25 @@
         "qa/test_guide_foundation.R",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT145",
@@ -2266,11 +2434,25 @@
         "03_functions/layer_capability_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT146",
@@ -2280,11 +2462,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT147",
@@ -2295,11 +2491,25 @@
         "03_functions/layer_capability_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT148",
@@ -2310,11 +2520,25 @@
         "03_functions/layer_capability_helpers.r",
         "qa/test_guide_foundation.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT149",
@@ -2324,11 +2548,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT150",
@@ -2338,11 +2576,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT070",
@@ -3714,15 +3966,17 @@
         "qa/test_layer_capability_registry.R"
       ],
       "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "tracked_product_definition",
       "coverage_evidence_refs": [
         "00_config/external_service_catalog.csv",
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r",
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
         "qa/test_guide_foundation.R",
-        "qa/test_layer_capability_registry.R"
+        "qa/test_layer_capability_registry.R",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
       ],
       "resource_links": [
         {
@@ -3735,6 +3989,15 @@
             "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
             "qa/test_guide_foundation.R",
             "qa/test_layer_capability_registry.R"
+          ]
+        },
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
           ]
         }
       ]
@@ -3750,11 +4013,25 @@
         "qa/test_guide_foundation.R",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "EXT103",
@@ -3766,13 +4043,15 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
       ],
       "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "tracked_product_definition",
       "coverage_evidence_refs": [
         "00_config/external_service_catalog.csv",
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r",
-        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
       ],
       "resource_links": [
         {
@@ -3783,6 +4062,15 @@
             "03_functions/js/leaflet_tools_adddata_panel.js",
             "03_functions/layer_capability_helpers.r",
             "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+          ]
+        },
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
           ]
         }
       ]
@@ -3797,13 +4085,15 @@
         "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
       ],
       "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "maintainer_calibration",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "tracked_product_definition",
       "coverage_evidence_refs": [
         "00_config/external_service_catalog.csv",
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r",
-        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+        "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
       ],
       "resource_links": [
         {
@@ -3814,6 +4104,15 @@
             "03_functions/js/leaflet_tools_adddata_panel.js",
             "03_functions/layer_capability_helpers.r",
             "00_config/external_catalog_group_theme_working_sheet_20260610_163124_dbo.csv"
+          ]
+        },
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
           ]
         }
       ]
@@ -4266,11 +4565,25 @@
         "qa/test_guide_foundation.R",
         "qa/test_layer_capability_registry.R"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "WSR_BLM_CA_LINES",
@@ -4280,11 +4593,25 @@
         "03_functions/js/leaflet_tools_adddata_panel.js",
         "03_functions/layer_capability_helpers.r"
       ],
-      "coverage_review_state": "not_yet_reviewed",
-      "coverage_disposition": null,
-      "coverage_evidence_basis": "not_yet_reviewed",
-      "coverage_evidence_refs": [],
-      "resource_links": []
+      "coverage_review_state": "reviewed",
+      "coverage_disposition": "selected_product_from_broader_resource",
+      "coverage_evidence_basis": "tracked_product_definition",
+      "coverage_evidence_refs": [
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ],
+      "resource_links": [
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+          ]
+        }
+      ]
     },
     {
       "product_id": "WSR_CA_STATE_ONLY_LINES",
@@ -4461,13 +4788,14 @@
     },
     {
       "product_id": "ops_radar_iem_nexrad",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_arcgis_export_helpers.r"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -4477,7 +4805,7 @@
     },
     {
       "product_id": "ops_radar_noaa_mrms",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -4949,7 +5277,7 @@
     },
     {
       "product_id": "ops_qpe_mrms_1hr",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -4965,7 +5293,7 @@
     },
     {
       "product_id": "ops_qpe_mrms_1day",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -4981,7 +5309,7 @@
     },
     {
       "product_id": "ops_qpe_mrms_3day",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -4997,7 +5325,7 @@
     },
     {
       "product_id": "ops_qpe_rfc_1day",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -5013,7 +5341,7 @@
     },
     {
       "product_id": "ops_qpe_rfc_7day",
-      "delivery_class": "brim_enhanced",
+      "delivery_class": "provider_hosted",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
@@ -5752,10 +6080,15 @@
         "qa/test_guide_foundation.R"
       ],
       "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "legacy_exact_relationship",
+      "coverage_disposition": "multiple_source_resources",
+      "coverage_evidence_basis": "tracked_product_definition",
       "coverage_evidence_refs": [
-        "00_config/guide_product_enrichment.json"
+        "00_config/guide_product_enrichment.json",
+        "00_config/external_service_catalog.csv",
+        "00_config/guide_resources.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json",
+        "03_functions/js/leaflet_tools_adddata_panel.js",
+        "03_functions/leaflet_guide_helpers.r"
       ],
       "resource_links": [
         {
@@ -5763,6 +6096,17 @@
           "relationship_role": "source_reference",
           "evidence_refs": [
             "00_config/guide_product_enrichment.json"
+          ]
+        },
+        {
+          "resource_id": "resource_blm_maps_and_geospatial_data",
+          "relationship_role": "source_reference",
+          "evidence_refs": [
+            "00_config/external_service_catalog.csv",
+            "00_config/guide_resources.json",
+            "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json",
+            "03_functions/js/leaflet_tools_adddata_panel.js",
+            "03_functions/leaflet_guide_helpers.r"
           ]
         }
       ]
@@ -8655,6 +8999,186 @@
       "map_representation": "selected_products_in_brim",
       "evidence_refs": [
         "00_config/guide_resources.json"
+      ]
+    },
+    {
+      "resource_id": "resource_dwr_sgma_water_year_type_dataset",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_smud_upper_american_river_project_conditions",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_sjrrp_friant_releases_and_allocations",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_sonoma_water_russian_river_operating_conditions",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_usbr_stanislaus_watershed_team",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_trrp_flows_and_releases",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_sce_flow_and_reservoir_portal",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_sce_big_creek_project",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_google_deepmind_weather_lab",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_california_environmental_flows_framework",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_california_natural_flows",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_uswfs_public_information",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_inciweb_incident_information",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_nifc_public_fire_information",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_northern_california_fire_coordination",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_southern_california_fire_coordination",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_blm_maps_and_geospatial_data",
+      "map_review_state": "reviewed",
+      "map_representation": "selected_products_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
+      ]
+    },
+    {
+      "resource_id": "resource_blm_california_wildfire_dashboard_public",
+      "map_review_state": "reviewed",
+      "map_representation": "not_currently_mapped_in_brim",
+      "evidence_refs": [
+        "00_config/guide_resources.json",
+        "00_config/guide_product_resource_relationships.json",
+        "08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json"
       ]
     }
   ]

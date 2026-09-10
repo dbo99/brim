@@ -80,6 +80,10 @@ function(el, x, data) {
         {
           "id": "state",
           "label": "State"
+        },
+        {
+          "id": "types",
+          "label": "Provider types"
         }
       ],
       "families": [
@@ -191,6 +195,88 @@ function(el, x, data) {
           "exact_provider_names": [
             "California State Water Resources Control Board"
           ]
+        },
+        {
+          "id": "county",
+          "is_provider_type": true,
+          "label": "County",
+          "group": "types",
+          "exact_provider_names": [
+            "Los Angeles County Public Works",
+            "Marin County Flood Control",
+            "Napa County Flood Control",
+            "Orange County Public Works",
+            "San Joaquin County",
+            "Santa Barbara County Public Works",
+            "Santa Cruz County Flood Control",
+            "Sonoma Water",
+            "Sonoma Water / Sonoma County"
+          ]
+        },
+        {
+          "id": "nonprofits",
+          "is_provider_type": true,
+          "label": "Nonprofits / NGOs",
+          "group": "types",
+          "exact_provider_names": [
+            "The Nature Conservancy",
+            "Community Collaborative Rain, Hail and Snow Network",
+            "California Central Valley Flood Control Association"
+          ]
+        },
+        {
+          "id": "other",
+          "is_provider_type": true,
+          "label": "Other",
+          "group": "types",
+          "exact_provider_names": []
+        },
+        {
+          "id": "private",
+          "is_provider_type": true,
+          "label": "Private",
+          "group": "types",
+          "exact_provider_names": [
+            "Airborne Snow Observatories, Inc.",
+            "Brightband",
+            "Synoptic Data",
+            "Southern California Edison",
+            "Google DeepMind",
+            "Meteologix",
+            "Pivotal Weather"
+          ]
+        },
+        {
+          "id": "regional_local",
+          "is_provider_type": true,
+          "label": "Regional/local",
+          "group": "types",
+          "exact_provider_names": [
+            "Bay Area Flood Protection Agencies Association",
+            "City of San Diego Public Utilities Department",
+            "City of Stockton",
+            "East Bay Municipal Utility District",
+            "El Dorado Irrigation District",
+            "Knights Landing Ridge Drainage District",
+            "Modesto Irrigation District",
+            "Mojave Water Agency",
+            "Nevada Irrigation District",
+            "Placer County Water Agency",
+            "Reclamation District 17",
+            "Reclamation District 2039",
+            "Reclamation District 830",
+            "Sacramento River West Side Levee District",
+            "San Diego County Water Authority",
+            "San Francisco Public Utilities Commission",
+            "Solano County Water Agency",
+            "Turlock Irrigation District",
+            "Valley Water",
+            "Water Replenishment District of Southern California",
+            "Westlands Water District",
+            "Yuba Water Agency",
+            "Zone 7 Water Agency",
+            "Sacramento Municipal Utility District"
+          ]
         }
       ],
       "exact_resource_rules": [
@@ -220,6 +306,24 @@ function(el, x, data) {
           "expected_provider": "Water quality and ecosystem data providers",
           "expected_title": "Safe to Swim Map",
           "expected_canonical_url": "https://www.mywaterquality.ca.gov/safe-to-swim/content/interactive_map/index.html"
+        },
+        {
+          "resource_id": "resource_agricultural_water_and_evapotranspiratio_openet_data_explorer_viewer",
+          "families": [
+            "nonprofits"
+          ],
+          "expected_provider": "Agricultural water and evapotranspiration programs",
+          "expected_title": "OpenET Data Explorer",
+          "expected_canonical_url": "https://explore.etdata.org/"
+        },
+        {
+          "resource_id": "resource_agricultural_water_and_evapotranspiratio_openet_platform",
+          "families": [
+            "nonprofits"
+          ],
+          "expected_provider": "Agricultural water and evapotranspiration programs",
+          "expected_title": "OpenET",
+          "expected_canonical_url": "https://openetdata.org/"
         }
       ],
       "legacy_families": [
@@ -349,6 +453,12 @@ function(el, x, data) {
           if (members.indexOf('family:' + id) < 0) members.push('family:' + id);
         });
       });
+      // Other is the full public catalog complement of offered groups. Hidden
+      // legacy families retain their meaning but never subtract from this set.
+      var offeredMatch = providerPolicy.families.some(function(family) {
+        return family.id !== 'other' && members.indexOf('family:' + family.id) >= 0;
+      });
+      if (!offeredMatch) members.push('family:other');
       return members;
     }
 
@@ -654,7 +764,8 @@ function(el, x, data) {
       counts = counts || providerCounts(state);
       return providerPolicy.families.map(function(family) {
         var value = 'family:' + family.id;
-        return { value: value, label: family.label, group: family.group, count: counts[value] || 0 };
+        return { value: value, label: family.label, group: family.group,
+          isProviderType: family.is_provider_type === true, count: counts[value] || 0 };
       });
     }
 
@@ -1916,11 +2027,17 @@ function(el, x, data) {
     providerHeader.appendChild(providerClear);
     providerBlock.appendChild(providerHeader);
     providerBlock.appendChild(node(
-      'p', 'brim-guide__resource-provider-help', 'Other providers remain in results and searchable above.'
+      'p', 'brim-guide__resource-provider-help', 'Filter by agency or type; search above for any provider.'
     ));
+    var otherDescription = node('span', 'brim-guide__search-label',
+      'Other contains public Resources outside all offered agency and provider-type groups, before other filters.');
+    otherDescription.id = 'brim-guide-provider-other-description';
+    providerBlock.appendChild(otherDescription);
+    var groups = node('div', 'brim-guide__resource-provider-groups');
     var options = resourceExplorerModel.providerOptions(resourceState, counts);
     resourceExplorerModel.providerGroups().forEach(function(group) {
       var section = node('fieldset', 'brim-guide__resource-provider-group');
+      section.setAttribute('data-provider-group', group.id);
       section.appendChild(node('legend', '', group.label));
       var panel = node('div', 'brim-guide__resource-provider-options');
       options.filter(function(option) { return option.group === group.id; }).forEach(function(option) {
@@ -1932,6 +2049,9 @@ function(el, x, data) {
         // All declared choices stay focusable at zero; counts never determine the roster.
         checkbox.setAttribute('data-resource-provider', option.value);
         checkbox.setAttribute('aria-label', option.label + ', ' + resourceCountText(option.count));
+        if (option.value === 'family:other') {
+          checkbox.setAttribute('aria-describedby', otherDescription.id);
+        }
         resourceFocusKey(checkbox, resourceExplorerModel.providerFocusKey(option.value));
         label.setAttribute('for', checkbox.id);
         label.appendChild(checkbox);
@@ -1942,8 +2062,9 @@ function(el, x, data) {
         panel.appendChild(label);
       });
       section.appendChild(panel);
-      providerBlock.appendChild(section);
+      groups.appendChild(section);
     });
+    providerBlock.appendChild(groups);
     return providerBlock;
   }
 
@@ -1959,7 +2080,7 @@ function(el, x, data) {
     heading.appendChild(node('h2', '', 'Refine Resources'));
     facets.appendChild(heading);
 
-    // The filter body owns desktop scrolling; the action row reserves its own space.
+    // Desktop and narrow facet panes reserve footer space outside the scrolling body.
     var body = node('div', 'brim-guide__resource-filter-body');
     body.appendChild(renderResourceProviders(resourceState, counts.providers));
     var choiceStack = node('div', 'brim-guide__resource-facet-choices');
@@ -2446,7 +2567,8 @@ function(el, x, data) {
       return;
     }
     var pane = existing.getAttribute('data-resource-pane') || 'results';
-    if (pane === 'facets') state.resourceExplorer.facetScrollTop = main.scrollTop;
+    if (pane === 'facets') state.resourceExplorer.facetScrollTop =
+      window.matchMedia('(max-width: 700px)').matches && facets ? facets.scrollTop : main.scrollTop;
     else if (pane === 'detail') state.resourceExplorer.detailScrollTop = main.scrollTop;
     else state.resourceExplorer.resultsScrollTop = main.scrollTop;
   }
@@ -2466,6 +2588,12 @@ function(el, x, data) {
       return;
     }
     var pane = existing.getAttribute('data-resource-pane') || 'results';
+    if (pane === 'facets' && window.matchMedia('(max-width: 700px)').matches) {
+      var filterBody = existing.querySelector('.brim-guide__resource-filter-body');
+      main.scrollTop = 0;
+      if (filterBody) filterBody.scrollTop = state.resourceExplorer.facetScrollTop;
+      return;
+    }
     main.scrollTop = pane === 'facets' ? state.resourceExplorer.facetScrollTop
       : (pane === 'detail' ? state.resourceExplorer.detailScrollTop
         : state.resourceExplorer.resultsScrollTop);

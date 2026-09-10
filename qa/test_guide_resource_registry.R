@@ -46,6 +46,128 @@ relationship_registry <- pt_guide_read_product_resource_relationship_registry(
   relationship_product_ids, registry, relationship_registry_path
 )
 
+
+# Current R17C2 authority: exact approved semantic postimages, real Git-tracked
+# evidence validation, and all public/staged/relationship preservation contracts.
+r17c2_current_raw <- raw_registry
+r17c2_current_relationships <- raw_relationship_registry
+r17c2_semantic_hash <- function(value) digest::digest(jsonlite::toJSON(
+  value, auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE, digits = NA
+), algo = "sha256", serialize = FALSE)
+# R3 changes only public Information Type tags. Restore the recorded R2 tags
+# solely for this historical whole-registry fingerprint; current tags still pass
+# the real reader above and the compiler/model/audit suite separately.
+r17c2_r2_information_tags <- jsonlite::fromJSON("{\"resource_noaa_goes_image_viewer\":[\"Live Observation\"],\"resource_cira_slider\":[\"Live Observation\"],\"resource_nasa_worldview\":[\"Live Observation\",\"Historical Context\"],\"resource_climate_engine\":[\"Historical Context\",\"Screening / Derived\"],\"resource_nasa_smap_mission\":[\"Static Reference\"],\"resource_nasa_smap_data\":[\"Static Reference\"],\"resource_nasa_smap_l3_enhanced_soil_moisture\":[\"Historical Context\",\"Live Observation\"],\"resource_noaa_smops\":[\"Live Observation\",\"Screening / Derived\"],\"resource_noaa_smops_maps\":[\"Live Observation\",\"Screening / Derived\"],\"resource_noaa_cpc_soil_moisture\":[\"Live Observation\",\"Historical Context\",\"Forecast / Outlook\"],\"resource_nidis_soil_moisture_dashboard\":[\"Model / Simulation\",\"Screening / Derived\"],\"resource_ncsmmn_network_map\":[\"Static Reference\"],\"resource_ncsmmn_soil_moisture_portal\":[\"Live Observation\"],\"resource_nrcs_scan\":[\"Live Observation\",\"Historical Context\"],\"resource_nasa_grace_tellus\":[\"Static Reference\",\"Historical Context\"],\"resource_nasa_grace_data\":[\"Historical Context\"],\"resource_nasa_grace_analysis_tool\":[\"Historical Context\",\"Screening / Derived\"],\"resource_nasa_grace_groundwater_soil_moisture\":[\"Model / Simulation\",\"Forecast / Outlook\",\"Screening / Derived\",\"Historical Context\"],\"resource_nidis_grace_groundwater_soil_moisture\":[\"Model / Simulation\",\"Screening / Derived\"],\"resource_noaa_vegetation_health\":[\"Live Observation\",\"Screening / Derived\",\"Historical Context\"],\"resource_usda_crop_casma\":[\"Live Observation\",\"Screening / Derived\"],\"resource_usda_vegscape\":[\"Live Observation\",\"Historical Context\",\"Screening / Derived\"],\"resource_usgs_quickdri\":[\"Live Observation\",\"Screening / Derived\"],\"resource_usgs_vegdri\":[\"Live Observation\",\"Screening / Derived\"],\"resource_dwr_sgma_water_year_type_dataset\":[\"Historical Context\"],\"resource_google_deepmind_weather_lab\":[\"Model / Simulation\",\"Forecast / Outlook\"],\"resource_california_environmental_flows_framework\":[\"Static Reference\",\"Tool / Workflow\"],\"resource_california_natural_flows\":[\"Model / Simulation\"],\"resource_blm_maps_and_geospatial_data\":[\"External On-Demand Service\"]}", simplifyVector = FALSE)
+r17c2_r2_tag_fixture <- raw_registry
+r17c2_r2_tag_fixture$resources <- lapply(r17c2_r2_tag_fixture$resources, function(record) {
+  if (identical(record$publication_state, "published")) {
+    old_tags <- r17c2_r2_information_tags[[record$id]]
+    record$information_type_tags <- if (is.null(old_tags)) list() else old_tags
+  }
+  record
+})
+assert_identical(r17c2_semantic_hash(r17c2_r2_tag_fixture),
+  "f6b7bdf4247074bf1e94d20fccced084bf82631175455ad3b68d925406131c09",
+  "R17C2 Resource records, order, exact URL/role tuples or aliases differ from the approved L082-inclusive proposal")
+# Delivery-only corrections: retain IEM and the six conservative radar/QPE classes.
+# Invert only the six classes and IEM's two approved fields for the unchanged
+# historical fingerprint. Current assertions and Guide/Ops parity use real source.
+r17c2_prior_relationships <- raw_relationship_registry
+r17c2_provider_radar_qpe <- c("ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
+  "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_7day")
+for (id in r17c2_provider_radar_qpe) {
+  index <- match(id, relationship_product_ids)
+  assert_true(!is.na(index), paste("Missing exact radar/QPE Product", id))
+  current <- raw_relationship_registry$products[[index]]
+  assert_identical(current$delivery_class, "provider_hosted", paste("Conservative class changed", id))
+  assert_identical(current$resource_links, list(), paste("Unlinked Product acquired a Resource", id))
+  r17c2_prior_relationships$products[[index]]$delivery_class <- "brim_enhanced"
+}
+r17c2_iem_index <- match("ops_radar_iem_nexrad", relationship_product_ids)
+r17c2_iem <- r17c2_prior_relationships$products[[r17c2_iem_index]]
+r17c2_iem_prior_refs <- as.list(c(
+  "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+  "03_functions/leaflet_ops_live_service_helpers.r",
+  "00_config/guide_product_enrichment.json",
+  "03_functions/leaflet_guide_helpers.r", "qa/test_guide_foundation.R"
+))
+assert_identical(r17c2_iem$delivery_class, "provider_hosted", "IEM delivery correction changed")
+assert_identical(r17c2_iem$delivery_evidence_refs, c(r17c2_iem_prior_refs,
+  list("03_functions/leaflet_ops_live_arcgis_export_helpers.r")),
+  "IEM correction must retain prior references and add only the actual WMS owner")
+r17c2_prior_relationships$products[[r17c2_iem_index]]$delivery_class <- "brim_enhanced"
+r17c2_prior_relationships$products[[r17c2_iem_index]]$delivery_evidence_refs <- r17c2_iem_prior_refs
+assert_identical(r17c2_semantic_hash(r17c2_prior_relationships),
+  "dbe05be2a6f20df2fda21100204d67161c943d6d32bab2878e41df1c96d1695d",
+  "R17C2 exact Product/Resource review or link proposal changed")
+assert_identical(c(length(registry), length(published)), c(233L, 228L), "Current R17C2 Resource counts changed")
+r17c2_new_ids <- c("resource_dwr_sgma_water_year_type_dataset", "resource_smud_upper_american_river_project_conditions", "resource_sjrrp_friant_releases_and_allocations", "resource_sonoma_water_russian_river_operating_conditions", "resource_usbr_stanislaus_watershed_team", "resource_trrp_flows_and_releases", "resource_sce_flow_and_reservoir_portal", "resource_sce_big_creek_project", "resource_google_deepmind_weather_lab", "resource_california_environmental_flows_framework", "resource_california_natural_flows", "resource_uswfs_public_information", "resource_inciweb_incident_information", "resource_nifc_public_fire_information", "resource_northern_california_fire_coordination", "resource_southern_california_fire_coordination", "resource_blm_maps_and_geospatial_data", "resource_blm_california_wildfire_dashboard_public")
+assert_identical(vapply(raw_registry$resources[216:233], `[[`, character(1), "id"), r17c2_new_ids,
+                 "All eighteen selected additions must remain in exact order")
+r17c2_urls <- unlist(lapply(raw_registry$resources, function(r) vapply(r$access_points, `[[`, character(1), "url")), use.names = FALSE)
+r17c2_public_urls <- unlist(lapply(published, function(r) vapply(r$access_points, `[[`, character(1), "url")), use.names = FALSE)
+assert_identical(c(length(r17c2_urls),length(unique(r17c2_urls)),length(r17c2_public_urls),length(unique(r17c2_public_urls))),
+                 c(457L,456L,452L,452L), "Current action rows/unique URLs changed")
+assert_identical(sum(vapply(raw_registry$resources, function(r) sum(lengths(r[c("aliases","migration_aliases","search_aliases")])), integer(1))),
+                 690L, "Current alias namespace occurrence count changed")
+r17c2_dashboard_id <- "resource_blm_california_wildfire_dashboard_public"
+r17c2_dashboard <- Filter(function(r) identical(r$id,r17c2_dashboard_id),raw_registry$resources)[[1L]]
+assert_identical(r17c2_dashboard$canonical_url,
+  "https://nifc.maps.arcgis.com/apps/dashboards/1c4565c092da44478befc12722cf0486#", "L082 exact fragment-bearing destination changed")
+assert_identical(length(r17c2_dashboard$access_points),1L,"L082 must have one action")
+r17c2_links <- unlist(lapply(relationship_registry$products, `[[`, "resource_links"),recursive=FALSE)
+assert_identical(length(r17c2_links),121L,"Current exact links changed")
+assert_true(!any(vapply(r17c2_links,function(l) identical(l$resource_id,r17c2_dashboard_id),logical(1))),"L082 acquired an unsupported Product relationship")
+r17c2_blm_products <- c("EXT131", "EXT133", "EXT132", "EXT134", "EXT135", "EXT136", "EXT097", "EXT098", "EXT099", "EXT100", "EXT138", "EXT137", "EXT145", "EXT146", "EXT147", "EXT148", "EXT149", "EXT150", "EXT116", "EXT117", "EXT103", "EXT104", "WSR_BLM_CA_CORRIDORS", "WSR_BLM_CA_LINES", "tool_blm_sma_context")
+assert_identical(vapply(Filter(function(p) any(vapply(p$resource_links,function(l) {
+  identical(l$resource_id,"resource_blm_maps_and_geospatial_data") && identical(l$relationship_role,"source_reference")
+},logical(1))),raw_relationship_registry$products),`[[`,character(1),"product_id"),r17c2_blm_products,
+"The exact 25 BLM source-reference Product set/order changed")
+
+# Frozen C1 regressions remain independent of the larger current catalog.
+# Git is already required by the tracked-evidence validator and provider suite.
+r17c2_c1_fixture <- function(path, sha256) {
+  lines <- system2("git", c("show", paste0("d102565a7fe2025ce47f00b0cdc994ea9238bb59:", path)),
+                   stdout = TRUE, stderr = FALSE)
+  assert_true(is.null(attr(lines, "status")), "Cannot read the pinned C1 historical fixture")
+  fixture <- tempfile("r17c2-c1-", fileext = ".json")
+  writeLines(lines, fixture, useBytes = TRUE)
+  assert_identical(digest::digest(file = fixture, algo = "sha256"), sha256,
+                   paste("Pinned C1 fixture bytes changed:", path))
+  fixture
+}
+
+# All following C1 and older golden/negative fixtures use these explicit frozen
+# input paths. The source helpers and tracked evidence root remain the current W.
+registry_path <- r17c2_c1_fixture("00_config/guide_resources.json", "ac2931bb473928f93400293cbfdcbd6f8d473fc997f7e7de75c8f3052518ae54")
+relationship_registry_path <- r17c2_c1_fixture("00_config/guide_product_resource_relationships.json", "0324bcd7f284bcd2382b032b64ee3e1127da739a86238d10e3910f09759435dc")
+raw_registry <- jsonlite::fromJSON(registry_path,simplifyVector=FALSE)
+registry <- pt_guide_read_resource_registry(registry_path)
+published <- pt_guide_resource_published_records(registry)
+raw_relationship_registry <- jsonlite::fromJSON(relationship_registry_path,simplifyVector=FALSE)
+relationship_registry <- pt_guide_read_product_resource_relationship_registry(relationship_product_ids,registry,relationship_registry_path)
+# Preserve every staged record, original link, source value and prior alias.
+assert_identical(Filter(function(r) identical(r$publication_state,"staged"),r17c2_current_raw$resources),
+                 Filter(function(r) identical(r$publication_state,"staged"),raw_registry$resources),"A staged record changed")
+for(i in seq_along(raw_relationship_registry$products)) {
+  old <- raw_relationship_registry$products[[i]]; current <- r17c2_current_relationships$products[[i]]
+  assert_identical(current$product_id,old$product_id,"Product identity/order changed")
+  assert_identical(current$resource_links[seq_along(old$resource_links)],old$resource_links,"An original Product link changed")
+  # Compare the six-class and IEM inverse with C1; their current corrected
+  # fields were asserted above, and every other Product retains the old class.
+  assert_identical(r17c2_prior_relationships$products[[i]]$delivery_class,
+                   old$delivery_class,"Product delivery classification changed")
+}
+for(i in seq_along(raw_registry$resources)) for(k in c("aliases","migration_aliases","search_aliases")) {
+  old <- raw_registry$resources[[i]]; current <- r17c2_current_raw$resources[[i]]
+  assert_identical(current$id,old$id,"Prior Resource identity/order changed")
+  assert_identical(current[[k]][seq_along(old[[k]])],old[[k]],"A prior alias changed or reordered")
+}
+cnrfc_old <- Filter(function(r) identical(r$id,"resource_noaa_cnrfc"),raw_registry$resources)[[1L]]
+cnrfc_current <- Filter(function(r) identical(r$id,"resource_noaa_cnrfc"),r17c2_current_raw$resources)[[1L]]
+assert_identical(cnrfc_current$access_points[1:23],cnrfc_old$access_points,"C1 CNRFC actions/labels changed")
+assert_identical(length(cnrfc_current$access_points),24L,"Current CNRFC must have exactly 24 actions")
+
 # R17C1 fixtures: the exact bounded delta from accepted R17B. Historical
 # snapshots below reverse only this delta; the real registry reader above and
 # every negative fixture still use the actual worktree and tracked-path policy.
@@ -178,12 +300,35 @@ assert_identical(length(unique(a5_public_urls)), 376L, "A5 public action URLs ar
 r17c1_intake <- jsonlite::fromJSON(
   file.path("08_docs", "catalog", "BRIM_RESOURCE_INTAKE_LEDGER.json"), simplifyVector = FALSE
 )
+
+c2_amendment <- r17c1_intake$amendments[[2L]]
+assert_identical(c2_amendment$amendment_id,"BRIM-R17C2-I1-COMBINED-01","C2 ledger amendment identity changed")
+assert_identical(c2_amendment$ledger_role,"DOCUMENTATION_ONLY","C2 ledger became a runtime catalog")
+assert_identical(unname(vapply(c("watch_disposition_delta","child_dispositions","metadata_dispositions",
+  "related_work_dispositions","product_dispositions"),function(k) length(c2_amendment[[k]]),integer(1))),
+  c(129L,305L,22L,11L,270L),"C2 disposition coverage is incomplete")
+assert_identical(c2_amendment$product_disposition_counts$DEFERRED_OUTSIDE_SELECTED_FAMILIES,151L,
+  "Deferred Product metadata was incorrectly treated as complete")
+assert_identical(c2_amendment$preserve$dependency_holds,45L,"A housekeeping hold was released")
+assert_true(!c2_amendment$candidate_accepted && is.null(c2_amendment$accepted_sha) &&
+  is.null(c2_amendment$accepted_tree) && is.null(c2_amendment$PR) && is.null(c2_amendment$implemented_date),
+  "C2 implementation was confused with visual/release acceptance")
+assert_identical(length(Filter(function(r) identical(r$watch_id,"L082"),c2_amendment$watch_disposition_delta)),1L,
+  "L082 watch item was duplicated")
+assert_identical(c2_amendment$L082_provenance$prior_sealed_disposition$state,"HELD_EVIDENCE",
+  "L082 sealed historical hold was overwritten")
+frozen_intake <- jsonlite::fromJSON(r17c2_c1_fixture("08_docs/catalog/BRIM_RESOURCE_INTAKE_LEDGER.json",
+  "a8957f1bfeb0f4b54740962618252643bb48218b42482067cdd82b13bf203546"),simplifyVector=FALSE)
+prior_intake <- r17c1_intake
+prior_intake$amendments <- prior_intake$amendments[1L]
+assert_identical(prior_intake,frozen_intake,"C2 changed an original ledger entry, child, or A5 amendment")
+
 a5_original_intake <- r17c1_intake
 a5_original_intake$amendments <- NULL
 assert_identical(r17c1_hash(a5_original_intake),
   "46ce17e8fe7f0bd4dc075d99b6c0725b60257ba2b814352eb55392697df061c2",
   "A5 changed the original 97-row ledger or its historical semantics")
-assert_identical(length(r17c1_intake$amendments), 1L, "A5 must append exactly one documentation amendment")
+assert_identical(length(r17c1_intake$amendments), 2L, "C1 A5 and C2 must each have one documentation amendment")
 a5_amendment <- r17c1_intake$amendments[[1]]
 assert_identical(a5_amendment$amendment_id, "BRIM-R17C1-A5", "A5 amendment identity changed")
 assert_identical(a5_amendment$ledger_role, "DOCUMENTATION_ONLY", "A5 amendment became runtime input")
@@ -2262,7 +2407,8 @@ assert_one_staged_resource_projection <- function(fixture, expected_count, label
                    paste(label, "fixture changed beyond the one publication state"))
 }
 assert_one_staged_resource_projection(r17c1_r17b_raw, 206L, "Historical R17B")
-assert_one_staged_resource_projection(fresh_registry(), 210L, "Current C1")
+assert_one_staged_resource_projection(fresh_registry(), 210L, "Historical C1")
+assert_one_staged_resource_projection(r17c2_current_raw, 228L, "Current R17C2")
 bad <- fresh_registry()
 bad$resources[[1]]$canonical_url <- "https://localhost/private"
 bad$resources[[1]]$access_points[[1]]$url <- "https://localhost/private"
@@ -2527,10 +2673,11 @@ assert_true(!grepl("temporary_r12a_legacy_public_projection", relationship_json,
                    fixed = TRUE),
             "A temporary R12A compatibility object remains in canonical authority")
 
-cat("GUIDE-I2B-R17C1 CNRFC/WPC and A1 contracts passed.\n")
+cat("R17C2 current authority and frozen C1/CNRFC/WPC/A1 contracts passed.\n")
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_BEGIN\n")
 cat("RESOURCE_SCHEMA_VERSION=3\n")
 cat("RELATIONSHIP_SCHEMA_VERSION=2\n")
-cat("TOTAL_RESOURCES=215\n")
+cat("HISTORICAL_C1_TOTAL_RESOURCES=215\n")
 cat("PUBLISHED_RESOURCES=210\n")
 cat("STAGED_RESOURCES=5\n")
 cat("R16B_CANONICAL_ADDITIONS=13\n")
@@ -2586,3 +2733,6 @@ cat("ALL_RESOURCE_REPRESENTATIONS=3_DIRECT,24_SELECTED,183_NOT_MAPPED,5_NOT_REVI
 cat("LEGACY_PUBLIC_PROJECTIONS=0\n")
 cat("SYNTHETIC_TIMBER_ONBOARDING=PASS\n")
 cat("R12B_ADAPTER_REMOVED=PASS\n")
+
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_END\n")
+cat("CURRENT_R17C2=233_TOTAL,228_PUBLIC,5_STAGED;LINKS=121;ACTIONS=457_ROWS,456_DISTINCT;PUBLIC_ACTIONS=452;ALIASES=690\n")

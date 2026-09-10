@@ -107,7 +107,10 @@
       "subject_tags": [
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -144,7 +147,10 @@
       "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Static Reference"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -183,7 +189,10 @@
       "temporal_character": "static_reference",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -222,7 +231,10 @@
       "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -261,7 +273,9 @@
       "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -302,7 +316,10 @@
       "temporal_character": "current_or_near_real_time",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -343,7 +360,10 @@
       "temporal_character": "mixed",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -418,7 +438,8 @@
         "Weather & Forecasts"
       ],
       "information_type_tags": [
-        "Live Observation"
+        "Live Observation",
+        "Tool / Workflow"
       ],
       "variables": [
         "satellite imagery",
@@ -490,7 +511,8 @@
         "Weather & Forecasts"
       ],
       "information_type_tags": [
-        "Live Observation"
+        "Live Observation",
+        "Tool / Workflow"
       ],
       "variables": [
         "GOES imagery",
@@ -558,7 +580,8 @@
       ],
       "information_type_tags": [
         "Live Observation",
-        "Historical Context"
+        "Historical Context",
+        "Tool / Workflow"
       ],
       "variables": [
         "satellite imagery",
@@ -623,7 +646,8 @@
       ],
       "information_type_tags": [
         "Historical Context",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "precipitation",
@@ -833,7 +857,7 @@
       ],
       "information_type_tags": [
         "Historical Context",
-        "Live Observation"
+        "Screening / Derived"
       ],
       "variables": [
         "surface soil moisture",
@@ -967,7 +991,8 @@
       ],
       "information_type_tags": [
         "Live Observation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "volumetric surface soil moisture",
@@ -1036,9 +1061,10 @@
         "Climate & Drought"
       ],
       "information_type_tags": [
-        "Live Observation",
         "Historical Context",
-        "Forecast / Outlook"
+        "Forecast / Outlook",
+        "Model / Simulation",
+        "Screening / Derived"
       ],
       "variables": [
         "soil moisture content",
@@ -1110,7 +1136,8 @@
       ],
       "information_type_tags": [
         "Model / Simulation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "root-zone soil moisture percentile",
@@ -1176,7 +1203,8 @@
         "Soil Moisture"
       ],
       "information_type_tags": [
-        "Static Reference"
+        "Static Reference",
+        "Tool / Workflow"
       ],
       "variables": [
         "soil-moisture stations",
@@ -1246,7 +1274,8 @@
         "Climate & Drought"
       ],
       "information_type_tags": [
-        "Live Observation"
+        "Live Observation",
+        "Tool / Workflow"
       ],
       "variables": [
         "soil water content",
@@ -1522,7 +1551,8 @@
       ],
       "information_type_tags": [
         "Historical Context",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "terrestrial-water-storage anomaly",
@@ -1603,7 +1633,8 @@
         "Model / Simulation",
         "Forecast / Outlook",
         "Screening / Derived",
-        "Historical Context"
+        "Historical Context",
+        "Tool / Workflow"
       ],
       "variables": [
         "groundwater percentile",
@@ -1682,7 +1713,8 @@
       ],
       "information_type_tags": [
         "Model / Simulation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "groundwater wetness percentile",
@@ -1826,7 +1858,8 @@
       ],
       "information_type_tags": [
         "Live Observation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "SMAP soil moisture",
@@ -1897,7 +1930,8 @@
       "information_type_tags": [
         "Live Observation",
         "Historical Context",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Tool / Workflow"
       ],
       "variables": [
         "NDVI",
@@ -1966,8 +2000,9 @@
         "Climate & Drought"
       ],
       "information_type_tags": [
-        "Live Observation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Historical Context",
+        "Tool / Workflow"
       ],
       "variables": [
         "quick drought response index",
@@ -2039,8 +2074,9 @@
         "Climate & Drought"
       ],
       "information_type_tags": [
-        "Live Observation",
-        "Screening / Derived"
+        "Screening / Derived",
+        "Historical Context",
+        "Tool / Workflow"
       ],
       "variables": [
         "vegetation drought response index",
@@ -2095,7 +2131,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "snow depth",
         "snow water equivalent"
@@ -2157,7 +2196,11 @@
       "subject_tags": [
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "groundwater level",
         "well infrastructure",
@@ -2222,7 +2265,10 @@
         "Snow & SWE",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "reservoir storage",
@@ -2285,7 +2331,9 @@
       "subject_tags": [
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context"
+      ],
       "variables": [
         "groundwater elevation"
       ],
@@ -2325,7 +2373,22 @@
       "id": "resource_dwr_cdec",
       "aliases": [],
       "migration_aliases": [],
-      "search_aliases": [],
+      "search_aliases": [
+        "CDEC WYT",
+        "DWR water year types",
+        "Sacramento San Joaquin year types",
+        "WSI",
+        "40-30-30",
+        "60-20-20",
+        "SRI",
+        "SJI",
+        "WSIHIST",
+        "Historical Water Supply Indices",
+        "Reconstructed water year type",
+        "B120",
+        "Bulletin 120",
+        "DWR water supply forecast"
+      ],
       "order": 38,
       "title": "California Data Exchange Center (CDEC)",
       "providers": [
@@ -2334,7 +2397,7 @@
           "role": "display_provider"
         }
       ],
-      "summary": "Primary California hydrologic data portal for precipitation, river stage and flow, reservoirs, snow, forecasts, and water quality.",
+      "summary": "Primary California hydrologic data portal for precipitation, river stage and flow, reservoirs, snow, forecasts, and water quality. Water Supply Index forecasts, historical reconstructed indices, and Bulletin 120 have distinct methods and time references; use the linked source for the stated water year.",
       "canonical_url": "https://cdec.water.ca.gov/",
       "access_points": [
         {
@@ -2351,6 +2414,31 @@
           "role": "configured_view",
           "label": "CDEC Monthly Full Natural Flow Summary",
           "url": "https://cdec.water.ca.gov/reportapp/javareports?name=FNFSUM"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Water Year Type Dataset",
+          "url": "https://data.ca.gov/dataset/cdec-water-year-type-dataset"
+        },
+        {
+          "role": "configured_view",
+          "label": "Alternate CNRA catalog address",
+          "url": "https://data.cnra.ca.gov/dataset/cdec-water-year-type-dataset"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Water Supply Index Forecasts — Sacramento and San Joaquin Valleys",
+          "url": "https://cdec.water.ca.gov/reportapp/javareports?name=WSI"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Water Supply Indices — Historical Reconstructed Report",
+          "url": "https://cdec.water.ca.gov/reportapp/javareports?name=WSIHIST"
+        },
+        {
+          "role": "configured_view",
+          "label": "CDEC Bulletin 120 — Water Supply Forecasts and Archive",
+          "url": "https://cdec.water.ca.gov/snow/bulletin120/"
         }
       ],
       "resource_type": "data_portal_or_catalog",
@@ -2363,7 +2451,12 @@
         "Weather & Forecasts",
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Historical Context",
+        "Screening / Derived"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -2424,7 +2517,11 @@
       "subject_tags": [
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Screening / Derived"
+      ],
       "variables": [
         "evapotranspiration",
         "weather",
@@ -2486,7 +2583,9 @@
       "subject_tags": [
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "agency records",
         "basin coverage"
@@ -2548,7 +2647,9 @@
         "Groundwater",
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context"
+      ],
       "variables": [
         "groundwater level",
         "water quality"
@@ -2613,7 +2714,10 @@
       "subject_tags": [
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "cyanobacteria index",
         "cyanobacteria abundance",
@@ -2676,7 +2780,10 @@
       "subject_tags": [
         "Soil Moisture"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "in-situ soil moisture",
         "station metadata",
@@ -2733,7 +2840,11 @@
         "Geology & Geophysics",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "InSAR displacement",
         "line-of-sight displacement",
@@ -2789,7 +2900,10 @@
       "subject_tags": [
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "cyanobacteria",
         "Sentinel-2 imagery"
@@ -2841,7 +2955,10 @@
       "subject_tags": [
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "land surface temperature",
         "evapotranspiration",
@@ -2893,7 +3010,10 @@
       "subject_tags": [
         "Fire & Burn Areas"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "active fire detections",
         "thermal anomalies",
@@ -3006,7 +3126,10 @@
         "Soil Moisture",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Screening / Derived"
+      ],
       "variables": [
         "soil moisture percentile",
         "runoff",
@@ -3047,13 +3170,18 @@
           "role": "display_provider"
         }
       ],
-      "summary": "Earthdata collection for OPERA analysis-ready products, including surface water extent, surface displacement, and land disturbance.",
+      "summary": "Earthdata collection for OPERA analysis-ready products, including surface water extent, surface displacement, and land disturbance. The Surface Disturbance (DIST) suite identifies changes from historical surface conditions; disturbance products are not authoritative fire perimeters.",
       "canonical_url": "https://www.earthdata.nasa.gov/data/projects/opera",
       "access_points": [
         {
           "role": "canonical",
           "label": "NASA OPERA Products",
           "url": "https://www.earthdata.nasa.gov/data/projects/opera"
+        },
+        {
+          "role": "configured_view",
+          "label": "Surface Disturbance (DIST) Product Suite",
+          "url": "https://www.jpl.nasa.gov/go/opera/products/dist-product-suite/"
         }
       ],
       "resource_type": "dataset_or_collection",
@@ -3063,7 +3191,10 @@
         "Surface Water",
         "Geology & Geophysics"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Static Reference"
+      ],
       "variables": [
         "dynamic surface water extent",
         "surface displacement",
@@ -3118,7 +3249,11 @@
         "Water Quality",
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "chlorophyll-a",
         "total suspended solids",
@@ -3170,7 +3305,10 @@
       "subject_tags": [
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "river water surface elevation",
         "lake water surface elevation",
@@ -3544,7 +3682,12 @@
         "CNRFC Forcing CSV",
         "Short-range hourly deterministic CSV",
         "Long-range daily ensemble CSV",
-        "CNRFC Data Archive"
+        "CNRFC Data Archive",
+        "SACC0",
+        "CNRFC WRI",
+        "Sacramento Valley Water Resources Index",
+        "Full natural flow",
+        "FNF"
       ],
       "order": 54,
       "title": "California-Nevada River Forecast Center",
@@ -3554,7 +3697,7 @@
           "role": "display_provider"
         }
       ],
-      "summary": "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada. Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network.",
+      "summary": "Operational river, reservoir-inflow, precipitation, temperature, freezing-level, and short- to long-term water-supply forecasting for California and Nevada. Selected shortcuts include full natural flow (FNF) water-year trend plots for named forecast points; use the Water Resources map for the wider network. The SACC0 tabular shortcut is explicitly dated WY2026 forecast information, not a categorical water-year classification.",
       "canonical_url": "https://www.cnrfc.noaa.gov/",
       "access_points": [
         {
@@ -3671,6 +3814,11 @@
           "role": "archive",
           "label": "CNRFC Data Archive",
           "url": "https://www.cnrfc.noaa.gov/arc_search.php"
+        },
+        {
+          "role": "archive",
+          "label": "CNRFC Sacramento Valley Water Resources Index — WY2026 Forecast View",
+          "url": "https://www.cnrfc.noaa.gov/ensembleProductTabular.php?id=SACC0&prodID=9&year=2026"
         }
       ],
       "resource_type": "program_or_mission",
@@ -3682,7 +3830,11 @@
         "Precipitation",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation",
+        "Historical Context"
+      ],
       "variables": [
         "river forecast",
         "QPF",
@@ -3745,7 +3897,9 @@
         "Surface Water",
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "ocean color",
         "chlorophyll-a",
@@ -3800,7 +3954,10 @@
       "subject_tags": [
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Tool / Workflow"
+      ],
       "variables": [
         "gridded satellite data",
         "tabular ocean data"
@@ -3856,7 +4013,9 @@
         "Weather & Forecasts",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
       "variables": [
         "precipitation outlook",
         "temperature outlook"
@@ -3916,7 +4075,9 @@
         "Weather & Forecasts",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook"
+      ],
       "variables": [
         "precipitation forecast"
       ],
@@ -3980,7 +4141,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Forecast / Outlook"
+      ],
       "variables": [
         "snow and climate data"
       ],
@@ -4045,7 +4209,10 @@
         "Weather & Forecasts",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook"
+      ],
       "variables": [
         "snow water equivalent",
         "precipitation",
@@ -4170,7 +4337,11 @@
         "Soil Moisture",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "monthly soil moisture",
         "ESA CCI soil moisture"
@@ -4222,7 +4393,9 @@
         "Surface Water",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
       "variables": [
         "time-series water data"
       ],
@@ -4467,7 +4640,10 @@
       "subject_tags": [
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
       "variables": [
         "groundwater level"
       ],
@@ -4525,7 +4701,9 @@
       "subject_tags": [
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "streams",
         "waterbodies",
@@ -4591,7 +4769,10 @@
       "subject_tags": [
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "watershed characteristics",
         "flow statistics"
@@ -4712,7 +4893,12 @@
         "Groundwater",
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow",
+        "External On-Demand Service"
+      ],
       "variables": [
         "streamflow",
         "stage",
@@ -4908,7 +5094,9 @@
         "Climate & Drought",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "water management plan"
       ],
@@ -4969,7 +5157,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "QPF",
         "temperature",
@@ -5091,7 +5282,9 @@
         "Ecology & Habitat",
         "Water Rights"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "bacteria",
         "advisory"
@@ -5152,7 +5345,10 @@
         "Soil Moisture",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived"
+      ],
       "variables": [
         "monthly soil moisture",
         "soil moisture climatology"
@@ -5182,22 +5378,24 @@
       "migration_aliases": [
         "res.usgs.usgs-water-services-apis.service"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "USGS Water Services APIs"
+      ],
       "order": 79,
-      "title": "USGS Water Services APIs",
+      "title": "USGS Water Data APIs",
       "providers": [
         {
           "name": "U.S. Geological Survey",
           "role": "display_provider"
         }
       ],
-      "summary": "Machine-readable instantaneous, daily, groundwater, and site web services.",
-      "canonical_url": "https://waterservices.usgs.gov/",
+      "summary": "USGS Water Data APIs provide machine-readable water information with documentation and query tools for monitoring locations and observations. Consult endpoint documentation for access requirements and available data.",
+      "canonical_url": "https://api.waterdata.usgs.gov/",
       "access_points": [
         {
           "role": "canonical",
-          "label": "USGS Water Services APIs",
-          "url": "https://waterservices.usgs.gov/"
+          "label": "USGS Water Data APIs",
+          "url": "https://api.waterdata.usgs.gov/"
         }
       ],
       "resource_type": "data_service_or_api",
@@ -5208,7 +5406,10 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Tool / Workflow"
+      ],
       "variables": [
         "streamflow",
         "stage",
@@ -5236,7 +5437,7 @@
       "public_source_references": [
         {
           "role": "official_source",
-          "url": "https://waterservices.usgs.gov/"
+          "url": "https://api.waterdata.usgs.gov/"
         }
       ],
       "publication_state": "published"
@@ -5332,7 +5533,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "snow water equivalent",
         "precipitation",
@@ -5566,7 +5770,11 @@
         "Precipitation",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "reservoir elevation",
         "storage",
@@ -5628,7 +5836,10 @@
       "subject_tags": [
         "Soil Moisture"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
       "variables": [
         "surface soil moisture",
         "relative water content"
@@ -5683,7 +5894,9 @@
       "subject_tags": [
         "Soil Moisture"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "SMAP soil moisture",
         "MODIS vegetation indices"
@@ -5739,7 +5952,10 @@
         "Groundwater",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "groundwater level",
         "subsidence",
@@ -5805,7 +6021,9 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service"
+      ],
       "variables": [
         "weather observations"
       ],
@@ -5865,7 +6083,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "reservoir storage forecast"
       ],
@@ -5926,7 +6147,9 @@
         "Climate & Drought",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "climate",
         "drought",
@@ -6109,7 +6332,11 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "flood hazard"
       ],
@@ -6172,7 +6399,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Static Reference"
+      ],
       "variables": [
         "snow energy balance"
       ],
@@ -6245,7 +6475,9 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "operations criteria",
         "biological opinion"
@@ -6310,7 +6542,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "river operations",
         "water rights agreement"
@@ -6376,7 +6610,9 @@
         "Surface Water",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "Earth-observation indicators",
         "surface water",
@@ -6410,7 +6646,9 @@
         "res.ccvfca.california-central-valley-flood-control-association-membership.collection"
       ],
       "search_aliases": [
-        "CCVFCA"
+        "CCVFCA",
+        "nonprofit",
+        "NGO"
       ],
       "order": 96,
       "title": "California Central Valley Flood Control Association Membership",
@@ -6433,7 +6671,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "collection",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "levees",
         "flood protection",
@@ -6496,7 +6736,9 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "water supply",
         "environmental flow"
@@ -6558,7 +6800,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "QPF",
         "snow",
@@ -6620,7 +6865,10 @@
         "Ecology & Habitat",
         "Water Rights"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "assessment unit",
         "discharger",
@@ -6684,7 +6932,9 @@
         "Soil Moisture",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context"
+      ],
       "variables": [
         "surface soil moisture",
         "soil moisture climate data record"
@@ -6741,7 +6991,10 @@
         "Weather & Forecasts",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Screening / Derived"
+      ],
       "variables": [
         "snow level",
         "radar reflectivity"
@@ -6804,7 +7057,10 @@
         "Snow & SWE",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage"
@@ -6930,7 +7186,10 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "groundwater production",
         "water level"
@@ -6988,7 +7247,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "QPF",
         "snow",
@@ -7051,7 +7313,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "precipitation",
@@ -7174,7 +7438,9 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "snow datasets"
       ],
@@ -7235,7 +7501,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Screening / Derived"
+      ],
       "variables": [
         "flood hazard"
       ],
@@ -7301,7 +7570,10 @@
         "Snow & SWE",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation"
       ],
@@ -7364,7 +7636,10 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "groundwater production",
         "water level"
@@ -7397,7 +7672,10 @@
       "migration_aliases": [
         "res.agricultural-water-and-evapotranspiratio.openet-data-explorer.viewer"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "nonprofit",
+        "NGO"
+      ],
       "order": 112,
       "title": "OpenET Data Explorer",
       "providers": [
@@ -7422,7 +7700,12 @@
         "Climate & Drought",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Historical Context",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "evapotranspiration"
       ],
@@ -7484,7 +7767,9 @@
         "Infrastructure & Conveyance",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "coastal inundation"
       ],
@@ -7545,7 +7830,10 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "groundwater production",
         "water rights"
@@ -7603,7 +7891,12 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Model / Simulation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "wind",
         "precipitation",
@@ -7667,7 +7960,10 @@
         "Snow & SWE",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage"
@@ -7731,7 +8027,9 @@
         "Soil Moisture",
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context"
+      ],
       "variables": [
         "surface soil moisture",
         "root-zone soil moisture",
@@ -7789,7 +8087,9 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "snow water equivalent"
       ],
@@ -7849,7 +8149,9 @@
         "Infrastructure & Conveyance",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "flood response"
       ],
@@ -7912,7 +8214,10 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "groundwater production",
         "water rights"
@@ -7948,7 +8253,9 @@
       "search_aliases": [
         "CoCoRaHS",
         "cocorahs.org",
-        "CoCoRaHS - Community Collaborative Rain, Hail & Snow Network"
+        "CoCoRaHS - Community Collaborative Rain, Hail & Snow Network",
+        "nonprofit",
+        "NGO"
       ],
       "order": 121,
       "title": "CoCoRaHS",
@@ -7975,7 +8282,10 @@
         "Climate & Drought",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "snowfall",
@@ -8035,7 +8345,12 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "snow water equivalent",
         "snow cover"
@@ -8216,7 +8531,10 @@
         "Surface Water",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "water control data"
       ],
@@ -8338,7 +8656,9 @@
         "Infrastructure & Conveyance",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "environmental flow",
         "habitat"
@@ -8396,7 +8716,9 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context"
+      ],
       "variables": [
         "snowfall",
         "snow depth",
@@ -8463,7 +8785,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "release",
@@ -8528,7 +8852,10 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Tool / Workflow"
+      ],
       "variables": [
         "site metadata"
       ],
@@ -8596,7 +8923,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -8661,7 +8990,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "streamflow",
         "reservoir operations"
@@ -8729,7 +9061,12 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Model / Simulation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "snow water equivalent",
         "snowpack"
@@ -8859,7 +9196,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "reservoir storage",
         "local supply"
@@ -8923,7 +9262,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -8992,7 +9333,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "stream stage",
         "reservoir level",
@@ -9057,7 +9401,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
       "variables": [
         "precipitation",
         "reservoir level",
@@ -9119,7 +9466,10 @@
       "subject_tags": [
         "Soil Moisture"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Screening / Derived"
+      ],
       "variables": [
         "soil water index",
         "profile wetness",
@@ -9178,7 +9528,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "streamflow",
         "reservoir conditions"
@@ -9243,7 +9595,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "hydrology",
         "water quality"
@@ -9307,7 +9661,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "reservoir level",
         "streamflow"
@@ -9372,7 +9729,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
       "variables": [
         "precipitation",
         "temperature"
@@ -9438,7 +9798,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir level",
         "river conditions",
@@ -9508,7 +9870,10 @@
         "Snow & SWE",
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context"
+      ],
       "variables": [
         "precipitation"
       ],
@@ -9627,7 +9992,9 @@
         "Surface Water",
         "Water Quality"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "satellite data access tools"
       ],
@@ -9754,7 +10121,10 @@
       "subject_tags": [
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -9819,7 +10189,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "streamflow",
         "project operations"
@@ -9884,7 +10256,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "water level"
@@ -9948,7 +10322,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "streamflow",
         "reservoir level"
@@ -10010,7 +10386,9 @@
       "subject_tags": [
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -10066,7 +10444,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "viewer",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -10129,7 +10509,9 @@
       "subject_tags": [
         "Precipitation"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage",
@@ -10188,7 +10570,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Tool / Workflow"
+      ],
       "variables": [
         "soil properties"
       ],
@@ -10307,7 +10692,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "levees",
         "flood protection",
@@ -10370,7 +10757,9 @@
         "Ecology & Habitat",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "surface water quality",
         "chemistry",
@@ -10431,7 +10820,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "levees",
         "flood protection",
@@ -10491,7 +10882,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "unknown",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "levees",
         "flood protection",
@@ -10549,7 +10942,9 @@
       "temporal_character": "unknown",
       "resource_granularity": "collection",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "levees",
         "flood protection",
@@ -10610,7 +11005,10 @@
         "Groundwater",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "land use",
         "crop type"
@@ -10738,7 +11136,11 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "vertical profile"
       ],
@@ -10823,7 +11225,11 @@
         "Precipitation",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "reservoir conditions",
         "streamflow",
@@ -10886,7 +11292,11 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "coastal inundation"
       ],
@@ -11082,7 +11492,9 @@
         "Surface Water",
         "Geology & Geophysics"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "satellite imagery",
         "Sentinel-1 SAR",
@@ -11151,7 +11563,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "snowfall forecast"
       ],
@@ -11209,7 +11624,10 @@
       "subject_tags": [
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Static Reference"
+      ],
       "variables": [
         "observations",
         "forecasts"
@@ -11268,7 +11686,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "weather",
         "precipitation",
@@ -11329,7 +11750,10 @@
         "Ecology & Habitat",
         "Water Rights"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "impairment",
         "monitoring"
@@ -11396,7 +11820,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "streamflow",
         "water accounting"
@@ -11434,7 +11860,10 @@
       "migration_aliases": [
         "res.agricultural-water-and-evapotranspiratio.openet.platform"
       ],
-      "search_aliases": [],
+      "search_aliases": [
+        "nonprofit",
+        "NGO"
+      ],
       "order": 176,
       "title": "OpenET",
       "providers": [
@@ -11459,7 +11888,13 @@
         "Climate & Drought",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Historical Context",
+        "Screening / Derived",
+        "External On-Demand Service",
+        "Tool / Workflow"
+      ],
       "variables": [
         "evapotranspiration"
       ],
@@ -11523,7 +11958,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "temperature",
@@ -11585,7 +12023,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "precipitation"
@@ -11649,7 +12089,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "water production"
@@ -11711,7 +12153,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "snow depth",
         "snow water equivalent",
@@ -11773,7 +12218,9 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "elevation"
       ],
@@ -11836,7 +12283,9 @@
         "Weather & Forecasts",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [
         "station metadata"
       ],
@@ -12152,7 +12601,12 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Static Reference",
+        "Screening / Derived"
+      ],
       "variables": [
         "reservoir storage",
         "release",
@@ -12276,7 +12730,10 @@
         "Ecology & Habitat",
         "Groundwater"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "system status",
         "risk indicators"
@@ -12402,7 +12859,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "precipitation",
         "stream stage"
@@ -12493,7 +12953,12 @@
         "Climate & Drought",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "reservoir elevation",
         "storage",
@@ -12557,7 +13022,9 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation"
+      ],
       "variables": [
         "reservoir storage",
         "elevation",
@@ -12725,7 +13192,12 @@
         "Climate & Drought",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [
         "reservoir storage",
         "inflow",
@@ -12793,7 +13265,9 @@
         "Groundwater",
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "GRACE land data",
         "river-basin averages",
@@ -12850,7 +13324,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "snow water equivalent",
         "precipitation"
@@ -12915,7 +13392,10 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "weather",
         "wind",
@@ -12975,7 +13455,10 @@
         "Snow & SWE",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [
         "snow level",
         "soil moisture",
@@ -13040,7 +13523,10 @@
         "Groundwater",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "elevation",
         "topography"
@@ -13106,7 +13592,10 @@
         "Weather & Forecasts",
         "Snow & SWE"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "station metadata"
       ],
@@ -13166,7 +13655,10 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow"
+      ],
       "variables": [
         "elevation",
         "hydrography"
@@ -13229,7 +13721,11 @@
         "Ecology & Habitat",
         "Water Rights"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [
         "permit",
         "discharge",
@@ -13310,7 +13806,11 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference",
+        "Screening / Derived"
+      ],
       "variables": [
         "impairment",
         "water quality standard"
@@ -13368,7 +13868,11 @@
         "Climate & Drought",
         "Weather & Forecasts"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Screening / Derived"
+      ],
       "variables": [
         "drought",
         "streamflow",
@@ -13437,7 +13941,11 @@
         "Weather & Forecasts",
         "Climate & Drought"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Model / Simulation"
+      ],
       "variables": [
         "weather observations",
         "model guidance"
@@ -13514,7 +14022,9 @@
         "Climate & Drought",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "basin operations",
         "operating policy",
@@ -13595,7 +14105,10 @@
         "Water Rights",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Static Reference"
+      ],
       "variables": [
         "project allocation",
         "reservoir operations",
@@ -13673,7 +14186,9 @@
         "Water Quality",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "river operations",
         "water rights agreement"
@@ -13762,7 +14277,12 @@
         "Surface Water",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow",
+        "External On-Demand Service"
+      ],
       "variables": [
         "reservoir operations",
         "hydrometeorology"
@@ -13839,7 +14359,9 @@
         "Water Rights",
         "Ecology & Habitat"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Static Reference"
+      ],
       "variables": [
         "allocation",
         "water supply",
@@ -13923,7 +14445,11 @@
         "Weather & Forecasts",
         "Infrastructure & Conveyance"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow"
+      ],
       "variables": [
         "reservoir storage",
         "streamflow",
@@ -14009,7 +14535,11 @@
         "Weather & Forecasts",
         "Surface Water"
       ],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Screening / Derived"
+      ],
       "variables": [
         "weather",
         "crop evapotranspiration"
@@ -14064,7 +14594,10 @@
       "temporal_character": "historical_archive",
       "resource_granularity": "collection",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14118,7 +14651,10 @@
       "temporal_character": "forecast",
       "resource_granularity": "viewer",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Tool / Workflow"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14162,7 +14698,11 @@
       "temporal_character": "forecast",
       "resource_granularity": "viewer",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Live Observation",
+        "Tool / Workflow"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14204,7 +14744,10 @@
       "temporal_character": "mixed",
       "resource_granularity": "platform",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Screening / Derived",
+        "Tool / Workflow"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14251,7 +14794,9 @@
       "temporal_character": "mixed",
       "resource_granularity": "platform",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14308,7 +14853,10 @@
       "temporal_character": "forecast",
       "resource_granularity": "product",
       "subject_tags": [],
-      "information_type_tags": [],
+      "information_type_tags": [
+        "Forecast / Outlook",
+        "Screening / Derived"
+      ],
       "variables": [],
       "use_scopes": [],
       "geographic_scope": {
@@ -14322,6 +14870,1245 @@
         {
           "role": "official_source",
           "url": "https://www.wpc.ncep.noaa.gov/#page=ero"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_dwr_sgma_water_year_type_dataset",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "SGMA WYT",
+        "HUC8 water year type",
+        "groundwater water year classification",
+        "DWR groundwater data tools",
+        "SGMA data and tools"
+      ],
+      "order": 216,
+      "title": "SGMA Water Year Type Dataset — HUC-8 Watersheds",
+      "providers": [
+        {
+          "name": "California Department of Water Resources",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Precipitation-based historical water-year classifications for 98 HUC-8 watersheds outside the Sacramento and San Joaquin hydrologic regions. These SGMA classes have a different method and geography from CDEC runoff-based indices; they are not current operating declarations.",
+      "canonical_url": "https://data.cnra.ca.gov/dataset/sgma-water-year-type-dataset",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "SGMA Water Year Type Dataset — HUC-8 Watersheds",
+          "url": "https://data.cnra.ca.gov/dataset/sgma-water-year-type-dataset"
+        },
+        {
+          "role": "archive",
+          "label": "Older experimental catalog mirror",
+          "url": "https://lab.data.ca.gov/dataset/sustainable-groundwater-management-act-sgma-water-year-type-dataset"
+        },
+        {
+          "role": "configured_view",
+          "label": "DWR Groundwater Management — Data and Tools",
+          "url": "https://water.ca.gov/programs/groundwater-management/data-and-tools"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "dataset",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Historical Context",
+        "Screening / Derived"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://data.cnra.ca.gov/dataset/sgma-water-year-type-dataset"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_smud_upper_american_river_project_conditions",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "UARP",
+        "Upper American River Project",
+        "SMUD water year type"
+      ],
+      "order": 217,
+      "title": "SMUD Upper American River Project — Water Year Type and Conditions",
+      "providers": [
+        {
+          "name": "Sacramento Municipal Utility District",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "SMUD Upper American River Project streamflow and reservoir conditions, with a seasonal water-year-type document. Project operating definitions and Folsom forecast unimpaired inflow are context-specific; they are not a statewide or Sacramento Valley year-type index.",
+      "canonical_url": "https://www.smud.org/In-Our-Community/Visit-our-Recreational-Areas/UARP-Stream-Flow-and-Reservoir-Conditions",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "SMUD Upper American River Project — Water Year Type and Conditions",
+          "url": "https://www.smud.org/In-Our-Community/Visit-our-Recreational-Areas/UARP-Stream-Flow-and-Reservoir-Conditions"
+        },
+        {
+          "role": "configured_view",
+          "label": "Bulletin 120 Water Year Type (seasonally replaced PDF)",
+          "url": "https://www.smud.org/-/media/Documents/In-Our-Community/Recreational-Areas/UARP/WaterYearType.ashx"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Static Reference",
+        "Screening / Derived"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Upper American River",
+          "Crystal Basin"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.smud.org/In-Our-Community/Visit-our-Recreational-Areas/UARP-Stream-Flow-and-Reservoir-Conditions"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_sjrrp_friant_releases_and_allocations",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "SJRRP restoration allocation",
+        "Friant restoration year type",
+        "Restoration Year Type",
+        "Friant releases",
+        "Restoration Flows"
+      ],
+      "order": 218,
+      "title": "SJRRP — Friant Dam Releases",
+      "providers": [
+        {
+          "name": "San Joaquin River Restoration Program",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "San Joaquin River Restoration Program Friant release information and dated restoration allocations. The WY2026 schedule is a fixed-year reference; restoration allocation definitions are specific to this program and are not generic basin classifications.",
+      "canonical_url": "https://restoresjr.net/flows/friant-dam-releases/",
+      "access_points": [
+        {
+          "role": "archive",
+          "label": "SJRRP — Final Restoration Allocation and Default Flow Schedule, WY2026",
+          "url": "https://restoresjr.net/wp-content/uploads/2026/05/20260515-SJRRP-Restoration-Allocation-Final_508ADA_mf.pdf"
+        },
+        {
+          "role": "canonical",
+          "label": "SJRRP — Friant Dam Releases",
+          "url": "https://restoresjr.net/flows/friant-dam-releases/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "San Joaquin River",
+          "Friant Dam"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://restoresjr.net/flows/friant-dam-releases/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_sonoma_water_russian_river_operating_conditions",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "Russian River water supply condition",
+        "TUCP",
+        "Temporary Urgency Change Petition",
+        "Decision 1610",
+        "D-1610"
+      ],
+      "order": 219,
+      "title": "Sonoma Water — Russian River Temporary Urgency Change Petitions",
+      "providers": [
+        {
+          "name": "Sonoma Water",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Sonoma Water collection of Russian River Temporary Urgency Change Petitions, orders, and supporting reports. A petition or proposed change is not an adopted operating rule; consult the applicable approved order and effective period.",
+      "canonical_url": "https://www.sonomawater.org/tucp",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Sonoma Water — Russian River Temporary Urgency Change Petitions",
+          "url": "https://www.sonomawater.org/tucp"
+        }
+      ],
+      "resource_type": "report_or_publication",
+      "temporal_character": "mixed",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Russian River"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.sonomawater.org/tucp"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_usbr_stanislaus_watershed_team",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "Stanislaus Watershed Team",
+        "SWT",
+        "New Melones Stepped Release Plan",
+        "SRP"
+      ],
+      "order": 220,
+      "title": "Reclamation — Stanislaus Watershed Team and New Melones Operations",
+      "providers": [
+        {
+          "name": "Bureau of Reclamation",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Reclamation Stanislaus Watershed Team information for New Melones operations and coordination. Annual reports and release definitions apply to their stated water year and operating context, rather than a generic water-supply index.",
+      "canonical_url": "https://www.usbr.gov/mp/bdo/stanislaus-watershed-team.html",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Reclamation — Stanislaus Watershed Team and New Melones Operations",
+          "url": "https://www.usbr.gov/mp/bdo/stanislaus-watershed-team.html"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Historical Context",
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Stanislaus River",
+          "New Melones"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.usbr.gov/mp/bdo/stanislaus-watershed-team.html"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_trrp_flows_and_releases",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "River Riffle April 2026",
+        "Trinity 2026 flows",
+        "Trinity year types",
+        "TRRP typical releases",
+        "Trinity restoration allocations",
+        "TRRP Current Flows",
+        "Trinity release schedule"
+      ],
+      "order": 221,
+      "title": "Trinity River Restoration Program — Flows and Releases",
+      "providers": [
+        {
+          "name": "Trinity River Restoration Program",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Trinity River Restoration Program release information, typical release methods, and dated seasonal notices. Program-specific water-year classes inform restoration releases; a dated notice does not describe the current water year indefinitely.",
+      "canonical_url": "https://www.trrp.net/restoration/flows/current/",
+      "access_points": [
+        {
+          "role": "archive",
+          "label": "Trinity River Restoration Program — April 2026 Water-Year Notice",
+          "url": "https://www.trrp.net/river-riffle-apr26/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Trinity River Restoration Program — Water-Year Classes and Typical Releases",
+          "url": "https://www.trrp.net/restoration/flows/typical-releases/"
+        },
+        {
+          "role": "canonical",
+          "label": "Trinity River Restoration Program — Current Flows and Releases",
+          "url": "https://www.trrp.net/restoration/flows/current/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Trinity River"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.trrp.net/restoration/flows/current/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_sce_flow_and_reservoir_portal",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "SCE",
+        "Southern California Edison",
+        "KISTERS",
+        "Big Creek flows",
+        "Big Creek No. 4",
+        "Redinger",
+        "Kerckhoff",
+        "Horseshoe Bend",
+        "San Joaquin River above Willow Creek",
+        "11242000",
+        "hydrograph",
+        "time series downloader",
+        "Willow Creek At Mouth",
+        "11246500",
+        "discharge XLS",
+        "San Joaquin",
+        "Dreamflows"
+      ],
+      "order": 222,
+      "title": "SCE Flow & Reservoir Elevation Data — Big Creek / Upper San Joaquin",
+      "providers": [
+        {
+          "name": "Southern California Edison",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "SCE Big Creek and Upper San Joaquin flow and reservoir observations on a KISTERS-hosted portal. Values are provisional. Willow Creek at Mouth (11246500) is distinct from San Joaquin River Above Willow Creek (11242000). Export links retain their exact case; units, time zone, latency, and API stability are not asserted. Dreamflows is a secondary comparison.",
+      "canonical_url": "https://www2.kisters.net/SCEPublic/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "SCE Flow & Reservoir Elevation Data — Big Creek / Upper San Joaquin",
+          "url": "https://www2.kisters.net/SCEPublic/"
+        },
+        {
+          "role": "configured_view",
+          "label": "SCE Willow Creek at Mouth — Station 11246500",
+          "url": "https://www2.kisters.net/SCEpublic/stations/11246500/station.html?v=20170525132150"
+        },
+        {
+          "role": "configured_view",
+          "label": "Year-window 15-minute discharge XLS",
+          "url": "https://www2.kisters.net/SCEpublic/stations/11246500/Parameter/Q/High%20Res%20Discharge%20data%20year.xls"
+        },
+        {
+          "role": "configured_view",
+          "label": "Year-window daily-mean discharge XLS",
+          "url": "https://www2.kisters.net/SCEpublic/stations/11246500/Parameter/Q/DayMean%20Discharge%20data%2C%20year.xls"
+        },
+        {
+          "role": "comparison_viewer",
+          "label": "Dreamflows — San Joaquin below Redinger Lake",
+          "url": "https://www.dreamflows.com/graphs/day.097.php"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "current_or_near_real_time",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Historical Context",
+        "Tool / Workflow"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Upper San Joaquin River",
+          "Big Creek"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www2.kisters.net/SCEPublic/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_sce_big_creek_project",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "Big Creek",
+        "Big Creek Watershed",
+        "SCE",
+        "Southern California Edison",
+        "hydroelectric project"
+      ],
+      "order": 223,
+      "title": "SCE Big Creek Hydroelectric Project — Overview",
+      "providers": [
+        {
+          "name": "Southern California Edison",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "SCE overview of the Big Creek hydroelectric project. This is project background, not a live operating rule, release schedule, or substitute for site-specific flow and recreation-safety information.",
+      "canonical_url": "https://www.sce.com/about-sce/community/camp-edison/big-creek",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "SCE Big Creek Hydroelectric Project — Overview",
+          "url": "https://www.sce.com/about-sce/community/camp-edison/big-creek"
+        }
+      ],
+      "resource_type": "program_or_mission",
+      "temporal_character": "static_reference",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Climate & Drought"
+      ],
+      "information_type_tags": [
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California",
+          "Big Creek"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.sce.com/about-sce/community/camp-edison/big-creek"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_google_deepmind_weather_lab",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "Weather Lab"
+      ],
+      "order": 224,
+      "title": "Google DeepMind Weather Lab",
+      "providers": [
+        {
+          "name": "Google DeepMind",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Experimental weather-model research and visualization from Google DeepMind. Access may require a Google account. Research outputs are experimental and should not be treated as operational forecasts.",
+      "canonical_url": "https://deepmind.google.com/science/weatherlab",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Weather Lab — experimental; sign-in may be required",
+          "url": "https://deepmind.google.com/science/weatherlab"
+        }
+      ],
+      "resource_type": "viewer_or_explorer",
+      "temporal_character": "forecast",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Weather & Forecasts"
+      ],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Forecast / Outlook",
+        "Tool / Workflow"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "global",
+        "names": [
+          "Global"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://deepmind.google/science/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_california_environmental_flows_framework",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "CEFF"
+      ],
+      "order": 225,
+      "title": "California Environmental Flows Framework",
+      "providers": [
+        {
+          "name": "California Environmental Flows Framework Technical Team",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Technical framework and tools for developing environmental-flow recommendations in California. Functional-flow methods support assessment and guidance; the framework does not itself establish site-specific legal or operating requirements.",
+      "canonical_url": "https://ceff.ucdavis.edu/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Environmental Flows Framework",
+          "url": "https://ceff.ucdavis.edu/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Tools and Products",
+          "url": "https://ceff.ucdavis.edu/tools-products"
+        },
+        {
+          "role": "configured_view",
+          "label": "Functional Flows Calculator",
+          "url": "https://flowcalculator.codefornature.org/"
+        }
+      ],
+      "resource_type": "documentation_or_guide",
+      "temporal_character": "static_reference",
+      "resource_granularity": "program",
+      "subject_tags": [
+        "Surface Water",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Static Reference",
+        "Tool / Workflow",
+        "Screening / Derived"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://ceff.ucdavis.edu/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_california_natural_flows",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "California Natural Flows",
+        "functional flow metrics",
+        "nonprofit",
+        "NGO"
+      ],
+      "order": 226,
+      "title": "California Natural Flows Database",
+      "providers": [
+        {
+          "name": "The Nature Conservancy",
+          "role": "display_provider"
+        },
+        {
+          "name": "U.S. Geological Survey",
+          "role": "partner"
+        }
+      ],
+      "summary": "Modeled natural-streamflow estimates and functional-flow metrics for California reference assessment. Predictions are not streamgage observations or operating rules. Consult the model-specific methods and limitations; the site also distinguishes predictions of existing flow from natural-flow products.",
+      "canonical_url": "https://rivers.codefornature.org/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "California Natural Flows Database",
+          "url": "https://rivers.codefornature.org/"
+        },
+        {
+          "role": "configured_view",
+          "label": "Data, methods and downloads",
+          "url": "https://rivers.codefornature.org/#/data"
+        }
+      ],
+      "resource_type": "dataset_or_collection",
+      "temporal_character": "historical_archive",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Surface Water",
+        "Ecology & Habitat"
+      ],
+      "information_type_tags": [
+        "Model / Simulation",
+        "Historical Context",
+        "Screening / Derived"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://rivers.codefornature.org/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_uswfs_public_information",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "USWFS"
+      ],
+      "order": 227,
+      "title": "U.S. Wildland Fire Service — Public Information",
+      "providers": [
+        {
+          "name": "U.S. Wildland Fire Service",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Public information from the Department of the Interior’s U.S. Wildland Fire Service and its current-wildfire-information referrals. Agency information is distinct from the operators and data owners of linked interagency incident systems.",
+      "canonical_url": "https://www.doi.gov/wildlandfireservice",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "U.S. Wildland Fire Service (USWFS)",
+          "url": "https://www.doi.gov/wildlandfireservice"
+        },
+        {
+          "role": "configured_view",
+          "label": "USWFS — Current Wildfire Information",
+          "url": "https://www.doi.gov/wildlandfireservice/current-wildfire-information"
+        }
+      ],
+      "resource_type": "organization_homepage",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Fire & Burn Areas",
+        "Fire Weather"
+      ],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.doi.gov/wildlandfireservice"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_inciweb_incident_information",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 228,
+      "title": "InciWeb — Incident Information System",
+      "providers": [
+        {
+          "name": "InciWeb — interagency incident information",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Public incident information referred by the U.S. Wildland Fire Service. Incident teams and participating agencies provide incident-specific updates; consult each incident page for its reporting agency and update time.",
+      "canonical_url": "https://inciweb.wildfire.gov/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "InciWeb — Incident Information System",
+          "url": "https://inciweb.wildfire.gov/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Fire & Burn Areas",
+        "Fire Weather"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://inciweb.wildfire.gov/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_nifc_public_fire_information",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 229,
+      "title": "NIFC — Public Fire Information and Preparedness",
+      "providers": [
+        {
+          "name": "National Interagency Fire Center",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "National interagency fire information, situation reports, outlooks, maps, and preparedness-level definitions. The rolling IMSR and linked preparedness pages change over time; no current numeric preparedness level or freshness assertion is stored here.",
+      "canonical_url": "https://www.nifc.gov/fire-information",
+      "access_points": [
+        {
+          "role": "configured_view",
+          "label": "National Fire News",
+          "url": "https://www.nifc.gov/fire-information/nfn"
+        },
+        {
+          "role": "configured_view",
+          "label": "Incident Management Situation Report (IMSR)",
+          "url": "https://www.nifc.gov/nicc/sitreprt.pdf"
+        },
+        {
+          "role": "configured_view",
+          "label": "NICC Fire Potential Outlooks",
+          "url": "https://www.nifc.gov/nicc/predictive-services/outlooks"
+        },
+        {
+          "role": "configured_view",
+          "label": "NIFC Maps",
+          "url": "https://www.nifc.gov/fire-information/maps"
+        },
+        {
+          "role": "configured_view",
+          "label": "National and Geographic Area Preparedness Levels — NICC",
+          "url": "https://www.nifc.gov/nicc"
+        },
+        {
+          "role": "canonical",
+          "label": "National Preparedness Level Definitions",
+          "url": "https://www.nifc.gov/fire-information"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Fire & Burn Areas",
+        "Fire Weather"
+      ],
+      "information_type_tags": [
+        "Live Observation",
+        "Forecast / Outlook",
+        "Static Reference"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.nifc.gov/fire-information"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_northern_california_fire_coordination",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 230,
+      "title": "Northern California Fire Coordination — ONCC",
+      "providers": [
+        {
+          "name": "Northern California Geographic Area Coordination Center",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Northern California geographic-area fire coordination and preparedness information. Geographic-area preparedness levels have their own scope and update cycle; consult the source for its dated status.",
+      "canonical_url": "https://gacc.nifc.gov/oncc/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Northern California Fire Coordination and Preparedness — ONCC",
+          "url": "https://gacc.nifc.gov/oncc/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Fire & Burn Areas",
+        "Fire Weather"
+      ],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "regional",
+        "names": [
+          "California",
+          "Northern California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://gacc.nifc.gov/oncc/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_southern_california_fire_coordination",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 231,
+      "title": "Southern California Fire Coordination — OSCC",
+      "providers": [
+        {
+          "name": "Southern California Geographic Area Coordination Center",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Southern California geographic-area fire coordination and preparedness information. Geographic-area preparedness levels are separate from national and Northern California levels; consult the source for its dated status.",
+      "canonical_url": "https://gacc.nifc.gov/oscc/",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Southern California Fire Coordination and Preparedness — OSCC",
+          "url": "https://gacc.nifc.gov/oscc/"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "platform",
+      "subject_tags": [
+        "Fire & Burn Areas",
+        "Fire Weather"
+      ],
+      "information_type_tags": [],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "regional",
+        "names": [
+          "California",
+          "Southern California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://gacc.nifc.gov/oscc/"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_blm_maps_and_geospatial_data",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [
+        "BLM National Data Viewer",
+        "BLM Geospatial Business Platform",
+        "BLM GBP"
+      ],
+      "order": 232,
+      "title": "BLM Maps and Geospatial Data",
+      "providers": [
+        {
+          "name": "Bureau of Land Management",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Official BLM map discovery and geospatial sources, with exact service links for selected BRIM Products. The national viewer, Hub, and separate source services have different contents; a source link does not assert that every layer appears in every viewer. Land-status and PLSS services are reference context, not parcel ownership or a legal survey.",
+      "canonical_url": "https://www.blm.gov/maps",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "BLM Maps — Official Discovery Entry",
+          "url": "https://www.blm.gov/maps"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM National Data Viewer",
+          "url": "https://experience.arcgis.com/experience/9a89ee80c604431e8f8d939a186fbdbb"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM Geospatial Business Platform Hub",
+          "url": "https://gbp-blm-egis.hub.arcgis.com/"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM California Frequently Requested Maps",
+          "url": "https://www.blm.gov/maps/frequently-requested/california"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM Web App Gallery",
+          "url": "https://www.blm.gov/services/geospatial/web-app-viewer"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM Recreation Opportunities",
+          "url": "https://webmaps.blm.gov/program_apps/BLM_Natl_Recreation_Opportunities/"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM California Fire Restrictions / Public Fire Information",
+          "url": "https://www.blm.gov/programs/fire/regional-info/california/fire-restrictions"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM GIS Data — official metadata source",
+          "url": "https://www.blm.gov/services/geospatial/GISData"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP ACEC polygons — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP Development Focus Areas — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/2"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP National Conservation Lands — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/1"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP general public lands — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/3"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP recreation management areas — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/4"
+        },
+        {
+          "role": "configured_view",
+          "label": "DRECP wildlife allocation polygons — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_CA_DRECP_ROD/FeatureServer/5"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM AIM LMF Hub — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_Natl_AIM_LMF_Hub/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM AIM Lotic Indicators — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_Natl_AIM_Lotic_Indicators_Hub/FeatureServer/5"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM AIM TerrADat — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_Natl_AIM_TerrADat_Hub/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM AIM Terrestrial Species Indicators — source service",
+          "url": "https://services1.arcgis.com/KbxwQRRfWyEYLgp4/arcgis/rest/services/BLM_Natl_AIM_Terrestrial_Species_Indicators_Public/FeatureServer/6"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM renewable energy ROW | preliminary — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/RenewableEnergy/BLM_CA_Renewable_Energy_Projects/FeatureServer/1"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM renewable energy ROW | verified — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/RenewableEnergy/BLM_CA_Renewable_Energy_Projects/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "Mining claims | BLM MLRS | active — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/Mining_Claims/MiningClaims/MapServer/1"
+        },
+        {
+          "role": "configured_view",
+          "label": "Mining claims | BLM MLRS | closed / inactive — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/Mining_Claims/MiningClaims/MapServer/2"
+        },
+        {
+          "role": "configured_view",
+          "label": "Oil & gas leases | BLM MLRS — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/HUB/BLM_Natl_MLRS_Oil_and_Gas_Leases/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "Geothermal leases | BLM MLRS — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/HUB/BLM_Natl_MLRS_Geothermal_Leases/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "Locatable notices / plans | BLM MLRS — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/HUB/BLM_Natl_MLRS_Locatable_Notices/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "Saleable materials | BLM MLRS — source service",
+          "url": "https://gis.blm.gov/nlsdb/rest/services/HUB/BLM_Natl_MLRS_Mineral_Materials/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM CA Land Status / Surface Management Agency — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/lands/BLM_CA_LandStatus_SurfaceManagementAgency/MapServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM CA recreation sites — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/Recreation/BLM_CA_RECS/FeatureServer/0"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM CA recreation areas — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/Recreation/BLM_CA_RECS/FeatureServer/1"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM National PLSS / CadNSDI — source service",
+          "url": "https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer"
+        },
+        {
+          "role": "configured_view",
+          "label": "BLM-CA PLSS Aliquots / Sections — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/lands/BLM_CA_CADNSDI/MapServer"
+        },
+        {
+          "role": "configured_view",
+          "label": "Wild & Scenic River corridors | BLM-CA — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/NCL/BLM_CA_WildandScenicRivers/FeatureServer/1"
+        },
+        {
+          "role": "configured_view",
+          "label": "Wild & Scenic River lines | BLM-CA — source service",
+          "url": "https://gis.blm.gov/caarcgis/rest/services/NCL/BLM_CA_WildandScenicRivers/FeatureServer/0"
+        }
+      ],
+      "resource_type": "data_portal_or_catalog",
+      "temporal_character": "mixed",
+      "resource_granularity": "collection",
+      "subject_tags": [
+        "Land Ownership & Administration",
+        "Conservation Lands & Designations",
+        "Energy & Minerals"
+      ],
+      "information_type_tags": [
+        "External On-Demand Service",
+        "Static Reference",
+        "Tool / Workflow"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "national",
+        "names": [
+          "United States"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.blm.gov/maps"
+        }
+      ],
+      "publication_state": "published"
+    },
+    {
+      "id": "resource_blm_california_wildfire_dashboard_public",
+      "aliases": [],
+      "migration_aliases": [],
+      "search_aliases": [],
+      "order": 233,
+      "title": "BLM California Wildfire Dashboard (Public)",
+      "providers": [
+        {
+          "name": "Bureau of Land Management",
+          "role": "display_provider"
+        }
+      ],
+      "summary": "Public California wildfire dashboard linked by BLM for fire-restriction information, hosted on NIFC's ArcGIS site. Consult current BLM notices and displayed source dates for interpretation; no update frequency or completeness guarantee is asserted here.",
+      "canonical_url": "https://nifc.maps.arcgis.com/apps/dashboards/1c4565c092da44478befc12722cf0486#",
+      "access_points": [
+        {
+          "role": "canonical",
+          "label": "Open BLM California Wildfire Dashboard",
+          "url": "https://nifc.maps.arcgis.com/apps/dashboards/1c4565c092da44478befc12722cf0486#"
+        }
+      ],
+      "resource_type": "dashboard",
+      "temporal_character": "unknown",
+      "resource_granularity": "dashboard",
+      "subject_tags": [
+        "Fire & Burn Areas"
+      ],
+      "information_type_tags": [
+        "Tool / Workflow"
+      ],
+      "variables": [],
+      "use_scopes": [],
+      "geographic_scope": {
+        "scope_type": "state",
+        "names": [
+          "California"
+        ]
+      },
+      "access_class": "public",
+      "public_source_references": [
+        {
+          "role": "official_source",
+          "url": "https://www.blm.gov/press-release/blm-reminds-visitors-recreate-responsibly-recreate-safely-and-enjoy-your-public-lands"
         }
       ],
       "publication_state": "published"

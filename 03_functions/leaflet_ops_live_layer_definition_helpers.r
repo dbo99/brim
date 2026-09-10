@@ -156,6 +156,68 @@ pt_ops_live_layer_definition_js <- function() {
   // Layer definitions
   // --------------------------------------------------------------------------
   var opsLayers = [];
+
+  // The R seam joins stable IDs to authored Guide delivery classes once per build.
+  // Optional/malformed browser metadata never changes operational availability.
+  function ptOpsDeliveryRows(value) {
+    if (!Array.isArray(value)) return [];
+    var ids = Object.create(null), tokens = Object.create(null);
+    var classes = ['brim_managed', 'brim_enhanced', 'provider_hosted', 'not_applicable'];
+    var unsafe = ['__proto__', 'prototype', 'constructor', 'toString', 'hasOwnProperty'];
+    for (var i = 0; i < value.length; i++) {
+      var row = value[i];
+      if (!row || typeof row !== 'object' || Array.isArray(row)) return [];
+      for (var j = 0; j < 3; j++) {
+        var key = ['stable_id', 'source_token', 'delivery_class'][j];
+        if (!Object.prototype.hasOwnProperty.call(row, key) || typeof row[key] !== 'string' || !row[key].trim()) return [];
+      }
+      if (unsafe.indexOf(row.stable_id) >= 0 || unsafe.indexOf(row.source_token) >= 0 ||
+          ids[row.stable_id] || tokens[row.source_token] || classes.indexOf(row.delivery_class) < 0) return [];
+      ids[row.stable_id] = true; tokens[row.source_token] = true;
+    }
+    return value;
+  }
+  var ptOpsDeliveryProjection = ptOpsDeliveryRows(typeof OPS_DELIVERY_PROJECTION === 'undefined' ? null : OPS_DELIVERY_PROJECTION);
+
+  function ptOpsDeliveryForName(name) {
+    var match = null;
+    for (var i = 0; i < ptOpsDeliveryProjection.length; i++) {
+      var row = ptOpsDeliveryProjection[i], runtimeName = row.source_token;
+      // Resolve at registration: these existing constants initialize in later modules.
+      switch (runtimeName) {
+        case 'PT_ASOS_WIND_LAYER_NAME': runtimeName = typeof PT_ASOS_WIND_LAYER_NAME === 'string' ? PT_ASOS_WIND_LAYER_NAME : null; break;
+        case 'PT_SNOW_PRODUCT_NAME': runtimeName = typeof PT_SNOW_PRODUCT_NAME === 'string' ? PT_SNOW_PRODUCT_NAME : null; break;
+        case 'PT_QPF_PRODUCT_NAME': runtimeName = typeof PT_QPF_PRODUCT_NAME === 'string' ? PT_QPF_PRODUCT_NAME : null; break;
+        case 'PT_ACCUM_PRODUCT_NAME': runtimeName = typeof PT_ACCUM_PRODUCT_NAME === 'string' ? PT_ACCUM_PRODUCT_NAME : null; break;
+      }
+      if (typeof name === 'string' && runtimeName === name) {
+        if (match) return null; // Ambiguous runtime names cannot acquire a badge.
+        match = row;
+      }
+    }
+    return match;
+  }
+
+  // Presentation only: exact existing consumers of BRIM-prepared public feeds.
+  // Shared QPF consumers and geographic rows retain their own runtime identities.
+  var ptOpsBrimPreparedNames = {
+    'Reservoirs | storage-centric | CDEC / CNRFC / USACE': true,
+    'CoCoRaHS | CA daily': true,
+    'CoCoRaHS | 50-state daily': true,
+    'Delta ops snapshot | CVP/SWP': true,
+    'Streamflow | USGS | Ca': true,
+    'Groundwater | USGS | Ca/wrnNv/srnOr': true,
+    'Soil moisture | USDA NRCS SCAN | Ca/Nv': true,
+    'Snow pillow SWE | CDEC / USDA NRCS | Ca/Nv/Or': true,
+    'Major Water-Supply Basin Forecasts': true,
+    'Wind flow | NOAA GFS surface': true,
+    'Wind flow | NOAA HRRR surface detail': true,
+    'Wind outlook | NOAA NBM guidance': true,
+    'Observed wind | METAR/ASOS speed + gusts': true,
+    'NBM Snow Levels': true,
+    'NBM 6-Hour QPF': true,
+    'NBM Accumulated QPF (0–10 d)': true
+  };
   
   function ptOpsNormalizePrimaryPanel(value) {
     var panel = String(value || '')
@@ -186,6 +248,14 @@ pt_ops_live_layer_definition_js <- function() {
   function addOpsLayer(def) {
     if (def && def.catalogSourceDisplayName && ptOpsCatalogSourceDisabled(def.catalogSourceDisplayName)) {
       return;
+    }
+    if (def && Object.prototype.hasOwnProperty.call(ptOpsBrimPreparedNames, def.name)) {
+      def.brimPrepared = true;
+    }
+    if (def) {
+      var delivery = ptOpsDeliveryForName(def.name);
+      def.guideProductId = delivery ? delivery.stable_id : null;
+      def.deliveryClass = delivery ? delivery.delivery_class : null;
     }
     opsLayers.push(def);
   }
@@ -659,6 +729,7 @@ pt_ops_live_layer_definition_js <- function() {
       category: 'Forecasts / Outlooks',
       subgroup: 'NWS / CNRFC / WRH sites & product links',
       name: 'CNRFC forecast points | river/reservoir',
+      panelLabel: 'CNRFC river/reservoir forecast points',
       sourceUrl: 'https://www.cnrfc.noaa.gov/',
       infoUrl: 'https://www.cnrfc.noaa.gov/',
       infoLabel: 'CNRFC',
@@ -679,7 +750,8 @@ pt_ops_live_layer_definition_js <- function() {
       category: 'Forecasts / Outlooks',
       subgroup: 'River / Reservoir Forecasts',
       name: 'Major Water-Supply Basin Forecasts',
-      panelLabel: 'Water-Supply Basin Forecasts | CNRFC / CBRFC',
+      panelLabel: 'Water-Supply Basin Forecasts',
+      helperText: 'CNRFC / CBRFC',
       refreshable: true,
       sourceUrl: MAJOR_WATER_SUPPLY_CNRFC_URL,
       infoUrl: MAJOR_WATER_SUPPLY_CBRFC_URL,
@@ -698,6 +770,8 @@ pt_ops_live_layer_definition_js <- function() {
       category: 'Forecasts / Outlooks',
       subgroup: 'River / Reservoir Forecasts',
       name: 'Reservoirs | storage-centric | CDEC / CNRFC / USACE',
+      panelLabel: 'Reservoirs | storage + forecast links',
+      helperText: 'CDEC / CNRFC / USACE',
       sourceUrl: CDEC_RESERVOIR_STORAGE_URL,
       infoUrl: CDEC_RESERVOIR_STORAGE_SUMMARY_URL,
       infoLabel: 'summary',

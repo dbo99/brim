@@ -46,6 +46,13 @@ runtime_groups <- c(
   "Labels: explicit non-Product test"
 )
 
+
+initial_map <- pt_init_map(MAP_DISPLAY)
+assert_identical(MAP_DISPLAY$default_zoom,6.5,"Default zoom must be 6.5")
+assert_identical(initial_map$x$setView,list(c(37.36,-118.73584),6.5,list()),"Actual setView must use the exact approved center and zoom")
+assert_identical(initial_map$x$options$zoomSnap,0.5,"Half-step zoom snap changed")
+assert_identical(initial_map$x$options$zoomDelta,0.5,"Half-step zoom delta changed")
+
 catalog_model <- pt_build_layer_explorer_metadata()
 assert_identical(catalog_model$catalogAuthority, "DESCRIPTIVE_ONLY",
                  "Descriptive catalog authority changed")
@@ -71,6 +78,42 @@ enrichment <- pt_guide_read_product_enrichment()
 raw_resource_registry <- jsonlite::fromJSON(
   file.path("00_config", "guide_resources.json"), simplifyVector = FALSE
 )
+
+# Keep the current compiler result for final payload guards; reconstruct an exact
+# C1 regression bundle separately with the existing supported projection helpers.
+r17c2_current_bundle <- bundle
+assert_identical(bundle$counts$resources,228L,"Current R17C2 public count changed")
+assert_identical(length(resource_registry),233L,"Current R17C2 total count changed")
+assert_identical(sum(vapply(bundle$products,function(p) length(p$relatedResources),integer(1))),121L,
+                 "Current R17C2 compiled forward links changed")
+assert_identical(sum(vapply(bundle$resources,function(r) length(r$representedProducts),integer(1))),121L,
+                 "Current R17C2 compiled reverse links changed")
+
+# Frozen C1 regressions remain independent of the larger current catalog.
+# Git is already required by the tracked-evidence validator and provider suite.
+r17c2_c1_fixture <- function(path, sha256) {
+  lines <- system2("git", c("show", paste0("d102565a7fe2025ce47f00b0cdc994ea9238bb59:", path)),
+                   stdout = TRUE, stderr = FALSE)
+  assert_true(is.null(attr(lines, "status")), "Cannot read the pinned C1 historical fixture")
+  fixture <- tempfile("r17c2-c1-", fileext = ".json")
+  writeLines(lines, fixture, useBytes = TRUE)
+  assert_identical(digest::digest(file = fixture, algo = "sha256"), sha256,
+                   paste("Pinned C1 fixture bytes changed:", path))
+  fixture
+}
+
+resource_registry <- pt_guide_read_resource_registry(r17c2_c1_fixture("00_config/guide_resources.json", "ac2931bb473928f93400293cbfdcbd6f8d473fc997f7e7de75c8f3052518ae54"))
+relationship_registry <- pt_guide_read_product_resource_relationship_registry(product_ids,resource_registry,
+  r17c2_c1_fixture("00_config/guide_product_resource_relationships.json", "0324bcd7f284bcd2382b032b64ee3e1127da739a86238d10e3910f09759435dc"))
+raw_resource_registry <- jsonlite::fromJSON(r17c2_c1_fixture("00_config/guide_resources.json", "ac2931bb473928f93400293cbfdcbd6f8d473fc997f7e7de75c8f3052518ae54"),simplifyVector=FALSE)
+bundle$products <- pt_guide_apply_product_enrichment(bundle$products,enrichment,relationship_registry,
+  resource_registry=resource_registry,product_universe_ids=product_ids)
+c1_resources <- pt_guide_resource_browser_records(pt_guide_resource_published_records(resource_registry),bundle$products,relationship_registry)
+c1_content <- pt_guide_authored_content(c1_resources)
+for (key in names(c1_content)) bundle[[key]] <- c1_content[[key]]
+bundle <- pt_project_guide_bundle(bundle,pt_guide_supported_profiles()$default$excluded_ids,"default")
+pt_validate_guide_bundle(bundle)
+
 # R17C1 fixtures: the exact bounded delta from accepted R17B. Historical
 # snapshots below reverse only this delta; the real registry reader above and
 # every negative fixture still use the actual worktree and tracked-path policy.
@@ -2257,14 +2300,14 @@ assert_true(grepl("pt_build_guide_bundle", map_r, fixed = TRUE) &&
 assert_true(!grepl("\\b276\\b", guide_r, perl = TRUE),
             "Production Guide payload contains a hardcoded fixture count")
 
-payload_bytes <- nchar(jsonlite::toJSON(bundle, auto_unbox = TRUE, null = "null", na = "null"), type = "bytes")
+payload_bytes <- nchar(jsonlite::toJSON(r17c2_current_bundle, auto_unbox = TRUE, null = "null", na = "null"), type = "bytes")
 baseline_payload_bytes <- 313498L
 payload_growth_bytes <- payload_bytes - baseline_payload_bytes
 js_bytes <- file.info(file.path("03_functions", "js", "leaflet_brim_guide.js"))$size
 css_bytes <- file.info(file.path("03_functions", "css", "leaflet_brim_guide.css"))$size
-assert_true(payload_bytes <= 835000L, "R17C1 default Guide payload exceeds hard review threshold")
-assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 521502L,
-            "GUIDE-I2B-R17C1 embedded payload growth exceeds the review threshold")
+assert_true(payload_bytes <= 940000L, "R17C2 default Guide payload exceeds hard review threshold")
+assert_true(payload_growth_bytes >= 0L && payload_growth_bytes <= 626502L,
+            "GUIDE-I2B-R17C2 embedded payload growth exceeds the review threshold")
 assert_true((js_bytes + css_bytes) <= 200000L, "Guide JS + CSS exceeds hard review threshold")
 assert_true(!grepl("/(Users|home|private|tmp|Volumes)/", projected_json, perl = TRUE),
             "Machine-local path leaked into Guide payload")
@@ -2275,7 +2318,8 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
                    ignore.case = TRUE, perl = TRUE),
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
-cat("GUIDE-I2B-R17C1 CNRFC/WPC foundation contracts passed.\n")
+cat("R17C2 current compiler and frozen C1 foundation contracts passed.\n")
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_BEGIN\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
 cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
@@ -2304,6 +2348,7 @@ cat("TEMPORAL_SEARCH_EXCLUSION=PASS\n")
 cat("UNKNOWN_DETAIL_OMISSION_CONTRACT=PASS\n")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_END\nCURRENT_R17C2_RESOURCES=233_TOTAL,228_PUBLIC,5_STAGED;LINKS=121;VIEWS=28,200,228\n")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_GROWTH_BYTES=", payload_growth_bytes, "\n", sep = "")
 cat("GUIDE_JS_BYTES=", js_bytes, "\n", sep = "")
