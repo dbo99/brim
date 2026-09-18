@@ -141,7 +141,7 @@ pt_guide_subject_tags <- function(stable_id, brim_section, source_theme = "") {
     "Soil Moisture" = "ops_scan_soil_moisture",
     "Precipitation" = c(
       "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr", "ops_qpe_mrms_1day",
-      "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_7day",
+      "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_3day", "ops_qpe_rfc_7day",
       "product-ops-cocorahs-ca-daily", "ops_cocorahs_conus_daily", "ops_wpc_qpf_day_1",
       "ops_wpc_qpf_day_2", "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
       "ops_cpc_6_10_precipitation", "ops_cpc_8_14_precipitation",
@@ -150,7 +150,7 @@ pt_guide_subject_tags <- function(stable_id, brim_section, source_theme = "") {
     "Weather & Forecasts" = c(
       "ops_hrrr_surface_wind", "ops_alertcalifornia_cameras", "ops_alertcalifornia_viewsheds",
       "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_goes_geocolor", "ops_goes_infrared",
-      "ops_goes_water_vapor", "ops_modis_terra_true_color", "ops_cnrfc_forecast_points",
+      "ops_viirs_noaa20_true_color", "ops_viirs_noaa21_true_color", "ops_modis_terra_true_color", "ops_cnrfc_forecast_points",
       "ops_major_water_supply_forecasts", "ops_nws_weather_stations", "ops_wpc_qpf_day_1",
       "ops_wpc_qpf_day_2", "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
       "ops_nws_watches_warnings_advisories", "ops_wpc_ero_day_1", "ops_wpc_ero_day_2",
@@ -554,7 +554,12 @@ pt_guide_ops_products <- function(map_display, catalog_markers = list()) {
     if (identical(id, "ops_scan_soil_moisture")) title <- "SCAN Soil Moisture"
     path <- c("Ops Live", definition$category,
               if (nzchar(definition$subgroup)) definition$subgroup, runtime_title)
-    provider <- if (grepl("USGS", title)) {
+    provider <- if (id %in% c("ops_goes_geocolor", "ops_goes_infrared",
+                              "ops_viirs_noaa20_true_color", "ops_viirs_noaa21_true_color")) {
+      "NASA GIBS / NOAA"
+    } else if (identical(id, "ops_modis_terra_true_color")) {
+      "NASA GIBS / MODIS Terra"
+    } else if (grepl("USGS", title)) {
       "U.S. Geological Survey"
     } else if (grepl("USDA|SCAN", title)) {
       "USDA Natural Resources Conservation Service"

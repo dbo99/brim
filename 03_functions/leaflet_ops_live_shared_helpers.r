@@ -577,6 +577,38 @@ pt_ops_live_shared_helpers_js <- function() {
         color: #666;
       }
 
+      /* RFC QPE cards use the shared lower-left gap, overflow and docking owner. */
+      .pt-ops-rfc-qpe-card, .pt-ops-radar-mrms-card {
+        background: rgba(226, 238, 235, 0.98);
+        border: 1px solid rgba(90, 120, 116, 0.55);
+        border-radius: 7px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+        color: #222;
+        font: 11px/1.20 Arial, Helvetica, sans-serif;
+        width: 330px;
+        max-width: calc(100vw - 32px);
+        box-sizing: border-box;
+        padding: 7px 9px;
+        pointer-events: auto;
+      }
+      .pt-ops-rfc-qpe-head, .pt-ops-radar-mrms-head { display: flex; align-items: flex-start; gap: 8px; }
+      .pt-ops-rfc-qpe-head h4, .pt-ops-radar-mrms-head h4 { margin: 0; font-size: 12px; line-height: 1.2; flex: 1; min-width: 0; }
+      .pt-ops-rfc-qpe-period, .pt-ops-rfc-qpe-interval { margin-top: 4px; }
+      .pt-ops-rfc-qpe-units { margin: 5px 0 3px; font-weight: 700; }
+      /* The width cap allows at most two columns, including while floating.
+       * Auto-fit collapses to one column based on card width; DOM stays row-major. */
+      .pt-ops-rfc-qpe-scale { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 125px), 1fr)); grid-auto-flow: row; max-width: 320px; gap: 2px 8px; }
+      .pt-ops-rfc-qpe-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
+      .pt-ops-rfc-qpe-swatch { display: block; flex: 0 0 20px; width: 20px; height: 20px; padding: 2px; box-sizing: border-box; }
+      .pt-ops-rfc-qpe-color { display: block; width: 16px; height: 16px; }
+      .pt-ops-rfc-qpe-label { font-variant-numeric: tabular-nums; }
+      .pt-ops-rfc-qpe-missing { margin-top: 4px; border-top: 1px solid rgba(90, 120, 116, 0.3); padding-top: 3px; }
+      .pt-ops-rfc-qpe-note, .pt-ops-rfc-qpe-method { margin-top: 4px; }
+      .pt-ops-rfc-qpe-card summary, .pt-ops-radar-mrms-card summary { cursor: pointer; }
+      .pt-ops-rfc-qpe-card summary:focus-visible, .pt-ops-radar-mrms-card summary:focus-visible { outline: 2px solid #2e6c89; outline-offset: 2px; }
+
+      .pt-ops-radar-provider-key { display: block; max-width: 100%; height: auto; }
+
       /* Top-left map legend for selected Ops Live layers.  This is separate
        * from the Ops panel's active-overlay notes so users can keep the legend
        * visible while the bottom-right Ops panel is collapsed or scrolled. */
@@ -799,18 +831,86 @@ pt_ops_live_shared_helpers_js <- function() {
       }
 
       /* Compact hover card for WPC QPF polygon/range identify. */
-      .leaflet-tooltip.pt-ops-wpc-qpf-tooltip {
-        background: rgba(255, 255, 255, 0.97);
-        border: 1px solid rgba(0,0,0,0.48);
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        color: #111;
-        padding: 6px 8px;
-        min-width: 420px;
-        max-width: 620px;
-        white-space: normal;
-        pointer-events: none;
-      }
+      .pt-ops-forecast-card {
+      width:340px;
+      max-width:min(360px,calc(100vw - 24px));
+      box-sizing:border-box;
+      padding:10px;
+      border:1px solid #8ba9b8;
+      border-radius:8px;
+      background:rgba(225,240,250,0.98);
+      box-shadow:0 1px 5px rgba(0,0,0,0.22);
+      color:#253943;
+      font:12px/1.35 Arial,sans-serif;
+      white-space:normal;
+      overflow-wrap:anywhere;
+    }
+    .pt-ops-forecast-card .pt-forecast-head {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:8px;
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#e1f0fa;
+      padding-bottom:6px;
+    }
+    .pt-ops-forecast-card .pt-forecast-head h4 { margin:2px 0; font-size:14px; line-height:1.3; flex:1; min-width:0; }
+    .pt-ops-forecast-card .pt-map-card-actions { flex:0 0 auto; margin-left:auto; }
+    .pt-ops-forecast-card .pt-map-card-actions button { min-width:26px; min-height:26px; }
+    .pt-ops-forecast-card button:focus-visible, .pt-ops-forecast-card summary:focus-visible { outline:2px solid #205f91; outline-offset:2px; }
+    .pt-ops-forecast-card .pt-forecast-valid { font-weight:600; margin:2px 0; }
+    .pt-ops-forecast-card .pt-forecast-issued, .pt-ops-forecast-card .pt-forecast-qualification { color:#4b606c; margin:3px 0; }
+    .pt-ops-forecast-card .pt-forecast-scale-title { display:block; margin:8px 0 4px; }
+    .pt-ops-forecast-card .pt-ops-legend-line { display:flex; align-items:center; gap:5px; margin:2px 0; min-width:0; }
+    .pt-ops-forecast-card .pt-ops-swatch { flex:0 0 18px; width:18px; height:12px; box-sizing:border-box; border:1px solid #9babb2; margin:0; }
+    .pt-ops-forecast-card .pt-qpf-contour-zero { display:flex; align-items:center; gap:6px; margin:3px 0 8px; }
+    .pt-ops-forecast-card .pt-qpf-contour-strip { display:flex; gap:0; position:relative; height:16px; margin:22px 0 25px; border:1px solid #809aa8; border-radius:3px; }
+    /* Reserve both label tracks between strips; flex gap cannot collapse. */
+    .pt-ops-forecast-card .pt-qpf-contour-strips { display:flex; flex-direction:column; gap:44px; margin:22px 0 25px; }
+    .pt-ops-forecast-card .pt-qpf-contour-strips > .pt-qpf-contour-strip { margin:0; }
+    .pt-ops-forecast-card .pt-qpf-contour-band { position:relative; flex:1 1 0; min-width:0; }
+    .pt-ops-forecast-card .pt-qpf-contour-cap { position:relative; flex:0 0 8px; }
+    .pt-ops-forecast-card .pt-qpf-contour-end { position:relative; flex:0 0 0; }
+    .pt-ops-forecast-card .pt-qpf-contour-strip .pt-ops-swatch { display:block; width:100%; height:16px; border:0; }
+    .pt-ops-forecast-card .pt-qpf-contour-band:first-child .pt-ops-swatch { border-radius:2px 0 0 2px; }
+    .pt-ops-forecast-card .pt-qpf-boundary-tick { position:absolute; left:0; top:19px; transform:translateX(-50%); color:#253943; font-size:11px; line-height:14px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .pt-ops-forecast-card .pt-qpf-boundary-tick::before { content:""; position:absolute; left:50%; top:-3px; height:3px; border-left:1px solid #506976; }
+    .pt-ops-forecast-card .pt-qpf-contour-band:first-child .pt-qpf-boundary-tick { top:-18px; transform:none; }
+    .pt-ops-forecast-card .pt-qpf-contour-band:first-child .pt-qpf-boundary-tick::before { left:0; top:auto; bottom:-3px; }
+    .pt-ops-forecast-card .pt-qpf-contour-end .pt-qpf-boundary-tick, .pt-ops-forecast-card .pt-qpf-contour-cap .pt-qpf-boundary-tick { top:-18px; transform:translateX(-100%); }
+    .pt-ops-forecast-card .pt-qpf-contour-end .pt-qpf-boundary-tick::before, .pt-ops-forecast-card .pt-qpf-contour-cap .pt-qpf-boundary-tick::before { left:100%; top:auto; bottom:-3px; }
+    .pt-ops-forecast-card .pt-qpf-contour-note { color:#4b606c; font-size:11px; }
+    .pt-ops-forecast-card .pt-forecast-cpc-groups { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,0.85fr) minmax(0,1fr); gap:6px; }
+    .pt-ops-forecast-card .pt-forecast-cpc-group h5 { font-size:12px; line-height:1.3; margin:0 0 5px; }
+    .pt-ops-forecast-card .pt-forecast-cpc-status { display:flex; flex-wrap:wrap; gap:4px 12px; border-top:1px solid #b9cfdc; margin-top:5px; padding-top:3px; }
+    .pt-ops-forecast-card details { border-top:1px solid #b9cfdc; margin-top:7px; padding-top:6px; }
+    .pt-ops-forecast-card summary { cursor:pointer; }
+    .pt-ops-forecast-card details > div { margin:5px 0; }
+    .pt-ops-forecast-card.pt-map-card-undocked { max-height:min(var(--pt-forecast-map-height,calc(100vh - 24px)),calc(100vh - 24px)); overflow-y:auto; }
+    .pt-ops-forecast-card.pt-forecast-narrow .pt-forecast-cpc-groups { grid-template-columns:1fr; }
+    .leaflet-tooltip.pt-ops-wpc-qpf-tooltip {
+      background:rgba(255,255,255,0.98);
+      border:1px solid #9baeb8;
+      border-radius:7px;
+      box-shadow:0 1px 5px rgba(0,0,0,0.23);
+      color:#293f49;
+      box-sizing:border-box;
+      width:max-content;
+      min-width:0;
+      max-width:min(320px,calc(100vw - 24px));
+      padding:8px 10px;
+      font:12px/1.35 Arial,sans-serif;
+      white-space:normal;
+      overflow-wrap:anywhere;
+      pointer-events:none;
+    }
+    .pt-ops-wpc-qpf-tooltip .pt-qpf-hover-title { display:block; font-size:14px; line-height:1.3; margin-bottom:3px; }
+    .pt-ops-wpc-qpf-tooltip .pt-qpf-hover-amount { font-size:16px; font-weight:700; color:#204b39; margin-bottom:3px; }
+    .pt-ops-wpc-qpf-tooltip .pt-qpf-hover-valid { font-weight:600; }
+    .pt-ops-wpc-qpf-tooltip .pt-qpf-hover-utc, .pt-ops-wpc-qpf-tooltip .pt-qpf-hover-basis { color:#5c6e78; }
+
 
       .leaflet-container.pt-ops-wpc-qpf-hover-on,
       .leaflet-container.pt-ops-wpc-qpf-hover-on .leaflet-pane,
@@ -1217,13 +1317,13 @@ pt_ops_live_shared_helpers_js <- function() {
     return true;
   }
 
-  function linkHtml(label, url, titlePrefix) {
+  function linkHtml(label, url, titlePrefix, accessibleLabel) {
     if (!ptOpsShouldDisplayLink(url)) return '';
 
-    var title = (titlePrefix || 'Open link') + ': ' + compactUrlForTitle(url);
+    var title = accessibleLabel || (titlePrefix || 'Open link') + ': ' + compactUrlForTitle(url);
 
     return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener" title="' +
-      escapeHtml(title) + '">' + escapeHtml(ptOpsCompactLinkLabel(label)) + '</a>';
+      escapeHtml(title) + '"' + (accessibleLabel ? ' aria-label="' + escapeHtml(accessibleLabel) + '"' : '') + '>' + escapeHtml(ptOpsCompactLinkLabel(label)) + '</a>';
   }
 
   function infoLabelForDef(def, opts) {
@@ -1231,7 +1331,7 @@ pt_ops_live_shared_helpers_js <- function() {
     opts = opts || {};
 
     if (opts.infoLabel) return ptOpsCompactLinkLabel(opts.infoLabel);
-    if (def.category && String(def.category).toLowerCase().indexOf('satellite') >= 0) return 'guide';
+    if (def.category === 'Satellite / Imagery') return 'info';
 
     return 'info';
   }
@@ -1251,7 +1351,9 @@ pt_ops_live_shared_helpers_js <- function() {
     var infoLabel = opts.infoLabel || def.infoLabel || '';
 
     function pushUnique(label, url, titlePrefix) {
-      var html = linkHtml(label, url, titlePrefix);
+      var satelliteLabel = def.category === 'Satellite / Imagery' ?
+        (label === 'info' ? 'Product information — external' : label === 'srce' ? 'GIS source and service metadata — external' : '') : '';
+      var html = linkHtml(label, url, titlePrefix, satelliteLabel);
       if (!html) return;
 
       var key = String(url || '').trim().toLowerCase() + '|' + ptOpsCompactLinkLabel(label);

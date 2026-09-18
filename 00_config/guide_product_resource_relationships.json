@@ -4824,9 +4824,9 @@
       "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
       "coverage_review_state": "reviewed",
       "coverage_disposition": "selected_product_from_broader_resource",
@@ -4835,7 +4835,7 @@
         "00_config/guide_product_resource_relationships.json",
         "00_config/guide_resources.json",
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r"
       ],
       "resource_links": [
         {
@@ -4844,7 +4844,7 @@
           "evidence_refs": [
             "00_config/guide_resources.json",
             "00_config/guide_product_resource_relationships.json",
-            "03_functions/leaflet_ops_live_service_helpers.r",
+            "03_functions/leaflet_ops_live_helpers.r",
             "03_functions/leaflet_ops_live_layer_definition_helpers.r"
           ]
         }
@@ -4855,9 +4855,9 @@
       "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
       "coverage_review_state": "reviewed",
       "coverage_disposition": "selected_product_from_broader_resource",
@@ -4866,7 +4866,7 @@
         "00_config/guide_product_resource_relationships.json",
         "00_config/guide_resources.json",
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r"
       ],
       "resource_links": [
         {
@@ -4875,51 +4875,50 @@
           "evidence_refs": [
             "00_config/guide_resources.json",
             "00_config/guide_product_resource_relationships.json",
-            "03_functions/leaflet_ops_live_service_helpers.r",
+            "03_functions/leaflet_ops_live_helpers.r",
             "03_functions/leaflet_ops_live_layer_definition_helpers.r"
           ]
         }
       ]
     },
     {
-      "product_id": "ops_goes_water_vapor",
+      "product_id": "ops_viirs_noaa20_true_color",
       "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
-      "coverage_review_state": "reviewed",
-      "coverage_disposition": "selected_product_from_broader_resource",
-      "coverage_evidence_basis": "reviewed_evidence",
-      "coverage_evidence_refs": [
-        "00_config/guide_product_resource_relationships.json",
-        "00_config/guide_resources.json",
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_viirs_noaa21_true_color",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
-      "resource_links": [
-        {
-          "resource_id": "resource_noaa_goes_image_viewer",
-          "relationship_role": "selected_product_from_broader_resource",
-          "evidence_refs": [
-            "00_config/guide_resources.json",
-            "00_config/guide_product_resource_relationships.json",
-            "03_functions/leaflet_ops_live_service_helpers.r",
-            "03_functions/leaflet_ops_live_layer_definition_helpers.r"
-          ]
-        }
-      ]
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
     },
     {
       "product_id": "ops_modis_terra_true_color",
       "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
-        "03_functions/leaflet_ops_live_service_helpers.r",
-        "00_config/guide_product_enrichment.json",
-        "03_functions/leaflet_guide_helpers.r"
+        "03_functions/leaflet_ops_live_helpers.r",
+        "03_functions/leaflet_guide_helpers.r",
+        "08_docs/BRIM_DEVELOPMENT_ARCHITECTURE.md"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -5277,13 +5276,15 @@
     },
     {
       "product_id": "ops_qpe_mrms_1hr",
-      "delivery_class": "provider_hosted",
+      "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -5293,13 +5294,15 @@
     },
     {
       "product_id": "ops_qpe_mrms_1day",
-      "delivery_class": "provider_hosted",
+      "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -5309,13 +5312,15 @@
     },
     {
       "product_id": "ops_qpe_mrms_3day",
-      "delivery_class": "provider_hosted",
+      "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -5325,13 +5330,33 @@
     },
     {
       "product_id": "ops_qpe_rfc_1day",
-      "delivery_class": "provider_hosted",
+      "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
+      ],
+      "coverage_review_state": "not_yet_reviewed",
+      "coverage_disposition": null,
+      "coverage_evidence_basis": "not_yet_reviewed",
+      "coverage_evidence_refs": [],
+      "resource_links": []
+    },
+    {
+      "product_id": "ops_qpe_rfc_3day",
+      "delivery_class": "brim_enhanced",
+      "delivery_evidence_refs": [
+        "03_functions/leaflet_ops_live_layer_definition_helpers.r",
+        "03_functions/leaflet_ops_live_service_helpers.r",
+        "00_config/guide_product_enrichment.json",
+        "03_functions/leaflet_guide_helpers.r",
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,
@@ -5341,13 +5366,15 @@
     },
     {
       "product_id": "ops_qpe_rfc_7day",
-      "delivery_class": "provider_hosted",
+      "delivery_class": "brim_enhanced",
       "delivery_evidence_refs": [
         "03_functions/leaflet_ops_live_layer_definition_helpers.r",
         "03_functions/leaflet_ops_live_service_helpers.r",
         "00_config/guide_product_enrichment.json",
         "03_functions/leaflet_guide_helpers.r",
-        "qa/test_guide_foundation.R"
+        "qa/test_guide_foundation.R",
+        "03_functions/leaflet_ops_live_legend_helpers.r",
+        "qa/test_ops_live_legends_and_scan_source.js"
       ],
       "coverage_review_state": "not_yet_reviewed",
       "coverage_disposition": null,

@@ -16,10 +16,10 @@ identities <- pt_ops_live_guide_identity_registry()
 projection <- pt_ops_live_delivery_projection()
 bundle <- pt_build_guide_bundle(runtime_groups, MAP_DISPLAY, "default")
 ids <- vapply(raw_registry$products, `[[`, character(1), "product_id")
-assert_identical(length(ids), 270L, "Full Product universe changed")
+assert_identical(length(ids), 272L, "Full Product universe changed")
 assert_true(!anyDuplicated(ids), "Duplicate authored Product")
-assert_identical(nrow(identities), 48L, "Ops identity census changed")
-assert_identical(length(projection), 47L, "Eligible projection changed")
+assert_identical(nrow(identities), 50L, "Ops identity census changed")
+assert_identical(length(projection), 49L, "Eligible projection changed")
 assert_identical(identities$stable_id[!identities$included_by_default],
   "ops_nws_surface_wind_barbs", "Hard-disabled identity changed")
 assert_true(!"ops_nws_surface_wind_barbs" %in% ids, "Disabled wind barbs acquired a Product")
@@ -35,12 +35,13 @@ managed <- c("ops_delta_snapshot", "ops_streamflow_usgs_ca", "product-ops-usgs-g
 assert_identical(sort(vapply(Filter(function(p) p$delivery_class == "brim_managed", projection),
   `[[`, character(1), "stable_id")), sort(managed), "Settled 18 Managed identities changed")
 assert_identical(classes[["ops_radar_iem_nexrad"]], "provider_hosted", "Standard IEM WMS must not imply an enhancement")
-provider_radar_qpe <- c("ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
-  "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_7day")
-for (id in provider_radar_qpe) {
-  assert_identical(classes[[id]], "provider_hosted", paste("Conservative authored class changed", id))
+unlinked_radar_qpe <- c("ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
+  "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_3day", "ops_qpe_rfc_7day")
+for (id in unlinked_radar_qpe) {
+  expected_class <- if (id %in% c("ops_radar_iem_nexrad", "ops_radar_noaa_mrms")) "provider_hosted" else "brim_enhanced"
+  assert_identical(classes[[id]], expected_class, paste("Authored QPE/radar class changed", id))
   assert_identical(Filter(function(p) p$stable_id == id, projection)[[1L]]$delivery_class,
-    "provider_hosted", paste("Actual Ops projection changed", id))
+    expected_class, paste("Actual Ops projection changed", id))
   assert_identical(raw_registry$products[[match(id, ids)]]$resource_links, list(),
     paste("Unlinked radar/QPE Product acquired a Resource", id))
 }
@@ -62,9 +63,9 @@ occurrences <- function(value) {
   rows
 }
 locations <- occurrences(bundle)
-assert_true(!any(vapply(locations, function(row) row$product_id %in% provider_radar_qpe, logical(1))),
-  "The six unlinked radar/QPE Products acquired compiled delivery occurrences")
-assert_identical(length(locations), 242L, "Guide relationship projection occurrences changed")
+assert_true(!any(vapply(locations, function(row) row$product_id %in% unlinked_radar_qpe, logical(1))),
+  "The eight unlinked radar/QPE Products acquired compiled delivery occurrences")
+assert_identical(length(locations), 240L, "Guide relationship projection occurrences changed")
 for (row in locations) assert_identical(row$delivery_class, classes[[row$product_id]], row$location)
 for (row in projection) assert_identical(row$delivery_class, classes[[row$stable_id]], row$stable_id)
 nws <- Filter(function(p) p$id == "ops_nws_weather_stations", bundle$products)[[1L]]
@@ -158,8 +159,9 @@ measured_bundle <- Sys.getenv("BRIM_PROVIDER_TEST_BUNDLE", "")
 if (nzchar(measured_bundle)) assert_identical(serialize(bundle),
   readBin(measured_bundle,"raw",n=file.info(measured_bundle)$size),
   "Parity compiler must use the actual measured candidate runtime order and raw payload")
-report <- list(status="PASS",authority="products[].delivery_class",products=270L,identities=48L,
-  eligible=47L,managed=18L,prepared_consumers=16L,curated_collections=2L,
+report <- list(status="PASS",authority="products[].delivery_class",products=272L,identities=50L,
+  eligible=49L,managed=18L,prepared_consumers=16L,curated_collections=2L,
+  class_subtotals=as.list(table(vapply(projection, `[[`, character(1), "delivery_class"))),
   projection=projection,projection_bytes=length(serialize(projection)),
   projection_sha256=digest::digest(serialize(projection),algo="sha256",serialize=FALSE),
   guide_bytes=length(serialize(bundle)),guide_sha256=digest::digest(serialize(bundle),algo="sha256",serialize=FALSE),
@@ -171,9 +173,9 @@ badge_path <- Sys.getenv("BRIM_OPS_BADGE_RESULT", "")
 if (nzchar(audit_path) && nzchar(badge_path)) {
   audit <- jsonlite::fromJSON(audit_path, simplifyVector=FALSE)
   badge_result <- jsonlite::fromJSON(badge_path, simplifyVector=FALSE)
-  assert_identical(length(audit$rows),48L,"Finite audit census changed")
-  assert_identical(length(badge_result$rows),48L,"Actual badge render census changed")
-  for (i in seq_len(48L)) {
+  assert_identical(length(audit$rows),50L,"Finite audit census changed")
+  assert_identical(length(badge_result$rows),50L,"Actual badge render census changed")
+  for (i in seq_len(50L)) {
     row <- audit$rows[[i]]; rendered <- badge_result$rows[[i]]
     assert_identical(row$stable_id,identities$stable_id[[i]],"Audit identity mismatch")
     assert_identical(rendered$stable_id,row$stable_id,"Rendered identity mismatch")
@@ -185,11 +187,11 @@ if (nzchar(audit_path) && nzchar(badge_path)) {
     for (ref in row$current_source_evidence) assert_identical(
       digest::digest(file=ref$path,algo="sha256"),ref$sha256,"Audit source binding stale")
   }
-  report$audit_binding <- list(sha256=digest::digest(file=audit_path,algo="sha256"),rows=48L,status="PASS")
-  report$actual_badge_binding <- list(sha256=digest::digest(file=badge_path,algo="sha256"),rows=48L,status="PASS")
+  report$audit_binding <- list(sha256=digest::digest(file=audit_path,algo="sha256"),rows=50L,status="PASS")
+  report$actual_badge_binding <- list(sha256=digest::digest(file=badge_path,algo="sha256"),rows=50L,status="PASS")
 }
 output <- Sys.getenv("BRIM_OPS_PARITY_RESULT", "")
 if (nzchar(output)) writeLines(jsonlite::toJSON(report,auto_unbox=TRUE,pretty=TRUE),output)
-cat("GUIDE_OPS_DELIVERY_PARITY=PASS; 270 authored / 48 identities / 47 eligible / 18 Managed;",
+cat("GUIDE_OPS_DELIVERY_PARITY=PASS; 272 authored / 50 identities / 49 eligible / 18 Managed / 29 Enhanced / 2 Provider-hosted;",
     length(locations),"Guide occurrences;",length(changed),"synthetic occurrences;",
     length(negative_checks),"negative validations; projection bytes",length(serialize(projection)),"\n")

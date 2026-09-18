@@ -15,6 +15,76 @@ pt_ops_live_arcgis_export_js <- function() {
   // --------------------------------------------------------------------------
   // Dynamic ArcGIS export layer.
   // --------------------------------------------------------------------------
+  // Exact Ops forecast selection group; family-specific requests remain separate.
+  var ptOpsForecastOwners = [];
+  var ptOpsForecastProductIds = [
+    'ops_wpc_qpf_day_1','ops_wpc_qpf_day_2','ops_wpc_qpf_day_3','ops_wpc_qpf_3day','ops_wpc_qpf_7day',
+    'ops_wpc_ero_day_1','ops_wpc_ero_day_2','ops_wpc_ero_day_3',
+    'ops_cpc_6_10_temperature','ops_cpc_6_10_precipitation','ops_cpc_8_14_temperature','ops_cpc_8_14_precipitation'
+  ];
+  function ptOpsRegisterForecastOwner(owner) {
+    if (ptOpsForecastProductIds.indexOf(owner.options.forecastProductId) >= 0 && ptOpsForecastOwners.indexOf(owner) < 0) ptOpsForecastOwners.push(owner);
+  }
+  function ptOpsSelectForecastOwner(owner, mapObj) {
+    if (ptOpsForecastProductIds.indexOf(owner.options.forecastProductId) < 0) return;
+    ptOpsForecastOwners.forEach(function(other) {
+      if (other === owner || other._isRemoved) return;
+      // The ordinary Ops path clears checkbox/count and invokes the real owner teardown.
+      ptOpsDeactivateLayerByName(other.options.name);
+      // Programmatic wrapper activation may not have a checked Ops row.
+      if (mapObj.hasLayer(other)) mapObj.removeLayer(other);
+    });
+  }
+  function ptIsWpcQpfOwner(layer) {
+    return ['ops_wpc_qpf_day_1','ops_wpc_qpf_day_2','ops_wpc_qpf_day_3','ops_wpc_qpf_3day','ops_wpc_qpf_7day'].indexOf(layer.options.forecastProductId) >= 0;
+  }
+
+  // QPE has its own exact selection group; forecast and satellite owners stay independent.
+  var ptOpsQpeOwners = [];
+  var ptOpsQpeProductIds = [
+    'ops_qpe_mrms_1hr','ops_qpe_mrms_1day','ops_qpe_mrms_3day',
+    'ops_qpe_rfc_1day','ops_qpe_rfc_3day','ops_qpe_rfc_7day'
+  ];
+  function ptIsQpeOwner(owner) {
+    return ptOpsQpeProductIds.indexOf(owner.options.qpeProductId) >= 0;
+  }
+  function ptOpsSelectQpeOwner(owner, mapObj) {
+    if (!ptIsQpeOwner(owner)) return;
+    ptOpsQpeOwners.forEach(function(other) {
+      if (other === owner || other._isRemoved) return;
+      ptOpsDeactivateLayerByName(other.options.name);
+      if (mapObj.hasLayer(other)) mapObj.removeLayer(other);
+    });
+    // Direct activation of a registered wrapper also belongs to Ops OFF/Clear.
+    var name = owner.options.name;
+    if (opsDefByName[name] && opsDefByName[name].layer === owner) {
+      activeLayers[name] = owner;
+      if (checkboxByName[name]) checkboxByName[name].checked = true;
+      updateOpsHeaderCount();
+    }
+  }
+
+  // Radar coordinates its two existing controllers without joining other families.
+  var ptOpsRadarOwners = [];
+  var ptOpsRadarProductIds = ['ops_radar_iem_nexrad','ops_radar_noaa_mrms'];
+  function ptIsRadarOwner(owner) {
+    return ptOpsRadarProductIds.indexOf(owner.options.radarProductId) >= 0;
+  }
+  function ptOpsSelectRadarOwner(owner, mapObj) {
+    if (!ptIsRadarOwner(owner)) return;
+    ptOpsRadarOwners.forEach(function(other) {
+      if (other === owner || other._isRemoved) return;
+      ptOpsDeactivateLayerByName(other.options.name);
+      if (mapObj.hasLayer(other)) mapObj.removeLayer(other);
+    });
+    var name = owner.options.name;
+    if (opsDefByName[name] && opsDefByName[name].layer === owner) {
+      activeLayers[name] = owner;
+      if (checkboxByName[name]) checkboxByName[name].checked = true;
+      updateOpsHeaderCount();
+    }
+  }
+
   var ArcGISExportLayer = L.Layer.extend({
     initialize: function(options) {
       this.options = options || {};
@@ -22,6 +92,11 @@ pt_ops_live_arcgis_export_js <- function() {
       this._timer = null;
       this._pendingOverlay = null;
       this._isRemoved = true;
+      this._forecastSeq = 0;
+      this._radarSeq = 0;
+      if (ptIsRadarOwner(this)) ptOpsRadarOwners.push(this);
+      ptOpsRegisterForecastOwner(this);
+      if (ptIsQpeOwner(this)) ptOpsQpeOwners.push(this);
 
       // Only expose the public Ops-row rfrsh hook when a layer explicitly
       // opts in.  ArcGISExportLayer is also used by many auto-updating raster
@@ -46,6 +121,7 @@ pt_ops_live_arcgis_export_js <- function() {
             'Refreshing live image for the current map view…',
             'pt-ops-warn'
           );
+          if (ptIsWpcQpfOwner(this)) { this._invalidateForecast(); ptWpcQpfMetadata(this); }
           this._update();
         };
       }
@@ -53,9 +129,19 @@ pt_ops_live_arcgis_export_js <- function() {
     onAdd: function(mapObj) {
       this._map = mapObj;
       this._isRemoved = false;
+      ptOpsSelectForecastOwner(this, mapObj);
+      ptOpsSelectQpeOwner(this, mapObj);
+      if (ptIsRadarOwner(this)) { this._radarSeq += 1; ptOpsSelectRadarOwner(this, mapObj); }
+      if (ptIsWpcQpfOwner(this)) {
+        this._invalidateForecast();
+        activateWpcQpfHover(this.options.name, this.options.layers[0]);
+        mapObj.on('movestart zoomstart', this._invalidateForecast, this);
+      }
       activeLegendDefs[this.options.name] = {
         note: this.options.note || '',
         legendType: this.options.legendType || null,
+        rfcQpeProductId: this.options.rfcQpeProductId || null,
+        forecastProductId: this.options.forecastProductId || null,
         sourceUrl: this.options.sourceUrl || this.options.url || '',
         legendUrl: this.options.legendUrl || '',
         infoUrl: this.options.infoUrl || '',
@@ -64,11 +150,28 @@ pt_ops_live_arcgis_export_js <- function() {
       };
       redrawLegend();
       this._scheduleUpdate();
+      if (ptIsWpcQpfOwner(this)) ptWpcQpfMetadata(this);
       mapObj.on('moveend zoomend resize', this._scheduleUpdate, this);
-      recordStatus(this.options.name, 'Requested live image.', 'pt-ops-warn');
-      if (typeof this.options.checkFreshness === 'function') {
-        this.options.checkFreshness();
+      recordStatus(this.options.name, this.options.satelliteImagery ?
+        'Satellite image requested. Displayed frame time: Unverified. BRIM check time is not image time.' :
+        'Requested live image.', 'pt-ops-warn');
+      // QPF uses its selected-layer, generation-bound metadata request above.
+      // Do not also launch an unowned whole-service callback for these products.
+      if (!ptIsWpcQpfOwner(this) && typeof this.options.checkFreshness === 'function') {
+        if (ptIsRadarOwner(this)) {
+          var self = this, radarSeq = this._radarSeq;
+          this.options.checkFreshness(function() {
+            return !self._isRemoved && self._map === mapObj && self._radarSeq === radarSeq;
+          });
+        } else this.options.checkFreshness();
       }
+    },
+    _invalidateForecast: function() {
+      if (!ptIsWpcQpfOwner(this)) return;
+      this._forecastSeq += 1;
+      invalidateWpcQpfHover();
+      if (this._map && this._pendingOverlay) this._map.removeLayer(this._pendingOverlay);
+      this._pendingOverlay = null;
     },
     _removeInternalOverlays: function(mapObj) {
       var m = mapObj || this._map;
@@ -89,12 +192,23 @@ pt_ops_live_arcgis_export_js <- function() {
       this._pendingOverlay = null;
     },
     forceRemove: function(mapObj) {
+      if (ptIsWpcQpfOwner(this) || ptIsQpeOwner(this) || ptIsRadarOwner(this)) { this.onRemove(mapObj || this._map); return; }
       this._isRemoved = true;
       this._removeInternalOverlays(mapObj || this._map);
       this._map = null;
     },
     onRemove: function(mapObj) {
       this._isRemoved = true;
+      if (ptIsRadarOwner(this)) {
+        this._radarSeq += 1;
+        delete statusRows['NOAA radar metadata'];
+        redrawStatus();
+      }
+      if (ptIsWpcQpfOwner(this)) {
+        this._invalidateForecast(); deactivateWpcQpfHover(this.options.name);
+        if (mapObj) mapObj.off('movestart zoomstart', this._invalidateForecast, this);
+      }
+      if (!mapObj) return;
       mapObj.off('moveend zoomend resize', this._scheduleUpdate, this);
       this._removeInternalOverlays(mapObj);
       this._map = null;
@@ -106,8 +220,18 @@ pt_ops_live_arcgis_export_js <- function() {
     _scheduleUpdate: function() {
       if (this._isRemoved || !this._map) return;
       var self = this;
+      this._invalidateForecast();
+      // Satellite, QPE and Radar requests lose ownership as soon as the view changes.
+      if ((this.options.satelliteImagery || ptIsQpeOwner(this) || ptIsRadarOwner(this)) && this._pendingOverlay) {
+        this._map.removeLayer(this._pendingOverlay);
+        this._pendingOverlay = null;
+      }
       if (this._timer) window.clearTimeout(this._timer);
-      this._timer = window.setTimeout(function() { self._update(); }, 650);
+      var radarSeq = this._radarSeq;
+      this._timer = window.setTimeout(function() {
+        if (ptIsRadarOwner(self) && self._radarSeq !== radarSeq) return;
+        self._update();
+      }, 650);
     },
     _buildUrl: function() {
       var opts = this.options;
@@ -139,17 +263,30 @@ pt_ops_live_arcgis_export_js <- function() {
     _update: function() {
       if (!this._map || this._isRemoved) return;
       var self = this;
+      var requestMap = this._map;
+      if ((ptIsWpcQpfOwner(this) || ptIsQpeOwner(this) || ptIsRadarOwner(this)) && this._pendingOverlay) {
+        requestMap.removeLayer(this._pendingOverlay); this._pendingOverlay = null;
+      }
+      if (this.options.satelliteImagery) {
+        if (this._pendingOverlay) requestMap.removeLayer(this._pendingOverlay);
+        this._pendingOverlay = null;
+        recordStatus(this.options.name, 'Satellite image requested. Displayed frame time: Unverified. BRIM check time is not image time.', 'pt-ops-warn');
+      }
       setOpsLayerLoading(this.options.name, true);
       var b = this._map.getBounds();
       var url = this._buildUrl();
       var img = L.imageOverlay(url, b, {
-        opacity: this.options.opacity || 0.65,
+        opacity: this.options.satelliteImagery ? 0 : (this.options.opacity || 0.65),
         interactive: false,
         crossOrigin: false,
         pane: 'pane_ops'
       });
       this._pendingOverlay = img;
       img.on('load', function() {
+        if ((self.options.satelliteImagery || ptIsWpcQpfOwner(self) || ptIsQpeOwner(self) || ptIsRadarOwner(self)) && self._pendingOverlay !== img) {
+          requestMap.removeLayer(img);
+          return;
+        }
         if (self._isRemoved || !self._map || !self._map.hasLayer(self)) {
           try { if (self._map) self._map.removeLayer(img); } catch(e) {}
           if (self._pendingOverlay === img) self._pendingOverlay = null;
@@ -160,15 +297,25 @@ pt_ops_live_arcgis_export_js <- function() {
         }
         self._overlay = img;
         self._pendingOverlay = null;
+        if (self.options.satelliteImagery) img.setOpacity(self.options.opacity || 0.65);
         setOpsLayerLoading(self.options.name, false);
-        recordStatus(self.options.name, 'Loaded live image successfully.', 'pt-ops-ok');
+        recordStatus(self.options.name, self.options.satelliteImagery ?
+          'Image received. Displayed frame time: Unverified. BRIM check time is not image time.' :
+          'Loaded live image successfully.', self.options.satelliteImagery ? 'pt-ops-warn' : 'pt-ops-ok');
       });
       img.on('error', function() {
+        if ((self.options.satelliteImagery || ptIsWpcQpfOwner(self) || ptIsQpeOwner(self) || ptIsRadarOwner(self)) && self._pendingOverlay !== img) {
+          requestMap.removeLayer(img);
+          return;
+        }
         try { if (self._map) self._map.removeLayer(img); } catch(e) {}
         if (self._pendingOverlay === img) self._pendingOverlay = null;
         if (self._isRemoved || !self._map || !self._map.hasLayer(self)) return;
         setOpsLayerLoading(self.options.name, false);
-        recordStatus(self.options.name, 'Image request failed. Try zooming in, waiting, or toggling fewer Ops layers.', 'pt-ops-bad');
+        recordStatus(self.options.name, self.options.satelliteImagery ?
+          'Satellite image request failed. ' + (self._overlay ? 'Last received image retained; its age is Unverified. ' : 'No image loaded. ') +
+          'Displayed frame time: Unverified. BRIM check time is not image time.' :
+          'Image request failed. Try zooming in, waiting, or toggling fewer Ops layers.', 'pt-ops-bad');
       });
       img.addTo(this._map);
     }
@@ -345,13 +492,16 @@ pt_ops_live_arcgis_export_js <- function() {
       this._layer = null;
       this._isRemoved = true;
       this._seq = 0;
+      ptOpsRegisterForecastOwner(this);
     },
     onAdd: function(mapObj) {
       this._map = mapObj;
       this._isRemoved = false;
+      ptOpsSelectForecastOwner(this, mapObj);
       activeLegendDefs[this.options.name] = {
         note: this.options.note || '',
         legendType: this.options.legendType || 'ero',
+        forecastProductId: this.options.forecastProductId || null,
         sourceUrl: this.options.sourceUrl || '',
         legendUrl: this.options.legendUrl || '',
         infoUrl: this.options.infoUrl || '',
@@ -420,6 +570,11 @@ pt_ops_live_arcgis_export_js <- function() {
             try { self._map.removeLayer(self._layer); } catch(e) {}
           }
           self._layer = newLayer.addTo(self._map);
+          var legend = activeLegendDefs[name];
+          if (legend) {
+            legend.forecastMetadata = ptForecastMetadata('ero', fc.features, !!fc.exceededTransferLimit);
+            redrawLegend();
+          }
           setOpsLayerLoading(name, false);
           recordStatus(name, 'Loaded WPC ERO current-view snapshot: ' + fc.features.length.toLocaleString() + ' polygon(s). Pan/zoom, then use rfrsh to requery.', fc.features.length === 0 ? 'pt-ops-warn' : 'pt-ops-ok');
         })
@@ -450,116 +605,86 @@ pt_ops_live_arcgis_export_js <- function() {
   });
 
   function makeRadarLayer(opts) {
-    var lyr = L.tileLayer.wms('https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi?', {
-      layers: 'nexrad-n0q-900913',
-      format: 'image/png',
-      transparent: true,
-      opacity: opts.opacity || 0.70,
-      attribution: 'Weather radar © Iowa Environmental Mesonet',
-      pane: 'pane_ops',
-      sourceUrl: opts.sourceUrl || 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
-      legendUrl: opts.legendUrl || '',
-      infoUrl: opts.infoUrl || '',
-      infoLabel: opts.infoLabel || '',
-      legendNote: opts.legendNote || ''
+    // Stable Ops owner; each activation gets a fresh native WMS tile controller.
+    // An old tile callback cannot acquire a later activation of the same row.
+    var wmsOptions = {
+      layers: 'nexrad-n0q-900913', format: 'image/png', transparent: true,
+      opacity: opts.opacity || 0.70, attribution: 'Weather radar © Iowa Environmental Mesonet',
+      pane: 'pane_ops', sourceUrl: opts.sourceUrl || 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
+      legendUrl: opts.legendUrl || '', infoUrl: opts.infoUrl || '',
+      infoLabel: opts.infoLabel || '', legendNote: opts.legendNote || ''
+    };
+    var RadarLayer = L.Layer.extend({
+      initialize: function(options) {
+        this.options = Object.assign({}, options, wmsOptions);
+        this._isRemoved = true;
+        this._tiles = null;
+        this._radarSeq = 0;
+        if (ptIsRadarOwner(this)) ptOpsRadarOwners.push(this);
+      },
+      onAdd: function(mapObj) {
+        this._map = mapObj;
+        this._isRemoved = false;
+        var self = this, radarSeq = ++this._radarSeq;
+        ptOpsSelectRadarOwner(this, mapObj);
+        // Project the same exposed WMS contract; owner-only metadata is not a
+        // provider parameter. Leaflet receives its own per-activation options.
+        var tileOptions = {};
+        Object.keys(wmsOptions).forEach(function(key) {
+          tileOptions[key] = self.options[key];
+        });
+        var tile = L.tileLayer.wms('https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi?', tileOptions);
+        this._tiles = tile;
+        function current() {
+          return !self._isRemoved && self._map === mapObj && self._radarSeq === radarSeq &&
+            self._tiles === tile && mapObj.hasLayer(self);
+        }
+        this._tileHandlers = {
+          loading: function() { if (current()) setOpsLayerLoading(opts.name, true); },
+          load: function() {
+            if (!current()) return;
+            setOpsLayerLoading(opts.name, false);
+            recordStatus(opts.name, 'Radar tiles loaded.', 'pt-ops-ok');
+          },
+          tileerror: function() {
+            if (!current()) return;
+            setOpsLayerLoading(opts.name, false);
+            recordStatus(opts.name, 'One or more radar tiles failed to load. Try waiting, panning slightly, or toggling the layer.', 'pt-ops-warn');
+          }
+        };
+        Object.keys(this._tileHandlers).forEach(function(type) { tile.on(type,self._tileHandlers[type]); });
+        activeLegendDefs[opts.name] = {
+          note: opts.note || '', legendType: opts.legendType || null,
+          sourceUrl: opts.sourceUrl || 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
+          legendUrl: opts.legendUrl || '', infoUrl: opts.infoUrl || '',
+          infoLabel: opts.infoLabel || '', legendNote: opts.legendNote || ''
+        };
+        setOpsLayerLoading(opts.name, true);
+        redrawLegend();
+        recordStatus(opts.name, 'Radar tile overlay requested. Time is controlled by the live IEM NEXRAD WMS service.', 'pt-ops-warn');
+        tile.addTo(mapObj);
+      },
+      onRemove: function(mapObj) {
+        this._isRemoved = true;
+        this._radarSeq += 1;
+        var tile = this._tiles, handlers = this._tileHandlers;
+        this._tiles = null;
+        this._tileHandlers = null;
+        if (tile) {
+          Object.keys(handlers).forEach(function(type) { tile.off(type,handlers[type]); });
+          (mapObj || this._map).removeLayer(tile);
+        }
+        this._map = null;
+        delete activeLegendDefs[opts.name];
+        setOpsLayerLoading(opts.name, false);
+        redrawLegend();
+        recordStatus(opts.name, 'Layer turned off.', 'pt-ops-muted');
+      },
+      forceRemove: function(mapObj) { this.onRemove(mapObj || this._map); }
     });
-    lyr.on('add', function() {
-      activeLegendDefs[opts.name] = {
-        note: opts.note || '',
-        legendType: opts.legendType || null,
-        sourceUrl: opts.sourceUrl || 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
-        legendUrl: opts.legendUrl || '',
-        infoUrl: opts.infoUrl || '',
-        infoLabel: opts.infoLabel || '',
-        legendNote: opts.legendNote || ''
-      };
-      setOpsLayerLoading(opts.name, true);
-      redrawLegend();
-      recordStatus(opts.name, 'Radar tile overlay requested. Time is controlled by the live IEM NEXRAD WMS service.', 'pt-ops-warn');
-    });
-    lyr.on('loading', function() {
-      setOpsLayerLoading(opts.name, true);
-    });
-    lyr.on('load', function() {
-      setOpsLayerLoading(opts.name, false);
-      recordStatus(opts.name, 'Radar tiles loaded.', 'pt-ops-ok');
-    });
-    lyr.on('tileerror', function() {
-      setOpsLayerLoading(opts.name, false);
-      recordStatus(opts.name, 'One or more radar tiles failed to load. Try waiting, panning slightly, or toggling the layer.', 'pt-ops-warn');
-    });
-    lyr.on('remove', function() {
-      delete activeLegendDefs[opts.name];
-      setOpsLayerLoading(opts.name, false);
-      redrawLegend();
-      recordStatus(opts.name, 'Layer turned off.', 'pt-ops-muted');
-    });
-    return lyr;
+    return new RadarLayer(opts);
   }
 
-  function makeGibsWmtsLayer(opts) {
-    // NASA GIBS WMTS tends to behave more reliably in Leaflet than the WMS
-    // endpoint for daily true-color imagery.  The "default/default" path lets
-    // GIBS select the current/default date for the chosen layer.  The native
-    // Web-Mercator tile matrix is Level9, so higher Leaflet zooms are scaled.
-    var layerId = opts.layerId || opts.layers || '';
-    var styleName = opts.styleName || 'default';
-    var timeName = opts.timeName || 'default';
-    var matrixSet = opts.matrixSet || 'GoogleMapsCompatible_Level9';
-    var ext = opts.ext || 'jpg';
-    var url = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/' +
-      encodeURIComponent(layerId) + '/' +
-      encodeURIComponent(styleName) + '/' +
-      encodeURIComponent(timeName) + '/' +
-      encodeURIComponent(matrixSet) + '/{z}/{y}/{x}.' + ext;
-
-    var lyr = L.tileLayer(url, {
-      opacity: opts.opacity || 0.82,
-      attribution: 'NASA GIBS / EOSDIS',
-      pane: 'pane_ops',
-      maxNativeZoom: opts.maxNativeZoom || 9,
-      maxZoom: 20,
-      noWrap: true
-    });
-
-    lyr.on('add', function() {
-      activeLegendDefs[opts.name] = {
-        note: opts.note || '',
-        legendType: opts.legendType || null,
-        sourceUrl: opts.sourceUrl || 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/' + encodeURIComponent(layerId) + '/',
-        legendUrl: opts.legendUrl || '',
-        infoUrl: opts.infoUrl || 'https://nasa-gibs.github.io/gibs-api-docs/',
-        legendNote: opts.legendNote || ''
-      };
-      setOpsLayerLoading(opts.name, true);
-      redrawLegend();
-      recordStatus(opts.name, 'NASA GIBS WMTS tiles requested. The default/latest available date is used by the source service.', 'pt-ops-warn');
-    });
-
-    lyr.on('loading', function() {
-      setOpsLayerLoading(opts.name, true);
-    });
-
-    lyr.on('load', function() {
-      setOpsLayerLoading(opts.name, false);
-      recordStatus(opts.name, 'NASA GIBS tiles loaded.', 'pt-ops-ok');
-    });
-
-    lyr.on('tileerror', function() {
-      setOpsLayerLoading(opts.name, false);
-      recordStatus(opts.name, 'One or more NASA GIBS WMTS tiles failed to load. Daily true-color imagery can lag, have coverage gaps, or be missing near the latest date.', 'pt-ops-warn');
-    });
-
-    lyr.on('remove', function() {
-      delete activeLegendDefs[opts.name];
-      setOpsLayerLoading(opts.name, false);
-      redrawLegend();
-      recordStatus(opts.name, 'Layer turned off.', 'pt-ops-muted');
-    });
-
-    return lyr;
-  }
-  
 
 )---"
 }

@@ -84,9 +84,9 @@ raw_resource_registry <- jsonlite::fromJSON(
 r17c2_current_bundle <- bundle
 assert_identical(bundle$counts$resources,228L,"Current R17C2 public count changed")
 assert_identical(length(resource_registry),233L,"Current R17C2 total count changed")
-assert_identical(sum(vapply(bundle$products,function(p) length(p$relatedResources),integer(1))),121L,
+assert_identical(sum(vapply(bundle$products,function(p) length(p$relatedResources),integer(1))),120L,
                  "Current R17C2 compiled forward links changed")
-assert_identical(sum(vapply(bundle$resources,function(r) length(r$representedProducts),integer(1))),121L,
+assert_identical(sum(vapply(bundle$resources,function(r) length(r$representedProducts),integer(1))),120L,
                  "Current R17C2 compiled reverse links changed")
 
 # Frozen C1 regressions remain independent of the larger current catalog.
@@ -99,6 +99,37 @@ r17c2_c1_fixture <- function(path, sha256) {
   writeLines(lines, fixture, useBytes = TRUE)
   assert_identical(digest::digest(file = fixture, algo = "sha256"), sha256,
                    paste("Pinned C1 fixture bytes changed:", path))
+  if (identical(path, "00_config/guide_product_resource_relationships.json")) {
+    # Keep all authenticated C1 records; the current compiler also needs the
+    # one new, unlinked RFC Product. This is a test-owned compatibility copy.
+    historical <- jsonlite::fromJSON(fixture, simplifyVector = FALSE)
+    before <- historical$products
+    old_ids <- vapply(before, `[[`, character(1), "product_id")
+    assert_true(!"ops_qpe_rfc_3day" %in% old_ids, "Historical fixture acquired the new RFC ID")
+    current <- jsonlite::fromJSON(path, simplifyVector = FALSE)$products
+    added <- Filter(function(p) identical(p$product_id, "ops_qpe_rfc_3day"), current)
+    assert_identical(length(added), 1L, "Expected exactly one new RFC compatibility record")
+    assert_identical(added[[1L]]$delivery_class, "brim_enhanced", "Current RFC delivery changed")
+    # The authenticated historical C1 projection retains its original classification;
+    # its later RFC-3day compatibility row does not import current badge decisions.
+    added[[1L]]$delivery_class <- "provider_hosted"
+    assert_identical(added[[1L]]$resource_links, list(), "RFC acquired a historical Resource")
+    historical$products <- append(before, added, after = match("ops_qpe_rfc_1day", old_ids))
+    assert_identical(Filter(function(p) p$product_id != "ops_qpe_rfc_3day", historical$products),
+                     before, "Historical Product records changed")
+    # E31 keeps the C1 file hash above intact and adapts only satellite IDs in
+    # this source-test copy. Every non-satellite historical row stays exact.
+    pre_e31 <- historical$products
+    viirs <- Filter(function(p) p$product_id %in% c("ops_viirs_noaa20_true_color", "ops_viirs_noaa21_true_color"), current)
+    assert_identical(length(viirs), 2L, "Expected the two E31 VIIRS compatibility rows")
+    retired_index <- which(vapply(pre_e31, function(p) identical(p$product_id,"ops_goes_water_vapor"), logical(1)))
+    assert_identical(length(retired_index), 1L, "Historical Water Vapor identity missing/duplicate")
+    historical$products <- append(pre_e31[-retired_index], viirs, after=retired_index-1L)
+    assert_identical(Filter(function(p) !p$product_id %in% c("ops_viirs_noaa20_true_color","ops_viirs_noaa21_true_color"),historical$products),
+                     pre_e31[-retired_index], "Non-satellite historical Product rows changed")
+    writeLines(as.character(jsonlite::toJSON(historical, auto_unbox = TRUE, null = "null",
+                                            pretty = TRUE)), fixture, useBytes = TRUE)
+  }
   fixture
 }
 
@@ -287,8 +318,8 @@ assert_identical(
   "ALL_INCLUDED_NON_BASEMAP_VISIBLE_PRODUCTS_WITH_SOURCE_BACKED_VITALS",
   "Guide coverage authority no longer declares source-backed vitals"
 )
-assert_identical(bundle$counts$products, 270L,
-                 "Current default Guide should derive 270 post-basemap Products")
+assert_identical(bundle$counts$products, 272L,
+                 "Current default Guide should derive 272 post-basemap Products")
 assert_true(setequal(relationship_registry_ids, product_ids) &&
               length(relationship_registry_ids) == length(product_ids),
             "The sole relationship registry does not equal the compiled Product universe")
@@ -825,23 +856,38 @@ assert_true(nchar(resource_projection_json, type = "bytes") < 600000L,
             "Browser Resource projection exceeds the focused payload review threshold")
 assert_identical(sum(product_subsystems == "External Layers"), 176L,
                  "External visible Product projection changed")
-assert_identical(sum(product_subsystems == "Ops Live"), 47L,
+assert_identical(sum(product_subsystems == "Ops Live"), 49L,
                  "Ops Live active Product projection changed")
 assert_identical(sum(product_subsystems == "Tools"), 4L,
                  "Tools Product projection changed")
 assert_identical(sum(product_subsystems == "Basemaps / Local Layers"), 43L,
                  "Local Product projection changed")
 product_entity_types <- vapply(bundle$products, `[[`, character(1), "entityType")
-assert_identical(sum(product_entity_types == "Layer"), 266L,
+assert_identical(sum(product_entity_types == "Layer"), 268L,
                  "Guide layer entity projection changed")
 assert_identical(sum(product_entity_types == "Tool"), 4L,
                  "Guide tool entity projection changed")
 assert_true(!anyDuplicated(product_ids) && all(nzchar(product_ids)),
             "Every included Product needs one unique stable ID")
+# E31 exact inverse delta preserves the accepted pre-E31 ordered identity proof.
+e31_new_ids <- c("ops_viirs_noaa20_true_color", "ops_viirs_noaa21_true_color")
+assert_true(all(e31_new_ids %in% product_ids) && !"ops_goes_water_vapor" %in% product_ids,
+            "E31 identity retirement/additions differ")
+e31_prior_ids <- product_ids[!product_ids %in% e31_new_ids]
+e31_prior_ids <- append(e31_prior_ids, "ops_goes_water_vapor", after=match("ops_goes_infrared",e31_prior_ids))
 assert_identical(
-  digest::digest(paste(product_ids, collapse = "\n"), algo = "sha256", serialize = FALSE),
+  digest::digest(paste(e31_prior_ids, collapse = "\n"), algo = "sha256", serialize = FALSE),
+  "09803ffe219ee7dc5539f322dd12a95f7094c61aa4f1ebcb2066af056df51c9e",
+  "Exact ordered 271-ID Product universe changed"
+)
+# Exactly one RFC Product extends the accepted ordered universe. Retaining its
+# original hash prevents an unrelated census change from hiding behind +1.
+assert_identical(sum(product_ids == "ops_qpe_rfc_3day"), 1L, "RFC three-day ID must be unique")
+assert_identical(
+  digest::digest(paste(e31_prior_ids[e31_prior_ids != "ops_qpe_rfc_3day"], collapse = "\n"),
+                 algo = "sha256", serialize = FALSE),
   "a003f1882614ca2cef2487afda234ec31701d4e6be91741ffc8ac617388782da",
-  "Exact ordered 270-ID Product universe changed"
+  "Existing ordered Product universe changed outside RFC three-day addition"
 )
 assert_true(!anyDuplicated(product_paths[nzchar(product_paths)]) &&
               all(!nzchar(product_paths) == (product_entity_types == "Tool")),
@@ -941,7 +987,7 @@ assert_true(length(markers) == 26L,
 
 ops_definitions <- pt_guide_ops_source_definitions()
 ops_registry <- pt_ops_live_guide_identity_registry()
-assert_identical(length(ops_definitions), 48L,
+assert_identical(length(ops_definitions), 50L,
                  "Current addOpsLayer definition count changed without Guide reconciliation")
 assert_true(setequal(vapply(ops_definitions, `[[`, character(1), "source_token"),
                            ops_registry$source_token),
@@ -1257,19 +1303,19 @@ exact_relationships <- unlist(lapply(bundle$products, function(product) {
 exact_relationship_roles <- vapply(
   exact_relationships, `[[`, character(1), "relationshipRole"
 )
-assert_identical(length(exact_relationships), 96L,
-                 "Projected Product relationships must contain exactly 96 rows")
+assert_identical(length(exact_relationships), 95L,
+                 "Projected Product relationships must contain exactly 95 rows after satellite retirement")
 assert_identical(unname(as.integer(table(factor(
   exact_relationship_roles,
   levels = c("direct_match_in_brim", "selected_product_from_broader_resource",
              "source_reference")
-)))), c(13L, 64L, 19L), "Projected Product relationship-role counts changed")
+)))), c(13L, 63L, 19L), "Projected Product relationship-role counts changed")
 assert_true(!anyDuplicated(vapply(exact_relationships, function(relationship) {
   paste(relationship$productId, relationship$id, sep = "\r")
 }, character(1))), "A duplicate projected Product-Resource pair was compiled")
 assert_identical(sum(vapply(bundle$products, function(product) {
   length(product$relatedResources) > 0L
-}, logical(1))), 72L, "Compiled Products-with-Resource-links count changed")
+}, logical(1))), 71L, "Compiled Products-with-Resource-links count changed")
 assert_identical(sum(vapply(bundle$resources, function(resource) {
   length(resource$representedProducts) > 0L
 }, logical(1))), 27L, "Compiled Resources-with-Product-links count changed")
@@ -1404,8 +1450,8 @@ assert_true(all(vapply(bundle$resources, function(resource) {
 }, logical(1))), "A published Resource lacks reviewed map-presence authority")
 reverse_relationships <- unlist(lapply(bundle$resources, `[[`, "representedProducts"),
                                 recursive = FALSE)
-assert_identical(length(reverse_relationships), 96L,
-                 "Resource reverse index must preserve all 96 exact rows")
+assert_identical(length(reverse_relationships), 95L,
+                 "Resource reverse index must preserve all 95 exact rows after satellite retirement")
 cnrfc_resource <- bundle$resources[[match(r17b_cnrfc_resource_id, expected_resource_ids)]]
 assert_identical(cnrfc_resource$summary, paste0(r17b_cnrfc_resource_summary_after, a5_summary_append),
                  "The compiled CNRFC Resource summary changed")
@@ -1559,8 +1605,29 @@ assert_identical(
   "GUIDE-I2A2 Wave 1 subsystem selection changed"
 )
 assert_identical(length(enrichment),
-                 baseline_rich_count + length(wave1_rich_ids) + length(r17b_cnrfc_detail_ids),
+                 baseline_rich_count + length(wave1_rich_ids) + length(r17b_cnrfc_detail_ids) + 1L,
                  "GUIDE-I2A2 enrichment inventory changed without review")
+# The extra rich record is exactly the new provider-hosted RFC duration.
+a6_rfc_product <- record_by_id(bundle$products, "ops_qpe_rfc_3day")
+assert_identical(a6_rfc_product$contentTier, "SOURCE_BACKED_RICH", "RFC three-day lacks source-backed detail")
+assert_identical(a6_rfc_product$subjectTags, "Precipitation", "RFC three-day classification changed")
+assert_identical(a6_rfc_product$informationTypes, "Live Observation", "RFC three-day meaning changed")
+assert_true(length(a6_rfc_product$sections) >= 2L &&
+              "method_brim_live_update_timing" %in% enrichment[["ops_qpe_rfc_3day"]]$method_ids,
+            "RFC three-day timing/method detail is missing")
+# RFC disclosure references must match the current legend caption, including the
+# actual compiled Product text. No other Product enrichment is changed here.
+for (id in c("ops_qpe_rfc_1day", "ops_qpe_rfc_3day", "ops_qpe_rfc_7day")) {
+  reference <- "Use the Source, method & timing details and provider context without treating a service check as displayed-image validity."
+  assert_identical(sum(enrichment[[id]]$capabilities == reference), 1L,
+                   paste("RFC enrichment disclosure reference differs", id))
+  current_product <- record_by_id(r17c2_current_bundle$products, id)
+  capabilities <- Filter(function(section) section$id == "capabilities", current_product$sections)
+  assert_true(length(capabilities) == 1L &&
+                reference %in% capabilities[[1L]]$items &&
+                reference %in% current_product$searchTerms,
+              paste("Compiled RFC disclosure reference differs", id))
+}
 assert_true(all(wave1_rich_ids %in% names(enrichment)),
             "A GUIDE-I2A2 Wave 1 Product lacks a source-backed enrichment record")
 assert_true(all(vapply(enrichment, function(record) {
@@ -1579,9 +1646,9 @@ assert_true("brim_mapped_conveyance" %in% names(enrichment) &&
 content_tiers <- table(vapply(bundle$products, `[[`, character(1), "contentTier"))
 assert_identical(as.integer(content_tiers[c("SOURCE_BACKED_RICH", "STRUCTURED_BASIC")]),
                  c(baseline_rich_count + length(wave1_rich_ids) +
-                     length(r17b_cnrfc_detail_ids),
+                     length(r17b_cnrfc_detail_ids) + 1L,
                    baseline_basic_count - length(wave1_rich_ids) -
-                     length(r17b_cnrfc_detail_ids)),
+                     length(r17b_cnrfc_detail_ids) + 1L), # E31: two basic VIIRS minus one basic Water Vapor
                  "GUIDE-I2A2 content-tier counts changed")
 assert_true(!"EDITORIAL_REVIEW_REQUIRED" %in% names(content_tiers),
             "Unexpected editorial-review tier entered the current profile")
@@ -1646,8 +1713,8 @@ assert_true(any(vapply(bundle$products, function(product) length(product$subject
 subject_counts <- table(unlist(lapply(bundle$products, `[[`, "subjectTags"), use.names = FALSE))
 expected_subject_counts <- c(
   "Groundwater" = 40L, "Surface Water" = 54L, "Water Quality" = 7L,
-  "Snow & SWE" = 8L, "Soil Moisture" = 2L, "Precipitation" = 28L,
-  "Weather & Forecasts" = 54L, "Fire Weather" = 8L, "Climate & Drought" = 25L,
+  "Snow & SWE" = 8L, "Soil Moisture" = 2L, "Precipitation" = 29L,
+  "Weather & Forecasts" = 55L, "Fire Weather" = 8L, "Climate & Drought" = 25L,
   "Fire & Burn Areas" = 12L, "Ecology & Habitat" = 34L, "Air Quality" = 6L,
   "Water Rights" = 4L, "Geology & Geophysics" = 12L,
   "Conservation Lands & Designations" = 24L, "Land Ownership & Administration" = 51L,
@@ -1665,15 +1732,15 @@ assert_true(setequal(precipitation_product_ids, c(
   "cnrfc_precip_weather_station_catalog", "EXT140", "EXT142",
   "ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
   "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day",
-  "ops_qpe_rfc_7day", "product-ops-cocorahs-ca-daily",
+  "ops_qpe_rfc_3day", "ops_qpe_rfc_7day", "product-ops-cocorahs-ca-daily",
   "ops_cocorahs_conus_daily", "ops_wpc_qpf_day_1", "ops_wpc_qpf_day_2",
   "ops_wpc_qpf_day_3", "ops_wpc_qpf_3day", "ops_wpc_qpf_7day",
   "ops_wpc_ero_day_1", "ops_cpc_6_10_precipitation",
   "ops_cpc_8_14_precipitation", "product-ops-nbm-accumulated-qpf", "nbm_qpf"
-)), "The exact 28-Product Precipitation membership changed")
+)), "The exact 29-Product Precipitation membership changed")
 subject_lengths <- lengths(lapply(bundle$products, `[[`, "subjectTags"))
 assert_identical(sum(subject_lengths == 0L), 8L, "Zero-subject Product count changed")
-assert_identical(sum(subject_lengths == 1L), 154L, "One-subject Product count changed")
+assert_identical(sum(subject_lengths == 1L), 156L, "One-subject Product count changed")
 assert_identical(sum(subject_lengths > 1L), 108L, "Multi-subject Product count changed")
 subjectless_ids <- product_ids[subject_lengths == 0L]
 assert_true(setequal(subjectless_ids, c(
@@ -1772,7 +1839,7 @@ assert_identical(
     bundle$products, `[[`, character(1), "title"
   ), fixed = TRUE)], `[[`, character(1), "id"),
   integrated_report_ids,
-  "The complete 270-Product universe has an unexpected Integrated Report Product"
+  "The complete 272-Product universe has an unexpected Integrated Report Product"
 )
 multiagency_streamflow <- record_by_id(bundle$products, "ops_streamflow_multiagency")
 assert_identical(multiagency_streamflow$subjectTags, "Surface Water",
@@ -1987,10 +2054,32 @@ assert_true(all(vapply(c(
   "BRIM does not assert that CDEC and CNRFC FNF values or source boundaries are always identical"
 ), function(probe) grepl(probe, architecture_text, fixed = TRUE), logical(1))),
 "Architecture provenance does not preserve the required ownership, pipeline, tool, and limitation distinctions")
-a5_a4_browser_json <- jsonlite::toJSON(pt_guide_resource_browser_records(
+a5_a4_browser_records <- pt_guide_resource_browser_records(
   pt_guide_resource_published_records(a5_historical_registry(raw_resource_registry)),
-  bundle$products, relationship_registry), auto_unbox = TRUE, null = "null", na = "null",
-  pretty = FALSE, digits = NA)
+  bundle$products, relationship_registry)
+# Preserve the exact frozen browser hash by reversing ONLY the approved E31
+# GOES title/retirement projection in this historical test value. The live bundle
+# above keeps two GOES relationships and cannot expose a Water Vapor add action.
+e31_goes_index <- match("resource_noaa_goes_image_viewer",
+                       vapply(a5_a4_browser_records, `[[`, character(1), "id"))
+e31_goes <- a5_a4_browser_records[[e31_goes_index]]
+assert_identical(vapply(e31_goes$representedProducts, `[[`, character(1), "productId"),
+                 c("ops_goes_geocolor", "ops_goes_infrared"), "Current GOES viewer membership differs")
+assert_identical(vapply(e31_goes$representedProducts, `[[`, character(1), "title"),
+                 c("GOES-West GeoColor", "GOES-West Clean IR (Band 13)"), "Current GOES titles differ")
+e31_new_search_tail <- " goes west geocolor goes west clean ir band 13"
+assert_true(endsWith(e31_goes$searchText,e31_new_search_tail),"Current GOES search suffix differs")
+e31_goes$representedProducts[[1L]]$title <- "NOAA GOES GeoColor"
+e31_goes$representedProducts[[2L]]$title <- "NOAA GOES Infrared"
+e31_water_vapor <- e31_goes$representedProducts[[2L]]
+e31_water_vapor$productId <- "ops_goes_water_vapor"
+e31_water_vapor$title <- "NOAA GOES Water Vapor"
+e31_goes$representedProducts[[3L]] <- e31_water_vapor
+e31_goes$searchText <- paste0(substr(e31_goes$searchText,1L,nchar(e31_goes$searchText)-nchar(e31_new_search_tail)),
+                             " noaa goes geocolor noaa goes infrared noaa goes water vapor")
+a5_a4_browser_records[[e31_goes_index]] <- e31_goes
+a5_a4_browser_json <- jsonlite::toJSON(a5_a4_browser_records, auto_unbox=TRUE,
+  null="null",na="null",pretty=FALSE,digits=NA)
 assert_identical(
   digest::digest(a5_a4_browser_json, algo = "sha256", serialize = FALSE),
   "f3570eb76f80712e65b64fae1139f196599d3740dc7ad538ae0a55dc4be2e8a5",
@@ -2319,11 +2408,11 @@ assert_true(!grepl("\\b(rollback|defect)\\b|threshold-enforcement|QA inputs|prod
             "Developer-facing quality or rollback terminology leaked into Guide payload")
 
 cat("R17C2 current compiler and frozen C1 foundation contracts passed.\n")
-cat("HISTORICAL_C1_REGRESSION_OUTPUT_BEGIN\n")
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_BEGIN\nSATELLITE_COMPATIBILITY=E31_TWO_ADDED_ONE_RETIRED;RAW_C1_FIXTURE_UNCHANGED\n")
 cat("PROFILE_ID=default\n")
 cat("PRODUCTS=", bundle$counts$products, "\n", sep = "")
-cat("PRODUCT_UNIVERSE=270_UNIQUE\n")
-cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,47_OPS_LIVE,4_TOOLS\n")
+cat("PRODUCT_UNIVERSE=272_UNIQUE\n")
+cat("PRODUCT_SUBSYSTEM_COUNTS=43_LOCAL,176_EXTERNAL,49_OPS_LIVE,4_TOOLS\n")
 cat("ARTICLES=", bundle$counts$articles, "\n", sep = "")
 cat("RESOURCES=", bundle$counts$resources, "\n", sep = "")
 cat("RESOURCE_REGISTRY_SCHEMA_VERSION=3\n")
@@ -2333,9 +2422,9 @@ cat("R15B_TOTAL_CANONICAL_URL_CHANGES=26\n")
 cat("R15B_ACCESS_POINT_ADDITIONS=4\n")
 cat("R15B_TOTAL_URL_BEARING_FIELDS_CHANGED=82\n")
 cat("USBR_PROJECTED_ACTION=https://www.usbr.gov/\n")
-cat("EXACT_RELATIONSHIP_ROWS=96\n")
-cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,64_SELECTED,19_SOURCE_REFERENCE\n")
-cat("PRODUCTS_WITH_RESOURCE_LINKS=72\n")
+cat("EXACT_RELATIONSHIP_ROWS=95\n")
+cat("RELATIONSHIP_ROLE_COUNTS=13_DIRECT,63_SELECTED,19_SOURCE_REFERENCE\n")
+cat("PRODUCTS_WITH_RESOURCE_LINKS=71\n")
 cat("RESOURCES_WITH_PRODUCT_LINKS=27\n")
 cat("CNRFC_RELATED_PRODUCTS=7\n")
 cat("RESOURCE_REPRESENTATION_COUNTS=3_DIRECT,24_SELECTED,183_NOT_MAPPED\n")
@@ -2348,7 +2437,7 @@ cat("TEMPORAL_SEARCH_EXCLUSION=PASS\n")
 cat("UNKNOWN_DETAIL_OMISSION_CONTRACT=PASS\n")
 cat("UPDATES=", bundle$counts$updates, "\n", sep = "")
 cat("QUICK_ACCESS=", bundle$counts$quickAccess, "\n", sep = "")
-cat("HISTORICAL_C1_REGRESSION_OUTPUT_END\nCURRENT_R17C2_RESOURCES=233_TOTAL,228_PUBLIC,5_STAGED;LINKS=121;VIEWS=28,200,228\n")
+cat("HISTORICAL_C1_REGRESSION_OUTPUT_END\nCURRENT_R17C2_RESOURCES=233_TOTAL,228_PUBLIC,5_STAGED;LINKS=120;VIEWS=28,200,228\n")
 cat("EMBEDDED_PAYLOAD_BYTES=", payload_bytes, "\n", sep = "")
 cat("EMBEDDED_PAYLOAD_GROWTH_BYTES=", payload_growth_bytes, "\n", sep = "")
 cat("GUIDE_JS_BYTES=", js_bytes, "\n", sep = "")
