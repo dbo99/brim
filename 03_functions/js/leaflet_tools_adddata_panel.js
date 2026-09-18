@@ -181,20 +181,26 @@ function(el, x, toolsData) {
     var opsKey = ptCleanText(options.opsPromotedKey);
 
     if (!opsName && !opsKey) return;
+    if (ptOpsPromotedCancelled[opsKey] ||
+        options.opsPromotedGeneration !== ptOpsPromotedGeneration[opsKey]) return;
 
     // Reuse the catalog spinner heuristic: querying/loading/requested messages
     // are non-terminal; added/failed/no-feature messages should end the Ops row
-    // loading indicator.
-    var terminal = !ptStatusKeepsCatalogSpinner(msg);
+    // loading indicator. Refreshing is pending; error guidance is terminal even
+    // when its wording mentions loading or checking.
+    var terminal = !!isError || !(ptStatusKeepsCatalogSpinner(msg) || /^Refreshing\b/i.test(msg));
 
     try {
       window.dispatchEvent(new CustomEvent('ptOpsCatalogLayerStatus', {
         detail: {
           opsDisplayName: opsName,
           opsKey: opsKey,
+          opsPromotedGeneration: options.opsPromotedGeneration,
+          opsPromotedRequest: options.opsPromotedRequest || 0,
           msg: msg || '',
           isError: !!isError,
-          terminal: terminal
+          terminal: terminal,
+          forecastMetadata: ptIsCpcOutlookStyle(options) ? options.forecastMetadata || null : null
         }
       }));
     } catch(e) {}
@@ -5646,6 +5652,30 @@ function(el, x, toolsData) {
     return '#eeeeee';
   }
 
+
+  function ptCpcForecastDescriptor(options) {
+    if (!ptIsCpcOutlookStyle(options)) return null;
+    var levels = [33,40,50,60,70,80,90];
+    var labels = ['<40%', '40–<50%', '50–<60%', '60–<70%', '70–<80%', '80–<90%', '≥90%'];
+    var entries = [];
+    ['Above','Below'].forEach(function(cat) {
+      levels.forEach(function(prob,i) { entries.push({label:cat+' normal '+labels[i], color:ptCpcOutlookColor(cat,prob,options)}); });
+    });
+    ['Near Normal','Equal Chances','Unknown'].forEach(function(label,i) {
+      entries.push({label:label, color:ptCpcOutlookColor(['N','EC','?'][i],33,options)});
+    });
+    return {kind:ptCpcOutlookKind(options), entries:entries};
+  }
+
+  function ptCpcForecastResponse(options, fc, response) {
+    if (!ptIsCpcOutlookStyle(options)) return;
+    options.forecastMetadata = {incomplete:!!(response && (response.exceededTransferLimit || response.ptCpcIncomplete)),
+      features:((fc && fc.features) || []).map(function(f) {
+        var a = f && (f.properties || f.attributes) || {};
+        return {properties:{fcst_date:a.fcst_date, start_date:a.start_date, end_date:a.end_date}};
+      })};
+  }
+
   function ptCpcOutlookLegendHtml(options) {
     options = options || {};
 
@@ -7527,6 +7557,9 @@ function(el, x, toolsData) {
       catalogIndex: rec.catalogIndex,
       catalogKey: rec.catalogKey || '',
       catalogLoadToken: rec.catalogLoadToken || '',
+      opsPromotedKey: rec.opsPromotedKey || '',
+      opsPromotedDisplayName: rec.opsPromotedDisplayName || '',
+      opsPromotedGeneration: rec.opsPromotedGeneration,
       clickable: !!rec.clickable,
       layerName: rec.name || 'External GIS layer'
     };
@@ -7566,6 +7599,7 @@ function(el, x, toolsData) {
           if (cpcFirstError && cpcMerged.features.length === 0) {
             callback(cpcFirstError, cpcMerged, {
               ptCpcCategoryQueries: true,
+              ptCpcIncomplete: !!cpcFirstError,
               exceededTransferLimit: cpcResponses.some(function(resp) {
                 return !!(resp && resp.exceededTransferLimit);
               })
@@ -7575,6 +7609,7 @@ function(el, x, toolsData) {
 
           callback(null, cpcMerged, {
             ptCpcCategoryQueries: true,
+              ptCpcIncomplete: !!cpcFirstError,
             exceededTransferLimit: cpcResponses.some(function(resp) {
               return !!(resp && resp.exceededTransferLimit);
             })
@@ -8058,6 +8093,22 @@ function(el, x, toolsData) {
       return;
     }
 
+    // Promoted snapshots retain the existing activation owner and distinguish
+    // refreshes within it. Ordinary External callers keep their current path.
+    var promoted = ptIsOpsPromotedRecord(rec);
+    if (promoted) {
+      if (ptOpsPromotedCancelled[rec.opsPromotedKey] ||
+          rec.opsPromotedGeneration !== ptOpsPromotedGeneration[rec.opsPromotedKey]) return;
+      rec._opsRefreshRequest = Number(rec._opsRefreshRequest || 0) + 1;
+      options.opsPromotedRequest = rec._opsRefreshRequest;
+    }
+    function refreshIsCurrent() {
+      return !promoted || (ptCustomLayers.indexOf(rec) >= 0 && rec.refreshing &&
+        !ptOpsPromotedCancelled[rec.opsPromotedKey] &&
+        options.opsPromotedGeneration === ptOpsPromotedGeneration[rec.opsPromotedKey] &&
+        options.opsPromotedRequest === rec._opsRefreshRequest);
+    }
+
     rec.refreshing = true;
     ptRenderCustomLayerList();
     ptRenderQuickCatalog();
@@ -8069,6 +8120,7 @@ function(el, x, toolsData) {
     var whereText = ptCleanText(rec.whereClause) || '1=1';
 
     ptEnsureEsriLeaflet(function(ok) {
+      if (!refreshIsCurrent()) return;
       if (!ok || !L.esri || !L.esri.query) {
         rec.refreshing = false;
         ptRenderCustomLayerList();
@@ -8081,6 +8133,7 @@ function(el, x, toolsData) {
       try {
         var bounds = map.getBounds();
         ptRunArcgisCurrentViewFeatureQuery(rec.url, bounds, whereText, options, function(error, featureCollection, response) {
+          if (!refreshIsCurrent()) return;
           if (error) {
             console.error(error);
             rec.refreshing = false;
@@ -8112,6 +8165,7 @@ function(el, x, toolsData) {
           }
 
           rec.layer = newLayer;
+          ptCpcForecastResponse(options, featureCollection, response);
           rec.featureCount = features.length;
           rec.refreshing = false;
           rec.whereClause = whereText;
@@ -8141,6 +8195,7 @@ function(el, x, toolsData) {
           );
         });
       } catch (err) {
+        if (!refreshIsCurrent()) return;
         console.error(err);
         rec.refreshing = false;
         ptRenderCustomLayerList();
@@ -9280,6 +9335,12 @@ function(el, x, toolsData) {
 
         ptRunArcgisCurrentViewFeatureQuery(url, bounds, whereText, options, function(error, featureCollection, response) {
 
+          // Initial responses have no registered record yet; reject old Ops
+          // activations before preparing or constructing their snapshot.
+          if (options.opsPromotedKey &&
+              (ptOpsPromotedCancelled[options.opsPromotedKey] ||
+               options.opsPromotedGeneration !== ptOpsPromotedGeneration[options.opsPromotedKey])) return;
+
           if (error) {
             console.error(error);
             ptSetExternalStatus(
@@ -9299,6 +9360,7 @@ function(el, x, toolsData) {
           var features = featureCollection.features || [];
 
           if (features.length === 0) {
+            ptCpcForecastResponse(options, featureCollection, response);
             ptSetExternalStatus('No features intersected the current map view. Try panning/zooming, clearing the SQL filter, or unchecking current-view mode.', true, options);
             return;
           }
@@ -9339,6 +9401,7 @@ function(el, x, toolsData) {
             return;
           }
 
+          ptCpcForecastResponse(options, featureCollection, response);
           rec.whereClause = whereText;
           rec.featureCount = features.length;
           ptUpdateOpsPromotedStreamflowMetric(options, features.length, response && response.exceededTransferLimit ? 'Transfer limit reported.' : '');
@@ -9409,6 +9472,10 @@ function(el, x, toolsData) {
 
         query.run(function(error, featureCollection, response) {
 
+          if (ptIsCpcOutlookStyle(options) && options.opsPromotedKey &&
+              (ptOpsPromotedCancelled[options.opsPromotedKey] ||
+               options.opsPromotedGeneration !== ptOpsPromotedGeneration[options.opsPromotedKey])) return;
+
           if (error) {
             console.error(error);
             ptSetExternalStatus(
@@ -9428,6 +9495,7 @@ function(el, x, toolsData) {
           var features = featureCollection.features || [];
 
           if (features.length === 0) {
+            ptCpcForecastResponse(options, featureCollection, response);
             ptSetExternalStatus('No MapServer features intersected the current map view. Try panning/zooming or clearing the SQL filter.', true, options);
             return;
           }
@@ -9458,6 +9526,7 @@ function(el, x, toolsData) {
             return;
           }
 
+          ptCpcForecastResponse(options, featureCollection, response);
           rec.whereClause = whereText;
           rec.featureCount = features.length;
           ptUpdateOpsPromotedStreamflowMetric(options, features.length, response && response.exceededTransferLimit ? 'Transfer limit reported.' : '');
@@ -14481,6 +14550,9 @@ function(el, x, toolsData) {
     ptOpsPromotedCancelled[opsKey] = false;
     ptOpsPromotedGeneration[opsKey] = (ptOpsPromotedGeneration[opsKey] || 0) + 1;
     options.opsPromotedGeneration = ptOpsPromotedGeneration[opsKey];
+    if (typeof request.onOwnership === 'function') {
+      request.onOwnership(options.opsPromotedGeneration);
+    }
 
     if (!url) {
       return { ok: false, message: 'Catalog row has no service URL: ' + sourceName };
@@ -14537,6 +14609,11 @@ function(el, x, toolsData) {
   // hover, popup, field alias, and special styling logic as the External panel.
   window.ptOpsExternalCatalogBridge = {
     addLayer: ptOpsAddCatalogLayer,
+    cpcLegendDescriptor: function(sourceName) {
+      var idx = ptFindCatalogRecordIndexByDisplayName(sourceName);
+      if (idx < 0) return null;
+      return ptCpcForecastDescriptor(ptOptionsFromCatalogRecordForOps(PT2_CATALOG[idx],idx,sourceName,''));
+    },
     primaryPanelForDisplayName: function(displayName) {
       var idx = ptFindCatalogRecordIndexByDisplayName(displayName);
       if (idx < 0) return '';

@@ -63,6 +63,7 @@ function(el, x, data) {
   var legendUserHidden = false;
   var legend = null;
   var listenerRecords = [];
+  var containerListenerRecords = [];
   var homeButton = null;
   var homeButtonHandler = null;
   var interactivePaneObserver = null;
@@ -356,6 +357,111 @@ function(el, x, data) {
     });
   }
 
+  // Like the USGS virtual layer, keep the private Canvas out of rectangular
+  // DOM hit targeting and capture only actual feature hits. The shared pane
+  // retains its existing pointer policy for all other layers.
+  function suppressRendererPointerTarget() {
+    if (pointRenderer && pointRenderer._container) {
+      pointRenderer._container.style.pointerEvents = 'none';
+    }
+  }
+
+  function setRendererCursor(active) {
+    var container = map.getContainer && map.getContainer();
+    if (container && container.classList && container.classList.toggle) {
+      container.classList.toggle('pt-springs-canvas-hit', !!active);
+    }
+  }
+
+  function clearRendererHover(event) {
+    setRendererCursor(false);
+    if (!pointRenderer || !pointRenderer._hoveredLayer) return;
+    if (event && pointRenderer._map && pointRenderer._handleMouseOut) {
+      pointRenderer._handleMouseOut(event);
+    } else {
+      var layer = pointRenderer._hoveredLayer;
+      if (layer.closeTooltip) layer.closeTooltip();
+      pointRenderer._hoveredLayer = null;
+    }
+  }
+
+  function rendererInteractionSuppressed(event) {
+    var target = event && event.target;
+    return !!(
+      destroyed || !layerActive || mapMoving || mapZooming ||
+      map._ptMeasureInteractionActive ||
+      (map.dragging && map.dragging.moving && map.dragging.moving()) ||
+      !currentRoot || !map.hasLayer(currentRoot) ||
+      !pointRenderer || !map.hasLayer(pointRenderer) ||
+      (target && target.closest && target.closest(
+        '.leaflet-control,.leaflet-popup,.leaflet-tooltip,' +
+        '.pt-springs-aggregate-divicon,.pt-springs-multi-divicon'
+      ))
+    );
+  }
+
+  function rendererHit(event) {
+    if (!pointRenderer || !map.mouseEventToLayerPoint) return null;
+    var point = map.mouseEventToLayerPoint(event);
+    var hit = null;
+    for (var order = pointRenderer._drawFirst; order; order = order.next) {
+      var layer = order.layer;
+      if (layer.options.interactive && layer._containsPoint(point)) hit = layer;
+    }
+    return hit;
+  }
+
+  function stopAtSpring(event) {
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    if (event.stopPropagation) event.stopPropagation();
+  }
+
+  function forwardRendererMove(event) {
+    if (rendererInteractionSuppressed(event)) {
+      clearRendererHover(event);
+      return;
+    }
+    pointRenderer._onMouseMove(event);
+    var hit = pointRenderer._hoveredLayer;
+    setRendererCursor(!!hit);
+    if (hit) stopAtSpring(event);
+  }
+
+  function forwardRendererClick(event) {
+    if (rendererInteractionSuppressed(event) || !rendererHit(event)) return;
+    pointRenderer._onClick(event);
+    stopAtSpring(event);
+  }
+
+  function installRendererForwarding() {
+    if (pointRenderer && pointRenderer.on) {
+      pointRenderer.on('add', suppressRendererPointerTarget);
+      listenerRecords.push({target: pointRenderer, eventName: 'add',
+        handler: suppressRendererPointerTarget});
+    }
+    var container = map.getContainer && map.getContainer();
+    if (!container || !container.addEventListener) return;
+    [
+      {eventName: 'mousemove', handler: forwardRendererMove},
+      {eventName: 'click', handler: forwardRendererClick},
+      {eventName: 'mouseout', handler: function(event) {
+        if (!event.relatedTarget || !container.contains(event.relatedTarget)) {
+          clearRendererHover(event);
+        }
+      }}
+    ].forEach(function(record) {
+      container.addEventListener(record.eventName, record.handler, true);
+      containerListenerRecords.push(record);
+    });
+  }
+
+  function detachPointRenderer() {
+    // A canceled old render must not detach a newer root's live paths.
+    if (!pointRenderer || pointRenderer._drawFirst) return;
+    clearRendererHover();
+    if (map.hasLayer(pointRenderer)) map.removeLayer(pointRenderer);
+  }
+
   function requestFrame(callback) {
     var request = window.requestAnimationFrame || function(fn) {
       return window.setTimeout(fn, 16);
@@ -417,6 +523,7 @@ function(el, x, data) {
   }
 
   function closeInteractiveState() {
+    clearRendererHover();
     try { map.closePopup(); } catch (popupErr) {}
     try {
       var container = map.getContainer();
@@ -445,10 +552,14 @@ function(el, x, data) {
 
   function detachCurrent(preserveComplete) {
     closeInteractiveState();
-    if (!currentRoot) return;
+    if (!currentRoot) {
+      detachPointRenderer();
+      return;
+    }
     try {
       if (map.hasLayer(currentRoot)) map.removeLayer(currentRoot);
     } catch (removeErr) {}
+    detachPointRenderer();
     if (!preserveComplete || !currentRootComplete) {
       var oldRoot = currentRoot;
       currentRoot = null;
@@ -1212,6 +1323,7 @@ function(el, x, data) {
       try {
         if (map.hasLayer(previousRoot)) map.removeLayer(previousRoot);
       } catch (removePreviousErr) {}
+      detachPointRenderer();
     }
 
     var root = L.layerGroup();
@@ -1229,6 +1341,7 @@ function(el, x, data) {
     function step() {
       if (!tokenCurrent(token) || !layerActive || currentRoot !== root) {
         try { if (map.hasLayer(root)) map.removeLayer(root); } catch (removeErr) {}
+        detachPointRenderer();
         if (currentRoot === root) {
           currentRoot = null;
           currentRootComplete = false;
@@ -1663,6 +1776,7 @@ function(el, x, data) {
     var style = document.createElement('style');
     style.id = 'pt-springs-virtualized-style';
     style.textContent =
+      '.pt-springs-canvas-hit{cursor:pointer;}' +
       '.leaflet-tooltip.pt-springs-local-tooltip{font:12px/1.25 Arial,sans-serif;white-space:normal;min-width:150px;max-width:340px;}' +
       '.pt-springs-aggregate-divicon,.pt-springs-multi-divicon{background:transparent;border:0;pointer-events:auto;}' +
       '.pt-springs-aggregate-marker{position:relative;width:100%;height:100%;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:2px solid rgba(90,58,15,.82);background:rgba(221,211,173,.94);box-shadow:0 1px 5px rgba(0,0,0,.30);color:#3a240d;font:700 11px/1 Arial,sans-serif;}' +
@@ -1856,6 +1970,13 @@ function(el, x, data) {
       } catch (listenerErr) {}
     });
     listenerRecords = [];
+    var container = map.getContainer && map.getContainer();
+    if (container && container.removeEventListener) {
+      containerListenerRecords.forEach(function(record) {
+        container.removeEventListener(record.eventName, record.handler, true);
+      });
+    }
+    containerListenerRecords = [];
     document.removeEventListener('change', documentChangeHandler, true);
     document.removeEventListener('click', documentClickHandler, true);
     if (homeButton && homeButtonHandler) {
@@ -1883,6 +2004,7 @@ function(el, x, data) {
 
   installStyles();
   installInteractivePaneObserver();
+  installRendererForwarding();
   installLegend();
   installProfiler();
 

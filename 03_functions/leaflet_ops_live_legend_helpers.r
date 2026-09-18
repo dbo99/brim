@@ -16,6 +16,410 @@ pt_ops_live_legend_helpers_js <- function() {
   var ptOpsMapLegendDiv = null;
   var ptOpsMapLegendHiddenTypes = {};
 
+  // Published RFC legend presentation, reviewed 2026-09-11 (32/56) and 2026-09-14 (40).
+  // Source: https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer/legend?f=pjson
+  // Original label/PNG hashes and independent decoded RGBA evidence live in
+  // qa/test_ops_radar_qpe_contracts.js. Preserve each product's own scale.
+  // Solid 20px PNGs contain a 16px opaque interior with a 2px transparent margin;
+  // the lowest class is wholly transparent. This describes legend PNGs only.
+  var ptOpsRfcQpeLegends = {
+    'ops_qpe_rfc_1day': {
+      title: 'RFC mosaic · Daily QPE',
+      period: 'Daily analysis: one 24-hour accumulation, not a rolling last-24-hour product.',
+      rows: [
+        ["Greater than or equal to 10", '#dcdcdc'],
+        ["8 to 10", '#7d4be1'],
+        ["6 to 8", '#fa00fa'],
+        ["5 to 6", '#7d0000'],
+        ["4 to 5", '#af0000'],
+        ["3 to 4", '#fa0000'],
+        ["2.5 to 3", '#fa9600'],
+        ["2 to 2.5", '#ffd966'],
+        ["1.5 to 2", '#fafa00'],
+        ["1 to 1.5", '#00640a'],
+        ["0.75 to 1", '#00a00f'],
+        ["0.5 to 0.75", '#00fa14'],
+        ["0.25 to 0.5", '#001432'],
+        ["0.1  to  0.25", '#3d85c6'],
+        ["0.01 to 0.1", '#14c8fa'],
+        ["Less than 0.01", 'transparent'],
+        ["Missing data", '#7d7d7d']
+      ]
+    },
+    'ops_qpe_rfc_3day': {
+      title: 'RFC mosaic · 3-day QPE',
+      period: 'Three-day accumulation: sum of three daily 24-hour analyses.',
+      rows: [
+        ["Greater than or equal to 20", '#dbdbdb'],
+        ["15 to 20", '#7c4ae0'],
+        ["10 to 15", '#fa00fa'],
+        ["8 to 10", '#7d0000'],
+        ["6 to 8", '#b00000'],
+        ["5 to 6", '#fa0000'],
+        ["4 to 5", '#fa9600'],
+        ["3 to 4", '#ffd966'],
+        ["2 to 3", '#fafa00'],
+        ["1.5 to 2", '#00630a'],
+        ["1 to 1.5", '#00a110'],
+        ["0.5 to 1", '#00fa15'],
+        ["0.25 to 0.5", '#001496'],
+        ["0.1 to 0.25", '#3e87c7'],
+        ["0.01 to 0.1", '#14c8fa'],
+        ["Less than 0.01", 'transparent'],
+        ["Missing Data", '#7d7d7d']
+      ]
+    },
+    'ops_qpe_rfc_7day': {
+      title: 'RFC mosaic · 7-day QPE',
+      period: 'Seven-day accumulation: sum of seven daily 24-hour analyses.',
+      rows: [
+        ["Greater than or equal to 20", '#dbdbdb'],
+        ["15 to 20", '#7c4ae0'],
+        ["10 to 15", '#fa00fa'],
+        ["8 to 10", '#7d0000'],
+        ["6 to 8", '#b00000'],
+        ["5 to 6", '#fa0000'],
+        ["4 to 5", '#fa9600'],
+        ["3 to 4", '#ffd966'],
+        ["2 to 3", '#fafa00'],
+        ["1.5 to 2", '#00630a'],
+        ["1 to 1.5", '#00a110'],
+        ["0.5 to 1", '#00fa15'],
+        ["0.25 to 0.5", '#001496'],
+        ["0.1 to 0.25", '#3e87c7'],
+        ["0.01 to 0.1", '#14c8fa'],
+        ["Less than 0.01", 'transparent'],
+        ["Missing Data", '#7d7d7d']
+      ]
+    }
+  };
+
+  // Views belong to activeLegendDefs registration objects, not freshness/status.
+  // Retaining the node retains its current activation's hidden and docking state.
+  var ptOpsRfcQpeCards = {};
+
+  function ptOpsRfcQpeRowHtml(row, label) {
+    // Authored scalars only; retain the exact provider wording separately.
+    var color = row[1];
+    if (!/^(#[0-9a-f]{6}|transparent)$/.test(color)) throw new Error('Invalid authored RFC legend color');
+    return '<div class="pt-ops-rfc-qpe-row" title="' + escapeHtml(row[0]) + '">' +
+      '<span class="pt-ops-rfc-qpe-swatch" aria-hidden="true"><span class="pt-ops-rfc-qpe-color" style="background:' +
+      color + '"></span></span><span class="pt-ops-rfc-qpe-label" aria-label="' + escapeHtml(row[0]) + '">' +
+      escapeHtml(label) + '</span></div>';
+  }
+
+  function ptOpsRfcQpeCardHtml(def) {
+    var metadata = ptOpsRfcQpeMetadata(def);
+    var numeric = [], missing = [];
+    def.rows.forEach(function(row) {
+      var label = row[0].replace(/\s+/g, ' ').trim(), match;
+      // Omit only the published transparent threshold from the primary key.
+      // It remains in the authored provider classification; no raster changes.
+      if (label === 'Less than 0.01') return;
+      if (/^missing data$/i.test(label)) { missing.push(row); return; }
+      match = /^(\d+(?:\.\d+)?) to (\d+(?:\.\d+)?)$/.exec(label);
+      if (match) {
+        numeric.push({row: row, lower: Number(match[1]), label: match[1] + '–' + match[2]});
+        return;
+      }
+      match = /^Greater than or equal to (\d+(?:\.\d+)?)$/.exec(label);
+      if (!match) throw new Error('Unrecognized authored RFC legend class');
+      numeric.push({row: row, lower: Number(match[1]), label: '≥' + match[1]});
+    });
+    numeric.sort(function(a, b) { return a.lower - b.lower; });
+    var html = '<div class="pt-map-card-handle pt-ops-rfc-qpe-head"><h4>' +
+      escapeHtml(def.title) + '</h4>' +
+      window.BRIM.legendCloseout.actionsHtml('pt-ops-rfc-qpe-dock', 'pt-ops-rfc-qpe-close', escapeHtml(def.title)) +
+      '</div><div class="pt-ops-rfc-qpe-interval">Displayed accumulation interval: ' + escapeHtml(metadata.interval) + '</div>' +
+      '<div class="pt-ops-rfc-qpe-units">Precipitation (inches)</div><div class="pt-ops-rfc-qpe-scale">';
+    numeric.forEach(function(item) { html += ptOpsRfcQpeRowHtml(item.row, item.label); });
+    html += '</div><div class="pt-ops-rfc-qpe-missing">';
+    missing.forEach(function(row) { html += ptOpsRfcQpeRowHtml(row, 'Missing data'); });
+    return html + '</div><div class="pt-ops-rfc-qpe-note">Below 0.01 in omitted from this key.</div>' +
+      '<details class="pt-ops-rfc-qpe-method"><summary>Source, method &amp; timing</summary>' +
+      metadata.fields.map(function(field) {
+        return '<div><b>' + escapeHtml(field.label) + ':</b> <span data-rfc-qpe-metadata="' +
+          escapeHtml(field.key) + '">' + escapeHtml(field.value) + '</span></div>';
+      }).join('') + '</details>';
+  }
+
+  function ptOpsUpdateRfcQpeMetadata() {
+    // Update text in mounted cards only: never remount, reopen or rebind them.
+    Object.keys(ptOpsRfcQpeCards).forEach(function(id) {
+      var card = ptOpsRfcQpeCards[id].card;
+      if (!card || !card.parentNode) return;
+      ptOpsRfcQpeMetadata(ptOpsRfcQpeLegends[id]).fields.forEach(function(field) {
+        var value = card.querySelector('[data-rfc-qpe-metadata="' + field.key + '"]');
+        if (value) value.textContent = field.value;
+      });
+    });
+  }
+
+
+  function ptOpsSyncRfcQpeLegends() {
+    var wanted = {};
+    Object.keys(activeLegendDefs).forEach(function(name) {
+      var owner = activeLegendDefs[name], id = owner.rfcQpeProductId;
+      if (Object.prototype.hasOwnProperty.call(ptOpsRfcQpeLegends, id)) wanted[id] = owner;
+    });
+    ptOpsSyncLegendCards(ptOpsRfcQpeCards, wanted, {
+      title: function(id) { return ptOpsRfcQpeLegends[id].title; },
+      html: function(id) { return ptOpsRfcQpeCardHtml(ptOpsRfcQpeLegends[id]); },
+      className: 'pt-ops-rfc-qpe-card pt-map-legend-card',
+      attribute: 'data-rfc-qpe-product-id',
+      dockSelector: '.pt-ops-rfc-qpe-dock', closeSelector: '.pt-ops-rfc-qpe-close'
+    });
+  }
+
+  // One existing registration-owned lifecycle serves both presentation families.
+  function ptOpsSyncLegendCards(views, wanted, presentation) {
+    Object.keys(views).forEach(function(id) {
+      var view = views[id];
+      if (wanted[id] === view.owner) return;
+      view.detachable.destroy(false);
+      view.control.remove();
+      delete views[id];
+    });
+    Object.keys(wanted).forEach(function(id) {
+      if (views[id]) return;
+      var title = presentation.title(id);
+      var control = L.control({position: 'bottomleft'});
+      var card;
+      control.onAdd = function() {
+        card = L.DomUtil.create('div', presentation.className);
+        card.setAttribute(presentation.attribute, id);
+        card.setAttribute('role', 'group');
+        card.setAttribute('aria-label', title);
+        card.innerHTML = presentation.html(id);
+        L.DomEvent.disableClickPropagation(card);
+        L.DomEvent.disableScrollPropagation(card);
+        return card;
+      };
+      control.addTo(map);
+      var detachable = window.BRIM.legendCloseout.makeDetachable({
+        card: card, map: map, handleSelector: '.pt-map-card-handle',
+        dockSelector: presentation.dockSelector, label: title
+      });
+      window.BRIM.legendCloseout.wire(card, presentation.closeSelector, function() {
+        // Return a floating card before hiding it; off/clear can then remove
+        // its Leaflet control and destroy its shared drag/resize listeners.
+        detachable.dock();
+        window.BRIM.legendCloseout.scheduleLayout();
+      });
+      views[id] = {owner: wanted[id], control: control, detachable: detachable, card: card};
+      window.BRIM.legendCloseout.scheduleLayout(card);
+    });
+  }
+
+
+  var ptOpsForecastCards = {};
+  // Source-owned scale derived from authenticated NOAA E37/E37R1 raw renderer + legend.
+  // QPF selectors 1/2/3/9/11; ERO 0/1/2. Not a freshly checked live renderer claim.
+  var ptWpcQpfScale = [{"value":0.0,"label":"0","rgba":[255,255,255,255]},{"value":0.01,"label":"0.01","rgba":[127,255,0,255]},{"value":0.1,"label":"0.10","rgba":[0,255,0,255]},{"value":0.25,"label":"0.25","rgba":[8,139,0,255]},{"value":0.5,"label":"0.50","rgba":[16,78,139,255]},{"value":0.75,"label":"0.75","rgba":[30,144,255,255]},{"value":1.0,"label":"1.00","rgba":[0,178,238,255]},{"value":1.25,"label":"1.25","rgba":[0,238,238,255]},{"value":1.5,"label":"1.50","rgba":[137,104,205,255]},{"value":1.75,"label":"1.75","rgba":[145,44,238,255]},{"value":2.0,"label":"2.00","rgba":[139,0,139,255]},{"value":2.5,"label":"2.50","rgba":[139,0,0,255]},{"value":3.0,"label":"3.00","rgba":[255,0,0,255]},{"value":4.0,"label":"4.00","rgba":[238,64,0,255]},{"value":5.0,"label":"5.00","rgba":[255,127,0,255]},{"value":7.0,"label":"7.00","rgba":[206,133,0,255]},{"value":10.0,"label":"10.00","rgba":[255,215,0,255]},{"value":15.0,"label":"15.00","rgba":[255,255,0,255]},{"value":20.0,"label":"20.00 (inches)","rgba":[255,192,183,255]}];
+  var ptWpcEroScale = [{"value":1.0,"label":"Marginal (At Least 5%)","rgba":[56,168,0,255]},{"value":2.0,"label":"Slight (At Least 15%)","rgba":[255,254,0,255]},{"value":3.0,"label":"Moderate (At Least 40%)","rgba":[245,0,0,255]},{"value":4.0,"label":"High (At Least 70%)","rgba":[255,105,197,255]}];
+
+  function ptOpsForecastFamily(id) {
+    if (['ops_wpc_qpf_day_1','ops_wpc_qpf_day_2','ops_wpc_qpf_day_3','ops_wpc_qpf_3day','ops_wpc_qpf_7day'].indexOf(id)>=0) return 'qpf';
+    if (['ops_wpc_ero_day_1','ops_wpc_ero_day_2','ops_wpc_ero_day_3'].indexOf(id)>=0) return 'ero';
+    if (['ops_cpc_6_10_temperature','ops_cpc_6_10_precipitation','ops_cpc_8_14_temperature','ops_cpc_8_14_precipitation'].indexOf(id)>=0) return 'cpc';
+    return null;
+  }
+
+  function ptOpsForecastScaleHtml(def) {
+    var family = ptOpsForecastFamily(def.forecastProductId);
+    var rows = family === 'qpf' ? ptWpcQpfScale : family === 'ero' ? ptWpcEroScale : def.forecastScale && def.forecastScale.entries;
+    if (!rows) return 'BRIM display colors unavailable — Unverified';
+    if (family === 'qpf') {
+      function tick(r) {
+        var label = r.value >= 2 && Number.isInteger(r.value) ? String(r.value) : r.label.replace(' (inches)','');
+        return '<span class="pt-qpf-boundary-tick" aria-hidden="true">'+escapeHtml(label)+'</span>';
+      }
+      function boundary(r, kind) {
+        var color = 'rgba('+r.rgba.slice(0,3).join(',')+','+(r.rgba[3]/255)+')';
+        return '<span class="pt-qpf-contour-'+kind+'" data-qpf-boundary="'+r.value+'" role="listitem" aria-label="'+
+          escapeHtml(r.value+' inches contour boundary')+'">'+
+          '<span class="pt-ops-swatch" aria-hidden="true" style="background:'+color+'"></span>'+
+          tick(r)+'</span>';
+      }
+      // Adjacent ticks communicate contour intervals, not endpoint inclusion.
+      // Repeat the join tick visually; the ordered accessible list keeps each value once.
+      // The final captured color is a boundary cap, not an asserted open-ended band.
+      function strip(start, end, last) {
+        return '<div class="pt-qpf-contour-strip" role="presentation">'+rows.slice(start,end).map(function(r) {
+          return boundary(r,'band');
+        }).join('')+(last ? boundary(rows[end],'cap') : '<span class="pt-qpf-contour-end" aria-hidden="true">'+tick(rows[end])+'</span>')+'</div>';
+      }
+      return '<div class="pt-qpf-contour-scale"><div role="list" aria-label="QPF contour boundaries in inches, low to high">'+
+        '<div class="pt-qpf-contour-strips" role="presentation">'+strip(1,10,false)+strip(10,18,true)+'</div>'+
+        '</div><div class="pt-qpf-contour-note">No color = no forecast precipitation</div></div>';
+    }
+    function row(r, label) {
+      var color = r.color || 'rgba('+r.rgba.slice(0,3).join(',')+','+(r.rgba[3]/255)+')';
+      return '<div class="pt-ops-legend-line" aria-label="'+escapeHtml(r.label)+'"><span class="pt-ops-swatch" aria-hidden="true" style="background:'+escapeHtml(color)+'"></span><span>'+escapeHtml(label || r.label)+'</span></div>';
+    }
+    if (family === 'cpc') {
+      function group(title, predicate, short) {
+        return '<section class="pt-forecast-cpc-group"><h5>'+title+'</h5>'+rows.filter(predicate).map(function(r) { return row(r,short ? r.label.replace(/^(Below|Above) normal /,'') : r.label); }).join('')+'</section>';
+      }
+      return '<div class="pt-forecast-cpc-groups">'+
+        group('Below normal',function(r) { return /^Below normal /.test(r.label); },true)+
+        group('Near normal',function(r) { return r.label === 'Near Normal'; },false)+
+        group('Above normal',function(r) { return /^Above normal /.test(r.label); },true)+
+        '</div><div class="pt-forecast-cpc-status">'+rows.filter(function(r) { return r.label === 'Equal Chances' || r.label === 'Unknown'; }).map(function(r) { return row(r); }).join('')+'</div>';
+    }
+    return '<div class="pt-forecast-risks">'+rows.map(function(r) {
+      return row(r,r.label);
+    }).join('')+'</div>';
+  }
+
+  function ptOpsForecastCardHtml(name, def) {
+    var family = ptOpsForecastFamily(def.forecastProductId);
+    var label = family === 'qpf' ? 'QPF contours (inches)' : family === 'ero' ? 'Excessive-rainfall risk' : 'Category probability (%)';
+    var method = family === 'qpf' ? 'Captured NOAA contour values and colors; tick spacing is schematic. The unique-value renderer does not separately establish top-bin semantics. Zero is real zero; missing data is separate. The final color marks the captured 20 boundary. Polygon/contour attributes are not interpolated point forecasts.' :
+      family === 'ero' ? 'Captured provider risk labels and BRIM mapped fills. Slight remains #fffe00; the captured provider legend image uses #ffff00. Unknown/missing is not confirmed Marginal; the existing map may use its green fallback for unknown values.' :
+      'Percent is category probability, not percent-normal, amount, degrees, or probability of any rain. Keys match BRIM display colors, not a substituted provider palette. Near Normal, Equal Chances and Unknown are distinct even where BRIM uses the same gray. Unknown is not a valid forecast.';
+    return '<div class="pt-map-card-handle pt-forecast-head"><h4>'+escapeHtml(name)+'</h4>'+window.BRIM.legendCloseout.actionsHtml('pt-forecast-dock','pt-forecast-close',escapeHtml(name))+'</div>'+
+      '<div class="pt-forecast-valid"><b>Valid:</b> <span data-forecast-field="valid"></span></div>'+
+      '<div class="pt-forecast-issued"><b>'+(family === 'cpc' ? 'Forecast date' : 'Issued')+':</b> <span data-forecast-field="issued"></span></div>'+
+      '<b class="pt-forecast-scale-title">'+escapeHtml(label)+'</b><div class="pt-forecast-scale"></div>'+
+      '<div class="pt-forecast-qualification">'+(family === 'cpc' ? 'BRIM display colors. ' : '')+'<span data-forecast-field="scope"></span></div>'+
+      '<details><summary>Source, method &amp; timing</summary><div>'+escapeHtml(method)+'</div>'+
+      (family === 'qpf' ? '<div>Legend uses provider boundary values; endpoint inclusion is not separately specified</div>'+
+        '<div>Image and metadata cycle alignment is not independently confirmed</div>' : '')+
+      '<div data-forecast-field="fullscope"></div><div>Issued / forecast date: <span data-forecast-field="rawissued"></span></div>'+
+      '<div>Full valid interval: <span data-forecast-field="rawvalid"></span></div><div data-forecast-field="utc"></div>'+activeOverlayLinksHtml(def)+'</details>';
+  }
+
+  function ptOpsSizeForecastCards() {
+    var size = map.getSize();
+    Object.keys(ptOpsForecastCards).forEach(function(id) {
+      var card = ptOpsForecastCards[id].card;
+      card.style.maxWidth = Math.max(1,Math.min(360,size.x-24))+'px';
+      card.style.setProperty('--pt-forecast-map-height',Math.max(1,size.y-24)+'px');
+      card.classList.toggle('pt-forecast-narrow',size.x < 330);
+    });
+  }
+  var ptForecastSizingBound = false;
+
+  function ptOpsSyncForecastLegends() {
+    var wanted = {}, names = {};
+    Object.keys(activeLegendDefs).forEach(function(name) {
+      var def = activeLegendDefs[name], id = def.forecastProductId;
+      if (ptOpsForecastFamily(id)) { wanted[id] = def; names[id] = name; }
+    });
+    ptOpsSyncLegendCards(ptOpsForecastCards,wanted,{
+      title:function(id) { return names[id]; }, html:function(id) { return ptOpsForecastCardHtml(names[id],wanted[id]); },
+      className:'pt-map-legend-card pt-map-legend-external pt-ops-forecast-card', attribute:'data-forecast-product',
+      dockSelector:'.pt-forecast-dock', closeSelector:'.pt-forecast-close'
+    });
+    Object.keys(ptOpsForecastCards).forEach(function(id) {
+      var view = ptOpsForecastCards[id], def = view.owner;
+      var metadata = def.forecastMetadata || ptForecastMetadata(ptOpsForecastFamily(id),[],false);
+      var fields = ptForecastPresentation(ptOpsForecastFamily(id),metadata);
+      fields.fullscope = ptOpsForecastFamily(id) === 'qpf' ?
+        metadata.scope.split(';').filter(function(text) { return !/^\s*image-cycle match unverified\s*$/i.test(text); }).join(';') : metadata.scope;
+      fields.rawissued = metadata.issued; fields.rawvalid = metadata.valid;
+      Object.keys(fields).forEach(function(key) {
+        var el = view.card.querySelector('[data-forecast-field="'+key+'"]');
+        if (el && el.textContent !== fields[key]) el.textContent = fields[key];
+      });
+      var scale = ptOpsForecastScaleHtml(def);
+      if (view.scale !== scale) { view.card.querySelector('.pt-forecast-scale').innerHTML = scale; view.scale = scale; }
+    });
+    var hasCards = Object.keys(ptOpsForecastCards).length > 0;
+    if (hasCards !== ptForecastSizingBound) {
+      map[hasCards ? 'on' : 'off']('resize',ptOpsSizeForecastCards);
+      ptForecastSizingBound = hasCards;
+    }
+    ptOpsSizeForecastCards();
+  }
+
+  var ptOpsRadarMrmsCards = {};
+
+  // BRIM semantic guide only; these colors do not encode provider thresholds.
+  var ptOpsRadarGuide = {
+    entries: [
+      {label: 'Light', color: '#31d843'},
+      {label: 'Moderate', color: '#fff04a'},
+      {label: 'Heavy', color: '#ff9a26'},
+      {label: 'Very heavy', color: '#e31a1c'},
+      {label: 'Strongest echoes', color: '#d900ff'}
+    ],
+    note: 'General radar reflectivity guide — approximate. Provider palettes vary; this is not an exact dBZ or precipitation-rate scale.'
+  };
+
+  function ptOpsUsesRadarGuide(def) {
+    return def.legendType === 'radar_iem' || def.legendType === 'radar_noaa';
+  }
+
+  function ptOpsRadarGuideHtml() {
+    return '<div class="pt-ops-section pt-ops-radar-guide"><b>Radar reflectivity guide</b>' +
+      ptOpsRadarGuide.entries.map(function(entry) {
+        return '<div class="pt-ops-legend-line"><span class="pt-ops-swatch" aria-hidden="true" style="background:' +
+          escapeHtml(entry.color) + '"></span>' + escapeHtml(entry.label) + '</div>';
+      }).join('') + '<div class="pt-ops-muted">' + escapeHtml(ptOpsRadarGuide.note) + '</div></div>';
+  }
+
+  function ptOpsRadarMrmsMetadataHtml(def) {
+    return ptOpsRadarMrmsMetadata(def).filter(function(field) {
+      // IEM's former provider-image visual-key row no longer describes this UI.
+      return !(def.legendType === 'radar_iem' && field.key === 'scale');
+    }).map(function(field) {
+      return '<div><b>' + escapeHtml(field.label) + ':</b> <span data-radar-mrms-field="' +
+        field.key + '">' + escapeHtml(field.value) + '</span></div>';
+    }).join('');
+  }
+
+  function ptOpsRadarMrmsCardHtml(name, def) {
+    var html = '<div class="pt-map-card-handle pt-ops-radar-mrms-head"><h4>' + escapeHtml(name) + '</h4>' +
+      window.BRIM.legendCloseout.actionsHtml('pt-ops-radar-mrms-dock', 'pt-ops-radar-mrms-close', escapeHtml(name)) + '</div>';
+    if (ptOpsUsesRadarGuide(def)) html += ptOpsRadarGuideHtml();
+    if (def.legendType === 'mrms_qpe') html += qpeLegendHtml('MRMS QPE approximate color guide');
+    html += ptOpsRadarMrmsMetadataHtml(def);
+    html += '<details><summary>Provider links</summary>';
+    if (!ptOpsUsesRadarGuide(def)) {
+      html += '<a href="' + escapeHtml(def.legendUrl) + '" target="_blank" rel="noopener noreferrer">' +
+        'Provider whole-service legend — not a verified selected-product scale</a><br>';
+    }
+    return html + '<a href="' + escapeHtml(def.sourceUrl) +
+      '" target="_blank" rel="noopener noreferrer">Provider source</a></details>';
+  }
+
+  function ptOpsUpdateRadarMrmsMetadata() {
+    function update(node, def) {
+      if (!node || !def) return;
+      var fields = ptOpsRadarMrmsMetadata(def);
+      if (!fields) return;
+      fields.forEach(function(field) {
+        var span = node.querySelector('[data-radar-mrms-field="' + field.key + '"]');
+        if (span) span.textContent = field.value;
+      });
+    }
+    Object.keys(ptOpsRadarMrmsCards).forEach(function(name) {
+      var view = ptOpsRadarMrmsCards[name];
+      if (activeLegendDefs[name] === view.owner) update(view.card, view.owner);
+    });
+    if (legendDiv) Array.prototype.forEach.call(legendDiv.querySelectorAll('[data-radar-mrms-name]'), function(node) {
+      update(node, activeLegendDefs[node.getAttribute('data-radar-mrms-name')]);
+    });
+  }
+
+  function ptOpsSyncRadarMrmsLegends() {
+    var wanted = {};
+    Object.keys(activeLegendDefs).forEach(function(name) {
+      var owner = activeLegendDefs[name];
+      if (ptOpsRadarMrmsMetadata(owner)) wanted[name] = owner;
+    });
+    ptOpsSyncLegendCards(ptOpsRadarMrmsCards, wanted, {
+      title: function(name) { return name; },
+      html: function(name) { return ptOpsRadarMrmsCardHtml(name, wanted[name]); },
+      className: 'pt-ops-radar-mrms-card pt-map-legend-card',
+      attribute: 'data-radar-mrms-name',
+      dockSelector: '.pt-ops-radar-mrms-dock', closeSelector: '.pt-ops-radar-mrms-close'
+    });
+  }
+
+
   function ptOpsMapLegendCloseButtonHtml(type) {
     return '<button type="button" class="pt-ops-map-legend-close" data-pt-ops-map-legend-close="' + escapeHtml(type || '') + '" title="Hide this legend">&times;</button>';
   }
@@ -513,6 +917,9 @@ pt_ops_live_legend_helpers_js <- function() {
   }
 
   function redrawLegend() {
+    ptOpsSyncRfcQpeLegends();
+    ptOpsSyncRadarMrmsLegends();
+    ptOpsSyncForecastLegends();
     if (!legendDiv) {
       redrawOpsMapLegend(Object.keys(activeLegendDefs).sort());
       return;
@@ -527,11 +934,17 @@ pt_ops_live_legend_helpers_js <- function() {
     var html = '<h4>Active overlay notes</h4>';
     keys.forEach(function(k) {
       var def = activeLegendDefs[k];
-      html += '<div class="pt-ops-section"><b>' + escapeHtml(k) + '</b><br><span class="pt-ops-muted">' + escapeHtml(def.note || '') + '</span>' + activeOverlayLinksHtml(def) + '</div>';
+      // Hide the same misleading radar legend links in the textual Ops notes.
+      var linkDef = ptOpsUsesRadarGuide(def) ? Object.assign({}, def, {legendUrl: null}) : def;
+      html += '<div class="pt-ops-section"><b>' + escapeHtml(k) + '</b><br><span class="pt-ops-muted">' + escapeHtml(def.note || '') + '</span>' + activeOverlayLinksHtml(linkDef) + '</div>';
+      if (ptOpsRadarMrmsMetadata(def)) {
+        html += '<div class="pt-ops-section" data-radar-mrms-name="' + escapeHtml(k) + '">' +
+          ptOpsRadarMrmsMetadataHtml(def) + '</div>';
+      }
       if (def.legendType && !seen[def.legendType]) {
-        if (def.legendType === 'qpe') html += qpeLegendHtml('QPE / QPF colors');
+        // Forecast scales belong to their product-owned map cards.
         if (def.legendType === 'airnow_aqi') html += '<div class="pt-ops-section"><b>AirNow AQI legend</b><br><span class="pt-ops-muted">A compact AirNow AQI category legend is shown on the map while this layer is active.</span></div>';
-        if (def.legendType === 'ero') html += eroLegendHtml();
+
         if (def.legendType === 'fire_year') html += opsFireYearLegendHtml();
         if (def.legendType === 'reservoir_capacity') html += '<div class="pt-ops-section"><b>Reservoir legend</b><br><span class="pt-ops-muted">A compact reservoir legend is shown on the map while this layer is active.</span></div>';
         if (def.legendType === 'usgs_groundwater') html += '<div class="pt-ops-section"><b>Groundwater legend</b><br><span class="pt-ops-muted">A compact groundwater legend is shown on the map while this layer is active.</span></div>';

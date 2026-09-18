@@ -356,7 +356,7 @@ const projected = JSON.parse(projectionRun.stdout);
 const projection = projected.projection;
 const authored = JSON.parse(read('00_config','guide_product_resource_relationships.json')).products;
 const classById = new Map(authored.map(p=>[p.product_id,p.delivery_class]));
-assert.equal(classById.size,270);assert.equal(projected.identities.length,48);assert.equal(projection.length,47);
+assert.equal(classById.size,272);assert.equal(projected.identities.length,50);assert.equal(projection.length,49);
 const constantTokens = projected.identities.map(r=>r.source_token).filter(t=>t.startsWith('PT_'));
 assert.equal(constantTokens.length,4);
 const opsModuleText = fs.readdirSync(path.join(repoRoot,'03_functions')).filter(n=>/^leaflet_ops_live_.*\.r$/.test(n)).map(n=>read('03_functions',n)).join('\n');
@@ -428,14 +428,14 @@ assert.strictEqual(water.layer,waterLayer);assert.strictEqual(waterArgs.geometry
 assert.equal(waterArgs.name,waterName);assert.equal(waterArgs.cnrfcUrl,water.sourceUrl);assert.equal(waterArgs.cbrfcUrl,water.infoUrl);
 if(process.env.BRIM_OPS_CONSUMER_MAP) {
   const audit=JSON.parse(fs.readFileSync(process.env.BRIM_OPS_CONSUMER_MAP));
-  assert.equal(audit.rows.length,48);assert.equal(new Set(audit.rows.map(r=>r.stable_id)).size,48);
+  assert.equal(audit.rows.length,50);assert.equal(new Set(audit.rows.map(r=>r.stable_id)).size,50);
   let positives=0;
   for(const record of audit.rows) {
     const row={name:record.internal_name};registration.add(row);
     const positive=record.disposition==='POSITIVE_VERIFIED_BRIM_PREPARED';
     assert.equal(row.brimPrepared===true,positive,record.stable_id);if(positive)positives++;
   }
-  assert.equal(positives,16);assert.equal(audit.rows.length-positives,32);
+  assert.equal(positives,16);assert.equal(audit.rows.length-positives,34);
 }
 const direct={name:'Direct <agency> & service',panelLabel:'Direct <agency> & service',helperText:'A < B & C',category:'Hydro Observations',layer:{}};
 const escape=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -453,7 +453,7 @@ const activeLayers={},defs={[reservoirName]:reservoir},checkboxes={[reservoirNam
 reservoir.onDeactivate=()=>deactivations++;
 const api=new Function('opsLayers','escapeHtml','layerRowLinksHtml','opsExternalLinksForCategory',
   'checkboxByName','opsDefByName','activeLayers','map','window','clearAllOpsLayerLoading','redrawLegend','redrawStatus','updateOpsHeaderCount','fetch',
-  'var activeLegendDefs={}, statusRows={};\n'+panelJs.slice(0,panelJs.indexOf('  function addFixedOpsPanel()'))+
+  'var activeLegendDefs={}, statusRows={}, ptGibsLayers=[]; function ptGibsRowHtml(){return "";}\n'+panelJs.slice(0,panelJs.indexOf('  function addFixedOpsPanel()'))+
   '\nreturn {render:buildOpsPanelHtml,activate:ptOpsActivateLayerByName,clear:ptClearOpsLayers,kind:ptOpsDeliveryKind,badge:ptOpsDeliveryBadgeHtml,primary:ptOpsPrimaryTitleHtml};')
   (rows,escape,rowLinks,()=>'',checkboxes,defs,activeLayers,{removeLayer(){removals++;},getPane(){return null;}},{},()=>{},()=>{},()=>{},()=>{},()=>{networkCalls++;throw Error('Unexpected fetch');});
 const html=api.render();assert.equal(api.render(),html,'Repeated render duplicated content');
@@ -603,10 +603,10 @@ assert.equal(cnrfc.guideProductId,'ops_cnrfc_forecast_points');assert.equal(cnrf
 assert.equal(cnrfcArgs.name,cnrfc.name);assert.equal(cnrfc.sourceUrl,'https://www.cnrfc.noaa.gov/');
 assert.equal(cnrfc.infoUrl,cnrfc.sourceUrl);assert.equal(cnrfc.infoLabel,'CNRFC');
 assert(rowLinks(cnrfc).includes('href="https://www.cnrfc.noaa.gov/"'));
-// Actual projection -> actual registration -> actual title/badge render for all 48.
+// Actual projection -> actual registration -> actual title/badge render for all 50.
 const allRegistration=makeRegistration(projection);
 for(const identity of projected.identities)allRegistration.add({name:runtimeName(identity.source_token),category:'Fixture',layer:{}});
-assert.equal(allRegistration.rows.length,48);
+assert.equal(allRegistration.rows.length,50);
 const allResults=allRegistration.rows.map((row,i)=>{
   const identity=projected.identities[i],eligible=identity.included_by_default;
   assert.equal(row.guideProductId,eligible?identity.stable_id:null);
@@ -614,22 +614,29 @@ const allResults=allRegistration.rows.map((row,i)=>{
   const markup=api.primary(row),parsed=parseFixture(markup),badges=parsed.querySelectorAll('.pt-ops-delivery-badge');
   const expected=row.deliveryClass==='brim_managed'?'BRIM-M':row.deliveryClass==='brim_enhanced'?'BRIM-E':'';
   assert.equal(badges.length,expected?1:0);if(expected)assert.equal(textOf(badges[0]),expected);
-  return {stable_id:identity.stable_id,delivery_class:row.deliveryClass,badge:expected,prepared:row.brimPrepared===true};
+  return {stable_id:identity.stable_id,delivery_class:row.deliveryClass,badge:expected,badge_count:badges.length,prepared:row.brimPrepared===true};
 });
 assert.equal(allResults.filter(r=>r.prepared).length,16);
 assert.equal(allResults.filter(r=>r.badge==='BRIM-M').length,18);
 assert.equal(allResults.find(r=>r.stable_id==='ops_radar_iem_nexrad').badge,'');
-// Exact authored six-ID correction must reach the existing registration/renderer.
-const providerRadarQpe=['ops_radar_noaa_mrms','ops_qpe_mrms_1hr','ops_qpe_mrms_1day',
-  'ops_qpe_mrms_3day','ops_qpe_rfc_1day','ops_qpe_rfc_7day'];
-for(const id of providerRadarQpe) {
-  assert.equal(classById.get(id),'provider_hosted');
-  const row=allResults.find(r=>r.stable_id===id);assert(row,id);
-  assert.equal(row.delivery_class,'provider_hosted');assert.equal(row.badge,'');
-  assert.equal(row.prepared,false);
+// Explicit six-product delivery decision; no legend/prefix inference.
+const enhancedQpe=['ops_qpe_mrms_1hr','ops_qpe_mrms_1day','ops_qpe_mrms_3day',
+  'ops_qpe_rfc_1day','ops_qpe_rfc_3day','ops_qpe_rfc_7day'];
+const radarOnly=['ops_radar_iem_nexrad','ops_radar_noaa_mrms'];
+let qpeFailures=0;
+for(const id of enhancedQpe.concat(radarOnly)) {
+  const expected=enhancedQpe.includes(id)?'brim_enhanced':'provider_hosted';
+  const row=allResults.find(r=>r.stable_id===id);
+  const ok=!!row&&classById.get(id)===expected&&row.delivery_class===expected&&
+    row.badge===(expected==='brim_enhanced'?'BRIM-E':'')&&!row.prepared;
+  if(!ok)qpeFailures++;
+  console.log((ok?'PASS ':'FAIL ')+id+' '+JSON.stringify(row));
 }
-assert.equal(allResults.filter(r=>r.badge==='BRIM-E').length,22);
-assert.equal(allResults.filter(r=>r.delivery_class==='provider_hosted').length,7);
+console.log('SIX_QPE_TWO_RADAR passed='+(8-qpeFailures)+' failed='+qpeFailures);
+if(process.argv.includes('--qpe-badges-only'))process.exit(qpeFailures?1:0);
+assert.equal(qpeFailures,0);
+assert.equal(allResults.filter(r=>r.badge==='BRIM-E').length,29);
+assert.equal(allResults.filter(r=>r.delivery_class==='provider_hosted').length,2);
 for(const id of ['ops_nws_weather_stations','ops_cnrfc_forecast_points']) {
   const row=allResults.find(r=>r.stable_id===id);assert.equal(row.badge,'BRIM-M');assert.equal(row.prepared,false);
 }
@@ -673,4 +680,4 @@ if(process.env.BRIM_PROVIDER_TEST_BUNDLE) {
   assert.equal(occurrences,242);
 }
 if(process.env.BRIM_OPS_BADGE_RESULT)fs.writeFileSync(process.env.BRIM_OPS_BADGE_RESULT,JSON.stringify({status:'PASS',rows:allResults,contrast:ratios,browser:'UNAVAILABLE_POLICY'},null,2)+'\n');
-console.log('OPS_DELIVERY_BADGES=PASS; 48 ACTUAL_IDENTITY_RENDERINGS=PASS; PREPARED_16_UNPREPARED_32=PASS; PAIRED_TITLE_BADGE_ESCAPE_ASSOCIATION=PASS; ACTION_ROUTING_CLEAR_STATUS=PASS; CONTRAST='+JSON.stringify(ratios)+'; RENDERED_FIT=PENDING_HUMAN_REVIEW');
+console.log('OPS_DELIVERY_BADGES=PASS; 50 ACTUAL_IDENTITY_RENDERINGS=PASS; PREPARED_16_UNPREPARED_34=PASS; PAIRED_TITLE_BADGE_ESCAPE_ASSOCIATION=PASS; ACTION_ROUTING_CLEAR_STATUS=PASS; CONTRAST='+JSON.stringify(ratios)+'; RENDERED_FIT=PENDING_HUMAN_REVIEW');

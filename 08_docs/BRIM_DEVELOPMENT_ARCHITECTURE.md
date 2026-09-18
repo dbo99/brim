@@ -4,6 +4,41 @@
 
 This document records durable application and development contracts. It does not replace current code, registries, schemas, or focused tests; those remain the highest technical authority.
 
+## Accepted-work checkpoint and remaining program
+
+The current layer-reliability work is an accepted-work checkpoint candidate,
+not full Phase A completion, a merged-source claim or release approval.
+The maintainer accepted the five-product satellite browser behavior and
+reported “E54 browser check passes” for focused Radar/QPF finishing. Native
+records that say `browser=NOT_RUN` remain separate from that human report.
+
+Outstanding Phase A obligations remain the original national-streamflow
+outline/color/legend explanation (A14), broader Ops status/freshness semantics
+(A23), specifically unrecovered Springs browser acceptance and cumulative
+dense-layer/performance acceptance. Source/installed-library tests do not
+supply those human observations. Promoted streamflow refresh/cancellation
+repairs do not close A14. Provider-limited displayed frame/accumulation dates,
+unqualified WPC issue-time zones and independent image/metadata cycle
+association retain the qualifications documented below. They are not newly
+verified by this checkpoint.
+
+Phase A reliability work, Phase B water-record/hydrologic work and Phase C
+navigation/labels/basemaps/links are sequential development phases, distinct
+from historical Guide R17C C1/C2 labels. Remaining A work must receive its
+explicit disposition before B starts from accepted merged A main; C follows
+accepted B main. The complete inherited B/C inventory and unresolved Mojave
+handoff, history-window design, field-office zoom, initial-view direction and
+polygon-reference decisions remain open. NBM renaming and the Guide matrix
+addition remain deferred; the accepted satellite Ops matrix link already
+exists. No excluded feature program is revived.
+
+One checkpoint commit does not imply full phase closure or waive human visual
+acceptance. Git integration, merge and final integrated release are separate
+approvals. R17C2 selectors and accepted artifacts remain frozen until an
+explicit release transaction. Ordinary source/offline QA, installed-library
+contract QA and external-input native/build evidence have different scopes;
+their commands, fixtures and limitations are documented in DATA.md.
+
 ## Application boundary
 
 BRIM is a self-contained Leaflet HTML application built primarily through R/htmlwidgets. It combines:
@@ -41,7 +76,7 @@ The current catalog and `qa/test_descriptive_layer_catalog.R` parity test retain
 
 The resulting 26-record population exercises the unchanged 15-field descriptive schema across simple overlays, shared search/filter/card behavior, combined and virtualized custom controllers, tiled and image services, bespoke External loading, product-specific status/error lifecycles, and nontrivial clear/reset ownership. This establishes `SCHEMA_DIVERSITY_PROVEN=YES` for the selected records and permits future descriptive population to proceed incrementally without another proof-only schema worker.
 
-Catalog and Layer Explorer coverage is explicitly partial. The current 26 records do not represent every BRIM layer. This boundary does not claim that all 270 post-basemap Guide Products are cataloged or validated, authorize catalog-driven rendering, replace custom controllers, resolve External lifecycle gaps, normalize Ops Live status semantics, or confirm producer-side contracts. The proof-role classification remains separate from each record's catalog architecture.
+Catalog and Layer Explorer coverage is explicitly partial. The current 26 records do not represent every BRIM layer. This boundary does not claim that all 272 post-basemap Guide Products are cataloged or validated, authorize catalog-driven rendering, replace custom controllers, resolve External lifecycle gaps, normalize Ops Live status semantics, or confirm producer-side contracts. The proof-role classification remains separate from each record's catalog architecture.
 
 ## BRIM Guide foundation
 
@@ -92,7 +127,7 @@ a public facet.
 `guide_product_resource_relationships.json` is the sole authored Product–
 Resource relationship and Resource map-representation authority. Its
 schema-version-2 Product and Resource arrays must equal the complete compiled
-Product universe and canonical Resource universe exactly—currently 270 Product
+Product universe and canonical Resource universe exactly—currently 272 Product
 records and 233 Resource review/representation records. Every Product
 independently declares delivery classification, coverage review state, an
 optional reviewed coverage disposition, evidence, and zero or more exact
@@ -106,8 +141,8 @@ have zero links; no fake Resource is required.
 The compiler validates exact Product/Resource set equality, controlled values,
 evidence paths, disposition and representation cardinality, duplicates, and
 every link against the complete 233-Resource registry. The current authority has
-98 reviewed and 172 not-yet-reviewed Products with 121 exact links: 13 direct,
-64 selected-product, and 44 source-reference roles. The three DWR/TRE Altamira
+97 reviewed and 175 not-yet-reviewed Products with 120 exact links: 13 direct,
+63 selected-product, and 44 source-reference roles. The three DWR/TRE Altamira
 Products remain one source family; `EXT033` remains the separate DWR/USGS/TRE
 multiple-source composite. The unresolved intake remains deferred under its
 existing evidence packets. Staged Resource records remain canonical but are
@@ -129,8 +164,8 @@ station catalogs and source-reference links for the Ops major water-supply and
 reservoir-storage Products. The CNRFC Resource consequently represents exactly
 seven current Products, preserving its seven exact links. With the subsequent WPC ERO and 25 BLM
 source-reference additions, current public views are 28 in BRIM map, 200 beyond
-the map, and 228 all. Current authority is 270 Products and 121 links, covering
-93 Products and 28 Resources.
+the map, and 228 all. Current authority is 272 Products and 120 links, covering
+92 Products and 28 Resources.
 
 ### Combined Resource content and finishing behavior
 
@@ -170,7 +205,7 @@ valid delivery classification without a public Resource relationship.
 
 `brim_managed` (Guide **BRIM-managed**, Ops **BRIM-M**) means BRIM prepares,
 curates, or maintains the data product or collection in addition to map display.
-The exact prepared-feed map still identifies 16 prepared and 32 unprepared Ops
+The exact prepared-feed map still identifies 16 prepared and 34 unprepared Ops
 consumer identities. The NWS weather-station and CNRFC river/reservoir forecast-
 point collections are also Managed: their detailed text-file auditing and
 curation are maintainer-reported provenance, not a newly reproduced inventory
@@ -184,19 +219,401 @@ the standard IEM NEXRAD WMS is Provider-hosted. `provider_hosted` and
 IDs/tokens, and invalid classes fail build-time validation. Unknown or malformed
 optional browser metadata yields no badge without changing layer availability.
 
-The maintainer conservatively classifies `ops_radar_noaa_mrms`,
-`ops_qpe_mrms_1hr`, `ops_qpe_mrms_1day`, `ops_qpe_mrms_3day`,
-`ops_qpe_rfc_1day`, and `ops_qpe_rfc_7day` as `provider_hosted`, with no M/E
-badge. Their existing current-view adapters, legend configuration and freshness
-handling remain intact; the prior enhancement rationale is retained in the audit.
-Those capabilities do not earn the maintainer's Enhanced designation for these
-six current presentations. Planned enhancements do not automatically restore E.
-The other 18 Managed and 22 Enhanced Ops identities, IEM's Provider-hosted class,
-and the disabled wind-barb identity are unchanged. These six unlinked Products
-have no compiled Guide delivery occurrences; their classification still comes
-from the shared authored authority.
+The six QPE Products `ops_qpe_mrms_1hr`, `ops_qpe_mrms_1day`,
+`ops_qpe_mrms_3day`, `ops_qpe_rfc_1day`, `ops_qpe_rfc_3day` and
+`ops_qpe_rfc_7day` are `brim_enhanced`, based on their accepted BRIM map-surface
+legends and added presentation. Each receives exactly one existing BRIM-E badge.
+This does not claim BRIM produces the QPE or verifies displayed accumulation
+dates. The two radar Products `ops_radar_iem_nexrad` and `ops_radar_noaa_mrms`
+remain `provider_hosted` and unbadged; having a legend is not a general badge
+rule. Current eligible Ops delivery subtotals are 18 Managed, 29 Enhanced and
+two Provider-hosted. The disabled wind-barb identity remains ineligible. All
+eight radar/QPE Products remain unlinked to Resources, with no compiled Guide
+relationship delivery occurrences; their class still comes from the shared
+registry. No provider, request, legend, duration or lifecycle changes follow
+from the six classification decisions.
 
-The legacy Ops source footer and lower status/freshness list remain unchanged.
+### QPE selection ownership
+
+The six MRMS/RFC QPE Products named above form one exact, independent Ops
+selection group through the internal `qpeProductId` on their existing
+`ArcGISExportLayer` registrations. At most one is active; zero remains valid
+and all default OFF. Selection uses the normal Ops deactivation and owner
+teardown, including checkbox/count, images, pending work, map listeners and
+legend cards. Direct activation of a registered QPE wrapper also enters Ops
+ownership so OFF/Clear can remove it. Removed or superseded image callbacks
+cannot take ownership after switching, view changes or OFF/re-enable, including
+A → B → A. A failed replacement does not restore the previous QPE.
+
+The QPE, twelve-product forecast and satellite groups remain independent;
+one member of each can coexist. QPE membership uses the six stable product IDs,
+never `legendType`, category or provider similarity. It does not extend WPC's
+five-product QPF metadata/hover logic. Provider URLs, selectors, raster functions,
+opacity, scales, badges, refresh eligibility and Unverified accumulation dates
+are unchanged. Existing shared service metadata remains explicitly unbound to
+the displayed image; selection creates no new timing or acquisition claim.
+
+### Radar selection ownership
+
+Exactly `ops_radar_iem_nexrad` and `ops_radar_noaa_mrms` share one local
+single-active Radar group. Both retain checkbox controls, default OFF, and
+zero active is valid. The stable IEM owner creates a fresh native WMS tile
+controller on each activation; NOAA retains its ArcGIS image controller.
+The IEM owner's exposed WMS options and inner tile construction share one
+specification, including `layers: 'nexrad-n0q-900913'`. Only its WMS option
+keys are projected into the tile constructor; Radar identity, name, legend
+type and note remain owner metadata rather than new provider parameters.
+
+Peer selection uses existing Ops deactivation and actual Leaflet removal.
+Ownership generations reject old tile, image, metadata and scheduled callbacks.
+OFF, Clear Ops and Clear All detach only BRIM-owned IEM tile handlers before
+removing the native tile; Leaflet's own listeners are retained for teardown.
+Direct supported owner activation follows the same exclusivity policy.
+QPE, WPC/CPC forecast, satellite, NBM and unrelated layer groups remain
+independent; Radar selection does not clear them. Provider selectors, map
+legends, timing qualifications and the two unbadged Radar rows are unchanged.
+
+### WPC / CPC forecast cards and selection ownership
+
+The five WPC QPF products (Day 1, Day 2, Day 3, 3-day and 7-day), three WPC
+ERO products (Days 1–3), and four CPC outlooks (6–10 / 8–14 day temperature
+and precipitation) form one exact twelve-product Ops selection group. Zero
+selected products remains valid. A small local coordinator at the actual
+`ArcGISExportLayer`, `WpcEroCurrentViewLayer` and `CatalogPromotedExternalLayer`
+entrypoints uses normal Ops checkbox and Leaflet owner removal. Programmatic
+Ops-wrapper activation uses the same policy. Separate catalog copies outside
+Ops are not members. NBM, radar, QPE, satellites and other selections remain
+independent. The QPF-owner predicate still identifies only the five QPF products;
+metadata and spatial sampling are not generalized to ERO or CPC.
+
+The Ops menu places ERO Day 1, Day 2 and Day 3 immediately after the complete
+five-row WPC QPF block in Forecasts / Outlooks → Weather Forecasts / Outlooks.
+Only ERO category/subgroup/order metadata controls this placement; all other
+rows retain their relative order, including NBM. ERO's scientific identity,
+Guide classification, provider binding and controller are unchanged.
+
+Replacement, OFF and Clear invalidate old images, metadata, cursor and CPC
+bridge callbacks through their existing owners. QPF refresh and view changes
+invalidate pending requests; ordinary pan/zoom redraws imagery without starting
+forecast-metadata requests. Closing a legend hides its card, not its layer.
+
+Each forecast product has a canonical map card using `ptOpsSyncLegendCards`
+and `BRIM.legendCloseout`. Forecast-only CSS provides a padded, rounded light-blue
+340px card, capped at 360px and the available map width minus 24px, with a
+flex header and top-right dock/close controls. The existing corner overflow and
+floating-card owners retain scrolling, drag and docking. Text updates preserve
+card identity, disclosure, focus and dismissal state. Visual forecast keys remain
+on the map, never inside the Ops panel.
+
+QPF retains all 19 exact captured NOAA unique-value renderer values/colors
+(selectors 1, 2, 3, 9 and 11). The compact contour-boundary scale displays the
+18 positive values. Two contiguous positive-color strips place ticks at adjacent
+contour boundaries, in low-to-high
+order; spacing is schematic. The join tick repeats visually, while the accessible
+list includes each positive boundary once. Integer boundary ticks at 2 inches
+and above omit decimal zeroes; 2.50 and lower fractional labels retain their formatting.
+This formatter is confined to legend ticks, not hover amounts. A noncollapsing
+gap reserves both label tracks between strips without widening the card.
+The separate white-zero swatch is replaced by the exact note
+`No color = no forecast precipitation`; no permanent missing-data warning is
+shown on a healthy card. The captured zero value/color and hover semantics are
+unchanged. The captured 20 color is a narrow terminal boundary cap, not an
+asserted open-ended interval. No values are merged,
+recolored, interpolated or assigned invented endpoints. Source/method details
+retain the unique-value renderer limitation: boundary inclusion and top-bin
+semantics are not asserted. This is capture-derived presentation, not a fresh
+live-renderer assertion or a verified class-breaks scale. Card geometry, map
+colors and other forecast-family keys are unchanged.
+
+Healthy QPF cards omit permanent range and image-cycle warnings. The collapsed
+Source / method / timing disclosure retains exactly:
+`Legend uses provider boundary values; endpoint inclusion is not separately specified`
+and `Image and metadata cycle alignment is not independently confirmed`.
+Actual missing, mixed, invalid, incomplete and failed-metadata warnings remain
+available in their conditional states; no-data is not converted to zero.
+
+The compact noninteractive QPF hover shows the active product, existing amount
+in inches, actual validated duration, compact Pacific validity and subordinate
+UTC interval. Its amount and timing come from the same selected cursor-query
+response, never unrelated layer-global metadata. Missing, conflicting, incomplete
+or mixed interval evidence leaves the amount visible with `Valid time unverified`
+and no invented hours. Units, scalar/threshold/range formatting, valid zero and
+the maximum legitimate intersecting contour policy are unchanged. Missing,
+blank, boolean, invalid, nonfinite and negative values cannot become zero.
+The existing tiny-envelope fallback is labeled `Nearby WPC polygon`; ordinary
+queries say `WPC polygon`. The normal hover has no image-match warning suffix;
+the technical qualification remains in the legend disclosure. No interpolation,
+new request or exact-grid assertion is introduced. The content-sized tooltip is
+capped at 320px and map width minus 24px, with wrapping date lines and no minimum
+width floor. Full scales, issue details and extended qualifications remain in
+the legend disclosure.
+
+QPF layer-global context still uses its bounded selected-layer attribute query
+at activation/explicit refresh, without geometry. Export images are not cycle-bound
+to those attributes, and sample agreement is not global unanimity. WPC interval
+validation requires explicit `Z` evidence in `valid_time` and agreement with
+full-year start/end fields. Compact weekday/month-day labels preserve real clock
+boundaries, nonzero minutes, endpoint-specific PST/PDT and cross-year identity;
+full values remain in the disclosure. Zone-less WPC `issue_time` is a provider
+clock labeled `zone unverified`, never converted to Pacific or UTC. CPC calendar
+dates remain dates. Existing RFC time formatting is unchanged.
+
+The four CPC Ops rows use display-only `panelLabel` abbreviations `Temp.` and
+`Precip.` for their existing 6–10 and 8–14 day outlooks. Canonical names, catalog
+and Guide identities, full map-card titles, actions, badges and row order remain
+unchanged. The existing row layout still wraps at narrow widths; no font,
+panel-width, clipping or no-wrap override implements these shorter labels.
+
+CPC keys group Below / Near / Above normal with neutral in the middle, keeping
+all seven existing probability bins and actual BRIM mapped colors on each side.
+Equal Chances and Unknown remain separately visible, with Unknown explicitly
+not a valid forecast. CPC hover, popup and styling implementations are unchanged.
+
+ERO keys retain the four actual mapped fills and captured risk labels. Slight
+uses BRIM/renderer `#fffe00`; the captured provider legend PNG uses `#ffff00`, a
+recorded difference rather than permission to recolor the map. Unknown/missing
+risk is not confirmed Marginal even though the pre-existing map fallback is
+green. ERO style, hover and popup functions remain unchanged.
+
+CPC keys come from a read-only descriptor of `ptCpcOutlookColor`, including all
+seven Above/Below probability branches and separate Near Normal, Equal Chances
+and unknown meanings. Temperature and precipitation retain their distinct
+palettes, labeled **BRIM display colors**, with official comparison links.
+Existing CPC hover/popup formatting, style and catalog options remain unchanged.
+Its existing promoted-layer bridge conveys only metadata from accepted current
+generations. ERO/CPC cards compare metadata tuples across loaded records;
+partial, mixed, invalid or empty responses stay qualified. Typed CPC epoch-ms
+fields become UTC calendar dates; genuine date-only fields stay dates. Missing
+GIS dates are not invented or substituted for forecast dates.
+
+`qa/test_ops_wpc_cpc_legends.js` reuses the existing forecast and promoted-layer
+fixtures and authenticates the full offline provider capture under
+`qa/fixtures/wpc_cpc/`. The capture and synthetic CPC snapshots are QA/provenance
+only: no runtime fallback, embedded provider response or render input. Existing
+delivery classification and evidence-reference contracts are unchanged; the
+Legend/SCAN QA file remains required in staged repository validation because
+product delivery evidence references it.
+
+### Satellite / imagery request ownership
+
+`leaflet_ops_live_gibs_helpers.r`, loaded by the existing Ops helper assembly,
+owns five initially-off Leaflet imagery products, ordered GeoColor,
+GOES-West Clean IR (Band 13), NOAA-20 VIIRS True Color, NOAA-21 VIIRS True Color and
+MODIS Terra True Color. GeoColor and infrared retain `ops_goes_geocolor` and
+`ops_goes_infrared`; Terra retains `ops_modis_terra_true_color`. VIIRS uses the
+new distinct `ops_viirs_noaa20_true_color` and `ops_viirs_noaa21_true_color` IDs.
+`ops_goes_water_vapor` is retired from active registration and Guide add actions;
+its historical identity is not reassigned. Air Mass is not included. The current
+catalog requires exact active Product membership, so the retired Product row
+and its Resource edge are removed from that projection; historical source and
+evidence retain them. No new Resource or matrix Guide entry is established.
+
+The GIBS wrapper enforces single-active selection only within this five-product
+family. Selecting another satellite removes the previous wrapper through its
+normal OFF cleanup, leaving non-satellite layers and the shared lazy metadata
+owner unchanged. Turning a satellite off never selects another. Tile removal
+must complete before remaining tile listeners are cleared: Leaflet attaches its
+map-event unsubscription to the tile's `remove` event. Clearing that listener
+first leaves a detached tile subscribed to zoom and interrupts active redraw.
+Pan/zoom retain the selected request and metadata binding; only explicit `rfrsh`
+rechecks metadata. OFF, Clear Ops, Clear All and map destruction remove owned
+tiles through the same cleanup path.
+
+The panel uses the display-only subgroup headings `GOES-West (geostationary)`
+and `Daily true color (polar orbiters)`. One collapsed native `meta` disclosure
+contains five local entries, each with Orbit, Satellite and Instrument / product.
+The GOES entries identify GOES-18/ABI GeoColor and Band 13 Clean Infrared; the daily
+entries identify NOAA-20/VIIRS, NOAA-21/VIIRS and Terra/MODIS Corrected Reflectance
+True Color. The disclosure makes no request and changes no selection. External
+`info` and `srce` links remain separate. The Pacific Southwest matrix link stays
+above the choices. Native toggle accessibility and compact row fit require
+browser acceptance.
+
+The exact GIBS products are `GOES-West_ABI_GeoColor` (PNG, Level7),
+`GOES-West_ABI_Band13_Clean_Infrared` (PNG, Level6),
+`VIIRS_NOAA20_CorrectedReflectance_TrueColor`,
+`VIIRS_NOAA21_CorrectedReflectance_TrueColor` and
+`MODIS_Terra_CorrectedReflectance_TrueColor` (JPEG, Level9). Delivery uses NASA
+GIBS EPSG:3857 WMTS, with no NOAA `_current` fallback. The two retained GOES
+viewer relationships describe those same product families, not their delivery
+endpoint. VIIRS Resource coverage review remains not yet reviewed, with zero
+invented links. The partial descriptive layer catalog has no satellite records
+and remains unchanged.
+
+The first imagery checkbox selection or explicit imagery `rfrsh` starts one
+shared per-map capabilities request. Opening the map or Ops panel alone starts
+none. The request is bounded to 10 MiB and 25 seconds, uses CORS with omitted
+credentials, and has no automatic retry, polling, persisted XML or proxy fallback.
+Subsequent selections reuse the parsed result; explicit refresh coalesces and
+rechecks metadata. A failed check means availability UNKNOWN. Missing or
+unsupported bindings disable only that product's add action while preserving
+its explanation, links and explicit recheck. Layer generation ownership isolates
+pending metadata and tile callbacks across refresh, date changes, off/re-add,
+Clear Ops, Clear All and map destruction. Clearing one selection does not cancel
+shared metadata needed by the newly selected satellite. Non-satellite overlays
+keep their existing stacking behavior.
+
+GOES requests the newest non-future advertised instant using the provider's
+interval grid, not `Default` or an invented cadence. Its requested timestamp and
+age remain visible, alongside the existing Pacific formatter when available. Daily imagery offers advertised UTC today plus seven prior
+dates, respecting gaps, and initially uses yesterday only if advertised. Missing
+or expired dates require a manual choice; pan/zoom and refresh preserve a still
+eligible user date. Date changes detach the previous layer before relabeling.
+No blank/error fallback or 48-hour rejection is performed. Failed rechecks may
+retain the previous explicitly dated image with a warning. Metadata check time,
+requested time/data date, tile transport, coverage and actual pixel acquisition
+are distinct; exact acquisition remains Unverified. There is no continuous-live
+claim: refresh is explicit, and pan/zoom use the currently bound date/time.
+
+Core product/style/time/format, namespaces, EPSG:3857 origin/resolution and native
+matrix dimensions are validated. Complete unique valid coverage limits constrain
+requests. Only the exact authenticated inconsistent GOES limit record signatures
+(repeated levels, missing native level and out-of-grid columns) permit selected
+viewport requests against the valid core grid with precise coverage UNKNOWN.
+Those signatures identify anomalies; they are not footprints or replacement
+bounds. Values are neither normalized nor merged. New unresolved limit structures
+fail that product's qualification. Daily products require their qualified absence
+of limits. `noWrap`, native zoom caps and the normal Leaflet viewport queue prevent
+out-of-grid requests and background surveys; no sandbox regional mask is used.
+Transport errors persist through batch completion and never prove coverage.
+
+Satellite rows alone use accessible external `info` and exact layer-metadata
+`srce` links. The Pacific Southwest GOES-West matrix link sits immediately below
+the section metadata disclosure and above the choices. Requested dates and concise
+status are inline, with timing and coverage details available separately; no imagery legend gallery is added.
+The immutable captured WMTS ZIP under `qa/fixtures/gibs_wmts` is test-only and
+must never enter render inputs or act as a live fallback. Source/offline tests
+exercise the implemented parser and panel/lifecycle wiring. BRIM browser visual,
+coverage, CORS, accessibility and performance acceptance remains a separate gate.
+
+The RFC daily-analysis, three-day and seven-day QPE Products have independently
+keyed map legends (`ops_qpe_rfc_1day`, `ops_qpe_rfc_3day`, `ops_qpe_rfc_7day`).
+Their existing ArcGISExportLayer registrations are ordered daily → three-day →
+seven-day and remain off until selected. Daily and seven-day internal names/IDs
+are unchanged. The legend helper owns one card per active registration;
+freshness/status rows do not own cards. All three use Enhanced delivery and one
+BRIM-E badge per Ops row, no Resource links and unchanged provider raster rendering
+at 0.64 opacity.
+
+The current Product census is 272, with 50 Ops identity records and 49 eligible
+Ops Products. The original ordered universe is preserved after reversing the
+RFC three-day addition and the satellite delta (retired Water Vapor; added
+NOAA-20 and NOAA-21 VIIRS). The 233 Resource records and 228 published Resources
+are unchanged. There are 120 Product–Resource links and 240 compiled
+relationship occurrences. The retired Water Vapor edge accounts for the one
+link reduction; the two same-product GOES Image Viewer edges remain.
+
+The scales reproduce the product-specific published entries for RFC MapServer
+image layers 32 (Today's Analysis), 40 (Last 3 Days) and 56 (Last 7 Days);
+their parent/footprint selectors are 29/31, 37/39 and 53/55 respectively.
+The official
+[legend endpoint](https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer/legend?f=pjson)
+supplies the original labels, embedded-PNG hashes and decoded RGBA evidence in
+`qa/test_ops_radar_qpe_contracts.js`. Layer 40 was checked independently even
+though its 17 label/swatch tuples match layer 56. Each solid swatch retains its
+16px interior and 2px transparent margin.
+
+Numeric classes sort by numeric lower bound, ascending in DOM and visual
+row order, with compact range labels and original provider wording retained
+in accessible labels and titles. The card fits two columns at ordinary width
+and one when narrow; a width cap prevents a third column when floating.
+The transparent “Less than 0.01” provider classification remains internal but
+is omitted from the primary grid with “Below 0.01 in omitted from this key.”
+Missing data remains separate. This is legend presentation only, not a
+zero-precipitation inference, scale coercion, raster change or runtime request.
+
+All cards show **Displayed accumulation interval: Unverified** outside one
+collapsed-by-default **Source, method & timing** disclosure. Its labeled rows
+distinguish the daily analysis from rolling 24-hour QPE and describe
+three/seven-day sums of daily 24-hour analyses. The scheduled cutoff is
+**4 a.m. PST / 5 a.m. PDT (12Z)**; an unknown frame date cannot select one season.
+Accumulation, provider publication/update, BRIM retrieval/check and expected
+service refresh are separate concepts.
+
+The [official service description](https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer)
+documents hourly refresh near :55 and possible daily revisions during
+4 a.m.–1 p.m. PST / 5 a.m.–2 p.m. PDT (12–21 UTC); these are expectations, not
+guarantees of new precipitation. Footprint fields alias Reference Time, GIS
+File Date and GIS Ingest Date, but the reviewed metadata establishes no exact
+accumulation-date association with the current non-time-enabled export.
+No RFC temporal metadata binding is implemented. Image completion or generic
+metadata success cannot date the displayed image.
+
+The RFC check therefore reports an explicit unverified warning and the
+schedule without requesting unbound metadata. Its separately labeled BRIM
+check instant uses the existing QPF America/Los_Angeles formatter, preserving
+the UTC instant secondarily and rejecting missing/invalid dates and the
+formatter's host-local fallback. This check time never supplies an
+accumulation endpoint. Verified interval derivation and display remain
+unimplemented pending a provider/export association contract. No polling,
+countdown, layer reconstruction or provider request accompanies card redraw,
+close, dock or resize.
+
+The RFC-only `ptOpsRfcQpeMetadata` helper owns the panel/card metadata copy and
+uses the existing RFC product definitions for method text. The existing
+`NWS QPE Mosaic metadata` status row owns the last BRIM check value; before
+that event, cards say **No check recorded**. The instant is shared RFC service
+context, not a per-image request. Checks update mounted metadata text without
+remounting cards, losing disclosure/focus state or reopening hidden cards.
+Clear retains its existing ownership and clears the status row; redraw,
+showing a card and docking never create a check instant. Formatter errors
+remain **Unverified**.
+
+The maintainer-reported A6 preview review passed with the RFC metadata follow-up
+(E3); that report does not establish browser fit, keyboard behavior or
+responsiveness for this expanded disclosure. Those checks require a later
+reviewed candidate. The preference to expose useful legend metadata in future
+Ops Live work requires separately approved scopes; it does not authorize
+changes to MRMS or other layers.
+
+Cards reuse `BRIM.legendCloseout` actions, drag/dock destruction and scheduled
+lower-left safe-gap/overflow layout. Closing hides only that activation's card;
+ordinary redraws preserve its node and hidden/docking state. Off/on restores it.
+Off, Clear Ops and Clear All destroy even floating or hidden cards. MRMS and WPC
+QPF retain the generic guide while RFC-only selections use their specific scales.
+The offline fixture exercises actual registrations, legend code and panel/clear
+callers with controlled DOM, map, metadata and timers. It does not establish
+mounted-browser appearance/accessibility, provider-frame validity or performance.
+
+Promoted national streamflow (`ops_streamflow_multiagency`, Ops key
+`ops_live_agency_streamflow_gages`) uses the existing External catalog loader and
+custom-layer records. Refresh reconstruction retains its Ops key, display name,
+and activation generation. Each promoted current-view record also tracks its
+latest refresh request. Dependency and query completions check record membership,
+cancellation, activation, and request identity before changing geometry or state.
+Eligible failures retain the previous snapshot and terminate loading; superseded
+successes and failures cannot change the newer request. Disable, Clear Ops, and
+Clear All invalidate ownership through the existing promoted removal path.
+Clear External continues to preserve Ops-owned records.
+
+Initial FeatureServer current-view responses check the captured Ops activation
+generation and cancellation flag before preparing a collection, constructing a
+layer, or reporting a result. This check does not require a registered record;
+valid first loads can proceed. The later `ptAddCustomRecord` cancellation and
+generation guard remains a second protection before registration and insertion.
+
+`CatalogPromotedExternalLayer` correlates status with the stable Ops key, current
+activation, and request identity rather than display-name equality. Its existing
+panel refresh interface preserves terminal status even for synchronous responses.
+Retries from an earlier activation cannot start work after re-enable. Refresh
+progress remains pending, while terminal errors end loading even when their
+guidance mentions loading or checking. Ordinary External records do not require
+Ops ownership metadata. This lifecycle contract does not change observation
+timestamps, source freshness thresholds, or the meaning of retained data.
+
+`qa/test_ops_promoted_streamflow.js` runs the owning Tools functions, the actual
+R-embedded Ops wrapper, and the panel refresh/checkbox/clear callers with controlled
+query completions, rendering, DOM dependencies, and timers. Its offline cases cover
+completion ordering, removal/clear/re-enable, terminal status, synchronous results,
+and ordinary External success/failure controls. Initial-response cases count
+preparation and construction attempts as well as insertion/removal, including
+obsolete responses after off, re-enable, Clear Ops, and Clear All. Unexpected
+networking fails the harness. Controlled counters establish avoided boundary work,
+not elapsed performance, native geometry rendering, tile-network behavior, basemap
+responsiveness, or mounted-browser/provider correctness.
+
+The legacy Ops source footer and lower status/freshness list retain their source
+and freshness meanings.
 Their catalog reconciliation and status-meaning review, including the six named
 air-quality leads, are recorded as deferred watchlist follow-ups requiring a
 separate approval; no source deletion or freshness redesign is implied.
@@ -634,7 +1051,7 @@ The final currentness
 correction retains the stable statewide Integrated Report Resource, replaces
 its obsolete 2010 action with the evergreen Water Boards assessment-program
 page, adds accurate 2024 and 2026 cycle actions, and links its exact 2024 line
-and polygon Products; no 2026 Product exists in the current 270-Product
+and polygon Products; no 2026 Product exists in the current 272-Product
 authority. The C1 public views were 27 / 183 / 210. Resource indexing and matching semantics remain unchanged:
 truthful access-point labels plus curated
 `search_aliases` preserve reservoir, project, Section 7, regional, program, and

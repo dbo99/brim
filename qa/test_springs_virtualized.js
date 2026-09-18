@@ -655,7 +655,13 @@ async function run() {
   console.log("Springs virtualized fixture: OK");
 }
 
-run().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// Reuse the same small DOM/map fixture for Springs interaction-isolation QA.
+module.exports = {installLayer, mockElement, mockLayer, makeMap, waitFor,
+  checkedState, documentListeners};
+
+if (require.main === module) {
+  run().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

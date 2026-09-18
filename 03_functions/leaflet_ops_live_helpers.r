@@ -44,6 +44,7 @@ pt_ops_live_source_module("leaflet_ops_live_cnrfc_forecast_points_helpers.r", "O
 pt_ops_live_source_module("leaflet_ops_live_cnrfc_precip_weather_helpers.r", "Ops Live CNRFC precip/weather helper")
 pt_ops_live_source_module("leaflet_ops_live_major_water_supply_basin_helpers.r", "Ops Live major water-supply basin helper")
 pt_ops_live_source_module("leaflet_ops_live_arcgis_export_helpers.r", "Ops Live ArcGIS export helper")
+pt_ops_live_source_module("leaflet_ops_live_gibs_helpers.r", "Ops Live GIBS imagery helper")
 pt_ops_live_source_module("leaflet_ops_live_service_helpers.r", "Ops Live service/status helper")
 pt_ops_live_source_module("leaflet_ops_live_layer_definition_helpers.r", "Ops Live layer-definition helper")
 pt_ops_live_source_module("leaflet_ops_live_wind_helpers.r", "Ops Live GFS wind/vector-field helper")
@@ -387,7 +388,7 @@ __PT_OPS_LIVE_CNRFC_PRECIP_WEATHER_HELPERS_JS__
 
 __PT_OPS_LIVE_MAJOR_WATER_SUPPLY_BASIN_HELPERS_JS__
 
-__PT_OPS_LIVE_ARCGIS_EXPORT_HELPERS_JS____PT_OPS_LIVE_SERVICE_HELPERS_JS____PT_OPS_LIVE_LAYER_DEFINITION_HELPERS_JS__
+__PT_OPS_LIVE_ARCGIS_EXPORT_HELPERS_JS____PT_OPS_LIVE_SERVICE_HELPERS_JS____PT_OPS_LIVE_GIBS_HELPERS_JS____PT_OPS_LIVE_LAYER_DEFINITION_HELPERS_JS__
 
 __PT_OPS_LIVE_WIND_HELPERS_JS__
 
@@ -421,6 +422,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     "__PT_OPS_LIVE_CNRFC_PRECIP_WEATHER_HELPERS_JS__" = "pt_ops_live_cnrfc_precip_weather_js",
     "__PT_OPS_LIVE_MAJOR_WATER_SUPPLY_BASIN_HELPERS_JS__" = "pt_ops_live_major_water_supply_basin_js",
     "__PT_OPS_LIVE_ARCGIS_EXPORT_HELPERS_JS__" = "pt_ops_live_arcgis_export_js",
+    "__PT_OPS_LIVE_GIBS_HELPERS_JS__" = "pt_ops_live_gibs_js",
     "__PT_OPS_LIVE_SERVICE_HELPERS_JS__" = "pt_ops_live_service_helpers_js",
     "__PT_OPS_LIVE_LAYER_DEFINITION_HELPERS_JS__" = "pt_ops_live_layer_definition_js",
     "__PT_OPS_LIVE_WIND_HELPERS_JS__" = "pt_ops_live_wind_js",

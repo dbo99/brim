@@ -27,6 +27,7 @@ pt_ops_live_panel_helpers_js <- function() {
 
   function ptOpsSubgroupOrder(category, subgroup) {
     var subgroupOrder = {
+      'Satellite / Imagery': ['GOES-West', 'Daily true color'],
       'Hydro Observations': [
         'Radar',
         'Precip / WRU stations',
@@ -134,12 +135,20 @@ pt_ops_live_panel_helpers_js <- function() {
         }
 
         html += '<div class="pt-ops-section"><b>' + escapeHtml(def.category) + '</b></div>';
+        if (def.category === 'Satellite / Imagery') {
+          html += ptGibsMetadataHtml();
+          html += '<div class="pt-ops-external-link-block"><div class="pt-ops-external-link-row">' +
+            '<a href="https://www.star.nesdis.noaa.gov/GOES/sector.php?sat=G18&amp;sector=psw" target="_blank" rel="noopener" aria-label="GOES-West imagery matrix — Pacific Southwest — external">GOES-West imagery matrix ↗ — Pacific Southwest</a>' +
+            '</div></div>';
+        }
         lastCat = def.category;
         lastSubgroup = null;
       }
 
       if (subgroup && subgroup !== lastSubgroup) {
-        html += '<div class="pt-ops-subgroup">' + escapeHtml(subgroup) + '</div>';
+        html += '<div class="pt-ops-subgroup">' + escapeHtml(def.category === 'Satellite / Imagery' ?
+          (subgroup === 'GOES-West' ? 'GOES-West (geostationary)' :
+           subgroup === 'Daily true color' ? 'Daily true color (polar orbiters)' : subgroup) : subgroup) + '</div>';
         lastSubgroup = subgroup;
       }
 
@@ -162,6 +171,8 @@ pt_ops_live_panel_helpers_js <- function() {
         '<div class="pt-ops-row-actions">' + layerRowLinksHtml(def) +
         (def.extraRowHtml ? String(def.extraRowHtml) : '') + '</div>' +
         '</div></div>';
+
+      html += ptGibsRowHtml(def);
 
       if (reservoirRow) {
         html += '<span id="pt-ops-reservoir-description" hidden>Symbols show observed storage; popups link to forecasts and reservoir operations.</span>';
@@ -203,10 +214,7 @@ pt_ops_live_panel_helpers_js <- function() {
       '<a href="https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#5.38/36.993/-117.891" target="_blank">PurpleAir map</a>' +
       '<a href="https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi" target="_blank">IEM NEXRAD Radar WMS</a>' +
       '<a href="https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity/MapServer" target="_blank">NOAA MRMS Radar Reflectivity MapServer</a>' +
-      '<a href="https://satellitemaps.nesdis.noaa.gov/arcgis/rest/services/MERGEDGC_current/ImageServer" target="_blank">NOAA GOES GeoColor ImageServer</a>' +
-      '<a href="https://satellitemaps.nesdis.noaa.gov/arcgis/rest/services/ABI13_current/ImageServer" target="_blank">NOAA GOES Infrared ImageServer</a>' +
-      '<a href="https://satellitemaps.nesdis.noaa.gov/arcgis/rest/services/ABI10_current/ImageServer" target="_blank">NOAA GOES Water Vapor ImageServer</a>' +
-      '<a href="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/" target="_blank">NASA GIBS MODIS Terra WMTS</a>' +
+      '<a href="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml" target="_blank" rel="noopener">NASA GIBS imagery WMTS capabilities</a>' +
       '<a href="https://mapservices.weather.noaa.gov/vector/rest/services/obs/surface_obs/MapServer" target="_blank">NWS Surface Observations MapServer</a>' +
       '<a href="https://mapservices.weather.noaa.gov/raster/rest/services/obs/mrms_qpe/ImageServer" target="_blank">MRMS QPE ImageServer</a>' +
       '<a href="https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer" target="_blank">NWS QPE Mosaic MapServer</a>' +
@@ -248,6 +256,10 @@ pt_ops_live_panel_helpers_js <- function() {
 
     if (!chk || !def) {
       return {ok: false, message: 'Ops layer not found.'};
+    }
+
+    if (def.layer && def.layer.gibsProduct && !def.layer.canActivate()) {
+      return {ok:false, message:'Imagery binding unavailable; use rfrsh to recheck.'};
     }
 
     if (chk.checked && activeLayers[layerName]) {
@@ -338,6 +350,7 @@ pt_ops_live_panel_helpers_js <- function() {
       delete activeLayers[name];
     });
 
+    ptGibsLayers.forEach(function(layer) { layer.cancelGibsCheck(); });
     ptClearOpsPaneDomArtifacts();
 
     Object.keys(checkboxByName).forEach(function(name) {
@@ -498,6 +511,8 @@ pt_ops_live_panel_helpers_js <- function() {
         return;
       }
 
+      if (!layer && def.layer && def.layer.gibsProduct) layer = def.layer;
+
       if (!layer) {
         recordStatus(name, 'Turn this Ops layer on before using rfrsh.', 'pt-ops-warn');
         return;
@@ -542,6 +557,15 @@ pt_ops_live_panel_helpers_js <- function() {
     });
 
     body.addEventListener('change', function(e) {
+      var imageryDate = e.target && e.target.closest ? e.target.closest('[data-pt-gibs-date]') : null;
+      if (imageryDate && body.contains(imageryDate)) {
+        e.stopPropagation();
+        var stableId = imageryDate.getAttribute('data-pt-gibs-date');
+        var imagery = ptGibsLayers.find(function(layer) { return layer.gibsProduct.stableId === stableId; });
+        if (imagery) imagery.chooseDate(imageryDate.value);
+        return;
+      }
+
       var snowLabelToggle = e.target && e.target.closest ? e.target.closest('[data-pt-ops-action="nbm-snow-labels"]') : null;
       if (snowLabelToggle && body.contains(snowLabelToggle)) {
         e.preventDefault();
@@ -572,6 +596,7 @@ pt_ops_live_panel_helpers_js <- function() {
       opsDefByName[def.name] = def;
       chk.addEventListener('change', function() {
         if (chk.checked) {
+          if (def.layer.gibsProduct && !def.layer.canActivate()) { chk.checked = false; return; }
           setOpsLayerLoading(def.name, true);
           activeLayers[def.name] = def.layer;
           updateOpsHeaderCount();

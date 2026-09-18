@@ -1,0 +1,1141 @@
+{
+  "provenance": "E36 sealed synthetic characterization; not provider defaults",
+  "cpc": [
+    {
+      "product_label": "CPC 6-10 Day Temperature Outlook",
+      "provenance": "SYNTHETIC attributes through unchanged current formatters and exact catalog options; no provider capture",
+      "props": {
+        "cat": "A",
+        "prob": 60,
+        "fcst_date": 1789516800000,
+        "start_date": 1790035200000,
+        "end_date": 1790380800000,
+        "gis_date": "202609161800",
+        "idp_filedate": 1789581600000
+      },
+      "options": {
+        "legendUrl": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/legend",
+        "legendNote": "Official CPC probability/category color legend. Temperature and precipitation use different color ramps; open the legend/source page when interpreting colors.",
+        "legendAdapter": "",
+        "infoAdapter": "",
+        "minZoomLive": "",
+        "minZoomCurrentView": "",
+        "whereClause": "",
+        "loadMode": "current_view",
+        "popupFields": "cat;prob;fcst_date;start_date;end_date;gis_date;idp_filedate",
+        "popupAliases": "cat=Category;prob=Probability;fcst_date=Forecast issued;start_date=Valid start;end_date=Valid end;gis_date=GIS ingest date;idp_filedate=IDP file date",
+        "popupLinkTemplate": "https://www.cpc.ncep.noaa.gov/products/predictions/610day/",
+        "popupLinkLabel": "Open CPC 6-10 day outlook page",
+        "identifyUrl": "",
+        "hoverFields": "cat;prob;start_date;end_date",
+        "hoverAliases": "cat=Category;prob=Probability;start_date=Start;end_date=End",
+        "hoverBoldFields": "cat;prob",
+        "hoverNoLabelFields": "cat",
+        "hoverRoundFields": "prob",
+        "hoverShowNativeFieldNames": "False",
+        "defaultLabelField": "cat",
+        "outFields": "cat;prob;fcst_date;start_date;end_date;idp_filedate;idp_ingestdate",
+        "styleFieldCandidates": "",
+        "defaultStyleField": "cat;prob",
+        "defaultStyleMethod": "cpc_outlook",
+        "styleUnits": "temperature",
+        "styleLegendTitle": "CPC 6-10 Day Temperature Outlook",
+        "styleDirection": "category_probability",
+        "layerName": "CPC 6-10 Day Temperature Outlook",
+        "fieldCurationNotes": "Current-view polygons are styled locally by cat/prob to avoid fragile MapServer image/identify behavior.",
+        "showNativeFieldNames": "False",
+        "clickable": true,
+        "catalogIndex": 0,
+        "catalogExtId": "EXT062",
+        "catalogDisplayNum": "",
+        "loadBadge": "",
+        "loadBadgeOverride": "",
+        "loadScore": "",
+        "loadScoreOverride": "",
+        "loadNote": "",
+        "loadAuditBasis": "",
+        "loadNTests": "",
+        "loadSuccessRate": "",
+        "loadMedianSeconds": "",
+        "loadP90Seconds": "",
+        "loadMaxSeconds": "",
+        "loadFeatureCapRate": "",
+        "catalogKey": "EXT062||NOAA / NWS / CPC||CPC 6-10 / 8-14 day||Weather Outlooks||CPC 6-10 / 8-14 day||CPC 6-10 Day Temperature Outlook||https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/0",
+        "opsPromotedKey": "ops_cpc_6_10_day_temperature_outlook",
+        "opsPromotedGeneration": 0,
+        "opsPromotedSourceName": "CPC 6-10 Day Temperature Outlook",
+        "opsPromotedDisplayName": "CPC 6-10 Day Temperature Outlook"
+      },
+      "hover": "<div class=\"pt-external-hover\"><div><b>Above normal</b></div><div><span>Probability:</span> <b>60</b></div><div><span>Start:</span> 2026-09-22</div><div><span>End:</span> 2026-09-26</div></div>",
+      "popup": "<b>CPC 6-10 Day Temperature Outlook</b><div style=\"margin-top:4px;\"><b>BRIM summary</b></div><br/><b>Category:</b> Above normal<br/><b>Probability:</b> 60%<br/><b>Forecast issued:</b> 2026-09-16<br/><b>Valid start:</b> 2026-09-22<br/><b>Valid end:</b> 2026-09-26<br/><b>GIS ingest date:</b> 2026-09-16 18:00 UTC<br/><b>IDP file date:</b> 2026-09-16<div style=\"margin-top:7px;\"><a href=\"https://www.cpc.ncep.noaa.gov/products/predictions/610day/\" target=\"_blank\" rel=\"noopener noreferrer\">Open CPC 6-10 day outlook page</a></div><br/><span style=\"font-size:11px;color:#666;\"><i>Summary labels are BRIM-friendly aliases for native service fields unless explicitly marked as BRIM-derived.</i></span>",
+      "legend": "<div class=\"pt-tools-muted\"><b>CPC style:</b> <span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#ef6548;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Above temp</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#6baed6;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Below temp</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#eeeeee;padding:0 5px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Near normal / EC</span></div>",
+      "style": {
+        "pane": "pane_pt_cpc_prob_4",
+        "color": "#666666",
+        "weight": 0.5,
+        "opacity": 0.55,
+        "fillColor": "#ef6548",
+        "fillOpacity": 0.64
+      },
+      "ramps": [
+        {
+          "cat": "A",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 33,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 40,
+              "color": "#fdbb84"
+            },
+            {
+              "prob": 50,
+              "color": "#fc8d59"
+            },
+            {
+              "prob": 60,
+              "color": "#ef6548"
+            },
+            {
+              "prob": 70,
+              "color": "#d7301f"
+            },
+            {
+              "prob": 80,
+              "color": "#b30000"
+            },
+            {
+              "prob": 90,
+              "color": "#7f0000"
+            },
+            {
+              "prob": 100,
+              "color": "#7f0000"
+            }
+          ]
+        },
+        {
+          "cat": "B",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#deebf7"
+            },
+            {
+              "prob": 33,
+              "color": "#deebf7"
+            },
+            {
+              "prob": 40,
+              "color": "#c6dbef"
+            },
+            {
+              "prob": 50,
+              "color": "#9ecae1"
+            },
+            {
+              "prob": 60,
+              "color": "#6baed6"
+            },
+            {
+              "prob": 70,
+              "color": "#3182bd"
+            },
+            {
+              "prob": 80,
+              "color": "#08519c"
+            },
+            {
+              "prob": 90,
+              "color": "#08306b"
+            },
+            {
+              "prob": 100,
+              "color": "#08306b"
+            }
+          ]
+        },
+        {
+          "cat": "N",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "EC",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "UNKNOWN",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "product_label": "CPC 6-10 Day Precipitation Outlook",
+      "provenance": "SYNTHETIC attributes through unchanged current formatters and exact catalog options; no provider capture",
+      "props": {
+        "cat": "B",
+        "prob": 60,
+        "fcst_date": 1789516800000,
+        "start_date": 1790035200000,
+        "end_date": 1790380800000,
+        "gis_date": "202609161800",
+        "idp_filedate": 1789581600000
+      },
+      "options": {
+        "legendUrl": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/legend",
+        "legendNote": "Official CPC probability/category color legend. Temperature and precipitation use different color ramps; open the legend/source page when interpreting colors.",
+        "legendAdapter": "",
+        "infoAdapter": "",
+        "minZoomLive": "",
+        "minZoomCurrentView": "",
+        "whereClause": "",
+        "loadMode": "current_view",
+        "popupFields": "cat;prob;fcst_date;start_date;end_date;gis_date;idp_filedate",
+        "popupAliases": "cat=Category;prob=Probability;fcst_date=Forecast issued;start_date=Valid start;end_date=Valid end;gis_date=GIS ingest date;idp_filedate=IDP file date",
+        "popupLinkTemplate": "https://www.cpc.ncep.noaa.gov/products/predictions/610day/",
+        "popupLinkLabel": "Open CPC 6-10 day outlook page",
+        "identifyUrl": "",
+        "hoverFields": "cat;prob;start_date;end_date",
+        "hoverAliases": "cat=Category;prob=Probability;start_date=Start;end_date=End",
+        "hoverBoldFields": "cat;prob",
+        "hoverNoLabelFields": "cat",
+        "hoverRoundFields": "prob",
+        "hoverShowNativeFieldNames": "False",
+        "defaultLabelField": "cat",
+        "outFields": "cat;prob;fcst_date;start_date;end_date;idp_filedate;idp_ingestdate",
+        "styleFieldCandidates": "",
+        "defaultStyleField": "cat;prob",
+        "defaultStyleMethod": "cpc_outlook",
+        "styleUnits": "precipitation",
+        "styleLegendTitle": "CPC 6-10 Day Precipitation Outlook",
+        "styleDirection": "category_probability",
+        "layerName": "CPC 6-10 Day Precipitation Outlook",
+        "fieldCurationNotes": "Current-view polygons are styled locally by cat/prob to avoid fragile MapServer image/identify behavior.",
+        "showNativeFieldNames": "False",
+        "clickable": true,
+        "catalogIndex": 1,
+        "catalogExtId": "EXT063",
+        "catalogDisplayNum": "",
+        "loadBadge": "",
+        "loadBadgeOverride": "",
+        "loadScore": "",
+        "loadScoreOverride": "",
+        "loadNote": "",
+        "loadAuditBasis": "",
+        "loadNTests": "",
+        "loadSuccessRate": "",
+        "loadMedianSeconds": "",
+        "loadP90Seconds": "",
+        "loadMaxSeconds": "",
+        "loadFeatureCapRate": "",
+        "catalogKey": "EXT063||NOAA / NWS / CPC||CPC 6-10 / 8-14 day||Weather Outlooks||CPC 6-10 / 8-14 day||CPC 6-10 Day Precipitation Outlook||https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/1",
+        "opsPromotedKey": "ops_cpc_6_10_day_precipitation_outlook",
+        "opsPromotedGeneration": 0,
+        "opsPromotedSourceName": "CPC 6-10 Day Precipitation Outlook",
+        "opsPromotedDisplayName": "CPC 6-10 Day Precipitation Outlook"
+      },
+      "hover": "<div class=\"pt-external-hover\"><div><b>Below normal</b></div><div><span>Probability:</span> <b>60</b></div><div><span>Start:</span> 2026-09-22</div><div><span>End:</span> 2026-09-26</div></div>",
+      "popup": "<b>CPC 6-10 Day Precipitation Outlook</b><div style=\"margin-top:4px;\"><b>BRIM summary</b></div><br/><b>Category:</b> Below normal<br/><b>Probability:</b> 60%<br/><b>Forecast issued:</b> 2026-09-16<br/><b>Valid start:</b> 2026-09-22<br/><b>Valid end:</b> 2026-09-26<br/><b>GIS ingest date:</b> 2026-09-16 18:00 UTC<br/><b>IDP file date:</b> 2026-09-16<div style=\"margin-top:7px;\"><a href=\"https://www.cpc.ncep.noaa.gov/products/predictions/610day/\" target=\"_blank\" rel=\"noopener noreferrer\">Open CPC 6-10 day outlook page</a></div><br/><span style=\"font-size:11px;color:#666;\"><i>Summary labels are BRIM-friendly aliases for native service fields unless explicitly marked as BRIM-derived.</i></span>",
+      "legend": "<div class=\"pt-tools-muted\"><b>CPC style:</b> <span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#41ab5d;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Above precip</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#fc8d59;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Below precip</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#eeeeee;padding:0 5px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Near normal / EC</span></div>",
+      "style": {
+        "pane": "pane_pt_cpc_prob_4",
+        "color": "#666666",
+        "weight": 0.5,
+        "opacity": 0.55,
+        "fillColor": "#fc8d59",
+        "fillOpacity": 0.64
+      },
+      "ramps": [
+        {
+          "cat": "A",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#c7e9c0"
+            },
+            {
+              "prob": 33,
+              "color": "#c7e9c0"
+            },
+            {
+              "prob": 40,
+              "color": "#a1d99b"
+            },
+            {
+              "prob": 50,
+              "color": "#74c476"
+            },
+            {
+              "prob": 60,
+              "color": "#41ab5d"
+            },
+            {
+              "prob": 70,
+              "color": "#238b45"
+            },
+            {
+              "prob": 80,
+              "color": "#006d2c"
+            },
+            {
+              "prob": 90,
+              "color": "#00441b"
+            },
+            {
+              "prob": 100,
+              "color": "#00441b"
+            }
+          ]
+        },
+        {
+          "cat": "B",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#fee8c8"
+            },
+            {
+              "prob": 33,
+              "color": "#fee8c8"
+            },
+            {
+              "prob": 40,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 50,
+              "color": "#fdbb84"
+            },
+            {
+              "prob": 60,
+              "color": "#fc8d59"
+            },
+            {
+              "prob": 70,
+              "color": "#d95f0e"
+            },
+            {
+              "prob": 80,
+              "color": "#a63603"
+            },
+            {
+              "prob": 90,
+              "color": "#7f2704"
+            },
+            {
+              "prob": 100,
+              "color": "#7f2704"
+            }
+          ]
+        },
+        {
+          "cat": "N",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "EC",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "UNKNOWN",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "product_label": "CPC 8-14 Day Temperature Outlook",
+      "provenance": "SYNTHETIC attributes through unchanged current formatters and exact catalog options; no provider capture",
+      "props": {
+        "cat": "A",
+        "prob": 60,
+        "fcst_date": 1789516800000,
+        "start_date": 1790208000000,
+        "end_date": 1790726400000,
+        "gis_date": "202609161800",
+        "idp_filedate": 1789581600000
+      },
+      "options": {
+        "legendUrl": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/legend",
+        "legendNote": "Official CPC probability/category color legend. Temperature and precipitation use different color ramps; open the legend/source page when interpreting colors.",
+        "legendAdapter": "",
+        "infoAdapter": "",
+        "minZoomLive": "",
+        "minZoomCurrentView": "",
+        "whereClause": "",
+        "loadMode": "current_view",
+        "popupFields": "cat;prob;fcst_date;start_date;end_date;gis_date;idp_filedate",
+        "popupAliases": "cat=Category;prob=Probability;fcst_date=Forecast issued;start_date=Valid start;end_date=Valid end;gis_date=GIS ingest date;idp_filedate=IDP file date",
+        "popupLinkTemplate": "https://www.cpc.ncep.noaa.gov/products/predictions/814day/",
+        "popupLinkLabel": "Open CPC 8-14 day outlook page",
+        "identifyUrl": "",
+        "hoverFields": "cat;prob;start_date;end_date",
+        "hoverAliases": "cat=Category;prob=Probability;start_date=Start;end_date=End",
+        "hoverBoldFields": "cat;prob",
+        "hoverNoLabelFields": "cat",
+        "hoverRoundFields": "prob",
+        "hoverShowNativeFieldNames": "False",
+        "defaultLabelField": "cat",
+        "outFields": "cat;prob;fcst_date;start_date;end_date;idp_filedate;idp_ingestdate",
+        "styleFieldCandidates": "",
+        "defaultStyleField": "cat;prob",
+        "defaultStyleMethod": "cpc_outlook",
+        "styleUnits": "temperature",
+        "styleLegendTitle": "CPC 8-14 Day Temperature Outlook",
+        "styleDirection": "category_probability",
+        "layerName": "CPC 8-14 Day Temperature Outlook",
+        "fieldCurationNotes": "Current-view polygons are styled locally by cat/prob to avoid fragile MapServer image/identify behavior.",
+        "showNativeFieldNames": "False",
+        "clickable": true,
+        "catalogIndex": 2,
+        "catalogExtId": "EXT064",
+        "catalogDisplayNum": "",
+        "loadBadge": "",
+        "loadBadgeOverride": "",
+        "loadScore": "",
+        "loadScoreOverride": "",
+        "loadNote": "",
+        "loadAuditBasis": "",
+        "loadNTests": "",
+        "loadSuccessRate": "",
+        "loadMedianSeconds": "",
+        "loadP90Seconds": "",
+        "loadMaxSeconds": "",
+        "loadFeatureCapRate": "",
+        "catalogKey": "EXT064||NOAA / NWS / CPC||CPC 6-10 / 8-14 day||Weather Outlooks||CPC 6-10 / 8-14 day||CPC 8-14 Day Temperature Outlook||https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/0",
+        "opsPromotedKey": "ops_cpc_8_14_day_temperature_outlook",
+        "opsPromotedGeneration": 0,
+        "opsPromotedSourceName": "CPC 8-14 Day Temperature Outlook",
+        "opsPromotedDisplayName": "CPC 8-14 Day Temperature Outlook"
+      },
+      "hover": "<div class=\"pt-external-hover\"><div><b>Above normal</b></div><div><span>Probability:</span> <b>60</b></div><div><span>Start:</span> 2026-09-24</div><div><span>End:</span> 2026-09-30</div></div>",
+      "popup": "<b>CPC 8-14 Day Temperature Outlook</b><div style=\"margin-top:4px;\"><b>BRIM summary</b></div><br/><b>Category:</b> Above normal<br/><b>Probability:</b> 60%<br/><b>Forecast issued:</b> 2026-09-16<br/><b>Valid start:</b> 2026-09-24<br/><b>Valid end:</b> 2026-09-30<br/><b>GIS ingest date:</b> 2026-09-16 18:00 UTC<br/><b>IDP file date:</b> 2026-09-16<div style=\"margin-top:7px;\"><a href=\"https://www.cpc.ncep.noaa.gov/products/predictions/814day/\" target=\"_blank\" rel=\"noopener noreferrer\">Open CPC 8-14 day outlook page</a></div><br/><span style=\"font-size:11px;color:#666;\"><i>Summary labels are BRIM-friendly aliases for native service fields unless explicitly marked as BRIM-derived.</i></span>",
+      "legend": "<div class=\"pt-tools-muted\"><b>CPC style:</b> <span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#ef6548;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Above temp</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#6baed6;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Below temp</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#eeeeee;padding:0 5px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Near normal / EC</span></div>",
+      "style": {
+        "pane": "pane_pt_cpc_prob_4",
+        "color": "#666666",
+        "weight": 0.5,
+        "opacity": 0.55,
+        "fillColor": "#ef6548",
+        "fillOpacity": 0.64
+      },
+      "ramps": [
+        {
+          "cat": "A",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 33,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 40,
+              "color": "#fdbb84"
+            },
+            {
+              "prob": 50,
+              "color": "#fc8d59"
+            },
+            {
+              "prob": 60,
+              "color": "#ef6548"
+            },
+            {
+              "prob": 70,
+              "color": "#d7301f"
+            },
+            {
+              "prob": 80,
+              "color": "#b30000"
+            },
+            {
+              "prob": 90,
+              "color": "#7f0000"
+            },
+            {
+              "prob": 100,
+              "color": "#7f0000"
+            }
+          ]
+        },
+        {
+          "cat": "B",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#deebf7"
+            },
+            {
+              "prob": 33,
+              "color": "#deebf7"
+            },
+            {
+              "prob": 40,
+              "color": "#c6dbef"
+            },
+            {
+              "prob": 50,
+              "color": "#9ecae1"
+            },
+            {
+              "prob": 60,
+              "color": "#6baed6"
+            },
+            {
+              "prob": 70,
+              "color": "#3182bd"
+            },
+            {
+              "prob": 80,
+              "color": "#08519c"
+            },
+            {
+              "prob": 90,
+              "color": "#08306b"
+            },
+            {
+              "prob": 100,
+              "color": "#08306b"
+            }
+          ]
+        },
+        {
+          "cat": "N",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "EC",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "UNKNOWN",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "product_label": "CPC 8-14 Day Precipitation Outlook",
+      "provenance": "SYNTHETIC attributes through unchanged current formatters and exact catalog options; no provider capture",
+      "props": {
+        "cat": "B",
+        "prob": 60,
+        "fcst_date": 1789516800000,
+        "start_date": 1790208000000,
+        "end_date": 1790726400000,
+        "gis_date": "202609161800",
+        "idp_filedate": 1789581600000
+      },
+      "options": {
+        "legendUrl": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/legend",
+        "legendNote": "Official CPC probability/category color legend. Temperature and precipitation use different color ramps; open the legend/source page when interpreting colors.",
+        "legendAdapter": "",
+        "infoAdapter": "",
+        "minZoomLive": "",
+        "minZoomCurrentView": "",
+        "whereClause": "",
+        "loadMode": "current_view",
+        "popupFields": "cat;prob;fcst_date;start_date;end_date;gis_date;idp_filedate",
+        "popupAliases": "cat=Category;prob=Probability;fcst_date=Forecast issued;start_date=Valid start;end_date=Valid end;gis_date=GIS ingest date;idp_filedate=IDP file date",
+        "popupLinkTemplate": "https://www.cpc.ncep.noaa.gov/products/predictions/814day/",
+        "popupLinkLabel": "Open CPC 8-14 day outlook page",
+        "identifyUrl": "",
+        "hoverFields": "cat;prob;start_date;end_date",
+        "hoverAliases": "cat=Category;prob=Probability;start_date=Start;end_date=End",
+        "hoverBoldFields": "cat;prob",
+        "hoverNoLabelFields": "cat",
+        "hoverRoundFields": "prob",
+        "hoverShowNativeFieldNames": "False",
+        "defaultLabelField": "cat",
+        "outFields": "cat;prob;fcst_date;start_date;end_date;idp_filedate;idp_ingestdate",
+        "styleFieldCandidates": "",
+        "defaultStyleField": "cat;prob",
+        "defaultStyleMethod": "cpc_outlook",
+        "styleUnits": "precipitation",
+        "styleLegendTitle": "CPC 8-14 Day Precipitation Outlook",
+        "styleDirection": "category_probability",
+        "layerName": "CPC 8-14 Day Precipitation Outlook",
+        "fieldCurationNotes": "Current-view polygons are styled locally by cat/prob to avoid fragile MapServer image/identify behavior.",
+        "showNativeFieldNames": "False",
+        "clickable": true,
+        "catalogIndex": 3,
+        "catalogExtId": "EXT065",
+        "catalogDisplayNum": "",
+        "loadBadge": "",
+        "loadBadgeOverride": "",
+        "loadScore": "",
+        "loadScoreOverride": "",
+        "loadNote": "",
+        "loadAuditBasis": "",
+        "loadNTests": "",
+        "loadSuccessRate": "",
+        "loadMedianSeconds": "",
+        "loadP90Seconds": "",
+        "loadMaxSeconds": "",
+        "loadFeatureCapRate": "",
+        "catalogKey": "EXT065||NOAA / NWS / CPC||CPC 6-10 / 8-14 day||Weather Outlooks||CPC 6-10 / 8-14 day||CPC 8-14 Day Precipitation Outlook||https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/1",
+        "opsPromotedKey": "ops_cpc_8_14_day_precipitation_outlook",
+        "opsPromotedGeneration": 0,
+        "opsPromotedSourceName": "CPC 8-14 Day Precipitation Outlook",
+        "opsPromotedDisplayName": "CPC 8-14 Day Precipitation Outlook"
+      },
+      "hover": "<div class=\"pt-external-hover\"><div><b>Below normal</b></div><div><span>Probability:</span> <b>60</b></div><div><span>Start:</span> 2026-09-24</div><div><span>End:</span> 2026-09-30</div></div>",
+      "popup": "<b>CPC 8-14 Day Precipitation Outlook</b><div style=\"margin-top:4px;\"><b>BRIM summary</b></div><br/><b>Category:</b> Below normal<br/><b>Probability:</b> 60%<br/><b>Forecast issued:</b> 2026-09-16<br/><b>Valid start:</b> 2026-09-24<br/><b>Valid end:</b> 2026-09-30<br/><b>GIS ingest date:</b> 2026-09-16 18:00 UTC<br/><b>IDP file date:</b> 2026-09-16<div style=\"margin-top:7px;\"><a href=\"https://www.cpc.ncep.noaa.gov/products/predictions/814day/\" target=\"_blank\" rel=\"noopener noreferrer\">Open CPC 8-14 day outlook page</a></div><br/><span style=\"font-size:11px;color:#666;\"><i>Summary labels are BRIM-friendly aliases for native service fields unless explicitly marked as BRIM-derived.</i></span>",
+      "legend": "<div class=\"pt-tools-muted\"><b>CPC style:</b> <span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#41ab5d;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Above precip</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#fc8d59;padding:0 5px;margin-right:3px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Below precip</span><span style=\"display:inline-block;border:1px solid rgba(0,0,0,0.35);background:#eeeeee;padding:0 5px;border-radius:3px;font-size:10.5px;line-height:1.4;\">Near normal / EC</span></div>",
+      "style": {
+        "pane": "pane_pt_cpc_prob_4",
+        "color": "#666666",
+        "weight": 0.5,
+        "opacity": 0.55,
+        "fillColor": "#fc8d59",
+        "fillOpacity": 0.64
+      },
+      "ramps": [
+        {
+          "cat": "A",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#c7e9c0"
+            },
+            {
+              "prob": 33,
+              "color": "#c7e9c0"
+            },
+            {
+              "prob": 40,
+              "color": "#a1d99b"
+            },
+            {
+              "prob": 50,
+              "color": "#74c476"
+            },
+            {
+              "prob": 60,
+              "color": "#41ab5d"
+            },
+            {
+              "prob": 70,
+              "color": "#238b45"
+            },
+            {
+              "prob": 80,
+              "color": "#006d2c"
+            },
+            {
+              "prob": 90,
+              "color": "#00441b"
+            },
+            {
+              "prob": 100,
+              "color": "#00441b"
+            }
+          ]
+        },
+        {
+          "cat": "B",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#fee8c8"
+            },
+            {
+              "prob": 33,
+              "color": "#fee8c8"
+            },
+            {
+              "prob": 40,
+              "color": "#fdd49e"
+            },
+            {
+              "prob": 50,
+              "color": "#fdbb84"
+            },
+            {
+              "prob": 60,
+              "color": "#fc8d59"
+            },
+            {
+              "prob": 70,
+              "color": "#d95f0e"
+            },
+            {
+              "prob": 80,
+              "color": "#a63603"
+            },
+            {
+              "prob": 90,
+              "color": "#7f2704"
+            },
+            {
+              "prob": 100,
+              "color": "#7f2704"
+            }
+          ]
+        },
+        {
+          "cat": "N",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "EC",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        },
+        {
+          "cat": "UNKNOWN",
+          "colors": [
+            {
+              "prob": 0,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 33,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 40,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 50,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 60,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 70,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 80,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 90,
+              "color": "#eeeeee"
+            },
+            {
+              "prob": 100,
+              "color": "#eeeeee"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

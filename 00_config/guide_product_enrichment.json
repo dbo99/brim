@@ -1795,7 +1795,7 @@
     },
     {
       "stable_id": "ops_qpe_rfc_1day",
-      "summary": "NWS River Forecast Center multisensor one-day QPE mosaic using the daily analysis image ending near 12Z.",
+      "summary": "NWS River Forecast Center multisensor daily analysis QPE mosaic; displayed accumulation interval remains unverified.",
       "subject_tags": [
         "Precipitation"
       ],
@@ -1803,14 +1803,52 @@
         "Live Observation"
       ],
       "capabilities": [
-        "Display the daily RFC mosaic with the shared QPE legend and compare western RFC coverage with MRMS and station observations.",
-        "Use the source freshness check and linked CNRFC QPE graphics for upstream context."
+        "Display the daily analysis RFC mosaic with its own ascending precipitation key and compare it with other QPE windows and station observations.",
+        "Use the Source, method & timing details and provider context without treating a service check as displayed-image validity."
       ],
       "processing": [
-        "BRIM requests the provider MapServer daily-analysis sublayer rather than the rolling last-24-hours image for more complete western RFC coverage."
+        "BRIM requests the provider MapServer daily-analysis image, not the rolling last-24-hours image. Provider rendering and each published label/swatch pairing are retained."
       ],
       "timing": [
-        "The mapped total is a one-day analysis ending near 12Z; accumulation end, source publication, and BRIM retrieval time remain distinct."
+        "Daily analysis is a 24-hour total, not rolling last-24-hour QPE.",
+        "Scheduled daily cutoff: 4 a.m. PST / 5 a.m. PDT (12Z). The actual displayed accumulation interval is unverified; the convention does not establish a frame date.",
+        "Provider publication/update, BRIM retrieval/check, and accumulation period are distinct. Expected service refresh is hourly near :55, with daily revisions possible 4 a.m.–1 p.m. PST / 5 a.m.–2 p.m. PDT (12–21 UTC); this is not a data guarantee."
+      ],
+      "geometry_limitations": [
+        "Multisensor QPE is an analysis estimate rather than a station measurement and can differ from gages or local conditions.",
+        "Mosaic completeness and timing depend on upstream RFC source processing."
+      ],
+      "method_ids": [
+        "method_brim_live_update_timing",
+        "method_how_brim_works"
+      ],
+      "editorial_state": "SOURCE_BACKED_RICH",
+      "source_refs": [
+        "ops_live_definition",
+        "rfc_qpe_mapserver",
+        "rfc_qpe_freshness_check"
+      ]
+    },
+    {
+      "stable_id": "ops_qpe_rfc_3day",
+      "summary": "NWS River Forecast Center multisensor three-day QPE mosaic; displayed accumulation interval remains unverified.",
+      "subject_tags": [
+        "Precipitation"
+      ],
+      "information_type_tags": [
+        "Live Observation"
+      ],
+      "capabilities": [
+        "Display the three-day RFC mosaic with its own ascending precipitation key and compare it with daily/seven-day QPE and station observations.",
+        "Use the Source, method & timing details and provider context without treating a service check as displayed-image validity."
+      ],
+      "processing": [
+        "BRIM requests the provider MapServer three-day image, a sum of three daily analyses. Provider rendering and each published label/swatch pairing are retained."
+      ],
+      "timing": [
+        "Three-day accumulation sums three daily 24-hour analyses.",
+        "Scheduled daily cutoff: 4 a.m. PST / 5 a.m. PDT (12Z). The actual displayed accumulation interval is unverified; the convention does not establish a frame date.",
+        "Provider publication/update, BRIM retrieval/check, and accumulation period are distinct. Expected service refresh is hourly near :55, with daily revisions possible 4 a.m.–1 p.m. PST / 5 a.m.–2 p.m. PDT (12–21 UTC); this is not a data guarantee."
       ],
       "geometry_limitations": [
         "Multisensor QPE is an analysis estimate rather than a station measurement and can differ from gages or local conditions.",
@@ -1829,7 +1867,7 @@
     },
     {
       "stable_id": "ops_qpe_rfc_7day",
-      "summary": "NWS River Forecast Center multisensor seven-day QPE mosaic ending near 12Z for longer recent-precipitation context.",
+      "summary": "NWS River Forecast Center multisensor seven-day QPE mosaic; displayed accumulation interval remains unverified.",
       "subject_tags": [
         "Precipitation"
       ],
@@ -1837,14 +1875,16 @@
         "Live Observation"
       ],
       "capabilities": [
-        "Display the seven-day RFC mosaic with the shared QPE legend and compare it with shorter MRMS/RFC windows and station observations.",
-        "Use the source freshness check and linked CNRFC QPE graphics for upstream context."
+        "Display the seven-day RFC mosaic with its own ascending precipitation key and compare it with other QPE windows and station observations.",
+        "Use the Source, method & timing details and provider context without treating a service check as displayed-image validity."
       ],
       "processing": [
-        "BRIM requests the provider MapServer seven-day accumulation sublayer and preserves the upstream mosaic rendering."
+        "BRIM requests the provider MapServer seven-day image, a sum of seven daily analyses. Provider rendering and each published label/swatch pairing are retained."
       ],
       "timing": [
-        "The mapped total is a seven-day accumulation ending near 12Z; accumulation end, source publication, and BRIM retrieval time remain distinct."
+        "Seven-day accumulation sums seven daily 24-hour analyses.",
+        "Scheduled daily cutoff: 4 a.m. PST / 5 a.m. PDT (12Z). The actual displayed accumulation interval is unverified; the convention does not establish a frame date.",
+        "Provider publication/update, BRIM retrieval/check, and accumulation period are distinct. Expected service refresh is hourly near :55, with daily revisions possible 4 a.m.–1 p.m. PST / 5 a.m.–2 p.m. PDT (12–21 UTC); this is not a data guarantee."
       ],
       "geometry_limitations": [
         "Multisensor QPE is an analysis estimate rather than a station measurement and can differ from gages or local conditions.",

@@ -19,10 +19,11 @@ pt_ops_live_guide_identity_registry <- function() {
     "ALERTCalifornia Camera Viewsheds",
     "Radar | IEM NEXRAD",
     "Radar | NOAA MRMS",
-    "NOAA GOES GeoColor",
-    "NOAA GOES Infrared",
-    "NOAA GOES Water Vapor",
-    "NASA MODIS Terra True Color",
+    "GOES-West GeoColor",
+    "GOES-West Clean IR (Band 13)",
+    "VIIRS NOAA-20 True Color",
+    "VIIRS NOAA-21 True Color",
+    "MODIS Terra True Color",
     "Streamflow | multi-agency | Nat'l",
     "Delta ops snapshot | CVP/SWP",
     "Streamflow | USGS | Ca",
@@ -38,6 +39,7 @@ pt_ops_live_guide_identity_registry <- function() {
     "QPE | NWS MRMS 1-day",
     "QPE | NWS MRMS 3-day",
     "QPE | NWS RFC mosaic 1-day",
+    "QPE | NWS RFC mosaic 3-day",
     "QPE | NWS RFC mosaic 7-day",
     "CoCoRaHS | CA daily",
     "CoCoRaHS | 50-state daily",
@@ -72,7 +74,8 @@ pt_ops_live_guide_identity_registry <- function() {
     "ops_radar_noaa_mrms",
     "ops_goes_geocolor",
     "ops_goes_infrared",
-    "ops_goes_water_vapor",
+    "ops_viirs_noaa20_true_color",
+    "ops_viirs_noaa21_true_color",
     "ops_modis_terra_true_color",
     "ops_streamflow_multiagency",
     "ops_delta_snapshot",
@@ -89,6 +92,7 @@ pt_ops_live_guide_identity_registry <- function() {
     "ops_qpe_mrms_1day",
     "ops_qpe_mrms_3day",
     "ops_qpe_rfc_1day",
+    "ops_qpe_rfc_3day",
     "ops_qpe_rfc_7day",
     "product-ops-cocorahs-ca-daily",
     "ops_cocorahs_conus_daily",
@@ -295,10 +299,17 @@ pt_ops_live_layer_definition_js <- function() {
       this.options = options || {};
       this._map = null;
       this._isRemoved = true;
+      ptOpsRegisterForecastOwner(this);
     },
     onAdd: function(mapObj) {
       this._map = mapObj;
       this._isRemoved = false;
+      ptOpsSelectForecastOwner(this, mapObj);
+      this._activation = (this._activation || 0) + 1;
+      var activation = this._activation;
+      this._opsPromotedGeneration = null;
+      this._opsPromotedRequest = 0;
+      this._opsStatusReceived = false;
 
       var name = this.options.name || 'Promoted External Layer';
       var sourceName = this.options.sourceDisplayName || name;
@@ -313,6 +324,7 @@ pt_ops_live_layer_definition_js <- function() {
       activeLegendDefs[name] = {
         note: this.options.note || '',
         legendType: this.options.legendType || null,
+        forecastProductId: this.options.forecastProductId || null,
         sourceUrl: this.options.sourceUrl || '',
         legendUrl: this.options.legendUrl || '',
         infoUrl: this.options.infoUrl || '',
@@ -335,7 +347,7 @@ pt_ops_live_layer_definition_js <- function() {
 
       var self = this;
       function tryAdd(attempt) {
-        if (self._isRemoved) return;
+        if (self._isRemoved || self._activation !== activation) return;
 
         var bridge = window.ptOpsExternalCatalogBridge;
         if (!bridge || typeof bridge.addLayer !== 'function') {
@@ -352,16 +364,28 @@ pt_ops_live_layer_definition_js <- function() {
           return;
         }
 
+        if (self.options.forecastProductId && bridge.cpcLegendDescriptor) {
+          activeLegendDefs[name].forecastScale = bridge.cpcLegendDescriptor(sourceName);
+          redrawLegend();
+        }
         var result = bridge.addLayer({
           sourceDisplayName: sourceName,
           opsDisplayName: name,
           opsKey: opsKey,
+          onOwnership: function(generation) {
+            if (!self._isRemoved && self._activation === activation) {
+              self._opsPromotedGeneration = generation;
+            }
+          },
           color: self.options.color || '#2C7FB8'
         });
 
         if (result && result.ok) {
-          recordStatus(name, result.message || 'Requested curated catalog overlay; waiting for current-view query…', 'pt-ops-warn');
-          setOpsLayerLoading(name, true);
+          // A synchronous terminal response must not be replaced by requested.
+          if (!self._opsStatusReceived) {
+            recordStatus(name, result.message || 'Requested curated catalog overlay; waiting for current-view query…', 'pt-ops-warn');
+            setOpsLayerLoading(name, true);
+          }
         } else {
           recordStatus(name, (result && result.message) ? result.message : 'Could not request curated catalog overlay.', 'pt-ops-warn');
           setOpsLayerLoading(name, false);
@@ -370,8 +394,21 @@ pt_ops_live_layer_definition_js <- function() {
 
       tryAdd(0);
     },
+    refreshCurrentView: function() {
+      if (this._isRemoved || !this._map) return;
+      var name = this.options.name || 'Promoted External Layer';
+      var bridge = window.ptOpsExternalCatalogBridge;
+      setOpsLayerLoading(name, true);
+      var result = bridge && typeof bridge.refreshLayer === 'function' ?
+        bridge.refreshLayer({opsKey: this.options.opsKey, opsDisplayName: name}) : null;
+      if (!result || !result.ok) {
+        setOpsLayerLoading(name, false);
+        recordStatus(name, (result && result.message) || 'Could not refresh this promoted catalog layer.', 'pt-ops-warn');
+      }
+    },
     onRemove: function(mapObj) {
       this._isRemoved = true;
+      this._opsPromotedGeneration = null;
       var name = this.options.name || 'Promoted External Layer';
       var opsKey = this.options.opsKey || name;
 
@@ -402,8 +439,30 @@ pt_ops_live_layer_definition_js <- function() {
     window.ptOpsCatalogLayerStatusListenerInstalled = true;
     window.addEventListener('ptOpsCatalogLayerStatus', function(evt) {
       var detail = evt && evt.detail ? evt.detail : {};
-      var name = detail.opsDisplayName || detail.name || detail.opsName || '';
-      if (!name) return;
+      var owner = null;
+      opsLayers.some(function(def) {
+        var layer = def && def.layer;
+        if (detail.opsKey && layer && layer.options && layer.options.opsKey === detail.opsKey) {
+          owner = layer;
+          return true;
+        }
+        return false;
+      });
+      if (!owner || owner._isRemoved || !owner._map ||
+          typeof detail.opsPromotedGeneration !== 'number' ||
+          detail.opsPromotedGeneration !== owner._opsPromotedGeneration) return;
+      var name = owner.options.name || 'Promoted External Layer';
+      if (activeLayers[name] !== owner) return;
+      var request = detail.opsPromotedRequest;
+      if (typeof request !== 'number' || !isFinite(request) ||
+          request < owner._opsPromotedRequest ||
+          (detail.terminal && request !== owner._opsPromotedRequest)) return;
+      owner._opsPromotedRequest = request;
+      owner._opsStatusReceived = true;
+      if (owner.options.forecastProductId && detail.forecastMetadata && activeLegendDefs[name]) {
+        activeLegendDefs[name].forecastMetadata = ptForecastMetadata('cpc', detail.forecastMetadata.features, detail.forecastMetadata.incomplete);
+        redrawLegend();
+      }
 
       if (detail.msg) {
         recordStatus(
@@ -485,6 +544,8 @@ pt_ops_live_layer_definition_js <- function() {
       sourceUrl: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
       layer: makeRadarLayer({
         name: 'Radar | IEM NEXRAD',
+        radarProductId: 'ops_radar_iem_nexrad',
+        legendType: 'radar_iem',
         opacity: 0.70,
         note: 'Live NEXRAD radar tile overlay from the Iowa Environmental Mesonet WMS. Useful as a fast alternate radar source.',
         sourceUrl: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
@@ -498,6 +559,8 @@ pt_ops_live_layer_definition_js <- function() {
       name: 'Radar | NOAA MRMS',
       layer: new ArcGISExportLayer({
         name: 'Radar | NOAA MRMS',
+        radarProductId: 'ops_radar_noaa_mrms',
+        legendType: 'radar_noaa',
         serviceType: 'MapServer',
         url: NOAA_RADAR,
         layers: [3],
@@ -509,67 +572,40 @@ pt_ops_live_layer_definition_js <- function() {
     });
   }
 
+  // Five satellite products, initially off; selection ownership stays in GIBS.
   addOpsLayer({
     category: 'Satellite / Imagery',
-    name: 'NOAA GOES GeoColor',
-    layer: new ArcGISExportLayer({
-      name: 'NOAA GOES GeoColor',
-      serviceType: 'ImageServer',
-      url: NOAA_GOES_GEOCOLOR,
-      opacity: 0.82,
-      note: 'Merged GOES East/West GeoColor imagery. Good quick-look layer for cloud cover, smoke/dust/haze, snow, and broad situational awareness; source notes display use, not operational decision support. Works best with few other overlays on.',
-      infoUrl: INFO_NOAA_SATELLITE_MAPS,
-      infoLabel: 'guide',
-      legendNote: 'GeoColor is a visual satellite composite; it does not have a simple quantitative color legend.',
-      checkFreshness: checkNoaaSatellite('NOAA GOES GeoColor')
-    })
+    subgroup: 'GOES-West',
+    name: 'GOES-West GeoColor',
+    layer: makeGibsImageryLayer('ops_goes_geocolor')
   });
 
   addOpsLayer({
     category: 'Satellite / Imagery',
-    name: 'NOAA GOES Infrared',
-    layer: new ArcGISExportLayer({
-      name: 'NOAA GOES Infrared',
-      serviceType: 'ImageServer',
-      url: NOAA_GOES_IR,
-      opacity: 0.82,
-      note: 'GOES ABI Band 13 infrared imagery. Useful day or night for cloud-top temperature patterns and active weather systems; source notes display use, not operational decision support.',
-      infoUrl: INFO_GOES_IR_BAND13,
-      infoLabel: 'guide',
-      legendNote: 'Enhanced infrared colors are brightness-temperature/cloud-top context, not surface air temperature.',
-      checkFreshness: checkNoaaSatellite('NOAA GOES Infrared')
-    })
+    subgroup: 'GOES-West',
+    name: 'GOES-West Clean IR (Band 13)',
+    layer: makeGibsImageryLayer('ops_goes_infrared')
   });
 
   addOpsLayer({
     category: 'Satellite / Imagery',
-    name: 'NOAA GOES Water Vapor',
-    layer: new ArcGISExportLayer({
-      name: 'NOAA GOES Water Vapor',
-      serviceType: 'ImageServer',
-      url: NOAA_GOES_WV,
-      opacity: 0.82,
-      note: 'GOES ABI Band 10 water-vapor imagery. Useful for atmospheric-river context, moisture plumes, dry slots, and upper-level circulation patterns; source notes display use, not operational decision support.',
-      infoUrl: INFO_GOES_WV_BAND10,
-      infoLabel: 'guide',
-      legendNote: 'Water-vapor colors show enhanced brightness-temperature/moisture-structure patterns aloft; the green/brown ramp is not a direct surface humidity scale.',
-      checkFreshness: checkNoaaSatellite('NOAA GOES Water Vapor')
-    })
+    subgroup: 'Daily true color',
+    name: 'VIIRS NOAA-20 True Color',
+    layer: makeGibsImageryLayer('ops_viirs_noaa20_true_color')
   });
 
   addOpsLayer({
     category: 'Satellite / Imagery',
-    name: 'NASA MODIS Terra True Color',
-    layer: makeGibsWmtsLayer({
-      name: 'NASA MODIS Terra True Color',
-      layerId: 'MODIS_Terra_CorrectedReflectance_TrueColor',
-      opacity: 0.78,
-      sourceUrl: 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/',
-      infoUrl: INFO_NASA_GIBS,
-      infoLabel: 'guide',
-      legendNote: 'Daily true-color imagery; black or missing tiles usually mean no current/default tile was available for that location/zoom/date.',
-      note: 'Daily NASA GIBS MODIS Terra corrected-reflectance true-color imagery. Useful for daytime snow, smoke, dust, clouds, and landscape context; not a same-minute live product.'
-    })
+    subgroup: 'Daily true color',
+    name: 'VIIRS NOAA-21 True Color',
+    layer: makeGibsImageryLayer('ops_viirs_noaa21_true_color')
+  });
+
+  addOpsLayer({
+    category: 'Satellite / Imagery',
+    subgroup: 'Daily true color',
+    name: 'MODIS Terra True Color',
+    layer: makeGibsImageryLayer('ops_modis_terra_true_color')
   });
 
 
@@ -803,11 +839,12 @@ pt_ops_live_layer_definition_js <- function() {
     });
   }
 
-  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 1-hr', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 1-hr', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_1hr', opacity: 0.58, legendType: 'qpe', note: 'NWS MRMS 1-hour QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
-  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 1-day', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 1-day', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_24hr', opacity: 0.60, legendType: 'qpe', note: 'NWS MRMS 1-day QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
-  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 3-day', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 3-day', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_72hr', opacity: 0.60, legendType: 'qpe', note: 'NWS MRMS 3-day QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
-  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS RFC mosaic 1-day', layer: new ArcGISExportLayer({name: 'QPE | NWS RFC mosaic 1-day', serviceType: 'MapServer', url: RFC_QPE, layers: [32], opacity: 0.64, legendType: 'qpe', note: 'RFC multisensor QPE mosaic daily analysis: 1-day total ending near 12Z. This uses the Today\'s Analysis image sublayer, which should be more complete for western RFC coverage than the rolling Last 24 Hours image.', legendUrl: mapServerLegendUrl(RFC_QPE), checkFreshness: checkRfcQpe})});
-  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS RFC mosaic 7-day', layer: new ArcGISExportLayer({name: 'QPE | NWS RFC mosaic 7-day', serviceType: 'MapServer', url: RFC_QPE, layers: [56], opacity: 0.64, legendType: 'qpe', note: 'RFC multisensor QPE mosaic, 7-day accumulation ending near 12Z.', legendUrl: mapServerLegendUrl(RFC_QPE), checkFreshness: checkRfcQpe})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 1-hr', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 1-hr', qpeProductId: 'ops_qpe_mrms_1hr', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_1hr', opacity: 0.58, legendType: 'mrms_qpe', note: 'NWS MRMS 1-hour QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 1-day', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 1-day', qpeProductId: 'ops_qpe_mrms_1day', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_24hr', opacity: 0.60, legendType: 'mrms_qpe', note: 'NWS MRMS 1-day QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS MRMS 3-day', layer: new ArcGISExportLayer({name: 'QPE | NWS MRMS 3-day', qpeProductId: 'ops_qpe_mrms_3day', serviceType: 'ImageServer', url: MRMS, rasterFunction: 'rft_72hr', opacity: 0.60, legendType: 'mrms_qpe', note: 'NWS MRMS 3-day QPE accumulation. Mostly automated sensor/radar-based precipitation estimate; useful for quick storm context.', legendUrl: mapServerLegendUrl(MRMS), checkFreshness: checkMrmsLatest})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS RFC mosaic 1-day', layer: new ArcGISExportLayer({name: 'QPE | NWS RFC mosaic 1-day', qpeProductId: 'ops_qpe_rfc_1day', serviceType: 'MapServer', url: RFC_QPE, layers: [32], opacity: 0.64, legendType: 'rfc_qpe', rfcQpeProductId: 'ops_qpe_rfc_1day', note: 'Daily analysis, not rolling 24-hour QPE. Scheduled cutoff: 4 a.m. PST / 5 a.m. PDT (12Z); displayed accumulation interval is unverified.', legendUrl: mapServerLegendUrl(RFC_QPE), checkFreshness: checkRfcQpe})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS RFC mosaic 3-day', layer: new ArcGISExportLayer({name: 'QPE | NWS RFC mosaic 3-day', qpeProductId: 'ops_qpe_rfc_3day', serviceType: 'MapServer', url: RFC_QPE, layers: [40], opacity: 0.64, legendType: 'rfc_qpe', rfcQpeProductId: 'ops_qpe_rfc_3day', note: 'Sum of three daily analyses. Scheduled cutoff: 4 a.m. PST / 5 a.m. PDT (12Z); displayed accumulation interval is unverified.', legendUrl: mapServerLegendUrl(RFC_QPE), checkFreshness: checkRfcQpe})});
+  addOpsLayer({category: 'Hydro Observations', subgroup: 'Precip / QPE', name: 'QPE | NWS RFC mosaic 7-day', layer: new ArcGISExportLayer({name: 'QPE | NWS RFC mosaic 7-day', qpeProductId: 'ops_qpe_rfc_7day', serviceType: 'MapServer', url: RFC_QPE, layers: [56], opacity: 0.64, legendType: 'rfc_qpe', rfcQpeProductId: 'ops_qpe_rfc_7day', note: 'Sum of seven daily analyses. Scheduled cutoff: 4 a.m. PST / 5 a.m. PDT (12Z); displayed accumulation interval is unverified.', legendUrl: mapServerLegendUrl(RFC_QPE), checkFreshness: checkRfcQpe})});
 
   if (includeCocorahsDailyPrecip && COCORAHS_CA_DAILY_PRECIP_URL) {
     addOpsLayer({
@@ -869,7 +906,7 @@ pt_ops_live_layer_definition_js <- function() {
     name: 'WPC QPF Day 1',
     panelOrder: -98,
     refreshable: true,
-    layer: new ArcGISExportLayer({name: 'WPC QPF Day 1', serviceType: 'MapServer', url: WPC_QPF, layers: [1], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 1 QPF. Hover over the active layer for forecast precipitation and valid/issued times in Los Angeles time. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/d1qpfall.html', checkFreshness: checkWpcQpf}),
+    layer: new ArcGISExportLayer({name: 'WPC QPF Day 1', forecastProductId: 'ops_wpc_qpf_day_1', serviceType: 'MapServer', url: WPC_QPF, layers: [1], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 1 QPF. Hover for product, polygon amount and response-bound valid time; see the map legend for full scale and timing qualifications. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/d1qpfall.html', checkFreshness: checkWpcQpf}),
     onActivate: function() { activateWpcQpfHover('WPC QPF Day 1', 1); },
     onDeactivate: function() { deactivateWpcQpfHover('WPC QPF Day 1'); }
   });
@@ -879,7 +916,7 @@ pt_ops_live_layer_definition_js <- function() {
     name: 'WPC QPF Day 2',
     panelOrder: -97,
     refreshable: true,
-    layer: new ArcGISExportLayer({name: 'WPC QPF Day 2', serviceType: 'MapServer', url: WPC_QPF, layers: [2], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 2 QPF. Hover over the active layer for forecast precipitation and valid/issued times in Los Angeles time. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day2.shtml', checkFreshness: checkWpcQpf}),
+    layer: new ArcGISExportLayer({name: 'WPC QPF Day 2', forecastProductId: 'ops_wpc_qpf_day_2', serviceType: 'MapServer', url: WPC_QPF, layers: [2], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 2 QPF. Hover for product, polygon amount and response-bound valid time; see the map legend for full scale and timing qualifications. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day2.shtml', checkFreshness: checkWpcQpf}),
     onActivate: function() { activateWpcQpfHover('WPC QPF Day 2', 2); },
     onDeactivate: function() { deactivateWpcQpfHover('WPC QPF Day 2'); }
   });
@@ -889,7 +926,7 @@ pt_ops_live_layer_definition_js <- function() {
     name: 'WPC QPF Day 3',
     panelOrder: -96,
     refreshable: true,
-    layer: new ArcGISExportLayer({name: 'WPC QPF Day 3', serviceType: 'MapServer', url: WPC_QPF, layers: [3], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 3 QPF. Hover over the active layer for forecast precipitation and valid/issued times in Los Angeles time. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day3.shtml', checkFreshness: checkWpcQpf}),
+    layer: new ArcGISExportLayer({name: 'WPC QPF Day 3', forecastProductId: 'ops_wpc_qpf_day_3', serviceType: 'MapServer', url: WPC_QPF, layers: [3], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 24-hour Day 3 QPF. Hover for product, polygon amount and response-bound valid time; see the map legend for full scale and timing qualifications. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day3.shtml', checkFreshness: checkWpcQpf}),
     onActivate: function() { activateWpcQpfHover('WPC QPF Day 3', 3); },
     onDeactivate: function() { deactivateWpcQpfHover('WPC QPF Day 3'); }
   });
@@ -899,7 +936,7 @@ pt_ops_live_layer_definition_js <- function() {
     name: 'WPC QPF 3-day',
     panelOrder: -95,
     refreshable: true,
-    layer: new ArcGISExportLayer({name: 'WPC QPF 3-day', serviceType: 'MapServer', url: WPC_QPF, layers: [9], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 3-day QPF for Days 1-3. Hover over the active layer for forecast precipitation and valid/issued times in Los Angeles time. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day1-3.shtml', checkFreshness: checkWpcQpf}),
+    layer: new ArcGISExportLayer({name: 'WPC QPF 3-day', forecastProductId: 'ops_wpc_qpf_3day', serviceType: 'MapServer', url: WPC_QPF, layers: [9], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 3-day QPF for Days 1-3. Hover for product, polygon amount and response-bound valid time; see the map legend for full scale and timing qualifications. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day1-3.shtml', checkFreshness: checkWpcQpf}),
     onActivate: function() { activateWpcQpfHover('WPC QPF 3-day', 9); },
     onDeactivate: function() { deactivateWpcQpfHover('WPC QPF 3-day'); }
   });
@@ -909,7 +946,7 @@ pt_ops_live_layer_definition_js <- function() {
     name: 'WPC QPF 7-day',
     panelOrder: -94,
     refreshable: true,
-    layer: new ArcGISExportLayer({name: 'WPC QPF 7-day', serviceType: 'MapServer', url: WPC_QPF, layers: [11], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 7-day QPF for Days 1-7. Hover over the active layer for forecast precipitation and valid/issued times in Los Angeles time. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day1-7.shtml', checkFreshness: checkWpcQpf}),
+    layer: new ArcGISExportLayer({name: 'WPC QPF 7-day', forecastProductId: 'ops_wpc_qpf_7day', serviceType: 'MapServer', url: WPC_QPF, layers: [11], opacity: 0.64, refreshable: true, legendType: 'qpe', note: 'WPC 7-day QPF for Days 1-7. Hover for product, polygon amount and response-bound valid time; see the map legend for full scale and timing qualifications. Use rfrsh after pan/zoom to force a fresh image request for the current map view.', legendUrl: mapServerLegendUrl(WPC_QPF), sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/day1-7.shtml', checkFreshness: checkWpcQpf}),
     onActivate: function() { activateWpcQpfHover('WPC QPF 7-day', 11); },
     onDeactivate: function() { deactivateWpcQpfHover('WPC QPF 7-day'); }
   });
@@ -953,12 +990,15 @@ pt_ops_live_layer_definition_js <- function() {
     onDeactivate: deactivateWwaHover
   });
   addOpsLayer({
-    category: 'Hazards',
+    category: 'Forecasts / Outlooks',
+    subgroup: 'Weather Forecasts / Outlooks',
     name: 'WPC ERO Day 1',
+    panelOrder: -93.75,
     refreshable: true,
     sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=1&opt=curr',
     legendUrl: mapServerLegendUrl(WPC_ERO),
     layer: new WpcEroCurrentViewLayer({
+      forecastProductId: 'ops_wpc_ero_day_1',
       name: 'WPC ERO Day 1',
       url: WPC_ERO,
       layerId: 0,
@@ -972,12 +1012,15 @@ pt_ops_live_layer_definition_js <- function() {
   });
 
   addOpsLayer({
-    category: 'Hazards',
+    category: 'Forecasts / Outlooks',
+    subgroup: 'Weather Forecasts / Outlooks',
     name: 'WPC ERO Day 2',
+    panelOrder: -93.5,
     refreshable: true,
     sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=2&opt=curr',
     legendUrl: mapServerLegendUrl(WPC_ERO),
     layer: new WpcEroCurrentViewLayer({
+      forecastProductId: 'ops_wpc_ero_day_2',
       name: 'WPC ERO Day 2',
       url: WPC_ERO,
       layerId: 1,
@@ -991,12 +1034,15 @@ pt_ops_live_layer_definition_js <- function() {
   });
 
   addOpsLayer({
-    category: 'Hazards',
+    category: 'Forecasts / Outlooks',
+    subgroup: 'Weather Forecasts / Outlooks',
     name: 'WPC ERO Day 3',
+    panelOrder: -93.25,
     refreshable: true,
     sourceUrl: 'https://www.wpc.ncep.noaa.gov/qpf/ero.php?day=3&opt=curr',
     legendUrl: mapServerLegendUrl(WPC_ERO),
     layer: new WpcEroCurrentViewLayer({
+      forecastProductId: 'ops_wpc_ero_day_3',
       name: 'WPC ERO Day 3',
       url: WPC_ERO,
       layerId: 2,
@@ -1071,6 +1117,7 @@ pt_ops_live_layer_definition_js <- function() {
     category: 'Forecasts / Outlooks',
     subgroup: 'Weather Forecasts / Outlooks',
     name: 'CPC 6-10 Day Temperature Outlook',
+    panelLabel: 'CPC 6-10 Day Temp. Outlook',
     panelOrder: -92,
     sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/610day/610temp.new.gif',
     layer: new CatalogPromotedExternalLayer({
@@ -1078,6 +1125,8 @@ pt_ops_live_layer_definition_js <- function() {
     catalogSourceDisplayName: 'CPC 6-10 Day Temperature Outlook',
       sourceDisplayName: 'CPC 6-10 Day Temperature Outlook',
       opsKey: 'ops_cpc_6_10_day_temperature_outlook',
+      forecastProductId: 'ops_cpc_6_10_temperature',
+      legendUrl: 'https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/legend',
       color: '#D95F02',
       sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/610day/610temp.new.gif',
       note: 'One-click Ops Live view of the curated External Layers row "CPC 6-10 Day Temperature Outlook". Reuses the existing CPC outlook styling, hover fields, popup fields, and source metadata. Use External Layers if manual catalog controls are needed.'
@@ -1088,6 +1137,7 @@ pt_ops_live_layer_definition_js <- function() {
     category: 'Forecasts / Outlooks',
     subgroup: 'Weather Forecasts / Outlooks',
     name: 'CPC 6-10 Day Precipitation Outlook',
+    panelLabel: 'CPC 6-10 Day Precip. Outlook',
     panelOrder: -91,
     sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/610day/610prcp.new.gif',
     layer: new CatalogPromotedExternalLayer({
@@ -1095,6 +1145,8 @@ pt_ops_live_layer_definition_js <- function() {
     catalogSourceDisplayName: 'CPC 6-10 Day Precipitation Outlook',
       sourceDisplayName: 'CPC 6-10 Day Precipitation Outlook',
       opsKey: 'ops_cpc_6_10_day_precipitation_outlook',
+      forecastProductId: 'ops_cpc_6_10_precipitation',
+      legendUrl: 'https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/legend',
       color: '#2C7FB8',
       sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/610day/610prcp.new.gif',
       note: 'One-click Ops Live view of the curated External Layers row "CPC 6-10 Day Precipitation Outlook". Reuses the existing CPC outlook styling, hover fields, popup fields, and source metadata. Use External Layers if manual catalog controls are needed.'
@@ -1105,12 +1157,15 @@ pt_ops_live_layer_definition_js <- function() {
     category: 'Forecasts / Outlooks',
     subgroup: 'Weather Forecasts / Outlooks',
     name: 'CPC 8-14 Day Temperature Outlook',
+    panelLabel: 'CPC 8-14 Day Temp. Outlook',
     sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/814day/814temp.new.gif',
     layer: new CatalogPromotedExternalLayer({
       name: 'CPC 8-14 Day Temperature Outlook',
     catalogSourceDisplayName: 'CPC 8-14 Day Temperature Outlook',
       sourceDisplayName: 'CPC 8-14 Day Temperature Outlook',
       opsKey: 'ops_cpc_8_14_day_temperature_outlook',
+      forecastProductId: 'ops_cpc_8_14_temperature',
+      legendUrl: 'https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/legend',
       color: '#A6611A',
       sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/814day/814temp.new.gif',
       note: 'One-click Ops Live view of the curated External Layers row "CPC 8-14 Day Temperature Outlook". Reuses the existing CPC outlook styling, hover fields, popup fields, and source metadata. Use External Layers if manual catalog controls are needed.'
@@ -1121,12 +1176,15 @@ pt_ops_live_layer_definition_js <- function() {
     category: 'Forecasts / Outlooks',
     subgroup: 'Weather Forecasts / Outlooks',
     name: 'CPC 8-14 Day Precipitation Outlook',
+    panelLabel: 'CPC 8-14 Day Precip. Outlook',
     sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/814day/814prcp.new.gif',
     layer: new CatalogPromotedExternalLayer({
       name: 'CPC 8-14 Day Precipitation Outlook',
     catalogSourceDisplayName: 'CPC 8-14 Day Precipitation Outlook',
       sourceDisplayName: 'CPC 8-14 Day Precipitation Outlook',
       opsKey: 'ops_cpc_8_14_day_precipitation_outlook',
+      forecastProductId: 'ops_cpc_8_14_precipitation',
+      legendUrl: 'https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/legend',
       color: '#1F78B4',
       sourceUrl: 'https://www.cpc.ncep.noaa.gov/products/predictions/814day/814prcp.new.gif',
       note: 'One-click Ops Live view of the curated External Layers row "CPC 8-14 Day Precipitation Outlook". Reuses the existing CPC outlook styling, hover fields, popup fields, and source metadata. Use External Layers if manual catalog controls are needed.'

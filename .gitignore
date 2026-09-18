@@ -47,6 +47,8 @@ brim-live-data-feeds/
 
 # Large generated archives
 *.zip
+!/qa/fixtures/gibs_wmts/BRIM_E30R4D1_PROVIDER_METADATA.zip
+!/qa/fixtures/wpc_cpc/BRIM_E37R1_PROVIDER_CAPTURE.zip
 
 *.bak_*
 *.old

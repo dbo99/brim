@@ -27,16 +27,8 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
   var wpcQpfHoverTooltip = null;
   var wpcQpfLastMouseLatLng = null;
 
-  function ptWpcQpfLayerOrder(name) {
-    var order = {
-      'WPC QPF Day 1': 1,
-      'WPC QPF Day 2': 2,
-      'WPC QPF Day 3': 3,
-      'WPC QPF 3-day total': 4,
-      'WPC QPF 7-day total': 5
-    };
-
-    return order[name] || 99;
+  function ptWpcQpfLayerOrder(layerId) {
+    return [1, 2, 3, 9, 11].indexOf(layerId);
   }
 
   function activeWpcQpfLayerDefs() {
@@ -47,7 +39,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
         return def;
       })
       .sort(function(a, b) {
-        return ptWpcQpfLayerOrder(a.name) - ptWpcQpfLayerOrder(b.name);
+        return ptWpcQpfLayerOrder(a.layerId) - ptWpcQpfLayerOrder(b.layerId);
       });
   }
 
@@ -140,20 +132,22 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
       ' - ' + end.text + (end.tz ? ' ' + end.tz : '');
   }
 
+  function ptWpcQpfValue(value, units) {
+    if (!/^(in|inch|inches)$/i.test(String(units || '').trim())) return null;
+    if (typeof value !== 'number' && typeof value !== 'string') return null;
+    var raw = String(value).trim();
+    // Nonnegative precipitation only: negative sentinels cannot become zero.
+    var m = /^(?:(<|<=|>|>=|≤|≥)\s*)?(\d+(?:\.\d+)?|\.\d+)(?:\s*([-–])\s*(\d+(?:\.\d+)?|\.\d+))?$/.exec(raw);
+    if (!m || (m[1] && m[3])) return null;
+    var n = Number(m[2]), end = m[4] === undefined ? null : Number(m[4]);
+    if (!isFinite(n) || (end !== null && (!isFinite(end) || end < n))) return null;
+    return {number: n, scalar: !m[1] && !m[3], text: (m[1] || '') + n.toFixed(2) +
+      (end === null ? '' : m[3] + end.toFixed(2)) + ' in'};
+  }
+
   function formatWpcQpfAmount(value, units) {
-    var n = Number(value);
-    if (!isFinite(n)) return '';
-
-    var digits = n < 1 ? 2 : (n < 10 ? 2 : 1);
-    var txt = n.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: digits
-    });
-
-    var u = String(units || '').trim();
-    if (!u || /^inches?$/i.test(u)) u = 'in';
-
-    return txt + ' ' + u;
+    var parsed = ptWpcQpfValue(value, units);
+    return parsed ? parsed.text : '';
   }
 
   function wpcQpfQueryUrl(layerId, latlng, useEnvelope) {
@@ -223,9 +217,9 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
 
     for (var i = 0; i < features.length; i++) {
       var attrs = features[i] && features[i].attributes ? features[i].attributes : {};
-      var qpf = Number(attrs.qpf);
-
-      if (!isFinite(qpf)) continue;
+      var parsed = ptWpcQpfValue(attrs.qpf, attrs.units);
+      if (!parsed) continue;
+      var qpf = parsed.number;
 
       if (qpf > bestQpf) {
         bestQpf = qpf;
@@ -233,40 +227,40 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
       }
     }
 
-    return best || features[0];
+    return best;
   }
 
-  function wpcQpfFeatureHtml(layerName, attrs) {
+  function wpcQpfFeatureHtml(layerName, attrs, nearby, timingUnverified) {
     attrs = attrs || {};
+    var amount = formatWpcQpfAmount(attrs.qpf, attrs.units);
+    if (!amount) return '';
+    // The amount and interval belong to this same selected cursor-query feature.
+    // Do not use the older zone-inference parser or the layer-global metadata.
+    var interval = timingUnverified ? null : ptWpcForecastInterval(attrs);
+    var duration = interval ? (Date.parse(interval.end)-Date.parse(interval.start))/3600000 : null;
+    return '<div class="pt-ops-wpc-qpf-card"><strong class="pt-qpf-hover-title">'+escapeHtml(layerName)+'</strong>'+
+      '<div class="pt-qpf-hover-amount">'+escapeHtml(amount)+(duration === null ? '' : ' · '+escapeHtml(String(duration))+' hr')+'</div>'+
+      '<div class="pt-qpf-hover-valid">'+escapeHtml(interval ? ptForecastCompactInterval(interval.start,interval.end) : 'Valid time unverified')+'</div>'+
+      (interval ? '<div class="pt-qpf-hover-utc">('+escapeHtml(ptForecastCompactUtc(interval.start,interval.end))+')</div>' : '')+
+      '<div class="pt-qpf-hover-basis">'+(nearby ? 'Nearby WPC polygon' : 'WPC polygon')+'</div></div>';
+  }
 
-    var qpf = formatWpcQpfAmount(attrs.qpf, attrs.units);
-    if (!qpf) return '';
+  function ptWpcQpfResponseTimingUnverified(json, selected) {
+    var interval = selected && ptWpcForecastInterval(selected);
+    if (!interval || json.exceededTransferLimit || json.error) return true;
+    return (json.features || []).some(function(f) {
+      var a = f && f.attributes || {};
+      if (!ptWpcQpfValue(a.qpf,a.units)) return false;
+      var other = ptWpcForecastInterval(a);
+      return !other || other.start !== interval.start || other.end !== interval.end;
+    });
+  }
 
-    var valid = formatLosAngelesRangeCompact(attrs.start_time, attrs.end_time);
-    var issued = formatLosAngelesCompact(attrs.issue_time);
-
-    if (!valid && attrs.valid_time) {
-      valid = String(attrs.valid_time);
-    }
-
-    var html = '<div class="pt-ops-wpc-qpf-card">' +
-      '<div class="pt-ops-wpc-qpf-title">' + escapeHtml(layerName) + '</div>' +
-      '<div class="pt-ops-wpc-qpf-row"><b>Forecast:</b> ' + escapeHtml(qpf) + '</div>';
-
-    if (valid) {
-      html += '<div class="pt-ops-wpc-qpf-row"><b>Valid:</b> ' + escapeHtml(valid) + '</div>';
-    }
-
-    if (issued) {
-      html += '<div class="pt-ops-wpc-qpf-row"><b>Issued:</b> ' + escapeHtml(issued) + '</div>';
-    }
-
-    if (attrs.product) {
-      html += '<div class="pt-ops-wpc-qpf-muted">' + escapeHtml(attrs.product) + '</div>';
-    }
-
-    html += '</div>';
-    return html;
+  function invalidateWpcQpfHover() {
+    wpcQpfHoverSeq += 1;
+    if (wpcQpfHoverTimer) window.clearTimeout(wpcQpfHoverTimer);
+    wpcQpfHoverTimer = null;
+    closeWpcQpfHoverTooltip();
   }
 
   function closeWpcQpfHoverTooltip() {
@@ -299,6 +293,8 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
       .setLatLng(latlng)
       .setContent(htmlParts.join('<div style="border-top:1px solid #ddd;margin:4px 0 3px 0;"></div>'))
       .addTo(map);
+    var element = wpcQpfHoverTooltip.getElement && wpcQpfHoverTooltip.getElement();
+    if (element) element.style.maxWidth = Math.max(1, Math.min(320, map.getSize().x - 24)) + 'px';
   }
 
   function queryWpcQpfAtLatLng(latlng) {
@@ -314,7 +310,9 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
     var seq = ++wpcQpfHoverSeq;
 
     Promise.all(activeDefs.map(function(def) {
+      var nearby = false;
       function fetchWpcQpf(useEnvelope) {
+        nearby = useEnvelope;
         return fetch(wpcQpfQueryUrl(def.layerId, latlng, useEnvelope), {cache: 'no-store'})
           .then(function(resp) {
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -326,7 +324,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
         .then(function(json) {
           var features = Array.isArray(json.features) ? json.features : [];
 
-          if (features.length) return json;
+          if (features.length || !wpcQpfHoverActive || seq !== wpcQpfHoverSeq) return json;
 
           // Cumulative WPC total layers sometimes miss a precise point query.
           // Retry once with a very small envelope around the cursor.
@@ -335,7 +333,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
         .then(function(json) {
           var feature = wpcQpfBestFeature(json.features);
           var attrs = feature && feature.attributes ? feature.attributes : {};
-          return wpcQpfFeatureHtml(def.name, attrs);
+          return wpcQpfFeatureHtml(def.name, attrs, nearby, ptWpcQpfResponseTimingUnverified(json, attrs));
         })
         .catch(function() {
           return '';
@@ -349,6 +347,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
   function scheduleWpcQpfHoverQuery(e) {
     if (!wpcQpfHoverActive || !e || !e.latlng) return;
 
+    invalidateWpcQpfHover();
     wpcQpfLastMouseLatLng = e.latlng;
 
     if (wpcQpfHoverTimer) {
@@ -361,6 +360,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
   }
 
   function activateWpcQpfHover(name, layerId) {
+    invalidateWpcQpfHover();
     if (name && layerId !== null && layerId !== undefined) {
       wpcQpfHoverLayers[name] = {
         layerId: layerId
@@ -374,11 +374,12 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
       map.getContainer().classList.add('pt-ops-wpc-qpf-hover-on');
     }
     map.on('mousemove', scheduleWpcQpfHoverQuery);
-    map.on('mouseout zoomstart movestart', closeWpcQpfHoverTooltip);
-    recordStatus('WPC QPF hover', 'Hover over active WPC QPF polygons to show forecast precipitation and valid/issued times in Los Angeles time.', 'pt-ops-ok');
+    map.on('mouseout zoomstart movestart', invalidateWpcQpfHover);
+    recordStatus('WPC QPF hover', 'Hover for WPC product, polygon amount and response-bound valid time. Extended context is in the map legend.', 'pt-ops-ok');
   }
 
   function deactivateWpcQpfHover(name) {
+    invalidateWpcQpfHover();
     if (name && wpcQpfHoverLayers[name]) {
       delete wpcQpfHoverLayers[name];
     }
@@ -394,7 +395,7 @@ pt_ops_live_wpc_qpf_hover_js <- function() {
     }
 
     map.off('mousemove', scheduleWpcQpfHoverQuery);
-    map.off('mouseout zoomstart movestart', closeWpcQpfHoverTooltip);
+    map.off('mouseout zoomstart movestart', invalidateWpcQpfHover);
     if (map.getContainer()) {
       map.getContainer().classList.remove('pt-ops-wpc-qpf-hover-on');
     }

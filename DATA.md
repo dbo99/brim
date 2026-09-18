@@ -59,7 +59,8 @@ The final R16B visual-review currentness correction retains
 program identity, replaces its obsolete 2010 action with the evergreen Surface
 Water Quality Assessment Program page, and adds accurately labeled 2024 and
 2026 Integrated Report cycle pages. The current 2024 line and polygon Products
-are exact selected Products of that parent; the 270-Product authority contains
+are exact selected Products of that parent; the current 272-Product authority
+contains
 no 2026 Integrated Report Product, so no 2026 Product relationship is inferred.
 At C1, CNRFC CSV-child consolidation and six reviewed canonical additions brought
 the authority to 215 Resources / 210 published / five staged. GUIDE-I2B-R10 published exactly 34
@@ -93,7 +94,7 @@ than inventing metadata.
 `00_config/guide_product_resource_relationships.json` is the sole authored
 Product–Resource and Resource map-representation authority. Its schema-version-2
 `products` and `resources` arrays must equal the complete current compiled
-Product set and canonical Resource set exactly: 270 Product records and 233
+Product set and canonical Resource set exactly: 272 Product records and 233
 Resource review/representation records. Each Product owns a delivery
 classification, an independent coverage-review state and disposition,
 evidence, and zero or more exact canonical Resource links. Each Resource owns
@@ -101,9 +102,12 @@ exactly one map-review state, an optional reviewed map representation, and
 evidence. Resource representation is validated from the reverse Product links
 rather than maintained as a second relationship list.
 
-The current authority contains 98 reviewed and 172 `not_yet_reviewed` Products,
-121 exact links, and the exact supported relationship roles: 13 direct matches,
-64 selected-product links, and 44 source references. Delivery class is
+The current authority contains 97 reviewed and 175 `not_yet_reviewed` Products,
+120 exact Product resource-link entries across 92 Products and 28 Resources:
+13 direct matches, 63 selected-product links, and 44 source references.
+These 120 links are distinct from the 233 Resource records and 1313
+delivery-evidence reference occurrences (58 unique repository paths). Delivery
+class is
 secondary descriptive context and does not imply Resource coverage or create a
 primary public filter. Multiple-source Products expose the exact canonical
 source Resource list in registry order. The three DWR/TRE Altamira Products
@@ -135,8 +139,10 @@ line/polygon links to the evergreen statewide assessment-program parent. The
 R16B authority was 270 Products, 211 Resource records, and 90 canonical links.
 The subsequent CNRFC review preserved seven parent links and reached 94 links.
 The C1 WPC ERO review reached 96 links across 72 Products and 27 Resources.
-The current C2 source-reference additions bring this to 121 links across 93
-Products and 28 Resources; all 270 Product identities are unchanged.
+The historical C2 source-reference additions brought this to 121 links across
+93 Products and 28 Resources, preserving the 270 Product identities at that
+gate. Subsequent accepted satellite membership has 272 current Products and
+120 links; retired Water Vapor is no longer an active Product.
 
 Product and Resource IDs, controlled values, set equality, link cardinality,
 evidence paths, duplicates, unknown fields, and disposition/representation
@@ -312,10 +318,12 @@ releases a dependency for cleanup. Water-year values remain
 `external_source_only_no_runtime_feed` and cross-scheme labels are not
 scientific equivalence joins.
 
-The selected combined wave adds eighteen Resources and 25 exact BLM source-reference
-links. Current public views are 28 In BRIM map / 200 Beyond the map / 228 All;
-121 links cover 93 Products and 28 Resources. The original 96 links, all five
-staged records, and source attribution are preserved. The existing published
+The historical combined wave added eighteen Resources and 25 exact BLM
+source-reference links, reaching 121 links across 93 Products and 28 Resources.
+It preserved the then-existing 96 links, five staged records and source
+attribution. Current public views remain 28 In BRIM map / 200 Beyond the map /
+228 All; current Product relationships are the 120 entries described above.
+The existing published
 USGS service Resource uses `https://api.waterdata.usgs.gov/` and retains its
 former name as an alias; operational API consumers are unchanged.
 
@@ -457,3 +465,65 @@ Do not commit large raw/processed geospatial data, caches, realistic/final HTML,
 Small tracked fixtures must be labeled non-authoritative and must not be silently substituted for production inputs.
 
 Feature-specific data inventories and pipeline details belong in focused feature/pipeline documentation, not this root policy.
+
+## Source/offline QA and historical provider fixtures
+
+The six QPE Products (MRMS 1-hour/1-day/3-day and RFC 1-day/3-day/7-day)
+are `brim_enhanced` and receive exactly one BRIM-E badge each through the
+authoritative relationship registry and existing renderer. Both radar Products
+remain `provider_hosted` without BRIM-E. This classification does not verify
+displayed accumulation dates or make an approximate legend provider-exact.
+
+Three small, approved repository QA inputs retain historical evidence:
+
+| Repository path | Provenance and exact SHA256 |
+|---|---|
+| `qa/fixtures/gibs_wmts/BRIM_E30R4D1_PROVIDER_METADATA.zip` | 205041 bytes; captured GIBS XML; accepted E31 `after/qa/fixtures/gibs_wmts/BRIM_E30R4D1_PROVIDER_METADATA.zip`; `67527b1e64ec1e63b70bb629cebc1f5ab42a9990a439fe97b6cc840a7a38f452` |
+| `qa/fixtures/wpc_cpc/BRIM_E37R1_PROVIDER_CAPTURE.zip` | 44697 bytes; captured WPC/CPC responses including the nested prior capture; accepted E38 `after/qa/fixtures/wpc_cpc/BRIM_E37R1_PROVIDER_CAPTURE.zip`; `a9a3ed2ee97bed85e0f01459b4a5ccdb7d60f098ab476684713a2536168c2d50` |
+| `qa/fixtures/wpc_cpc/cpc_hover_popup_snapshots.json` | 37934 bytes; accepted E38 `after/qa/fixtures/wpc_cpc/cpc_hover_popup_snapshots.json`; `1b322d9189ed5c486fd36c4453521847f040c3bc0fa2cd52a8b1303c8159684e` |
+
+These are OFFLINE TEST INPUTS, not live data, production geometry or runtime
+fallbacks. The two exact ZIP ignore exceptions do not admit other archives.
+GIBS QA reads the full captured XML; WPC/CPC QA reads the response archive and
+CPC snapshots. Captured dates must never become live defaults. No native
+materialization mapping is added for these fixtures.
+
+From the repository root, ordinary source/offline QA includes:
+
+```sh
+node qa/test_ops_gibs_imagery.js
+node qa/test_ops_wpc_cpc_legends.js
+node qa/test_ops_radar_qpe_contracts.js
+node qa/test_ops_forecast_presentation.js
+node qa/test_ops_live_legends_and_scan_source.js
+Rscript --vanilla qa/test_guide_foundation.R
+Rscript --vanilla qa/test_guide_ops_delivery_parity.R
+```
+
+Installed-library contract QA additionally requires an explicit Leaflet
+JavaScript file from the installed R Leaflet package:
+
+```sh
+node qa/test_ops_radar_leaflet_contract.js /path/to/installed/leaflet.js
+node qa/test_springs_interaction_ownership.js /path/to/installed/leaflet.js
+```
+
+The radar entry point checks installed Evented behavior, actual native WMS
+request/options and callback teardown against the existing model. It fails
+for missing/invalid library input; geometry and transport remain modeled.
+No provider request or browser is involved. Node uses its built-in modules;
+the XML/ZIP bridges require Python standard-library support. GIBS QA currently
+invokes `/usr/bin/python3` and reads a hash-pinned installed Leaflet file at
+its existing Mac R-library path, recorded machine-specific QA limitations;
+other capture QA invokes `python3` on PATH. The R tests require installed R,
+Leaflet/htmlwidgets and related packages. No cross-platform guarantee is made.
+
+Retained native/build evidence is a separate validation tier requiring the
+external datasets/caches and accepted toolchain described in BUILD.md. Source
+QA or a source-only verification projection is not an actual Git checkout,
+full map build, live-provider test or human visual acceptance. The staged
+`qa/test_ops_live_legends_and_scan_source.js` remains required for build-time
+delivery-reference validation, despite not being browser code. Operational
+datasets, preview HTML and preparation controls remain outside the source
+commit. Root SOURCE_MANIFEST.csv maintenance requires its own demonstrated
+contract disposition; these fixture rules do not regenerate it or waive it.
