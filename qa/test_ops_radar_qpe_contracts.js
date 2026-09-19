@@ -449,6 +449,34 @@ const cssColor = rgba => rgba[3] === 0 ? "transparent" :
   "#" + rgba.slice(0, 3).map(v => v.toString(16).padStart(2, "0")).join("");
 const cases = [];
 const test = (name, body) => cases.push({name, body});
+test("I1 neutral Ops status heading and recorded event time preserve status behavior", f => {
+  f.context.ptOpsPanelEntries = () => [];
+  f.run(fn(js.panel, "buildOpsPanelHtml"));
+  const initial = node(); initial.innerHTML = f.context.buildOpsPanelHtml();
+  assert.strictEqual(initial.querySelector('#pt-ops-status-block').querySelector('h4').textContent, 'Ops status');
+  f.context.redrawStatus();
+  assert.strictEqual(f.status.querySelector('h4').textContent, 'Ops status');
+  f.context.nowLocal = () => 'recorded event one';
+  f.context.recordStatus('Z imagery', 'Tiles loaded <example>', 'pt-ops-ok');
+  f.context.nowLocal = () => 'recorded event two';
+  f.context.recordStatus('A observation', 'Retained data', 'pt-ops-muted');
+  const before = JSON.stringify(f.context.statusRows);
+  f.context.nowLocal = () => 'later redraw'; f.context.redrawStatus();
+  assert.strictEqual(JSON.stringify(f.context.statusRows), before);
+  assert.strictEqual(f.status.querySelector('h4').textContent, 'Ops status');
+  const rows = f.status.querySelectorAll('.pt-ops-status-row');
+  assert.deepStrictEqual(rows.map(r => r.querySelector('b').textContent), ['A observation', 'Z imagery']);
+  assert.deepStrictEqual(rows.map(r => r.querySelectorAll('span').map(s => s.textContent)),
+    [['Retained data', 'Status recorded: recorded event two'],
+      ['Tiles loaded <example>', 'Status recorded: recorded event one']]);
+  assert.strictEqual(rows[1].querySelector('span').className, 'pt-ops-ok');
+  assert.strictEqual(f.context.statusRows['Z imagery'].time, 'recorded event one');
+  assert(!/Checked:|freshness/.test(f.status.textContent));
+  f.clear(); assert.strictEqual(f.status.querySelector('h4').textContent, 'Ops status');
+  assert(f.status.textContent.includes('No Ops overlays loaded yet.'));
+  assert.strictEqual(Object.keys(f.context.statusRows).length, 0);
+  assert.strictEqual(f.requests.length, 0); f.unchanged();
+});
 test("exact RFC identity, selectors, opacity, delivery and refresh eligibility", f => {
   namesRFC.forEach((name, i) => {
     const d = f.context.opsDefByName[name], o = d.layer.options;

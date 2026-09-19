@@ -300,7 +300,7 @@ test('timeout aborts request without retries',async()=>{let signal;await assert.
 test('size guards both declared and streamed bytes',async()=>{const r=response('abcdef');await assert.rejects(Q.fetchMetadata(async()=>r,{cap:3}),/cap/);const s=response('abcdef');s.headers.get=()=>null;await assert.rejects(Q.fetchMetadata(async()=>s,{cap:3}),/cap/);});
 test('HTTP, missing stream and invalid UTF8 fail without fallback',async()=>{await assert.rejects(Q.fetchMetadata(async()=>({ok:false,status:403})),/403/);await assert.rejects(Q.fetchMetadata(async()=>({ok:true,headers:{get:()=>null}})),/streaming/);const r=response('ok');r.body.getReader=()=>({read:async()=>({done:false,value:Buffer.from([0xff])}),cancel:async()=>{}});await assert.rejects(Q.fetchMetadata(async()=>r));});
 test('map/panel startup stays lazy; actual satellite checkboxes select one',async()=>{const h=harness();assert.equal(h.fetches.length,0);assert.equal(h.tiles.length,0);assert(h.checks.every(c=>!c.checked));h.choose(0);h.choose(1);await tick();assert.equal(h.fetches.length,1);assert.equal(h.tiles.length,1);assert(!h.checks[0].checked&&h.checks[1].checked);assert(!h.layers[0].gibsState.active&&h.layers[1].gibsState.active);});
-test('all five labels, dates and native zoom limits use actual BRIM wiring',async()=>{const h=harness();for(let i=0;i<5;i++){h.choose(i);await tick();assert(h.text(i).includes(i<2?'Requested advertised time:':'Requested UTC data date: 2026-09-15'));assert(h.text(i).includes('Unverified'));}assert.equal(h.tiles.length,5);assert.equal(h.fetches.length,1);assert.deepEqual(h.tiles.map(t=>t.options.maxNativeZoom),[7,6,9,9,9]);assert.equal(h.body.querySelectorAll('input[type="radio"]').length,0);});
+test('all five labels, dates and native zoom limits use actual BRIM wiring',async()=>{const h=harness();for(let i=0;i<5;i++){h.choose(i);await tick();assert(h.text(i).includes(i<2?'Imagery time:':'Imagery date (UTC): 2026-09-15'));assert(h.text(i).includes('Exact pixel acquisition time at this location is not established by the request.'));}assert.equal(h.tiles.length,5);assert.equal(h.fetches.length,1);assert.deepEqual(h.tiles.map(t=>t.options.maxNativeZoom),[7,6,9,9,9]);assert.equal(h.body.querySelectorAll('input[type="radio"]').length,0);});
 test('actual Leaflet queue requests only selected viewport and remains unclipped elsewhere',async()=>{const h=harness();h.choose(0);await tick();assert(h.requests.length>0&&h.requests.length<=9);assert(h.requests.every(r=>Q.tileAllowed(first,bindings[first.id],r.coords)));h.map.setView([0,45],5);assert(h.requests.some(r=>r.coords.x>17));assert.equal(h.fetches.length,1);h.map.setView([37,-119],12);assert(h.requests.every(r=>r.coords.z<=7));assert.equal(h.fetches.length,1);});
 test('off during shared metadata does not cancel another selected layer',async()=>{const h=harness({delay:true});h.choose(0);h.choose(1);h.choose(0,false);h.resolve();await tick();assert.equal(h.tiles.length,1);assert.equal(h.layers[0].gibsState.request,null);assert(h.layers[1].gibsState.request);assert.equal(h.fetches.length,1);});
 test('rapid off/re-add ignores older selection completion',async()=>{const h=harness({delay:true});h.choose(0);h.choose(0,false);h.choose(0);h.resolve();await tick();assert.equal(h.tiles.length,1);assert(h.layers[0].gibsState.active);});
@@ -320,6 +320,105 @@ test('off-row recheck clears loading without enabling tiles',async()=>{const h=h
 test('explicit coalesced refresh updates GOES advertised instant only',async()=>{const d=mutated(ls=>kids(dim(ls[0]),'Value').forEach(n=>n.textContent='2026-09-16T03:00:00Z/2026-09-16T05:00:00Z/PT10M'));const h=harness({documentOverride:d});h.choose(1);await tick();h.choose(0);await tick();const other=h.layers[1].gibsState.request;h.clock(frozen+600000);await Promise.all([h.layers[0].refreshCurrentView(),h.layers[0].refreshCurrentView()]);assert.equal(h.fetches.length,2);assert.equal(h.layers[0].gibsState.request,'2026-09-16T04:40:00Z');assert.equal(h.layers[1].gibsState.request,other);assert.equal(h.active.size,2);});
 test('off/readd stale tile completion never overwrites new transport state',async()=>{const h=harness();h.choose(0);await tick();const old=h.tiles[0].handlers.tileerror;h.choose(0,false);h.choose(0);await tick();old();assert.equal(h.layers[0].gibsState.tileErrors,0);assert.equal(h.tiles.length,2);assert(h.active.has(h.tiles[1]));assert(!h.active.has(h.tiles[0]));});
 test('GOES requested time pairs exact Z with existing Pacific formatter; daily remains UTC',async()=>{const h=harness();h.choose(0);await tick();assert(h.text(0).includes('2026-09-16T03:10:00Z'));assert(h.text(0).includes('PDT'));assert(!h.text(0).includes('Z UTC'));assert(h.text(0).includes('precise coverage UNKNOWN'));h.choose(2);await tick();assert(!h.text(2).includes('PDT'));h.choose(0,false);assert(!Object.hasOwn(h.context.statusRows,first.label));});
+for(const [i,p] of Q.PRODUCTS.entries())test('I1 imagery presentation matches requested value '+p.stableId,async()=>{
+ const h=harness();h.choose(i);await tick();
+ if(p.kind==='daily')h.date(i,'2026-09-16'); // UTC date differs from the fixture's Pacific day.
+ const requested=h.layers[i].gibsState.request,tile=h.tiles.at(-1),text=h.text(i);
+ assert(text.includes((p.kind==='daily'?'Imagery date (UTC): ':'Imagery time: ')+requested));
+ assert(tile.url.includes('/default/'+encodeURIComponent(requested)+'/'));
+ assert(!/hours ago|calendar days ago|Imagery (?:time|date \(UTC\)): (?:UNKNOWN|Unverified)/.test(text));
+ const key='pt-gibs-'+p.stableId,detail=h.document.getElementById(key+'-detail-text').textContent;
+ assert(detail.includes('Provider-advertised time/date used for this imagery request'));
+ assert(detail.includes('exact pixel acquisition time at this location is not established'));
+ assert(detail.includes('BRIM metadata check: '+h.layers[i].gibsState.checkedAt));
+ assert(detail.includes(h.layers[i].gibsState.binding.coverageLimits.warning));
+ if(p.kind==='daily'){
+  assert.equal(requested,'2026-09-16');assert(!/PDT|PST/.test(text));
+  assert.equal(h.document.querySelector('label[for="'+key+'-date"]').textContent,'Imagery date (UTC): ');
+ }else assert(text.includes('PDT'));
+ h.clock(frozen+Q.DAY);tile.fire('loading');assert.equal(h.text(i),text);
+ tile.fire('tileload');tile.fire('load');assert(h.text(i).includes('Tiles received; coverage Unverified.'));
+ assert.equal(h.layers[i].gibsState.request,requested);assert.equal(h.fetches.length,1);
+});
+test('I1 GOES UTC imagery time survives unavailable Pacific formatting',async()=>{
+ const h=harness();h.context.formatLosAngelesCompactParts=()=>null;h.choose(0);await tick();
+ assert(h.text(0).includes('Imagery time: 2026-09-16T03:10:00Z.'));
+ assert(!/PDT|PST|hours ago/.test(h.text(0)));assert.equal(h.fetches.length,1);
+});
+for(const i of [0,2])test('I1 retained imagery label survives metadata and transport failure '+Q.PRODUCTS[i].stableId,async()=>{
+ const h=harness({delay:true});h.choose(i);h.resolve();await tick();
+ if(i===2)h.date(i,'2026-09-09');
+ const state=h.layers[i].gibsState,requested=state.request,tile=h.tiles.at(-1),chosen=state.chosen;
+ const check=h.layers[i].refreshCurrentView();h.reject();await check;
+ tile.fire('tileerror');tile.fire('load');
+ assert(h.text(i).includes('Metadata check failed; availability UNKNOWN.'));
+ assert(h.text(i).includes('Previous dated imagery retained.'));
+ assert(h.text(i).includes((i===2?'Imagery date (UTC): ':'Imagery time: ')+requested));
+ assert(h.text(i).includes('Tile transport errors: 1; coverage may be partial.'));
+ assert(h.text(i).includes('Exact pixel acquisition time at this location is not established by the request.'));
+ if(i===0)assert(h.text(i).includes('Provider coverage limits inconsistent; precise coverage UNKNOWN.'));
+ assert(h.active.has(tile));assert.equal(state.request,requested);assert.equal(state.chosen,chosen);
+ assert.equal(h.fetches.length,2);
+});
+test('I1 failed first metadata check does not invent imagery timing',async()=>{
+ const h=harness({delay:true});h.choose(0);h.reject();await tick();
+ assert(h.text(0).includes('Metadata check failed; availability UNKNOWN.'));
+ assert(!/Imagery time:|Imagery date \(UTC\):/.test(h.text(0)));
+ assert.equal(h.layers[0].gibsState.request,null);assert.equal(h.tiles.length,0);assert.equal(h.fetches.length,1);
+});
+for(const [i,p] of Q.PRODUCTS.entries())test('I3 escaped strong imagery values and plain retained status '+p.stableId,async()=>{
+ const h=harness({delay:true});h.choose(i);h.resolve();await tick();
+ if(p.kind==='daily')h.date(i,'2026-09-09');
+ const state=h.layers[i].gibsState,requested=state.request,chosen=state.chosen,tile=h.tiles.at(-1);
+ const status=h.document.getElementById('pt-gibs-'+p.stableId+'-status');
+ const expected=[requested];
+ if(p.kind!=='daily'){
+  const pacific=h.context.formatLosAngelesCompactParts(new Date(requested));
+  expected.push(pacific.text+' '+pacific.tz);
+ }
+ const checkPresentation=()=>{
+  assert.deepEqual(status.querySelectorAll('strong').map(n=>n.textContent),expected);
+  assert.equal(h.context.statusRows[p.label],h.text(i));
+  assert(!/<\/?strong>|&lt;strong&gt;/.test(h.context.statusRows[p.label]));
+  assert(h.text(i).includes((p.kind==='daily'?'Imagery date (UTC): ':'Imagery time: ')+expected.join(' / ')+'.'));
+  if(p.kind==='daily')assert(!/PDT|PST/.test(h.text(i)));
+  assert.equal(state.request,requested);assert.equal(state.chosen,chosen);
+ };
+ checkPresentation();h.clock(frozen+Q.DAY);tile.fire('loading');checkPresentation();
+ const refresh=h.layers[i].refreshCurrentView();h.reject();await refresh;
+ tile.fire('tileerror');tile.fire('load');checkPresentation();
+ assert(h.text(i).includes('Previous dated imagery retained.'));
+ assert(h.text(i).includes('Tile transport errors: 1; coverage may be partial.'));
+ assert(h.text(i).includes('Exact pixel acquisition time at this location is not established by the request.'));
+ assert(h.active.has(tile));assert.equal(h.fetches.length,2);
+ h.choose(i,false);assert.equal(status.querySelectorAll('strong').length,0);
+ assert(!Object.hasOwn(h.context.statusRows,p.label));
+});
+test('I3 UTC alone is emphasized when Pacific formatting is unavailable',async()=>{
+ const h=harness();h.context.formatLosAngelesCompactParts=()=>null;h.choose(0);await tick();
+ const status=h.document.getElementById('pt-gibs-'+first.stableId+'-status');
+ assert.deepEqual(status.querySelectorAll('strong').map(n=>n.textContent),[h.layers[0].gibsState.request]);
+ assert.equal(h.context.statusRows[first.label],h.text(0));
+});
+for(const i of [0,2])test('I3 timing markup escapes every dynamic value '+Q.PRODUCTS[i].stableId,async()=>{
+ const h=harness();h.choose(i);await tick();const state=h.layers[i].gibsState;
+ const hostile='<img src=x onerror="bad()"> & <strong>injected</strong>';
+ state.request=hostile;state.reason=hostile;
+ h.context.formatLosAngelesCompactParts=()=>({text:hostile,tz:'<script>bad()</script>'});
+ h.tiles.at(-1).fire('loading');
+ const status=h.document.getElementById('pt-gibs-'+Q.PRODUCTS[i].stableId+'-status');
+ assert.deepEqual(status.querySelectorAll('strong').map(n=>n.textContent),i===0?[hostile,hostile+' <script>bad()</script>']:[hostile]);
+ assert.equal(status.querySelectorAll('img').length,0);assert.equal(status.querySelectorAll('script').length,0);
+ assert(status.innerHTML.includes('&lt;img'));assert(status.innerHTML.includes('&amp;'));
+ assert.equal(h.context.statusRows[Q.PRODUCTS[i].label],h.text(i));
+ assert(h.text(i).includes(hostile));
+});
+test('I3 failed initial metadata has no emphasized imagery value',async()=>{
+ const h=harness({delay:true});h.choose(0);h.reject();await tick();
+ const status=h.document.getElementById('pt-gibs-'+first.stableId+'-status');
+ assert.equal(status.querySelectorAll('strong').length,0);
+ assert.equal(h.context.statusRows[first.label],h.text(0));
+});
 test('retained dated tiles continue truthful transport reporting after failed recheck',async()=>{const h=harness({delay:true});h.choose(0);h.resolve();await tick();const tile=h.tiles[0];const check=h.layers[0].refreshCurrentView();h.reject();await check;tile.fire('loading');tile.fire('tileerror');tile.fire('load');assert(h.text(0).includes('Previous dated imagery retained'));assert(h.text(0).includes('transport errors: 1'));assert(h.active.has(tile));});
 // These cases catch the leaked Leaflet remove listener omitted by the queue double.
 for(let i=0;i<5;i++)for(const action of ['initial','refresh','off/on','Clear Ops','Clear All',...(i>=2?['date']:[])])

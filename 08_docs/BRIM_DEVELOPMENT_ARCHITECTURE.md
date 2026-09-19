@@ -51,6 +51,19 @@ BRIM is a self-contained Leaflet HTML application built primarily through R/html
 
 These families have different data-loading and lifecycle contracts. Do not move a layer between them merely to simplify implementation.
 
+Retained inputs in an isolated UI preview are build fixtures, not runtime defaults
+or certification of current data. Normal Local USGS distance updates derive
+on-BLM classification and distances from station coordinates and canonical BLM
+managed geometry, writing the streamgage index or Local groundwater distance
+sidecar. The streamgage index reader preserves `site_no` as character text,
+including leading zeroes, while other CSV columns retain their inferred types.
+Future generated indexes must retain that identifier text; ingestion does not
+reconstruct zeroes already lost upstream. Final builds join those normal inputs
+by site identifier, preserving existing nonmissing cache values before filling
+gaps. Membership/current-data
+halos and groundwater overlap auditing have separate consumers; restoring an
+audit index does not regenerate cached halo membership.
+
 ## Registry-driven design
 
 A user-facing layer should have one maintained definition for:
@@ -454,15 +467,22 @@ shared metadata needed by the newly selected satellite. Non-satellite overlays
 keep their existing stacking behavior.
 
 GOES requests the newest non-future advertised instant using the provider's
-interval grid, not `Default` or an invented cadence. Its requested timestamp and
-age remain visible, alongside the existing Pacific formatter when available. Daily imagery offers advertised UTC today plus seven prior
+interval grid, not `Default` or an invented cadence. `Imagery time` shows that
+requested UTC timestamp alongside the existing Pacific formatter when available.
+Only the selected imagery values receive semantic strong emphasis in the
+small-print timing surface; lower Ops status messages remain plain text.
+Daily imagery uses `Imagery date (UTC)` without conversion to a Pacific calendar
+day and offers advertised UTC today plus seven prior
 dates, respecting gaps, and initially uses yesterday only if advertised. Missing
 or expired dates require a manual choice; pan/zoom and refresh preserve a still
 eligible user date. Date changes detach the previous layer before relabeling.
 No blank/error fallback or 48-hour rejection is performed. Failed rechecks may
 retain the previous explicitly dated image with a warning. Metadata check time,
-requested time/data date, tile transport, coverage and actual pixel acquisition
-are distinct; exact acquisition remains Unverified. There is no continuous-live
+requested imagery time/date, tile transport, coverage and actual pixel acquisition
+are distinct. The displayed imagery time/date is the provider-advertised value
+used for the imagery request; it does not establish exact pixel acquisition time
+at the viewed location. Absolute time/date remains visible without relative-age
+wording or a relative-age timer. There is no continuous-live
 claim: refresh is explicit, and pan/zoom use the currently bound date/time.
 
 Core product/style/time/format, namespaces, EPSG:3857 origin/resolution and native
@@ -612,10 +632,14 @@ networking fails the harness. Controlled counters establish avoided boundary wor
 not elapsed performance, native geometry rendering, tile-network behavior, basemap
 responsiveness, or mounted-browser/provider correctness.
 
-The legacy Ops source footer and lower status/freshness list retain their source
-and freshness meanings.
-Their catalog reconciliation and status-meaning review, including the six named
-air-quality leads, are recorded as deferred watchlist follow-ups requiring a
+The lower `Ops status` list reports operational status events. `Status recorded`
+is the time BRIM recorded that event, not a provider check, observation, forecast
+validity, imagery time or data-freshness timestamp. Stored timestamps, event
+lifecycle and product-specific timing remain unchanged.
+
+The legacy Ops source footer retains its source meaning.
+Its catalog reconciliation, including the six named
+air-quality leads, remains a deferred watchlist follow-up requiring a
 separate approval; no source deletion or freshness redesign is implied.
 
 One compact, noninteractive badge follows the primary title and stays with its
