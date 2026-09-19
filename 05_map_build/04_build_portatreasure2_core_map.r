@@ -442,7 +442,9 @@ pt_enrich_usgs_streamgages_with_blm_distance <- function(usgs_sw) {
   }
 
   idx <- tryCatch(
-    utils::read.csv(index_path, stringsAsFactors = FALSE, check.names = FALSE),
+    # Preserve identifier text before numeric inference can discard leading zeroes.
+    utils::read.csv(index_path, stringsAsFactors = FALSE, check.names = FALSE,
+                    colClasses = c(site_no = "character")),
     error = function(e) {
       warning("Could not read USGS streamgage BLM-distance index: ", conditionMessage(e))
       NULL

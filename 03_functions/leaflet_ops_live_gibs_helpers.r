@@ -237,7 +237,7 @@ pt_ops_live_gibs_js <- function() {
     var key = 'pt-gibs-' + p.stableId;
     return '<div class="pt-ops-layer-help" id="' + key + '">' +
       '<div id="' + key + '-status" role="status" aria-live="polite">Not checked — select to check imagery availability.</div>' +
-      (p.kind === 'daily' ? '<div id="' + key + '-date-wrap" hidden><label for="' + key + '-date">UTC data date: </label>' +
+      (p.kind === 'daily' ? '<div id="' + key + '-date-wrap" hidden><label for="' + key + '-date">Imagery date (UTC): </label>' +
         '<select id="' + key + '-date" data-pt-gibs-date="' + p.stableId + '" aria-describedby="' + key + '-status"><option value="">Choose advertised date</option></select></div>' : '') +
       '<details id="' + key + '-details" hidden><summary>Imagery timing &amp; coverage</summary><div id="' + key + '-detail-text"></div></details></div>';
   }
@@ -279,19 +279,26 @@ pt_ops_live_gibs_js <- function() {
         words += ' Provider coverage limits inconsistent; precise coverage UNKNOWN.';
       }
       if (state.request) {
-        if (product.kind === 'daily') {
-          var offset = (ptGibs.dateValue(ptGibs.utcDay(Date.now()), 'daily') - ptGibs.dateValue(state.request, 'daily')) / ptGibs.DAY;
-          words += ' Requested UTC data date: ' + state.request + ' (' + offset + ' UTC calendar days ago; not acquisition age).';
-        } else {
+        var timingStart = words.length;
+        var timingLabel = product.kind === 'daily' ? ' Imagery date (UTC): ' : ' Imagery time: ';
+        var timingValues = [state.request];
+        if (product.kind !== 'daily') {
           var pacific = formatLosAngelesCompactParts(new Date(state.request));
-          words += ' Requested advertised time: ' + state.request +
-            (pacific && pacific.tz ? ' / ' + pacific.text + ' ' + pacific.tz : '') + ' (' + ((Date.now() - ptGibs.dateValue(state.request, 'instant')) / 3600000).toFixed(2) + ' hours ago).';
+          if (pacific && pacific.tz) timingValues.push(pacific.text + ' ' + pacific.tz);
         }
+        words += timingLabel + timingValues.join(' / ') + '.';
+        var timingEnd = words.length;
         words += state.tileErrors ? ' Tile transport errors: ' + state.tileErrors + '; coverage may be partial.' :
           state.pending ? ' Tiles loading.' : state.received ? ' Tiles received; coverage Unverified.' : ' No tiles received in this view.';
-        words += ' Exact pixel acquisition time Unverified.';
+        words += ' Exact pixel acquisition time at this location is not established by the request.';
       } else if (!state.active && state.metadata === 'PARSED') words += ' Layer off.';
-      if (status) status.textContent = words;
+      if (status) {
+        if (state.request) {
+          status.innerHTML = escapeHtml(words.slice(0, timingStart)) + escapeHtml(timingLabel) +
+            timingValues.map(function(value) { return '<strong>' + escapeHtml(value) + '</strong>'; }).join(' / ') +
+            '.' + escapeHtml(words.slice(timingEnd));
+        } else status.textContent = words;
+      }
       if (dateWrap) dateWrap.hidden = !state.active;
       if (dateSelect) {
         // Preserve the select itself (and keyboard focus); replace options only
@@ -310,7 +317,7 @@ pt_ops_live_gibs_js <- function() {
       if (detailText) {
         var limits = state.binding && state.binding.ok && state.binding.coverageLimits;
         detailText.textContent = product.id + ' · ' + product.matrix + '. BRIM metadata check: ' + (state.checkedAt || 'None') +
-          '. Request time is not independently verified pixel acquisition time. Imagery remains at its requested time until explicit rfrsh; pan/zoom do not recheck metadata. ' +
+          '. Provider-advertised time/date used for this imagery request; exact pixel acquisition time at this location is not established. Imagery remains at its requested time until explicit rfrsh; pan/zoom do not recheck metadata. ' +
           (limits ? limits.warning + (limits.issues.length ? ' Details: ' + limits.issues.join('; ') + '.' : '') : 'Coverage Unverified.') +
           ' Blank tiles do not establish global unavailability. No automatic date fallback or age rejection.';
       }

@@ -195,7 +195,7 @@ pt_ops_live_panel_helpers_js <- function() {
     }
 
     html += '<div id="pt-ops-status-block" class="pt-ops-section">' +
-      '<h4>Ops status / freshness</h4>' +
+      '<h4>Ops status</h4>' +
       '<div class="pt-ops-muted">No Ops overlays loaded yet.</div>' +
       '</div>';
 

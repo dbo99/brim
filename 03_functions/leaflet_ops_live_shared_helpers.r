@@ -1240,15 +1240,15 @@ pt_ops_live_shared_helpers_js <- function() {
     if (!statusDiv) return;
     var keys = Object.keys(statusRows).sort();
     if (!keys.length) {
-      statusDiv.innerHTML = '<h4>Ops status / freshness</h4><div class="pt-ops-muted">No Ops overlays loaded yet.</div>';
+      statusDiv.innerHTML = '<h4>Ops status</h4><div class="pt-ops-muted">No Ops overlays loaded yet.</div>';
       return;
     }
-    var html = '<h4>Ops status / freshness</h4>';
+    var html = '<h4>Ops status</h4>';
     keys.forEach(function(k) {
       var r = statusRows[k];
       html += '<div class="pt-ops-status-row"><b>' + escapeHtml(k) + '</b><br>' +
               '<span class="' + r.cssClass + '">' + escapeHtml(r.msg) + '</span><br>' +
-              '<span class="pt-ops-muted">Checked: ' + escapeHtml(r.time) + '</span></div>';
+              '<span class="pt-ops-muted">Status recorded: ' + escapeHtml(r.time) + '</span></div>';
     });
     statusDiv.innerHTML = html;
   }
