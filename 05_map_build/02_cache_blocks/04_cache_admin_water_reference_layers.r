@@ -1504,93 +1504,17 @@ if (exists("WRITE_QA") && isTRUE(WRITE_QA)) {
 ##   - Missing source/distance files should not break a generic cache rebuild;
 ##     empty layers are written instead.
 
-blm_gw_well_inventory_map <- blm_gw_well_inventory_combined |>
-  clean_sf_for_leaflet()
-
-if (!"record_uid" %in% names(blm_gw_well_inventory_map)) {
-  blm_gw_well_inventory_map$record_uid <- character(nrow(blm_gw_well_inventory_map))
-}
-
-blm_gw_distance_path <- file.path(
-  DIR$cache_last,
-  "blm_gw_well_inventory_blm_distance_fields.csv"
+blm_gw_distance_path <- file.path(DIR$cache_last, "blm_gw_well_inventory_blm_distance_fields.csv")
+blm_gw_distance <- if (file.exists(blm_gw_distance_path) && nrow(blm_gw_well_inventory_combined) > 0) {
+  pt_read_blm_gw_well_distances(blm_gw_distance_path)
+} else NULL
+blm_gw_prepared <- pt_prepare_blm_gw_well_inventory_cache(
+  blm_gw_well_inventory_combined, blm_gw_distance
 )
-
-if (file.exists(blm_gw_distance_path) && nrow(blm_gw_well_inventory_map) > 0) {
-  message("Joining BLM GW well inventory BLM-distance sidecar: ", blm_gw_distance_path)
-
-  blm_gw_distance <- readr::read_csv(
-    blm_gw_distance_path,
-    show_col_types = FALSE
-  ) |>
-    dplyr::select(
-      dplyr::any_of(c(
-        "record_uid",
-        "on_blm_ca",
-        "on_blm_ca_chr",
-        "dist_to_blm_mi",
-        "dist_to_blm_ft",
-        "blm_distance_label",
-        "blm_distance_bin",
-        "blm_distance_run_time"
-      ))
-    ) |>
-    dplyr::distinct(record_uid, .keep_all = TRUE)
-
-  blm_gw_well_inventory_map <- blm_gw_well_inventory_map |>
-    dplyr::left_join(blm_gw_distance, by = "record_uid")
-} else {
-  blm_gw_well_inventory_map$on_blm_ca <- NA
-  blm_gw_well_inventory_map$on_blm_ca_chr <- NA_character_
-  blm_gw_well_inventory_map$dist_to_blm_mi <- NA_real_
-  blm_gw_well_inventory_map$dist_to_blm_ft <- NA_real_
-  blm_gw_well_inventory_map$blm_distance_label <- NA_character_
-  blm_gw_well_inventory_map$blm_distance_bin <- NA_character_
-  blm_gw_well_inventory_map$blm_distance_run_time <- NA_character_
-}
-
-## Add compact, browser-friendly display fields used by 048c.  Keep the raw,
-## normalized popup_html from 18_ so source-specific long notes remain intact.
-if (nrow(blm_gw_well_inventory_map) > 0) {
-  blm_gw_well_inventory_map <- blm_gw_well_inventory_map |>
-    dplyr::mutate(
-      layer_key = dplyr::case_when(
-        .data$source_key == "noc_blm_drilled" ~ "noc",
-        .data$source_key == "mojave_2025_blm_field_check" ~ "mojave_2025",
-        TRUE ~ "other"
-      ),
-      well_hover_text = dplyr::if_else(
-        !is.na(.data$hover_line2) & .data$hover_line2 != "",
-        paste0(.data$hover_line1, "\n", .data$hover_line2),
-        .data$hover_line1
-      ),
-      blm_distance_popup = dplyr::case_when(
-        !is.na(.data$blm_distance_label) ~ .data$blm_distance_label,
-        .data$on_blm_ca == TRUE ~ "on BLM",
-        !is.na(.data$dist_to_blm_mi) ~ paste0(
-          format(round(.data$dist_to_blm_mi, 2), trim = TRUE, scientific = FALSE),
-          " mi"
-        ),
-        TRUE ~ NA_character_
-      )
-    )
-}
-
-blm_noc_drilled_wells_map <- blm_gw_well_inventory_map |>
-  dplyr::filter(.data$source_key == "noc_blm_drilled")
-
-mojave_2025_gw_well_inventory_map <- blm_gw_well_inventory_map |>
-  dplyr::filter(.data$source_key == "mojave_2025_blm_field_check")
-
-message("BLM groundwater-well inventory Local cache summary:")
-print(
-  blm_gw_well_inventory_map |>
-    sf::st_drop_geometry() |>
-    tibble::as_tibble() |>
-    dplyr::count(source_key, source_display, name = "n") |>
-    dplyr::arrange(source_key),
-  n = Inf
-)
+blm_noc_drilled_wells_map <- blm_gw_prepared$blm_noc_drilled_wells_map
+mojave_2025_gw_well_inventory_map <- blm_gw_prepared$mojave_2025_gw_well_inventory_map
+message("BLM groundwater-well inventory Local cache: NOC=", nrow(blm_noc_drilled_wells_map),
+  "; Mojave=", nrow(mojave_2025_gw_well_inventory_map))
 
 # ---- 8.10s Springs ----------------------------------------------------------
 ##

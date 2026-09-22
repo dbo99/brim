@@ -22,8 +22,8 @@
 ##   Add the two small BLM groundwater-well inventory layers normalized by 18_
 ##   and distance-enriched by 63_:
 ##
-##     - BLM-drilled wells | NOC
-##     - GW wells | 2025 Mojave-BLM limited field check
+##     - GW wells | BLM NOC inventory
+##     - GW sites | 2025 Mojave limited field inventory
 ##
 ## DESIGN FOR 048c:
 ##   This first visible-layer patch intentionally adds only the browser-managed
@@ -57,9 +57,9 @@ pt_add_blm_gw_well_inventory_browser_layer <- function(m,
   if (nrow(rec) == 0) return(m)
 
   legend_title <- if (identical(layer_kind, "noc")) {
-    "BLM-drilled wells | NOC"
+    "BLM NOC well inventory"
   } else {
-    "2025 Mojave-BLM limited field check"
+    "Mojave limited field inventory (2025)"
   }
 
   js <- r"---(
@@ -95,6 +95,11 @@ function(el, x, data) {
   var records = rowsToArray(data && data.records).filter(function(r) {
     return r && r.pt_lat != null && r.pt_lng != null;
   });
+  if (layerKind === 'mojave_2025' && records.some(function(r) {
+    return typeof r.water_level_recorded !== 'boolean' || typeof r.lab_sample_documented !== 'boolean';
+  })) {
+    throw new Error('Albion records require complete boolean observation fields.');
+  }
 
   function has(v) {
     if (v === null || v === undefined) return false;
@@ -284,7 +289,7 @@ function(el, x, data) {
   }
 
   function makeTooltip(r) {
-    var nm = has(r.well_name_display) ? r.well_name_display : 'Unnamed well';
+    var nm = layerKind === 'mojave_2025' && has(r.hover_line1) ? r.hover_line1 : (has(r.well_name_display) ? r.well_name_display : 'Unnamed well');
     var out = esc(nm);
     if (has(r.hover_line2)) out += '<br/>' + esc(r.hover_line2);
     return out;
@@ -343,6 +348,9 @@ function(el, x, data) {
       if (status === 'present') {
         size = 13;
         html = '<span class="pt-mojave-well-present" style="width:' + size + 'px;height:' + size + 'px;background:#31A354;border:2px solid #FFFFFF;border-radius:50%;display:block;box-sizing:border-box;box-shadow:0 0 0 1px rgba(0,0,0,0.45);"></span>';
+      } else if (status === 'spring_present') {
+        size = 14;
+        html = '<span class="pt-mojave-spring-present" style="width:12px;height:12px;background:#3182BD;border:2px solid #fff;transform:rotate(45deg);display:block;box-sizing:border-box;box-shadow:0 0 0 1px #225E88;"></span>';
       } else if (status === 'not_found') {
         size = 16;
         html = '<span class="pt-mojave-well-not-found" style="width:' + size + 'px;height:' + size + 'px;display:block;text-align:center;line-height:' + size + 'px;color:#CB181D;font-size:18px;font-weight:900;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;">×</span>';
@@ -402,6 +410,7 @@ function(el, x, data) {
   var labelLayer = L.layerGroup();
 
   var filters = {blm: 'any', blmManual: '', status: 'all', wyFrom: '', wyTo: ''};
+  if (layerKind === 'mojave_2025') filters.observation = 'all';
   var layerActive = false;
   var labelsActive = false;
   var builtOnce = false;
@@ -444,7 +453,15 @@ function(el, x, data) {
   }
 
   function filteredRecords() {
-    return records.filter(function(r) { return passBlm(r) && passStatus(r) && passWaterYear(r); });
+    return records.filter(function(r) { return passBlm(r) && passStatus(r) && passWaterYear(r) && passObservation(r); });
+  }
+
+  function passObservation(r) {
+    if (layerKind !== 'mojave_2025' || filters.observation === 'all') return true;
+    if (filters.observation === 'water_level') return r.water_level_recorded;
+    if (filters.observation === 'lab_sample') return r.lab_sample_documented;
+    if (filters.observation === 'both') return r.water_level_recorded && r.lab_sample_documented;
+    return false;
   }
 
   function hardClearMarkers() {
@@ -488,7 +505,10 @@ function(el, x, data) {
     return {drawn: layersToAdd.length, total: records.length, active: layerActive};
   }
 
-  function resetFilters() { filters = {blm: 'any', blmManual: '', status: 'all', wyFrom: '', wyTo: ''}; }
+  function resetFilters() {
+    filters = {blm: 'any', blmManual: '', status: 'all', wyFrom: '', wyTo: ''};
+    if (layerKind === 'mojave_2025') filters.observation = 'all';
+  }
 
   function syncActive() {
     var checked = scanControl(targetNorm);
@@ -515,7 +535,7 @@ function(el, x, data) {
 
   function buttonHtml(kind, value, label) {
     var active = filters[kind] === value;
-    return '<button type="button" class="pt-blm-gw-filter-btn' + (active ? ' active' : '') + '" data-kind="' + esc(kind) + '" data-value="' + esc(value) + '">' + esc(label) + '</button>';
+    return '<button type="button" class="pt-blm-gw-filter-btn' + (active ? ' active' : '') + '" data-kind="' + esc(kind) + '" data-value="' + esc(value) + '"' + (kind === 'observation' ? ' aria-pressed="' + active + '"' : '') + '>' + esc(label) + '</button>';
   }
 
   function symRow(sym, label, count) {
@@ -525,19 +545,24 @@ function(el, x, data) {
   function legendHtml() {
     var rows = filteredRecords();
     var html = '';
+    // Supply this instance's title in the existing shell; it adds the pin control.
+    html += '<div class="pt-map-card-auto-header pt-map-card-handle"><span class="pt-map-card-auto-title">' + esc(legendTitle) + '</span><span class="pt-map-card-actions">';
     html += '<button type="button" class="pt-blm-gw-legend-close" title="Hide legend">&times;</button>';
-    html += '<div class="pt-blm-gw-legend-title">' + esc(legendTitle) + '</div>';
+    html += '</span></div>';
     if (layerKind === 'noc') {
-      html += symRow('<span class="pt-blm-gw-noc-symbol"></span>', 'NOC BLM-drilled well', records.length);
+      html += symRow('<span class="pt-blm-gw-noc-symbol"></span>', 'NOC well record', records.length);
     } else {
       html += symRow('<span class="pt-blm-gw-present-symbol"></span>', 'Well present', sourceCount('present'));
       html += symRow('<span class="pt-blm-gw-notfound-symbol">×</span>', 'Well not found', sourceCount('not_found'));
       html += symRow('<span class="pt-blm-gw-unknown-symbol">?</span>', 'Unknown / not verified', sourceCount('unknown'));
+      html += symRow('<span class="pt-blm-gw-spring-symbol"></span>', 'Spring / spring box present', sourceCount('spring_present'));
     }
-    html += '<div class="pt-blm-gw-legend-showing">Showing ' + fmt(rows.length) + ' / ' + fmt(records.length) + ' well record(s).</div>';
+    html += '<div class="pt-blm-gw-legend-showing">Showing ' + fmt(rows.length) + ' / ' + fmt(records.length) + (layerKind === 'mojave_2025' ? ' sites.</div>' : ' well record(s).</div>');
     html += '<div class="pt-blm-gw-filter-box">';
     if (layerKind === 'mojave_2025') {
-      html += '<div class="pt-blm-gw-filter-line">Status: ' + buttonHtml('status','all','all') + buttonHtml('status','present','found') + buttonHtml('status','not_found','not found') + buttonHtml('status','unknown','unknown') + '</div>';
+      html += '<div class="pt-blm-gw-filter-line">Status: ' + buttonHtml('status','all','all') + buttonHtml('status','present','found') + buttonHtml('status','not_found','not found') + buttonHtml('status','unknown','unknown') + buttonHtml('status','spring_present','spring') + '</div>';
+      html += '<div class="pt-blm-gw-filter-line pt-blm-gw-observations" role="group" aria-label="Observations">Observations: ' + buttonHtml('observation','all','All') + buttonHtml('observation','water_level','Water level recorded') + buttonHtml('observation','lab_sample','Lab sampled') + buttonHtml('observation','both','Both') + '</div>';
+      html += '<div class="pt-blm-gw-filter-note">Water level: numeric reading in the approved monitoring table. Lab sampled: documented laboratory sample collection.</div>';
     }
     html += '<div class="pt-blm-gw-filter-line">BLM max mi: ' +
       '<input type="text" inputmode="decimal" class="pt-blm-gw-filter-input pt-blm-gw-blm-manual" placeholder="mi" value="' + escLoose(filters.blmManual) + '"> ' +
@@ -679,12 +704,14 @@ function(el, x, data) {
       '.pt-blm-gw-legend-label{flex:1;min-width:0;}' +
       '.pt-blm-gw-legend-count{font-variant-numeric:tabular-nums;color:#555;}' +
       '.pt-blm-gw-noc-symbol{display:inline-block;width:11px;height:11px;background:#F4A3C4;border:2px solid #2B6CB0;border-radius:50%;box-sizing:border-box;}' +
+      '.pt-blm-gw-spring-symbol{display:inline-block;width:10px;height:10px;background:#3182BD;border:1px solid #fff;transform:rotate(45deg);box-shadow:0 0 0 1px #225E88;box-sizing:border-box;}' +
       '.pt-blm-gw-present-symbol{display:inline-block;width:11px;height:11px;background:#31A354;border:1px solid #fff;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35);box-sizing:border-box;}' +
       '.pt-blm-gw-notfound-symbol{display:inline-block;width:13px;height:13px;text-align:center;line-height:13px;color:#CB181D;font-size:16px;font-weight:900;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;}' +
       '.pt-blm-gw-unknown-symbol{display:inline-block;width:13px;height:13px;text-align:center;line-height:12px;color:#6B4E16;background:#FEE391;border:1px solid #8C6D31;border-radius:50%;font-size:10px;font-weight:800;box-sizing:border-box;}' +
       '.pt-blm-gw-legend-showing{margin-top:5px;color:#444;font-size:10.5px;}' +
       '.pt-blm-gw-filter-box{border-top:1px solid rgba(112,103,83,0.25);margin-top:5px;padding-top:5px;}' +
       '.pt-blm-gw-filter-line{margin:3px 0;}' +
+      '.pt-blm-gw-observations{display:flex;flex-wrap:wrap;align-items:center;}' +
       '.pt-blm-gw-filter-btn,.pt-blm-gw-apply-btn,.pt-blm-gw-reset-btn{border:1px solid rgba(112,103,83,0.65);background:rgba(255,255,255,0.92);border-radius:5px;padding:2px 5px;margin:1px 2px 1px 0;font:11px/1.1 Arial,sans-serif;cursor:pointer;}' +
       '.pt-blm-gw-filter-btn.active{background:rgba(221,211,173,0.98);color:#222;border-color:rgba(112,103,83,0.75);font-weight:700;}' +
       '.pt-blm-gw-filter-actions{margin:4px 0 2px 0;}' +
@@ -707,8 +734,27 @@ function(el, x, data) {
     stats: function() { return {total: records.length, filtered: lastFilteredRecords.length, drawn: lastDrawn, active: layerActive, labels: labelsActive, filters: filters}; }
   };
 
+  function fitAlbionExtent() {
+    if (layerKind !== 'mojave_2025') return;
+    var points = records.filter(function(r) {
+      return typeof r.pt_lat === 'number' && isFinite(r.pt_lat) && Math.abs(r.pt_lat) <= 90 &&
+        typeof r.pt_lng === 'number' && isFinite(r.pt_lng) && Math.abs(r.pt_lng) <= 180;
+    });
+    if (!points.length) return;
+    var south = Infinity, west = Infinity, north = -Infinity, east = -Infinity;
+    points.forEach(function(r) {
+      south = Math.min(south, r.pt_lat); north = Math.max(north, r.pt_lat);
+      west = Math.min(west, r.pt_lng); east = Math.max(east, r.pt_lng);
+    });
+    map.fitBounds([[south, west], [north, east]], {padding: [38, 38], animate: false});
+  }
+
   map.on('overlayadd', function(evt) {
-    if (eventMatches(evt)) { resetFilters(); legendUserHidden = false; layerActive = true; syncActive(); }
+    if (eventMatches(evt)) {
+      var wasActive = layerActive;
+      resetFilters(); legendUserHidden = false; layerActive = true; syncActive();
+      if (!wasActive && layerActive) fitAlbionExtent();
+    }
     if (labelEventMatches(evt)) { labelsActive = true; syncLabels(); }
   });
 
@@ -807,13 +853,17 @@ pt_prepare_blm_gw_well_inventory_records <- function(wells) {
   record_uid <- chr_col("record_uid")
   record_uid[is.na(record_uid)] <- paste0("blm_gw_well_", seq_len(n))[is.na(record_uid)]
 
-  well_name <- chr_col("well_name_display", "Unnamed well")
-  well_name[is.na(well_name)] <- "Unnamed well"
+  is_mojave <- chr_col("source_key") %in% "mojave_2025_blm_field_check"
+  well_name <- chr_col("well_name_display")
+  well_name[is.na(well_name) & !is_mojave] <- "Unnamed well"
+  # Neutral hover titles are presentation only; blank accepted names remain
+  # blank so the existing label controller suppresses their map labels.
+  hover_fallback <- ifelse(is_mojave & is.na(well_name),
+    paste0("Site ", chr_col("source_record_id", record_uid)), well_name)
+  hover_line1 <- chr_col("hover_line1", hover_fallback)
+  hover_line1[is.na(hover_line1)] <- hover_fallback[is.na(hover_line1)]
 
-  hover_line1 <- chr_col("hover_line1", well_name)
-  hover_line1[is.na(hover_line1)] <- well_name[is.na(hover_line1)]
-
-  data.frame(
+  records <- data.frame(
     record_uid = record_uid,
     pt_lat = sx$pt_lat,
     pt_lng = sx$pt_lng,
@@ -838,7 +888,16 @@ pt_prepare_blm_gw_well_inventory_records <- function(wells) {
     blm_distance_label = chr_col("blm_distance_label"),
     blm_distance_popup = chr_col("blm_distance_popup"),
     stringsAsFactors = FALSE
-  ) |>
+  )
+  if (any(is_mojave)) {
+    fields <- c("water_level_recorded", "lab_sample_documented")
+    if (!all(is_mojave) || !all(fields %in% names(sx)) ||
+        any(vapply(fields, function(nm) !is.logical(sx[[nm]]) || anyNA(sx[[nm]]), logical(1)))) {
+      stop("Albion browser projection requires one inventory with complete logical observation fields.", call. = FALSE)
+    }
+    for (nm in fields) records[[nm]] <- sx[[nm]]
+  }
+  records |>
     dplyr::filter(!is.na(.data$pt_lat), !is.na(.data$pt_lng))
 }
 
@@ -912,7 +971,7 @@ pt_add_blm_gw_well_inventory_layers <- function(m, noc_wells, mojave_wells, map_
     m <- pt_add_blm_gw_well_inventory_single_layer(
       m = m,
       wells = noc_wells,
-      group_name = "BLM-drilled wells | NOC",
+      group_name = "GW wells | BLM NOC inventory",
       layer_kind = "noc",
       map_display = map_display
     )
@@ -922,7 +981,7 @@ pt_add_blm_gw_well_inventory_layers <- function(m, noc_wells, mojave_wells, map_
     m <- pt_add_blm_gw_well_inventory_single_layer(
       m = m,
       wells = mojave_wells,
-      group_name = "GW wells | 2025 Mojave-BLM limited field check",
+      group_name = "GW sites | 2025 Mojave limited field inventory",
       layer_kind = "mojave_2025",
       map_display = map_display
     )

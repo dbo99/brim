@@ -108,6 +108,21 @@ pt_layer_group_name <- function(group_name) {
   group_name <- sub("^Monitoring Sites / Records\\s+–\\s+", "Points – ", group_name)
   group_name <- sub("^Monitoring sites / records\\s+–\\s+", "Points – ", group_name)
 
+  ## Well-inventory legacy categorized/count/label inputs share current groups.
+  ## Resolve only these inventories before the already-categorized fast path.
+  if (exists("pt_lookup_local_layer_group", mode = "function") &&
+      exists("pt_normalize_local_layer_count_key", mode = "function")) {
+    noc_base <- pt_normalize_local_layer_count_key(group_name)
+    noc_group <- pt_lookup_local_layer_group(noc_base)
+    noc_hit <- !is.na(noc_group) & noc_group %in% c(
+      "Points – GW wells | BLM NOC inventory", "Labels – GW wells | BLM NOC inventory",
+      "Points – GW sites | 2025 Mojave limited field inventory",
+      "Labels – GW sites | 2025 Mojave limited field inventory"
+    )
+    group_name[noc_hit] <- paste0(noc_group[noc_hit],
+      substring(group_name[noc_hit], nchar(noc_base[noc_hit]) + 1L))
+  }
+
   ## Normalize older SWRCB water-right/POD display names before category
   ## detection, so already-categorized old names cannot bypass the newer,
   ## more explicit Water rights POD names.
@@ -268,14 +283,15 @@ pt_layer_group_name <- function(group_name) {
     group_name %in% c("USGS monitoring wells", "USGS Wells") ~
       "Points – USGS monitoring wells",
     
-    group_name %in% c("BLM-drilled wells | NOC", "BLM-drilled wells | NOC database") ~
-      "Points – BLM-drilled wells | NOC",
+    group_name %in% c("GW wells | BLM NOC inventory", "GW wells | NOC", "BLM-drilled wells | NOC", "BLM-drilled wells | NOC database") ~
+      "Points – GW wells | BLM NOC inventory",
 
     group_name %in% c(
+      "GW sites | 2025 Mojave limited field inventory",
       "GW wells | 2025 Mojave-BLM limited field check",
       "GW wells | 2025 Mojave-BLM field check"
     ) ~
-      "Points – GW wells | 2025 Mojave-BLM limited field check",
+      "Points – GW sites | 2025 Mojave limited field inventory",
 
     group_name %in% c(
       "Water rights POD | SWRCB 2026 BLM list",

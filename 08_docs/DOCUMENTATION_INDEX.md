@@ -87,6 +87,9 @@ Discovery and historical evidence only. Never automatically controlling.
 - Backup/recovery: `/08_docs/operations/BACKUP_AND_RECOVERY.md`
 - Live feeds: `/08_docs/integrations/LIVE_DATA_FEEDS.md`
 - UIC feature: `/08_docs/features/UIC_AQUIFER_EXEMPTIONS.md`
+- Independent NOC and corrected Albion well inventories, source lineage and
+  interpretation: `/08_docs/features/BLM_WELL_INVENTORIES.md`; operational
+  normalization/distance/focused-cache commands are in `/BUILD.md`.
 - UIC pipeline: `/02_preprocess/67_uic_aquifer_exemptions_pipeline/README.md`
 - Federal Wilderness feature: `/08_docs/features/FEDERAL_WILDERNESS.md`
 - Federal Wilderness pipeline: `/02_preprocess/68_federal_wilderness_pipeline/README.md`

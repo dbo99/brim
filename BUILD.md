@@ -107,6 +107,83 @@ current candidate contracts are recorded in the pipeline README and
 
 ### 5. Focused preprocessor
 
+#### BLM well inventory focused regeneration
+
+**NOT_RUN_IN_B4_I1.** The source review gate validates only curated table
+invariants, extracted pure functions with synthetic data, and offline emitted
+JavaScript. The commands below describe later, separately approved isolated
+execution; they are not evidence that products have been regenerated.
+
+From an approved isolated build root with exact reviewed source, external
+NOC/field-list CSVs, current BLM managed-land geometry and accepted preview
+inputs already bound:
+
+```r
+source("run_build_map.r")
+update_blm_gw_well_inventory_sources()
+update_blm_gw_well_inventory_blm_distances()
+refresh_blm_gw_well_inventory_cache()
+build_final_map_only()
+```
+
+Run each stage only after its own input/output authorization and checks. The
+convenience `refresh_blm_gw_well_inventory_and_map()` runs those same four
+stages and is unsuitable when only one stage is approved. The standalone
+focused cache entry is
+`Rscript 05_map_build/14_refresh_blm_gw_well_inventory_cache.r`; it requires
+existing normalized combined inventory and a complete matching distance
+sidecar. Missing/stale/duplicate keys, source/coordinate mismatches and
+symlink/archive collisions fail before cache saves. It does not regenerate
+prerequisites or invoke the full core-cache builder. Normal full-build stages
+remain unchanged.
+
+The source normalizer rewrites **both** independent inventories and their
+combined product. Under `04_processed_data/rds/`, its exact outputs are:
+
+- `blm_noc_drilled_wells_wgs84.rds`
+- `mojave_2025_gw_well_inventory_wgs84.rds`
+- `blm_gw_well_inventory_combined_wgs84.rds`
+
+Under `04_processed_data/qa/`, it rewrites the six CSVs with prefix
+`blm_gw_well_inventory_` and suffixes `source_summary_latest.csv`,
+`coordinate_qa_latest.csv`, `status_counts_latest.csv`,
+`field_summary_latest.csv`, `duplicate_exclusions_latest.csv` and
+`popup_field_guide_latest.csv`.
+
+Unchanged preprocessor 63 recalculates the **combined** distance sidecar
+`04_processed_data/cache/latest/blm_gw_well_inventory_blm_distance_fields.csv`
+against `04_processed_data/rds/blm_managed_core_3310.rds`. It also rewrites
+four QA CSVs under `04_processed_data/qa/`, with prefix
+`blm_gw_well_inventory_blm_distance_` and suffixes `summary_latest.csv`,
+`by_source_latest.csv`, `bins_by_source_latest.csv` and `preview_latest.csv`.
+This is not an Albion-only distance run. Normalization and distance calculation
+use bound local inputs and require no provider acquisition.
+
+Focused refresh writes only `blm_noc_drilled_wells_map.rds` and
+`mojave_2025_gw_well_inventory_map.rds` under `04_processed_data/cache/latest/`,
+plus their existing `<stem>_<YYYYMMDD_HHMMSS>.rds` counterparts under
+`04_processed_data/cache/enriched/`. Existing latest files can be overwritten;
+timestamp collisions fail. Save utilities are not a multi-file transaction:
+an I/O failure after one save requires recovery from the authorized backup.
+Standard path initialization may create missing project directories. Final
+HTML is a separate last stage with its own output manifest and browser gate.
+
+Before execution, bind and back up every existing overwrite target, reserve
+noncolliding enriched/HTML names, hash all protected siblings and define
+restore-and-hash recovery. Preserve the complete accepted preview-input
+manifest, including both restored USGS streamgage and groundwater indexes,
+all auxiliary data and installed tool/serializer bindings; no convenience
+cache or provider refresh may replace them. Require exact NOC attributes,
+geometry, popup and distance parity. Only these sidecar execution-provenance
+columns may differ: `blm_distance_run_time`, `input_well_inventory_rds`,
+`input_well_inventory_mtime`, `input_blm_lands_rds`, `input_blm_lands_mtime`.
+That parity is not demonstrated by synthetic tests. Validate the 138-site
+Albion contract and every unrelated cache hash, then separately review the
+rendered layer, filters, labels, popups, teardown and narrow viewport.
+
+Canonical source lineage and remaining uncertainty are in
+[BLM well inventories](08_docs/features/BLM_WELL_INVENTORIES.md).
+
 Run only after the preprocessor gate below passes.
 
 ### 6. Broad dependency orchestration

@@ -112,11 +112,11 @@ layers <- list(
   usgs_gw             = readRDS(file.path(DIR$cache_last, "usgs_wells_map.rds")),
   blm_noc_drilled_wells = pt_read_first_existing_rds(
     file.path(DIR$cache_last, "blm_noc_drilled_wells_map.rds"),
-    label = "BLM-drilled wells | NOC"
+    label = "GW wells | BLM NOC inventory"
   ),
   mojave_2025_gw_well_inventory = pt_read_first_existing_rds(
     file.path(DIR$cache_last, "mojave_2025_gw_well_inventory_map.rds"),
-    label = "GW wells | 2025 Mojave-BLM limited field check"
+    label = "GW sites | 2025 Mojave limited field inventory"
   ),
   swrcb_pod_wr_blm    = readRDS(file.path(DIR$cache_last, "swrcb_pod_wr_blm_map.rds")),
   springs             = readRDS(file.path(DIR$cache_last, "springs_map.rds")),
@@ -820,8 +820,8 @@ pt_register_local_layer_feature_counts(c(
   "Points – CDEC Reservoir Stations" = pt_count_sf_rows(layers$cdec_reservoir_stations),
   "Points – USGS streamgages" = pt_count_sf_rows(layers$usgs_sw),
   "Points – USGS monitoring wells" = pt_count_sf_rows(layers$usgs_gw),
-  "Points – BLM-drilled wells | NOC" = pt_count_sf_rows(layers$blm_noc_drilled_wells),
-  "Points – GW wells | 2025 Mojave-BLM limited field check" = pt_count_sf_rows(layers$mojave_2025_gw_well_inventory),
+  "Points – GW wells | BLM NOC inventory" = pt_count_sf_rows(layers$blm_noc_drilled_wells),
+  "Points – GW sites | 2025 Mojave limited field inventory" = pt_count_sf_rows(layers$mojave_2025_gw_well_inventory),
   "Points – Water rights POD | SWRCB 2026 BLM list" = pt_count_swrcb_official_rows(layers$swrcb_pod_wr_blm),
   "Points – Water rights POD | BRIM spatial BLM match" = pt_count_swrcb_additional_spatial_rows(layers$swrcb_pod_wr_blm),
   "Points – Water rights POD | BRIM name/text BLM candidate" = pt_count_swrcb_name_candidate_rows(layers$swrcb_pod_wr_blm),
@@ -881,8 +881,8 @@ CORE_OVERLAY_GROUPS <- c(
   if (isTRUE(MAP_DISPLAY$add_cdec_reservoir_stations)) "CDEC Reservoir Stations",
   if (MAP_DISPLAY$add_usgs_streamgages) "USGS streamgages",
   if (MAP_DISPLAY$add_usgs_wells) "USGS monitoring wells",
-  if (isTRUE(MAP_DISPLAY$add_blm_noc_drilled_wells) && pt_has_data_rows(layers$blm_noc_drilled_wells)) "BLM-drilled wells | NOC",
-  if (isTRUE(MAP_DISPLAY$add_mojave_2025_gw_well_inventory) && pt_has_data_rows(layers$mojave_2025_gw_well_inventory)) "GW wells | 2025 Mojave-BLM limited field check",
+  if (isTRUE(MAP_DISPLAY$add_blm_noc_drilled_wells) && pt_has_data_rows(layers$blm_noc_drilled_wells)) "GW wells | BLM NOC inventory",
+  if (isTRUE(MAP_DISPLAY$add_mojave_2025_gw_well_inventory) && pt_has_data_rows(layers$mojave_2025_gw_well_inventory)) "GW sites | 2025 Mojave limited field inventory",
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | SWRCB 2026 BLM list",
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | BRIM spatial BLM match",
   if (isTRUE(MAP_DISPLAY$add_swrcb_pod_wr_blm)) "Water rights POD | BRIM name/text BLM candidate",
@@ -926,10 +926,10 @@ LABEL_OVERLAY_GROUPS <- if (isTRUE(MAP_DISPLAY$add_labels)) {
       "Labels: USGS streamgages"
     },
     if (isTRUE(MAP_DISPLAY$add_blm_noc_drilled_wells) && pt_has_data_rows(layers$blm_noc_drilled_wells) && isTRUE(MAP_DISPLAY$add_labels)) {
-      "Labels: BLM-drilled wells | NOC"
+      "Labels: GW wells | BLM NOC inventory"
     },
     if (isTRUE(MAP_DISPLAY$add_mojave_2025_gw_well_inventory) && pt_has_data_rows(layers$mojave_2025_gw_well_inventory) && isTRUE(MAP_DISPLAY$add_labels)) {
-      "Labels: GW wells | 2025 Mojave-BLM limited field check"
+      "Labels: GW sites | 2025 Mojave limited field inventory"
     },
     if (isTRUE(MAP_DISPLAY$add_springs) && isTRUE(MAP_DISPLAY$add_labels)) {
       "Labels: Springs"
