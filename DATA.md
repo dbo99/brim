@@ -26,6 +26,17 @@ For each layer, explicitly identify:
 
 BRIM local source geometry and raw fields outrank research-package geometry or prebuilt popup content unless a reviewed migration explicitly replaces the source.
 
+### Independent NOC and Albion well inventories
+
+The three reviewed Albion tables in `00_config/blm_well_inventory/` are
+tracked curated source inputs. They replace the historical Albion CSV as
+normalization authority. NOC remains an independent external CSV input;
+physical overlap does not authorize cross-inventory identity merging.
+[BLM well inventories](08_docs/features/BLM_WELL_INVENTORIES.md) is the
+canonical reference for provenance, stable identity, intentional blanks,
+measurement authority and the legacy auxiliary fields list. Original raw
+workbooks/CSVs, processed products and caches remain external.
+
 ## Guide Resource metadata
 
 `00_config/guide_resources.json` is the canonical tracked source for authored

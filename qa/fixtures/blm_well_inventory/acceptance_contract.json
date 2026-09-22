@@ -1,0 +1,105 @@
+{
+  "contract_version": "1.0",
+  "prepared_date": "2026-09-01",
+  "target_authority": "data/target/brim_mojave_fieldcheck_corrected_master.csv",
+  "supplied_baseline": {
+    "feature_count": 132,
+    "action_counts": {
+      "KEEP": 75,
+      "UPDATE": 55,
+      "ADD": 8,
+      "REMOVE_DUPLICATE": 2
+    }
+  },
+  "target": {
+    "unique_site_count": 138,
+    "status_counts": {
+      "present": 48,
+      "not_found": 85,
+      "unknown": 4,
+      "spring_present": 1
+    },
+    "feature_type_counts": {
+      "groundwater_well_site": 137,
+      "spring_or_spring_box": 1
+    },
+    "spring_or_spring_box_record": 34,
+    "human_review_records": [
+      121,
+      124,
+      125,
+      126,
+      127,
+      135,
+      136,
+      145
+    ],
+    "excluded_duplicate_records": [
+      36,
+      65,
+      73,
+      74,
+      83,
+      110,
+      115
+    ],
+    "sampling_records_to_add_against_supplied_baseline": [
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144
+    ],
+    "reported_vs_spatial_basin_mismatch_count": 10,
+    "monitored_ordinary_well_count": 17,
+    "laboratory_well_sample_count": 9
+  },
+  "duplicate_mapping": {
+    "36": 34,
+    "65": 64,
+    "73": 72,
+    "74": 72,
+    "83": 82,
+    "110": 109,
+    "115": 114
+  },
+  "settled_final_names": {
+    "118": "TW-2",
+    "119": "PW-0",
+    "123": "OW-2"
+  },
+  "intentionally_blank_final_names_requiring_review": [
+    121,
+    124,
+    125,
+    126,
+    127,
+    145
+  ],
+  "fixed_coordinates_pending_additional_evidence": {
+    "135": {
+      "latitude": 34.712737,
+      "longitude": -115.125172
+    },
+    "136": {
+      "latitude": 34.712737,
+      "longitude": -115.125172
+    }
+  },
+  "record_145": {
+    "field_maps_number": "160",
+    "physical_site_confidence": "HIGH",
+    "final_name": null,
+    "review_reason": "final facility name and old BRIM source_record_id remain incomplete"
+  },
+  "prohibitions": [
+    "do not invent names or coordinates",
+    "do not collapse contractor-reported and spatial Bulletin 118 basin fields",
+    "do not re-add documented duplicate records",
+    "do not add the seven separate spring-survey sites to the 138-site well-inventory layer",
+    "do not hand-edit generated RDS or HTML as the primary fix"
+  ]
+}

@@ -1104,6 +1104,58 @@ New Product onboarding extends current runtime authority rather than a parallel 
 
 ## Semantic features and geometry components
 
+### BLM well inventory ownership
+
+`02_preprocess/18_blm_groundwater_well_inventory.r` owns independent NOC
+CSV ingestion and explicit corrected Albion ingestion. Its pure attribute
+functions can be extracted for synthetic QA without executing initialization
+or output writes. Albion `record_uid` is the accepted `final_site_uid`;
+historical keys remain separate. The dedicated Albion intermediate retains
+all curated master fields and namespaced correction/measurement lineage;
+the combined intermediate carries the common map schema plus the logical
+Albion fields `water_level_recorded` and `lab_sample_documented`. The shared
+cache owner validates those fields for Albion and excludes them from the
+NOC child, preserving NOC's cache and browser schemas. Albion's browser
+projection also requires complete logical fields; missing schema never
+silently becomes a zero observation count.
+
+`03_functions/blm_gw_well_inventory_cache_helpers.r` is the single owner of
+well-family cache preparation, keyed distance joins and display fields.
+The ordinary administrative/water cache block and
+`05_map_build/14_refresh_blm_gw_well_inventory_cache.r` share it. The focused
+caller requires complete matching distance keys, sources and coordinates
+and validates output collisions before saving the two well children with
+the existing cache-save utility. It performs no normalization, distance
+recomputation or other cache refresh. Normal full-build dispatch retains
+its existing stages; focused operations are explicit runner functions.
+
+The shared Local well/spring helper keeps the existing well layer identities,
+clustering, filters and teardown ownership. Albion adds a distinct spring
+status, site totals, intersecting observation/status/BLM filters and neutral
+hover IDs for intentionally unnamed sites;
+those IDs never become authoritative names or map labels. Normal Albion
+OFF-to-ON activation fits all valid inventory coordinates once with 38-pixel
+padding. Filters, labels, Reset, Clear and removal do not navigate; empty or
+invalid bounds are ignored. The popup omits Review status while retaining the
+underlying field and source-supported Unresolved attributes.
+
+The Local panel uses GW wells | BLM NOC inventory and GW sites | 2025 Mojave
+limited field inventory, with record counts supplied dynamically. Their legend
+titles are BLM NOC well inventory and Mojave limited field inventory (2025).
+NOC's source line identifies BLM National Operations Center; its symbol text
+remains NOC well record. This identifies an inventory source without asserting
+universal drilling, ownership or current monitoring. Albion uses Field-reported
+basin for the unchanged reported value, separately from spatial basin attribution.
+Technical IDs, API and filenames remain unchanged. Registry aliases and the
+Local group helper route historical names to the corresponding current Points
+group and Labels companion; final builder counts/registration and the independent
+`config_labels.r` inline pairs use those names. NOC/Albion label minima remain
+9/10. The generic inline-label matcher, existing well controllers and separate
+Springs controller remain unchanged. Source
+history and unresolved attributes belong in
+[BLM well inventories](features/BLM_WELL_INVENTORIES.md); execution boundaries
+and output paths belong in [BUILD.md](../BUILD.md).
+
 Normal UI counts represent semantic user-facing features unless a layer contract explicitly chooses another primary unit. Geometry components/parts remain internal QA and rendering detail.
 
 Bounds, selection, chips, and zoom operate on the complete semantic feature across all components.

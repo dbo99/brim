@@ -156,6 +156,7 @@ SCRIPT_PATHS <- list(
   ## check layers.  Keep both separate from normal final HTML builds.
   preprocess_blm_gw_well_inventory = "02_preprocess/18_blm_groundwater_well_inventory.r",
   preprocess_blm_gw_well_inventory_blm_distance = "02_preprocess/63_update_blm_gw_well_inventory_blm_distance_fields.R",
+  refresh_blm_gw_well_inventory_cache = "05_map_build/14_refresh_blm_gw_well_inventory_cache.r",
 
   ## Springs source normalization.  Use this when the NHD/survey source data are
   ## refreshed or when a future inventory, such as Amargosa SOB springs, is
@@ -483,11 +484,12 @@ refresh_springs_source_and_map <- function() {
 # ---- 5.2F Refresh BLM GW well inventory source/distances, then map ----------
 ##
 ## Use these helpers for the two small BLM groundwater-well Local layers:
-##   - BLM-drilled wells | NOC database
+##   - BLM-drilled wells | NOC
 ##   - GW wells | 2025 Mojave-BLM field check
 ##
-## The source normalizer reads CSVs from 01_raw_data/blm and writes normalized
-## WGS84 RDS files.  The distance preprocessor compares those normalized points
+## The source normalizer reads NOC/field-list CSVs from 01_raw_data/blm and
+## corrected Albion tables from 00_config/blm_well_inventory, then writes
+## normalized WGS84 RDS files. The distance preprocessor compares those points
 ## against BRIM's current BLM managed-lands RDS and writes a compact CSV sidecar.
 ## Both use run_step_clean() so sf objects do not linger before HTML builds.
 
@@ -507,6 +509,13 @@ update_blm_gw_well_inventory_blm_distances <- function() {
   )
 }
 
+refresh_blm_gw_well_inventory_cache <- function() {
+  run_step_clean(
+    SCRIPT_PATHS$refresh_blm_gw_well_inventory_cache,
+    "Refresh only the two BLM GW well inventory caches"
+  )
+}
+
 refresh_blm_gw_well_inventory_and_map <- function() {
 
   run_step_clean(
@@ -520,8 +529,8 @@ refresh_blm_gw_well_inventory_and_map <- function() {
   )
 
   run_step_clean(
-    SCRIPT_PATHS$build_core_cache,
-    "Rebuild core cache"
+    SCRIPT_PATHS$refresh_blm_gw_well_inventory_cache,
+    "Refresh only the two BLM GW well inventory caches"
   )
 
   run_step_clean(

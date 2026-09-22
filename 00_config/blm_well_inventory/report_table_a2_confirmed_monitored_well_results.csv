@@ -1,0 +1,20 @@
+report_record_number,final_site_name,spatial_bulletin118_name,final_latitude,final_longitude,depth_to_water_ft,total_well_depth_ft,temperature_c,ph,conductivity_us_cm,salinity_ppt,do_mg_l,orp_mv,turbidity_ntu,sample_date,laboratory_sample_collected,monitoring_basin_location_notes
+126,,Chuckwalla Valley,33.845106,-115.382512,273,539,26.2,7.34,26.2,NR,7.81,429.5,1.51,2025-03-10,True,"Chuckwalla, near solar facility, 4WD (sandy).   Within ACEC - road only.   Approx 17 mile drive on dirt roads.  Approx 6.4 miles straightline to 177"
+127,,Chuckwalla Valley,33.856747,-115.238553,,,,,,,,,,2025-03-10,False,"Chuckwalla, Not sampled, metal debris in well, water present, possibly off BLM land. 2WD."
+21,Gravel Pit,Bristol Valley,34.444,-115.746502,30.54,240,25.4,7.21,29.203,16.57,4.13,446.8,12.97,2025-03-10,False,"Bristol, 0.5 miles W Amboy Rd., 4WD (sandy)"
+137,EW-7 (Tetra),Bristol Valley,34.5149057333333,-115.654173716666,production,UNK,28.2,6.71,146.17,107.66,3.14,372.6,1.58,2025-03-11,False,"Bristol, Enter thru Tetra main entrance off Amboy Rd.  EW-7, 4WD.  Production well, sample port present"
+7,EW-3 (Tetra),Bristol Valley,34.513477,-115.651255,production,UNK,27.0,7.01,99.515,68.99,5.41,290.4,1.02,2025-03-11,False,"Bristol, Enter thru Tetra main entrance off Amboy Rd.  EW-3, 4WD.  Production well, sample port present"
+138,K Well (Tetra),Bristol Valley,34.5104433196095,-115.647248941293,280,UNK,26.2,7.01,105.19,75.33,4.96,242.3,2.55,2025-03-11,False,"Bristol, Enter thru Tetra main entrance off Amboy Rd.  K Well, 4WD.  Production well, sample port present, sounding access present"
+139,EW-9 (Tetra),Bristol Valley,34.5096422666666,-115.645991466666,290,400,25.9,6.62,121.86,90.65,4.69,273.9,1.11,2025-03-11,False,"Bristol, Enter thru Tetra main entrance off Amboy Rd.  EW-9, 4WD.  Production well, sample port present, sounding access present"
+140,TW-1 (Tetra),Cadiz Valley,34.2635652666666,-115.369065516666,production,200,24.0,6.38,218.775,203.57,2.58,151.5,6.71,2025-03-11,False,"Cadiz, Enter thru Tetra main entrance, TW-1, 2WD/4WD, Production well, sample port present"
+141,LW-12 (Tetra),Cadiz Valley,34.2868116,-115.3867888,production,300,23.9,6.21,214.9,199.05,2.42,290.2,1.01,2025-03-11,False,"Cadiz, Enter thru Tetra main entrance, LW-12, 2WD/4WD, Production well, sample port present"
+142,DW-2 (Tetra),Cadiz Valley,34.3055153,-115.4075579333,production,UNK,24.5,6.44,219.5,202.6,1.87,203.6,93.36,2025-03-11,False,"Cadiz, Enter thru Tetra main entrance, DW-2, 2WD/4WD, Production well, sample port present, pump set at 140' bgs"
+143,Hill North Well 1 (Tetra),Cadiz Valley,34.3261413833,-115.4216325,production,350,24.7,8.6,27.53,17.11,6.56,9.3,8.05,2025-03-11,True,"Cadiz, Enter thru Tetra main entrance, Hill North Well 1, 2WD/4WD, Production well, sample port present"
+144,Hill North Well 5 (Tetra),Cadiz Valley,34.33161502,-115.411748315483,9,UNK,22.4,9.22,185.42,169.16,1.87,-162.0,10.8,2025-03-11,True,"Cadiz, Enter thru Tetra main entrance, Hill North Well 1, 2WD/4WD, 8"" casing, unused."
+84,"HWY Well
+#1",Fenner Valley,34.631398083,-115.334051933333,321.68,1507,26.6,9.5,0.343,0.16,2.39,240.1,21.69,2025-03-12,True,"Fenner, 4WD, short drive off of paved road"
+93,,Fenner Valley,34.6050300833,-115.430688083333,557,634,30.2,9.04,0.715,0.31,1.77,160.8,81.39,2025-03-12,True,"Fenner, 4WD, short drive off of paved road. See also FM record 144"
+145,,Bristol Valley,34.5314072666666,-115.649057066666,124.85,163,27.4,8.12,2.89,1.43,6.58,160.3,483.17,2025-03-12,True,"Bristol, along N side RR tracks, 4WD"
+64,"Hopkins
+Well",Chuckwalla Valley,33.6131044833333,-114.9956297,77.7,337,27.7,8.7,2.763,1.38,2.33,-13.7,14.4,2025-03-14,True,"Chuckwalla, well head below grade and in cinderblock enclosure.  Well head not protected and subject to surface water inflow, 4WD"
+63,Teague Well,Chuckwalla Valley,33.5849973166666,-114.995578266666,146.21,UNK,28.5,6.97,6.586,3.35,2.31,-169.1,39.58,2025-03-14,True,"Chuckwalla, 4WD, in ACEC, wellhead unprotected."

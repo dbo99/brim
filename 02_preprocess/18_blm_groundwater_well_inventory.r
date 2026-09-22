@@ -4,13 +4,13 @@
 ##   Normalize two small BLM groundwater-well source datasets into durable,
 ##   map-ready WGS84 RDS files for future BRIM Local layers:
 ##
-##     1. NOC internal database of BLM-drilled wells
+##     1. BLM NOC well inventory
 ##        01_raw_data/blm/NOC_BLMdrilled.csv
 ##
-##     2. 2025 Mojave-BLM limited groundwater-well field investigation
-##        01_raw_data/blm/albion_rev1.csv
+##     2. Mojave limited field inventory (2025)
+##        00_config/blm_well_inventory/ (corrected master, measurements, corrections)
 ##
-##   A third CSV is used as a field-inclusion guide for popup design:
+##   A legacy auxiliary field list is retained in QA (not a dynamic popup selector):
 ##        01_raw_data/blm/NOC_Albion_fields.csv
 ##
 ## WHY THIS IS A SEPARATE PREPROCESSOR:
@@ -21,10 +21,8 @@
 ##
 ## IMPORTANT USER-FACING NAMING:
 ##   - Do not expose the internal contractor shorthand "Albion" in the map UI.
-##   - The public/user-facing name for that source is:
-##       "2025 Mojave-BLM limited field check"
-##     or the fuller source description:
-##       "2025 Mojave-BLM limited groundwater-well field investigation"
+##   - Local panel: "GW sites | 2025 Mojave limited field inventory" (record count added by the UI).
+##     Legend/source: "Mojave limited field inventory (2025)".
 ##
 ## CURRENT DESIGN DECISIONS:
 ##   - This script does NOT add visible Leaflet layers.  It only writes clean,
@@ -33,16 +31,17 @@
 ##   - BLM-distance fields are NOT calculated here.  A later numbered distance
 ##     preprocessor will calculate current on/off BLM and distance-to-BLM from
 ##     BRIM's canonical current BLM managed-lands RDS.
-##   - For the 2025 Mojave-BLM source, rows whose Field Recon Results mention
-##     "duplicate" are excluded from the map-ready output and written to QA.
+##   - The reviewed Mojave master owns retained sites; correction actions retain
+##     historical identity and excluded baseline duplicates for QA.
 ##   - Hover line 1 is the best available Well Name.  For NOC records, hover
-##     line 2 is the well-completion date when available; for the 2025 Mojave-BLM
+##     line 2 is the well-completion date when available; for the 2025 Mojave
 ##     records, there is no installation/completion date field, so hover line 2
 ##     remains depth to water when available.
 ##
 ## INPUTS:
-##   Required source CSVs in 01_raw_data/blm/.  The file finder is tolerant of
-##   copied filenames such as "NOC_BLMdrilled(2).csv" or "albion_rev1(1).csv".
+##   NOC and the legacy fields list use ordinary CSV ingestion in 01_raw_data/blm/.
+##   Corrected Mojave inputs are required exact files in 00_config/blm_well_inventory/.
+##   No historical Albion, processed-output, or retained-NOC input fallback exists.
 ##
 ## OUTPUTS:
 ##   Map-ready RDS:
@@ -364,59 +363,6 @@ pt_safe_col_048a <- function(df, col, default = NA_character_) {
 }
 
 
-pt_name_key_048a <- function(x) {
-  # Collapse a field name to a punctuation-free comparison key.  This keeps
-  # 048a tolerant of small Excel/janitor differences such as:
-  #   WellPresent_1Yes_2No_3Unknwn
-  # becoming either:
-  #   well_present_1_yes_2_no_3_unknwn
-  # or:
-  #   well_present_1_yes_2_no_3_un_knwn
-  # depending on the exact source spelling / cleaning rules.
-  stringr::str_replace_all(stringr::str_to_lower(as.character(x)), "[^a-z0-9]", "")
-}
-
-pt_standardize_col_048a <- function(df, standard_name, aliases) {
-  # Rename the first matching alias to a standard BRIM column name, but only
-  # when that standard name is not already present.  This avoids brittle stops
-  # when a source CSV has the right field but janitor::clean_names() split it a
-  # little differently than expected.
-  if (standard_name %in% names(df)) return(df)
-  keys <- pt_name_key_048a(names(df))
-  alias_keys <- unique(pt_name_key_048a(c(standard_name, aliases)))
-  hit <- which(keys %in% alias_keys)
-  if (length(hit) > 0) {
-    names(df)[hit[[1]]] <- standard_name
-  }
-  df
-}
-
-pt_standardize_mojave_cols_048a <- function(df) {
-  # Normalize only the few 2025 Mojave-BLM fields that are likely to drift in
-  # punctuation/camel-case.  Keep raw source names available in the field-summary
-  # QA via mojave_raw_original; this function is only for downstream code.
-  df |>
-    pt_standardize_col_048a(
-      "well_present_1_yes_2_no_3_unknwn",
-      aliases = c(
-        "well_present_1_yes_2_no_3_un_knwn",
-        "well_present_1_yes_2_no_3_unknown",
-        "wellpresent_1yes_2no_3unknwn",
-        "wellpresent_1yes_2no_3unknown",
-        "well_present_1yes_2no_3unknwn",
-        "well_present_1yes_2no_3_unknown"
-      )
-    ) |>
-    pt_standardize_col_048a(
-      "well_monitored_1yes_2no",
-      aliases = c(
-        "well_monitored_1_yes_2_no",
-        "wellmonitored_1yes_2no",
-        "wellmonitored_1_yes_2_no"
-      )
-    )
-}
-
 pt_write_csv_048a <- function(x, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   readr::write_csv(x, path, na = "")
@@ -424,170 +370,330 @@ pt_write_csv_048a <- function(x, path) {
 }
 
 
+# Pure attribute functions: QA extracts these definitions without sourcing this script.
+pt_normalize_noc_attributes_048a <- function(noc_raw, noc_csv) {
+  required_noc_cols <- c("objectid", "well_name", "longitude", "latitude")
+  missing_noc_cols <- setdiff(required_noc_cols, names(noc_raw))
+  if (length(missing_noc_cols) > 0) {
+    stop(
+      "BLM NOC well inventory CSV is missing expected cleaned column(s): ",
+      paste(missing_noc_cols, collapse = ", "),
+      ". Available cleaned columns: ", paste(names(noc_raw), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  noc_attr_all <- noc_raw |>
+    dplyr::mutate(
+      raw_source_file = basename(noc_csv),
+      source_key = "noc_blm_drilled",
+      source_display = "BLM National Operations Center",
+      source_short = "NOC",
+      layer_name = "GW wells | BLM NOC inventory",
+      record_uid = paste0("noc_", dplyr::row_number()),
+      source_record_id = pt_first_nonblank_048a(.data$objectid, .data$global_id, .data$well_uuid),
+      # Preserve the raw NOC Well ID for the lower QA line, but do not use it
+      # as the public-facing title/hover fallback.  Many records have Well ID = 0,
+      # which is too GIS-y and too ambiguous for users.
+      well_id_raw = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_id")),
+      well_id = ifelse(.data$well_id_raw %in% c("0", "0.0", "0.00"), NA_character_, .data$well_id_raw),
+      well_name_raw = pt_clean_chr_048a(.data$well_name),
+      facility_name = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "facility_name")),
+      well_name_display = pt_first_nonblank_048a(
+        .data$well_name_raw,
+        .data$facility_name
+      ),
+      well_name_display = ifelse(is.na(.data$well_name_display), "Unnamed well", .data$well_name_display),
+      hover_line1 = .data$well_name_display,
+      longitude = pt_num_048a(.data$longitude),
+      latitude = pt_num_048a(.data$latitude),
+      coord_status = pt_coord_status_048a(.data$longitude, .data$latitude),
+      well_owner = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_owner")),
+      site_location_reliability = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "site_location_reliability")),
+      elevation_ft = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_at_well_feet")),
+      elevation_display = pt_fmt_ft_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_at_well_feet"), digits = 0),
+      elevation_source = pt_normalize_noc_elevation_source_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_source")),
+      well_completion_date = pt_fmt_date_only_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_completion_date")),
+      initial_depth_ft = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_depth")),
+      initial_depth_display = pt_fmt_ft_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_depth"), digits = 1),
+      screened_interval = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "screened_interval")),
+      depth_to_water_raw = pt_clean_noc_depth_to_water_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_static_water_level")),
+      depth_to_water_display = pt_fmt_ft_048a(.data$depth_to_water_raw, digits = 1),
+      hover_line2 = .data$well_completion_date,
+      initial_yield_gpm = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_yield_gpm")),
+      initial_yield_display = pt_fmt_gpm_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_yield_gpm"), digits = 1),
+      casing_diameter_inches = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "casing_diameter_inches")),
+      casing_diameter_display = ifelse(
+        is.na(.data$casing_diameter_inches),
+        NA_character_,
+        paste0(formatC(.data$casing_diameter_inches, format = "f", digits = 1), " in")
+      ),
+      well_casing_type = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_casing_type")),
+      use_of_well = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "use_of_well")),
+      primary_use_of_water = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "primary_use_of_water")),
+      current_historical_grazing_allotment = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "blm_grazing_allotment")),
+      producing_aquifer_description = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "producing_aquifer_description")),
+      driller_name_and_city = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "driller_name_and_city")),
+      well_comments = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_comments")),
+      well_present_key = "not_applicable",
+      well_present_display = NA_character_,
+      well_monitored_key = "unknown",
+      well_monitored_display = NA_character_,
+      depth_to_water_sort_ft = pt_num_048a(.data$depth_to_water_raw),
+      data_note = "Generally NOC-provided data; BRIM made limited display/QC edits.",
+      popup_html = mapply(
+        FUN = function(
+          well_name_display, source_display, data_note, well_owner, site_location_reliability,
+          elevation_display, elevation_source, well_completion_date, initial_depth_display,
+          screened_interval, depth_to_water_display, initial_yield_display,
+          casing_diameter_display, well_casing_type, use_of_well, primary_use_of_water,
+          current_historical_grazing_allotment, producing_aquifer_description,
+          driller_name_and_city, well_comments, latitude, longitude, source_record_id,
+          well_id_raw, well_name_raw
+        ) {
+          # IMPORTANT:
+          # Build popup HTML one record at a time.  Do not pass whole columns into
+          # pt_popup_rows_048a(); doing that creates one enormous all-record popup
+          # and then repeats it for every feature, which bloats the standalone HTML
+          # and makes popups unusably tall.
+          paste0(
+            "<div class='pt2-popup-title'>", pt_html_escape_048a(well_name_display), "</div>",
+            pt_popup_rows_048a(
+              labels = c(
+                "Source", "Data note", "Well owner", "Site location reliability", "Elevation", "Elevation source",
+                "Well completion date", "Initial depth", "Screened interval", "Depth to water",
+                "Initial yield", "Casing diameter", "Well casing type", "Use of well",
+                "Primary use of water", "Current/historical grazing allotment",
+                "Producing aquifer description", "Driller", "Well comments", "Latitude", "Longitude"
+              ),
+              values = c(
+                source_display, data_note, well_owner, site_location_reliability,
+                elevation_display, elevation_source, well_completion_date,
+                initial_depth_display, screened_interval, depth_to_water_display,
+                initial_yield_display, casing_diameter_display, well_casing_type,
+                use_of_well, primary_use_of_water,
+                current_historical_grazing_allotment,
+                producing_aquifer_description, driller_name_and_city,
+                well_comments, pt_fmt_coord_048a(latitude), pt_fmt_coord_048a(longitude)
+              ),
+              long_labels = c("Producing aquifer description", "Well comments")
+            ),
+            pt_popup_qa_line_048a(
+              "NOC QA IDs",
+              c(
+                paste0("GIS OBJECTID ", pt_qa_value_048a(source_record_id)),
+                paste0("Well ID ", pt_qa_value_048a(well_id_raw)),
+                paste0("Well name ", pt_qa_value_048a(well_name_raw))
+              )
+            )
+          )
+        },
+        .data$well_name_display, .data$source_display, .data$data_note,
+        .data$well_owner, .data$site_location_reliability, .data$elevation_display,
+        .data$elevation_source, .data$well_completion_date,
+        .data$initial_depth_display, .data$screened_interval,
+        .data$depth_to_water_display, .data$initial_yield_display,
+        .data$casing_diameter_display, .data$well_casing_type,
+        .data$use_of_well, .data$primary_use_of_water,
+        .data$current_historical_grazing_allotment,
+        .data$producing_aquifer_description, .data$driller_name_and_city,
+        .data$well_comments, .data$latitude, .data$longitude, .data$source_record_id,
+        .data$well_id_raw, .data$well_name_raw,
+        USE.NAMES = FALSE
+      )
+    )
+  noc_attr_all
+}
+
+pt_validate_mojave_authority_048a <- function(master, measurements, corrections) {
+  require_cols <- function(x, cols, label) {
+    if (!is.data.frame(x) || anyDuplicated(names(x)) || !all(cols %in% names(x))) {
+      stop("Invalid ", label, " columns.", call. = FALSE)
+    }
+  }
+  key <- function(x, label, allow_blank = FALSE) {
+    good <- !is.na(x) & nzchar(trimws(as.character(x)))
+    if ((!allow_blank && !all(good)) || anyDuplicated(x[good])) {
+      stop("Missing or duplicate ", label, ".", call. = FALSE)
+    }
+  }
+  require_cols(master, c(
+    "final_site_uid", "report_record_number", "field_maps_number", "final_site_name",
+    "final_latitude", "final_longitude", "final_status", "final_feature_type",
+    "table2_name_original", "table2_field_notes", "table2_report_basin_original",
+    "reported_basin", "spatial_bulletin118_id", "spatial_bulletin118_name",
+    "monitoring_performed", "laboratory_sample_collected", "review_status", "source_authority", "identity_notes"
+  ), "Mojave master")
+  require_cols(measurements, c(
+    "report_record_number", "final_site_name", "final_latitude", "final_longitude",
+    "spatial_bulletin118_name", "depth_to_water_ft", "total_well_depth_ft",
+    "sample_date", "monitoring_basin_location_notes"
+  ), "Mojave measurements")
+  require_cols(corrections, c(
+    "final_site_uid", "report_record_number", "current_brim_record_identifier",
+    "action", "old_name", "reason", "source_file", "source_sheet", "source_record_reference"
+  ), "Mojave corrections")
+  if (!is.character(master$laboratory_sample_collected) ||
+      any(!master$laboratory_sample_collected %in% c("True", "False"))) {
+    stop("Invalid laboratory_sample_collected: expected documented True/False values.", call. = FALSE)
+  }
+  if (!nrow(master)) stop("Mojave master is empty.", call. = FALSE)
+  key(master$final_site_uid, "final_site_uid")
+  key(master$report_record_number, "master report key")
+  key(measurements$report_record_number, "measurement report key")
+  key(corrections$final_site_uid, "correction site key")
+  key(corrections$report_record_number, "correction report key")
+  key(corrections$current_brim_record_identifier, "historical record key", TRUE)
+  if (any(!corrections$action %in% c("KEEP", "UPDATE", "ADD", "REMOVE_DUPLICATE"))) {
+    stop("Invalid correction action.", call. = FALSE)
+  }
+  retained <- corrections[corrections$action != "REMOVE_DUPLICATE", , drop = FALSE]
+  removed <- corrections[corrections$action == "REMOVE_DUPLICATE", , drop = FALSE]
+  if (!setequal(master$final_site_uid, retained$final_site_uid) ||
+      any(removed$final_site_uid %in% master$final_site_uid)) {
+    stop("Correction retained-site coverage differs from master.", call. = FALSE)
+  }
+  ci <- match(master$final_site_uid, retained$final_site_uid)
+  if (!identical(as.character(master$report_record_number), as.character(retained$report_record_number[ci]))) {
+    stop("Correction site/report keys disagree.", call. = FALSE)
+  }
+  mi <- match(measurements$report_record_number, master$report_record_number)
+  if (anyNA(mi) || any(master$final_feature_type[mi] != "groundwater_well_site") ||
+      any(master$final_status[mi] != "present")) {
+    stop("Measurement key is not a retained present ordinary well.", call. = FALSE)
+  }
+  lon <- suppressWarnings(as.numeric(master$final_longitude))
+  lat <- suppressWarnings(as.numeric(master$final_latitude))
+  if (any(!is.finite(lon) | !is.finite(lat) | abs(lon) > 180 | abs(lat) > 90)) {
+    stop("Invalid corrected Mojave coordinates.", call. = FALSE)
+  }
+  if (any(!master$final_status %in% c("present", "not_found", "unknown", "spring_present")) ||
+      any(!master$final_feature_type %in% c("groundwater_well_site", "spring_or_spring_box")) ||
+      any((master$final_status == "spring_present") != (master$final_feature_type == "spring_or_spring_box")) ||
+      any(!master$monitoring_performed %in% c("True", "False"))) {
+    stop("Invalid corrected status, feature type, or monitoring flag.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+pt_read_mojave_authority_048a <- function(directory) {
+  filenames <- c(
+    master = "brim_mojave_fieldcheck_corrected_master.csv",
+    measurements = "report_table_a2_confirmed_monitored_well_results.csv",
+    corrections = "brim_mojave_fieldcheck_corrections.csv"
+  )
+  paths <- file.path(directory, filenames)
+  if (!all(file.exists(paths))) {
+    stop("Missing corrected Mojave input(s): ", paste(filenames[!file.exists(paths)], collapse = ", "), call. = FALSE)
+  }
+  tables <- lapply(paths, function(path) {
+    readr::read_csv(path, col_types = readr::cols(.default = readr::col_character()),
+      na = character(), trim_ws = FALSE, name_repair = "check_unique",
+      locale = readr::locale(encoding = "UTF-8"), show_col_types = FALSE, progress = FALSE)
+  })
+  names(tables) <- names(filenames)
+  do.call(pt_validate_mojave_authority_048a, tables)
+  tables
+}
+
+pt_normalize_mojave_attributes_048a <- function(master, measurements, corrections) {
+  pt_validate_mojave_authority_048a(master, measurements, corrections)
+  # Preserve all supplied master fields. Joins add namespaced measurement and
+  # correction lineage; neither source names nor final blank names are replaced.
+  ci <- match(master$final_site_uid, corrections$final_site_uid)
+  mi <- match(master$report_record_number, measurements$report_record_number)
+  out <- master
+  for (nm in names(corrections)) out[[paste0("correction_", nm)]] <- corrections[[nm]][ci]
+  for (nm in names(measurements)) out[[paste0("measurement_", nm)]] <- measurements[[nm]][mi]
+  out$legacy_record_uid <- corrections$current_brim_record_identifier[ci]
+  out$measurement_available <- !is.na(mi)
+  status_labels <- c(present = "Well present", not_found = "Well not found",
+    unknown = "Unknown / not verified", spring_present = "Spring / spring box present")
+  out <- out |>
+    dplyr::mutate(
+      raw_source_file = "brim_mojave_fieldcheck_corrected_master.csv",
+      source_key = "mojave_2025_blm_field_check",
+      source_display = "Mojave limited field inventory (2025)",
+      source_full = "Mojave limited field inventory (2025)",
+      source_short = "2025 field check",
+      layer_name = "GW sites | 2025 Mojave limited field inventory",
+      record_uid = .data$final_site_uid,
+      source_record_id = .data$report_record_number,
+      well_name_raw = .data$table2_name_original,
+      well_name_display = pt_clean_chr_048a(.data$final_site_name),
+      longitude = as.numeric(.data$final_longitude), latitude = as.numeric(.data$final_latitude),
+      coord_status = "ok",
+      groundwater_basin = .data$spatial_bulletin118_name,
+      field_recon_results = .data$table2_field_notes,
+      well_present_key = .data$final_status,
+      well_present_display = unname(status_labels[.data$final_status]),
+      well_monitored_key = ifelse(.data$monitoring_performed == "True", "monitoring_reported", "not_reported"),
+      well_monitored_display = ifelse(.data$monitoring_performed == "True", "Yes", "No"),
+      depth_to_water_raw = .data$measurement_depth_to_water_ft,
+      depth_to_water_display = pt_fmt_ft_048a(.data$depth_to_water_raw, digits = 2),
+      depth_to_water_sort_ft = pt_num_048a(.data$depth_to_water_raw),
+      water_level_recorded = .data$measurement_available & is.finite(.data$depth_to_water_sort_ft),
+      lab_sample_documented = .data$laboratory_sample_collected == "True",
+      total_depth_raw = .data$measurement_total_well_depth_ft,
+      total_depth_display = pt_fmt_ft_048a(.data$total_depth_raw, digits = 1),
+      well_completion_date = NA_character_, elevation_ft = NA_real_,
+      elevation_display = NA_character_, elevation_source = NA_character_,
+      hover_line1 = ifelse(is.na(.data$well_name_display), paste0("Site ", .data$report_record_number), .data$well_name_display),
+      hover_line2 = ifelse(is.na(.data$depth_to_water_display), NA_character_, paste0("Depth to water: ", .data$depth_to_water_display))
+    )
+  out$popup_html <- vapply(seq_len(nrow(out)), function(i) {
+    r <- out[i, , drop = FALSE]
+    paste0("<div class='pt2-popup-title'>", pt_html_escape_048a(r$hover_line1), "</div>",
+      pt_popup_rows_048a(c(
+        "Source", "Record #", "Field Maps #", "Feature type", "Field result",
+        "Monitoring reported", "Measurement table entry", "Measurement date",
+        "Depth to water", "Total depth", "Field-reported basin", "Spatial Bulletin 118 basin",
+        "Spatial Bulletin 118 ID", "Field reconnaissance notes", "Measurement notes",
+        "Lab sample documented", "Unresolved attributes", "Source authority",
+        "Latitude", "Longitude"
+      ), c(r$source_full, r$report_record_number, r$field_maps_number,
+        ifelse(r$final_feature_type == "spring_or_spring_box", "Spring / spring box", "Groundwater well site"),
+        r$well_present_display, r$well_monitored_display,
+        ifelse(r$measurement_available, "Dedicated monitoring table", NA_character_),
+        r$measurement_sample_date, r$depth_to_water_display, r$total_depth_display,
+        r$reported_basin, r$spatial_bulletin118_name, r$spatial_bulletin118_id,
+        r$field_recon_results, r$measurement_monitoring_basin_location_notes,
+        ifelse(r$lab_sample_documented, "Yes", "Not documented"),
+        ifelse(r$review_status == "HUMAN REVIEW", r$identity_notes, NA_character_), r$source_authority,
+        pt_fmt_coord_048a(r$latitude), pt_fmt_coord_048a(r$longitude)),
+        long_labels = c("Field reconnaissance notes", "Measurement notes", "Unresolved attributes", "Source authority")))
+  }, character(1))
+  out
+}
+
 # ==== 5. Locate and read inputs =============================================
 
 noc_csv <- pt_find_raw_csv_048a(
   patterns = c("^NOC_BLMdrilled.*\\.csv$", "BLMdrilled.*\\.csv$"),
-  label = "NOC BLM-drilled wells"
+  label = "BLM NOC well inventory"
 )
 
-mojave_csv <- pt_find_raw_csv_048a(
-  patterns = c("^albion_rev1.*\\.csv$", "mojave.*well.*\\.csv$", "field.*inventory.*\\.csv$"),
-  label = "2025 Mojave-BLM well field inventory"
-)
+mojave_authority <- pt_read_mojave_authority_048a(file.path(DIR$config, "blm_well_inventory"))
+mojave_raw_original <- mojave_authority$master
+mojave_raw <- mojave_raw_original
 
 field_guide_csv <- pt_find_raw_csv_048a(
   patterns = c("^NOC_Albion_fields.*\\.csv$", "fields.*albion.*\\.csv$", "popup.*fields.*\\.csv$"),
   label = "NOC/2025 Mojave popup field guide"
 )
 
-pt_msg_048a("Reading NOC BLM-drilled wells: ", noc_csv)
+pt_msg_048a("Reading BLM NOC well inventory: ", noc_csv)
 noc_raw_original <- pt_read_csv_latin1_048a(noc_csv)
 noc_raw <- noc_raw_original |>
   janitor::clean_names()
-
-pt_msg_048a("Reading 2025 Mojave-BLM field inventory: ", mojave_csv)
-mojave_raw_original <- pt_read_csv_latin1_048a(mojave_csv)
-mojave_raw <- mojave_raw_original |>
-  janitor::clean_names() |>
-  pt_standardize_mojave_cols_048a()
 
 pt_msg_048a("Reading popup field guide: ", field_guide_csv)
 field_guide_raw <- pt_read_csv_latin1_048a(field_guide_csv)
 
 
-# ==== 6. Normalize NOC BLM-drilled wells ====================================
+# ==== 6. Normalize BLM NOC well inventory ====================================
 
-required_noc_cols <- c("objectid", "well_name", "longitude", "latitude")
-missing_noc_cols <- setdiff(required_noc_cols, names(noc_raw))
-if (length(missing_noc_cols) > 0) {
-  stop(
-    "NOC BLM-drilled wells CSV is missing expected cleaned column(s): ",
-    paste(missing_noc_cols, collapse = ", "),
-    ". Available cleaned columns: ", paste(names(noc_raw), collapse = ", "),
-    call. = FALSE
-  )
-}
-
-noc_attr_all <- noc_raw |>
-  dplyr::mutate(
-    raw_source_file = basename(noc_csv),
-    source_key = "noc_blm_drilled",
-    source_display = "NOC BLM-drilled wells",
-    source_short = "NOC",
-    layer_name = "BLM-drilled wells | NOC",
-    record_uid = paste0("noc_", dplyr::row_number()),
-    source_record_id = pt_first_nonblank_048a(.data$objectid, .data$global_id, .data$well_uuid),
-    # Preserve the raw NOC Well ID for the lower QA line, but do not use it
-    # as the public-facing title/hover fallback.  Many records have Well ID = 0,
-    # which is too GIS-y and too ambiguous for users.
-    well_id_raw = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_id")),
-    well_id = ifelse(.data$well_id_raw %in% c("0", "0.0", "0.00"), NA_character_, .data$well_id_raw),
-    well_name_raw = pt_clean_chr_048a(.data$well_name),
-    facility_name = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "facility_name")),
-    well_name_display = pt_first_nonblank_048a(
-      .data$well_name_raw,
-      .data$facility_name
-    ),
-    well_name_display = ifelse(is.na(.data$well_name_display), "Unnamed well", .data$well_name_display),
-    hover_line1 = .data$well_name_display,
-    longitude = pt_num_048a(.data$longitude),
-    latitude = pt_num_048a(.data$latitude),
-    coord_status = pt_coord_status_048a(.data$longitude, .data$latitude),
-    well_owner = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_owner")),
-    site_location_reliability = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "site_location_reliability")),
-    elevation_ft = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_at_well_feet")),
-    elevation_display = pt_fmt_ft_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_at_well_feet"), digits = 0),
-    elevation_source = pt_normalize_noc_elevation_source_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "elevation_source")),
-    well_completion_date = pt_fmt_date_only_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_completion_date")),
-    initial_depth_ft = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_depth")),
-    initial_depth_display = pt_fmt_ft_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_depth"), digits = 1),
-    screened_interval = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "screened_interval")),
-    depth_to_water_raw = pt_clean_noc_depth_to_water_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_static_water_level")),
-    depth_to_water_display = pt_fmt_ft_048a(.data$depth_to_water_raw, digits = 1),
-    hover_line2 = .data$well_completion_date,
-    initial_yield_gpm = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_yield_gpm")),
-    initial_yield_display = pt_fmt_gpm_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "initial_yield_gpm"), digits = 1),
-    casing_diameter_inches = pt_num_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "casing_diameter_inches")),
-    casing_diameter_display = ifelse(
-      is.na(.data$casing_diameter_inches),
-      NA_character_,
-      paste0(formatC(.data$casing_diameter_inches, format = "f", digits = 1), " in")
-    ),
-    well_casing_type = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_casing_type")),
-    use_of_well = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "use_of_well")),
-    primary_use_of_water = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "primary_use_of_water")),
-    current_historical_grazing_allotment = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "blm_grazing_allotment")),
-    producing_aquifer_description = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "producing_aquifer_description")),
-    driller_name_and_city = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "driller_name_and_city")),
-    well_comments = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "well_comments")),
-    well_present_key = "not_applicable",
-    well_present_display = NA_character_,
-    well_monitored_key = "unknown",
-    well_monitored_display = NA_character_,
-    depth_to_water_sort_ft = pt_num_048a(.data$depth_to_water_raw),
-    data_note = "Generally NOC-provided data; BRIM made limited display/QC edits.",
-    popup_html = mapply(
-      FUN = function(
-        well_name_display, source_display, data_note, well_owner, site_location_reliability,
-        elevation_display, elevation_source, well_completion_date, initial_depth_display,
-        screened_interval, depth_to_water_display, initial_yield_display,
-        casing_diameter_display, well_casing_type, use_of_well, primary_use_of_water,
-        current_historical_grazing_allotment, producing_aquifer_description,
-        driller_name_and_city, well_comments, latitude, longitude, source_record_id,
-        well_id_raw, well_name_raw
-      ) {
-        # IMPORTANT:
-        # Build popup HTML one record at a time.  Do not pass whole columns into
-        # pt_popup_rows_048a(); doing that creates one enormous all-record popup
-        # and then repeats it for every feature, which bloats the standalone HTML
-        # and makes popups unusably tall.
-        paste0(
-          "<div class='pt2-popup-title'>", pt_html_escape_048a(well_name_display), "</div>",
-          pt_popup_rows_048a(
-            labels = c(
-              "Source", "Data note", "Well owner", "Site location reliability", "Elevation", "Elevation source",
-              "Well completion date", "Initial depth", "Screened interval", "Depth to water",
-              "Initial yield", "Casing diameter", "Well casing type", "Use of well",
-              "Primary use of water", "Current/historical grazing allotment",
-              "Producing aquifer description", "Driller", "Well comments", "Latitude", "Longitude"
-            ),
-            values = c(
-              source_display, data_note, well_owner, site_location_reliability,
-              elevation_display, elevation_source, well_completion_date,
-              initial_depth_display, screened_interval, depth_to_water_display,
-              initial_yield_display, casing_diameter_display, well_casing_type,
-              use_of_well, primary_use_of_water,
-              current_historical_grazing_allotment,
-              producing_aquifer_description, driller_name_and_city,
-              well_comments, pt_fmt_coord_048a(latitude), pt_fmt_coord_048a(longitude)
-            ),
-            long_labels = c("Producing aquifer description", "Well comments")
-          ),
-          pt_popup_qa_line_048a(
-            "NOC QA IDs",
-            c(
-              paste0("GIS OBJECTID ", pt_qa_value_048a(source_record_id)),
-              paste0("Well ID ", pt_qa_value_048a(well_id_raw)),
-              paste0("Well name ", pt_qa_value_048a(well_name_raw))
-            )
-          )
-        )
-      },
-      .data$well_name_display, .data$source_display, .data$data_note,
-      .data$well_owner, .data$site_location_reliability, .data$elevation_display,
-      .data$elevation_source, .data$well_completion_date,
-      .data$initial_depth_display, .data$screened_interval,
-      .data$depth_to_water_display, .data$initial_yield_display,
-      .data$casing_diameter_display, .data$well_casing_type,
-      .data$use_of_well, .data$primary_use_of_water,
-      .data$current_historical_grazing_allotment,
-      .data$producing_aquifer_description, .data$driller_name_and_city,
-      .data$well_comments, .data$latitude, .data$longitude, .data$source_record_id,
-      .data$well_id_raw, .data$well_name_raw,
-      USE.NAMES = FALSE
-    )
-  )
+noc_attr_all <- pt_normalize_noc_attributes_048a(noc_raw, noc_csv)
 
 noc_coord_qa <- noc_attr_all |>
   sf::st_drop_geometry() |>
@@ -604,164 +710,15 @@ noc_sf <- noc_attr |>
   clean_sf_for_leaflet()
 
 
-# ==== 7. Normalize 2025 Mojave-BLM field inventory ==========================
+# ==== 7. Normalize 2025 Mojave limited field inventory ==========================
 
-required_mojave_cols <- c(
-  "record_number", "field_maps_number", "well_name", "well_name_gama_usgs",
-  "longitude", "latitude", "field_recon_results",
-  "well_present_1_yes_2_no_3_unknwn", "well_monitored_1yes_2no",
-  "depth_to_water", "total_depth"
-)
-missing_mojave_cols <- setdiff(required_mojave_cols, names(mojave_raw))
-if (length(missing_mojave_cols) > 0) {
-  stop(
-    "2025 Mojave-BLM inventory CSV is missing expected cleaned column(s): ",
-    paste(missing_mojave_cols, collapse = ", "),
-    ". Available cleaned columns: ", paste(names(mojave_raw), collapse = ", "),
-    call. = FALSE
-  )
-}
-
-mojave_attr_all <- mojave_raw |>
-  dplyr::mutate(
-    raw_source_file = basename(mojave_csv),
-    source_key = "mojave_2025_blm_field_check",
-    source_display = "2025 Mojave-BLM limited field check",
-    source_full = "2025 Mojave-BLM limited groundwater-well field investigation",
-    source_short = "2025 field check",
-    layer_name = "GW wells | 2025 Mojave-BLM limited field check",
-    record_uid = paste0("mojave2025_", dplyr::row_number()),
-    source_record_id = pt_first_nonblank_048a(.data$record_number, .data$field_maps_number),
-    record_number = pt_clean_chr_048a(.data$record_number),
-    field_maps_number = pt_clean_chr_048a(.data$field_maps_number),
-    well_name_raw = pt_clean_chr_048a(.data$well_name),
-    well_name_gama_usgs = pt_clean_chr_048a(.data$well_name_gama_usgs),
-    field_maps_label = ifelse(!is.na(.data$field_maps_number), paste0("Field Maps #", .data$field_maps_number), NA_character_),
-    record_number_label = ifelse(!is.na(.data$record_number), paste0("Record #", .data$record_number), NA_character_),
-    well_name_display = pt_first_nonblank_048a(
-      .data$well_name_raw,
-      .data$well_name_gama_usgs,
-      .data$field_maps_label,
-      .data$record_number_label
-    ),
-    groundwater_basin = pt_clean_chr_048a(pt_safe_col_048a(dplyr::pick(dplyr::everything()), "groundwater_basin")),
-    field_recon_results = pt_clean_chr_048a(.data$field_recon_results),
-    duplicate_flag = !is.na(.data$field_recon_results) &
-      stringr::str_detect(stringr::str_to_lower(.data$field_recon_results), "duplicat"),
-    longitude = pt_num_048a(.data$longitude),
-    latitude = pt_num_048a(.data$latitude),
-    coord_status = pt_coord_status_048a(.data$longitude, .data$latitude),
-    is_blank_row = is.na(.data$source_record_id) & is.na(.data$well_name_display) &
-      is.na(.data$longitude) & is.na(.data$latitude),
-    well_present_code = pt_clean_chr_048a(.data$well_present_1_yes_2_no_3_unknwn),
-    well_present_key = dplyr::case_when(
-      .data$well_present_code == "1" ~ "present",
-      .data$well_present_code == "2" ~ "not_found",
-      .data$well_present_code == "3" ~ "unknown",
-      TRUE ~ "unknown"
-    ),
-    well_present_display = dplyr::case_when(
-      .data$well_present_key == "present" ~ "Well present",
-      .data$well_present_key == "not_found" ~ "Well not found",
-      .data$well_present_key == "unknown" ~ "Unknown / not verified",
-      TRUE ~ NA_character_
-    ),
-    well_monitored_code = pt_clean_chr_048a(.data$well_monitored_1yes_2no),
-    well_monitored_key = dplyr::case_when(
-      .data$well_monitored_code == "1" ~ "water_level_data",
-      .data$well_monitored_code == "2" ~ "no_water_level_data",
-      TRUE ~ "unknown"
-    ),
-    well_monitored_display = dplyr::case_when(
-      .data$well_monitored_key == "water_level_data" ~ "Water-level data available",
-      .data$well_monitored_key == "no_water_level_data" ~ "No water-level data",
-      .data$well_monitored_key == "unknown" ~ "Unknown",
-      TRUE ~ NA_character_
-    ),
-    depth_to_water_raw = pt_clean_chr_048a(.data$depth_to_water),
-    depth_to_water_display = pt_fmt_ft_048a(.data$depth_to_water_raw, digits = 2),
-    depth_to_water_sort_ft = pt_num_048a(.data$depth_to_water_raw),
-    total_depth_raw = pt_clean_chr_048a(.data$total_depth),
-    total_depth_display = pt_fmt_ft_048a(.data$total_depth_raw, digits = 1),
-    # The 2025 Mojave-BLM field-check CSV does not currently provide an
-    # installation/completion date.  Keep an explicit schema-compatible blank
-    # so small well inventory cache records can share the same browser logic.
-    well_completion_date = NA_character_,
-    elevation_ft = NA_real_,
-    elevation_display = NA_character_,
-    elevation_source = NA_character_,
-    hover_line1 = .data$well_name_display,
-    hover_line2 = ifelse(
-      !is.na(.data$depth_to_water_display),
-      paste0("Depth to water: ", .data$depth_to_water_display),
-      NA_character_
-    ),
-    popup_html = mapply(
-      FUN = function(
-        well_name_display, source_full, well_name_gama_usgs, field_maps_number,
-        record_number, groundwater_basin, well_present_display,
-        well_monitored_display, depth_to_water_display, total_depth_display,
-        field_recon_results, longitude, latitude
-      ) {
-        # Keep this popup row-scoped for the same reason described above for NOC:
-        # every row gets only its own attributes, never the concatenated full table.
-        paste0(
-          "<div class='pt2-popup-title'>", pt_html_escape_048a(well_name_display), "</div>",
-          pt_popup_rows_048a(
-            labels = c(
-              "Source", "GAMA/USGS well name", "Field Maps #", "Record #",
-              "Groundwater basin", "Well present?", "Water-level data available?",
-              "Depth to water", "Total depth", "Field reconnaissance notes", "Latitude", "Longitude"
-            ),
-            values = c(
-              source_full, well_name_gama_usgs, field_maps_number,
-              record_number, groundwater_basin, well_present_display,
-              # If the popup has an actual depth-to-water value, that row carries
-              # the useful information; showing the separate "water-level data
-              # available" flag above it is redundant.  Keep the flag only for
-              # wells without a depth-to-water value, where "No water-level data"
-              # or "Unknown" is useful context.
-              ifelse(!is.na(depth_to_water_display) & nzchar(depth_to_water_display), NA_character_, well_monitored_display),
-              depth_to_water_display, total_depth_display, field_recon_results,
-              pt_fmt_coord_048a(latitude), pt_fmt_coord_048a(longitude)
-            ),
-            long_labels = c("Field reconnaissance notes")
-          )
-        )
-      },
-      .data$well_name_display, .data$source_full, .data$well_name_gama_usgs,
-      .data$field_maps_number, .data$record_number, .data$groundwater_basin,
-      .data$well_present_display, .data$well_monitored_display,
-      .data$depth_to_water_display, .data$total_depth_display,
-      .data$field_recon_results, .data$longitude, .data$latitude,
-      USE.NAMES = FALSE
-    )
-  )
-
-mojave_duplicate_exclusions <- mojave_attr_all |>
-  dplyr::filter(.data$duplicate_flag) |>
-  dplyr::select(
-    source_key, source_display, record_uid, source_record_id, well_name_display,
-    longitude, latitude, field_recon_results
-  )
-
+mojave_attr_all <- do.call(pt_normalize_mojave_attributes_048a, mojave_authority)
+mojave_attr <- mojave_attr_all
+mojave_duplicate_exclusions <- mojave_authority$corrections |>
+  dplyr::filter(.data$action == "REMOVE_DUPLICATE")
 mojave_coord_qa <- mojave_attr_all |>
-  dplyr::filter(!.data$is_blank_row) |>
-  dplyr::mutate(
-    coord_status = dplyr::case_when(
-      .data$duplicate_flag ~ "excluded duplicate flagged in Field Recon Results",
-      TRUE ~ .data$coord_status
-    )
-  ) |>
-  dplyr::select(
-    source_key, source_display, record_uid, source_record_id, well_name_display,
-    longitude, latitude, coord_status, field_recon_results
-  )
-
-mojave_attr <- mojave_attr_all |>
-  dplyr::filter(!.data$is_blank_row) |>
-  dplyr::filter(!.data$duplicate_flag) |>
-  dplyr::filter(.data$coord_status == "ok")
+  dplyr::select(source_key, source_display, record_uid, source_record_id,
+    well_name_display, longitude, latitude, coord_status, field_recon_results)
 
 mojave_sf <- mojave_attr |>
   sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, remove = FALSE) |>
@@ -781,20 +738,24 @@ common_cols <- c(
   "popup_html", "geometry"
 )
 
-# Keep only compact, map-ready fields in the RDS outputs.  The original CSVs
-# remain the source of truth and the QA tables still summarize raw fields, but
-# the Leaflet cache does not need every attachment/link/admin column.  This keeps
-# the self-contained HTML from carrying fields that are not shown in hover,
-# popup, filters, or labels.
+# Preserve the established NOC projection. Mojave retains its accepted source
+# and correction/measurement lineage in the processed product; the browser
+# helper projects only the compact display fields needed by the map.
 noc_out <- noc_sf |>
   dplyr::mutate(source_sort = 1L) |>
   dplyr::select(dplyr::all_of(common_cols), source_sort)
 
 mojave_out <- mojave_sf |>
   dplyr::mutate(source_sort = 2L) |>
-  dplyr::select(dplyr::all_of(common_cols), source_sort)
+  dplyr::select(dplyr::all_of(common_cols), source_sort, dplyr::everything())
 
-combined_out <- dplyr::bind_rows(noc_out, mojave_out) |>
+## Carry the two typed Albion observation fields through the shared inventory.
+## NOC rows receive missing union fields; the cache owner excludes them from NOC.
+## Full corrected lineage remains in the dedicated Mojave processed product.
+combined_out <- dplyr::bind_rows(
+  noc_out, dplyr::select(mojave_out, dplyr::all_of(names(noc_out)),
+    water_level_recorded, lab_sample_documented)
+) |>
   dplyr::arrange(.data$source_sort, .data$well_name_display, .data$record_uid)
 
 
@@ -808,7 +769,7 @@ source_summary <- dplyr::bind_rows(
     sf::st_drop_geometry() |>
     dplyr::summarise(
       source_key = "noc_blm_drilled",
-      source_display = "NOC BLM-drilled wells",
+      source_display = "BLM National Operations Center",
       raw_rows = dplyr::n(),
       blank_rows_dropped = 0L,
       duplicate_rows_excluded = 0L,
@@ -823,13 +784,15 @@ source_summary <- dplyr::bind_rows(
     sf::st_drop_geometry() |>
     dplyr::summarise(
       source_key = "mojave_2025_blm_field_check",
-      source_display = "2025 Mojave-BLM limited field check",
+      source_display = "Mojave limited field inventory (2025)",
       raw_rows = dplyr::n(),
-      blank_rows_dropped = sum(.data$is_blank_row),
-      duplicate_rows_excluded = sum(.data$duplicate_flag, na.rm = TRUE),
-      coordinate_rows_excluded = sum(!.data$is_blank_row & !.data$duplicate_flag & .data$coord_status != "ok"),
+      blank_rows_dropped = 0L,
+      # Current master is already deduplicated. The separate audit retains
+      # historical baseline REMOVE_DUPLICATE actions, not current-run removals.
+      duplicate_rows_excluded = 0L,
+      coordinate_rows_excluded = 0L,
       map_ready_rows = nrow(mojave_out),
-      named_rows = sum(!is.na(.data$well_name_display) & !.data$is_blank_row),
+      named_rows = sum(!is.na(.data$well_name_display)),
       depth_to_water_rows = sum(!is.na(.data$depth_to_water_display), na.rm = TRUE),
       elevation_rows = sum(!is.na(.data$elevation_ft), na.rm = TRUE),
       .groups = "drop"
@@ -852,7 +815,7 @@ status_counts <- combined_out |>
 field_summary <- dplyr::bind_rows(
   tibble::tibble(
     source_key = "noc_blm_drilled",
-    source_display = "NOC BLM-drilled wells",
+    source_display = "BLM National Operations Center",
     field_name = names(noc_raw_original),
     cleaned_field_name = names(noc_raw),
     nonmissing_rows = vapply(noc_raw, function(x) sum(!is.na(pt_clean_chr_048a(x))), integer(1)),
@@ -860,7 +823,7 @@ field_summary <- dplyr::bind_rows(
   ),
   tibble::tibble(
     source_key = "mojave_2025_blm_field_check",
-    source_display = "2025 Mojave-BLM limited field check",
+    source_display = "Mojave limited field inventory (2025)",
     field_name = names(mojave_raw_original),
     cleaned_field_name = names(mojave_raw),
     nonmissing_rows = vapply(mojave_raw, function(x) sum(!is.na(pt_clean_chr_048a(x))), integer(1)),
@@ -885,7 +848,7 @@ if (WRITE_RDS) {
   saveRDS(mojave_out, OUT_MOJAVE_RDS)
   saveRDS(combined_out, OUT_COMBINED_RDS)
   pt_msg_048a("Wrote NOC map-ready RDS: ", OUT_NOC_RDS)
-  pt_msg_048a("Wrote 2025 Mojave-BLM map-ready RDS: ", OUT_MOJAVE_RDS)
+  pt_msg_048a("Wrote 2025 Mojave limited field inventory map-ready RDS: ", OUT_MOJAVE_RDS)
   pt_msg_048a("Wrote combined BLM GW well inventory RDS: ", OUT_COMBINED_RDS)
 }
 
@@ -900,6 +863,5 @@ if (WRITE_QA) {
 
 pt_msg_048a("Done: BLM groundwater well inventory source normalization complete.")
 pt_msg_048a("  NOC map-ready rows: ", nrow(noc_out), " / raw rows: ", nrow(noc_attr_all))
-pt_msg_048a("  2025 Mojave-BLM map-ready rows: ", nrow(mojave_out), " / raw rows: ", nrow(mojave_attr_all))
+pt_msg_048a("  2025 Mojave limited field inventory map-ready rows: ", nrow(mojave_out), " / raw rows: ", nrow(mojave_attr_all))
 pt_msg_048a("  Combined map-ready rows: ", nrow(combined_out))
-
