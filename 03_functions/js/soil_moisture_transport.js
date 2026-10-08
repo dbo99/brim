@@ -251,8 +251,57 @@
   // read(descriptor, signal) must return JSON only after exact wire byte/hash
   // verification. The controller supplies its existing bounded transport.
   class SnotelStaticReader {
-    constructor(read, cache = new BundleCache()) { this.read = read; this.cache = cache; this.context = null; }
+    constructor(read, cache = new BundleCache(), mode = 'compact') {
+      need(['compact','canonical'].includes(mode), 'Invalid SNOTEL reader mode');
+      this.read = read; this.cache = cache; this.mode = mode; this.context = null;
+    }
     async load(signal) {
+      const context = this.mode === 'canonical' ? await this.loadCanonical(signal) : await this.loadCompact(signal);
+      const {stations} = context, expected = context.mode === 'canonical' ? context.manifest : context.sample;
+      const seen = new Set(); let count = 0;
+      for (const st of stations.stations) {
+        need(/^\d+:CA:SNTL$/.test(st.stationTriplet) && !seen.has(st.stationTriplet) &&
+          typeof st.name === 'string' && Array.isArray(st.sensors), 'Invalid SNOTEL catalog station');
+        seen.add(st.stationTriplet); const sensors = new Set();
+        for (const s of st.sensors) {
+          need(s.sensor_identity === `${st.stationTriplet}|SMS:${s.signed_depth}:${s.ordinal}` &&
+            Number.isInteger(s.signed_depth) && s.signed_depth < 0 && Number.isInteger(s.ordinal) && s.ordinal > 0 &&
+            s.unit_native === 'pct' && s.depth_unit_native === 'in' && !sensors.has(s.sensor_identity),
+            'Invalid SNOTEL catalog sensor');
+          sensors.add(s.sensor_identity); count++; this.included(context,s.history);
+        }
+        this.included(context,st.native_metadata_provenance);
+      }
+      need(count === stations.sensor_count && count === expected.sensor_count && count <= 98,'SNOTEL catalog counts');
+      signal?.throwIfAborted(); this.context = context;
+      return context;
+    }
+    async loadCanonical(signal) {
+      const manifest = await this.read({path:'MANIFEST.json',bytes:19511,sha256:snotelStatic.manifest},signal);
+      need(manifest.candidate_id === snotelStatic.id && manifest.candidate_status === 'LOCAL_REVIEW_ONLY' &&
+        manifest.source_contract === snotelStatic.contract && manifest.source_adapter_version === snotelStatic.adapter &&
+        manifest.station_count === 32 && manifest.sensor_count === 98 &&
+        Array.isArray(manifest.files) && manifest.files.length === 134, 'SNOTEL canonical manifest mismatch');
+      const files = new Map();
+      for (const d of manifest.files) { staticDescriptor(d); need(!files.has(d.path),'Duplicate static path'); files.set(d.path,d); }
+      const get = async path => { need(files.has(path),'Static file not in pinned manifest'); return this.read(files.get(path),signal); };
+      const schema = await get('SCHEMA.json'), policy = await get('DISPLAY_POLICY.json'), stations = await get('STATIONS.json');
+      need(manifest.schema_sha256 === files.get('SCHEMA.json').sha256 &&
+        manifest.display_policy_sha256 === files.get('DISPLAY_POLICY.json').sha256 &&
+        schema.candidate_id === snotelStatic.id && schema.candidate_status === 'LOCAL_REVIEW_ONLY' &&
+        schema.production_contract === false && schema.publication === false && schema.deployment === false &&
+        JSON.stringify(schema.history_columns) === JSON.stringify(snotelStatic.columns) &&
+        JSON.stringify(schema.display_status_enum) === JSON.stringify(['PLOT_NUMERIC','DISPLAY_GAP','UNRESOLVED_HOLD']) &&
+        policy.candidate_id === snotelStatic.id && policy.status === 'LOCAL_REVIEW_ONLY' &&
+        policy.basis_sha256 === manifest.accepted_reconciliation_policy_sha256 &&
+        ['QA_independent_filter','forward_fill','interpolation','magnitude_filter','original_qc_filter'].every(k => policy[k] === false),
+        'SNOTEL canonical schema/policy mismatch');
+      need(stations.candidate_id === snotelStatic.id && stations.station_count === 32 &&
+        Array.isArray(stations.stations) && stations.stations.length === 32 && stations.sensor_count === 98,
+        'SNOTEL canonical catalog mismatch');
+      return {mode:'canonical',files,manifest,schema,policy,stations};
+    }
+    async loadCompact(signal) {
       const pkg = await this.read(snotelStatic.package,signal);
       need(pkg.candidate_id === snotelStatic.id && Array.isArray(pkg.files) && pkg.files.length === 23,
         'Invalid SNOTEL compact package');
@@ -275,28 +324,11 @@
         stations.candidate_id === snotelStatic.id && resolution.candidate_id === snotelStatic.id &&
         Array.isArray(stations.stations) && stations.stations.length === sample.station_count &&
         stations.stations.length <= 32, 'SNOTEL sample catalog mismatch');
-      const context = {pkg,files,manifest,schema,policy,sample,stations,resolution};
-      const seen = new Set(); let count = 0;
-      for (const st of stations.stations) {
-        need(/^\d+:CA:SNTL$/.test(st.stationTriplet) && !seen.has(st.stationTriplet) &&
-          typeof st.name === 'string' && Array.isArray(st.sensors), 'Invalid SNOTEL catalog station');
-        seen.add(st.stationTriplet); const sensors = new Set();
-        for (const s of st.sensors) {
-          need(s.sensor_identity === `${st.stationTriplet}|SMS:${s.signed_depth}:${s.ordinal}` &&
-            Number.isInteger(s.signed_depth) && s.signed_depth < 0 && Number.isInteger(s.ordinal) && s.ordinal > 0 &&
-            s.unit_native === 'pct' && s.depth_unit_native === 'in' && !sensors.has(s.sensor_identity),
-            'Invalid SNOTEL catalog sensor');
-          sensors.add(s.sensor_identity); count++; this.included(context,s.history);
-        }
-        this.included(context,st.native_metadata_provenance);
-      }
-      need(count === stations.sensor_count && count === sample.sensor_count && count <= 98,'SNOTEL catalog counts');
-      signal?.throwIfAborted(); this.context = context;
-      return context;
+      return {mode:'compact',pkg,files,manifest,schema,policy,sample,stations,resolution};
     }
     included(context, descriptor) {
       staticDescriptor(descriptor);
-      const d = context.files.get('package/sample/' + descriptor.path);
+      const d = context.files.get((context.mode === 'canonical' ? '' : 'package/sample/') + descriptor.path);
       const original = context.manifest.files.find(f => f.path === descriptor.path);
       need(d && original && d.bytes === descriptor.bytes && d.sha256 === descriptor.sha256 &&
         original.bytes === d.bytes && original.sha256 === d.sha256, 'Unbound SNOTEL sample member');
@@ -316,17 +348,26 @@
       need(sensor,'Unknown exact SNOTEL sensor');
       const body = await this.cached(this.included(c,sensor.history),signal);
       const decoded = decodeSnotelStatic(body,sensorIdentity);
+      if (c.mode === 'canonical') need(this.included(c,body.provenance) ===
+        this.included(c,st.native_metadata_provenance), 'SNOTEL station provenance descriptor mismatch');
       const provenance = await this.cached(this.included(c,body.provenance),signal);
       need(provenance.candidate_id === snotelStatic.id && provenance.station_triplet === stationTriplet,
         'SNOTEL provenance identity mismatch');
       for (const r of decoded.records) for (const [slot,index] of r.source_query_refs)
         need(provenance.archives[body.archive_ids[slot]]?.query_ledger?.[index], 'Missing SNOTEL query reference');
+      if (c.mode === 'canonical') for (const r of decoded.records) for (const [slot,index] of r.source_observation_refs) {
+        const archive = provenance.archives[body.archive_ids[slot]];
+        need(Number.isInteger(archive?.observations_count) && index < archive.observations_count,
+          'Missing SNOTEL observation reference');
+      }
       signal?.throwIfAborted();
       return {...decoded, context:{...c, provenance}};
     }
     async evidence(history, record, signal) {
       need(history.records.includes(record) && history.context &&
         history.context.manifest === this.context?.manifest, 'Unowned SNOTEL record');
+      need(history.context.mode !== 'canonical',
+        'SNOTEL original observation recovery unavailable: canonical candidate retains pointers and query ledgers, not source archive bodies');
       const c = history.context, observations = [];
       for (const [slot,index] of record.source_observation_refs) {
         const archive = history.raw.archive_ids[slot], link = c.resolution.archives[archive]?.observations;

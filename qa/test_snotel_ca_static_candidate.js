@@ -5,7 +5,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const T=require('../03_functions/js/soil_moisture_transport.js'),C=require('../03_functions/js/soil_moisture_charts.js');
 const {environment,until}=require('./test_soil_popup_presentation.js');
 const root=path.resolve(__dirname,'..'),pkgRoot=path.resolve(process.argv[2]||''),saved=path.resolve(process.argv[3]||'');
-assert(process.argv[2]&&process.argv[3],'Usage: node qa/test_snotel_ca_static_candidate.js <verified-package> <saved-SM1-fixture>');
+assert(process.argv[2]&&process.argv[3],'Usage: node qa/test_snotel_ca_static_candidate.js <verified-package> <saved-SM1-fixture> [canonical-root]');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex'),json=p=>JSON.parse(fs.readFileSync(p));
 const checks=[],cases=[];let packageBytes=0;
 function pinned(d,parse=true){const b=fs.readFileSync(path.join(pkgRoot,d.path));assert.equal(b.length,d.bytes,d.path);assert.equal(sha(b),d.sha256,d.path);return parse?JSON.parse(b):b;}
@@ -173,6 +173,173 @@ async function main(){
  const c=environment(saved);c.run(source);const ca=c.run('createSoilMoistureController()');ca.register('snotel','pilot','/snotel.json');
  assert.throws(()=>ca.registerSnotelStatic('duplicate','http://127.0.0.1/package/PACKAGE_MANIFEST.json'),/already registered/);ca.reset();c.map.emit('unload',{});
  checks.push('late completion cannot revive cleared/closed/reset/reselected popup or cache; hash/byte corruption, redirects, hosted URL and duplicate Product registration guarded');
- console.log(JSON.stringify({result:'PASS',scope:'offline source/component only',package_files:allowed.size,package_bytes:packageBytes,blue_lakes:counts,real_fixture_cases_total:cases.length,real_fixture_cases_pass:cases.length,real_fixture_cases_fail:0,cases,checks,source_observations_resolved:resolved,builds:0,browsers:0,provider_requests:0},null,2));
+ const canonical=process.argv[4]?await canonicalChecks(path.resolve(process.argv[4])):null;
+ console.log(JSON.stringify({result:'PASS',scope:'offline source/component only',package_files:allowed.size,package_bytes:packageBytes,blue_lakes:counts,real_fixture_cases_total:cases.length,real_fixture_cases_pass:cases.length,real_fixture_cases_fail:0,cases,checks,source_observations_resolved:resolved,canonical,builds:0,browsers:0,provider_requests:0},null,2));
+}
+
+async function canonicalChecks(canonicalRoot){
+ const rootDescriptor={path:'MANIFEST.json',bytes:19511,sha256:'653d674b2bd1f008ddb4ff66f741962607cd9bd1194669d5f4c573026893df03'};
+ const verified=new Map(),readPaths=[];
+ function disk(d){
+  T.staticDescriptor(d);const bytes=fs.readFileSync(path.join(canonicalRoot,d.path));
+  assert.equal(bytes.length,d.bytes,d.path);assert.equal(sha(bytes),d.sha256,d.path);
+  verified.set(d.path,d);return JSON.parse(bytes);
+ }
+ const manifest=disk(rootDescriptor),descriptors=new Map(manifest.files.map(d=>[d.path,d]));
+ descriptors.set(rootDescriptor.path,rootDescriptor);
+ const read=async(d,signal)=>{signal?.throwIfAborted();readPaths.push(d.path);return disk(d);};
+ const full=new T.SnotelStaticReader(read,new T.BundleCache(),'canonical');
+ const context=await full.load();assert.equal(context.files.size,134);
+ assert.deepEqual(readPaths,['MANIFEST.json','SCHEMA.json','DISPLAY_POLICY.json','STATIONS.json']);
+ const identities=context.stations.stations.flatMap(s=>s.sensors.map(x=>x.sensor_identity));
+ assert.equal(context.stations.stations.length,32);assert.equal(identities.length,98);assert.equal(new Set(identities).size,98);
+ assert.equal(Math.max(...manifest.files.map(d=>d.bytes)),1676087);
+ assert.equal(Math.max(...context.stations.stations.flatMap(s=>s.sensors.map(x=>x.counts.boundaries))),8799);
+ assert.deepEqual(T.limits,{index:262144,bundle:6000000,expanded_scan:12000000,cache_compact_bytes:12000000,cache_entries:8,table_cells:1000000,table_rows:50000,table_columns:64});
+ const history=await full.history('463:CA:SNTL','463:CA:SNTL|SMS:-8:1');
+ assert.equal(history.records.length,8799);assert.equal(history.records.length*history.raw.columns.length,105588);
+ assert.deepEqual(readPaths.slice(4),['history/463_CA_SNTL_SMS_-8_1.json','provenance/463_CA_SNTL.json']);
+ assert.equal(C.snotelStatic(history).history.length,8799);
+ for(const r of history.records){
+  for(const [slot,index] of r.source_query_refs)assert(history.context.provenance.archives[history.raw.archive_ids[slot]].query_ledger[index]);
+  assert.equal(r.source_timestamp_utc,new Date(Date.parse(r.provider_date)+32*3600000).toISOString().replace('.000Z','Z'));
+ }
+ const n=readPaths.length;await full.history('463:CA:SNTL','463:CA:SNTL|SMS:-8:1');assert.equal(readPaths.length,n);
+ await assert.rejects(full.history('463:CA:SNTL','463:CA:SNTL|SMS:-8:2'),/Unknown exact/);assert.equal(readPaths.length,n);
+ await assert.rejects(full.evidence(history,history.records[0]),/original observation recovery unavailable/);assert.equal(readPaths.length,n);
+ const canonicalFixture=disk(descriptors.get('provenance/REVIEW_FIXTURE.json'));
+ assert.deepEqual(canonicalFixture.cases,fixture.cases);
+ // The same frozen real producer cases cover V/E/K/N, zero, QC-S, gaps, hold,
+ // revisions and exact raw pointers; no second science predicate is introduced.
+ for(const test of canonicalFixture.cases){
+  const admitted=T.admitSnotelStaticRecord(copy(test.history_point),test.archive_ids),row=C.snotelStatic({contract:T.snotelStatic.id,records:[admitted]}).history[0];
+  assert.deepEqual(row.raw,test.history_point);assert.equal(row.v,test.history_point.display_value);
+  assert.equal(row.ok,test.history_point.display_status==='PLOT_NUMERIC');
+ }
+ const negatives=[];
+ async function malformed(label,file,mutate){
+  const reader=new T.SnotelStaticReader(async(d,signal)=>{signal?.throwIfAborted();const b=disk(d);if(d.path===file)mutate(b);return b;},new T.BundleCache(),'canonical');
+  await assert.rejects(reader.load());assert.equal(reader.context,null);negatives.push(label);
+ }
+ // Deliberately synthetic parsed-object probes isolate structural validation;
+ // actual wire hash/byte corruption is tested through the controller below.
+ for(const [label,file,mutate] of [
+  ['candidate identity','MANIFEST.json',b=>b.candidate_id='other'],
+  ['contract','MANIFEST.json',b=>b.source_contract='other'],
+  ['adapter','MANIFEST.json',b=>b.source_adapter_version='other'],
+  ['not local','MANIFEST.json',b=>b.candidate_status='LIVE'],
+  ['descriptor count','MANIFEST.json',b=>b.files.pop()],
+  ['duplicate path','MANIFEST.json',b=>b.files[1]=b.files[0]],
+  ['unsafe traversal','MANIFEST.json',b=>b.files[0].path='../x.json'],
+  ['absolute member','MANIFEST.json',b=>b.files[0].path='/x.json'],
+  ['encoded member','MANIFEST.json',b=>b.files[0].path='x%2fy.json'],
+  ['invalid bytes','MANIFEST.json',b=>b.files[0].bytes=6000001],
+  ['invalid sha','MANIFEST.json',b=>b.files[0].sha256='bad'],
+  ['missing schema descriptor','MANIFEST.json',b=>b.files.find(x=>x.path==='SCHEMA.json').path='absent.json'],
+  ['schema hash mismatch','MANIFEST.json',b=>b.schema_sha256='a'.repeat(64)],
+  ['policy hash mismatch','MANIFEST.json',b=>b.display_policy_sha256='a'.repeat(64)],
+  ['schema column','SCHEMA.json',b=>b.history_columns.reverse()],
+  ['schema identity','SCHEMA.json',b=>b.candidate_id='other'],
+  ['schema enum','SCHEMA.json',b=>b.display_status_enum.pop()],
+  ['policy identity','DISPLAY_POLICY.json',b=>b.candidate_id='other'],
+  ['policy science','DISPLAY_POLICY.json',b=>b.interpolation=true],
+  ['catalog identity','STATIONS.json',b=>b.candidate_id='other'],
+  ['station count','STATIONS.json',b=>b.stations.pop()],
+  ['duplicate station','STATIONS.json',b=>b.stations[1]=b.stations[0]],
+  ['duplicate sensor','STATIONS.json',b=>b.stations[0].sensors[1]=b.stations[0].sensors[0]],
+  ['sensor identity','STATIONS.json',b=>b.stations[0].sensors[0].ordinal=2],
+  ['history missing','STATIONS.json',b=>b.stations[0].sensors[0].history.path='history/absent.json'],
+  ['history hash','STATIONS.json',b=>b.stations[0].sensors[0].history.sha256='a'.repeat(64)],
+  ['history bytes','STATIONS.json',b=>b.stations[0].sensors[0].history.bytes++],
+  ['provenance missing','STATIONS.json',b=>b.stations[0].native_metadata_provenance.path='provenance/absent.json']
+ ])await malformed(label,file,mutate);
+ const source=fs.readFileSync(path.join(root,'03_functions/js/soil_moisture_controller.js'),'utf8');
+ function component(hook){
+  const env=environment(saved),requests=[];
+  env.context.fetch=async(url,options)=>{
+   const u=new URL(url);assert.equal(u.origin,'http://127.0.0.1');assert(u.pathname.startsWith('/canonical/'));
+   const rel=u.pathname.slice('/canonical/'.length),d=descriptors.get(rel);assert(d);disk(d);
+   assert.equal(options.redirect,'error');requests.push(rel);
+   const replacement=hook?await hook(rel,options):undefined;
+   return replacement instanceof Response?replacement:new Response(replacement??fs.readFileSync(path.join(canonicalRoot,rel)));
+  };
+  env.run(source);
+  const layer=env.run("makeSoilMoistureLayer('snotel','Soil moisture | SNOTEL | pilot','http://127.0.0.1/canonical/MANIFEST.json','canonical')");
+  return{env,layer,api:env.window.BRIM.soilMoisture,requests};
+ }
+ const a=component();a.layer.addTo(a.env.map);await until(()=>a.api.sources.snotel.index);
+ assert.deepEqual(a.requests,['MANIFEST.json','SCHEMA.json','DISPLAY_POLICY.json','STATIONS.json']);
+ assert.equal(a.api.stats().results.length,32);assert.equal(a.api.stats().markers,32); // Offline model, not rendered-marker acceptance.
+ for(const st of a.api.sources.snotel.index.stations){assert.equal(st.primary_sensor,null);for(const s of st.sensors){assert.equal(s.observation,null);assert.equal(s.capabilities.latest_vwc,false);}}
+ a.api.edit({min:0},true);assert.equal(a.api.stats().results.length,0);a.api.edit({min:null},true);
+ a.api.edit({query:'463:CA:SNTL'},true);assert.deepEqual([...a.api.stats().results],['snotel:463:CA:SNTL']);
+ await a.api.select('snotel:463:CA:SNTL');assert.equal(a.requests.length,4);
+ let box=a.env.map.popup.content;box.querySelector('[data-sensor-choice="SMS:-8:1"]').click();await until(()=>box.querySelector('[data-static-chart] svg'));
+ assert.deepEqual(a.requests.slice(4),['history/463_CA_SNTL_SMS_-8_1.json','provenance/463_CA_SNTL.json']);
+ box.querySelector('[data-sensor-choice="SMS:-8:1"]').click();await until(()=>box.querySelector('svg'));assert.equal(a.requests.length,6);
+ assert.throws(()=>a.api.register('snotel','pilot','/snotel.json'),/already registered/);
+ assert.throws(()=>a.api.registerSnotelStatic('compact','http://127.0.0.1/package/PACKAGE_MANIFEST.json'),/already registered/);
+ // Synthetic independent ordinal and null-coordinate catalog specimens. Only
+ // the in-memory projection changes; frozen bytes and hash expectations do not.
+ const st=a.api.sources.snotel.index.stations.find(s=>s.id==='463:CA:SNTL'),extra=copy(st.sensors.find(s=>s.id==='SMS:-8:1'));
+ extra.id='SMS:-8:2';extra.raw.ordinal=2;extra.raw.sensor_identity='463:CA:SNTL|SMS:-8:2';st.sensors.push(extra);a.api.redraw();
+ const exactChoices=[];a.api.sources.snotel.staticReader.history=async(station,sensor)=>{exactChoices.push([station,sensor]);throw Error('Synthetic exact-choice probe only');};
+ await a.api.select(st.key);box=a.env.map.popup.content;
+ for(const id of ['SMS:-8:1','SMS:-8:2']){box.querySelector(`[data-sensor-choice="${id}"]`).click();await until(()=>box.textContent.includes('Synthetic exact-choice'));}
+ assert.deepEqual(exactChoices,[['463:CA:SNTL','463:CA:SNTL|SMS:-8:1'],['463:CA:SNTL','463:CA:SNTL|SMS:-8:2']]);assert.equal(a.requests.length,6);
+ st.coordinates=null;a.api.redraw();assert.equal(a.api.stats().results.length,1);assert.equal(a.api.stats().markers,0);
+ await a.api.select(st.key);assert(a.env.document.querySelector('[data-message]').textContent.includes('public coordinates unavailable'));assert.equal(a.requests.length,6);
+ a.layer.forceRemove(a.env.map);a.layer.forceRemove(a.env.map);a.api.reset();a.env.map.emit('unload',{});
+ for(const mode of ['pilot','compact']){
+  const e=environment(saved);e.run(source);const api=e.run('createSoilMoistureController()');
+  if(mode==='pilot')api.register('snotel','pilot','/snotel.json');else api.registerSnotelStatic('compact','http://127.0.0.1/package/PACKAGE_MANIFEST.json');
+  assert.throws(()=>api.registerSnotelStatic('full','http://127.0.0.1/canonical/MANIFEST.json','canonical'),/already registered/);api.reset();
+ }
+ const lifecycle=[];
+ for(const close of ['off','popupclose','reset','new-selection','unload']){
+  let release,held=false,aborted=false;
+  const b=component(async(rel,options)=>{if(rel==='history/463_CA_SNTL_SMS_-8_1.json'){held=true;options.signal.addEventListener('abort',()=>aborted=true);await new Promise(r=>release=r);}});
+  b.layer.addTo(b.env.map);await until(()=>b.api.sources.snotel.index);await b.api.select('snotel:463:CA:SNTL');
+  const old=b.env.map.popup.content;old.querySelector('[data-sensor-choice="SMS:-8:1"]').click();await until(()=>held);
+  if(close==='off')b.layer.forceRemove(b.env.map);else if(close==='popupclose')b.env.map.closePopup();else if(close==='reset')b.api.reset();else if(close==='unload')b.env.map.emit('unload',{});
+  else{old.querySelector('[data-sensor-choice="SMS:-2:1"]').click();await until(()=>old.querySelector('svg'));}
+  release();await new Promise(r=>setTimeout(r,20));assert(aborted);
+  if(close!=='new-selection'){assert(!old.querySelector('svg'));assert.equal(b.api.stats().historyCache,0);}else assert.equal(old.querySelector('[data-sensor-choice="SMS:-2:1"]').getAttribute('aria-pressed'),'true');
+  b.api.reset();b.layer.addTo(b.env.map);await until(()=>b.api.sources.snotel.status.startsWith('32 stations'));b.api.reset();b.api.reset();b.env.map.emit('unload',{});assert.equal(b.api.stats().card,false);assert.equal(b.api.stats().markers,0);lifecycle.push(close);
+ }
+ for(const failure of ['hash','size','missing','redirect']){
+  const b=component(async rel=>{if(rel==='history/463_CA_SNTL_SMS_-8_1.json'){
+   if(failure==='missing')return new Response('',{status:404});if(failure==='redirect')throw new TypeError('Redirect refused');
+   const bytes=fs.readFileSync(path.join(canonicalRoot,rel));if(failure==='hash'){bytes[10]^=1;return bytes;}return bytes.subarray(0,bytes.length-1);
+  }});
+  b.layer.addTo(b.env.map);await until(()=>b.api.sources.snotel.index);await b.api.select('snotel:463:CA:SNTL');const box=b.env.map.popup.content;
+  box.querySelector('[data-sensor-choice="SMS:-8:1"]').click();await until(()=>box.textContent.includes('Selected history unavailable'));
+  assert.equal(b.requests.length,5);assert.equal(b.api.stats().historyCache,0);b.api.reset();b.env.map.emit('unload',{});negatives.push('selected wire '+failure);
+ }
+ const e=environment(saved);e.run(source);const api=e.run('createSoilMoistureController()');
+ for(const url of ['https://example.invalid/MANIFEST.json','http://127.1/MANIFEST.json','http://user@localhost/MANIFEST.json','http://localhost/a/../MANIFEST.json','http://localhost/a%2fb/MANIFEST.json','http://localhost/MANIFEST.json?q=1','http://localhost/MANIFEST.json#x','http://localhost/PACKAGE_MANIFEST.json','http://localhost:99999/MANIFEST.json'])assert.throws(()=>api.registerSnotelStatic('bad',url,'canonical'));
+ for(const host of ['localhost','127.0.0.1','[::1]']){const x=environment(saved);x.run(source);const c=x.run('createSoilMoistureController()');c.registerSnotelStatic('local',`http://${host}:8080/canonical/MANIFEST.json`,'canonical');c.reset();}
+ let actualRRegistration='NOT_SUPPLIED';
+ if(process.env.BRIM_SNOTEL_WRAPPER_RESULT){
+  const captured=json(process.env.BRIM_SNOTEL_WRAPPER_RESULT);assert.equal(captured.result,'PASS');
+  for(const mode of ['full','pilot']){
+   const hook=captured[mode],x=environment(saved),rows=[];
+   assert(hook.code.includes(source.trim()),'R wrapper embeds the current actual controller');
+   x.run(source);const start=hook.code.indexOf('  if (soilMoistureSnotelStaticManifestUrl &&');
+   const end=hook.code.indexOf('  if (includeSnowPillowLatest &&',start);assert(start>=0&&end>start);
+   Object.assign(x.context,{soilMoistureShared:hook.data.soilMoistureShared,
+    soilMoistureSnotelPilot:hook.data.soilMoistureSnotelPilot,
+    soilMoistureIndexes:hook.data.soilMoistureIndexes,
+    soilMoistureSnotelStaticManifestUrl:hook.data.soilMoistureSnotelStaticManifestUrl,
+    addOpsLayer:row=>rows.push(row)});
+   x.run(hook.code.slice(start,end));assert.equal(rows.length,1);
+   assert.equal(rows[0].name,'Soil moisture | SNOTEL | pilot');
+   const api=x.window.BRIM.soilMoisture;
+   assert.equal(api.sources.snotel.staticReader?.mode??null,mode==='full'?'canonical':null);
+   assert.equal(x.requests.length,0);api.reset();x.map.emit('unload',{});
+  }
+  actualRRegistration='PASS';
+ }
+ return{result:'PASS',descriptors:134,stations:32,exact_sensors:98,identities,activation_metadata_requests:4,activation_history_requests:0,activation_provenance_requests:0,selected_cache_miss_requests:2,selected_cache_hit_requests:0,max_history_rows:8799,limits_unchanged:true,real_fixture_cases:canonicalFixture.cases.length,raw_observation_recovery:'EXPLICIT_UNAVAILABLE',query_provenance:'PASS',synthetic_cases:['same-depth independent ordinals','null public coordinates',...negatives],lifecycle,actual_r_registration:actualRRegistration,verified_inputs:[...verified.values()],mounted_acceptance:'NOT_RUN'};
 }
 main().catch(e=>{console.error(e.stack);process.exitCode=1;});

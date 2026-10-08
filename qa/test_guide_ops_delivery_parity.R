@@ -92,6 +92,90 @@ assert_identical(with_guide$jsHooks$render[[2L]], hook,
   "Guide hook present versus absent changes the Ops hook")
 off <- MAP_DISPLAY; off$add_ops_live_layers <- FALSE
 assert_identical(pt_add_ops_live_layers(map, off), map, "Ops disabled bypass changed")
+# Canonical static review uses the actual known-option reload and onRender seam.
+# No map is saved, served or rendered. All URL inputs remain unrequested.
+local({
+  previous <- getOption("brim.map_display_overrides")
+  on.exit(options(brim.map_display_overrides=previous), add=TRUE)
+  previous_display <- MAP_DISPLAY
+  on.exit(assign("MAP_DISPLAY", previous_display, envir=globalenv()), add=TRUE)
+  config <- function(overrides=list()) {
+    options(brim.map_display_overrides=overrides)
+    e <- new.env(parent=globalenv())
+    sys.source("00_config/config_map_display.r", envir=e)
+    e$MAP_DISPLAY
+  }
+  defaults <- config()
+  assert_identical(defaults$ops_soil_moisture_snotel_static_manifest_url, "", "Static default is not empty")
+  assert_identical(defaults$ops_soil_moisture_shared, FALSE, "Shared default changed")
+  assert_identical(defaults$ops_soil_moisture_snotel_pilot, FALSE, "Pilot default changed")
+  url <- "http://127.0.0.1:8080/canonical/MANIFEST.json"
+  overrides <- list(ops_soil_moisture_shared=TRUE, ops_soil_moisture_snotel_pilot=FALSE,
+    ops_soil_moisture_snotel_static_manifest_url=url)
+  full <- config(overrides)
+  assert_identical(full[names(overrides)], overrides, "Canonical overrides were lost")
+  assert_identical(full[setdiff(names(full), names(overrides))],
+    defaults[setdiff(names(defaults), names(overrides))], "Unrelated defaults changed")
+  # Execute only the real final builder's configuration reload expression.
+  reload <- Filter(function(x) is.call(x) && identical(x[[1]], as.name("source")) &&
+    length(x)>=2L && identical(x[[2]], "00_config/config_map_display.r"),
+    as.list(parse("05_map_build/04_build_portatreasure2_core_map.r")))
+  assert_identical(length(reload), 1L, "Builder config reload missing")
+  eval(reload[[1L]], envir=globalenv())
+  assert_identical(MAP_DISPLAY, full, "Real builder config reload lost canonical setting")
+  capture <- function(flags) pt_add_ops_live_layers(map,flags)$jsHooks$render[[1L]]
+  full_hook <- capture(full)
+  pilot <- defaults; pilot$ops_soil_moisture_shared <- TRUE
+  pilot$ops_soil_moisture_snotel_pilot <- TRUE
+  pilot$ops_soil_moisture_indexes <- list(snotel="http://127.0.0.1:8080/snotel.json")
+  pilot_hook <- capture(pilot)
+  assert_identical(full_hook$data$soilMoistureSnotelStaticManifestUrl,url,"Full URL not serialized")
+  assert_identical(full_hook$data$soilMoistureSnotelPilot,FALSE,"Canonical enabled pilot")
+  assert_identical(pilot_hook$data$soilMoistureSnotelStaticManifestUrl,"","Pilot acquired full URL")
+  assert_identical(pilot_hook$data$soilMoistureSnotelPilot,TRUE,"Pilot flag lost")
+  assert_identical(full_hook$data$opsDeliveryProjection,projection,"Full mode changed Product projection")
+  assert_identical(pilot_hook$data$opsDeliveryProjection,projection,"Pilot changed Product projection")
+  row <- identities[identities$stable_id=="ops_snotel_soil_moisture_pilot",]
+  assert_identical(row$source_token,"Soil moisture | SNOTEL | pilot","SNOTEL Product renamed")
+  disabled <- full; disabled$add_ops_live_layers <- FALSE
+  assert_identical(pt_add_ops_live_layers(map,disabled),map,"Disabled Ops acquired a hook")
+  for (bad in list(TRUE,NA_character_,character(),c(url,url),
+    "https://localhost/MANIFEST.json","http://example.invalid/MANIFEST.json",
+    "http://user@localhost/MANIFEST.json","http://127.1/MANIFEST.json",
+    "http://localhost/a/../MANIFEST.json","http://localhost/a%2fb/MANIFEST.json",
+    "http://localhost/MANIFEST.json?q=1","http://localhost/MANIFEST.json#x",
+    "http://localhost/PACKAGE_MANIFEST.json","http://localhost:99999/MANIFEST.json")) {
+    flags <- full; flags$ops_soil_moisture_snotel_static_manifest_url <- bad
+    assert_error(capture(flags),"SNOTEL","Invalid canonical URL admitted")
+  }
+  for (host in c("localhost","127.0.0.1","[::1]")) {
+    flags <- full; flags$ops_soil_moisture_snotel_static_manifest_url <- paste0("http://",host,"/MANIFEST.json")
+    assert_identical(capture(flags)$data$soilMoistureSnotelStaticManifestUrl,
+      flags$ops_soil_moisture_snotel_static_manifest_url,"Loopback host rejected")
+  }
+  conflict <- full; conflict$ops_soil_moisture_snotel_pilot <- TRUE
+  assert_error(capture(conflict),"pilot FALSE","Conflicting SNOTEL modes admitted")
+  conflict <- full; conflict$ops_soil_moisture_shared <- FALSE
+  assert_error(capture(conflict),"shared soil","Canonical mode without shared controller")
+  # Module order and the actual emitted definition/factory are inspected by Node.
+  # This captures real Product data; the existing JS component test executes its
+  # exact emitted SNOTEL branch with production controller and offline DOM doubles.
+  module_positions <- vapply(c("const limits = Object.freeze", "class SnotelStaticReader", "function makeSoilMoistureLayer"),
+    function(token) regexpr(token,full_hook$code,fixed=TRUE)[1L], integer(1))
+  assert_true(all(module_positions>0L)&&all(diff(module_positions)>0L),"Shared module order changed")
+  for (value in list(full_hook,pilot_hook)) {
+    checked <- system2(Sys.getenv("NODE_BINARY","node"),c("-e",shQuote(
+      'new Function("return ("+require("fs").readFileSync(0,"utf8")+");"); console.log("SNOTEL_WRAPPER_PARSE_PASS");'
+    )),input=value$code,stdout=TRUE,stderr=TRUE)
+    assert_true(is.null(attr(checked,"status"))&&identical(checked,"SNOTEL_WRAPPER_PARSE_PASS"),"Full/pilot wrapper syntax")
+  }
+  output <- Sys.getenv("BRIM_SNOTEL_WRAPPER_RESULT", "")
+  if(nzchar(output)) writeLines(jsonlite::toJSON(list(full=full_hook,pilot=pilot_hook,
+    result="PASS",canonical_conflicts_rejected=TRUE,local_only=TRUE,known_option_reload=TRUE,
+    product_id=row$stable_id,product_name=row$source_token,module_positions=module_positions),
+    auto_unbox=TRUE,null="null"),output)
+  cat("SNOTEL_CANONICAL_R_BINDING=PASS; local-only; known-option reload; pilot exclusivity; unchanged Product identity; emitted wrapper syntax\n")
+})
 flag_checks <- list()
 for (flag in unique(na.omit(identities$map_display_flag))) {
   flags <- MAP_DISPLAY; flags[[flag]] <- FALSE

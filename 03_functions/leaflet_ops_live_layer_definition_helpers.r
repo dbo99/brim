@@ -734,11 +734,16 @@ pt_ops_live_layer_definition_js <- function() {
   }
 
 
-  if (soilMoistureShared && soilMoistureSnotelPilot && soilMoistureIndexes.snotel) {
+  if (soilMoistureSnotelStaticManifestUrl && (!soilMoistureShared || soilMoistureSnotelPilot)) {
+    throw new Error('Canonical SNOTEL requires shared soil mode and pilot FALSE');
+  }
+  if (soilMoistureShared && (soilMoistureSnotelStaticManifestUrl || (soilMoistureSnotelPilot && soilMoistureIndexes.snotel))) {
     addOpsLayer({category:'Hydro Observations', subgroup:'Flows / levels / snow / moisture / etc',
-      name:'Soil moisture | SNOTEL | pilot', sourceUrl:soilMoistureIndexes.snotel,
+      name:'Soil moisture | SNOTEL | pilot', sourceUrl:soilMoistureSnotelStaticManifestUrl || soilMoistureIndexes.snotel,
       brimPrepared:true, unifiedCard:true,
-      layer:makeSoilMoistureLayer('snotel','Soil moisture | SNOTEL | pilot',soilMoistureIndexes.snotel)});
+      layer:makeSoilMoistureLayer('snotel','Soil moisture | SNOTEL | pilot',
+        soilMoistureSnotelStaticManifestUrl || soilMoistureIndexes.snotel,
+        soilMoistureSnotelStaticManifestUrl ? 'canonical' : undefined)});
   }
 
   if (includeSnowPillowLatest && SNOW_PILLOW_LATEST_URL) {

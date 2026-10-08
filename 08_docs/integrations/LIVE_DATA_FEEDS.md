@@ -346,10 +346,11 @@ Missing package members fail closed; external archive paths are provenance,
 never fallback read locations.
 
 The existing controller exposes `registerSnotelStatic(name, packageManifestUrl)`
-for an explicit local component caller only. It requires an HTTP loopback URL,
+for the compact component route, which remains its default. It requires an HTTP loopback URL,
 uses the existing bounded byte/hash verifier with redirects refused, and refuses a second SNOTEL
-registration in either pilot/static order. There is no configured Product,
-R-builder hook, hosted destination or automatic activation. Catalog loading
+registration in either pilot/static order. Explicit canonical mode uses the same
+controller and the local R-builder hook below; neither route has a hosted
+destination or automatic activation. Catalog loading
 does not read histories. Exact sensor selection loads one pinned history plus
 its station provenance; existing popup cancellation, source epochs, layer-off
 and reset ownership remain authoritative. The shared eight-entry / 12 MB
@@ -371,7 +372,7 @@ magnitude rejection, interpolation, fill, clipping or latest-wins selection.
 The ordinary seven-field chart-row shape is unchanged. `row.raw` retains state,
 reason, field absence/null, all flag variants, revision count and observation/
 query references; the model retains its pinned manifest/schema/policy/history/
-provenance context. The reader can resolve the producer's lossless observation
+provenance context. The compact reader can resolve the producer's lossless observation
 dictionaries and query ledger on demand without acquiring raw HTTP bodies.
 No application-owned sidecar is introduced. The component does not expose a
 new CSV action or private provenance UI; the existing pilot CSV is unchanged.
@@ -386,12 +387,73 @@ separately from producer cases. Pilot/SCAN/Dendra regressions remain in
 `qa/test_soil_moisture_transport.js`. Component success establishes no full-map,
 native-layout, hosted or live-feed acceptance.
 
+### Full canonical local review
+
+`SnotelStaticReader(read, cache, 'canonical')` reads the unchanged root
+`MANIFEST.json` (19,511 bytes, SHA-256
+`653d674b2bd1f008ddb4ff66f741962607cd9bd1194669d5f4c573026893df03`).
+Its 134 declared payload descriptors bind the canonical schema, display policy,
+32-station catalog and 98 exact SMS sensors. Activation reads exactly four
+metadata bodies: `MANIFEST.json`, `SCHEMA.json`, `DISPLAY_POLICY.json` and
+`STATIONS.json`. It reads no history or station-provenance body until an exact
+sensor is selected. A cache miss reads that history and its pinned station
+provenance; missing, mismatched or unsafe members fail unavailable without
+another sensor, generation or archive fallback. The compact manifest route
+and the two SM1 pilot contracts remain unchanged alternatives.
+
+For deliberate isolated review, set `ops_soil_moisture_shared=TRUE`,
+`ops_soil_moisture_snotel_pilot=FALSE` and
+`ops_soil_moisture_snotel_static_manifest_url` through the existing
+`brim.map_display_overrides` option. The last setting defaults to an empty
+string. Its scalar URL must be HTTP loopback (`localhost`, `127.0.0.1` or
+`[::1]`) ending in `/MANIFEST.json`, with safe path segments and no credentials,
+query, fragment or redirects. Conflicting pilot/full flags or full mode without
+shared-soil mode are rejected. Disabled Ops installs no layer. The actual
+R/htmlwidgets data seam and Ops layer definition dispatch canonical mode via
+`makeSoilMoistureLayer(..., 'canonical')`; no browser-console injection is used.
+The existing optional Product ID `ops_snotel_soil_moisture_pilot` and name
+`Soil moisture | SNOTEL | pilot` are retained for compatibility. Runtime static
+catalog/popup labels explicitly say local static candidate / not live. Only one
+SNOTEL source is registered. No default Guide Product or public URL is added.
+
+All 32 pinned catalog stations have valid public coordinate pairs; actual
+rendered marker counts remain a mounted acceptance question. Catalog discovery
+and marker eligibility remain separate. Null-coordinate stations remain list
+discoverable in supported inputs, with no invented map position or history
+request. No primary/current value, age, recent-change or reference capability
+is inferred. Signed depth and ordinal remain independent exact sensor identity.
+
+The measured largest member is 1,676,087 bytes and longest selected history is
+8,799 rows / 105,588 cells. Existing global limits and the compact-body LRU are
+unchanged. The seven-field shared chart row and all source-specific DAILY/END,
+native percent, zero, numeric V/E/K/N, gap, hold and revision semantics above
+remain authoritative.
+
+Canonical station provenance retains query ledgers and archive identity plus
+observation/query pointers. It does not supply all original observation archive
+bodies. Ordinary rendering does not require them. Calling `evidence()` for
+original-observation reconstruction in canonical mode explicitly reports
+unavailable; it neither returns fabricated empty success nor reads external
+archives/providers. Compact dictionary-backed reconstruction is unchanged.
+No new provenance UI or CSV contract is introduced.
+
+The optional third input to `qa/test_snotel_ca_static_candidate.js` is the
+canonical root. This adds full-catalog admission, maximum-history, lazy-request,
+malformed-input and cancellation checks to the existing compact/pilot suite.
+`qa/test_guide_ops_delivery_parity.R` checks real configuration reload, loopback
+guards, module order and unchanged Product identity. Its optional
+`BRIM_SNOTEL_WRAPPER_RESULT` captures the actual R hook for the JS component
+test to execute the emitted SNOTEL registration branch with offline doubles.
+These are source/component checks only. Full-map/browser, native layout,
+human visual acceptance, hosting and production activation remain separate gates.
+
 ## SM1 shared soil-moisture review mode
 
 `ops_soil_moisture_shared=TRUE` plus `ops_soil_moisture_indexes` (named
 `scan`, `dendra`, optionally `snotel` static index URLs) opts into the shared
 left card. Existing SCAN/dendra enable flags and URLs remain required. SNOTEL
-also requires `ops_soil_moisture_snotel_pilot=TRUE`. Defaults remain false/empty;
+pilot mode also requires `ops_soil_moisture_snotel_pilot=TRUE`; canonical mode
+uses the explicit alternative above. Defaults remain false/empty;
 no production destination or publication workflow is installed.
 
 For an isolated saved-data build, set the R session option

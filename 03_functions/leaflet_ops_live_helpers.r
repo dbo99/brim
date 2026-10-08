@@ -304,6 +304,25 @@ pt_ops_live_delivery_projection <- function(
 
 pt_add_ops_live_layers <- function(m, map_display, cnrfc_river_reservoir_forecast_points = NULL, cnrfc_precip_weather_stations = NULL, major_water_supply_basin_geometry = NULL) {
 
+  snotel_static_url <- map_display$ops_soil_moisture_snotel_static_manifest_url
+  if (is.null(snotel_static_url)) snotel_static_url <- ""
+  if (!is.character(snotel_static_url) || length(snotel_static_url) != 1L || is.na(snotel_static_url)) {
+    stop("SNOTEL static manifest URL must be a scalar string.")
+  }
+  if (nzchar(snotel_static_url)) {
+    if (!isTRUE(map_display$ops_soil_moisture_shared) ||
+        !identical(map_display$ops_soil_moisture_snotel_pilot, FALSE)) {
+      stop("Canonical SNOTEL requires shared soil mode and pilot FALSE.")
+    }
+    if (!grepl("^http://(localhost|127\\.0\\.0\\.1|\\[::1\\])(:[0-9]+)?/([A-Za-z0-9_-]+/)*MANIFEST\\.json$", snotel_static_url)) {
+      stop("Canonical SNOTEL requires a local HTTP loopback MANIFEST.json URL.")
+    }
+    port <- regmatches(snotel_static_url, regexec("^http://(localhost|127\\.0\\.0\\.1|\\[::1\\])(:([0-9]+))?/", snotel_static_url))[[1L]][4L]
+    if (nzchar(port) && (!is.finite(as.numeric(port)) || as.numeric(port) > 65535)) {
+      stop("Canonical SNOTEL URL port is invalid.")
+    }
+  }
+
   if (!isTRUE(map_display$add_ops_live_layers)) {
     return(m)
   }
@@ -332,6 +351,7 @@ function(el, x, data) {
   var soilMoistureShared = !!(data && data.soilMoistureShared);
   var soilMoistureIndexes = (data && data.soilMoistureIndexes) || {};
   var soilMoistureSnotelPilot = !!(data && data.soilMoistureSnotelPilot);
+  var soilMoistureSnotelStaticManifestUrl = (data && data.soilMoistureSnotelStaticManifestUrl) || '';
   var includeDendraDaily = !!(data && data.includeDendraDaily);
   var DENDRA_DAILY_INDEX_URL = data && data.dendraDailyIndexUrl ? String(data.dendraDailyIndexUrl) : '';
   var includeScanSoilMoistureLatest = !!(data && data.includeScanSoilMoistureLatest);
@@ -573,6 +593,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
       soilMoistureShared = isTRUE(map_display$ops_soil_moisture_shared),
       soilMoistureIndexes = if (!is.null(map_display$ops_soil_moisture_indexes)) map_display$ops_soil_moisture_indexes else list(),
       soilMoistureSnotelPilot = isTRUE(map_display$ops_soil_moisture_snotel_pilot),
+      soilMoistureSnotelStaticManifestUrl = snotel_static_url,
       includeDendraDaily = isTRUE(map_display$add_ops_dendra_daily),
       dendraDailyIndexUrl = if (!is.null(map_display$ops_dendra_daily_index_url)) map_display$ops_dendra_daily_index_url else "",
       includeScanSoilMoistureLatest = if (!is.null(map_display$add_ops_scan_soil_moisture_latest)) {

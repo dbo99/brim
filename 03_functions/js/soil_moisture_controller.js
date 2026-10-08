@@ -1,8 +1,10 @@
 /* Shared Ops ownership. Uses ordinary Ops switches, Local Reference predicates,
  * BRIM legendCloseout docking, and accepted source popup renderers. */
 var ptSoilController = null;
-function makeSoilMoistureLayer(source,name,indexUrl) {
+function makeSoilMoistureLayer(source,name,indexUrl,staticMode) {
+  if(staticMode!==undefined&&(source!=='snotel'||staticMode!=='canonical'))throw Error('Invalid soil static route');
   if(!ptSoilController)ptSoilController=createSoilMoistureController();
+  if(staticMode)return ptSoilController.registerSnotelStatic(name,indexUrl,staticMode);
   return ptSoilController.register(source,name,indexUrl);
 }
 function createSoilMoistureController(){
@@ -57,7 +59,7 @@ async function expandIndex(index,key,readShard){
  for(const d of index.shards){if(!d||!Number.isInteger(d.bytes)||d.bytes<=0||d.bytes>262144||!/^[a-f0-9]{64}$/.test(d.sha256)||d.path!==`dendra-index-${String(paths.size).padStart(3,'0')}-${d.sha256}.json`||paths.has(d.path))throw Error('Invalid common shard descriptor');paths.add(d.path);const b=await readShard(d);if(b.schema!=='brim-soil-moisture-shard-2'||b.source!==key||b.generation!==index.generation||!Array.isArray(b.stations))throw Error('Mixed/invalid source shard');stations.push(...b.stations);if(stations.length>1500)throw Error('Source station bound');}
  return validateIndex({...index,schema:'brim-soil-moisture-1',stations},key);
 }
-// Component opt-in only: no Product, URL default, primary or current value is installed.
+// Static review catalog: no primary or current value is inferred.
 function staticCatalog(context){
  const stations=context.stations.stations.map(st=>({source:'snotel',id:st.stationTriplet,key:'snotel:'+st.stationTriplet,
   name:st.name,provider:'NRCS AWDB',primary_sensor:null,requires_explicit_sensor:true,
@@ -70,11 +72,18 @@ function staticCatalog(context){
   note:'Local static candidate · not live',stations,counts:{stations:stations.length,
    sensors:context.stations.sensor_count,imported_histories:context.stations.sensor_count}},'snotel');
 }
-function registerSnotelStatic(name,packageUrl){
+function registerSnotelStatic(name,packageUrl,mode='compact'){
+ if(!['compact','canonical'].includes(mode))throw Error('Invalid SNOTEL reader mode');
+ // Validate the supplied canonical spelling before URL normalizes dot segments,
+ // alternate IP spellings or encoded escapes into a different local path.
+ if(mode==='canonical'&&(typeof packageUrl!=='string'||!/^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?\/(?:[A-Za-z0-9_-]+\/)*MANIFEST\.json$/.test(packageUrl)))throw Error('Local SNOTEL canonical URL required');
  const url=new URL(packageUrl,location.href);
- if(url.protocol!=='http:'||!['localhost','127.0.0.1','[::1]'].includes(url.hostname)||url.username||url.password||url.search||url.hash||!url.pathname.endsWith('/PACKAGE_MANIFEST.json'))throw Error('Local SNOTEL package URL required');
- const reader=new T.SnotelStaticReader((d,signal)=>bounded(new URL(d.path,url).href,
-  d.bytes,signal,d.sha256,d.bytes,undefined,'error'),bundles);
+ if(url.protocol!=='http:'||!['localhost','127.0.0.1','[::1]'].includes(url.hostname)||url.username||url.password||url.search||url.hash||!url.pathname.endsWith(mode==='canonical'?'/MANIFEST.json':'/PACKAGE_MANIFEST.json'))throw Error('Local SNOTEL package URL required');
+ const reader=new T.SnotelStaticReader((d,signal)=>{
+  T.staticDescriptor(d);const member=new URL(d.path,url),base=new URL('.',url);
+  if(member.origin!==base.origin||!member.pathname.startsWith(base.pathname))throw Error('SNOTEL member outside local root');
+  return bounded(member.href,d.bytes,signal,d.sha256,d.bytes,undefined,'error');
+ },bundles,mode);
  return register('snotel',name,url.href,reader);
 }
 function validateIndex(index,key){if(index.schema!=='brim-soil-moisture-1'||index.source!==key||typeof index.generation!=='string'||!Array.isArray(index.stations)||index.stations.length>1500)throw Error('Invalid source index');const seen=new Set();let n=0;for(const st of index.stations){if(st.source!==key||st.key!==key+':'+st.id||seen.has(st.key)||typeof st.name!=='string'||!Array.isArray(st.sensors))throw Error('Invalid station identity');if(st.source_url&&!/^https:\/\//.test(st.source_url))throw Error('Invalid public source URL');seen.add(st.key);st.sensors=st.sensors.map(s=>Object.assign({},index.sensor_defaults,s));n+=st.sensors.length;if(n>10000)throw Error('Sensor bound');if(st.coordinates!==null&&(!Array.isArray(st.coordinates)||st.coordinates.length!==2||!st.coordinates.every(Number.isFinite)||Math.abs(st.coordinates[0])>180||Math.abs(st.coordinates[1])>90))throw Error('Invalid coordinates');const ids=new Set();for(const s of st.sensors){if(typeof s.id!=='string'||ids.has(s.id)||s.depth_mm!==null&&(!Number.isFinite(s.depth_mm)||s.depth_mm<0))throw Error('Invalid sensor identity/depth');if(typeof s.capabilities!=='object'||['latest_vwc','recent_change','source_context','common_reference','companion'].some(k=>typeof s.capabilities[k]!=='boolean'))throw Error('Invalid capability declaration');const o=s.observation;if(o&&typeof o.eligible!=='boolean')throw Error('Invalid eligibility');if(s.capabilities.recent_change){for(const w of ['7','14','30']){const c=s.change?.[w];if(!c||!['wetting','drying','little','stale','insufficient','no-data'].includes(c.state)||c.delta!==null&&!Number.isFinite(c.delta)||['wetting','drying','little'].includes(c.state)&&c.delta===null)throw Error('Invalid change summary');}}if(o&&o.eligible&&(!Number.isFinite(o.value)||o.value<0||o.value>100||s.unit!=='percent VWC'||!/^\d{4}-\d{2}-\d{2}$/.test(o.date)||!Number.isFinite(Date.parse(o.date+'T00:00:00Z'))||typeof o.statistic!=='string'))throw Error('Invalid eligible observation/unit');ids.add(s.id);}if(st.primary_sensor!==null&&!ids.has(st.primary_sensor))throw Error('Invalid primary sensor');}if(index.counts?.stations!==index.stations.length||index.counts?.sensors!==n||index.counts?.imported_histories!==index.stations.reduce((n,s)=>n+s.sensors.filter(v=>v.history?.available).length,0))throw Error('Invalid counts');return index;}

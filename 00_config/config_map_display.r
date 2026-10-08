@@ -145,6 +145,7 @@ MAP_DISPLAY <- list(
   ## SM1 common card and SNOTEL pilot are review-only opt-ins; no assumed URLs.
   ops_soil_moisture_shared = FALSE,
   ops_soil_moisture_snotel_pilot = FALSE,
+  ops_soil_moisture_snotel_static_manifest_url = "",
   ops_soil_moisture_indexes = list(),
 
   ## Dendra uses a reviewed prepared index. Remains opt-in until hosting approval.
