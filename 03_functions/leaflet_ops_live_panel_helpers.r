@@ -350,6 +350,7 @@ pt_ops_live_panel_helpers_js <- function() {
       delete activeLayers[name];
     });
 
+    if (typeof ptSoilController !== 'undefined' && ptSoilController) ptSoilController.reset();
     ptGibsLayers.forEach(function(layer) { layer.cancelGibsCheck(); });
     ptClearOpsPaneDomArtifacts();
 
@@ -394,8 +395,15 @@ pt_ops_live_panel_helpers_js <- function() {
     wrap.appendChild(body);
     document.body.appendChild(wrap);
 
-    L.DomEvent.disableClickPropagation(wrap);
-    L.DomEvent.disableScrollPropagation(wrap);
+    // This fixed panel is a body sibling of the map, not a Leaflet control.
+    // Leaflet 1.3's control helper leaves a one-shot skipped click pending here.
+    // Contain native bubbling without changing map-contained control behavior.
+    function stopPanelEvent(e) { e.stopPropagation(); }
+    ['click', 'dblclick', 'contextmenu', 'pointerdown', 'pointerup', 'pointercancel',
+     'mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'touchcancel',
+     'wheel', 'mousewheel', 'DOMMouseScroll'].forEach(function(type) {
+      wrap.addEventListener(type, stopPanelEvent, {passive: true});
+    });
 
     header.addEventListener('click', function(e) {
       e.preventDefault();

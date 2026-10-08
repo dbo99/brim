@@ -18,13 +18,17 @@ bundle <- pt_build_guide_bundle(runtime_groups, MAP_DISPLAY, "default")
 ids <- vapply(raw_registry$products, `[[`, character(1), "product_id")
 assert_identical(length(ids), 272L, "Full Product universe changed")
 assert_true(!anyDuplicated(ids), "Duplicate authored Product")
-assert_identical(nrow(identities), 50L, "Ops identity census changed")
-assert_identical(length(projection), 49L, "Eligible projection changed")
-assert_identical(identities$stable_id[!identities$included_by_default],
-  "ops_nws_surface_wind_barbs", "Hard-disabled identity changed")
+assert_identical(nrow(identities), 52L, "Ops identity census changed")
+assert_identical(length(projection), 51L, "Default plus opt-in projection changed")
+optional_ids <- identities$stable_id[!is.na(identities$optional_delivery_class)]
+assert_identical(sort(optional_ids), sort(c("ops_dendra_daily", "ops_snotel_soil_moisture_pilot")), "Optional prepared authority changed")
+assert_true(!any(optional_ids %in% ids), "Opt-in badges must not add default Guide Products")
+default_projection <- Filter(function(p) !p$stable_id %in% optional_ids, projection)
+assert_identical(sort(identities$stable_id[!identities$included_by_default]),
+  sort(c("ops_nws_surface_wind_barbs","ops_dendra_daily","ops_snotel_soil_moisture_pilot")), "Disabled/opt-in identity changed")
 assert_true(!"ops_nws_surface_wind_barbs" %in% ids, "Disabled wind barbs acquired a Product")
 assert_identical(sort(vapply(pt_guide_ops_products(MAP_DISPLAY, list()), `[[`, character(1), "id")),
-  sort(vapply(projection, `[[`, character(1), "stable_id")), "Actual Guide/Ops eligible identity join differs")
+  sort(vapply(default_projection, `[[`, character(1), "stable_id")), "Actual Guide/Ops eligible identity join differs")
 classes <- setNames(vapply(raw_registry$products, `[[`, character(1), "delivery_class"), ids)
 managed <- c("ops_delta_snapshot", "ops_streamflow_usgs_ca", "product-ops-usgs-groundwater",
   "ops_scan_soil_moisture", "ops_snow_pillow_swe", "ops_major_water_supply_forecasts",
@@ -33,7 +37,7 @@ managed <- c("ops_delta_snapshot", "ops_streamflow_usgs_ca", "product-ops-usgs-g
   "winter_storm_levels", "nbm_qpf", "product-ops-nbm-accumulated-qpf",
   "ops_nws_weather_stations", "ops_cnrfc_forecast_points")
 assert_identical(sort(vapply(Filter(function(p) p$delivery_class == "brim_managed", projection),
-  `[[`, character(1), "stable_id")), sort(managed), "Settled 18 Managed identities changed")
+  `[[`, character(1), "stable_id")), sort(c(managed, optional_ids)), "Settled 18 default and two optional Managed identities changed")
 assert_identical(classes[["ops_radar_iem_nexrad"]], "provider_hosted", "Standard IEM WMS must not imply an enhancement")
 unlinked_radar_qpe <- c("ops_radar_iem_nexrad", "ops_radar_noaa_mrms", "ops_qpe_mrms_1hr",
   "ops_qpe_mrms_1day", "ops_qpe_mrms_3day", "ops_qpe_rfc_1day", "ops_qpe_rfc_3day", "ops_qpe_rfc_7day")
@@ -67,7 +71,7 @@ assert_true(!any(vapply(locations, function(row) row$product_id %in% unlinked_ra
   "The eight unlinked radar/QPE Products acquired compiled delivery occurrences")
 assert_identical(length(locations), 240L, "Guide relationship projection occurrences changed")
 for (row in locations) assert_identical(row$delivery_class, classes[[row$product_id]], row$location)
-for (row in projection) assert_identical(row$delivery_class, classes[[row$stable_id]], row$stable_id)
+for (row in default_projection) assert_identical(row$delivery_class, classes[[row$stable_id]], row$stable_id)
 nws <- Filter(function(p) p$id == "ops_nws_weather_stations", bundle$products)[[1L]]
 assert_identical(length(nws$relatedResources), 0L, "NWS must not gain an invented Resource link")
 assert_true(is.null(nws$deliveryClass), "Unlinked Product gained an invented deliveryClass field")
@@ -151,6 +155,12 @@ x <- identities; x$source_token[[1L]] <- "__proto__"
 reject("prototype token",identity=x,pattern="invalid identity")
 x <- raw_registry; x$products[[index]]$product_id <- "constructor"
 reject("prototype Product ID",x,pattern="invalid Product")
+x <- identities; x$optional_delivery_class[[1L]] <- "brim_managed"
+reject("default authority cannot be shadowed",identity=x,pattern="invalid optional")
+x <- identities; x$optional_delivery_class[match("ops_dendra_daily", x$stable_id)] <- "invalid"
+reject("invalid optional class",identity=x,pattern="invalid optional")
+x <- raw_registry; x$products[[length(x$products)+1L]] <- list(product_id="ops_dendra_daily",delivery_class="brim_managed")
+reject("overlapping optional authority",x,pattern="optional delivery overlaps")
 assert_identical(pt_ops_live_delivery_projection(source=raw_registry),projection,
   "Disabled Product absent must be valid")
 serialize <- function(value) charToRaw(enc2utf8(as.character(jsonlite::toJSON(value,
@@ -159,8 +169,8 @@ measured_bundle <- Sys.getenv("BRIM_PROVIDER_TEST_BUNDLE", "")
 if (nzchar(measured_bundle)) assert_identical(serialize(bundle),
   readBin(measured_bundle,"raw",n=file.info(measured_bundle)$size),
   "Parity compiler must use the actual measured candidate runtime order and raw payload")
-report <- list(status="PASS",authority="products[].delivery_class",products=272L,identities=50L,
-  eligible=49L,managed=18L,prepared_consumers=16L,curated_collections=2L,
+report <- list(status="PASS",authority="products[].delivery_class plus explicit opt-in identity classes",products=272L,identities=52L,
+  eligible=49L,optional=2L,managed=20L,prepared_consumers=16L,curated_collections=2L,
   class_subtotals=as.list(table(vapply(projection, `[[`, character(1), "delivery_class"))),
   projection=projection,projection_bytes=length(serialize(projection)),
   projection_sha256=digest::digest(serialize(projection),algo="sha256",serialize=FALSE),
@@ -192,6 +202,6 @@ if (nzchar(audit_path) && nzchar(badge_path)) {
 }
 output <- Sys.getenv("BRIM_OPS_PARITY_RESULT", "")
 if (nzchar(output)) writeLines(jsonlite::toJSON(report,auto_unbox=TRUE,pretty=TRUE),output)
-cat("GUIDE_OPS_DELIVERY_PARITY=PASS; 272 authored / 50 identities / 49 eligible / 18 Managed / 29 Enhanced / 2 Provider-hosted;",
+cat("GUIDE_OPS_DELIVERY_PARITY=PASS; 272 authored / 52 identities / 49 eligible + 2 optional / 20 Managed / 29 Enhanced / 2 Provider-hosted;",
     length(locations),"Guide occurrences;",length(changed),"synthetic occurrences;",
     length(negative_checks),"negative validations; projection bytes",length(serialize(projection)),"\n")

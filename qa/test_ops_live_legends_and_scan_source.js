@@ -356,7 +356,10 @@ const projected = JSON.parse(projectionRun.stdout);
 const projection = projected.projection;
 const authored = JSON.parse(read('00_config','guide_product_resource_relationships.json')).products;
 const classById = new Map(authored.map(p=>[p.product_id,p.delivery_class]));
-assert.equal(classById.size,272);assert.equal(projected.identities.length,50);assert.equal(projection.length,49);
+assert.equal(classById.size,272);assert.equal(projected.identities.length,52);assert.equal(projection.length,51);
+const optionalClasses=new Map(projected.identities.filter(r=>r.optional_delivery_class).map(r=>[r.stable_id,r.optional_delivery_class]));
+assert.deepEqual([...optionalClasses.keys()].sort(),["ops_dendra_daily","ops_snotel_soil_moisture_pilot"]);
+for(const id of optionalClasses.keys())assert(!classById.has(id));
 const constantTokens = projected.identities.map(r=>r.source_token).filter(t=>t.startsWith('PT_'));
 assert.equal(constantTokens.length,4);
 const opsModuleText = fs.readdirSync(path.join(repoRoot,'03_functions')).filter(n=>/^leaflet_ops_live_.*\.r$/.test(n)).map(n=>read('03_functions',n)).join('\n');
@@ -370,7 +373,7 @@ const registrationFactory = new Function('OPS_CATALOG_PRIMARY_PANEL','OPS_DELIVE
   '\nreturn {add:addOpsLayer, rows:opsLayers, names:ptOpsBrimPreparedNames, lookup:ptOpsDeliveryForName};');
 const makeRegistration = value => registrationFactory({Disabled:'disabled'},value,...constantValues);
 const registration = makeRegistration(projection);
-for(const row of projection)assert.equal(row.delivery_class,classById.get(row.stable_id));
+for(const row of projection)assert.equal(row.delivery_class,classById.get(row.stable_id)||optionalClasses.get(row.stable_id));
 const reservoirName = 'Reservoirs | storage-centric | CDEC / CNRFC / USACE';
 const preparedNames = [reservoirName,'CoCoRaHS | CA daily','CoCoRaHS | 50-state daily',
   'Delta ops snapshot | CVP/SWP','Streamflow | USGS | Ca','Groundwater | USGS | Ca/wrnNv/srnOr',
@@ -603,21 +606,21 @@ assert.equal(cnrfc.guideProductId,'ops_cnrfc_forecast_points');assert.equal(cnrf
 assert.equal(cnrfcArgs.name,cnrfc.name);assert.equal(cnrfc.sourceUrl,'https://www.cnrfc.noaa.gov/');
 assert.equal(cnrfc.infoUrl,cnrfc.sourceUrl);assert.equal(cnrfc.infoLabel,'CNRFC');
 assert(rowLinks(cnrfc).includes('href="https://www.cnrfc.noaa.gov/"'));
-// Actual projection -> actual registration -> actual title/badge render for all 50.
+// Actual projection -> actual registration -> actual title/badge render for all 52 (Dendra and the SNOTEL pilot are opt-in).
 const allRegistration=makeRegistration(projection);
 for(const identity of projected.identities)allRegistration.add({name:runtimeName(identity.source_token),category:'Fixture',layer:{}});
-assert.equal(allRegistration.rows.length,50);
+assert.equal(allRegistration.rows.length,52);
 const allResults=allRegistration.rows.map((row,i)=>{
-  const identity=projected.identities[i],eligible=identity.included_by_default;
+  const identity=projected.identities[i],eligible=identity.included_by_default||!!identity.optional_delivery_class;
   assert.equal(row.guideProductId,eligible?identity.stable_id:null);
-  assert.equal(row.deliveryClass,eligible?classById.get(identity.stable_id):null);
+  assert.equal(row.deliveryClass,eligible?(classById.get(identity.stable_id)||optionalClasses.get(identity.stable_id)):null);
   const markup=api.primary(row),parsed=parseFixture(markup),badges=parsed.querySelectorAll('.pt-ops-delivery-badge');
   const expected=row.deliveryClass==='brim_managed'?'BRIM-M':row.deliveryClass==='brim_enhanced'?'BRIM-E':'';
   assert.equal(badges.length,expected?1:0);if(expected)assert.equal(textOf(badges[0]),expected);
   return {stable_id:identity.stable_id,delivery_class:row.deliveryClass,badge:expected,badge_count:badges.length,prepared:row.brimPrepared===true};
 });
 assert.equal(allResults.filter(r=>r.prepared).length,16);
-assert.equal(allResults.filter(r=>r.badge==='BRIM-M').length,18);
+assert.equal(allResults.filter(r=>r.badge==='BRIM-M').length,20);
 assert.equal(allResults.find(r=>r.stable_id==='ops_radar_iem_nexrad').badge,'');
 // Explicit six-product delivery decision; no legend/prefix inference.
 const enhancedQpe=['ops_qpe_mrms_1hr','ops_qpe_mrms_1day','ops_qpe_mrms_3day',
@@ -680,4 +683,4 @@ if(process.env.BRIM_PROVIDER_TEST_BUNDLE) {
   assert.equal(occurrences,242);
 }
 if(process.env.BRIM_OPS_BADGE_RESULT)fs.writeFileSync(process.env.BRIM_OPS_BADGE_RESULT,JSON.stringify({status:'PASS',rows:allResults,contrast:ratios,browser:'UNAVAILABLE_POLICY'},null,2)+'\n');
-console.log('OPS_DELIVERY_BADGES=PASS; 50 ACTUAL_IDENTITY_RENDERINGS=PASS; PREPARED_16_UNPREPARED_34=PASS; PAIRED_TITLE_BADGE_ESCAPE_ASSOCIATION=PASS; ACTION_ROUTING_CLEAR_STATUS=PASS; CONTRAST='+JSON.stringify(ratios)+'; RENDERED_FIT=PENDING_HUMAN_REVIEW');
+console.log('OPS_DELIVERY_BADGES=PASS; 52 ACTUAL_IDENTITY_RENDERINGS=PASS; PREPARED_16_UNPREPARED_36=PASS; PAIRED_TITLE_BADGE_ESCAPE_ASSOCIATION=PASS; ACTION_ROUTING_CLEAR_STATUS=PASS; CONTRAST='+JSON.stringify(ratios)+'; RENDERED_FIT=PENDING_HUMAN_REVIEW');

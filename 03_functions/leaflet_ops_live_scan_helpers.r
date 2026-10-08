@@ -906,6 +906,45 @@ pt_ops_live_scan_js <- function() {
     return d.toLocaleString(undefined, {month: 'short', year: 'numeric', timeZone: 'UTC'});
   }
 
+  // Shared soil popup adapter: project existing products; never derive new statistics.
+  function ptScanPresentationData(site, depth, tables) {
+    var C = window.BRIM.soilMoistureCharts;
+    function at(name) { return (tables[name] || []).filter(function(r) { return String(r.site_code) === String(site) && ptScanNum(r.depth_in) === Number(depth); }); }
+    var trace = at('scan_soil_moisture_current_wy_trace.csv');
+    var fallback = ptScanGroupFallbackTraces(at('scan_sms_prior_wy_fallback_traces.csv'), 7);
+    var monthly = at('scan_sms_monthly_context.csv').slice().sort(function(a,b) { return a.month_date.localeCompare(b.month_date); });
+    var pct = at('scan_sms_waterday_percentiles.csv');
+    var minYears = pct.length ? ptScanInt(pct[0].min_years_for_context) || 7 : 7;
+    var supported = pct.filter(function(r) { return ptScanNum(r.n_years) >= minYears; });
+    var reference = supported.length >= 200 ? supported.map(function(r) {
+      var o = {x:ptScanNum(r.water_day),raw:r};
+      ['p00','p10','p30','p50','p70','p90','p100'].forEach(function(k) { o[k] = ptScanNum(r[k]); });
+      return o;
+    }).sort(function(a,b) { return a.x-b.x; }) : [];
+    var monthRefs = {};
+    monthly.forEach(function(r) {
+      var cm = ptScanInt(r.calendar_month) || Number(r.month_date.slice(5,7));
+      if (!monthRefs[cm] && ptScanBool(r.monthly_ref_ok) && ptScanNum(r.ref_p50) !== null) monthRefs[cm] = r;
+    });
+    var monthlyReference = [];
+    if (monthly.length >= 3) {
+      var last = monthly[monthly.length-1].month_date.slice(0,7);
+      for (var d = new Date(monthly[0].month_date.slice(0,7)+'-01T00:00:00Z'); d.toISOString().slice(0,7) <= last; d.setUTCMonth(d.getUTCMonth()+1)) {
+        var r = monthRefs[d.getUTCMonth()+1];
+        if (r) monthlyReference.push({date:d.toISOString().slice(0,10),p30:ptScanNum(r.ref_p30),p50:ptScanNum(r.ref_p50),p70:ptScanNum(r.ref_p70),raw:r});
+      }
+    }
+    if (monthlyReference.length < 3) monthlyReference = [];
+    var seasonal = fallback.flatMap(function(g) { return g.rows; }).concat(trace).map(function(r) { var point=C.row(r.obs_date,r.sms_pct,r); point.x=ptScanNum(r.water_day); return point; }).sort(function(a,b) { return a.date.localeCompare(b.date); });
+    var first = monthly[0] || {}, p = pct[0] || {};
+    return {history:monthly.map(function(r) { return C.row(r.month_date,r.actual_sms_pct,r); }), seasonal:seasonal,
+      sourceWaterDay:true, historyGap:45, historyLabel:'Monthly record (retained medians)', statistic:'Daily soil moisture', historyStatistic:'Retained monthly median', units:'% VWC',
+      reference:reference, monthlyReference:monthlyReference, priorTraces:fallback.length,
+      referenceReason:reference.length && !fallback.length ? 'Underlying reference-year traces not included in this saved product.' : fallback.length ? 'Supplied prior-year traces: '+ptScanFallbackWyRange(fallback)+'; '+ptScanFallbackUsabilityText(fallback)+'. This subset is not asserted to be the full reference cohort.' : 'No supported daily reference or usable prior-year traces supplied.',
+      referenceNote:'Daily reference WY '+(p.years_min || '?')+'–'+(p.years_max || '?')+'; min–10th, 10th–30th, 30th–70th, 70th–90th, 90th–max bands and median. At least '+minYears+' years per water day and 200 supported water days; support varies. Monthly reference '+(first.ref_label || 'unavailable')+'; median and 30th–70th band, at least '+(first.context_stat_min_years || 7)+' years and '+(first.min_days_per_month || 'declared minimum')+' daily observations per retained month. Selection never recomputes this cohort.',
+      sourceNote:'NRCS reports daily soil moisture; its within-day reduction and sample support are not established here. Published values combining sensors at the same depth are retained. Seasonal x coordinates retain source water_day (true DOWY, not dendra leap alignment). Monthly observed-record '+(first.record_label || 'unavailable')+' is distinct from current-WY daily coverage through '+(trace.map(function(r) {return r.obs_date;}).sort().pop() || 'unavailable')+'. Source date-only strings remain unchanged.'};
+  }
+
   function ptScanMakePlot(site, stationName, depth, traceByKey, pctByKey, monthlyByKey, fallbackByKey, depthStyleByDepth) {
     var depthKey = String(Math.round(ptScanNum(depth) || 0));
     var key = ptScanKey(site, depthKey);

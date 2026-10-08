@@ -38,6 +38,7 @@ pt_ops_live_source_module("leaflet_ops_live_cocorahs_helpers.r", "Ops Live CoCoR
 pt_ops_live_source_module("leaflet_ops_live_usgs_streamflow_helpers.r", "Ops Live USGS streamflow helper")
 pt_ops_live_source_module("leaflet_ops_live_usgs_groundwater_helpers.r", "Ops Live USGS groundwater helper")
 pt_ops_live_source_module("leaflet_ops_live_scan_helpers.r", "Ops Live SCAN soil moisture helper")
+pt_ops_live_source_module("leaflet_ops_live_dendra_helpers.r", "Ops Live Dendra soil moisture helper")
 pt_ops_live_source_module("leaflet_ops_live_snow_pillow_helpers.r", "Ops Live snow-pillow / SWE helper")
 pt_ops_live_source_module("leaflet_ops_live_delta_ops_helpers.r", "Ops Live Delta operations helper")
 pt_ops_live_source_module("leaflet_ops_live_cnrfc_forecast_points_helpers.r", "Ops Live CNRFC forecast-points helper")
@@ -285,10 +286,20 @@ pt_ops_live_delivery_projection <- function(
   eligible <- identities[identities$included_by_default, , drop = FALSE]
   matched <- match(eligible$stable_id, ids)
   if (anyNA(matched)) fail("missing eligible Product identity")
-  unname(lapply(seq_len(nrow(eligible)), function(i) list(
+  projected <- unname(lapply(seq_len(nrow(eligible)), function(i) list(
     stable_id = eligible$stable_id[[i]], source_token = eligible$source_token[[i]],
     delivery_class = products[[matched[[i]]]]$delivery_class
   )))
+  optional <- identities$optional_delivery_class
+  if (is.null(optional)) return(projected)
+  if (!is.character(optional) || any(!is.na(optional) & (!optional %in% classes | identities$included_by_default)))
+    fail("invalid optional delivery class")
+  selected <- which(!is.na(optional))
+  if (any(identities$stable_id[selected] %in% ids)) fail("optional delivery overlaps Product authority")
+  c(projected, unname(lapply(selected, function(i) list(
+    stable_id = identities$stable_id[[i]], source_token = identities$source_token[[i]],
+    delivery_class = optional[[i]]
+  ))))
 }
 
 pt_add_ops_live_layers <- function(m, map_display, cnrfc_river_reservoir_forecast_points = NULL, cnrfc_precip_weather_stations = NULL, major_water_supply_basin_geometry = NULL) {
@@ -318,6 +329,11 @@ function(el, x, data) {
   var includeUsgsGroundwaterLatest = !!(data && data.includeUsgsGroundwaterLatest);
   var USGS_GROUNDWATER_LATEST_URL = data && data.usgsGroundwaterLatestUrl ? String(data.usgsGroundwaterLatestUrl) : '';
   var USGS_GROUNDWATER_LATEST_SUMMARY_URL = data && data.usgsGroundwaterLatestSummaryUrl ? String(data.usgsGroundwaterLatestSummaryUrl) : '';
+  var soilMoistureShared = !!(data && data.soilMoistureShared);
+  var soilMoistureIndexes = (data && data.soilMoistureIndexes) || {};
+  var soilMoistureSnotelPilot = !!(data && data.soilMoistureSnotelPilot);
+  var includeDendraDaily = !!(data && data.includeDendraDaily);
+  var DENDRA_DAILY_INDEX_URL = data && data.dendraDailyIndexUrl ? String(data.dendraDailyIndexUrl) : '';
   var includeScanSoilMoistureLatest = !!(data && data.includeScanSoilMoistureLatest);
   var SCAN_SOIL_MOISTURE_LATEST_URL = data && data.scanSoilMoistureLatestUrl ? String(data.scanSoilMoistureLatestUrl) : '';
   var SCAN_SOIL_MOISTURE_SUMMARY_URL = data && data.scanSoilMoistureSummaryUrl ? String(data.scanSoilMoistureSummaryUrl) : '';
@@ -378,6 +394,8 @@ __PT_OPS_LIVE_USGS_GROUNDWATER_HELPERS_JS__
 
 __PT_OPS_LIVE_SCAN_HELPERS_JS__
 
+__PT_OPS_LIVE_DENDRA_HELPERS_JS__
+
 __PT_OPS_LIVE_SNOW_PILLOW_HELPERS_JS__
 
 __PT_OPS_LIVE_DELTA_OPS_HELPERS_JS__
@@ -416,6 +434,7 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
     "__PT_OPS_LIVE_USGS_STREAMFLOW_HELPERS_JS__" = "pt_ops_live_usgs_streamflow_js",
     "__PT_OPS_LIVE_USGS_GROUNDWATER_HELPERS_JS__" = "pt_ops_live_usgs_groundwater_js",
     "__PT_OPS_LIVE_SCAN_HELPERS_JS__" = "pt_ops_live_scan_js",
+    "__PT_OPS_LIVE_DENDRA_HELPERS_JS__" = "pt_ops_live_dendra_js",
     "__PT_OPS_LIVE_SNOW_PILLOW_HELPERS_JS__" = "pt_ops_live_snow_pillow_js",
     "__PT_OPS_LIVE_DELTA_OPS_HELPERS_JS__" = "pt_ops_live_delta_ops_js",
     "__PT_OPS_LIVE_CNRFC_FORECAST_POINTS_HELPERS_JS__" = "pt_ops_live_cnrfc_forecast_points_js",
@@ -551,6 +570,11 @@ __PT_OPS_LIVE_PANEL_HELPERS_JS__
       } else {
         ""
       },
+      soilMoistureShared = isTRUE(map_display$ops_soil_moisture_shared),
+      soilMoistureIndexes = if (!is.null(map_display$ops_soil_moisture_indexes)) map_display$ops_soil_moisture_indexes else list(),
+      soilMoistureSnotelPilot = isTRUE(map_display$ops_soil_moisture_snotel_pilot),
+      includeDendraDaily = isTRUE(map_display$add_ops_dendra_daily),
+      dendraDailyIndexUrl = if (!is.null(map_display$ops_dendra_daily_index_url)) map_display$ops_dendra_daily_index_url else "",
       includeScanSoilMoistureLatest = if (!is.null(map_display$add_ops_scan_soil_moisture_latest)) {
         isTRUE(map_display$add_ops_scan_soil_moisture_latest)
       } else {

@@ -29,6 +29,8 @@ pt_ops_live_guide_identity_registry <- function() {
     "Streamflow | USGS | Ca",
     "Groundwater | USGS | Ca/wrnNv/srnOr",
     "Soil moisture | USDA NRCS SCAN | Ca/Nv",
+    "Soil moisture | dendra | selected stations",
+    "Soil moisture | SNOTEL | pilot",
     "Snow pillow SWE | CDEC / USDA NRCS | Ca/Nv/Or",
     "NWS Surface Wind Barbs",
     "CNRFC forecast points | river/reservoir",
@@ -82,6 +84,8 @@ pt_ops_live_guide_identity_registry <- function() {
     "ops_streamflow_usgs_ca",
     "product-ops-usgs-groundwater",
     "ops_scan_soil_moisture",
+    "ops_dendra_daily",
+    "ops_snotel_soil_moisture_pilot",
     "ops_snow_pillow_swe",
     "ops_nws_surface_wind_barbs",
     "ops_cnrfc_forecast_points",
@@ -127,6 +131,8 @@ pt_ops_live_guide_identity_registry <- function() {
     "Streamflow | USGS | Ca" = "add_ops_usgs_streamflow_latest",
     "Groundwater | USGS | Ca/wrnNv/srnOr" = "add_ops_usgs_groundwater_latest",
     "Soil moisture | USDA NRCS SCAN | Ca/Nv" = "add_ops_scan_soil_moisture_latest",
+    "Soil moisture | dendra | selected stations" = "add_ops_dendra_daily",
+    "Soil moisture | SNOTEL | pilot" = "ops_soil_moisture_snotel_pilot",
     "Snow pillow SWE | CDEC / USDA NRCS | Ca/Nv/Or" = "add_ops_snow_pillow_latest",
     "CNRFC forecast points | river/reservoir" = "add_ops_cnrfc_river_reservoir_forecast_points",
     "Major Water-Supply Basin Forecasts" = "add_ops_major_water_supply_basin_forecasts",
@@ -147,7 +153,10 @@ pt_ops_live_guide_identity_registry <- function() {
     stable_id = stable_id,
     source_token = source_token,
     map_display_flag = unname(flag_by_token[source_token]),
-    included_by_default = source_token != "NWS Surface Wind Barbs",
+    included_by_default = !source_token %in% c("NWS Surface Wind Barbs", "Soil moisture | dendra | selected stations", "Soil moisture | SNOTEL | pilot"),
+    # Explicit presentation authority for opt-in prepared products only.
+    # This does not add them to the default Guide corpus or activate a layer.
+    optional_delivery_class = ifelse(stable_id %in% c("ops_dendra_daily", "ops_snotel_soil_moisture_pilot"), "brim_managed", NA_character_),
     stringsAsFactors = FALSE,
     check.names = FALSE
   )
@@ -690,6 +699,16 @@ pt_ops_live_layer_definition_js <- function() {
   }
 
 
+  if (includeDendraDaily && DENDRA_DAILY_INDEX_URL) {
+    addOpsLayer({
+      category: 'Hydro Observations', subgroup: 'Flows / levels / snow / moisture / etc',
+      name: 'Soil moisture | dendra | selected stations',
+      sourceUrl: DENDRA_DAILY_INDEX_URL, infoUrl: DENDRA_DAILY_INDEX_URL, infoLabel: 'prepared index',
+      brimPrepared: true, unifiedCard: true,
+      layer: soilMoistureShared && soilMoistureIndexes.dendra ? makeSoilMoistureLayer('dendra','Soil moisture | dendra | selected stations',soilMoistureIndexes.dendra) : makeDendraLayer({name:'Soil moisture | dendra | selected stations', indexUrl:DENDRA_DAILY_INDEX_URL})
+    });
+  }
+
   if (includeScanSoilMoistureLatest && SCAN_SOIL_MOISTURE_LATEST_URL) {
     addOpsLayer({
       category: 'Hydro Observations',
@@ -698,7 +717,8 @@ pt_ops_live_layer_definition_js <- function() {
       sourceUrl: SCAN_SOIL_MOISTURE_LATEST_URL,
       infoUrl: SCAN_SOIL_MOISTURE_SUMMARY_URL || SCAN_SOIL_MOISTURE_LATEST_URL,
       infoLabel: SCAN_SOIL_MOISTURE_SUMMARY_URL ? 'summary' : 'GeoJSON',
-      layer: makeScanSoilMoistureLayer({
+      brimPrepared: true, unifiedCard: soilMoistureShared,
+      layer: soilMoistureShared && soilMoistureIndexes.scan ? makeSoilMoistureLayer('scan','Soil moisture | USDA NRCS SCAN | Ca/Nv',soilMoistureIndexes.scan) : makeScanSoilMoistureLayer({
         name: 'Soil moisture | USDA NRCS SCAN | Ca/Nv',
         latestUrl: SCAN_SOIL_MOISTURE_LATEST_URL,
         summaryUrl: SCAN_SOIL_MOISTURE_SUMMARY_URL,
@@ -713,6 +733,13 @@ pt_ops_live_layer_definition_js <- function() {
     });
   }
 
+
+  if (soilMoistureShared && soilMoistureSnotelPilot && soilMoistureIndexes.snotel) {
+    addOpsLayer({category:'Hydro Observations', subgroup:'Flows / levels / snow / moisture / etc',
+      name:'Soil moisture | SNOTEL | pilot', sourceUrl:soilMoistureIndexes.snotel,
+      brimPrepared:true, unifiedCard:true,
+      layer:makeSoilMoistureLayer('snotel','Soil moisture | SNOTEL | pilot',soilMoistureIndexes.snotel)});
+  }
 
   if (includeSnowPillowLatest && SNOW_PILLOW_LATEST_URL) {
     addOpsLayer({

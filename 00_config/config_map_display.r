@@ -142,6 +142,15 @@ MAP_DISPLAY <- list(
   ## current-WY trace are built by the brim-live-data-feeds GitHub workflow.
   ## Historical/context CSVs are compact local-preprocessor outputs copied to
   ## the GitHub Pages /data folder for browser-side popup plots.
+  ## SM1 common card and SNOTEL pilot are review-only opt-ins; no assumed URLs.
+  ops_soil_moisture_shared = FALSE,
+  ops_soil_moisture_snotel_pilot = FALSE,
+  ops_soil_moisture_indexes = list(),
+
+  ## Dendra uses a reviewed prepared index. Remains opt-in until hosting approval.
+  add_ops_dendra_daily = FALSE,
+  ops_dendra_daily_index_url = "",
+
   add_ops_scan_soil_moisture_latest = TRUE,
   ops_scan_soil_moisture_latest_url = brim_live_feed_url("data/scan_soil_moisture_latest.geojson"),
   ops_scan_soil_moisture_summary_url = brim_live_feed_url("data/scan_soil_moisture_latest_summary.json"),
@@ -284,6 +293,21 @@ MAP_DISPLAY <- list(
     "Core – BLM-CA Managed"
   )
 )
+
+# Explicit build-session overrides survive the final builder re-sourcing this
+# configuration. Defaults above remain the ordinary standalone-map settings.
+map_display_overrides <- getOption("brim.map_display_overrides", list())
+if (!is.list(map_display_overrides) ||
+    (length(map_display_overrides) &&
+     (is.null(names(map_display_overrides)) ||
+      anyNA(names(map_display_overrides)) ||
+      any(!nzchar(names(map_display_overrides))) ||
+      anyDuplicated(names(map_display_overrides)) ||
+      any(!names(map_display_overrides) %in% names(MAP_DISPLAY))))) {
+  stop("brim.map_display_overrides must be a uniquely named list of existing MAP_DISPLAY settings.")
+}
+MAP_DISPLAY[names(map_display_overrides)] <- map_display_overrides
+rm(map_display_overrides)
 
 # ==== 2. Console confirmation ================================================
 

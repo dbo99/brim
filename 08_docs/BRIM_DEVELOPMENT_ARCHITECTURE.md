@@ -211,8 +211,12 @@ existing Ops R wrapper reads that local registry at build time and joins by
 stable Product ID through `pt_ops_live_guide_identity_registry()`. The compact
 ID/source-token/class projection enters the existing `htmlwidgets::onRender`
 data. The definition helper resolves the four existing runtime constants when
-each row registers; no second M/E list, browser Guide dependency, network lookup,
-or runtime class inference is involved. Guide compilation and relationship
+each row registers; no browser Guide dependency, network lookup, or runtime class inference is
+involved. The two opt-in prepared soil layers (dendra and SNOTEL pilot) remain
+outside the default Guide Product corpus. Their existing identity registry owns
+explicit `optional_delivery_class = brim_managed` values, appended by the same
+validated build-time projection. Optional/default authority overlaps fail. They
+use the existing BRIM-M renderer without adding Guide Products or enabling feeds. Guide compilation and relationship
 presentations continue to use the same registry. Unlinked Products can have a
 valid delivery classification without a public Resource relationship.
 
@@ -1280,3 +1284,55 @@ A feature is not complete until focused tests prove:
 - realistic mounted-browser behavior;
 - human visual acceptance;
 - production smoke acceptance after deployment.
+
+### Optional Dendra Ops consumer
+
+The stable `pt_add_ops_live_layers()` entry point now has an opt-in Dendra module;
+its default flag is false and its URL is explicitly configured. The module uses
+the shared layer definition/panel and unified-card lifecycle, with its own bounded
+static-data reader. Existing Ops and Tools Clear All dispatch remains authoritative.
+Daily scientific calculations stay in the separate feed repository's R producer;
+the consumer preserves the accepted map-lab display core for charts and calendar
+behavior. See `integrations/LIVE_DATA_FEEDS.md` for schema, lazy loading, freshness,
+exact-depth companion and focused-build constraints. No cache preprocessor or
+production synchronization is part of this consumer integration.
+
+The shared soil-moisture review controller also accepts explicitly versioned
+Dendra archive catalogs and bounded common catalog shards. It retains the same
+Ops registration, panes, legend and applied-search/filter engine. Archive storage
+and daily science remain producer-owned; the consumer selects default or acquired
+history without redefining retention or source statistics. The version-1 reader
+remains available for accepted frozen examples. Exact version-2 bounds and source
+activation rules are in `integrations/LIVE_DATA_FEEDS.md`. This remains opt-in
+local review behavior, with no production destination or schedule activation.
+
+The shared soil controller is also the sole owner of the compact controls and
+persistent map key. Both project the same applied selection; source switches and the key/header
+sit above the scrolling filters/results. The final source-off tears down the
+shared controls and timers; marker provider shapes remain independent of metric
+color. One shared rich hover replaces native marker titles; the controller
+closes its owner before redraw, replacement, removal and popup transitions.
+The primary mode row offers Moisture, Wetting / Drying and capability-gated
+Context; Coverage lives under Advanced. Context remains disabled until a fixed
+source reference adapter is connected. Visible absolute VWC bounds use only
+explicit normalized percent eligibility, with age/depth/value tested on the
+same qualifying sensor. Normal popups use compact station/sensor/value/chart presentation with
+technical metadata collapsed. `soil_moisture_depths.js` owns explicit inclusive nominal
+intervals and range steps, `soil_moisture_ui.js` supplies escaped presentation,
+and `soil_moisture_charts.js` renders retained source rows without deriving new
+statistics. These modules are included by the existing Ops dendra assembly.
+Dendra keeps its native reader/scientific core and full daily/WY exploration;
+SCAN's presentation adapter preserves its monthly/daily reference products and
+source water-day coordinate. SNOTEL does not acquire unsupported years or bands.
+Sensor selection coherently changes popup value/plot/export while leaving the
+shared map sensor unchanged. Range predicates require an eligible sensor within
+scope, using stable primary/rank/ID selection, with advanced exact Any/Every
+preserved. Details and deferred D3/B17 science/data capabilities are documented in
+`integrations/LIVE_DATA_FEEDS.md`; native visual acceptance remains required.
+
+At widths up to 600 px, shared soil station popups temporarily take interaction
+priority over background map tools. The shared soil presentation module hides
+map-container tool siblings and the body-mounted Ops ribbon while an owned
+popup is open, restoring them on popup close (before any fade-out completes).
+This preserves tool geometry/expanded state and leaves desktop/tablet stacking,
+Leaflet panes, station content and source lifecycles unchanged.

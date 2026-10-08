@@ -574,5 +574,6 @@
     };
   }
 
-  return {create: create};
+  // Additive pure export for Ops soil moisture; existing category/search behavior unchanged.
+  return {create: create, normalizeSearch: clean};
 }));
